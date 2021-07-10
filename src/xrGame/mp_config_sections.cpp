@@ -11,7 +11,7 @@ static char* important_sections[] =
 	"mp_actor_damage",
 	"mp_actor_immunities",
 	"mp_actor_condition",
-	"rank_base",
+	/*"rank_base",
 	"rank_0",
 	"rank_1",
 	"rank_2",
@@ -30,11 +30,12 @@ static char* important_sections[] =
 	"deathmatch_base_cost",
 	"mp_bonus_money",
 	"mp_bonus_exp"
+	*/
 };
 
-mp_config_sections::mp_config_sections() :
-	m_tmp_dumper(NULL, FALSE, FALSE, FALSE)
+mp_config_sections::mp_config_sections() :	m_tmp_dumper(NULL, FALSE, FALSE, FALSE)
 {
+	/*
 	u32		gcount	=  pSettings->line_count("mp_item_groups");
 	LPCSTR	line;
 	LPCSTR	name;
@@ -48,11 +49,13 @@ mp_config_sections::mp_config_sections() :
 			m_mp_sections.push_back(_GetItem(line, j, tmp_single_item));
 		}
 	}
+	*/
 	for (int i = 0; i < (sizeof(important_sections) / sizeof(char*)); ++i)
 	{
 		m_mp_sections.push_back(shared_str(important_sections[i]));
 	}
 	m_current_dump_sect = m_mp_sections.end();
+	
 }
 
 mp_config_sections::~mp_config_sections()
@@ -61,7 +64,7 @@ mp_config_sections::~mp_config_sections()
 
 void mp_config_sections::start_dump	()
 {
-	m_current_dump_sect = m_mp_sections.begin();
+	//m_current_dump_sect = m_mp_sections.begin();
 }
 
 bool mp_config_sections::dump_one	(CMemoryWriter & dest)

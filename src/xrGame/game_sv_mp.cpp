@@ -1601,8 +1601,8 @@ void game_sv_mp::OnPlayerHitted(NET_Packet &P)
 	if (PSHitted == PSHitter) return;
 	if (!CheckTeams() || (PSHitted->team != PSHitter->team))
 	{
-		Rank_Struct* pCurRank = &(m_aRanks[PSHitter->rank]);
-		Player_AddExperience(PSHitter, dHealth*pCurRank->m_aRankDiff_ExpBonus[PSHitted->rank]);
+		//Rank_Struct* pCurRank = &(m_aRanks[PSHitter->rank]);
+		//Player_AddExperience(PSHitter, dHealth*pCurRank->m_aRankDiff_ExpBonus[PSHitted->rank]);
 	};
 };
 	
@@ -1766,10 +1766,10 @@ void	game_sv_mp::Player_AddExperience	(game_PlayerState* ps, float Exp)
 bool	game_sv_mp::Player_Check_Rank		(game_PlayerState* ps)
 {
 	if (!ps) return false;
-	if (ps->rank==m_aRanks.size()-1) return false;
-	int NextExp = m_aRanks[ps->rank+1].m_iTerms[0];
-	if ((ps->experience_Real+ps->experience_New) < NextExp) return false;
-	return true;
+	//if (ps->rank==m_aRanks.size()-1) return false;
+	//int NextExp = m_aRanks[ps->rank+1].m_iTerms[0];
+	//if ((ps->experience_Real+ps->experience_New) < NextExp) return false;
+	return false;
 }
 
 void	game_sv_mp::Player_Rank_Up		(game_PlayerState* ps)
@@ -1780,8 +1780,8 @@ void	game_sv_mp::Player_Rank_Up		(game_PlayerState* ps)
 	
 	
 	ps->rank++;
-	Player_AddBonusMoney(ps, m_aRanks[ps->rank].m_iBonusMoney, SKT_NEWRANK);
-	Player_ExperienceFin(ps);
+	//Player_AddBonusMoney(ps, m_aRanks[ps->rank].m_iBonusMoney, SKT_NEWRANK);
+	//Player_ExperienceFin(ps);
 };
 
 void	game_sv_mp::Player_ExperienceFin	(game_PlayerState* ps)

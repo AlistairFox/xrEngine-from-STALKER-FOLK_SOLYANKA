@@ -13,7 +13,7 @@ shared_str	g_ranks[_RANK_COUNT];
 u32 get_rank(const shared_str &section)
 {
 	int res = -1;
-	if( g_ranks[0].size()==0 )
+/*	if( g_ranks[0].size()==0 )
 	{ //load
 		string32			buff;
 		for (int i = 0; i<_RANK_COUNT; i++)
@@ -33,6 +33,8 @@ u32 get_rank(const shared_str &section)
 
 	R_ASSERT3	(res!=-1,"cannot find rank for", section.c_str());
 	return		res;
+	*/
+	return 0;
 }
 
 CRestrictions::CRestrictions()
@@ -47,8 +49,9 @@ CRestrictions::~CRestrictions()
 void CRestrictions::InitGroups()
 {
 	if (m_bInited)			return;
-	m_bInited				= true;
+		m_bInited				= true;
 
+	/*
 	// create groups
 	u32 c					=  pSettings->line_count("mp_item_groups");
 	LPCSTR					line, name;
@@ -59,7 +62,7 @@ void CRestrictions::InitGroups()
 		AddGroup			(name, line);
 	}
 
-
+	
 	// try to find restrictions in every rank
 
 	AddRestriction4rank			(_RANK_COUNT, pSettings->r_string("rank_base", "amount_restriction"));
@@ -72,6 +75,7 @@ void CRestrictions::InitGroups()
         AddRestriction4rank	(i, pSettings->r_string(rank, "amount_restriction"));
 		m_names[i]			= CStringTable().translate( pSettings->r_string(rank, "rank_name"));
 	}
+	*/
 
 #ifndef MASTER_GOLD
 	Dump();
