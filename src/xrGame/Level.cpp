@@ -740,7 +740,10 @@ void CLevel::OnFrame	()
 #ifdef DEBUG
 	g_pGamePersistent->Environment().m_paused		= m_bEnvPaused;
 #endif
-	g_pGamePersistent->Environment().SetGameTime	(GetEnvironmentGameDayTimeSec(),game->GetEnvironmentGameTimeFactor());
+	if (OnServer())
+		g_pGamePersistent->Environment().SetGameTime	(GetEnvironmentGameDayTimeSec(),game->GetEnvironmentGameTimeFactor());
+	else
+		g_pGamePersistent->Environment().SetGameTimeWFX (GetEnvironmentGameDayTimeSec(), game->GetEnvironmentGameTimeFactor());
 
 	//Device.Statistic->cripting.Begin	();
 	ai().script_engine().script_process	(ScriptEngine::eScriptProcessorLevel)->update();

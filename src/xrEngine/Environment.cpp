@@ -266,6 +266,12 @@ void CEnvironment::SetGameTime(float game_time, float time_factor)
 	fTimeFactor				= time_factor;	
 }
 
+void CEnvironment::SetGameTimeWFX(float game_time, float time_factor)
+{
+	fGameTime = game_time;
+	fTimeFactor = time_factor;
+}
+
 float CEnvironment::NormalizeTime(float tm)
 {
 	if (tm<0.f)				return tm+DAY_LENGTH;

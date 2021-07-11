@@ -155,7 +155,7 @@ void CMovementManager::update_path				()
 {
 	START_PROFILE("Build Path::update")
 
-	if (!enabled() || wait_for_distributed_computation())
+	if (!enabled()) //|| wait_for_distributed_computation()
 		return;
 
 	if (!game_path().evaluator())

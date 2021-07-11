@@ -1417,7 +1417,11 @@ struct CCC_TimeFactorSingle : public CCC_Float {
 	virtual void	Execute	(LPCSTR args)
 	{
 		CCC_Float::Execute	(args);
-		
+		//u32 hours = 0, mins = 0;
+
+		//sscanf(args, "%d:%d", &hours, &mins);
+		u64 NewTime = generate_time(1, 10, 2025, 9, 1, 0, 0);
+
 		if (!g_pGameLevel)
 			return;
 
@@ -1427,7 +1431,11 @@ struct CCC_TimeFactorSingle : public CCC_Float {
 		if (!Level().Server->game)
 			return;
 
-		Level().SetGameTimeFactor(g_fTimeFactor);
+		Msg("TimeFactor[%d]", g_fTimeFactor);
+		if (Level().Server) {
+			Level().Server->game->SetGameTimeFactor(NewTime, g_fTimeFactor);
+			Level().Server->game->SetEnvironmentGameTimeFactor(NewTime, g_fTimeFactor);
+		}
 	}
 
 };
@@ -2163,9 +2171,10 @@ CMD4(CCC_FloatBlock,		"dbg_text_height_scale",	&dbg_text_height_scale	,			0.2f	,
 
 #ifndef MASTER_GOLD
 	CMD1(CCC_StartTimeSingle,	"start_time_single");
-	CMD4(CCC_TimeFactorSingle,	"time_factor_single", &g_fTimeFactor, 0.f, 1000.0f);
+	
 #endif // MASTER_GOLD
 
+	CMD4(CCC_TimeFactorSingle, "time_factor_single", &g_fTimeFactor, 0.f, 1000.0f);
 
 	g_uCommonFlags.zero();
 	g_uCommonFlags.set(flAiUseTorchDynamicLights, TRUE);

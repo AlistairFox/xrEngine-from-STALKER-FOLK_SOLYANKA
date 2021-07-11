@@ -2593,6 +2593,36 @@ public:
 	}
 };
 
+
+class CCC_AdmSurgeStart : public IConsole_Command {
+public:
+	CCC_AdmSurgeStart(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
+
+	virtual void Execute(LPCSTR args)
+	{
+		if (OnServer())
+		{
+			NET_Packet		P;
+			P.w_begin(M_SCRIPT_EVENT);
+			P.w_u8(8);
+			Level().Send(P, net_flags(TRUE, TRUE));
+		}
+		else
+		{
+			NET_Packet		P;
+			P.w_begin(M_REMOTE_CONTROL_CMD);
+			string128 str;
+			xr_sprintf(str, "sv_surge");
+			P.w_stringZ(str);
+			Level().Send(P, net_flags(TRUE, TRUE));
+		}
+	}
+};
+
+
+
+
+
 void register_mp_console_commands()
 {
 	CMD1(CCC_SpawnToInventory,		"sv_spawn_to_player_inv");
@@ -2823,4 +2853,9 @@ void register_mp_console_commands()
 	CMD1(CCC_GameSpyProfile,				"gs_profile");
 	CMD4(CCC_Integer,						"sv_write_update_bin",				&g_sv_write_updates_bin, 0, 1);
 	CMD4(CCC_Integer,						"sv_traffic_optimization_level",	(int*)&g_sv_traffic_optimization_level, 0, 7);
+
+
+	CMD1(CCC_AdmSurgeStart, "sv_surge");
+
+
 }

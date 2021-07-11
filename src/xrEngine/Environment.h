@@ -312,6 +312,7 @@ public:
     shared_str				GetWeather			()					{ return CurrentWeatherName;}
 	void					ChangeGameTime		(float game_time);
 	void					SetGameTime			(float game_time, float time_factor);
+	void					SetGameTimeWFX(float game_time, float time_factor);
 
 	void					OnDeviceCreate		();
 	void					OnDeviceDestroy		();

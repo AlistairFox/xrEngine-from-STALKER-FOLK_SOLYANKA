@@ -46,8 +46,15 @@ game_cl_GameState::~game_cl_GameState()
 	xr_delete(local_player);
 }
 
+float old_time_env = 0;
+bool just_Connected = true;
+bool drawTime = false;
+
+u32 dwTimeStart = 0;
+
 void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 {
+	/*
 	u64				GameTime;
 	P.r_u64			(GameTime);
 	float			TimeFactor;
@@ -64,6 +71,72 @@ void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 	Level().SetEnvironmentGameTimeFactor	(GameEnvironmentTime,EnvironmentTimeFactor);
 	if (OldTime > GameEnvironmentTime)
 		GamePersistent().Environment().Invalidate();
+	*/
+
+	u64				GameTime;
+	P.r_u64(GameTime);
+	float			TimeFactor;
+	P.r_float(TimeFactor);
+
+	Level().SetGameTimeFactor(GameTime, TimeFactor);
+
+	u64				GameEnvironmentTime;
+	P.r_u64(GameEnvironmentTime);
+	float			EnvironmentTimeFactor;
+	P.r_float(EnvironmentTimeFactor);
+
+	u64 OldTime = Level().GetEnvironmentGameTime();
+
+	float wfx_time;
+	P.r_float(wfx_time);
+
+	shared_str name;
+	P.r_stringZ(name);
+
+//	Msg("Name[%s] Time[%d]", name.c_str(), wfx_time);
+
+	Level().SetEnvironmentGameTimeFactor(GameEnvironmentTime, EnvironmentTimeFactor);
+
+	if (old_time_env != EnvironmentTimeFactor)
+	{
+		GamePersistent().Environment().Invalidate();
+		GamePersistent().Environment().SetGameTime(GameEnvironmentTime, EnvironmentTimeFactor);
+		old_time_env = EnvironmentTimeFactor;
+ 	}
+
+	if (OnClient())
+	{
+		if (just_Connected)
+		{
+			drawTime = true;
+			dwTimeStart = Device.dwTimeGlobal;
+			just_Connected = false;
+		}
+
+		if (drawTime)
+		{
+			GamePersistent().Environment().Invalidate();
+
+			if (Device.dwTimeGlobal - dwTimeStart > 1000)
+				drawTime = false;
+
+		}
+		 
+		if (xr_strcmp(GamePersistent().Environment().CurrentWeatherName, name))
+		{
+			if (wfx_time > 0)
+			{
+				GamePersistent().Environment().SetWeatherFX(name);
+			}
+			else
+			{
+				Msg("Weather Set[%s]", name.c_str());
+				GamePersistent().Environment().SetWeather(name, false);
+			}
+		}
+
+		g_pGamePersistent->Environment().wfx_time = wfx_time;
+	}
 }
 
 struct not_exsiting_clients_deleter

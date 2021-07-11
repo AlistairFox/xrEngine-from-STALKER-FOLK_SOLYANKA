@@ -338,18 +338,30 @@ void game_sv_GameState::net_Export_Update(NET_Packet& P, ClientID id_to, ClientI
 	};
 	net_Export_GameTime			(P);
 };
+float old_time_env_sv = 0;
 
 void game_sv_GameState::net_Export_GameTime						(NET_Packet& P)
 {
-//#pragma todo("It should be done via single message, why always pass this data?")
-//#if 0
+ 
 	//Syncronize GameTime 
 	P.w_u64(GetGameTime());
 	P.w_float(GetGameTimeFactor());
 	//Syncronize EnvironmentGameTime 
+
+	if (old_time_env_sv != GetEnvironmentGameTimeFactor())
+	{
+		Msg("Import GameState Time [%d][%f]", GetEnvironmentGameTime(), GetEnvironmentGameTimeFactor());
+		old_time_env_sv = GetEnvironmentGameTimeFactor();
+	}
+
 	P.w_u64(GetEnvironmentGameTime());
 	P.w_float(GetEnvironmentGameTimeFactor());
-//#endif
+
+	P.w_float(g_pGamePersistent->Environment().wfx_time);
+	P.w_stringZ(g_pGamePersistent->Environment().CurrentWeatherName);
+	
+	//Msg("Name[%s] Time[%d]", g_pGamePersistent->Environment().CurrentWeatherName.c_str(), g_pGamePersistent->Environment().wfx_time);
+
 };
 
 
