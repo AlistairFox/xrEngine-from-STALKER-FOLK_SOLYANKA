@@ -56,6 +56,8 @@ void CALifeSimulatorBase::register_object	(CSE_ALifeDynamicObject *object, bool 
 
 void CALifeSimulatorBase::unregister_object	(CSE_ALifeDynamicObject *object, bool alife_query)
 {
+	if (object == nullptr) return;
+
 	object->on_unregister				();
 
 	CSE_ALifeInventoryItem				*item = smart_cast<CSE_ALifeInventoryItem*>(object);
