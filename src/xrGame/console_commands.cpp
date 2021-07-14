@@ -1420,7 +1420,7 @@ struct CCC_TimeFactorSingle : public CCC_Float {
 		//u32 hours = 0, mins = 0;
 
 		//sscanf(args, "%d:%d", &hours, &mins);
-		u64 NewTime = generate_time(1, 10, 2025, 9, 1, 0, 0);
+		//u64 NewTime = generate_time(1, 10, 2025, 9, 1, 0, 0);
 
 		if (!g_pGameLevel)
 			return;
@@ -1432,9 +1432,10 @@ struct CCC_TimeFactorSingle : public CCC_Float {
 			return;
 
 		Msg("TimeFactor[%d]", g_fTimeFactor);
+
 		if (Level().Server) {
-			Level().Server->game->SetGameTimeFactor(NewTime, g_fTimeFactor);
-			Level().Server->game->SetEnvironmentGameTimeFactor(NewTime, g_fTimeFactor);
+			Level().Server->game->SetGameTimeFactor(Level().Server->game->GetGameTime(), g_fTimeFactor);
+			Level().Server->game->SetEnvironmentGameTimeFactor(Level().Server->game->GetGameTime(), g_fTimeFactor);
 		}
 	}
 
@@ -1857,11 +1858,11 @@ void CCC_RegisterCommands()
 	CMD3(CCC_Mask,				"hud_crosshair",		&psHUD_Flags,	HUD_CROSSHAIR);
 	CMD3(CCC_Mask,				"hud_crosshair_dist",	&psHUD_Flags,	HUD_CROSSHAIR_DIST);
 
-#ifdef DEBUG
+//#ifdef DEBUG
 	CMD4(CCC_Float,				"hud_fov",				&psHUD_FOV,		0.1f,	1.0f);
-#endif // DEBUG
+//#endif // DEBUG
 
-	CMD4(CCC_Float, "fov", &g_fov, 5.0f, 180.0f);
+	CMD4(CCC_Float, "fov", &g_fov, 5.0f, 120.0f);
 
 	// Demo
 #if 1//ndef MASTER_GOLD
