@@ -279,7 +279,7 @@ void CUIWeaponCellItem::Update()
 				DestroyIcon(eSilencer);
 		}
 	}
-
+	if (false)
 	if (object()->ScopeAttachable()){
 		if (object()->IsScopeAttached())
 		{
