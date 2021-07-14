@@ -884,7 +884,7 @@ bool CWeaponMagazined::Attach(PIItem pIItem, bool b_send_event)
 //.			pIItem->Drop					();
 			pIItem->object().DestroyObject	();
 		};
-
+		UpdateAltScope();
 		UpdateAddonsVisibility();
 		InitAddons();
 
@@ -912,8 +912,7 @@ bool CWeaponMagazined::DetachScope(const char* item_section_name, bool b_spawn_i
 
 bool CWeaponMagazined::Detach(const char* item_section_name, bool b_spawn_item)
 {
-	if(		m_eScopeStatus == ALife::eAddonAttachable &&
-			DetachScope(item_section_name, b_spawn_item))
+	if(		m_eScopeStatus == ALife::eAddonAttachable && DetachScope(item_section_name, b_spawn_item))
 	{
 		if ((m_flagsAddOnState & CSE_ALifeItemWeapon::eWeaponAddonScope) == 0)
 		{
@@ -921,14 +920,13 @@ bool CWeaponMagazined::Detach(const char* item_section_name, bool b_spawn_item)
 			return true;
 		}
 		m_flagsAddOnState &= ~CSE_ALifeItemWeapon::eWeaponAddonScope;
-		
+		UpdateAltScope();
 		UpdateAddonsVisibility();
 		InitAddons();
 
 		return CInventoryItemObject::Detach(item_section_name, b_spawn_item);
 	}
-	else if(m_eSilencerStatus == ALife::eAddonAttachable &&
-			(m_sSilencerName == item_section_name))
+	else if(m_eSilencerStatus == ALife::eAddonAttachable && (m_sSilencerName == item_section_name))
 	{
 		if ((m_flagsAddOnState & CSE_ALifeItemWeapon::eWeaponAddonSilencer) == 0)
 		{
@@ -941,8 +939,7 @@ bool CWeaponMagazined::Detach(const char* item_section_name, bool b_spawn_item)
 		InitAddons();
 		return CInventoryItemObject::Detach(item_section_name, b_spawn_item);
 	}
-	else if(m_eGrenadeLauncherStatus == ALife::eAddonAttachable &&
-			(m_sGrenadeLauncherName == item_section_name))
+	else if(m_eGrenadeLauncherStatus == ALife::eAddonAttachable && (m_sGrenadeLauncherName == item_section_name))
 	{
 		if ((m_flagsAddOnState & CSE_ALifeItemWeapon::eWeaponAddonGrenadeLauncher) == 0)
 		{
@@ -977,21 +974,33 @@ void CWeaponMagazined::InitAddons()
 			//m_scopes[cur_scope]->m_iScopeX	 = pSettings->r_s32(cNameSect(),"scope_x");
 			//m_scopes[cur_scope]->m_iScopeY	 = pSettings->r_s32(cNameSect(),"scope_y");
 
-			scope_tex_name						= pSettings->r_string(GetScopeName(), "scope_texture");
+			
 			m_zoom_params.m_fScopeZoomFactor	= pSettings->r_float( GetScopeName(), "scope_zoom_factor");
 			m_zoom_params.m_sUseZoomPostprocess	= READ_IF_EXISTS(pSettings,r_string,GetScopeName(), "scope_nightvision", 0);
 			m_zoom_params.m_bUseDynamicZoom		= READ_IF_EXISTS(pSettings,r_bool,GetScopeName(),"scope_dynamic_zoom",FALSE);
 			m_zoom_params.m_sUseBinocularVision	= READ_IF_EXISTS(pSettings,r_string,GetScopeName(),"scope_alive_detector",0);
-			if ( m_UIScope )
+			
+			if (pSettings->line_exist(GetScopeName(), "scope_texture"))
 			{
-				xr_delete( m_UIScope );
-			}
+				scope_tex_name = pSettings->r_string(GetScopeName(), "scope_texture");
+				if (m_UIScope)
+				{
+					xr_delete(m_UIScope);
+				}
 
-			if ( !g_dedicated_server )
+				if (!g_dedicated_server)
+				{
+					m_UIScope = xr_new<CUIWindow>();
+					createWpnScopeXML();
+					CUIXmlInit::InitWindow(*pWpnScopeXml, scope_tex_name.c_str(), 0, m_UIScope);
+				}
+			}
+			else
 			{
-				m_UIScope				= xr_new<CUIWindow>();
-				createWpnScopeXML		();
-				CUIXmlInit::InitWindow	(*pWpnScopeXml, scope_tex_name.c_str(), 0, m_UIScope);
+				if (m_UIScope)
+				{
+					xr_delete(m_UIScope);
+				}
 			}
 		}
 	}

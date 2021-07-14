@@ -410,17 +410,30 @@ void CWeapon::Load		(LPCSTR section)
 	}
 	else if( m_eScopeStatus == ALife::eAddonPermanent )
 	{
-		shared_str scope_tex_name			= pSettings->r_string(cNameSect(), "scope_texture");
-		m_zoom_params.m_fScopeZoomFactor	= pSettings->r_float( cNameSect(), "scope_zoom_factor");
-		if ( !g_dedicated_server )
+		if (pSettings->line_exist(cNameSect(), "scope_zoom_factor"))
+			m_zoom_params.m_fScopeZoomFactor = pSettings->r_float(cNameSect(), "scope_zoom_factor");
+
+		if (pSettings->line_exist(cNameSect(), "scope_texture"))
 		{
-			m_UIScope				= xr_new<CUIWindow>();
-			if(!pWpnScopeXml)
+			shared_str scope_tex_name = pSettings->r_string(cNameSect(), "scope_texture");
+
+			if (!g_dedicated_server)
 			{
-				pWpnScopeXml			= xr_new<CUIXml>();
-				pWpnScopeXml->Load		(CONFIG_PATH, UI_PATH, "scopes.xml");
+				m_UIScope = xr_new<CUIWindow>();
+				if (!pWpnScopeXml)
+				{
+					pWpnScopeXml = xr_new<CUIXml>();
+					pWpnScopeXml->Load(CONFIG_PATH, UI_PATH, "scopes.xml");
+				}
+				CUIXmlInit::InitWindow(*pWpnScopeXml, scope_tex_name.c_str(), 0, m_UIScope);
 			}
-			CUIXmlInit::InitWindow	(*pWpnScopeXml, scope_tex_name.c_str(), 0, m_UIScope);
+		}
+		else
+		{
+			if (m_UIScope)
+			{
+				xr_delete(m_UIScope);
+			}
 		}
 	}
     
@@ -439,6 +452,7 @@ void CWeapon::Load		(LPCSTR section)
 		m_iGrenadeLauncherY = pSettings->r_s32(section,"grenade_launcher_y");
 	}
 
+	UpdateAltScope();
 	InitAddons();
 	if(pSettings->line_exist(section,"weapon_remove_time"))
 		m_dwWeaponRemoveTime = pSettings->r_u32(section,"weapon_remove_time");
@@ -526,9 +540,10 @@ BOOL CWeapon::net_Spawn		(CSE_Abstract* DC)
 		for(int i = 0; i < iAmmoElapsed; ++i) 
 			m_magazine.push_back(m_DefaultCartridge);
 	}
-
+	UpdateAltScope();
 	UpdateAddonsVisibility();
 	InitAddons();
+
 
 	m_dwWeaponIndependencyTime = 0;
 
@@ -554,7 +569,9 @@ void CWeapon::net_Destroy	()
 
 BOOL CWeapon::IsUpdating()
 {	
-	bool bIsActiveItem = m_pInventory && m_pInventory->ActiveItem()==this;
+	bool bIsActiveItem = m_pInventory && m_pInventory->ActiveItem()==this || H_Parent() && smart_cast<CActor*>(H_Parent());
+
+ 
 	return bIsActiveItem || bWorking;// || IsPending() || getVisible();
 }
 
@@ -572,6 +589,7 @@ void CWeapon::net_Export(NET_Packet& P)
 	P.w_u8					(m_ammoType);
 	P.w_u8					((u8)GetState());
 	P.w_u8					((u8)IsZoomed());
+	P.w_u8					(m_cur_scope);
 }
 
 void CWeapon::net_Import(NET_Packet& P)
@@ -600,6 +618,14 @@ void CWeapon::net_Import(NET_Packet& P)
 
 	u8 Zoom;
 	P.r_u8					((u8)Zoom);
+	
+	P.r_u8(m_cur_scope);
+	
+	if (m_old_scope != m_cur_scope)
+	{
+		UpdateAltScope();
+		m_old_scope = m_cur_scope;
+	}
 
 	if (H_Parent() && H_Parent()->Remote())
 	{
@@ -1244,13 +1270,25 @@ shared_str wpn_grenade_launcher		= "wpn_launcher";
 void CWeapon::UpdateHUDAddonsVisibility()
 {//actor only
 	if(!GetHUDmode())										return;
+	
+	u16 bone_id = HudItemData()->m_model->LL_BoneID(wpn_scope);
 
-//.	return;
-
-	if(ScopeAttachable())
+	if (bone_id != BI_NONE)
 	{
-		HudItemData()->set_bone_visible(wpn_scope, IsScopeAttached() );
+		if (ScopeAttachable())
+		{
+			HudItemData()->set_bone_visible(wpn_scope, IsScopeAttached());
+		}
+
+		if (m_eScopeStatus == ALife::eAddonDisabled)
+		{
+			HudItemData()->set_bone_visible(wpn_scope, FALSE, TRUE);
+		}
 	}
+	else
+		if (m_eScopeStatus == ALife::eAddonPermanent)
+			HudItemData()->set_bone_visible(wpn_scope, TRUE, TRUE);
+
 
 	if(m_eScopeStatus==ALife::eAddonDisabled )
 	{
@@ -1284,6 +1322,56 @@ void CWeapon::UpdateHUDAddonsVisibility()
 
 }
 
+void CWeapon::UpdateAltScope()
+{
+	if (IsScopeAttached())
+	{
+		if (m_eScopeStatus == ALife::eAddonAttachable)
+		{
+			if (pSettings->section_exist(m_scopes[m_cur_scope].c_str()))
+			{
+				if (pSettings->line_exist(m_scopes[m_cur_scope].c_str(), "wpn_visual"))
+				{
+					shared_str name = pSettings->r_string(m_scopes[m_cur_scope].c_str(), "wpn_visual");
+
+					if (name != cNameVisual())
+					{
+						this->cNameVisual_set(name);
+					}
+				}
+
+				if (pSettings->line_exist(m_scopes[m_cur_scope].c_str(), "wpn_hud")) 
+				{
+					shared_str hud_name = pSettings->r_string(m_scopes[m_cur_scope].c_str(), "wpn_hud");
+
+					if (hud_name != hud_sect)
+					{
+						this->hud_sect = hud_name;
+					}
+				}
+
+			}
+		}
+	}
+
+	if (!IsScopeAttached())
+	{
+		if (pSettings->section_exist(cNameSect()))
+		{
+			shared_str name = pSettings->r_string(this->cNameSect_str(), "visual");
+			if (name != cNameVisual())
+				cNameVisual_set(name);
+			
+			shared_str name_hud = pSettings->r_string(this->cNameSect_str(), "hud");
+			if (name_hud != hud_sect)
+			{
+				this->hud_sect = name_hud;
+			}
+			
+		}
+	}
+}
+
 void CWeapon::UpdateAddonsVisibility()
 {
 	IKinematics* pWeaponVisual = smart_cast<IKinematics*>(Visual()); R_ASSERT(pWeaponVisual);
@@ -1294,23 +1382,30 @@ void CWeapon::UpdateAddonsVisibility()
 	pWeaponVisual->CalculateBones_Invalidate				();
 
 	bone_id = pWeaponVisual->LL_BoneID					(wpn_scope);
+	
 	if(ScopeAttachable())
 	{
-		if(IsScopeAttached())
+		
+		if (IsScopeAttached())
 		{
-			if(!pWeaponVisual->LL_GetBoneVisible		(bone_id))
-			pWeaponVisual->LL_SetBoneVisible				(bone_id,TRUE,TRUE);
-		}else{
-			if(pWeaponVisual->LL_GetBoneVisible				(bone_id))
-				pWeaponVisual->LL_SetBoneVisible			(bone_id,FALSE,TRUE);
+			if (!pWeaponVisual->LL_GetBoneVisible(bone_id))
+				pWeaponVisual->LL_SetBoneVisible(bone_id, TRUE, TRUE);
 		}
+		else
+		{
+			if (pWeaponVisual->LL_GetBoneVisible(bone_id))
+				pWeaponVisual->LL_SetBoneVisible(bone_id, FALSE, TRUE);
+		}
+		 
 	}
-	if(m_eScopeStatus==ALife::eAddonDisabled && bone_id!=BI_NONE && 
-		pWeaponVisual->LL_GetBoneVisible(bone_id) )
+
+	if(m_eScopeStatus==ALife::eAddonDisabled && bone_id!=BI_NONE && pWeaponVisual->LL_GetBoneVisible(bone_id) )
 	{
 		pWeaponVisual->LL_SetBoneVisible					(bone_id,FALSE,TRUE);
 //		Log("scope", pWeaponVisual->LL_GetBoneVisible		(bone_id));
 	}
+
+
 	bone_id = pWeaponVisual->LL_BoneID						(wpn_silencer);
 	if(SilencerAttachable())
 	{
@@ -1322,14 +1417,14 @@ void CWeapon::UpdateAddonsVisibility()
 				pWeaponVisual->LL_SetBoneVisible			(bone_id,FALSE,TRUE);
 		}
 	}
-	if(m_eSilencerStatus==ALife::eAddonDisabled && bone_id!=BI_NONE && 
-		pWeaponVisual->LL_GetBoneVisible(bone_id) )
+	if(m_eSilencerStatus==ALife::eAddonDisabled && bone_id!=BI_NONE && pWeaponVisual->LL_GetBoneVisible(bone_id) )
 	{
 		pWeaponVisual->LL_SetBoneVisible					(bone_id,FALSE,TRUE);
 //		Log("silencer", pWeaponVisual->LL_GetBoneVisible	(bone_id));
 	}
 
 	bone_id = pWeaponVisual->LL_BoneID						(wpn_grenade_launcher);
+	
 	if(GrenadeLauncherAttachable())
 	{
 		if(IsGrenadeLauncherAttached())
@@ -1341,8 +1436,7 @@ void CWeapon::UpdateAddonsVisibility()
 				pWeaponVisual->LL_SetBoneVisible			(bone_id,FALSE,TRUE);
 		}
 	}
-	if(m_eGrenadeLauncherStatus==ALife::eAddonDisabled && bone_id!=BI_NONE && 
-		pWeaponVisual->LL_GetBoneVisible(bone_id) )
+	if(m_eGrenadeLauncherStatus==ALife::eAddonDisabled && bone_id!=BI_NONE && pWeaponVisual->LL_GetBoneVisible(bone_id) )
 	{
 		pWeaponVisual->LL_SetBoneVisible					(bone_id,FALSE,TRUE);
 //		Log("gl", pWeaponVisual->LL_GetBoneVisible			(bone_id));
@@ -1365,6 +1459,9 @@ float CWeapon::CurrentZoomFactor()
 void GetZoomData(const float scope_factor, float& delta, float& min_zoom_factor);
 void CWeapon::OnZoomIn()
 {
+
+	InitAddons();
+
 	m_zoom_params.m_bIsZoomModeNow		= true;
 	if(m_zoom_params.m_bUseDynamicZoom)
 		SetZoomFactor(m_fRTZoomFactor);
@@ -1482,12 +1579,13 @@ void CWeapon::reload			(LPCSTR section)
 		m_strap_bone1			= pSettings->r_string(section,"strap_bone1");
 	else
 		m_can_be_strapped		= false;
-
+	 
 	if (m_eScopeStatus == ALife::eAddonAttachable) {
-		m_addon_holder_range_modifier	= READ_IF_EXISTS(pSettings,r_float,GetScopeName(),"holder_range_modifier",m_holder_range_modifier);
-		m_addon_holder_fov_modifier		= READ_IF_EXISTS(pSettings,r_float,GetScopeName(),"holder_fov_modifier",m_holder_fov_modifier);
+		m_addon_holder_range_modifier = READ_IF_EXISTS(pSettings, r_float, GetScopeName(), "holder_range_modifier", m_holder_range_modifier);
+		m_addon_holder_fov_modifier = READ_IF_EXISTS(pSettings, r_float, GetScopeName(), "holder_fov_modifier", m_holder_fov_modifier);
 	}
-	else {
+	else
+	{
 		m_addon_holder_range_modifier	= m_holder_range_modifier;
 		m_addon_holder_fov_modifier		= m_holder_fov_modifier;
 	}

@@ -149,6 +149,7 @@ public:
 	virtual bool UseScopeTexture() {return true;};
 
 	//обновление видимости для косточек аддонов
+			void UpdateAltScope();
 			void UpdateAddonsVisibility();
 			void UpdateHUDAddonsVisibility();
 	//инициализация свойств присоединенных аддонов
@@ -438,6 +439,7 @@ public:
 	DEFINE_VECTOR(shared_str, SCOPES_VECTOR, SCOPES_VECTOR_IT);
 	SCOPES_VECTOR			m_scopes;
 	u8						m_cur_scope;
+	u8						m_old_scope;
 
 	CWeaponAmmo*			m_pCurrentAmmo;
 	u8						m_ammoType;

@@ -492,6 +492,8 @@ CSE_ALifeItemWeapon::CSE_ALifeItemWeapon	(LPCSTR caSection) : CSE_ALifeItem(caSe
 	wpn_state					= 0;
 	ammo_type					= 0;
 
+	m_cur_scope					= 0;
+
 	m_fHitPower					= pSettings->r_float(caSection,"hit_power");
 	m_tHitType					= ALife::g_tfString2HitType(pSettings->r_string(caSection,"hit_type"));
 	m_caAmmoSections			= pSettings->r_string(caSection,"ammo_class");
@@ -534,6 +536,7 @@ void CSE_ALifeItemWeapon::UPDATE_Read(NET_Packet	&tNetPacket)
 	tNetPacket.r_u8				(ammo_type);
 	tNetPacket.r_u8				(wpn_state);
 	tNetPacket.r_u8				(m_bZoom);
+	tNetPacket.r_u8				(m_cur_scope);
 }
 
 void CSE_ALifeItemWeapon::clone_addons(CSE_ALifeItemWeapon* parent)
@@ -552,6 +555,7 @@ void CSE_ALifeItemWeapon::UPDATE_Write(NET_Packet	&tNetPacket)
 	tNetPacket.w_u8				(ammo_type);
 	tNetPacket.w_u8				(wpn_state);
 	tNetPacket.w_u8				(m_bZoom);
+	tNetPacket.w_u8				(m_cur_scope);
 }
 
 void CSE_ALifeItemWeapon::STATE_Read(NET_Packet	&tNetPacket, u16 size)
@@ -569,6 +573,9 @@ void CSE_ALifeItemWeapon::STATE_Read(NET_Packet	&tNetPacket, u16 size)
 	
 	if (m_wVersion > 122)
 		a_elapsed_grenades.unpack_from_byte(tNetPacket.r_u8());
+
+	tNetPacket.r_u8				(m_cur_scope);
+
 }
 
 void CSE_ALifeItemWeapon::STATE_Write		(NET_Packet	&tNetPacket)
@@ -580,6 +587,7 @@ void CSE_ALifeItemWeapon::STATE_Write		(NET_Packet	&tNetPacket)
 	tNetPacket.w_u8				(m_addon_flags.get());
 	tNetPacket.w_u8				(ammo_type);
 	tNetPacket.w_u8				(a_elapsed_grenades.pack_to_byte());
+	tNetPacket.w_u8				(m_cur_scope);
 }
 
 void CSE_ALifeItemWeapon::OnEvent			(NET_Packet	&tNetPacket, u16 type, u32 time, ClientID sender )
@@ -630,7 +638,7 @@ u16	 CSE_ALifeItemWeapon::get_ammo_magsize	()
 
 BOOL CSE_ALifeItemWeapon::Net_Relevant()
 {
-	if (wpn_flags==1)
+	if (wpn_flags==1 ) //|| Device.dwTimeGlobal % 500 == 0
 		return TRUE;
 
 	return inherited::Net_Relevant();
