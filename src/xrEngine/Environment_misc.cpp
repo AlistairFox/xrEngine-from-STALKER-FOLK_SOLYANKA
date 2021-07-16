@@ -206,6 +206,7 @@ CEnvDescriptor::CEnvDescriptor	(shared_str const& identifier) :
 {
 	exec_time			= 0.0f;
 	exec_time_loaded	= 0.0f;
+	exec_time_fGameTime = 0.0f;
 	
 	clouds_color.set	(1,1,1,1);
 	sky_color.set		(1,1,1);

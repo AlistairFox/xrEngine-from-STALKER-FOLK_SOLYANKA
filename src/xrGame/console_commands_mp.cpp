@@ -2174,9 +2174,15 @@ public:
 	{
 		for (auto sect : pSettings->sections())
 		{
-			if ((sect->line_exist("description") && !sect->line_exist("value") && !sect->line_exist("scheme_index"))
-				|| sect->line_exist("species"))
+			if ( (sect->line_exist("description")
+					&& !sect->line_exist("value")
+					&& !sect->line_exist("scheme_index")
+				 )
+				|| sect->line_exist("species") || sect->line_exist("script_binding")
+			)
 				tips.push_back(sect->Name);
+
+		  
 		}
 	}
 };
@@ -2625,6 +2631,26 @@ public:
 	}
 };
 
+class CCC_ADD_Money_to_client_self : public IConsole_Command {
+public:
+	CCC_ADD_Money_to_client_self(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
+	virtual void		Execute(LPCSTR args)
+	{
+		{
+			NET_Packet		P;
+			P.w_begin(M_REMOTE_CONTROL_CMD);
+			
+			string128 str;
+			xr_sprintf(str, "sv_give_money %u %s", Level().GetClientID(), args);
+
+			P.w_stringZ(str);
+
+			Level().Send(P, net_flags(TRUE, TRUE));
+		}
+	}
+	virtual void Save(IWriter* F) {};
+};
+
 
 
 
@@ -2644,6 +2670,8 @@ void register_mp_console_commands()
 	CMD1(CCC_AdmNoClip,				"adm_no_clip"			);
 	CMD1(CCC_AdmInvis,				"adm_invis"				);
 	CMD1(CCC_AdmGodMode,			"adm_god_mode"			);
+
+	CMD1(CCC_ADD_Money_to_client_self, "g_money");
 
 
 	CMD1(CCC_MovePlayerToRPoint,	"sv_move_player_to_rpoint");

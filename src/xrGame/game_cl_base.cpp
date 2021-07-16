@@ -47,7 +47,8 @@ game_cl_GameState::~game_cl_GameState()
 }
 
 float old_time_env = 0;
-bool just_Connected = true;
+extern bool just_Connected = false;
+bool on_connected = false;
 bool drawTime = false;
 
 u32 dwTimeStart = 0;
@@ -93,7 +94,17 @@ void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 	shared_str name;
 	P.r_stringZ(name);
 
-//	Msg("Name[%s] Time[%d]", name.c_str(), wfx_time);
+	float time1, time2, fGameTime;
+
+	P.r_float(time1); 
+	P.r_float(time2);
+	P.r_float(fGameTime);
+	//Msg("wfx_fGameTime [%.0f]", fGameTime);
+
+	shared_str name_cur = GamePersistent().Environment().CurrentWeatherName;
+
+	//Msg("Time1[%.0f] Time2[%.0f]", time1, time2);
+	//Msg("Name[%s] Curr[%s]", name.c_str(), name_cur.c_str());
 
 	Level().SetEnvironmentGameTimeFactor(GameEnvironmentTime, EnvironmentTimeFactor);
 
@@ -104,10 +115,11 @@ void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 		old_time_env = EnvironmentTimeFactor;
  	}
 
-	if (OnClient())
+	if (OnClient() && g_pGamePersistent)
 	{
 		if (just_Connected)
 		{
+			on_connected = true;
 			drawTime = true;
 			dwTimeStart = Device.dwTimeGlobal;
 			just_Connected = false;
@@ -117,25 +129,32 @@ void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 		{
 			GamePersistent().Environment().Invalidate();
 
-			if (Device.dwTimeGlobal - dwTimeStart > 1000)
+			if (Device.dwTimeGlobal - dwTimeStart > 200)
+			{
 				drawTime = false;
-
+			}
+			//return;
 		}
-		 
+
+		if (on_connected)
 		if (xr_strcmp(GamePersistent().Environment().CurrentWeatherName, name))
 		{
-			if (wfx_time > 0)
+			if (wfx_time > 1)
 			{
-				GamePersistent().Environment().SetWeatherFX(name);
+				Msg("WeatherFX Set[%s] WFX_TIME [%f]", name.c_str(), wfx_time);
+				//GamePersistent().Environment().SetWeatherFXClient(name, time1, time2, fGameTime);
+				GamePersistent().Environment().StartWeatherFXFromTime(name, wfx_time);
 			}
 			else
 			{
 				Msg("Weather Set[%s]", name.c_str());
-				GamePersistent().Environment().SetWeather(name, false);
+				GamePersistent().Environment().SetWeather(name, false);		
 			}
 		}
 
-		g_pGamePersistent->Environment().wfx_time = wfx_time;
+		if (on_connected)
+			g_pGamePersistent->Environment().wfx_time = wfx_time;
+		
 	}
 }
 
