@@ -221,12 +221,14 @@ void xrServer::OnBuildVersionRespond				( IClient* CL, NET_Packet& P )
 	_our = MP_DEBUG_AUTH;
 #endif // USE_DEBUG_AUTH
 
-	if ( _our != _him )
+	/* if (_our != _him)
 	{
-		SendConnectResult( CL, 0, ecr_data_verification_failed, "Data verification failed. Cheater?" );
+		//Data verification failed. Cheater? 
+		SendConnectResult( CL, 0, ecr_data_verification_failed, "¬€ »Õ‹  ŒÕ‘»√» » — –»œ“€ // CHEATER" );
 	}
-	else
-	{				
+	else*/
+	{
+		
 		bool bAccessUser = false;
 		string512 res_check;
 		
