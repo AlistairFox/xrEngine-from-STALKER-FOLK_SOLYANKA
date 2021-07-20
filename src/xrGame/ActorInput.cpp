@@ -193,7 +193,22 @@ void CActor::IR_OnKeyboardPress(int cmd)
 				}
 			}
 		}break;
-	}
+
+	case kSafeMode:
+	{
+		if (!MP_SAFE_MODE_Actor)
+		{
+			MP_SAFE_MODE_Actor = true;
+		}
+		else 
+		{
+			MP_SAFE_MODE_Actor = false;
+		}
+		 
+	}break;
+
+}
+	
 }
 
 void CActor::IR_OnMouseWheel(int direction)
@@ -646,7 +661,7 @@ void CActor::NoClipFly(int cmd)
 	if(pInput->iGetAsyncKeyState(DIK_LSHIFT))
 		scale = 0.1f;
 	else if(pInput->iGetAsyncKeyState(DIK_LMENU))
-		scale = 4.0f;
+		scale = 1.5f;
 
 	switch(cmd)
 	{

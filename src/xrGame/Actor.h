@@ -84,6 +84,8 @@ public:
 			bool						MpGodMode					() const				;
 			bool						MpNoClip					() const				;
 			bool						MpInvisibility				() const				;
+			bool						MpSafeMode					() const				;
+
 
 	virtual BOOL						AlwaysTheCrow				()						{ return TRUE; }
 
@@ -111,6 +113,9 @@ public:
 	virtual	void						feel_sound_new				(CObject* who, int type, CSound_UserDataPtr user_data, const Fvector& Position, float power);
 	virtual	Feel::Sound*				dcast_FeelSound				()	{ return this;	}
 			float						m_snd_noise;
+
+			bool						MP_SAFE_MODE_Actor;
+
 #ifdef DEBUG
 	virtual void						OnRender			();
 

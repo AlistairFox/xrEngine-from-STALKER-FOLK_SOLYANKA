@@ -11,6 +11,7 @@ private:
 private:
 	actor_mp_state_holder	m_state_holder;
 	bool					m_ready_to_update;
+	u8					MP_STATE;
 
 private:
 			void			fill_state		(actor_mp_state &state);

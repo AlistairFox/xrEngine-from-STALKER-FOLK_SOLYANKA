@@ -101,6 +101,8 @@ void CActorMP::net_Import	( NET_Packet &P)
 	N_A.State.position		= m_state_holder.state().physics_position;
 	N_A.State.quaternion	= m_state_holder.state().physics_quaternion;
 
+	MP_SAFE_MODE_Actor = m_state_holder.state().MP_SAFE_MODE == 1 ? true : false;
+
 
 	if (g_Alive() && (Remote() || OnServer()))
 	{

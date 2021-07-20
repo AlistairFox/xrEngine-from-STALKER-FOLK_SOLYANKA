@@ -259,6 +259,14 @@ bool CActor::MpInvisibility() const
 	return (ps && ps->testFlag(GAME_PLAYER_MP_INVIS));
 }
 
+bool CActor::MpSafeMode() const
+{
+	if (!g_Alive())
+		return false;
+	 
+	return MP_SAFE_MODE_Actor;
+}
+
 void CActor::reinit	()
 {
 	character_physics_support()->movement()->CreateCharacter		();
@@ -1182,11 +1190,12 @@ void CActor::UpdateCL	()
 			xr_delete(m_sndShockEffector);
 	}
 	Fmatrix							trans;
-	if(cam_Active() == cam_FirstEye())
-	{
+
+	//if(cam_Active() == cam_FirstEye())
+	//{
 		Cameras().hud_camera_Matrix		(trans);
-	}else
-		Cameras().camera_Matrix			(trans);
+	//}else
+	//	Cameras().camera_Matrix			(trans);
 	
 	if(IsFocused())
 		g_player_hud->update			(trans);
