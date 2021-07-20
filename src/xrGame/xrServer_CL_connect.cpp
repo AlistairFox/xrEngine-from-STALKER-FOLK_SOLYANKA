@@ -21,7 +21,6 @@ void xrServer::Perform_connect_spawn(CSE_Abstract* E, xrClientData* CL, NET_Pack
 	if (E->net_Processed)						return;
 	if (E->s_flags.is(M_SPAWN_OBJECT_PHANTOM))	return;
 
-//.	Msg("Perform connect spawn [%d][%s]", E->ID, E->s_name.c_str());
 
 	// Connectivity order
 	CSE_Abstract* Parent = ID_to_entity	(E->ID_Parent);
@@ -79,8 +78,17 @@ void xrServer::SendConnectionData(IClient* _CL)
 	NET_Packet		P;
 	// Replicate current entities on to this client
 	xrS_entities::iterator	I=entities.begin(),E=entities.end();
-	for (; I!=E; ++I)						I->second->net_Processed	= FALSE;
-	for (I=entities.begin(); I!=E; ++I)		Perform_connect_spawn		(I->second,CL,P);
+	for (; I!=E; ++I)						
+		I->second->net_Processed	= FALSE;
+	
+	int index = 0;
+	for (I=entities.begin(); I!=E; ++I)		
+	{
+		Perform_connect_spawn(I->second, CL, P);
+		index += 1;
+		Msg("[%d]: Perform connect spawn [%d]", index,P.B.count);
+	}
+ 
 
 	// Start to send server logo and rules
 	SendServerInfoToClient			(CL->ID);
@@ -200,7 +208,8 @@ bool xrServer::NeedToCheckClient_BuildVersion		(IClient* CL)
 	PerformSecretKeysSync		(tmp_client);
 
 
-	if (g_SV_Disable_Auth_Check) return false;
+	//if (g_SV_Disable_Auth_Check) return false;
+
 	CL->flags.bVerified = FALSE;
 	NET_Packet	P;
 	P.w_begin	(M_AUTH_CHALLENGE);
@@ -221,12 +230,12 @@ void xrServer::OnBuildVersionRespond				( IClient* CL, NET_Packet& P )
 	_our = MP_DEBUG_AUTH;
 #endif // USE_DEBUG_AUTH
 
-	/* if (_our != _him)
+    if (_our != _him && g_SV_Disable_Auth_Check == 0)
 	{
 		//Data verification failed. Cheater? 
 		SendConnectResult( CL, 0, ecr_data_verification_failed, "¬€ »Õ‹  ŒÕ‘»√» » — –»œ“€ // CHEATER" );
 	}
-	else*/
+	else 
 	{
 		
 		bool bAccessUser = false;
