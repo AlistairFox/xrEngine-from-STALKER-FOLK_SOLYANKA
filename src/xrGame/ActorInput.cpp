@@ -47,42 +47,64 @@ void CActor::IR_OnKeyboardPress(int cmd)
 	
 	switch (cmd)
 	{
-	case kWPN_FIRE:
-		{
-			if( (mstate_wishful & mcLookout) && CheckGameFlag(F_DISABLE_WEAPON_FIRE_WHEN_LOOKOUT)) return;
-
-			u16 slot = inventory().GetActiveSlot();
-			if(inventory().ActiveItem() && (slot==INV_SLOT_3 || slot==INV_SLOT_2) )
-				mstate_wishful &=~mcSprint;
-			//-----------------------------
-			if (OnServer())
+		case kWPN_FIRE:
 			{
-				NET_Packet P;
-				P.w_begin(M_PLAYER_FIRE); 
-				P.w_u16(ID());
-				u_EventSend(P);
-			}
-		}break;
-	default:
-		{
-		}break;
+				if( (mstate_wishful & mcLookout) && CheckGameFlag(F_DISABLE_WEAPON_FIRE_WHEN_LOOKOUT) ) return;
+
+				if (MP_SAFE_MODE_Actor) return;
+
+				u16 slot = inventory().GetActiveSlot();
+				if(inventory().ActiveItem() && (slot==INV_SLOT_3 || slot==INV_SLOT_2) )
+					mstate_wishful &=~mcSprint;
+				//-----------------------------
+				if (OnServer())
+				{
+					NET_Packet P;
+					P.w_begin(M_PLAYER_FIRE); 
+					P.w_u16(ID());
+					u_EventSend(P);
+				}
+			}break;
+
+			case kSafeMode:
+			{
+				if (!MP_SAFE_MODE_Actor)
+				{
+					MP_SAFE_MODE_Actor = true;
+				}
+				else
+				{
+					MP_SAFE_MODE_Actor = false;
+				}
+
+			}break;
+		default:
+			{
+			}break;
 	}
 
 	if (!g_Alive()) return;
+	if (MP_SAFE_MODE_Actor) return;
 
 	if(m_holder && kUSE != cmd)
 	{
+		if (MP_SAFE_MODE_Actor) return;
 		m_holder->OnKeyboardPress			(cmd);
 		if(m_holder->allowWeapon() && inventory().Action((u16)cmd, CMD_START))		return;
 		return;
-	}else
-		if(inventory().Action((u16)cmd, CMD_START))					return;
+	}
+	else
+	{
+		if (inventory().Action((u16)cmd, CMD_START))			
+			return;
+	}
 
 	if (MpNoClip())
 	{
 		NoClipFly(cmd);
 		return;
 	}
+
 #ifdef DEBUG
 	if(psActorFlags.test(AF_NO_CLIP))
 	{
@@ -92,120 +114,107 @@ void CActor::IR_OnKeyboardPress(int cmd)
 #endif //DEBUG
 	switch(cmd)
 	{
-	case kJUMP:		
-		{
-			mstate_wishful |= mcJump;
-		}break;
-	case kSPRINT_TOGGLE:	
-		{
-			mstate_wishful ^= mcSprint;
-		}break;
-	case kCROUCH:	
-		{
-		if( psActorFlags.test(AF_CROUCH_TOGGLE) )
-			mstate_wishful ^= mcCrouch;
-		}break;
-	case kCAM_1:	cam_Set			(eacFirstEye);				break;
-	case kCAM_2:	cam_Set			(eacLookAt);				break;
-	case kCAM_3:	cam_Set			(eacFreeLook);				break;
-	case kNIGHT_VISION:
-		{
-			SwitchNightVision();
-			break;
-		}
-	case kTORCH:
-		{
-			SwitchTorch();
-			break;
-		}
-
-	case kDETECTOR:
-		{
-			PIItem det_active					= inventory().ItemFromSlot(DETECTOR_SLOT);
-			if(det_active)
+		case kJUMP:		
 			{
-				CCustomDetector* det			= smart_cast<CCustomDetector*>(det_active);
-				det->ToggleDetector				(g_player_hud->attached_item(0)!=NULL);
-				return;
+				mstate_wishful |= mcJump;
+			}break;
+		case kSPRINT_TOGGLE:	
+			{
+				mstate_wishful ^= mcSprint;
+			}break;
+		case kCROUCH:	
+			{
+			if( psActorFlags.test(AF_CROUCH_TOGGLE) )
+				mstate_wishful ^= mcCrouch;
+			}break;
+		case kCAM_1:	cam_Set			(eacFirstEye);				break;
+		case kCAM_2:	cam_Set			(eacLookAt);				break;
+		case kCAM_3:	cam_Set			(eacFreeLook);				break;
+		case kNIGHT_VISION:
+			{
+				SwitchNightVision();
+				break;
 			}
-		}break;
-/*
-	case kFLARE:{
-			PIItem fl_active = inventory().ItemFromSlot(FLARE_SLOT);
-			if(fl_active)
+		case kTORCH:
 			{
-				CFlare* fl			= smart_cast<CFlare*>(fl_active);
-				fl->DropFlare		();
-				return				;
+				SwitchTorch();
+				break;
 			}
 
-			PIItem fli = inventory().Get(CLSID_DEVICE_FLARE, true);
-			if(!fli)			return;
-
-			CFlare* fl			= smart_cast<CFlare*>(fli);
-			
-			if(inventory().Slot(fl))
-				fl->ActivateFlare	();
-		}break;
-*/
-	case kUSE:
-		ActorUse();
-		break;
-	case kDROP:
-		b_DropActivated			= TRUE;
-		f_DropPower				= 0;
-		break;
-	case kNEXT_SLOT:
-		{
-			OnNextWeaponSlot();
-		}break;
-	case kPREV_SLOT:
-		{
-			OnPrevWeaponSlot();
-		}break;
-
-	case kQUICK_USE_1:
-	case kQUICK_USE_2:
-	case kQUICK_USE_3:
-	case kQUICK_USE_4:
-		{
-			const shared_str& item_name		= g_quick_use_slots[cmd-kQUICK_USE_1];
-			if(item_name.size())
+		case kDETECTOR:
 			{
-				PIItem itm = inventory().GetAny(item_name.c_str());
-
-				if(itm)
+				PIItem det_active					= inventory().ItemFromSlot(DETECTOR_SLOT);
+				if(det_active)
 				{
-					if (IsGameTypeSingle())
-					{
-						inventory().Eat				(itm);
-					} else
-					{
-						inventory().ClientEat		(itm);
-					}
-					
-					SDrawStaticStruct* _s		= CurrentGameUI()->AddCustomStatic("item_used", true);
-					string1024					str;
-					strconcat					(sizeof(str),str,*CStringTable().translate("st_item_used"),": ", itm->NameItem());
-					_s->wnd()->TextItemControl()->SetText(str);
-					
-					CurrentGameUI()->ActorMenu().m_pQuickSlot->ReloadReferences(this);
+					CCustomDetector* det			= smart_cast<CCustomDetector*>(det_active);
+					det->ToggleDetector				(g_player_hud->attached_item(0)!=NULL);
+					return;
 				}
-			}
-		}break;
+			}break;
+	/*
+		case kFLARE:{
+				PIItem fl_active = inventory().ItemFromSlot(FLARE_SLOT);
+				if(fl_active)
+				{
+					CFlare* fl			= smart_cast<CFlare*>(fl_active);
+					fl->DropFlare		();
+					return				;
+				}
 
-	case kSafeMode:
-	{
-		if (!MP_SAFE_MODE_Actor)
-		{
-			MP_SAFE_MODE_Actor = true;
-		}
-		else 
-		{
-			MP_SAFE_MODE_Actor = false;
-		}
-		 
-	}break;
+				PIItem fli = inventory().Get(CLSID_DEVICE_FLARE, true);
+				if(!fli)			return;
+
+				CFlare* fl			= smart_cast<CFlare*>(fli);
+			
+				if(inventory().Slot(fl))
+					fl->ActivateFlare	();
+			}break;
+	*/
+		case kUSE:
+			ActorUse();
+			break;
+		case kDROP:
+			b_DropActivated			= TRUE;
+			f_DropPower				= 0;
+			break;
+		case kNEXT_SLOT:
+			{
+				OnNextWeaponSlot();
+			}break;
+		case kPREV_SLOT:
+			{
+				OnPrevWeaponSlot();
+			}break;
+
+		case kQUICK_USE_1:
+		case kQUICK_USE_2:
+		case kQUICK_USE_3:
+		case kQUICK_USE_4:
+			{
+				const shared_str& item_name		= g_quick_use_slots[cmd-kQUICK_USE_1];
+				if(item_name.size())
+				{
+					PIItem itm = inventory().GetAny(item_name.c_str());
+
+					if(itm)
+					{
+						if (IsGameTypeSingle())
+						{
+							inventory().Eat				(itm);
+						} else
+						{
+							inventory().ClientEat		(itm);
+						}
+					
+						SDrawStaticStruct* _s		= CurrentGameUI()->AddCustomStatic("item_used", true);
+						string1024					str;
+						strconcat					(sizeof(str),str,*CStringTable().translate("st_item_used"),": ", itm->NameItem());
+						_s->wnd()->TextItemControl()->SetText(str);
+					
+						CurrentGameUI()->ActorMenu().m_pQuickSlot->ReloadReferences(this);
+					}
+				}
+			}break;
 
 }
 	
