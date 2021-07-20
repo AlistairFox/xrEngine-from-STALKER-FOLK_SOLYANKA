@@ -43,14 +43,15 @@ void CActorMP::Die			(CObject *killer)
 
 void CActorMP::cam_Set		(EActorCameras style)
 {
-#ifndef	DEBUG
-	if (style != eacFirstEye)
-		return;
-#endif
+ 
+	/*
 	CCameraBase* old_cam = cam_Active();
 	cam_active = style;
 	old_cam->OnDeactivate();
 	cam_Active()->OnActivate(old_cam);
+	*/
+	inherited::cam_Set(style);
+	
 }
 
 void CActorMP::use_booster(NET_Packet &packet)
