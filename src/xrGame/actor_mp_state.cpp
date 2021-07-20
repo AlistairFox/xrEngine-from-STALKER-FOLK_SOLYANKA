@@ -158,6 +158,8 @@ void actor_mp_state_holder::write		(NET_Packet &packet)
 
 	packet.w_u32(m_state.time);
 
+	packet.w_u8(state().MP_SAFE_MODE);
+
 	clamp		(m_state.physics_linear_velocity.x,min_linear_velocity_component,max_linear_velocity_component);
 	clamp		(m_state.physics_linear_velocity.y,min_linear_velocity_component,max_linear_velocity_component);
 	clamp		(m_state.physics_linear_velocity.z,min_linear_velocity_component,max_linear_velocity_component);
@@ -201,6 +203,8 @@ void actor_mp_state_holder::write		(NET_Packet &packet)
 		return;
 
 	packet.w_u8	(u8((output & 0xff000000) >> 24));
+
+
 }
 
 void actor_mp_state_holder::read		(NET_Packet &packet)
@@ -210,6 +214,8 @@ void actor_mp_state_holder::read		(NET_Packet &packet)
 #endif // USE_DIFFERENCES
 
 	packet.r_u32(m_state.time);
+
+	packet.r_u8(m_state.MP_SAFE_MODE);
 
 	if (check(physics_linear_velocity_x_flag	))	packet.r_float_q8	(m_state.physics_linear_velocity.x	,min_linear_velocity_component	,max_linear_velocity_component);
 	if (check(physics_linear_velocity_y_flag	))	packet.r_float_q8	(m_state.physics_linear_velocity.y	,min_linear_velocity_component	,max_linear_velocity_component);
@@ -259,4 +265,5 @@ void actor_mp_state_holder::read		(NET_Packet &packet)
 	if (check(health_flag						))	m_state.health					= unpack(	::read(health_bits					,current,output),health_bits);
 	if (check(radiation_flag					))	m_state.radiation				= unpack(	::read(radiation_bits				,current,output),radiation_bits);
 	if (check(physics_state_enabled_flag		))	m_state.physics_state_enabled	=			::read(physics_state_enabled_bits	,current,output);
+
 }

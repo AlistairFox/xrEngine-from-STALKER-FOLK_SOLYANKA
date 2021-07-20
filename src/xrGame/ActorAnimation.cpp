@@ -502,7 +502,7 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 		if (H && !MpSafeMode())
 		{
 			VERIFY(H->animation_slot() <= _total_anim_slots_);
-			if (safe_mode)
+			if (MpSafeMode())
 			{
 				//TW = &ST->m_torso[13];
 				TW = &ST->m_torso[H->animation_slot() - 1];

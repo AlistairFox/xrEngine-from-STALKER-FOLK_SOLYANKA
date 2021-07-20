@@ -82,6 +82,11 @@ void CActorMP::net_Import	( NET_Packet &P)
 
 			cam_Active()->yaw	= -N.o_torso.yaw;
 			cam_Active()->pitch = N.o_torso.pitch;
+
+			MP_SAFE_MODE_Actor = m_state_holder.state().MP_SAFE_MODE == 1 ? true : false;
+			
+			//Msg("m_state[%d]", m_state_holder.state().MP_SAFE_MODE);
+			Msg("MP_SAFE_MODE_Actor[%s][%d]", MP_SAFE_MODE_Actor ? "true" : "false", this->ID());
 		};
 	};
 
@@ -100,9 +105,6 @@ void CActorMP::net_Import	( NET_Packet &P)
 	N_A.State.torque		= m_state_holder.state().physics_torque;
 	N_A.State.position		= m_state_holder.state().physics_position;
 	N_A.State.quaternion	= m_state_holder.state().physics_quaternion;
-
-	MP_SAFE_MODE_Actor = m_state_holder.state().MP_SAFE_MODE == 1 ? true : false;
-
 
 	if (g_Alive() && (Remote() || OnServer()))
 	{
@@ -135,7 +137,7 @@ void CActorMP::net_Import	( NET_Packet &P)
 			NET_SavedAccel = NET_Last.p_accel;
 
 			m_bInInterpolation = false;
-
+	
 			Level().RemoveObject_From_4CrPr(this);
 			return;
 		}

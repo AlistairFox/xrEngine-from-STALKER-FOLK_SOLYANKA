@@ -222,6 +222,9 @@ void CActor::g_cl_CheckControls(u32 mstate_wf, Fvector &vControlAccel, float &Ju
 		if ((mstate_wf&mcSprint) && !CanSprint())
 			mstate_wf				&= ~mcSprint;
 
+		if ((mstate_wf & mcSprint) && MP_SAFE_MODE_Actor)
+			mstate_wf &= ~mcSprint;
+
 		mstate_real &= (~move);
 		mstate_real |= (mstate_wf & move);
 
