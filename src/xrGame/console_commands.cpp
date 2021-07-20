@@ -85,7 +85,7 @@ extern	int		g_dwInputUpdateDelta	;
 extern	BOOL	g_ShowAnimationInfo		;
 #endif // DEBUG
 extern	BOOL	g_bShowHitSectors		;
-//extern	BOOL	g_bDebugDumpPhysicsStep	;
+extern	BOOL	g_bDebugDumpPhysicsStep	;
 extern	ESingleGameDifficulty g_SingleGameDifficulty;
 extern	BOOL	g_show_wnd_rect2			;
 //-----------------------------------------------------------
@@ -2187,6 +2187,9 @@ CMD4(CCC_FloatBlock,		"dbg_text_height_scale",	&dbg_text_height_scale	,			0.2f	,
 #endif // MASTER_GOLD
 
 	CMD1(CCC_GSCheckForUpdates, "check_for_updates");
+
+	CMD4(CCC_Integer, "dbg_dump_physics_step", &ph_console::g_bDebugDumpPhysicsStep, 0, 1);
+
 #ifdef DEBUG
 	CMD1(CCC_Crash,		"crash"						);
 	CMD1(CCC_DumpObjects,"dump_all_objects"			);
@@ -2201,7 +2204,7 @@ CMD4(CCC_FloatBlock,		"dbg_text_height_scale",	&dbg_text_height_scale	,			0.2f	,
 
 	CMD4(CCC_Integer,	"show_wnd_rect_all",		&g_show_wnd_rect2, 0, 1);
 	CMD4(CCC_Integer,	"dbg_show_ani_info",		&g_ShowAnimationInfo,	0, 1)	;
-	CMD4(CCC_Integer,	"dbg_dump_physics_step",	&ph_console::g_bDebugDumpPhysicsStep, 0, 1);
+
 	CMD1(CCC_InvUpgradesHierarchy,	"inv_upgrades_hierarchy");
 	CMD1(CCC_InvUpgradesCurItem,	"inv_upgrades_cur_item");
 	CMD4(CCC_Integer,	"inv_upgrades_log",	&g_upgrades_log, 0, 1);
