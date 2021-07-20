@@ -162,6 +162,7 @@ void CActor::g_cl_CheckControls(u32 mstate_wf, Fvector &vControlAccel, float &Ju
 	if (mstate_wf&mcRStrafe)	vControlAccel.x +=  1;
 
 	CPHMovementControl::EEnvironment curr_env = character_physics_support()->movement()->Environment();
+
 	if(curr_env==CPHMovementControl::peOnGround || curr_env==CPHMovementControl::peAtWall)
 	{
 		// crouch
@@ -228,6 +229,7 @@ void CActor::g_cl_CheckControls(u32 mstate_wf, Fvector &vControlAccel, float &Ju
 			mstate_real|=mcSprint;
 		else
 			mstate_real&=~mcSprint;
+
 		if(!(mstate_real&(mcFwd|mcLStrafe|mcRStrafe))||mstate_real&(mcCrouch|mcClimb)|| !isActorAccelerated(mstate_wf, IsZoomAimingMode()))
 		{
 			mstate_real&=~mcSprint;
@@ -277,51 +279,51 @@ void CActor::g_cl_CheckControls(u32 mstate_wf, Fvector &vControlAccel, float &Ju
 		}//(mstate_real&mcAnyMove)
 	}//peOnGround || peAtWall
 
-	if(IsGameTypeSingle() && cam_eff_factor>EPS)
+	if(cam_eff_factor>EPS)
 	{
-	LPCSTR state_anm				= NULL;
+		LPCSTR state_anm				= NULL;
 
-	if(mstate_real&mcSprint && !(mstate_old&mcSprint) )
-		state_anm					= "sprint";
-	else
-	if(mstate_real&mcLStrafe && !(mstate_old&mcLStrafe) )
-		state_anm					= "strafe_left";
-	else
-	if(mstate_real&mcRStrafe && !(mstate_old&mcRStrafe) )
-		state_anm					= "strafe_right";
-	else
-	if(mstate_real&mcFwd && !(mstate_old&mcFwd) )
-		state_anm					= "move_fwd";
-	else
-	if(mstate_real&mcBack && !(mstate_old&mcBack) )
-		state_anm					= "move_back";
+		if(mstate_real&mcSprint && !(mstate_old&mcSprint) )
+			state_anm					= "sprint";
+		else
+		if(mstate_real&mcLStrafe && !(mstate_old&mcLStrafe) )
+			state_anm					= "strafe_left";
+		else
+		if(mstate_real&mcRStrafe && !(mstate_old&mcRStrafe) )
+			state_anm					= "strafe_right";
+		else
+		if(mstate_real&mcFwd && !(mstate_old&mcFwd) )
+			state_anm					= "move_fwd";
+		else
+		if(mstate_real&mcBack && !(mstate_old&mcBack) )
+			state_anm					= "move_back";
 
-		if(state_anm)
-		{ //play moving cam effect
-			CActor*	control_entity		= static_cast_checked<CActor*>(Level().CurrentControlEntity());
-			R_ASSERT2					(control_entity, "current control entity is NULL");
-			CEffectorCam* ec			= control_entity->Cameras().GetCamEffector(eCEActorMoving);
-			if(NULL==ec)
-			{
-				string_path			eff_name;
-				xr_sprintf			(eff_name, sizeof(eff_name), "%s.anm", state_anm);
-				string_path			ce_path;
-				string_path			anm_name;
-				strconcat			(sizeof(anm_name), anm_name, "camera_effects\\actor_move\\", eff_name);
-				if (FS.exist( ce_path, "$game_anims$", anm_name))
+			if(state_anm)
+			{ //play moving cam effect
+				CActor*	control_entity		= static_cast_checked<CActor*>(Level().CurrentControlEntity());
+				R_ASSERT2					(control_entity, "current control entity is NULL");
+				CEffectorCam* ec			= control_entity->Cameras().GetCamEffector(eCEActorMoving);
+				if(NULL==ec)
 				{
-					CAnimatorCamLerpEffectorConst* e		= xr_new<CAnimatorCamLerpEffectorConst>();
-					float max_scale				= 70.0f;
-					float factor				= cam_eff_factor/max_scale;
-					e->SetFactor				(factor);
-					e->SetType					(eCEActorMoving);
-					e->SetHudAffect				(false);
-					e->SetCyclic				(false);
-					e->Start					(anm_name);
-					control_entity->Cameras().AddCamEffector(e);
+					string_path			eff_name;
+					xr_sprintf			(eff_name, sizeof(eff_name), "%s.anm", state_anm);
+					string_path			ce_path;
+					string_path			anm_name;
+					strconcat			(sizeof(anm_name), anm_name, "camera_effects\\actor_move\\", eff_name);
+					if (FS.exist( ce_path, "$game_anims$", anm_name))
+					{
+						CAnimatorCamLerpEffectorConst* e		= xr_new<CAnimatorCamLerpEffectorConst>();
+						float max_scale				= 70.0f;
+						float factor				= cam_eff_factor/max_scale;
+						e->SetFactor				(factor);
+						e->SetType					(eCEActorMoving);
+						e->SetHudAffect				(false);
+						e->SetCyclic				(false);
+						e->Start					(anm_name);
+						control_entity->Cameras().AddCamEffector(e);
+					}
 				}
 			}
-		}
 	}
 	//transform local dir to world dir
 	Fmatrix				mOrient;
@@ -373,13 +375,16 @@ void CActor::g_Orientate	(u32 mstate_rl, float dt)
 	}
 
 	// lerp angle for "effect" and capture torso data from camera
-	angle_lerp		(r_model_yaw_delta,calc_yaw,PI_MUL_4,dt);
+	
+		angle_lerp		(r_model_yaw_delta,calc_yaw, PI_MUL_4, dt);
 
 	// build matrix
 	Fmatrix mXFORM;
 	mXFORM.rotateY	(-(r_model_yaw + r_model_yaw_delta));
 	mXFORM.c.set	(Position());
-	XFORM().set		(mXFORM);
+ 
+		XFORM().set		(mXFORM);
+	
 	VERIFY(_valid(XFORM()));
 
 	//-------------------------------------------------
@@ -441,6 +446,7 @@ bool CActor::g_LadderOrient()
 	VERIFY(_valid(XFORM()));
 	return true;
 }
+
 // ****************************** Update actor orientation according to camera orientation
 void CActor::g_cl_Orientate	(u32 mstate_rl, float dt)
 {
@@ -460,8 +466,8 @@ void CActor::g_cl_Orientate	(u32 mstate_rl, float dt)
 	unaffected_r_torso.pitch	= r_torso.pitch;
 	unaffected_r_torso.roll		= r_torso.roll;
 
-	CWeaponMagazined *pWM = smart_cast<CWeaponMagazined*>(inventory().GetActiveSlot() != NO_ACTIVE_SLOT ? 
-		inventory().ItemFromSlot(inventory().GetActiveSlot()) : NULL);
+	CWeaponMagazined *pWM = smart_cast<CWeaponMagazined*>(inventory().GetActiveSlot() != NO_ACTIVE_SLOT ? inventory().ItemFromSlot(inventory().GetActiveSlot()) : NULL);
+
 	if (pWM && pWM->GetCurrentFireMode() == 1 && eacFirstEye != cam_active)
 	{
 		Fvector dangle = weapon_recoil_last_delta();
@@ -470,13 +476,16 @@ void CActor::g_cl_Orientate	(u32 mstate_rl, float dt)
 	}
 	
 	// если есть движение - выровнять модель по камере
-	if (mstate_rl&mcAnyMove)	{
+	if (mstate_rl&mcAnyMove)
+	{
 		r_model_yaw		= angle_normalize(r_torso.yaw);
 		mstate_real		&=~mcTurn;
-	} else {
+	}
+	else
+	{
 		// if camera rotated more than 45 degrees - align model with it
 		float ty = angle_normalize(r_torso.yaw);
-		if (_abs(r_model_yaw-ty)>PI_DIV_4)	{
+		if (_abs(r_model_yaw-ty) > PI_DIV_4-30)	{
 			r_model_yaw_dest = ty;
 			// 
 			mstate_real	|= mcTurn;
@@ -485,7 +494,7 @@ void CActor::g_cl_Orientate	(u32 mstate_rl, float dt)
 			mstate_real	&=~mcTurn;
 		}
 		if (mstate_rl&mcTurn){
-			angle_lerp	(r_model_yaw,r_model_yaw_dest,PI_MUL_2,dt);
+			angle_lerp	(r_model_yaw,r_model_yaw_dest, PI_MUL_2, dt);
 		}
 	}
 }
