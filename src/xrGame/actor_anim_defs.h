@@ -5,14 +5,22 @@
 struct SAnimState
 {
 	MotionID	legs_fwd;
+	MotionID    legs_fwd_safe;
+
 	MotionID	legs_back;
+	MotionID    legs_back_safe;
+
 	MotionID	legs_ls;
+	MotionID    legs_ls_safe;
+
 	MotionID	legs_rs;
+	MotionID    legs_rs_safe;
+
 	void		Create								(IKinematicsAnimated* K, LPCSTR base0, LPCSTR base1);
 };
 
 struct STorsoWpn{
-	enum eMovingState{eIdle, eWalk, eRun, eSprint, eTotal};
+	enum eMovingState{eIdle, eWalk, eRun, eSprint, eIdleSafe, eWalkSafe, eRunSafe, eSprintSafe, eTotal};
 	MotionID	moving[eTotal];
 
 	MotionID	zoom;
@@ -31,17 +39,21 @@ struct STorsoWpn{
 	MotionID	all_attack_0;
 	MotionID	all_attack_1;
 	MotionID	all_attack_2;
+
+
 	void		Create								(IKinematicsAnimated* K, LPCSTR base0, LPCSTR base1);
 };
 
-#define _total_anim_slots_ 13
+#define _total_anim_slots_ 14
 
 struct SActorState
 {
 
 	MotionID		legs_idle;
+	MotionID		legs_idle_safe;
 	MotionID		jump_begin;
 	MotionID		jump_idle;
+
 	MotionID		landing[2];
 	MotionID		legs_turn;
 	MotionID		death;
@@ -50,6 +62,7 @@ struct SActorState
 	STorsoWpn		m_torso[_total_anim_slots_];
 	MotionID		m_torso_idle;
 	MotionID		m_head_idle;
+	MotionID		m_head_idle_safe;
 
 	MotionID		m_damage[DAMAGE_FX_COUNT];
 	void			Create							(IKinematicsAnimated* K, LPCSTR base);
@@ -60,8 +73,13 @@ struct SActorSprintState
 {
 	//leg anims
 	MotionID		legs_fwd;
+	MotionID		legs_fwd_safe;
+
 	MotionID		legs_ls;
+	MotionID		legs_ls_safe;
+	
 	MotionID		legs_rs;
+	MotionID		legs_rs_safe;
 	
 	MotionID		legs_jump_fwd;
 	MotionID		legs_jump_ls;
