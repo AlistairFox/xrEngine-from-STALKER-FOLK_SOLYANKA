@@ -1708,11 +1708,6 @@ public:
 
 		float eFactor = Level().Server->game->GetEnvironmentGameTimeFactor();
 
-		if (eFactor == 10)
-			eFactor = 11;
-		else
-			eFactor = 10;
-
 		Level().Server->game->SetEnvironmentGameTimeFactor(NewTime,eFactor);
 		Level().Server->game->SetGameTimeFactor(NewTime,g_fTimeFactor);
 	}

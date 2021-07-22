@@ -173,22 +173,26 @@ void CTorch::Switch()
 void CTorch::Switch(bool light_on)
 {
 	m_switched_on			= light_on;
+ 
 	if (can_use_dynamic_lights())
 	{
 		light_render->set_active(light_on);
 		
 		// CActor *pA = smart_cast<CActor *>(H_Parent());
 		//if(!pA)
-			light_omni->set_active(light_on);
+		light_omni->set_active(light_on);
 	}
+
 	glow_render->set_active					(light_on);
 
 	if (*light_trace_bone) 
 	{
 		IKinematics* pVisual				= smart_cast<IKinematics*>(Visual()); VERIFY(pVisual);
 		u16 bi								= pVisual->LL_BoneID(light_trace_bone);
-
-		pVisual->LL_SetBoneVisible			(bi,	light_on,	TRUE);
+		
+		Msg("SetVisualTo[%s]", light_on ? "true" : "false");
+	
+		pVisual->LL_SetBoneVisible(bi, light_on, TRUE);
 		pVisual->CalculateBones				(TRUE);
 	}
 }
@@ -279,11 +283,13 @@ void CTorch::OnH_B_Independent(bool just_before_destroy)
 void CTorch::UpdateCL() 
 {
 	inherited::UpdateCL			();
-	
-	if (!m_switched_on)			return;
 
-	CBoneInstance			&BI = smart_cast<IKinematics*>(Visual())->LL_GetBoneInstance(guid_bone);
+	if (!m_switched_on)					return;
+
+
+	CBoneInstance& BI = smart_cast<IKinematics*>(Visual())->LL_GetBoneInstance(guid_bone);
 	Fmatrix					M;
+
 
 	if (H_Parent()) 
 	{
@@ -303,8 +309,8 @@ void CTorch::UpdateCL()
 
 		if (actor) 
 		{
-			m_prev_hp.x		= angle_inertion_var(m_prev_hp.x,-actor->cam_FirstEye()->yaw,TORCH_INERTION_SPEED_MIN,TORCH_INERTION_SPEED_MAX,TORCH_INERTION_CLAMP,Device.fTimeDelta);
-			m_prev_hp.y		= angle_inertion_var(m_prev_hp.y,-actor->cam_FirstEye()->pitch,TORCH_INERTION_SPEED_MIN,TORCH_INERTION_SPEED_MAX,TORCH_INERTION_CLAMP,Device.fTimeDelta);
+			m_prev_hp.x		= angle_inertion_var(m_prev_hp.x,-actor->cam_Active()->yaw,TORCH_INERTION_SPEED_MIN,TORCH_INERTION_SPEED_MAX,TORCH_INERTION_CLAMP,Device.fTimeDelta);
+			m_prev_hp.y		= angle_inertion_var(m_prev_hp.y,-actor->cam_Active()->pitch,TORCH_INERTION_SPEED_MIN,TORCH_INERTION_SPEED_MAX,TORCH_INERTION_CLAMP,Device.fTimeDelta);
 
 			Fvector			dir,right,up;	
 			dir.setHP		(m_prev_hp.x+m_delta_h,m_prev_hp.y);
@@ -327,7 +333,8 @@ void CTorch::UpdateCL()
 					offset.mad					(M.k,OMNI_OFFSET.z);
 					light_omni->set_position	(offset);
 				}
-			}//if (true)
+			}
+
 			glow_render->set_position	(M.c);
 
 			if (true)
@@ -338,7 +345,8 @@ void CTorch::UpdateCL()
 				{
 					light_omni->set_rotation	(dir, right);
 				}
-			}//if (true)
+			}
+
 			glow_render->set_direction	(dir);
 
 		}// if(actor)

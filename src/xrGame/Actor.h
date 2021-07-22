@@ -115,6 +115,7 @@ public:
 			float						m_snd_noise;
 
 			bool						MP_SAFE_MODE_Actor;
+			bool                        MP_SAFE_MODE_Actor_old_state;
 
 #ifdef DEBUG
 	virtual void						OnRender			();

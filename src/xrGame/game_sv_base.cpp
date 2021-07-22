@@ -346,6 +346,7 @@ void game_sv_GameState::net_Export_GameTime						(NET_Packet& P)
 	//Syncronize GameTime 
 	P.w_u64(GetGameTime());
 	P.w_float(GetGameTimeFactor());
+	
 	//Syncronize EnvironmentGameTime 
 
 	if (old_time_env_sv != GetEnvironmentGameTimeFactor())
@@ -359,15 +360,6 @@ void game_sv_GameState::net_Export_GameTime						(NET_Packet& P)
 
 	P.w_float(g_pGamePersistent->Environment().wfx_time);
 	P.w_stringZ(g_pGamePersistent->Environment().CurrentWeatherName);
-	//Log("WFX == ", g_pGamePersistent->Environment().wfx_time);
-	//if (g_pGamePersistent->Environment().Current[0])
-	P.w_float(g_pGamePersistent->Environment().GetEnv1Time());
-	//if (g_pGamePersistent->Environment().Current[1])
-	P.w_float(g_pGamePersistent->Environment().GetEnv2Time());
-	//Msg("wfx_fGameTime [%.0f]", g_pGamePersistent->Environment().wfx_fGameTime);
-	P.w_float(g_pGamePersistent->Environment().wfx_fGameTime);
-
-	//Msg("Name[%s] Time[%d]", g_pGamePersistent->Environment().CurrentWeatherName.c_str(), g_pGamePersistent->Environment().wfx_time);
 
 };
 

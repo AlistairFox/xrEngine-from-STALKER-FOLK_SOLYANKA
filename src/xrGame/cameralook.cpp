@@ -33,7 +33,8 @@ void CCameraLook::Update(Fvector& point, Fvector& /**noise_dangle/**/)
 	vDirection.set		(mR.k);
 	vNormal.set			(mR.j);
 
-	if (m_Flags.is(flRelativeLink)){
+	if (m_Flags.is(flRelativeLink))
+	{
 		parent->XFORM().transform_dir(vDirection);
 		parent->XFORM().transform_dir(vNormal);
 	}
@@ -86,9 +87,10 @@ void CCameraLook::OnActivate( CCameraBase* old_cam )
 #include "visual_memory_manager.h"
 #include "actor_memory.h"
 
-int cam_dik = DIK_LSHIFT;
+int cam_dik = DIK_LALT;
 
 Fvector CCameraLook2::m_cam_offset;
+
 void CCameraLook2::OnActivate( CCameraBase* old_cam )
 {
 	CCameraLook::OnActivate( old_cam );
@@ -96,6 +98,7 @@ void CCameraLook2::OnActivate( CCameraBase* old_cam )
 
 void CCameraLook2::Update(Fvector& point, Fvector&)
 {
+	/*
 	if(!m_locked_enemy)
 	{//autoaim
 		if( pInput->iGetAsyncKeyState(cam_dik) )
@@ -135,7 +138,9 @@ void CCameraLook2::Update(Fvector& point, Fvector&)
 	if(m_locked_enemy)
 		UpdateAutoAim	();
 
-
+	*/
+	
+	 
 	Fmatrix mR;
 	mR.setHPB						(-yaw,-pitch,-roll);
 
@@ -145,9 +150,14 @@ void CCameraLook2::Update(Fvector& point, Fvector&)
 	Fmatrix							a_xform;
 	a_xform.setXYZ					(0, -yaw, 0);
 	a_xform.translate_over			(point);
+
+
 	Fvector _off					= m_cam_offset;
 	a_xform.transform_tiny			(_off);
 	vPosition.set					(_off);
+
+	UpdateDistance(_off);
+	 
 }
 
 void CCameraLook2::UpdateAutoAim()
@@ -184,11 +194,18 @@ void CCameraLook2::Load(LPCSTR section)
 {
 	CCameraLook::Load		(section);
 	m_cam_offset			= pSettings->r_fvector3	(section,"offset");
-	m_autoaim_inertion_yaw	= pSettings->r_fvector2	(section,"autoaim_speed_y");
-	m_autoaim_inertion_pitch= pSettings->r_fvector2	(section,"autoaim_speed_x");
+ 
+//	m_autoaim_inertion_yaw	= pSettings->r_fvector2	(section,"autoaim_speed_y");
+//	m_autoaim_inertion_pitch= pSettings->r_fvector2	(section,"autoaim_speed_x");
 }
 
+ 
+void CCameraLook2::Move(int cmd, float val, float factor)
+{
+	CCameraLook::Move(cmd, val, factor);
+}
 
+ 
 void CCameraFixedLook::Load	(LPCSTR section)
 {
 	CCameraLook::Load(section);

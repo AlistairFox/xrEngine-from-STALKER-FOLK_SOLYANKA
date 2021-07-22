@@ -47,35 +47,18 @@ game_cl_GameState::~game_cl_GameState()
 }
 
 float old_time_env = 0;
+u64 old_time_game = 0;
+
 extern bool just_Connected = false;
-bool on_connected = false;
 bool drawTime = false;
 
 u32 dwTimeStart = 0;
 
 void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 {
-	/*
-	u64				GameTime;
-	P.r_u64			(GameTime);
-	float			TimeFactor;
-	P.r_float		(TimeFactor);
-
-	Level().SetGameTimeFactor	(GameTime,TimeFactor);
-
-	u64				GameEnvironmentTime;
-	P.r_u64			(GameEnvironmentTime);
-	float			EnvironmentTimeFactor;
-	P.r_float		(EnvironmentTimeFactor);
-
-	u64 OldTime = Level().GetEnvironmentGameTime();
-	Level().SetEnvironmentGameTimeFactor	(GameEnvironmentTime,EnvironmentTimeFactor);
-	if (OldTime > GameEnvironmentTime)
-		GamePersistent().Environment().Invalidate();
-	*/
-
 	u64				GameTime;
 	P.r_u64(GameTime);
+
 	float			TimeFactor;
 	P.r_float(TimeFactor);
 
@@ -86,25 +69,13 @@ void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 	float			EnvironmentTimeFactor;
 	P.r_float(EnvironmentTimeFactor);
 
-	u64 OldTime = Level().GetEnvironmentGameTime();
-
 	float wfx_time;
 	P.r_float(wfx_time);
 
 	shared_str name;
 	P.r_stringZ(name);
 
-	float time1, time2, fGameTime;
-
-	P.r_float(time1); 
-	P.r_float(time2);
-	P.r_float(fGameTime);
-	//Msg("wfx_fGameTime [%.0f]", fGameTime);
-
 	shared_str name_cur = GamePersistent().Environment().CurrentWeatherName;
-
-	//Msg("Time1[%.0f] Time2[%.0f]", time1, time2);
-	//Msg("Name[%s] Curr[%s]", name.c_str(), name_cur.c_str());
 
 	Level().SetEnvironmentGameTimeFactor(GameEnvironmentTime, EnvironmentTimeFactor);
 
@@ -113,30 +84,43 @@ void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 		GamePersistent().Environment().Invalidate();
 		GamePersistent().Environment().SetGameTime(GameEnvironmentTime, EnvironmentTimeFactor);
 		old_time_env = EnvironmentTimeFactor;
- 	}
+ 	} 
+
+	if (GameTime > old_time_game + 3600000)
+	{
+		GamePersistent().Environment().Invalidate();
+		GamePersistent().Environment().SetGameTime(GameEnvironmentTime, EnvironmentTimeFactor);
+
+		Msg("OLD_TIME %d", old_time_game);
+		Msg("Game_TIME %d", GameTime);
+		
+		old_time_game = GameTime;
+	}
+	else
+	{
+		old_time_game = GameTime;
+	}
 
 	if (OnClient() && g_pGamePersistent)
 	{
+		/*
 		if (just_Connected)
 		{
-			on_connected = true;
-			drawTime = true;
+ 			drawTime = true;
 			dwTimeStart = Device.dwTimeGlobal;
 			just_Connected = false;
 		}
 
 		if (drawTime)
 		{
-			GamePersistent().Environment().Invalidate();
+			//GamePersistent().Environment().Invalidate();
 
-			if (Device.dwTimeGlobal - dwTimeStart > 200)
+			if (Device.dwTimeGlobal - dwTimeStart > 500)
 			{
 				drawTime = false;
 			}
-			//return;
 		}
-
-		if (on_connected)
+		*/
 		if (xr_strcmp(GamePersistent().Environment().CurrentWeatherName, name))
 		{
 			if (wfx_time > 1)
@@ -152,8 +136,7 @@ void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 			}
 		}
 
-		if (on_connected)
-			g_pGamePersistent->Environment().wfx_time = wfx_time;
+		g_pGamePersistent->Environment().wfx_time = wfx_time;
 		
 	}
 }

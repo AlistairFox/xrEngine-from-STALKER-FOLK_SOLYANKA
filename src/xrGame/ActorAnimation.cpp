@@ -27,7 +27,7 @@ static const float y_shoulder_factor	= 0.4f;
 static const float y_head_factor		= 0.2f;
 static const float p_spin0_factor		= 0.0f;
 static const float p_spin1_factor		= 0.2f;
-static const float p_shoulder_factor    = 0.7f;
+static const float p_shoulder_factor	= 0.0f; //0.7f;
 static const float p_head_factor		= 0.1f;
 static const float r_spin0_factor		= 0.3f;
 static const float r_spin1_factor		= 0.3f;
@@ -48,8 +48,7 @@ void  CActor::Spin0Callback(CBoneInstance* B)
 	spin.setXYZ			(-bone_pitch,bone_yaw,bone_roll);
 	
 	//Msg("Spin0Callback");
-	//if (!safe_mode)
- 
+	
 	{
 		B->mTransform.mulA_43(spin);
 		B->mTransform.c		= c;
@@ -390,7 +389,6 @@ char* mov_state[] ={
 	"sprint",
 };
 
-
 void CActor::g_SetAnimation( u32 mstate_rl )
 {
 
@@ -501,23 +499,20 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 		
 		if (H && !MpSafeMode())
 		{
+
+			if (!MP_SAFE_MODE_Actor_old_state)
+			{
+				MP_SAFE_MODE_Actor_old_state = true;
+				m_current_legs.invalidate();
+				m_current_torso.invalidate();
+				m_current_head.invalidate();
+			}
+
 			VERIFY(H->animation_slot() <= _total_anim_slots_);
-			if (MpSafeMode())
-			{
-				//TW = &ST->m_torso[13];
-				TW = &ST->m_torso[H->animation_slot() - 1];
-				state = moving_idx + 4;
-			 
-				M_head = ST->m_head_idle_safe;
-				//M_legs = ST->legs_idle_safe;
-			}
-			else
-			{
-
-				TW = &ST->m_torso[H->animation_slot() - 1];
-				state = moving_idx;
-			}
-
+			
+			TW = &ST->m_torso[H->animation_slot() - 1];
+			state = moving_idx;
+			
 			if (!b_DropActivated&&!fis_zero(f_DropPower))
 			{
 				M_torso					= TW->drop;
@@ -638,7 +633,7 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 					{
 							switch(A->GetState())
 							{
-								case CArtefact::eIdle		: M_torso	= TW->moving[state];	break; 
+								case CArtefact::eIdle		: M_torso	= TW->moving[state];		break; 
 								case CArtefact::eShowing	: M_torso	= TW->draw;					break; 
 								case CArtefact::eHiding		: M_torso	= TW->holster;				break; 
 								case CArtefact::eActivating : M_torso	= TW->zoom;					break; 
@@ -654,13 +649,14 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 		}
 		else
 		{	
-			if (MpSafeMode())
+			state = moving_idx + 4;
+			
+			if (MP_SAFE_MODE_Actor_old_state)
 			{
-				state = moving_idx + 4;
-			} 
-			else
-			{
-				state == moving_idx;
+				MP_SAFE_MODE_Actor_old_state = false;
+				m_current_legs.invalidate();
+				m_current_torso.invalidate();
+				m_current_head.invalidate();
 			}
 
 			if (H)
@@ -669,7 +665,7 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 				{
 					M_torso = ST->m_torso[H->animation_slot()-1].moving[state];
 					//Msg("CurItem[%d] State[%d]", H->animation_slot()-1,state);
-					M_head = ST->m_head_idle_safe;
+					//M_head = ST->m_head_idle_safe;
 				} 
 			}
 			else

@@ -84,7 +84,6 @@ void CActor::IR_OnKeyboardPress(int cmd)
 	}
 
 	if (!g_Alive()) return;
-	if (MP_SAFE_MODE_Actor) return;
 
 	if(m_holder && kUSE != cmd)
 	{
@@ -670,7 +669,7 @@ void CActor::NoClipFly(int cmd)
 	if(pInput->iGetAsyncKeyState(DIK_LSHIFT))
 		scale = 0.1f;
 	else if(pInput->iGetAsyncKeyState(DIK_LMENU))
-		scale = 1.5f;
+		scale = 4.0f;
 
 	switch(cmd)
 	{

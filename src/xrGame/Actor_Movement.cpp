@@ -17,6 +17,8 @@
 #include "static_cast_checked.hpp"
 #include "player_hud.h"
 
+#include "../xrEngine/xr_input.h"
+
 #ifdef DEBUG
 #include "phdebug.h"
 #endif
@@ -222,7 +224,7 @@ void CActor::g_cl_CheckControls(u32 mstate_wf, Fvector &vControlAccel, float &Ju
 		if ((mstate_wf&mcSprint) && !CanSprint())
 			mstate_wf				&= ~mcSprint;
 
-		if ((mstate_wf & mcSprint) && MP_SAFE_MODE_Actor)
+		if ((mstate_wf & mcSprint) && MpSafeMode())
 			mstate_wf &= ~mcSprint;
 
 		mstate_real &= (~move);
@@ -385,8 +387,8 @@ void CActor::g_Orientate	(u32 mstate_rl, float dt)
 	Fmatrix mXFORM;
 	mXFORM.rotateY	(-(r_model_yaw + r_model_yaw_delta));
 	mXFORM.c.set	(Position());
- 
-		XFORM().set		(mXFORM);
+
+	XFORM().set		(mXFORM);
 	
 	VERIFY(_valid(XFORM()));
 
@@ -454,15 +456,18 @@ bool CActor::g_LadderOrient()
 void CActor::g_cl_Orientate	(u32 mstate_rl, float dt)
 {
 	// capture camera into torso (only for FirstEye & LookAt cameras)
-	if (eacFreeLook!=cam_active)
+	if (!pInput->iGetAsyncKeyState(DIK_LALT))
 	{
-		r_torso.yaw		=	cam_Active()->GetWorldYaw	();
-		r_torso.pitch	=	cam_Active()->GetWorldPitch	();
-	}
-	else
-	{
-		r_torso.yaw		=	cam_FirstEye()->GetWorldYaw	();
-		r_torso.pitch	=	cam_FirstEye()->GetWorldPitch	();
+		if (eacFreeLook!=cam_active)
+		{
+			r_torso.yaw		=	cam_Active()->GetWorldYaw	();
+			r_torso.pitch	=	cam_Active()->GetWorldPitch	();
+		}
+		else
+		{
+			r_torso.yaw		=	cam_FirstEye()->GetWorldYaw	();
+			r_torso.pitch	=	cam_FirstEye()->GetWorldPitch	();
+		}
 	}
 
 	unaffected_r_torso.yaw		= r_torso.yaw;

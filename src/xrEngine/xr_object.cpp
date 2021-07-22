@@ -198,6 +198,7 @@ void CObject::Load				(LPCSTR section )
 
 BOOL CObject::net_Spawn			(CSE_Abstract* data)
 {
+	Msg("net_sapwn id[%d], SectName[%s], NameObj[%s]", this->ID(), this->cNameSect_str(), this->NameObject.c_str());
 	PositionStack.clear			();
 
 	VERIFY						(_valid(renderable.xform));

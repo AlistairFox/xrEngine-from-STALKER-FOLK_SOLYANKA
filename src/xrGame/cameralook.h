@@ -38,6 +38,7 @@ public:
 	virtual	void	OnActivate		( CCameraBase* old_cam );
 	virtual void	Update			( Fvector& point, Fvector& noise_dangle );
 	virtual void	Load			(LPCSTR section);
+	virtual void    Move			(int cmd, float val=0, float factor = 1.0f);
 };
 
 class CCameraFixedLook : public CCameraLook
