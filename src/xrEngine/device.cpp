@@ -242,8 +242,12 @@ void CRenderDevice::on_idle		()
 #ifdef DEDICATED_SERVER
 	u32 FrameStartTime = TimerGlobal.GetElapsed_ms();
 #endif
-	if (psDeviceFlags.test(rsStatistic))	g_bEnableStatGather	= TRUE;
-	else									g_bEnableStatGather	= FALSE;
+	//if (psDeviceFlags.test(rsStatistic))
+		g_bEnableStatGather	= TRUE;
+	//else									
+	//	g_bEnableStatGather	= FALSE;
+
+
 	if(g_loading_events.size())
 	{
 		if( g_loading_events.front()() )
@@ -309,6 +313,27 @@ void CRenderDevice::on_idle		()
 	Statistic->RenderTOTAL_Real.FrameEnd	();
 	Statistic->RenderTOTAL.accum	= Statistic->RenderTOTAL_Real.accum;
 #endif // #ifndef DEDICATED_SERVER
+
+
+
+	if (Device.fTimeDelta > EPS_S) {
+		float fps = 1.f / Device.fTimeDelta;
+		//if (Engine.External.tune_enabled)	vtune.update	(fps);
+		float fOne = 0.3f;
+		float fInv = 1.f - fOne;
+		Statistic->fFPS = fInv * Statistic->fFPS + fOne * fps;
+
+		if (Statistic->RenderTOTAL.result > EPS_S)
+		{
+			u32	rendered_polies = Device.m_pRender->GetCacheStatPolys();
+			Statistic->fTPS = fInv * Statistic->fTPS + fOne * float(rendered_polies) / (Statistic->RenderTOTAL.result * 1000.f);
+			//fTPS = fInv*fTPS + fOne*float(RCache.stat.polys)/(RenderTOTAL.result*1000.f);
+			Statistic->fRFPS = fInv * Statistic->fRFPS + fOne * 1000.f / Statistic->RenderTOTAL.result;
+		}
+	}
+
+
+
 	// *** Suspend threads
 	// Capture startup point
 	// Release end point - allow thread to wait for startup point

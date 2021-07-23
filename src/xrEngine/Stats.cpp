@@ -135,6 +135,7 @@ void CStats::Show()
 		g_SpatialSpacePhysic->stat_remove.FrameEnd	();
 	}
 
+	/*
 	// calc FPS & TPS
 	if (Device.fTimeDelta>EPS_S) {
 		float fps  = 1.f/Device.fTimeDelta;
@@ -150,6 +151,8 @@ void CStats::Show()
 			fRFPS= fInv*fRFPS+ fOne*1000.f/RenderTOTAL.result;
 		}
 	}
+	*/
+
 	{
 		float mem_count		= float	(Memory.stat_calls);
 		if (mem_count>fMem_calls)	fMem_calls	=	mem_count;
@@ -198,7 +201,7 @@ void CStats::Show()
 		F.SetColor	(0xFFFFFFFF	);
 
 		F.OutSet	(0,0);
-		F.OutNext	("FPS/RFPS:    %3.1f/%3.1f",fFPS,fRFPS);
+		F.OutNext	("FPS/RFPS:    %3.1f/%3.1f",fFPS, fRFPS);
 		F.OutNext	("TPS:         %2.2f M",	fTPS);
 		m_pRender->OutData1(F);
 		//F.OutNext	("VERT:        %d/%d",		RCache.stat.verts,RCache.stat.calls?RCache.stat.verts/RCache.stat.calls:0);

@@ -65,8 +65,7 @@ void CUIGameFMP::HideShownDialogs()
 void _BCL CUIGameFMP::OnFrame()
 {
 	inherited::OnFrame();
-
-
+ 
 	if (g_cl_draw_mp_statistic && Level().game->local_player)
 	{
 		IClientStatistic& stats = Level().GetStatistic();
@@ -92,6 +91,7 @@ void _BCL CUIGameFMP::OnFrame()
 		{
 			xr_sprintf(
 				outstr,
+				"FPS: %.0f \\n"
 				"ping: %u/%u\\n"
 				"in/out: %.1f/%.2f KB/s\\n"
 				"packets in/out: %.0f/%.0f\\n"
@@ -102,6 +102,8 @@ void _BCL CUIGameFMP::OnFrame()
 				//"sent unacked reliable: %u\\n"
 				"quality local: %.2f\\n"
 				"quality remote: %.2f\\n",
+
+				Device.Statistic->fFPS,
 
 				Level().game->local_player->ping,
 				stats.getPing(),
