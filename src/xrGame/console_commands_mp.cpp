@@ -1686,6 +1686,7 @@ public:
 
 	virtual void	Info	(TInfo& I)	{xr_strcpy(I,"Vote No"); };
 };
+extern bool need_update = false;
 
 class CCC_StartTimeEnvironment: public IConsole_Command {
 public:
@@ -1707,6 +1708,15 @@ public:
 			return;
 
 		float eFactor = Level().Server->game->GetEnvironmentGameTimeFactor();
+
+		/*
+		if (eFactor == 10)
+			eFactor = 11;
+		else
+			eFactor = 10;
+		*/
+		
+		need_update = true;
 
 		Level().Server->game->SetEnvironmentGameTimeFactor(NewTime,eFactor);
 		Level().Server->game->SetGameTimeFactor(NewTime,g_fTimeFactor);

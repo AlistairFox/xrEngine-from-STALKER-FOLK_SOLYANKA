@@ -289,6 +289,7 @@ struct player_exporter
 	}
 };
 
+
 void game_sv_GameState::net_Export_State						(NET_Packet& P, ClientID to)
 {
 	// Generic
@@ -339,6 +340,7 @@ void game_sv_GameState::net_Export_Update(NET_Packet& P, ClientID id_to, ClientI
 	net_Export_GameTime			(P);
 };
 float old_time_env_sv = 0;
+extern bool need_update;
 
 void game_sv_GameState::net_Export_GameTime						(NET_Packet& P)
 {
@@ -360,6 +362,11 @@ void game_sv_GameState::net_Export_GameTime						(NET_Packet& P)
 
 	P.w_float(g_pGamePersistent->Environment().wfx_time);
 	P.w_stringZ(g_pGamePersistent->Environment().CurrentWeatherName);
+
+	P.w_u8(need_update ? 0 : 1);
+
+	if (need_update)
+		need_update = false;
 
 };
 
