@@ -70,10 +70,13 @@ void CActor::IR_OnKeyboardPress(int cmd)
 			{
 				if (!MP_SAFE_MODE_Actor)
 				{
+					cam_Set(eacLookAt);
 					MP_SAFE_MODE_Actor = true;
+				
 				}
 				else
 				{
+					cam_Set(eacFirstEye);
 					MP_SAFE_MODE_Actor = false;
 				}
 

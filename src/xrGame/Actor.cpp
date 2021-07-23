@@ -218,6 +218,7 @@ CActor::CActor() : CEntityAlive(),current_ik_cam_shift(0)
 	m_disabled_hitmarks		= false;
 	m_inventory_disabled	= false;
 
+	MP_SAFE_MODE_Actor		= false;
 }
 
 

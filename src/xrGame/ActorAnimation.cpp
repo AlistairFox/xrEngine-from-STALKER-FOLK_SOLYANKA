@@ -182,8 +182,11 @@ void SAnimState::Create(IKinematicsAnimated* K, LPCSTR base0, LPCSTR base1)
 
 	legs_fwd_safe = K->ID_Cycle(strconcat(sizeof(buf), buf, base0, base1, "_fwd_1"));
 	legs_back_safe = K->ID_Cycle(strconcat(sizeof(buf), buf, base0, base1, "_back_0"));
-	legs_ls_safe = K->ID_Cycle(strconcat(sizeof(buf), buf, base0, base1, "_ls_0"));
-	legs_rs_safe = K->ID_Cycle(strconcat(sizeof(buf), buf, base0, base1, "_rs_0"));
+	legs_ls_safe = K->ID_Cycle(strconcat(sizeof(buf), buf, base0, base1, "_fwd_1"));
+	legs_rs_safe = K->ID_Cycle(strconcat(sizeof(buf), buf, base0, base1, "_fwd_1"));
+
+
+	Msg(strconcat(sizeof(buf), buf, base0, base1, "legs"));
 }
 
 
@@ -444,18 +447,26 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 	bool is_standing = false;
 
 	// Legs
-	if		(mstate_rl&mcLanding)	M_legs	= ST->landing[0];
-	else if (mstate_rl&mcLanding2)	M_legs	= ST->landing[1];
+	if		(mstate_rl&mcLanding)
+		M_legs	= ST->landing[0];
+	else if (mstate_rl&mcLanding2)
+		M_legs	= ST->landing[1];
 	else if ((mstate_rl&mcTurn)&& !(mstate_rl&mcClimb))
 		M_legs	= ST->legs_turn;
-	else if (mstate_rl&mcFall)		M_legs	= ST->jump_idle;
-	else if (mstate_rl&mcJump)		M_legs	= ST->jump_begin;
+	else if (mstate_rl&mcFall)		
+		M_legs	= ST->jump_idle;
+	else if (mstate_rl&mcJump)	
+		M_legs	= ST->jump_begin;
 	else if (mstate_rl&mcFwd)		
 		!MpSafeMode() ? M_legs	= AS->legs_fwd : M_legs = AS->legs_fwd_safe;
-	else if (mstate_rl&mcBack)		M_legs	= AS->legs_back;
-	else if (mstate_rl&mcLStrafe)	M_legs	= AS->legs_ls;
-	else if (mstate_rl&mcRStrafe)	M_legs	= AS->legs_rs;
-	else is_standing = true;
+	else if (mstate_rl&mcBack)		
+		!MpSafeMode() ? M_legs	= AS->legs_back : M_legs = AS->legs_back_safe;
+	else if (mstate_rl&mcLStrafe)	
+		!MpSafeMode() ? M_legs	= AS->legs_ls : M_legs = AS->legs_ls_safe;
+	else if (mstate_rl&mcRStrafe)	
+		!MpSafeMode() ? M_legs	= AS->legs_rs : M_legs = AS->legs_rs_safe;
+	else
+		is_standing = true;
 
 	if(mstate_rl&mcSprint)
 	{

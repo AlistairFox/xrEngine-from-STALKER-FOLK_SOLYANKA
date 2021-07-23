@@ -73,8 +73,10 @@ void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 	float wfx_time;
 	P.r_float(wfx_time);
 
+ 
 	shared_str name;
 	P.r_stringZ(name);
+	 
 
 	u8 need_update;
 	P.r_u8(need_update);
@@ -85,60 +87,23 @@ void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 
 	if (OnClient() && g_pGamePersistent)
 	{
-		/*
-		if (just_Connected)
-		{
- 			drawTime = true;
-			dwTimeStart = Device.dwTimeGlobal;
-			just_Connected = false;
-		}
-
-		if (drawTime)
-		{
-			//GamePersistent().Environment().Invalidate();
-
-			if (Device.dwTimeGlobal - dwTimeStart > 500)
-			{
-				drawTime = false;
-			}
-		}
-		*/
-
 		g_pGamePersistent->Environment().wfx_time = wfx_time;
 
-		if (!(wfx_time > 1))
+		//if (!(wfx_time > 1))
 		{
 			if (old_time_env != EnvironmentTimeFactor || need_update == 1)
 			{
 				GamePersistent().Environment().Invalidate();
 				GamePersistent().Environment().SetGameTime(GameEnvironmentTime, EnvironmentTimeFactor);
- 				old_time_env = EnvironmentTimeFactor;
+				old_time_env = EnvironmentTimeFactor;
 				need_wait_update_name = true;
 				dwTimeStart = Device.dwTimeGlobal;
- 			}
-			/*
-			if (old_time_game + 3600000 > 86400000)
-				old_time_game -= 86400000;
-	
-			if (GameTime > old_time_game + 3600000)
-			{
-				GamePersistent().Environment().Invalidate();
-				GamePersistent().Environment().SetGameTime(GameEnvironmentTime, EnvironmentTimeFactor);
-				//GamePersistent().Environment().SetWeather(name, true);
-
-				Msg("OLD_TIME %d", old_time_game);
-				Msg("Game_TIME %d", GameTime);
-				
-				old_time_game = GameTime;
-				need_wait_update_name = true;
-				dwTimeStart = Device.dwTimeGlobal;
-				//return;
-			} 
-			*/
+			}
 		}
 
-		if (!need_wait_update_name)
+		if (!need_wait_update_name || wfx_time > 1)
 		{
+		
 			if (xr_strcmp(GamePersistent().Environment().CurrentWeatherName, name))
 			{
 				if (wfx_time > 1)
@@ -158,7 +123,8 @@ void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 			if (Device.dwTimeGlobal - dwTimeStart > 1000)
 			{
 				need_wait_update_name = false;
-			
+				
+				
 				if (xr_strcmp(GamePersistent().Environment().CurrentWeatherName, name))
 				{
 					GamePersistent().Environment().SetWeather(name, false);
