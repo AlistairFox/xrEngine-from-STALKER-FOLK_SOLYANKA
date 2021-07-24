@@ -2636,6 +2636,7 @@ public:
 	}
 };
 
+
 class CCC_ADD_Money_to_client_self : public IConsole_Command {
 public:
 	CCC_ADD_Money_to_client_self(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
@@ -2655,11 +2656,6 @@ public:
 	}
 	virtual void Save(IWriter* F) {};
 };
-
-extern int simulate_netwark_ping;
-
-extern int simulate_netwark_ping_cl;
-
 
 void register_mp_console_commands()
 {
