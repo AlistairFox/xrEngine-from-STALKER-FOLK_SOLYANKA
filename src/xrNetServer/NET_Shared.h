@@ -26,6 +26,10 @@ IC bool UseDirectPlay()
 
 XRNETSERVER_API extern ClientID BroadcastCID;
 
+XRNETSERVER_API extern int simulate_netwark_ping;
+
+XRNETSERVER_API extern int simulate_netwark_ping_cl;
+
 XRNETSERVER_API extern Flags32	psNET_Flags;
 XRNETSERVER_API extern int		psNET_ClientUpdate;
 XRNETSERVER_API extern int		psNET_ClientPending;

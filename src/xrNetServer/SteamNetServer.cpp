@@ -4,6 +4,7 @@
 // -----------------------------------------------------------------------------
 
 SteamNetServer* s_pCallbackInstance = nullptr;
+XRNETSERVER_API int	simulate_netwark_ping = 0;		// FPS
 
 void SvSteamNetConnectionStatusChangedCallback(SteamNetConnectionStatusChangedCallback_t *pInfo)
 {
@@ -89,6 +90,17 @@ bool SteamNetServer::CreateConnection(GameDescriptionData & game_descr, ServerCo
 	SteamNetworkingConfigValue_t opt;
 	opt.SetPtr(k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged, (void*)SvSteamNetConnectionStatusChangedCallback);
 
+	SteamNetworkingUtils()->SetGlobalConfigValueInt32(k_ESteamNetworkingConfig_SendBufferSize, 1024 * 1024);
+
+	if (simulate_netwark_ping > 0)
+	{
+		int ping = 0;
+
+		ping = simulate_netwark_ping;
+
+		SteamNetworkingUtils()->SetGlobalConfigValueInt32(k_ESteamNetworkingConfig_FakePacketLag_Send, ping);
+		SteamNetworkingUtils()->SetGlobalConfigValueInt32(k_ESteamNetworkingConfig_FakePacketLag_Recv, ping);
+	}
 	// CREATE LISTENER
 	m_hListenSock = m_pInterface->CreateListenSocketIP(bindServerAddress, 1, &opt);
 

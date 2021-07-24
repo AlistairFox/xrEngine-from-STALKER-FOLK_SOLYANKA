@@ -676,6 +676,11 @@ extern int			psNET_ServerPending;
 extern int			psNET_DedicatedSleep;
 extern char			psNET_Name[32];
 extern Flags32		psEnvFlags;
+
+extern int simulate_netwark_ping;
+extern int simulate_netwark_ping_cl;
+
+
 //extern float		r__dtex_range;
 
 extern int			g_ErrorLineCount;

@@ -4,6 +4,7 @@
 #include "ip_address.h"
 
 SteamNetClient* s_pCallbackInstance = nullptr;
+XRNETSERVER_API int	simulate_netwark_ping_cl = 0;		// FPS
 
 void ClSteamNetConnectionStatusChangedCallback(SteamNetConnectionStatusChangedCallback_t *pInfo)
 {
@@ -103,6 +104,16 @@ bool SteamNetClient::CreateConnection(ClientConnectionOptions & connectOpt)
 
 	SteamNetworkingConfigValue_t opt;
 	opt.SetPtr(k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged, (void*)ClSteamNetConnectionStatusChangedCallback);
+
+	if (simulate_netwark_ping_cl > 0)
+	{
+		int ping = 0;
+
+		ping = simulate_netwark_ping_cl;
+
+		SteamNetworkingUtils()->SetGlobalConfigValueInt32(k_ESteamNetworkingConfig_FakePacketLag_Send, ping);
+		SteamNetworkingUtils()->SetGlobalConfigValueInt32(k_ESteamNetworkingConfig_FakePacketLag_Recv, ping);
+	}
 
 	m_hConnection = m_pInterface->ConnectByIPAddress(serverAddr, 1, &opt);
 	if (m_hConnection == k_HSteamNetConnection_Invalid)

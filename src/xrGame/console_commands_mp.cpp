@@ -2656,8 +2656,9 @@ public:
 	virtual void Save(IWriter* F) {};
 };
 
+extern int simulate_netwark_ping;
 
-
+extern int simulate_netwark_ping_cl;
 
 
 void register_mp_console_commands()
@@ -2698,6 +2699,9 @@ void register_mp_console_commands()
 	CMD1(CCC_Net_SV_ClearStats,		"net_sv_clearstats" );
 
 	CMD4(CCC_Integer, "draw_mp_statistic", &g_cl_draw_mp_statistic, 0, 1);
+
+	CMD4(CCC_Integer, "net_sv_simulate_lag", &simulate_netwark_ping, 0, 100);
+	CMD4(CCC_Integer, "net_cl_simulate_lag", &simulate_netwark_ping_cl, 0, 100);
 
 	// Network
 #ifdef DEBUG
