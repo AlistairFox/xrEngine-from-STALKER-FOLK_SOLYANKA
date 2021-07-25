@@ -110,7 +110,7 @@ protected:
 
 public:
 	IC int					    GetPort() const { return psNET_Port; };
-	IC u32							GetMaxPlayers() const { return 32; }
+	IC u32						GetMaxPlayers() const { return 128; }
 
 	EConnect				    Connect(LPCSTR options, GameDescriptionData & game_descr);
 	void					      Disconnect();
