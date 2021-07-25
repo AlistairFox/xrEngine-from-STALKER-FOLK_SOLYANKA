@@ -146,7 +146,10 @@ void CUIInventoryUpgradeWnd::InitInventory( CInventoryItem* item, bool can_upgra
 	m_scheme_wnd->Show( false );
 	m_back->DetachAll();
 	m_back->Show(false);
-	m_btn_repair->Enable( false );
+	
+	//MPFIX
+	if (item)
+	m_btn_repair->Enable(item->GetCondition() < 0.99f/*false*/);
 	
 	if ( ai().get_alife() && m_inv_item )
 	{
@@ -223,6 +226,8 @@ bool CUIInventoryUpgradeWnd::install_item( CInventoryItem& inv_item, bool can_up
 	m_scheme_wnd->DetachAll();
 	m_back->DetachAll();
 	m_btn_repair->Enable( (inv_item.GetCondition() < 0.99f) );
+
+	Msg("Condition == %f", inv_item.GetCondition());
 
 	if ( !can_upgrade )
 	{
@@ -360,6 +365,7 @@ void CUIInventoryUpgradeWnd::ResetHighlight()
 void CUIInventoryUpgradeWnd::set_info_cur_upgrade( Upgrade_type* upgrade )
 {
 	UIUpgrade* uiu = FindUIUpgrade( upgrade );
+	
 	if ( uiu )
 	{
 		if ( Device.dwTimeGlobal < uiu->FocusReceiveTime())

@@ -18,6 +18,7 @@
 #include "script_callback_ex.h"
 #include "game_object_space.h"
 #include "xrServer_Objects_ALife_Monsters.h"
+#include "game_sv_freemp.h"
 
 void  CInventoryOwner::OnEvent (NET_Packet& P, u16 type)
 {
@@ -25,18 +26,50 @@ void  CInventoryOwner::OnEvent (NET_Packet& P, u16 type)
 	{
 	case GE_MONEY:
 		{
+			
 			u32 amount = P.r_u32();
+			u32 senderID = P.r_u32();
+
 			if (InfinitiveMoney())
 				m_money = _max(m_money, amount);
 			else
 				m_money = amount;
 
+			
 			if (OnServer())
 			{
-				CSE_Abstract				*e_dest = Level().Server->ID_to_entity(this->object_id());
-				CSE_ALifeTraderAbstract*	pTa = smart_cast<CSE_ALifeTraderAbstract*>(e_dest);
+				CSE_Abstract* e_dest = Level().Server->ID_to_entity(this->object_id());
+				CSE_ALifeTraderAbstract* pTa = smart_cast<CSE_ALifeTraderAbstract*>(e_dest);
+				  
 				if (pTa)
 					pTa->m_dwMoney = m_money;
+				
+				Msg("Money_pre_actor %d, id %d", m_money, this->object_id());
+				ClientID id;
+				id.set(senderID);
+
+				xrClientData* data = Level().Server->ID_to_client(id);
+					
+				if (!data)
+					break;
+
+				Msg("data_actor %d, id %d", m_money, this->object_id());
+
+				if (!data->ps)
+					break;
+
+				Msg("ps_actor %d, id %d", m_money, this->object_id());
+
+				data->ps->money_for_round = m_money;
+					
+				game_sv_freemp* freemp = smart_cast<game_sv_freemp*>(Level().Server->game);
+					
+				if (freemp)
+					freemp->signal_Syncronize();
+
+				Msg("money_set == %d", m_money);
+					
+				 
 			}
 		}
 		break;

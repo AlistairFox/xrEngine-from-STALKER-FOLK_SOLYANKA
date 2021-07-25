@@ -10,6 +10,8 @@
 #include "xrServer_Objects_ALife_Items.h"
 #include "xrServer_Objects_ALife_Monsters.h"
 
+#include "Level.h"
+
 void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 {
 #	ifdef SLOW_VERIFY_ENTITIES
@@ -353,6 +355,8 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 			else
 			{
 				// Signal to everyone (including sender)
+				P.w_u32(sender.value());
+
 				SendBroadcast(BroadcastCID, P, MODE);
 			}						
 		}break;
@@ -362,6 +366,23 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 		{
 			SendPlayersInfo(sender);
 		}break;
+
+	case GE_PLAYER_REPAIR:
+	{
+		float condition;
+		P.r_float(condition);
+
+		CObject* obj =  Level().Objects.net_Find(destination);
+		CInventoryItem* item = smart_cast<CInventoryItem*>(obj);
+		if (item)
+			item->SetCondition(condition);
+
+
+	
+	}break;
+
+
+
 	default:
 		R_ASSERT2	(0,"Game Event not implemented!!!");
 		break;
