@@ -1963,84 +1963,6 @@
     <Filter Include="Core\Client\Spectator\Cameras">
       <UniqueIdentifier>{b684fcbc-914c-4e39-aeb8-ec3f52b15558}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core\Common">
-      <UniqueIdentifier>{dc78f354-c72a-499d-b454-e4c6329fc832}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Common\Console Commands">
-      <UniqueIdentifier>{9e910122-e853-4092-b095-274437f56b82}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Common\DateTime">
-      <UniqueIdentifier>{93cf1121-5438-4162-b27c-1e0828598b7e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Common\Dll Process Detach">
-      <UniqueIdentifier>{da383634-5908-428e-9329-8b3c90caf613}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Common\NET Shared">
-      <UniqueIdentifier>{c5349d09-bc9a-457b-ae92-ddce690d4502}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Common\NET Shared\SecureMessages">
-      <UniqueIdentifier>{1bf14105-1614-459e-8f67-63c77306a09c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Common\ObjectBroker">
-      <UniqueIdentifier>{8c1de05d-e1d6-4b03-a67e-3ac471946f42}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Common\ObjectFactory">
-      <UniqueIdentifier>{143b5b23-efd6-40b7-b10c-16bfc603dc15}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Common\ObjectFactory\object_item_abstract">
-      <UniqueIdentifier>{5bf80812-d1ef-42e9-aff4-65f997cf539c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Common\ObjectFactory\object_item_client_server">
-      <UniqueIdentifier>{ac5b4fe9-6546-4b95-9878-9c54e2c5337f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Common\ObjectFactory\object_item_script">
-      <UniqueIdentifier>{340c1ec0-30f2-4c3d-9ae0-25d16ed3be83}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Common\ObjectFactory\object_item_single">
-      <UniqueIdentifier>{721beb40-043d-49ba-85d4-2160030ef093}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Common\Profiler">
-      <UniqueIdentifier>{41a3fdd2-9f14-498f-bfcc-7025a63e5d78}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Common\QuadTree">
-      <UniqueIdentifier>{7c82e100-02e0-48af-ae7f-dc6ccccce775}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Common\Random">
-      <UniqueIdentifier>{83678393-3a14-4181-9f7c-4b1d4f0a3cb3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Common\Random\weighted">
-      <UniqueIdentifier>{3cb5c25b-5dfe-48f7-98cc-0aa47f5ac76c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Common\Random\32bit">
-      <UniqueIdentifier>{282f7457-5232-47ff-b18d-c6c4d6b54dea}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Common\Shared">
-      <UniqueIdentifier>{b94f95c2-4848-4dcf-9715-552c2547a25a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Common\SmartCast">
-      <UniqueIdentifier>{b1c5a0eb-4e15-4f51-a895-921bc02407d8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Common\StringTable">
-      <UniqueIdentifier>{14589916-b588-419f-b41c-3a4463758c4a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Common\associative_vector">
-      <UniqueIdentifier>{95a3bd26-18f1-4af8-88d7-99482406c524}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Common\associative_vector\vector">
-      <UniqueIdentifier>{93739ac3-b528-427e-84d5-4f27f7240861}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Common\associative_vector\compare">
-      <UniqueIdentifier>{1cd3db9c-1f8a-4669-b6d4-bf3800523f1a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Common\Registry">
-      <UniqueIdentifier>{b473bc51-5499-4222-bca0-20a2498553da}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Common\debug">
-      <UniqueIdentifier>{620d24b4-e3af-4dc6-9a64-07a6b2d26a22}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Common\debug\static_cast_checked">
-      <UniqueIdentifier>{dc56b985-8023-4c0a-8513-39adb4c7633b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Core\Server">
       <UniqueIdentifier>{9985a4d5-2a36-464e-960f-7840022b00f3}</UniqueIdentifier>
     </Filter>
@@ -2517,6 +2439,87 @@
     </Filter>
     <Filter Include="Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Common\RocketLauncher">
       <UniqueIdentifier>{d1de9636-a36e-4494-9339-e10d6fec350c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="jsonxx">
+      <UniqueIdentifier>{33080bda-ed3f-4a71-a780-c8b37658ce27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Common">
+      <UniqueIdentifier>{dc78f354-c72a-499d-b454-e4c6329fc832}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Common\Console Commands">
+      <UniqueIdentifier>{9e910122-e853-4092-b095-274437f56b82}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Common\DateTime">
+      <UniqueIdentifier>{93cf1121-5438-4162-b27c-1e0828598b7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Common\Dll Process Detach">
+      <UniqueIdentifier>{da383634-5908-428e-9329-8b3c90caf613}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Common\NET Shared">
+      <UniqueIdentifier>{c5349d09-bc9a-457b-ae92-ddce690d4502}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Common\NET Shared\SecureMessages">
+      <UniqueIdentifier>{1bf14105-1614-459e-8f67-63c77306a09c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Common\ObjectBroker">
+      <UniqueIdentifier>{8c1de05d-e1d6-4b03-a67e-3ac471946f42}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Common\ObjectFactory">
+      <UniqueIdentifier>{143b5b23-efd6-40b7-b10c-16bfc603dc15}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Common\ObjectFactory\object_item_abstract">
+      <UniqueIdentifier>{5bf80812-d1ef-42e9-aff4-65f997cf539c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Common\ObjectFactory\object_item_client_server">
+      <UniqueIdentifier>{ac5b4fe9-6546-4b95-9878-9c54e2c5337f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Common\ObjectFactory\object_item_script">
+      <UniqueIdentifier>{340c1ec0-30f2-4c3d-9ae0-25d16ed3be83}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Common\ObjectFactory\object_item_single">
+      <UniqueIdentifier>{721beb40-043d-49ba-85d4-2160030ef093}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Common\Profiler">
+      <UniqueIdentifier>{41a3fdd2-9f14-498f-bfcc-7025a63e5d78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Common\QuadTree">
+      <UniqueIdentifier>{7c82e100-02e0-48af-ae7f-dc6ccccce775}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Common\Random">
+      <UniqueIdentifier>{83678393-3a14-4181-9f7c-4b1d4f0a3cb3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Common\Random\weighted">
+      <UniqueIdentifier>{3cb5c25b-5dfe-48f7-98cc-0aa47f5ac76c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Common\Random\32bit">
+      <UniqueIdentifier>{282f7457-5232-47ff-b18d-c6c4d6b54dea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Common\Shared">
+      <UniqueIdentifier>{b94f95c2-4848-4dcf-9715-552c2547a25a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Common\SmartCast">
+      <UniqueIdentifier>{b1c5a0eb-4e15-4f51-a895-921bc02407d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Common\StringTable">
+      <UniqueIdentifier>{14589916-b588-419f-b41c-3a4463758c4a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Common\associative_vector">
+      <UniqueIdentifier>{95a3bd26-18f1-4af8-88d7-99482406c524}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Common\associative_vector\vector">
+      <UniqueIdentifier>{93739ac3-b528-427e-84d5-4f27f7240861}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Common\associative_vector\compare">
+      <UniqueIdentifier>{1cd3db9c-1f8a-4669-b6d4-bf3800523f1a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Common\Registry">
+      <UniqueIdentifier>{b473bc51-5499-4222-bca0-20a2498553da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Common\debug">
+      <UniqueIdentifier>{620d24b4-e3af-4dc6-9a64-07a6b2d26a22}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Common\debug\static_cast_checked">
+      <UniqueIdentifier>{dc56b985-8023-4c0a-8513-39adb4c7633b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -7431,6 +7434,9 @@
     <ClInclude Include="ui\UISpawnMenuRP.h">
       <Filter>UI\Multiplayer\Roleplay</Filter>
     </ClInclude>
+    <ClInclude Include="..\jsonxx\jsonxx.h">
+      <Filter>jsonxx</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="damage_manager.cpp">
@@ -11110,6 +11116,9 @@
     </ClCompile>
     <ClCompile Include="game_sv_freemp_trade.cpp">
       <Filter>Core\Server\Games\server\freemp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jsonxx\jsonxx.cc">
+      <Filter>jsonxx</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
