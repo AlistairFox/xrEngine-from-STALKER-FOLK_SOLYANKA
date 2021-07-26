@@ -346,7 +346,7 @@ bool CBaseMonster::NeedToDestroyObject() const
 			return false;
 		}
 
-		if (HavePlayersNearby(10.f))
+		if (HavePlayersNearby(50.f))
 		{
 			// добавляем время на продление "жизни трупа", если был игрок рядом
 			m_last_player_detection_time = Level().timeServer();
@@ -379,8 +379,17 @@ bool CBaseMonster::HavePlayersNearby(float distance) const
 		if (!ps) continue;
 
 		u16 id = ps->GameID;
+
 		CObject* pObject = Level().Objects.net_Find(id);
+		CActor* actor = smart_cast<CActor*>(pObject);
+
 		if (!pObject) continue;
+		if (!actor) continue;
+
+		if (id == Actor()->ID())
+			continue;
+
+		Msg("ID [%d], DistPos[%.0f], Distance[%.0f]", id,this->Position().distance_to_sqr(pObject->Position()), distance_sqr);
 
 		if (this->Position().distance_to_sqr(pObject->Position()) < distance_sqr)
 		{
@@ -426,6 +435,7 @@ void CBaseMonster::UpdateCL()
 		if (IsGameTypeSingle() || OnServer())
 			update_pos_by_grouping_behaviour();
 	}
+	
 	if(IsGameTypeSingle() || OnServer())
 		control().update_frame();
 

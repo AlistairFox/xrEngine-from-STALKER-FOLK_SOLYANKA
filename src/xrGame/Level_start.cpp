@@ -36,10 +36,18 @@ BOOL CLevel::net_Start	( LPCSTR op_server, LPCSTR op_client )
 	string64	player_name;
 	GetPlayerName_FromRegistry( player_name, sizeof(player_name) );
 
+	string64 passname;
+
 	if ( xr_strlen(player_name) == 0 )
 	{
 		xr_strcpy( player_name, xr_strlen(Core.UserName) ? Core.UserName : Core.CompName );
 	}
+
+	if (xr_strlen(passname) == 0)
+	{
+		xr_strcpy (passname, xr_strlen(Core.UserPassword) ? Core.UserPassword : "null");
+	}
+ 
 	VERIFY( xr_strlen(player_name) );
 
 	//make Client Name if options doesn't have it
@@ -296,8 +304,7 @@ bool CLevel::net_start6				()
 			CStringTable	st;
 			LPCSTR tmp_map_ver = !!map_data.m_map_version ? map_data.m_map_version.c_str() : "";
 
-			STRCONCAT(level_id_string, st.translate("st_level"), ":",
-				map_data.m_name.c_str(), "(", tmp_map_ver, "). ");
+			STRCONCAT(level_id_string, st.translate("st_level"), ":", map_data.m_name.c_str(), "(", tmp_map_ver, "). ");
 			STRCONCAT(dialog_string, level_id_string, st.translate("ui_st_map_data_corrupted"));
 
 			g_pGameLevel->net_Stop();
