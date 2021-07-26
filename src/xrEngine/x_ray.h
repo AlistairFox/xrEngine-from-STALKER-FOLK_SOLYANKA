@@ -61,7 +61,7 @@ public:
 	void					LoadSwitch			();
 	void					LoadDraw			();
 
-	virtual	void			OnEvent				(EVENT E, u64 P1, u64 P2);
+	virtual	void			OnEvent				(EVENT E, u64 P1, u64 P2, u64 P3);
 
 	// Other
 							CApplication		();

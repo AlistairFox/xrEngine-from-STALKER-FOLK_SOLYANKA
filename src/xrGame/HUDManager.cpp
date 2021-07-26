@@ -265,7 +265,7 @@ void  CHUDManager::RenderUI()
 
 }
 
-void CHUDManager::OnEvent(EVENT E, u64 P1, u64 P2)
+void CHUDManager::OnEvent(EVENT E, u64 P1, u64 P2, u64 P3)
 {
 }
 

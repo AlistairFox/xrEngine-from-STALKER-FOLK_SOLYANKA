@@ -36,10 +36,10 @@ public:
 		if (I!=Handlers.end())
 			Handlers.erase(I);
 	}
-	void	Signal(u64 P1, u64 P2)
+	void	Signal(u64 P1, u64 P2, u64 P3)
 	{
 		for (u32 I=0; I<Handlers.size(); I++)
-			Handlers[I]->OnEvent(this,P1,P2);
+			Handlers[I]->OnEvent(this,P1,P2,P3);
 	}
 };
 //-----------------------------------------
@@ -113,21 +113,21 @@ void	CEventAPI::Handler_Detach(EVENT& E, IEventReceiver* H)
 	Destroy		(E);
 	CS.Leave	();
 }
-void	CEventAPI::Signal(EVENT E, u64 P1, u64 P2)
+void	CEventAPI::Signal(EVENT E, u64 P1, u64 P2, u64 P3)
 {
 	CS.Enter	();
-	E->Signal	(P1,P2);	
+	E->Signal	(P1,P2,P3);	
 	CS.Leave	();
 }
-void	CEventAPI::Signal(LPCSTR N, u64 P1, u64 P2)
+void	CEventAPI::Signal(LPCSTR N, u64 P1, u64 P2, u64 P3)
 {
 	CS.Enter	();
 	EVENT		E = Create(N);
-	Signal		(E,P1,P2);
+	Signal		(E,P1,P2,P3);
 	Destroy		(E);
 	CS.Leave	();
 }
-void	CEventAPI::Defer(EVENT E, u64 P1, u64 P2)
+void	CEventAPI::Defer(EVENT E, u64 P1, u64 P2, u64 P3)
 {
 	CS.Enter	();
 	E->dwRefCount++;
@@ -135,13 +135,14 @@ void	CEventAPI::Defer(EVENT E, u64 P1, u64 P2)
 	Events_Deferred.back().E	= E;
 	Events_Deferred.back().P1	= P1;
 	Events_Deferred.back().P2	= P2;
+	Events_Deferred.back().P3   = P3;
 	CS.Leave	();
 }
-void	CEventAPI::Defer(LPCSTR N, u64 P1, u64 P2)
+void	CEventAPI::Defer(LPCSTR N, u64 P1, u64 P2, u64 P3)
 {
 	CS.Enter	();
 	EVENT	E	= Create(N);
-	Defer		(E,P1,P2);
+	Defer		(E,P1,P2,P3);
 	Destroy		(E);
 	CS.Leave	();
 }
@@ -171,7 +172,7 @@ void	CEventAPI::OnFrame	()
 	for (u32 I=0; I<Events_Deferred.size(); I++)
 	{
 		Deferred&	DEF = Events_Deferred[I];
-		Signal		(DEF.E,DEF.P1,DEF.P2);
+		Signal		(DEF.E,DEF.P1,DEF.P2, DEF.P3);
 		Destroy		(Events_Deferred[I].E);
 	}
 	Events_Deferred.clear();

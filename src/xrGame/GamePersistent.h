@@ -71,7 +71,7 @@ public:
 	virtual void		OnGameEnd				();
 
 	virtual void	_BCL	OnFrame					();
-	virtual void			OnEvent					(EVENT E, u64 P1, u64 P2);
+	virtual void			OnEvent					(EVENT E, u64 P1, u64 P2, u64 P3);
 
 	virtual void		UpdateGameType			();
 

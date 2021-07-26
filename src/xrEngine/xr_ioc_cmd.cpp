@@ -330,13 +330,15 @@ public:
 			return;
 		}
 */
-		string4096	op_server,op_client,op_demo;
+		string4096	op_server,op_client,op_demo, op_login;
 		op_server[0] = 0;
 		op_client[0] = 0;
-		
+		op_login[0] = 0;
+
 		parse		(op_server,args,"server");	// 1. server
 		parse		(op_client,args,"client");	// 2. client
 		parse		(op_demo, args,	"demo");	// 3. demo
+		parse		(op_login, args, "auth");
 		
 		strlwr( op_server );
 		protect_Name_strlwr( op_client );
@@ -357,7 +359,7 @@ public:
 			Engine.Event.Defer	("KERNEL:start_mp_demo",u64(xr_strdup(op_demo)),0);
 		} else
 		{
-			Engine.Event.Defer	("KERNEL:start",u64(xr_strlen(op_server)?xr_strdup(op_server):0),u64(xr_strdup(op_client)));
+			Engine.Event.Defer	("KERNEL:start",u64(xr_strlen(op_server)?xr_strdup(op_server):0),u64(xr_strdup(op_client)), u64(strdup(op_login)));
 		}
 	}
 };

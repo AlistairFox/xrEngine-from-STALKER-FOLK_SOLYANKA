@@ -1067,7 +1067,7 @@ CApplication::~CApplication()
 
 extern CRenderDevice Device;
 
-void CApplication::OnEvent(EVENT E, u64 P1, u64 P2)
+void CApplication::OnEvent(EVENT E, u64 P1, u64 P2, u64 P3)
 {
 	if (E==eQuit)
 	{
@@ -1085,6 +1085,8 @@ void CApplication::OnEvent(EVENT E, u64 P1, u64 P2)
 	{
 		LPSTR		op_server		= LPSTR	(P1);
 		LPSTR		op_client		= LPSTR	(P2);
+		LPSTR       op_auth			= LPSTR(P3);
+
 		Level_Current				= u32(-1);
 		R_ASSERT	(0==g_pGameLevel);
 		R_ASSERT	(0!=g_pGamePersistent);
@@ -1115,7 +1117,7 @@ void CApplication::OnEvent(EVENT E, u64 P1, u64 P2)
 			g_pGameLevel					= (IGame_Level*)NEW_INSTANCE(CLSID_GAME_LEVEL);
 			pApp->LoadBegin					(); 
 			g_pGamePersistent->Start		(op_server);
-			g_pGameLevel->net_Start			(op_server,op_client);
+			g_pGameLevel->net_Start			(op_server,op_client, op_auth);
 			pApp->LoadEnd					(); 
 		}
 		xr_free							(op_server);

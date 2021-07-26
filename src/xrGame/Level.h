@@ -250,7 +250,7 @@ public:
 	shared_str					m_caClientOptions;
 
 	// Starting/Loading
-	virtual BOOL				net_Start				( LPCSTR op_server, LPCSTR op_client);
+	virtual BOOL				net_Start				( LPCSTR op_server, LPCSTR op_client, LPCSTR op_auth);
 	virtual void				net_Load				( LPCSTR name );
 	virtual void				net_Save				( LPCSTR name );
 	virtual void				net_Stop				( );
@@ -263,7 +263,7 @@ public:
 	virtual void				Load_GameSpecific_CFORM	( CDB::TRI* T, u32 count );
 
 	// Events
-	virtual void				OnEvent					( EVENT E, u64 P1, u64 P2 );
+	virtual void				OnEvent					( EVENT E, u64 P1, u64 P2, u64 P3 );
 	virtual void	_BCL		OnFrame					( void );
 	virtual void				OnRender				( );
 

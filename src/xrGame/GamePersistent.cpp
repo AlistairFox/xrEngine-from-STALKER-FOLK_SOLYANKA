@@ -693,7 +693,7 @@ void CGamePersistent::OnFrame	()
 #include "ui/UIMainIngameWnd.h"
 #include "ui/UIPdaWnd.h"
 
-void CGamePersistent::OnEvent(EVENT E, u64 P1, u64 P2)
+void CGamePersistent::OnEvent(EVENT E, u64 P1, u64 P2, u64 P3)
 {
 	if(E==eQuickLoad)
 	{
