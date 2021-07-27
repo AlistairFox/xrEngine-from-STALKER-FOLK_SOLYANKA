@@ -248,9 +248,12 @@ void CALifeUpdateManager::new_game			(LPCSTR save_name)
 
 	CALifeObjectRegistry::OBJECT_REGISTRY::iterator	I = objects().objects().begin();
 	CALifeObjectRegistry::OBJECT_REGISTRY::iterator	E = objects().objects().end();
-	for ( ; I != E; ++I)
-		(*I).second->on_register		();
 
+	for (; I != E; ++I)
+	{
+		Msg("Name[%s]", (*I).second->name_replace());
+		(*I).second->on_register();
+	}
 #ifdef DEBUG
 	save								(save_name);
 #endif // #ifdef DEBUG
