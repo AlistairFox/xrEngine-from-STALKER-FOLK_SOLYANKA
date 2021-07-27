@@ -75,6 +75,8 @@ void player_account::net_Import	(NET_Packet & P)
 			)
 		);
 	}
+
+	P.r_stringZ(m_player_save_name);
 }
 
 void player_account::skip_Import(NET_Packet & P)
@@ -91,6 +93,8 @@ void player_account::skip_Import(NET_Packet & P)
 		P.r_u16();
 		P.r_u16();
 	}
+
+	P.r_stringZ_s(tmp_string);
 }
 
 
@@ -108,10 +112,17 @@ void player_account::net_Export	(NET_Packet & P)
 		P.w_u16	(static_cast<u16>(i->first));
 		P.w_u16	(i->second.m_count);
 	}
+
+	P.w_stringZ(m_player_save_name);
 }
 
 void player_account::set_player_name(char const * new_name)
 {
 	R_ASSERT(!is_online());
 	m_player_name = new_name;
+}
+
+void player_account::set_player_save(char const* new_save_name)
+{
+	m_player_save_name = new_save_name;
 }

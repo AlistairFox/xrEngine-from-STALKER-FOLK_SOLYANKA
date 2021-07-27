@@ -5,6 +5,8 @@
 #include "UIGameFMP.h"
 #include "actor_mp_client.h"
 
+#include "Inventory.h"
+
 game_cl_freemp::game_cl_freemp()
 {
 }
@@ -45,13 +47,22 @@ void game_cl_freemp::net_import_update(NET_Packet & P)
 	inherited::net_import_update(P);
 }
 
+#include "../jsonxx/jsonxx.h"
+using namespace jsonxx;
+#include <fstream>;
+#include <istream>;
+
+u32 old_time = 0;
+u32 ids = 0; 
+
 void game_cl_freemp::shedule_Update(u32 dt)
 {
 	game_cl_GameState::shedule_Update(dt);
-
+ 
 	if (!local_player)
 		return;
 
+	
 	// синхронизация имени и денег игроков для InventoryOwner
 	for (auto cl : players)
 	{
@@ -76,7 +87,86 @@ void game_cl_freemp::shedule_Update(u32 dt)
 		{
 			pActor->set_money((u32)ps->money_for_round, false);
 		}
+	 
+		
 	}
+
+	if (OnServer() && Device.dwTimeGlobal - old_time > 5000)
+	{
+		ids += 1;
+		if (ids > 10)
+			ids = 0;
+		//for (int ids = 1; ids <= 10; ids ++)
+		for (auto cl : players)
+		{
+
+			game_PlayerState* ps = cl.second;
+			if (!ps || ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD)) continue;
+
+			CActor* pActor = smart_cast<CActor*>(Level().Objects.net_Find(ps->GameID));
+			if (!pActor || !pActor->g_Alive()) continue;
+
+			TIItemContainer items;
+
+			pActor->inventory().AddAvailableItems(items, false);
+
+			xr_vector<PIItem>::const_iterator itemStart = items.begin();
+			xr_vector<PIItem>::const_iterator itemEnd = items.end();
+
+			Object json;
+			Array jsonArray;
+
+			for (; itemStart != itemEnd; itemStart++)
+			{
+				PIItem item = (*itemStart);
+				Object table;
+
+				string2048 updates;
+				item->get_upgrades_str(updates);
+
+				table << "section:" << Value(item->m_section_id.c_str());
+				table << "condition:" << Value(item->GetCondition());
+				table << "upgrades:" << Value(updates);
+				jsonArray << table;
+			}
+
+			json << "Inventory" << jsonArray;
+			json << "Community:" << Value(pActor->Community());
+
+
+			if (ps->m_account.name_save().size() != 0)
+			{
+				std::string fname;
+				
+				fname.append("Saves");
+				fname.append("/");
+				fname.append(ps->m_account.name_save().c_str());
+				fname.append(".json");
+
+				std::ofstream ofile(fname);
+
+				if (ofile.is_open())
+				{
+					Msg("Is_Open [%s]", fname.c_str());
+					ofile << json.json().c_str();
+				}
+				else
+				{
+					CreateDirectory("Saves", NULL);					 
+				}
+				ofile.close();
+			}
+			else
+			{
+				Msg("SaveName %s", ps->m_account.name_save().c_str());
+			}
+
+			old_time = Device.dwTimeGlobal;
+
+
+		}
+	}
+
 }
 
 bool game_cl_freemp::OnKeyboardPress(int key)

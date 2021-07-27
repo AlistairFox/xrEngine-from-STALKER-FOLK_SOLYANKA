@@ -196,6 +196,14 @@ void xrServer::Check_GameSpy_CDKey_Success			(IClient* CL)
 
 BOOL	g_SV_Disable_Auth_Check = FALSE;
 
+#include <fstream>;
+#include "../jsonxx/jsonxx.h"
+
+#include <fstream>
+#include <iostream>
+
+using namespace jsonxx;
+
 bool xrServer::NeedToCheckClient_BuildVersion		(IClient* CL)	
 {
 /*#ifdef DEBUG
@@ -217,6 +225,8 @@ bool xrServer::NeedToCheckClient_BuildVersion		(IClient* CL)
 	return true;
 };
 
+
+
 void xrServer::OnBuildVersionRespond				( IClient* CL, NET_Packet& P )
 {
 	u16 Type;
@@ -224,20 +234,110 @@ void xrServer::OnBuildVersionRespond				( IClient* CL, NET_Packet& P )
 	u64 _our		=	FS.auth_get();
 	u64 _him		=	P.r_u64();
 
+	shared_str login ; 
+	P.r_stringZ(login);
+
+	shared_str password;
+	P.r_stringZ(password);
+
 #ifdef USE_DEBUG_AUTH
 	Msg("_our = %d", _our);
 	Msg("_him = %d", _him);
 	_our = MP_DEBUG_AUTH;
 #endif // USE_DEBUG_AUTH
 
-    if (_our != _him && g_SV_Disable_Auth_Check == 0)
+	Object jsonObj;
+
+	std::string path;
+
+	path.append("players.json");
+
+
+	std::ifstream input(path);
+
+	if (input.is_open())
+	{
+		std::string str((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
+
+		jsonObj.parse(str);
+	}
+ 
+	input.close();
+
+	bool finded = false;
+	std::string name_saves = {0};
+
+	if (jsonObj.has<Array>("USERS"))
+	{
+		Array users = jsonObj.get<Array>("USERS");
+
+		for (int i = 0; i < users.size(); i++)
+		{
+			Object name = users.get<Object>(i);
+			std::string name_login = { 0 };
+			std::string name_password = { 0 };
+
+			if (name.has<String>("login:"))
+				name_login = name.get<String>("login:");
+
+			if (name.has<String>("password:"))
+				name_password = name.get<String>("password:");
+
+			
+			if (!std::strcmp(name_login.c_str(), login.c_str()))
+			{
+				if (!std::strcmp(name_password.c_str(), password.c_str()))
+				{
+					finded = true;
+					if (name.has<String>("user: "))
+					{
+						name_saves = name.get<String>("user: ");
+
+
+						//Msg("SAVEDIR = %s", name.get<String>("user: ").c_str());
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		Array table;
+
+		Object tab;
+
+		u32 rand = Random.randI(1, 10000);
+
+		tab << "login:"		<< Value("server_local");
+		tab << "password:"  << Value("admin_2610");
+		tab << "user: "		<< Value("user_" + std::to_string(rand));
+
+		table << tab;
+
+		jsonObj << "USERS" << table;
+
+		std::ofstream outfile(path);
+
+		if (outfile.is_open())
+		{
+			outfile.write(jsonObj.json().c_str(), jsonObj.json().size());
+		}
+
+		finded = true;
+	}
+
+
+	Msg("login: %s", login.c_str());
+	Msg("password: %s", password.c_str());
+	
+
+    if (_our != _him && g_SV_Disable_Auth_Check == 0 || !finded)
 	{
 		//Data verification failed. Cheater? 
-		SendConnectResult( CL, 0, ecr_data_verification_failed, "ÂÛÊÈÍÜ ÊÎÍÔÈÃÈ È ÑÊÐÈÏÒÛ // CHEATER" );
+		SendConnectResult( CL, 0, ecr_data_verification_failed, "ÍÅÂÅÐÍÛÅ ÄÀÍÍÛÅ ÄËß ÂÕÎÄÀ" );
 	}
 	else 
 	{
-		
 		bool bAccessUser = false;
 		string512 res_check;
 		
@@ -257,6 +357,18 @@ void xrServer::OnBuildVersionRespond				( IClient* CL, NET_Packet& P )
 			xr_strcat( res_check, "Invalid password.");
 			SendConnectResult( CL, 0, ecr_password_verification_failed, res_check );
 		}
+
+		xrClientData* data = ID_to_client(CL->ID);
+		
+		if (data->ps)
+		{
+			Msg("SetName[%s][%s]", login.c_str(), name_saves.c_str());
+
+			data->ps->m_account.set_player_name(login.c_str());
+			data->ps->m_account.set_player_save(name_saves.c_str());
+			
+		}
+			
 	}
 };
 

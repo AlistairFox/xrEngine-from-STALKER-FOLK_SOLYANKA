@@ -24,10 +24,10 @@ shared_str CLevel::OpenDemoFile(LPCSTR demo_file_name)
 }
 void CLevel::net_StartPlayDemo()
 {
-	net_Start(m_demo_server_options.c_str(), "localhost");
+	net_Start(m_demo_server_options.c_str(), "localhost", "");
 }
 
-BOOL CLevel::net_Start	( LPCSTR op_server, LPCSTR op_client )
+BOOL CLevel::net_Start	( LPCSTR op_server, LPCSTR op_client, LPCSTR op_auth)
 {
 	net_start_result_total				= TRUE;
 
@@ -35,23 +35,26 @@ BOOL CLevel::net_Start	( LPCSTR op_server, LPCSTR op_client )
 
 	string64	player_name;
 	GetPlayerName_FromRegistry( player_name, sizeof(player_name) );
-
-	string64 passname;
-
-	if ( xr_strlen(player_name) == 0 )
-	{
-		xr_strcpy( player_name, xr_strlen(Core.UserName) ? Core.UserName : Core.CompName );
-	}
-
-	if (xr_strlen(passname) == 0)
-	{
-		xr_strcpy (passname, xr_strlen(Core.UserPassword) ? Core.UserPassword : "null");
-	}
+	
+	string64 login_name;
+	LPCSTR	login = _GetItem(op_auth, 0, login_name, '/');
  
+	string64 password_name;
+	LPCSTR	password = _GetItem(op_auth, 1, password_name, '/');
+
+	xr_strcpy(Core.UserName, login_name);
+ 
+	xr_strcpy(Core.UserPassword, password_name);
+
+ 
+	Msg("Login[%s] Pass[%s]", login_name, password_name);
+	
+
 	VERIFY( xr_strlen(player_name) );
 
 	//make Client Name if options doesn't have it
 	LPCSTR	NameStart	= strstr(op_client,"/name=");
+
 	if (!NameStart)
 	{
 		string512 tmp;

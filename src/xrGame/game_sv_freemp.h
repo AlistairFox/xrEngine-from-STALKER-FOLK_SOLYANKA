@@ -40,4 +40,7 @@ public:
 
 	virtual		void				OnPlayerTrade(NET_Packet &P, ClientID const & clientID);
 	virtual		void				OnTransferMoney(NET_Packet &P, ClientID const & clientID);
+
+	virtual void SavePlayers();
+
 };
