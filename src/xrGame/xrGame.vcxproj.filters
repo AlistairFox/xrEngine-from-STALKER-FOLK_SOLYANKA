@@ -11120,6 +11120,9 @@
     <ClCompile Include="..\jsonxx\jsonxx.cc">
       <Filter>jsonxx</Filter>
     </ClCompile>
+    <ClCompile Include="game_sv_freemp_save.cpp">
+      <Filter>Core\Server\Games\server\freemp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="ai\monsters\chimera\chimera_attack_state.h">
