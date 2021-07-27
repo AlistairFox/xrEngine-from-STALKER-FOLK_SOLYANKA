@@ -83,6 +83,8 @@ void Log				(const char *s)
 	}
 	split[j]=0;
 	AddOne(split);
+
+	//FlushLog();
 }
 
 void __cdecl Msg		( const char *format, ...)
