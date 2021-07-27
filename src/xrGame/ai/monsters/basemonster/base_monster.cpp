@@ -389,7 +389,7 @@ bool CBaseMonster::HavePlayersNearby(float distance) const
 		if (id == Actor()->ID())
 			continue;
 
-		Msg("ID [%d], DistPos[%.0f], Distance[%.0f]", id,this->Position().distance_to_sqr(pObject->Position()), distance_sqr);
+		//Msg("ID [%d], DistPos[%.0f], Distance[%.0f]", id,this->Position().distance_to_sqr(pObject->Position()), distance_sqr);
 
 		if (this->Position().distance_to_sqr(pObject->Position()) < distance_sqr)
 		{
