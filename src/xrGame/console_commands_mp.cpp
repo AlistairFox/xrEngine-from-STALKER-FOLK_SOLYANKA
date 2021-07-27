@@ -1274,6 +1274,12 @@ public:
 		if (!(&Level()))			return;
 		if (!(&Game()))				return;
 
+		if (!OnServer())
+		{
+			Msg("×ÈÒÅÐ ÍÅ ÌÅÍßÉ ÈÌß");
+			return;
+		}
+
 		game_PlayerState* tmp_player = Game().local_player;
 		if (!tmp_player)			return;
 
@@ -1289,6 +1295,7 @@ public:
 			Msg("!  '/' is not allowed in names!");
 			return;
 		}
+
 		string4096 NewName = "";
 		u32 const max_name_length	=	GP_UNIQUENICK_LEN - 1;
 		if (xr_strlen(args)>max_name_length)
@@ -1298,12 +1305,14 @@ public:
 		}
 		else
 			xr_strcpy(NewName, args);
-	
+ 
+		 
 		NET_Packet				P;
-		Game().u_EventGen		(P,GE_GAME_EVENT,Game().local_player->GameID);
+		Game().u_EventGen		(P,GE_GAME_EVENT, Game().local_player->GameID);
 		P.w_u16					(GAME_EVENT_PLAYER_NAME);
 		P.w_stringZ				(NewName);
 		Game().u_EventSend		(P);
+		 
 	}
 
 	virtual void	Info	(TInfo& I)	{xr_strcpy(I,"player name"); }
@@ -2636,6 +2645,205 @@ public:
 	}
 };
 
+//jsonxx
+
+#include <fstream>;
+#include "../jsonxx/jsonxx.h"
+
+#include <fstream>
+#include <iostream>
+
+using namespace jsonxx;
+//jsonxx
+
+class CCC_AdmRegister : public IConsole_Command {
+public:
+	CCC_AdmRegister(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
+
+	virtual void Execute(LPCSTR args)
+	{
+		if (OnServer())
+		{
+			string128 login;
+			string128 password;
+			
+			if (sscanf_s(args, "%s %s", &login, sizeof(login), &password, sizeof(password)) != 2)
+			{
+				Msg("Login and pass not good format");
+				return;
+			}
+
+			Msg("LoginRegister [%s]", login);
+			Msg("PasswordRegister [%s]", password);
+
+			Object jsonObj;
+			
+
+			std::string path;
+
+			path.append("players.json");
+
+
+			std::ifstream input(path);
+
+			if (input.is_open())
+			{
+				std::string str((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
+
+				jsonObj.parse(str);
+			}
+ 
+			input.close();
+
+			Array table;
+
+			Object tab;
+
+			u32 rand = Random.randI(1, 10000);
+
+			//tab << "id:" << Value(rand);;
+			tab << "login:" << Value(login);
+			tab << "password:" << Value(password);
+			tab << "user: " << Value("user_" + std::to_string(rand));
+
+			
+			if (jsonObj.has<Array>("USERS"))
+				jsonObj.get<Array>("USERS") << tab;
+			else
+			{
+				table << tab;
+
+				jsonObj << "USERS" << table;
+			}
+			std::ofstream outfile(path);
+			
+			if (outfile.is_open())
+			{				
+				outfile.write(jsonObj.json().c_str(), jsonObj.json().size());
+ 			}
+ 
+
+			outfile.close();
+		}
+		else
+		{
+			string128 login;
+			string128 password;
+
+			if (sscanf_s(args, "%s %s", &login, sizeof(login), &password, sizeof(password)) != 2)
+			{
+				Msg("Login and pass not good format");
+				return;
+			}
+
+			NET_Packet		P;
+			P.w_begin(M_REMOTE_CONTROL_CMD);
+			string128 str;
+			xr_sprintf(str, "reg %s %s", login, password);
+			P.w_stringZ(str);
+			Level().Send(P, net_flags(TRUE, TRUE));
+		}
+	}
+};
+
+
+class CCC_AdmDelateUser : public IConsole_Command {
+public:
+	CCC_AdmDelateUser(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
+
+	virtual void Execute(LPCSTR args)
+	{
+		if (OnServer())
+		{
+			string128 login;
+
+			if (sscanf_s(args, "%s", &login, sizeof(login)) != 1)
+			{
+				Msg("Login not good format");
+				return;
+			}
+
+			Msg("LoginRegister [%s]", login);
+
+			Object jsonObj;
+
+			std::string path;
+
+			path.append("players.json");
+
+
+			std::ifstream input(path);
+
+			if (input.is_open())
+			{
+				std::string str((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
+
+				jsonObj.parse(str);
+			}
+ 
+
+			input.close();
+			
+			Array jsonArray;
+ 
+			if (jsonObj.has<Array>("USERS"))
+				jsonArray = jsonObj.get<Array>("USERS");
+
+			for (int i = 0; i < jsonArray.size(); i++)
+			{
+				Object tab = jsonArray.get<Object>(i);
+
+				if (tab.has<String>("login:"))
+				{
+					std::string login_str = tab.get<String>("login:");
+					bool check = std::strcmp(login_str.c_str(), login);
+					
+					Msg("Finded[%s]", check ? "true" : "false");
+					Msg("Finders[%s][%s]", login, login_str.c_str());
+
+					if (!check)
+					{
+						jsonObj.get<Array>("USERS").get<Object>(i).reset();
+		//				jsonObj.get<Array>("USERS").values().at(i);
+					}
+
+				}
+			}
+
+			 
+			std::ofstream outfile(path);
+
+			if (outfile.is_open())
+			{
+				outfile.write(jsonObj.json().c_str(), jsonObj.json().size());
+			}
+ 
+			outfile.close();
+		}
+		else
+		{
+			string128 login;
+ 
+			if (sscanf_s(args, "%s", &login, sizeof(login)) != 1)
+			{
+				Msg("Login not good format");
+				return;
+			}
+
+			NET_Packet		P;
+			P.w_begin(M_REMOTE_CONTROL_CMD);
+			string128 str;
+			xr_sprintf(str, "unreg %s", login);
+			P.w_stringZ(str);
+			Level().Send(P, net_flags(TRUE, TRUE));
+		}
+	}
+};
+
+
+
+
+
 
 class CCC_ADD_Money_to_client_self : public IConsole_Command {
 public:
@@ -2895,6 +3103,8 @@ void register_mp_console_commands()
 
 
 	CMD1(CCC_AdmSurgeStart, "sv_surge");
+	CMD1(CCC_AdmRegister, "reg");
+	CMD1(CCC_AdmDelateUser, "unreg");
 
 
 }
