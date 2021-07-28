@@ -186,7 +186,7 @@ void SAnimState::Create(IKinematicsAnimated* K, LPCSTR base0, LPCSTR base1)
 	legs_rs_safe = K->ID_Cycle(strconcat(sizeof(buf), buf, base0, base1, "_fwd_1"));
 
 
-	Msg(strconcat(sizeof(buf), buf, base0, base1, "legs"));
+//	Msg(strconcat(sizeof(buf), buf, base0, base1, "legs"));
 }
 
 

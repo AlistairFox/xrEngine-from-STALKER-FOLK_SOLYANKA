@@ -251,7 +251,8 @@ void CALifeUpdateManager::new_game			(LPCSTR save_name)
 
 	for (; I != E; ++I)
 	{
-		Msg("Name[%s]", (*I).second->name_replace());
+		if (psDeviceFlags.test(rsCameraPos))
+			Msg("Name[%s]", (*I).second->name_replace());
 		(*I).second->on_register();
 	}
 #ifdef DEBUG
