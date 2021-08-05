@@ -101,6 +101,7 @@ bool SteamNetServer::CreateConnection(GameDescriptionData & game_descr, ServerCo
 		SteamNetworkingUtils()->SetGlobalConfigValueInt32(k_ESteamNetworkingConfig_FakePacketLag_Send, ping);
 		SteamNetworkingUtils()->SetGlobalConfigValueInt32(k_ESteamNetworkingConfig_FakePacketLag_Recv, ping);
 	}
+
 	// CREATE LISTENER
 	m_hListenSock = m_pInterface->CreateListenSocketIP(bindServerAddress, 1, &opt);
 

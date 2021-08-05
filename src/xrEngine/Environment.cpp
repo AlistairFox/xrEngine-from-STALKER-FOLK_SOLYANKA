@@ -312,7 +312,10 @@ void CEnvironment::SetWeather(shared_str name, bool forced)
 bool CEnvironment::SetWeatherFX(shared_str name)
 {
 	if (!Current[0] && !Current[1])
+	{
+		Msg("! Cant SetWeatherFX name: %s NULL CURRENTS TO PARSE WEATHERS", name.c_str());
 		return false;
+	}
 
 	if (bWFX)				return false;
 	if (name.size()){
@@ -403,8 +406,8 @@ bool CEnvironment::SetWeatherFX(shared_str name)
 
 bool CEnvironment::SetWeatherFXClient(shared_str name, float time1, float time2, float fGameTime_client)
 {
-	if (!Current[0] && !Current[1])
-		return false;
+//	if (!Current[0] && !Current[1])
+//		return false;
 
 	if (bWFX)				return false;
 	if (name.size()) {

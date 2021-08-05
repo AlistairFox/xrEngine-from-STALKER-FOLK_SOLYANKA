@@ -89,9 +89,9 @@ void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 	{
 		g_pGamePersistent->Environment().wfx_time = wfx_time;
 
-		//if (!(wfx_time > 1))
+		if (!(wfx_time > 1))
 		{
-			if (old_time_env != EnvironmentTimeFactor || need_update == 1)
+			if (old_time_env != EnvironmentTimeFactor || need_update == 1 || just_Connected)
 			{
 				GamePersistent().Environment().Invalidate();
 				GamePersistent().Environment().SetGameTime(GameEnvironmentTime, EnvironmentTimeFactor);
@@ -109,7 +109,8 @@ void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 				if (wfx_time > 1)
 				{
 					Msg("WeatherFX Set[%s] WFX_TIME [%f]", name.c_str(), wfx_time);
-					GamePersistent().Environment().StartWeatherFXFromTime(name, wfx_time);
+					if (!GamePersistent().Environment().StartWeatherFXFromTime(name, wfx_time))
+						GamePersistent().Environment().SetWeatherFX(name);
 				}
 				else
 				{
@@ -127,7 +128,10 @@ void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 				
 				if (xr_strcmp(GamePersistent().Environment().CurrentWeatherName, name))
 				{
-					GamePersistent().Environment().SetWeather(name, false);
+					
+					if (!GamePersistent().Environment().SetWeatherFX(name))
+						GamePersistent().Environment().SetWeather(name, false);
+
 					Msg("Weather [%s]", name.c_str());
 				}
 			}

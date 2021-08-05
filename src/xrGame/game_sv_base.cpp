@@ -422,7 +422,7 @@ void game_sv_GameState::Create					(shared_str &options)
 					}
 
 					
-					if ((GameType & eGameIDTeamDeathmatch) && (Type() == eGameIDFreeMp || Type() == eGameIDRolePlay))
+					if ((GameType & eGameIDTeamDeathmatch || GameType & eGameIDDeathmatch) && (Type() == eGameIDFreeMp || Type() == eGameIDRolePlay))
 					{
 						// HACK! WE CAN USE TDM RPOINT FOR FREEMP AND ROLEPLAY GAME TYPES
 					}

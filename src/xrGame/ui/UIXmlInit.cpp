@@ -91,6 +91,7 @@ bool CUIXmlInit::InitWindow(CUIXml& xml_doc, LPCSTR path,
    	string512 buf;
 
 	strconcat(sizeof(buf),buf,path,":window_name");
+
 	if(xml_doc.NavigateToNode(buf,index))
 		pWnd->SetWindowName		( xml_doc.Read(buf, index, NULL) );
 

@@ -90,6 +90,8 @@ CInventoryItem::~CInventoryItem()
 
 void CInventoryItem::Load(LPCSTR section) 
 {
+	//Msg("CInventoryItem Load %s", section);
+
 	CHitImmunity::LoadImmunities	(pSettings->r_string(section,"immunities_sect"),pSettings);
 
 	ISpatial*			self				=	smart_cast<ISpatial*> (this);

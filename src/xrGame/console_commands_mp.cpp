@@ -2020,26 +2020,31 @@ public:
 		ClientID client_id(0);
 		u32 tmp_client_id;
 		string256 section;
+		u32 counts;
+
 
 		string1024 buff;
 		exclude_raid_from_args(arguments, buff, sizeof(buff));
 
-		if (sscanf_s(buff, "%u %s", &tmp_client_id, &section, sizeof(section)) != 2)
+		if (sscanf_s(buff, "%u %s %u", &tmp_client_id, &section, sizeof(section), &counts) != 3)
 		{
 			Msg("! ERROR: bad command parameters.");
-			Msg("Spawn item to player. Format: \"sv_spawn_to_player_inv <player session id> <item section>\"");
+			Msg("Spawn item to player. Format: \"sv_spawn_to_player_inv <player session id> <item section> <counts>\"");
 			return;
 		}
 		client_id.set(tmp_client_id);
 
 		xrClientData* CL = static_cast<xrClientData*>(Level().Server->GetClientByID(client_id));
-		if (CL && CL->owner)
+		for (u32 i = 0; i < counts; i++)
 		{
-			srv->SpawnItem(section, CL->owner->ID);
-		}
-		else
-		{
-			Msg("! Can't spawn item to client %u", client_id.value());
+			if (CL && CL->owner)
+			{
+				srv->SpawnItem(section, CL->owner->ID);
+			}
+			else
+			{
+				Msg("! Can't spawn item to client %u", client_id.value());
+			}
 		}
 	}
 	virtual void		Save(IWriter *F) {};
@@ -2116,7 +2121,8 @@ public:
 
 	virtual void		Execute(LPCSTR arguments)
 	{
-		if (pSettings->section_exist(arguments))
+
+		//if (pSettings->section_exist(arguments))
 		{
 			NET_Packet		P;
 			P.w_begin(M_REMOTE_CONTROL_CMD);
@@ -2125,12 +2131,12 @@ public:
 			P.w_stringZ(str);
 			Level().Send(P, net_flags(TRUE, TRUE));
 		}
-		else
+		/*else
 		{
 			Msg("! ERROR: bad command parameters.");
 			Msg("Spawn item to player. Format: \"g_spawn_to_inv <item section>\"");
 			return;
-		}
+		}*/
 	}
 	virtual void		Save(IWriter *F) {};
 
@@ -2666,7 +2672,7 @@ public:
 		{
 			string128 login;
 			string128 password;
-			
+
 			if (sscanf_s(args, "%s %s", &login, sizeof(login), &password, sizeof(password)) != 2)
 			{
 				Msg("Login and pass not good format");
@@ -2678,52 +2684,56 @@ public:
 
 			Object jsonObj;
 			
-
-			std::string path;
-
-			path.append("players.json");
-
-
-			std::ifstream input(path);
-
-			if (input.is_open())
+			
+			if (FS.path_exist("$mp_saves$"))
 			{
-				std::string str((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
+				string_path path_xray;
+				FS.update_path(path_xray, "$mp_saves$", "players.json");
 
-				jsonObj.parse(str);
-			}
- 
-			input.close();
+				std::ifstream input(path_xray);
 
-			Array table;
+				if (input.is_open())
+				{
+					std::string str((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
 
-			Object tab;
+					jsonObj.parse(str);
+				}
 
-			u32 rand = Random.randI(1, 10000);
-
-			//tab << "id:" << Value(rand);;
-			tab << "login:" << Value(login);
-			tab << "password:" << Value(password);
-			tab << "user: " << Value("user_" + std::to_string(rand));
+				input.close();
 
 			
-			if (jsonObj.has<Array>("USERS"))
-				jsonObj.get<Array>("USERS") << tab;
-			else
-			{
-				table << tab;
 
-				jsonObj << "USERS" << table;
-			}
-			std::ofstream outfile(path);
+				Array table;
+
+				Object tab;
+
+				u32 rand = Random.randI(1, 10000);
+
+				tab << "login:" << Value(login);
+				tab << "password:" << Value(password);
+				tab << "user: " << Value("user_" + std::to_string(rand));
+
+				if (jsonObj.has<Array>("USERS"))
+				{
+					jsonObj.get<Array>("USERS") << tab;
+				}
+				else
+				{
+					table << tab;
+
+					jsonObj << "USERS" << table;
+				}
+
+				std::ofstream outfile(path_xray);
 			
-			if (outfile.is_open())
-			{				
-				outfile.write(jsonObj.json().c_str(), jsonObj.json().size());
- 			}
+				if (outfile.is_open())
+				{				
+					outfile.write(jsonObj.json().c_str(), jsonObj.json().size());
+ 				}
  
+				outfile.close();
 
-			outfile.close();
+			}
 		}
 		else
 		{
@@ -2766,59 +2776,61 @@ public:
 			Msg("LoginRegister [%s]", login);
 
 			Object jsonObj;
-
-			std::string path;
-
-			path.append("players.json");
-
-
-			std::ifstream input(path);
-
-			if (input.is_open())
-			{
-				std::string str((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
-
-				jsonObj.parse(str);
-			}
- 
-
-			input.close();
 			
-			Array jsonArray;
- 
-			if (jsonObj.has<Array>("USERS"))
-				jsonArray = jsonObj.get<Array>("USERS");
-
-			for (int i = 0; i < jsonArray.size(); i++)
+			if (FS.path_exist("$mp_saves$"));
 			{
-				Object tab = jsonArray.get<Object>(i);
+				string_path path_xray;
+			
+				FS.update_path(path_xray, "$mp_saves$", "players.json");
 
-				if (tab.has<String>("login:"))
+				std::ifstream input(path_xray);
+
+				if (input.is_open())
 				{
-					std::string login_str = tab.get<String>("login:");
-					bool check = std::strcmp(login_str.c_str(), login);
-					
-					Msg("Finded[%s]", check ? "true" : "false");
-					Msg("Finders[%s][%s]", login, login_str.c_str());
+					std::string str((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
 
-					if (!check)
-					{
-						jsonObj.get<Array>("USERS").get<Object>(i).reset();
-		//				jsonObj.get<Array>("USERS").values().at(i);
-					}
-
+					jsonObj.parse(str);
 				}
-			}
+ 
+
+				input.close();
+			
+				Array jsonArray;
+ 
+				if (jsonObj.has<Array>("USERS"))
+					jsonArray = jsonObj.get<Array>("USERS");
+
+				for (int i = 0; i < jsonArray.size(); i++)
+				{
+					Object tab = jsonArray.get<Object>(i);
+
+					if (tab.has<String>("login:"))
+					{
+						std::string login_str = tab.get<String>("login:");
+						bool check = std::strcmp(login_str.c_str(), login);
+					
+						Msg("Finded[%s]", check ? "true" : "false");
+						Msg("Finders[%s][%s]", login, login_str.c_str());
+
+						if (!check)
+						{
+							jsonObj.get<Array>("USERS").get<Object>(i).reset();
+			//				jsonObj.get<Array>("USERS").values().at(i);
+						}
+
+					}
+				}
 
 			 
-			std::ofstream outfile(path);
+				std::ofstream outfile(path_xray);
 
-			if (outfile.is_open())
-			{
-				outfile.write(jsonObj.json().c_str(), jsonObj.json().size());
-			}
+				if (outfile.is_open())
+				{
+					outfile.write(jsonObj.json().c_str(), jsonObj.json().size());
+				}
  
-			outfile.close();
+				outfile.close();
+			}
 		}
 		else
 		{

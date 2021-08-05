@@ -35,20 +35,27 @@ BOOL CLevel::net_Start	( LPCSTR op_server, LPCSTR op_client, LPCSTR op_auth)
 
 	string64	player_name;
 	GetPlayerName_FromRegistry( player_name, sizeof(player_name) );
-	
-	string64 login_name;
-	LPCSTR	login = _GetItem(op_auth, 0, login_name, '/');
- 
-	string64 password_name;
-	LPCSTR	password = _GetItem(op_auth, 1, password_name, '/');
 
-	xr_strcpy(Core.UserName, login_name);
- 
-	xr_strcpy(Core.UserPassword, password_name);
-
- 
-	Msg("Login[%s] Pass[%s]", login_name, password_name);
+	if (op_auth != 0)
+	{
+		string64 login_name;
+		LPCSTR	login = _GetItem(op_auth, 0, login_name, '/');
 	
+		string64 password_name;
+		LPCSTR	password = _GetItem(op_auth, 1, password_name, '/');
+	
+		if (login_name != 0)
+			xr_strcpy(Core.UserName, login_name);
+ 
+		if (password_name != 0)
+			xr_strcpy(Core.UserPassword, password_name);
+  
+
+		if (login_name != 0 && password_name != 0)
+			Msg("Login[%s] Pass[%s]", login_name, password_name);
+
+
+	}
 
 	VERIFY( xr_strlen(player_name) );
 
@@ -62,7 +69,9 @@ BOOL CLevel::net_Start	( LPCSTR op_server, LPCSTR op_client, LPCSTR op_auth)
 		xr_strcat(tmp, "/name=");
 		xr_strcat(tmp, player_name);
 		m_caClientOptions			= tmp;
-	} else {
+	} 
+	else
+	{
 		string1024	ret="";
 		LPCSTR		begin	= NameStart + xr_strlen("/name="); 
 		sscanf			(begin, "%[^/]",ret);

@@ -67,6 +67,10 @@ void CObject::cNameSect_set		(shared_str N)
 //#include "SkeletonCustom.h"
 void CObject::cNameVisual_set	(shared_str N)
 { 
+
+	//if (psDeviceFlags.test(rsCameraPos))
+	//	Msg("cNameVisual set [%s] id[%d], SectName[%s], NameObj[%s]", N.c_str(), this->ID(), this->cNameSect_str(), this->NameObject.c_str());
+
 	// check if equal
 	if (*N && *NameVisual)
 		if (N==NameVisual)		return;
@@ -199,7 +203,7 @@ void CObject::Load				(LPCSTR section )
 BOOL CObject::net_Spawn			(CSE_Abstract* data)
 {
 	if (psDeviceFlags.test(rsCameraPos))
-		Msg("net_sapwn id[%d], SectName[%s], NameObj[%s]", this->ID(), this->cNameSect_str(), this->NameObject.c_str());
+		Msg("net_sapwn id[%d], Parrent[%d], SectName[%s], NameObj[%s]", this->ID(), this->H_Parent() ? this->H_Parent()->ID() : -1, this->cNameSect_str(), this->NameObject.c_str());
 
 	PositionStack.clear			();
 

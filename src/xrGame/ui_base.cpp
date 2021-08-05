@@ -99,7 +99,10 @@ sPoly2D* C2DFrustum::ClipPoly	(sPoly2D& S, sPoly2D& D) const
 
 void ui_core::OnDeviceReset()
 {
-	m_scale_.set		( float(Device.dwWidth)/UI_BASE_WIDTH, float(Device.dwHeight)/UI_BASE_HEIGHT );
+	if (is_fullhd())
+		m_scale_.set		( float(Device.dwWidth)/UI_BASE_WIDTH_FULL, float(Device.dwHeight)/UI_BASE_HEIGHT_FULL );
+	else
+		m_scale_.set(float(Device.dwWidth) / UI_BASE_WIDTH, float(Device.dwHeight) / UI_BASE_HEIGHT);
 
 	m_2DFrustum.CreateFromRect	(Frect().set(	0.0f,
 												0.0f,
@@ -146,19 +149,36 @@ void ui_core::PushScissor(const Frect& r_tgt, bool overlapped)
 		return;
 
 	Frect r_top			= {0.0f, 0.0f, UI_BASE_WIDTH, UI_BASE_HEIGHT};
+
+	if (is_fullhd())
+		r_top = { 0.0f, 0.0f, UI_BASE_WIDTH_FULL, UI_BASE_HEIGHT_FULL };
+
 	Frect result		= r_tgt;
+
 	if (!m_Scissors.empty()&&!overlapped){
 		r_top			= m_Scissors.top();
 	}
 	if (!result.intersection(r_top,r_tgt))
 			result.set	(0.0f,0.0f,0.0f,0.0f);
 
+	if (is_fullhd())
+	{
+		if (!(result.x1 >= 0 && result.y1 >= 0 && result.x2 <= UI_BASE_WIDTH_FULL && result.y2 <= UI_BASE_HEIGHT_FULL))
+		{
+			Msg("! r_tgt [%.3f][%.3f][%.3f][%.3f]", r_tgt.x1, r_tgt.y1, r_tgt.x2, r_tgt.y2);
+			Msg("! result [%.3f][%.3f][%.3f][%.3f]", result.x1, result.y1, result.x2, result.y2);
+			VERIFY(result.x1 >= 0 && result.y1 >= 0 && result.x2 <= UI_BASE_WIDTH_FULL && result.y2 <= UI_BASE_HEIGHT_FULL);
+		}
+	}
+	else
 	if (!(result.x1>=0&&result.y1>=0&&result.x2<=UI_BASE_WIDTH&&result.y2<=UI_BASE_HEIGHT) )
 	{
 		Msg("! r_tgt [%.3f][%.3f][%.3f][%.3f]", r_tgt.x1, r_tgt.y1, r_tgt.x2, r_tgt.y2);
 		Msg("! result [%.3f][%.3f][%.3f][%.3f]", result.x1, result.y1, result.x2, result.y2);
 		VERIFY(result.x1>=0&&result.y1>=0&&result.x2<=UI_BASE_WIDTH&&result.y2<=UI_BASE_HEIGHT);
 	}
+
+
 	m_Scissors.push		(result);
 
 	result.lt.x 		= ClientToScreenScaledX(result.lt.x);
@@ -226,7 +246,12 @@ void ui_core::pp_start()
 {
 	m_bPostprocess		= true;
 
-	m_pp_scale_.set	( float(::Render->getTarget()->get_width())/float(UI_BASE_WIDTH),	float(::Render->getTarget()->get_height())/float(UI_BASE_HEIGHT) );
+	if (is_fullhd())
+		m_pp_scale_.set(float(::Render->getTarget()->get_width()) / float(UI_BASE_WIDTH_FULL), float(::Render->getTarget()->get_height()) / float(UI_BASE_HEIGHT_FULL));
+	else
+		m_pp_scale_.set	( float(::Render->getTarget()->get_width())/float(UI_BASE_WIDTH),	float(::Render->getTarget()->get_height())/float(UI_BASE_HEIGHT) );
+	
+	
 	m_2DFrustumPP.CreateFromRect(Frect().set(	0.0f,
 												0.0f,
 												float(::Render->getTarget()->get_width()),
@@ -257,23 +282,58 @@ bool ui_core::is_widescreen()
 	return (Device.dwWidth)/float(Device.dwHeight) > (UI_BASE_WIDTH/UI_BASE_HEIGHT +0.01f);
 }
 
+bool ui_core::is_fullhd()
+{
+	//return false;
+	return (Device.dwWidth) / float(Device.dwHeight) >= (UI_BASE_WIDTH_FULL / UI_BASE_HEIGHT_FULL);;
+}
+
 float ui_core::get_current_kx()
 {
 	float h		= float(Device.dwHeight);
 	float w		= float(Device.dwWidth);
 
-	float res = (h/w)/(UI_BASE_HEIGHT/UI_BASE_WIDTH);
+	float res = (h / w) / (UI_BASE_HEIGHT / UI_BASE_WIDTH);
+	
+	if (is_fullhd())
+		res = (h / w) / (UI_BASE_HEIGHT_FULL / UI_BASE_WIDTH_FULL);
+	
+
 	return res;
 }
 
 shared_str	ui_core::get_xml_name(LPCSTR fn)
 {
 	string_path				str;
-	if(!is_widescreen()){
+	
+	if(!is_widescreen())
+	{
 		xr_sprintf(str, "%s", fn);
-		if ( NULL==strext(fn) ) xr_strcat(str, ".xml");
-	}else{
+		if ( NULL==strext(fn) ) 
+			xr_strcat(str, ".xml");
+	}
+	else
+	if (is_fullhd())
+	{
+		string_path			str_;
+		if (strext(fn))
+		{
+			xr_strcpy(str, fn);
+			*strext(str) = 0;
+			xr_strcat(str, "_fullhd.xml");
+		}
+		else
+			xr_sprintf(str, "%s_fullhd", fn);
 
+		if (NULL == FS.exist(str_, "$game_config$", "ui\\", str))
+		{
+			xr_sprintf(str, "%s", fn);
+			if (NULL == strext(fn))
+				xr_strcat(str, ".xml");
+		}
+	}
+	else
+	{
 		string_path			str_;
 		if ( strext(fn) )
 		{
@@ -286,11 +346,17 @@ shared_str	ui_core::get_xml_name(LPCSTR fn)
 		if(NULL==FS.exist(str_, "$game_config$", "ui\\" , str) )
 		{
 			xr_sprintf(str, "%s", fn);
-			if ( NULL==strext(fn) ) xr_strcat(str, ".xml");
+			if ( NULL==strext(fn) ) 
+				xr_strcat(str, ".xml");
 		}
 #ifdef DEBUG
 		Msg("[16-9] get_xml_name for[%s] returns [%s]", fn, str);
 #endif // #ifdef DEBUG
 	}
+
+	float sizing = (Device.dwWidth) / float(Device.dwHeight);
+
+	Msg("Return MODE = fullhd[%s] path[%s] value[%f]", is_fullhd() ? "true" : "false", str, sizing);
+
 	return str;
 }

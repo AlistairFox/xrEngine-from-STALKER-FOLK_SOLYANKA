@@ -20,7 +20,10 @@ bool		IsGameTypeSingle();
 CUIMessagesWindow::CUIMessagesWindow()
 :m_pChatLog(NULL),m_pChatWnd(NULL),m_pGameLog(NULL)
 {
-	Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT);
+	if (UI().is_fullhd())
+		Init(0,0, UI_BASE_WIDTH_FULL, UI_BASE_HEIGHT_FULL);
+	else
+		Init(0, 0, UI_BASE_WIDTH, UI_BASE_HEIGHT);
 }
 
 CUIMessagesWindow::~CUIMessagesWindow()

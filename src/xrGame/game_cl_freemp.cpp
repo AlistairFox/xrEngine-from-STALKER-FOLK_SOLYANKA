@@ -136,25 +136,35 @@ void game_cl_freemp::shedule_Update(u32 dt)
 
 			if (ps->m_account.name_save().size() != 0)
 			{
-				std::string fname;
-				
-				fname.append("Saves");
-				fname.append("/");
-				fname.append(ps->m_account.name_save().c_str());
-				fname.append(".json");
+ 
+				string_path name;
 
-				std::ofstream ofile(fname);
+				if (FS.path_exist("$mp_saves_file$"))
+				{
+ 					FS.update_path(name, "$mp_saves_file$", ps->m_account.name_save().c_str());
+ 				}
+				else
+				{
+					return;
+				}
+
+				IWriter* file = FS.w_open(name);
+				FS.w_close(file);
+
+				std::ofstream ofile(name);
 
 				if (ofile.is_open())
 				{
-					Msg("Is_Open [%s]", fname.c_str());
-					ofile << json.json().c_str();
+ 					ofile << json.json().c_str();
 				}
 				else
 				{
 					CreateDirectory("Saves", NULL);					 
 				}
+
 				ofile.close();
+
+				Msg("SaveName %s", name);
 			}
 			else
 			{

@@ -70,6 +70,7 @@ void xrServer::SendConfigFinished(ClientID const & clientId)
 	P.w_begin	(M_SV_CONFIG_FINISHED);
 	SendTo		(clientId, P, net_flags(TRUE,TRUE));
 }
+#include "script_ini_file.h"
 
 void xrServer::SendConnectionData(IClient* _CL)
 {
@@ -82,12 +83,31 @@ void xrServer::SendConnectionData(IClient* _CL)
 		I->second->net_Processed	= FALSE;
 	
 	int index = 0;
+
+	std::string name;
+	name.append("spawns_ini.ltx");
+
+	string_path file_path;
+	if (FS.path_exist("$dump_mp_spawn_ini$"))
+		FS.update_path(file_path, "$dump_mp_spawn_ini$", name.c_str());
+	
+	IWriter* save = FS.w_open(file_path);
+
 	for (I=entities.begin(); I!=E; ++I)		
 	{
 		Perform_connect_spawn(I->second, CL, P);
+ 
+		 
+		if (I->second->spawn_ini().section_count() > 0)
+			I->second->spawn_ini().save_as(*save);
+
+	//	Msg("ini_sect[%s]", name.c_str());
+
 		index += 1;
-		Msg("[%d]: Perform connect spawn [%d]", index,P.B.count);
+		Msg("[%d]: Perform connect spawn [%d]", index, P.B.count);
 	}
+
+	FS.w_close(save);
  
 
 	// Start to send server logo and rules
@@ -247,85 +267,89 @@ void xrServer::OnBuildVersionRespond				( IClient* CL, NET_Packet& P )
 #endif // USE_DEBUG_AUTH
 
 	Object jsonObj;
-
-	std::string path;
-
-	path.append("players.json");
-
-
-	std::ifstream input(path);
-
-	if (input.is_open())
-	{
-		std::string str((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
-
-		jsonObj.parse(str);
-	}
- 
-	input.close();
-
 	bool finded = false;
-	std::string name_saves = {0};
+	std::string name_saves = { 0 };
 
-	if (jsonObj.has<Array>("USERS"))
+	if (FS.path_exist("$mp_saves$"))
 	{
-		Array users = jsonObj.get<Array>("USERS");
+		string_path path_xray;
 
-		for (int i = 0; i < users.size(); i++)
+		FS.update_path(path_xray, "$mp_saves$", "players.json");
+
+		std::ifstream input(path_xray);
+
+		if (input.is_open())
 		{
-			Object name = users.get<Object>(i);
-			std::string name_login = { 0 };
-			std::string name_password = { 0 };
+			std::string str((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
 
-			if (name.has<String>("login:"))
-				name_login = name.get<String>("login:");
+			jsonObj.parse(str);
+		}
 
-			if (name.has<String>("password:"))
-				name_password = name.get<String>("password:");
+		input.close();
+		
+		if (jsonObj.has<Array>("USERS"))
+		{
+			Array users = jsonObj.get<Array>("USERS");
 
-			
-			if (!std::strcmp(name_login.c_str(), login.c_str()))
+			for (int i = 0; i < users.size(); i++)
 			{
-				if (!std::strcmp(name_password.c_str(), password.c_str()))
+				Object name = users.get<Object>(i);
+				std::string name_login = { 0 };
+				std::string name_password = { 0 };
+
+				if (name.has<String>("login:"))
+					name_login = name.get<String>("login:");
+
+				if (name.has<String>("password:"))
+					name_password = name.get<String>("password:");
+
+
+				if (!std::strcmp(name_login.c_str(), login.c_str()))
 				{
-					finded = true;
-					if (name.has<String>("user: "))
+					if (!std::strcmp(name_password.c_str(), password.c_str()))
 					{
-						name_saves = name.get<String>("user: ");
-
-
-						//Msg("SAVEDIR = %s", name.get<String>("user: ").c_str());
+						finded = true;
+						if (name.has<String>("user: "))
+						{
+							name_saves = name.get<String>("user: ");
+						}
 					}
 				}
 			}
 		}
-	}
-	else
-	{
-		Array table;
-
-		Object tab;
-
-		u32 rand = Random.randI(1, 10000);
-
-		tab << "login:"		<< Value("server_local");
-		tab << "password:"  << Value("admin_2610");
-		tab << "user: "		<< Value("user_" + std::to_string(rand));
-
-		table << tab;
-
-		jsonObj << "USERS" << table;
-
-		std::ofstream outfile(path);
-
-		if (outfile.is_open())
+		else
 		{
-			outfile.write(jsonObj.json().c_str(), jsonObj.json().size());
+			Array table;
+
+			Object tab;
+
+			u32 rand = Random.randI(1, 10000);
+
+			tab << "login:" << Value("server_local");
+			tab << "password:" << Value("admin_2610");
+			tab << "user: " << Value("user_" + std::to_string(rand));
+
+			table << tab;
+
+			jsonObj << "USERS" << table;
+
+			IWriter* file = FS.w_open(path_xray);
+			FS.w_close(file);
+
+			std::ofstream outfile(path_xray);
+			
+			if (outfile.is_open())
+			{
+				outfile.write(jsonObj.json().c_str(), jsonObj.json().size());
+			}
+
+			outfile.close();
+			
+
+			finded = true;
 		}
 
-		finded = true;
-	}
-
+	} 
 
 	Msg("login: %s", login.c_str());
 	Msg("password: %s", password.c_str());

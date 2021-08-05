@@ -31,10 +31,23 @@ void CLevel::cl_Process_Spawn(NET_Packet& P)
 		return;
 	}
 //-------------------------------------------------
-//.	Msg ("M_SPAWN - %s[%d][%x] - %d %d", *s_name,  E->ID, E,E->ID_Parent, Device.dwFrame);
+//	Msg ("M_SPAWN Client Process - %s[%d][%x] - %d %d", *s_name,  E->ID, E,E->ID_Parent, Device.dwFrame);
 //-------------------------------------------------
 	//force object to be local for server client
-	if (OnServer())		{
+
+	string_path file_path;
+	if (FS.path_exist("$dump_mp_spawn_ini$"))
+		FS.update_path(file_path, "$dump_mp_spawn_ini$", E->name_replace());
+
+	//IWriter* save = FS.w_open(file_path);
+	if (OnClient())
+	if (E->spawn_ini().section_count() > 0)
+		E->spawn_ini().save_as(file_path);
+
+	//FS.w_close(save);
+
+	if (OnServer())		
+	{
 		E->s_flags.set(M_SPAWN_OBJECT_LOCAL, TRUE);
 	};
 

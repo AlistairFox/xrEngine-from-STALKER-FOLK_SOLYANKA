@@ -286,7 +286,8 @@ static void BigVelSeparate(dContact* c,bool &do_collide)
 		v2.square_magnitude()<4.f
 	)
 		return;
-	c->surface.mu		=1.00f;
+	
+	c->surface.mu		= 1.00f;
 
 	dJointID contact_joint1	= dJointCreateContactSpecial(0, ContactGroup, c);
 	dJointID contact_joint2	= dJointCreateContactSpecial(0, ContactGroup, c);
@@ -316,6 +317,7 @@ void CPHActorCharacter::InitContact(dContact* c,bool &do_collide,u16 material_id
 	SGameMtl*	material_2=GMLibrary().GetMaterialByIdx(material_idx_2);
 	if((material_1&&material_1->Flags.test(SGameMtl::flActorObstacle))||(material_2&&material_2->Flags.test(SGameMtl::flActorObstacle)))
 		do_collide=true;
+
 	if(b_single_game)
 	{
 	
@@ -327,6 +329,7 @@ void CPHActorCharacter::InitContact(dContact* c,bool &do_collide,u16 material_id
 		}
 		else
 			inherited::InitContact(c,do_collide,material_idx_1,material_idx_2);
+
 		if(b_restrictor&&
 			do_collide&&
 			!(b1 ? static_cast<CPHCharacter*>(retrieveGeomUserData(c->geom.g2)->ph_object)->ActorMovable():static_cast<CPHCharacter*>(retrieveGeomUserData(c->geom.g1)->ph_object)->ActorMovable())
@@ -360,9 +363,14 @@ void CPHActorCharacter::InitContact(dContact* c,bool &do_collide,u16 material_id
 				c->surface.mu=1.f;
 			}
 		}
+
+		BigVelSeparate(c, do_collide);
 		
-		if(do_collide)inherited::InitContact(c,do_collide,material_idx_1,material_idx_2);
-		BigVelSeparate( c, do_collide );
+		if(do_collide)
+			inherited::InitContact(c,do_collide,material_idx_1,material_idx_2);
+
+		
+
 	}
 }
 

@@ -8,6 +8,9 @@ typedef	FactoryPtr<IUIShader>	ui_shader;
 #define UI_BASE_WIDTH	1024.0f
 #define UI_BASE_HEIGHT	768.0f
 
+#define UI_BASE_WIDTH_FULL	1920.0f
+#define UI_BASE_HEIGHT_FULL	1080.0f
+
 enum EUIItemAlign{
 	alNone	= 0x0000,
 	alLeft	= 0x0001,

@@ -104,24 +104,48 @@ void CUICursor::UpdateCursorPosition(int _dx, int _dy)
 		if(!r)		return;
 		p.x			= (float)pti.x;
 		p.y			= (float)pti.y;
-		vPos.x		= p.x * (UI_BASE_WIDTH/(float)Device.dwWidth);
-		vPos.y		= p.y * (UI_BASE_HEIGHT/(float)Device.dwHeight);
-	}else
+		if (UI().is_fullhd())
+		{
+			vPos.x = p.x * (UI_BASE_WIDTH_FULL / (float)Device.dwWidth);
+			vPos.y = p.y * (UI_BASE_HEIGHT_FULL / (float)Device.dwHeight);
+		}
+		else
+		{
+			vPos.x = p.x * (UI_BASE_WIDTH / (float)Device.dwWidth);
+			vPos.y = p.y * (UI_BASE_HEIGHT / (float)Device.dwHeight);
+		}
+	}
+	else
 	{
 		float sens = 1.0f;
 		vPos.x		+= _dx*sens;
 		vPos.y		+= _dy*sens;
 	}
-	clamp		(vPos.x, 0.f, UI_BASE_WIDTH);
-	clamp		(vPos.y, 0.f, UI_BASE_HEIGHT);
+
+	if (UI().is_fullhd()) {
+		clamp(vPos.x, 0.f, UI_BASE_WIDTH_FULL);
+		clamp(vPos.y, 0.f, UI_BASE_HEIGHT_FULL);
+	}
+	else
+	{
+		clamp(vPos.x, 0.f, UI_BASE_WIDTH);
+		clamp(vPos.y, 0.f, UI_BASE_HEIGHT);
+	}
 }
 
 void CUICursor::SetUICursorPosition(Fvector2 pos)
 {
 	vPos		= pos;
 	POINT		p;
-	p.x			= iFloor(vPos.x / (UI_BASE_WIDTH/(float)Device.dwWidth));
-	p.y			= iFloor(vPos.y / (UI_BASE_HEIGHT/(float)Device.dwHeight));
-
+	if (UI().is_fullhd())
+	{
+		p.x = iFloor(vPos.x / (UI_BASE_WIDTH_FULL / (float)Device.dwWidth));
+		p.y = iFloor(vPos.y / (UI_BASE_HEIGHT_FULL / (float)Device.dwHeight));
+	}
+	else 
+	{
+		p.x			= iFloor(vPos.x / (UI_BASE_WIDTH/(float)Device.dwWidth));
+		p.y			= iFloor(vPos.y / (UI_BASE_HEIGHT/(float)Device.dwHeight));
+	}
 	SetCursorPos(p.x, p.y);
 }

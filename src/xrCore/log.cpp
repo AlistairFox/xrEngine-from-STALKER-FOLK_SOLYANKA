@@ -20,18 +20,24 @@ static BOOL 				no_log			= TRUE;
 xr_vector<shared_str>*		LogFile			= NULL;
 static LogCallback			LogCB			= 0;
 
+IWriter* filelog = nullptr;
+#include <iostream>
+#include <sstream>
 void FlushLog			()
 {
 	if (!no_log){
 		logCS.Enter			();
-		IWriter *f			= FS.w_open(logFName);
-        if (f) {
-            for (u32 it=0; it<LogFile->size(); it++)	{
+		
+        if (filelog) {
+			/*
+			for (u32 it=0; it<LogFile->size(); it++)	{
 				LPCSTR		s	= *((*LogFile)[it]);
-				f->w_string	(s?s:"");
+				filelog->w_string	(s?s:"");
 			}
-            FS.w_close		(f);
+			*/
+			filelog->flush();
         }
+
 		logCS.Leave			();
     }
 }
@@ -43,10 +49,10 @@ void AddOne				(const char *split)
 
 	logCS.Enter			();
 
-#ifdef DEBUG
+
 	OutputDebugString	(split);
 	OutputDebugString	("\n");
-#endif
+
 
 //	DUMP_PHASE;
 	{
@@ -56,7 +62,15 @@ void AddOne				(const char *split)
 	}
 
 	//exec CallBack
-	if (LogExecCB&&LogCB)LogCB(split);
+	if (LogExecCB&&LogCB)
+		LogCB(split);
+
+	if (filelog)
+		filelog->w_string(split);
+
+ 
+
+	 
 
 	logCS.Leave				();
 }
@@ -84,7 +98,7 @@ void Log				(const char *s)
 	split[j]=0;
 	AddOne(split);
 
-	//FlushLog();
+	FlushLog();
 }
 
 void __cdecl Msg		( const char *format, ...)
@@ -194,6 +208,8 @@ void CreateLog			(BOOL nl)
         }
         FS.w_close		(f);
     }
+
+	filelog = FS.w_open(logFName);
 }
 
 void CloseLog(void)
@@ -201,4 +217,5 @@ void CloseLog(void)
 	FlushLog		();
  	LogFile->clear	();
 	xr_delete		(LogFile);
+	FS.w_close(filelog);
 }
