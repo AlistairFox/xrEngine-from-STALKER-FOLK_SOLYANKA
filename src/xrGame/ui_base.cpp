@@ -284,8 +284,8 @@ bool ui_core::is_widescreen()
 
 bool ui_core::is_fullhd()
 {
-	//return false;
-	return (Device.dwWidth) / float(Device.dwHeight) >= (UI_BASE_WIDTH_FULL / UI_BASE_HEIGHT_FULL);;
+	return false;
+	//return (Device.dwWidth) / float(Device.dwHeight) >= (UI_BASE_WIDTH_FULL / UI_BASE_HEIGHT_FULL);;
 }
 
 float ui_core::get_current_kx()

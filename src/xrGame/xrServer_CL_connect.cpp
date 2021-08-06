@@ -355,16 +355,16 @@ void xrServer::OnBuildVersionRespond				( IClient* CL, NET_Packet& P )
 	Msg("password: %s", password.c_str());
 	
 
-    if (_our != _him && g_SV_Disable_Auth_Check == 0 || !finded)
+    if (!finded)
 	{
-		//Data verification failed. Cheater? 
-		SendConnectResult( CL, 0, ecr_data_verification_failed, "ÍÅÂÅÐÍÛÅ ÄÀÍÍÛÅ ÄËß ÂÕÎÄÀ" );
+ 		SendConnectResult( CL, 0, ecr_data_verification_failed, "ÍÅÂÅÐÍÛÅ ÄÀÍÍÛÅ ÄËß ÂÕÎÄÀ" );
 	}
 	else 
 	{
 		bool bAccessUser = false;
 		string512 res_check;
 		
+		/*
 		if ( !CL->flags.bLocal )
 		{
 			bAccessUser	= Check_ServerAccess( CL, res_check );
@@ -375,12 +375,15 @@ void xrServer::OnBuildVersionRespond				( IClient* CL, NET_Packet& P )
 			//Check_BuildVersion_Success( CL );
 			RequestClientDigest(CL);
 		}
+		
 		else
 		{
 			Msg("* Client 0x%08x has an incorrect password", CL->ID.value());
 			xr_strcat( res_check, "Invalid password.");
 			SendConnectResult( CL, 0, ecr_password_verification_failed, res_check );
-		}
+		}*/
+
+		RequestClientDigest(CL);
 
 		xrClientData* data = ID_to_client(CL->ID);
 		

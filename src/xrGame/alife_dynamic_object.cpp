@@ -84,8 +84,8 @@ void CSE_ALifeDynamicObject::add_offline			(const xr_vector<ALife::_OBJECT_ID> &
 
 bool CSE_ALifeDynamicObject::synchronize_location	()
 {
-	Msg("synchronize_location (%s) id(%d) id_p(%d)", s_name.c_str(), ID, ID_Parent);
-
+//	Msg("synchronize_location (%s) id(%d) ", s_name.c_str(), ID);
+ 
 	if (!ai().level_graph().valid_vertex_position(o_Position) || ai().level_graph().inside(ai().level_graph().vertex(m_tNodeID),o_Position))
 		return					(true);
 

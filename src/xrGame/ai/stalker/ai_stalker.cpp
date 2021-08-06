@@ -845,11 +845,7 @@ void CAI_Stalker::shedule_Update		( u32 DT )
 {
 	if (!IsGameTypeSingle() && OnClient())
 	{
-		 
-		Msg("Shedule_Update (%d) (%s)", brain().object().ID(), brain().object());
-		
 		inherited::shedule_Update(DT);
-
 		return;
 	}
 
