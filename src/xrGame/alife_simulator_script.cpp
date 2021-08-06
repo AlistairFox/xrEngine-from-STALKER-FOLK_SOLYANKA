@@ -258,6 +258,13 @@ void CALifeSimulator__release					(CALifeSimulator *self, CSE_Abstract *object, 
 	THROW								(object);
 	CSE_ALifeObject						*alife_object = smart_cast<CSE_ALifeObject*>(object);
 	THROW								(alife_object);
+
+	if (!alife_object)
+	{
+		Msg("Try Release Null alife_obejct");
+		return;
+	}
+
 	if (!alife_object->m_bOnline) {
 		self->release					(object,true);
 		return;
