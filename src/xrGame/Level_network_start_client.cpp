@@ -82,18 +82,20 @@ bool	CLevel::net_start_client3				()
 		LPCSTR					level_ver = NULL;
 		LPCSTR					download_url = NULL;
 
-		if (psNET_direct_connect)	//single
+		if (OnServer())	//single //psNET_direct_connect
 		{
 			shared_str const & server_options = Server->GetConnectOptions();
 			level_name	= name().c_str();//Server->level_name		(server_options).c_str();
 			level_ver	= Server->level_version		(server_options).c_str(); //1.0
-		} else					//multiplayer
+		} 
+		else					//multiplayer
 		{
 			level_name		= get_net_DescriptionData().map_name;
 			level_ver		= get_net_DescriptionData().map_version;
 			download_url	= get_net_DescriptionData().download_url;
 			rescan_mp_archives(); //because if we are using psNET_direct_connect, we not download map...
 		}
+
 		// Determine internal level-ID
 		int						level_id = pApp->Level_ID(level_name, level_ver, true);
 		if (level_id==-1)	
@@ -109,9 +111,9 @@ bool	CLevel::net_start_client3				()
 			map_data.m_map_loaded			= false;
 			return false;
 		}
-#ifdef DEBUG
+//#ifdef DEBUG
 		Msg("--- net_start_client3: level_id [%d], level_name[%s], level_version[%s]", level_id, level_name, level_ver);
-#endif // #ifdef DEBUG
+//#endif // #ifdef DEBUG
 		map_data.m_name					= level_name;
 		map_data.m_map_version			= level_ver;
 		map_data.m_map_download_url		= download_url;

@@ -359,6 +359,11 @@ shared_str	CLevel::name		() const
 	return						(map_data.m_name);
 }
 
+void CLevel::set_level_name(shared_str name)
+{
+	map_data.m_name = name;
+}
+
 void CLevel::GetLevelInfo( CServerInfo* si )
 {
 	if ( Server && game )

@@ -387,6 +387,7 @@ void game_sv_GameState::Create					(shared_str &options)
 {
 	string_path	fn_game;
 	m_item_respawner.clear_respawns();
+	
 	if (FS.exist(fn_game, "$level$", "level.game")) 
 	{
 		IReader *F = FS.r_open	(fn_game);
@@ -437,26 +438,27 @@ void game_sv_GameState::Create					(shared_str &options)
 						continue;
 					};
 				};
+
 				switch (type)
 				{
-				case rptActorSpawn:
-					{
-						rpoints[team].push_back	(R);
-						for (int i=0; i<int(rpoints[team].size())-1; i++)
+					case rptActorSpawn:
 						{
-							RPoint rp = rpoints[team][i];
-							float dist = R.P.distance_to_xz(rp.P)/2;
-							if (dist<rpoints_MinDist[team])
-								rpoints_MinDist[team] = dist;
-							dist = R.P.distance_to(rp.P)/2;
-							if (dist<rpoints_Dist[team])
-								rpoints_Dist[team] = dist;
-						};
-					}break;
-				case rptItemSpawn:
-					{
-						m_item_respawner.add_new_rpoint(rp_profile, R);
-					}
+							rpoints[team].push_back	(R);
+							for (int i=0; i<int(rpoints[team].size())-1; i++)
+							{
+								RPoint rp = rpoints[team][i];
+								float dist = R.P.distance_to_xz(rp.P)/2;
+								if (dist<rpoints_MinDist[team])
+									rpoints_MinDist[team] = dist;
+								dist = R.P.distance_to(rp.P)/2;
+								if (dist<rpoints_Dist[team])
+									rpoints_Dist[team] = dist;
+							};
+						}break;
+					case rptItemSpawn:
+						{
+							m_item_respawner.add_new_rpoint(rp_profile, R);
+						}
 				};
 			};
 			O->close();

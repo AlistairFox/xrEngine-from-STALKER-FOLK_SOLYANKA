@@ -53,6 +53,8 @@ xrGameSpyClientData::~xrGameSpyClientData()
 	m_iCDKeyReauthHint = 0;
 }
 //-------------------------------------------------------
+#include "Level.h"
+
 xrGameSpyServer::EConnect xrGameSpyServer::Connect(shared_str &session_name, GameDescriptionData & game_descr)
 {
 	EConnect res = inherited::Connect(session_name, game_descr);
@@ -71,10 +73,13 @@ xrGameSpyServer::EConnect xrGameSpyServer::Connect(shared_str &session_name, Gam
 	if (0 != *(game->get_option_s		(*session_name,"psw",NULL)))
 		Password._set(game->get_option_s		(*session_name,"psw",NULL));
 
+	/*
 	string4096	tMapName = "";
 	const char* SName = *session_name;
 	strncpy_s(tMapName, *session_name, strchr(SName, '/') - SName);
-	MapName		= tMapName;// = (session_name);
+	*/
+
+	MapName	= Level().name();
 	
 
 	m_iReportToMasterServer = game->get_option_i		(*session_name,"public",0);

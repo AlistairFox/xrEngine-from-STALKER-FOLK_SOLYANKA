@@ -463,17 +463,12 @@ extern	float	g_fTimeFactor;
 void game_sv_mp::Create (shared_str &options)
 {
 	SetVotingActive(false);
-	inherited::Create(options);
-	string_path					file_name;
 
-	if (FS.exist(file_name, "$level$", "alife", ".spawn"))
-	{
+	
+	if (strstr(*options, "/alife"))
 		m_alife_simulator = xr_new<CALifeSimulator>(&server(), &options);
-	}
-	else
-	{
-		Msg("Multiplayer>> alife.spawn not found! No A-life");
-	}
+
+	inherited::Create(options);
 
 	//-------------------------------------------------------------------	
 	if (!g_bConsoleCommandsCreated)

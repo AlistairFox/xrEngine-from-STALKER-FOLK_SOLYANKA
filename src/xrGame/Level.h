@@ -328,6 +328,7 @@ public:
 
 	//названияе текущего уровня
 	virtual shared_str			name					() const;
+	virtual void set_level_name(shared_str name);
 			shared_str			version					() const { return map_data.m_map_version.c_str(); } //this method can be used ONLY from CCC_ChangeGameType
 
 	virtual void				GetLevelInfo		( CServerInfo* si );

@@ -66,6 +66,16 @@ CALifeSimulator::CALifeSimulator		(xrServer *server, shared_str *command_line) :
 		xr_strcat(temp, p.m_alife);
 		*command_line = temp;
 	}
+	else
+	{
+		xr_strcpy(p.m_new_or_load, "new");
+		Msg("CMD[%s]", command_line->c_str());
+		 
+		//shared_str l_ver = game_sv_GameState::parse_level_version(*command_line);
+		
+		
+
+	}
 	
 	LPCSTR						start_game_callback = pSettings->r_string(alife_section,"start_game_callback");
 	luabind::functor<void>		functor;
@@ -77,8 +87,11 @@ CALifeSimulator::CALifeSimulator		(xrServer *server, shared_str *command_line) :
 	}
 	else
 	{
-		load("alife", false, true);
+		//load("alife", false, true);
+		load(p.m_game_or_spawn, !xr_strcmp(p.m_new_or_load, "load") ? false : true, !xr_strcmp(p.m_new_or_load, "new"));
 	}
+
+	
 }
 
 CALifeSimulator::~CALifeSimulator		()

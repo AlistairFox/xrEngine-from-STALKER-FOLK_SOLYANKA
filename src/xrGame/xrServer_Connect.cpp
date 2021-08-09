@@ -74,16 +74,19 @@ xrServer::EConnect xrServer::Connect(shared_str &session_name, GameDescriptionDa
 		fill_auth_check_params	(tmp_ignore, tmp_check);
 		FS.auth_generate		(tmp_ignore, tmp_check);
 	}
+
 #ifdef DEBUG
 	Msg("* Created server_game %s",game->type_name());
 #endif
 	
 	ZeroMemory(&game_descr, sizeof(game_descr));
-	xr_strcpy(game_descr.map_name, game->level_name(session_name.c_str()).c_str());
-	xr_strcpy(game_descr.map_version, game_sv_GameState::parse_level_version(session_name.c_str()).c_str());
-	xr_strcpy(game_descr.download_url, get_map_download_url(game_descr.map_name, game_descr.map_version));
+
 
 	game->Create			(session_name);
+
+	xr_strcpy(game_descr.map_name, Level().name().c_str()); // game->level_name(session_name.c_str()).c_str()
+	xr_strcpy(game_descr.map_version, game_sv_GameState::parse_level_version(session_name.c_str()).c_str());
+	xr_strcpy(game_descr.download_url, get_map_download_url(game_descr.map_name, game_descr.map_version));
 
 	return inherited::Connect(*session_name, game_descr);
 }

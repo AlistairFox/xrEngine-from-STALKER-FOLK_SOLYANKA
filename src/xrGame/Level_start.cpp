@@ -135,12 +135,15 @@ bool CLevel::net_start1				()
 		if (!xr_strcmp(p.m_game_type,"single"))
 		{
 			Server					= xr_new<xrServer>();
-		} else
+		}
+		else
 		{
 			g_allow_heap_min		= false;
 			Server					= xr_new<xrGameSpyServer>();
 		}
 
+		Msg("Params [%s] [%s] [%s] [%s]", p.m_game_or_spawn, p.m_game_type, p.m_alife, p.m_new_or_load);
+		/*
 		if (xr_strcmp(p.m_alife,"alife"))
 		{
 			shared_str l_ver			= game_sv_GameState::parse_level_version(m_caServerOptions);
@@ -158,7 +161,9 @@ bool CLevel::net_start1				()
 				return true;
 			}
 		}
-	} else
+		*/
+	}
+	else
 	{
 		g_allow_heap_min = false;
 	}
@@ -177,7 +182,7 @@ bool CLevel::net_start2				()
 			return true;
 		}
 		Server->SLS_Default		();
-		map_data.m_name			= Server->level_name(m_caServerOptions);
+		//map_data.m_name			= Server->level_name(m_caServerOptions);
 		if (!g_dedicated_server)
 			g_pGamePersistent->LoadTitle(true, map_data.m_name);
 	}
