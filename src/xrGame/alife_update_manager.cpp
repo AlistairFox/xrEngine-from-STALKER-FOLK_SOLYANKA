@@ -23,6 +23,8 @@
 #include "profiler.h"
 #include "mt_config.h"
 
+#include "saved_game_wrapper.h"
+
 using namespace ALife;
 
 extern string_path g_last_saved_game;
@@ -208,21 +210,26 @@ bool CALifeUpdateManager::change_level	(NET_Packet &net_packet)
 	string256						temp;
 	*m_server_command_line			= strconcat(sizeof(temp),temp,autoave_name,temp0);
 	
-	save							(autoave_name);
+	bool saveFile = save			(autoave_name);
+	
+	if (saveFile)
+		Level().MakeReconnect();
 
-	graph().actor()->m_tGraphID		= safe_graph_vertex_id;
-	graph().actor()->m_tNodeID		= safe_level_vertex_id;
-	graph().actor()->o_Position		= safe_position;
-	graph().actor()->o_Angle		= safe_angles;
-	graph().actor()->o_torso		= safe_torso;
+	graph().actor()->m_tGraphID = safe_graph_vertex_id;
+	graph().actor()->m_tNodeID = safe_level_vertex_id;
+	graph().actor()->o_Position = safe_position;
+	graph().actor()->o_Angle = safe_angles;
+	graph().actor()->o_torso = safe_torso;
 
 	if (graph().actor()->m_holderID != 0xffff) {
-		VERIFY						(holder);
-		holder->m_tGraphID			= holder_safe_graph_vertex_id;
-		holder->m_tNodeID			= holder_safe_level_vertex_id;
-		holder->o_Position			= holder_safe_position;
-		holder->o_Angle				= holder_safe_angles;
+		VERIFY(holder);
+		holder->m_tGraphID = holder_safe_graph_vertex_id;
+		holder->m_tNodeID = holder_safe_level_vertex_id;
+		holder->o_Position = holder_safe_position;
+		holder->o_Angle = holder_safe_angles;
 	}
+
+	Msg("AutoSave End [%s]", autoave_name);
 
 	return							(true);
 }

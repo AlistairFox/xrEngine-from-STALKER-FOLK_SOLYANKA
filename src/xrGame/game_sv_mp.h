@@ -224,6 +224,14 @@ public:
 
 				virtual		bool				change_level(NET_Packet& net_packet, ClientID sender);
 
+				void				restart_simulator(LPCSTR saved_game_name);
+
+				void save_game(NET_Packet& net_packet, ClientID sender);
+
+				bool load_game(NET_Packet& net_packet, ClientID sender);
+
+
+
 	IC			xrServer			&server					() const
 	{
 		VERIFY						(m_server);

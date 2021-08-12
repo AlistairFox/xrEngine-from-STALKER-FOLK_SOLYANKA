@@ -215,9 +215,11 @@ protected:
 	BOOL						deny_m_spawn;		//only for debug...
 	
 	BOOL						sended_request_connection_data;
-		
+
+public:
 	void						MakeReconnect();
 	
+protected:
 	LevelMapSyncData			map_data;
 	bool						synchronize_map_data	();
 	bool						synchronize_client		();

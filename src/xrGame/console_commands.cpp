@@ -535,71 +535,67 @@ class CCC_ALifeSave : public IConsole_Command {
 public:
 	CCC_ALifeSave(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = true; };
 	virtual void Execute(LPCSTR args) {
-		
+
 #if 0
 		if (!Level().autosave_manager().ready_for_autosave()) {
-			Msg		("! Cannot save the game right now!");
+			Msg("! Cannot save the game right now!");
 			return;
 		}
 #endif
+		/*
 		if(!IsGameTypeSingle()){
 			Msg("for single-mode only");
 			return;
 		}
-		if(!g_actor || !Actor()->g_Alive())
+
+		if (!g_actor || !Actor()->g_Alive())
 		{
 			Msg("cannot make saved game because actor is dead :(");
-			return;
+		    return;
 		}
+		*/
 
-		Console->Execute			("stat_memory");
+		Console->Execute("stat_memory");
 
 		string_path				S, S1;
-		S[0]					= 0;
-		strncpy_s				(S, sizeof(S), args, _MAX_PATH - 1 );
-		
-#ifdef DEBUG
-		CTimer					timer;
-		timer.Start				();
-#endif
-		if (!xr_strlen(S)){
-			strconcat			(sizeof(S),S,Core.UserName," - ","quicksave");
+		S[0] = 0;
+		strncpy_s(S, sizeof(S), args, _MAX_PATH - 1);
+
+ 
+		if (!xr_strlen(S)) {
+			strconcat(sizeof(S), S, Core.UserName, " - ", "quicksave");
 			NET_Packet			net_packet;
-			net_packet.w_begin	(M_SAVE_GAME);
+			net_packet.w_begin(M_SAVE_GAME);
 			net_packet.w_stringZ(S);
-			net_packet.w_u8		(0);
-			Level().Send		(net_packet,net_flags(TRUE));
-		}else{
-			if(!valid_saved_game_name(S)){
+			net_packet.w_u8(0);
+			Level().Send(net_packet, net_flags(TRUE));
+		}
+		else
+		{
+			if (!valid_saved_game_name(S)) {
 				Msg("! Save failed: invalid file name - %s", S);
 				return;
 			}
 
 			NET_Packet			net_packet;
-			net_packet.w_begin	(M_SAVE_GAME);
+			net_packet.w_begin(M_SAVE_GAME);
 			net_packet.w_stringZ(S);
-			net_packet.w_u8		(1);
-			Level().Send		(net_packet,net_flags(TRUE));
+			net_packet.w_u8(1);
+			Level().Send(net_packet, net_flags(TRUE));
 		}
-#ifdef DEBUG
-		Msg						("Game save overhead  : %f milliseconds",timer.GetElapsed_sec()*1000.f);
-#endif
-		SDrawStaticStruct* _s		= CurrentGameUI()->AddCustomStatic("game_saved", true);
-		LPSTR						save_name;
-		STRCONCAT					(save_name, CStringTable().translate("st_game_saved").c_str(), ": ", S);
-		_s->wnd()->TextItemControl()->SetText(save_name);
 
-		xr_strcat				(S,".dds");
-		FS.update_path			(S1,"$game_saves$",S);
-		
-#ifdef DEBUG
-		timer.Start				();
-#endif
-		MainMenu()->Screenshot		(IRender_interface::SM_FOR_GAMESAVE,S1);
+		if (!g_dedicated_server)
+		{		SDrawStaticStruct* _s = CurrentGameUI()->AddCustomStatic("game_saved", true);
+				LPSTR						save_name;
+				STRCONCAT(save_name, CStringTable().translate("st_game_saved").c_str(), ": ", S);
+				_s->wnd()->TextItemControl()->SetText(save_name);
 
-#ifdef DEBUG
-		Msg						("Screenshot overhead : %f milliseconds",timer.GetElapsed_sec()*1000.f);
-#endif
+				xr_strcat(S, ".dds");
+				FS.update_path(S1, "$game_saves$", S);
+				if (!g_dedicated_server)
+					MainMenu()->Screenshot(IRender_interface::SM_FOR_GAMESAVE, S1);
+		}
+
 	}//virtual void Execute
 
 	virtual void fill_tips			(vecTips& tips, u32 mode)
@@ -642,23 +638,7 @@ public:
 			Msg						("! Cannot load saved game %s, invalid file name",saved_game);
 			return;
 		}
-
-/*     moved to level_network_messages.cpp
-		CSavedGameWrapper			wrapper(args);
-		if (wrapper.level_id() == ai().level_graph().level_id()) {
-			if (Device.Paused())
-				Device.Pause		(FALSE, TRUE, TRUE, "CCC_ALifeLoadFrom");
-
-			Level().remove_objects	();
-
-			game_sv_Single			*game = smart_cast<game_sv_Single*>(Level().Server->game);
-			R_ASSERT				(game);
-			game->restart_simulator	(saved_game);
-
-			return;
-		}
-*/
-
+ 
 		if(MainMenu()->IsActive())
 			MainMenu()->Activate(false);
 

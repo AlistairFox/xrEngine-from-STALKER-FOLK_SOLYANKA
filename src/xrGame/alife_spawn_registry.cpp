@@ -36,7 +36,7 @@ CALifeSpawnRegistry::~CALifeSpawnRegistry	()
 
 void CALifeSpawnRegistry::save				(IWriter &memory_stream)
 {
-	Msg							("* Saving spawns...");
+	Msg							("* Saving spawns... [%s]", m_spawn_name);
 	memory_stream.open_chunk	(SPAWN_CHUNK_DATA);
 	
 	memory_stream.open_chunk	(0);
@@ -58,7 +58,7 @@ void CALifeSpawnRegistry::load				(IReader &file_stream, LPCSTR game_name)
 	R_ASSERT					(FS.exist(game_name));
 
 	IReader						*chunk, *chunk0;
-	Msg							("* Loading spawn registry...");
+	Msg							("* Loading spawn registry... [%s]", game_name);
 	R_ASSERT2					(file_stream.find_chunk(SPAWN_CHUNK_DATA),"Cannot find chunk SPAWN_CHUNK_DATA!");
 	chunk0						= file_stream.open_chunk(SPAWN_CHUNK_DATA);
 	
@@ -93,7 +93,7 @@ void CALifeSpawnRegistry::load				(IReader &file_stream, LPCSTR game_name)
 
 void CALifeSpawnRegistry::load				(LPCSTR spawn_name)
 {
-	Msg							("* Loading spawn registry...");
+	Msg							("* Loading spawn registry... [%s]", spawn_name);
 	m_spawn_name				= spawn_name;
 	string_path					file_name;
 	/*

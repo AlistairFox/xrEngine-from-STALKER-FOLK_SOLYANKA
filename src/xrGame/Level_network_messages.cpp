@@ -296,25 +296,31 @@ void CLevel::ClientReceive()
 		case M_LOAD_GAME:
 		case M_CHANGE_LEVEL:
 			{
-#ifdef DEBUG
+//#ifdef DEBUG
 				Msg("--- Changing level message received...");
-#endif // #ifdef DEBUG
+//#endif // #ifdef DEBUG
+				
 				if(m_type==M_LOAD_GAME)
 				{
 					string256						saved_name;
 					P->r_stringZ_s					(saved_name);
+					
+					 
 					if(xr_strlen(saved_name) && ai().get_alife())
 					{
 						CSavedGameWrapper			wrapper(saved_name);
 						if (wrapper.level_id() == ai().level_graph().level_id()) 
 						{
-							Engine.Event.Defer	("Game:QuickLoad", size_t(xr_strdup(saved_name)), 0);
-
+							Engine.Event.Defer	("Game:QuickLoad", size_t(xr_strdup(saved_name)), 0); 
 							break;
 						}
-					}
+						
+					} 					
 				}
-				MakeReconnect();
+				//if (OnClient() && Game().Type() == eGameIDSingle)
+				if (OnClient())
+					MakeReconnect();
+				 
 			}break;
 		case M_SAVE_GAME:
 			{

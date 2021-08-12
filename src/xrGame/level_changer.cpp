@@ -62,6 +62,13 @@ BOOL CLevelChanger::net_Spawn	(CSE_Abstract* DC)
 	m_position					= l_tpALifeLevelChanger->m_tNextPosition;
 	m_angles					= l_tpALifeLevelChanger->m_tAngles;
 
+	Msg("Name[%s]", l_tpALifeLevelChanger->name_replace());
+	Msg("game_id[%d], vertex_id[%d]", m_game_vertex_id, m_level_vertex_id);
+	Msg("Pos[%.0f][%.0f][%.0f]", m_position.x, m_position.y, m_position.z);
+
+	Fvector pos =  this->Position();
+	Msg("RealPos[%.0f][%.0f][%.0f]", pos.x, pos.y, pos.z);
+
 	m_bSilentMode				= !!l_tpALifeLevelChanger->m_bSilentMode;
 	if (ai().get_level_graph()) {
 		//. this information should be computed in xrAI
@@ -123,6 +130,11 @@ void CLevelChanger::feel_touch_new	(CObject *tpObject)
 		p.w			(&m_level_vertex_id,sizeof(m_level_vertex_id));
 		p.w_vec3	(m_position);
 		p.w_vec3	(m_angles);
+
+		Msg("game_vertex_id %d", m_game_vertex_id);
+		Msg("m_level_vertex_id %d", m_level_vertex_id);
+		Msg("pos x[%.0f] y[%.0f] z[%.0f]", m_position.x, m_position.y, m_position.z);
+
 		Level().Send(p,net_flags(TRUE));
 		return;
 	}

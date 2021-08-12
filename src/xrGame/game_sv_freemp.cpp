@@ -193,7 +193,7 @@ void game_sv_freemp::OnEvent(NET_Packet &P, u16 type, u32 time, ClientID sender)
 {
 	switch (type)
 	{
-	case GAME_EVENT_PLAYER_KILL: // (g_kill)
+		case GAME_EVENT_PLAYER_KILL: // (g_kill)
 		{
 			u16 ID = P.r_u16();
 			xrClientData *l_pC = (xrClientData*)get_client(ID);
@@ -201,18 +201,30 @@ void game_sv_freemp::OnEvent(NET_Packet &P, u16 type, u32 time, ClientID sender)
 			KillPlayer(l_pC->ID, l_pC->ps->GameID);
 		}
 		break;
-	case GAME_EVENT_MP_TRADE:
+
+		case GAME_EVENT_MP_TRADE:
 		{
 			OnPlayerTrade(P, sender);
 		}
 		break;
-	case GAME_EVENT_TRANSFER_MONEY:
+	
+		case GAME_EVENT_TRANSFER_MONEY:
 		{
 			OnTransferMoney(P, sender);
 		}
 		break;
-	default:
-		inherited::OnEvent(P, type, time, sender);
+	
+		case M_CHANGE_LEVEL:
+		{
+			Msg("M_CHANGE_LEVEL");
+			if (change_level(P, sender))
+			{
+				server().SendBroadcast(BroadcastCID, P, net_flags(TRUE, TRUE));
+			}
+		}break;
+
+		default:
+			inherited::OnEvent(P, type, time, sender);
 	};
 }
 

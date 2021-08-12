@@ -425,6 +425,7 @@ void xrServer::SendUpdatePacketsToAll()
 				CSE_Abstract* parent = m_owner->ID_to_entity(entity->ID_Parent);
 
 				bool has_parent = !!parent;
+
 				if (!has_parent)
 				{
 					distance = owner->Position().distance_to_sqr(entity->Position());
@@ -557,6 +558,7 @@ void xrServer::SendUpdatePacketsToAll()
 			m_updator->end_updates(m_update_begin, m_update_end);
 
 			// send packets to client
+
 			for (update_iterator_t i = m_update_begin; i != m_update_end; ++i)
 			{
 				NET_Packet& P = **i;
@@ -770,10 +772,8 @@ u32 xrServer::OnMessage	(NET_Packet& P, ClientID sender)			// Non-Zero means bro
 		}break;
 	case M_CHANGE_LEVEL:
 		{
-			if (game->change_level(P,sender))
-			{
-				SendBroadcast		(BroadcastCID,P,net_flags(TRUE,TRUE));
-			}
+			game->AddDelayedEvent(P, M_CHANGE_LEVEL, 0, sender);
+			
 			VERIFY					(verify_entities());
 		}break;
 	case M_SAVE_GAME:

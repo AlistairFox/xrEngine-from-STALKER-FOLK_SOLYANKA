@@ -692,6 +692,8 @@ void CGamePersistent::OnFrame	()
 #include "UIGameCustom.h"
 #include "ui/UIMainIngameWnd.h"
 #include "ui/UIPdaWnd.h"
+#include "Level.h"
+#include "game_sv_mp.h"
 
 void CGamePersistent::OnEvent(EVENT E, u64 P1, u64 P2, u64 P3)
 {
@@ -705,21 +707,34 @@ void CGamePersistent::OnEvent(EVENT E, u64 P1, u64 P2, u64 P3)
 			CurrentGameUI()->HideShownDialogs();
 			CurrentGameUI()->UIMainIngameWnd->reset_ui();
 			CurrentGameUI()->PdaMenu().Reset();
+		
+
+			if(g_tutorial)
+				g_tutorial->Stop();
+
+			if(g_tutorial2)
+				g_tutorial2->Stop();
+
 		}
-
-		if(g_tutorial)
-			g_tutorial->Stop();
-
-		if(g_tutorial2)
-			g_tutorial2->Stop();
 
 		LPSTR		saved_name	= (LPSTR)(P1);
 
 		Level().remove_objects	();
-		game_sv_Single			*game = smart_cast<game_sv_Single*>(Level().Server->game);
-		R_ASSERT				(game);
-		game->restart_simulator	(saved_name);
-		xr_free					(saved_name);
+		
+		if (IsGameTypeSingle()){
+			game_sv_Single			*game = smart_cast<game_sv_Single*>(Level().Server->game);
+			R_ASSERT				(game);
+			game->restart_simulator	(saved_name);
+			xr_free					(saved_name);
+		}
+		else
+		{
+			game_sv_mp* game = smart_cast<game_sv_mp*>(Level().Server->game);
+			R_ASSERT(game);
+			game->restart_simulator(saved_name);
+			xr_free(saved_name);
+		}
+
 		return;
 	}else
 	if(E==eDemoStart)

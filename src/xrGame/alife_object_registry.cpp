@@ -125,6 +125,8 @@ CSE_ALifeDynamicObject *CALifeObjectRegistry::get_object		(IReader &file_stream)
 	return					(tpALifeDynamicObject);
 }
 
+#include "actor_mp_server.h";
+
 void CALifeObjectRegistry::load				(IReader &file_stream)
 { 
 	Msg							("* Loading objects...");
@@ -139,6 +141,12 @@ void CALifeObjectRegistry::load				(IReader &file_stream)
 	CSE_ALifeDynamicObject		**E = objects + count;
 	for ( ; I != E; ++I) {
 		*I						= get_object(file_stream);
+		
+	//	Msg("ObjectNameLoad(%s)", *(*I)->s_name.c_str());
+
+	//	if (smart_cast<CSE_ActorMP*>(*I) )
+	//		continue;
+
 		add						(*I);
 	}
 

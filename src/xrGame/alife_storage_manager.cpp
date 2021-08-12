@@ -23,6 +23,8 @@
 #include "../xrEngine/igame_persistent.h"
 #include "autosave_manager.h"
 
+#include "actor_mp_server.h"
+
 XRCORE_API string_path g_bug_report_file;
 
 using namespace ALife;
@@ -34,7 +36,7 @@ CALifeStorageManager::~CALifeStorageManager	()
 	*g_last_saved_game			= 0;
 }
 
-void CALifeStorageManager::save	(LPCSTR save_name_no_check, bool update_name)
+bool CALifeStorageManager::save	(LPCSTR save_name_no_check, bool update_name)
 {
 	LPCSTR game_saves_path		= FS.get_path("$game_saves$")->m_Path;
 
@@ -52,7 +54,7 @@ void CALifeStorageManager::save	(LPCSTR save_name_no_check, bool update_name)
 	else {
 		if (!xr_strlen(m_save_name)) {
 			Log					("There is no file name specified!");
-			return;
+			return false;
 		}
 	}
 
@@ -92,6 +94,8 @@ void CALifeStorageManager::save	(LPCSTR save_name_no_check, bool update_name)
 
 	if (!update_name)
 		xr_strcpy					(m_save_name,save);
+
+	return true;
 }
 
 void CALifeStorageManager::load	(void *buffer, const u32 &buffer_size, LPCSTR file_name)
@@ -104,12 +108,21 @@ void CALifeStorageManager::load	(void *buffer, const u32 &buffer_size, LPCSTR fi
 	objects().load				(source);
 
 	VERIFY						(can_register_objects());
+
 	can_register_objects		(false);
+	
 	CALifeObjectRegistry::OBJECT_REGISTRY::iterator	B = objects().objects().begin();
 	CALifeObjectRegistry::OBJECT_REGISTRY::iterator	E = objects().objects().end();
 	CALifeObjectRegistry::OBJECT_REGISTRY::iterator	I;
-	for (I = B; I != E; ++I) {
+
+	for (I = B; I != E; ++I)
+	{
 		ALife::_OBJECT_ID		id = (*I).second->ID;
+		if (smart_cast<CSE_ActorMP*>(I->second))
+			continue;
+
+		Msg("Load Name [%s]", I->second->s_name.c_str());
+
 		(*I).second->ID			= server().PerformIDgen(id);
 		VERIFY					(id == (*I).second->ID);
 		register_object			((*I).second,false);

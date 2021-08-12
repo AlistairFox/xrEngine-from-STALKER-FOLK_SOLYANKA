@@ -2450,9 +2450,51 @@ void	game_sv_mp::OnPlayerChangeName		(NET_Packet& P, ClientID sender)
 
 bool game_sv_mp::change_level(NET_Packet& net_packet, ClientID sender)
 {
-
 	if (ai().get_alife())
 		return					(alife().change_level(net_packet));
 	else
-		return					(true);
+		return					(false);
 }
+
+#include "../xrEngine/x_ray.h"
+
+void game_sv_mp::restart_simulator(LPCSTR saved_game_name)
+{
+	shared_str& options = *alife().server_command_line();
+
+	delete_data(m_alife_simulator);
+	server().clear_ids();
+
+	xr_strcpy(g_pGamePersistent->m_game_params.m_game_or_spawn, saved_game_name);
+	xr_strcpy(g_pGamePersistent->m_game_params.m_new_or_load, "load");
+
+	pApp->ls_header[0] = '\0';
+	pApp->ls_tip_number[0] = '\0';
+	pApp->ls_tip[0] = '\0';
+	pApp->LoadBegin();
+
+	m_alife_simulator = xr_new<CALifeSimulator>(&server(), &options);
+	//	g_pGamePersistent->LoadTitle		("st_client_synchronising");
+	g_pGamePersistent->LoadTitle();
+	Device.PreCache(60, true, true);
+	pApp->LoadEnd();
+}
+
+void game_sv_mp::save_game(NET_Packet& net_packet, ClientID sender)
+{
+	if (!ai().get_alife())
+		return;
+
+	alife().save(net_packet);
+}
+
+bool game_sv_mp::load_game(NET_Packet& net_packet, ClientID sender)
+{
+	if (!ai().get_alife())
+		return					(inherited::load_game(net_packet, sender));
+
+	shared_str						game_name;
+	net_packet.r_stringZ(game_name);
+	return	(alife().load_game(*game_name, true));
+}
+
