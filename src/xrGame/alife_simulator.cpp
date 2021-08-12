@@ -68,13 +68,7 @@ CALifeSimulator::CALifeSimulator		(xrServer *server, shared_str *command_line) :
 	}
 	else
 	{
-		xr_strcpy(p.m_new_or_load, "new");
 		Msg("CMD[%s]", command_line->c_str());
-		 
-		//shared_str l_ver = game_sv_GameState::parse_level_version(*command_line);
-		
-		
-
 	}
 	
 	LPCSTR						start_game_callback = pSettings->r_string(alife_section,"start_game_callback");

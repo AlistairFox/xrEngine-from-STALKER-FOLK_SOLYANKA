@@ -97,7 +97,9 @@ bool	CLevel::net_start_client3				()
 		}
 
 		// Determine internal level-ID
-		int						level_id = pApp->Level_ID(level_name, level_ver, true);
+		Msg("LevelID [%s], [%s], [%s]", level_name, level_ver, "true");
+		int	level_id = pApp->Level_ID(level_name, level_ver, true);
+
 		if (level_id==-1)	
 		{
 			Disconnect			();
@@ -121,7 +123,10 @@ bool	CLevel::net_start_client3				()
 		
 		deny_m_spawn			= FALSE;
 		// Load level
+		
 		R_ASSERT2				(Load(level_id),"Loading failed.");
+
+
 		map_data.m_level_geom_crc32 = 0;
 		if (!IsGameTypeSingle())
 			CalculateLevelCrc32		();
