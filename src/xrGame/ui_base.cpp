@@ -356,7 +356,7 @@ shared_str	ui_core::get_xml_name(LPCSTR fn)
 
 	float sizing = (Device.dwWidth) / float(Device.dwHeight);
 
-	Msg("Return MODE = fullhd[%s] path[%s] value[%f]", is_fullhd() ? "true" : "false", str, sizing);
+//	Msg("Return MODE = fullhd[%s] path[%s] value[%f]", is_fullhd() ? "true" : "false", str, sizing);
 
 	return str;
 }
