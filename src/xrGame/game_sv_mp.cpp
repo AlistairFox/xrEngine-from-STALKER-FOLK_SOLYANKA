@@ -658,16 +658,22 @@ bool game_sv_mp::SpawnItemToPos(LPCSTR section, Fvector3 position)
 
 	if (E->cast_human_abstract() || E->cast_monster_abstract())
 	{
+		
 		if (!m_alife_simulator)
 		{
 			Msg("! You can't spawn \"%s\" because alife simulator is not initialized!", section);
 			return false;
 		}
-
+		else
+		{
+			Msg("Alife_Simulator Finded");
+		}
+ 
+		u32 graph = ai().alife().graph().actor()->m_tGraphID;
 		u32 LV = ai().get_level_graph()->vertex_id(position);
 
 		if (ai().get_level_graph()->valid_vertex_id(LV))
-			alife().spawn_item(section, position, ai().get_level_graph()->vertex_id(position), 0, 0xffff);
+			alife().spawn_item(section, position, ai().get_level_graph()->vertex_id(position), graph, 0xffff);
 		else
 			Msg("! Level vertex incorrect");
 
@@ -2441,3 +2447,12 @@ void	game_sv_mp::OnPlayerChangeName		(NET_Packet& P, ClientID sender)
 
 	signal_Syncronize();
 };
+
+bool game_sv_mp::change_level(NET_Packet& net_packet, ClientID sender)
+{
+
+	if (ai().get_alife())
+		return					(alife().change_level(net_packet));
+	else
+		return					(true);
+}

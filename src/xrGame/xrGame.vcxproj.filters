@@ -1450,6 +1450,315 @@
     <Filter Include="AI\ASpace">
       <UniqueIdentifier>{e4cbf59b-01a0-4193-a1c9-02c22d0714c1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UI">
+      <UniqueIdentifier>{2720abde-0061-4acb-a137-8bd082fef090}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Common">
+      <UniqueIdentifier>{6cb2bf42-9ec6-48a2-b394-3b75135c27f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Common\InventoryWnd">
+      <UniqueIdentifier>{5d98d52e-31bc-4942-b70f-8d4677da8fad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Common\InventoryWnd\InventoryUpgrade">
+      <UniqueIdentifier>{e1ed222a-de01-40d2-9d8d-78087e3fe927}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Common\PDA">
+      <UniqueIdentifier>{dcef8725-6019-426f-bcc6-f5d7d4e32599}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Common\PDA\MAP">
+      <UniqueIdentifier>{bc87ccc3-6a94-4c77-a5a9-4873c1c0992c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Common\PDA\Statistics &amp; Rankings">
+      <UniqueIdentifier>{cfd490d1-b758-4021-8fa2-cd6344f93058}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Common\PDA\Tasks">
+      <UniqueIdentifier>{e78f4761-2cce-4f45-8c3c-9730c5e2226b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Common\PDA\FactionWar">
+      <UniqueIdentifier>{d4ba222a-96c6-44ea-be13-03d374034dee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Common\PDA\logs">
+      <UniqueIdentifier>{49811539-3f2e-4cba-bd0f-f698f7b0b8d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Common\PDA\logs\News">
+      <UniqueIdentifier>{3b2a1f00-aa96-4d27-8a32-e6c768a98b54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Common\ui-item-infos">
+      <UniqueIdentifier>{7c861d3a-c0eb-4601-9400-9cdd69229262}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Common\ui-item-infos\CharacterInfo">
+      <UniqueIdentifier>{9b115676-0bf9-444b-a331-f165e4386ff0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Common\TALK">
+      <UniqueIdentifier>{7be28dba-2ed7-4f52-ba0f-016530ff003a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Common\MainIngame">
+      <UniqueIdentifier>{5a65c4c6-a826-4436-a553-a9d67a3b3e10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Common\OptionsItem">
+      <UniqueIdentifier>{dc2fcf23-6325-4629-8cee-ba05e728b5a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Common\OptionsConsoleCommands">
+      <UniqueIdentifier>{a386b927-c6f0-4d20-9a02-3006805c2699}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Common\MainMenu">
+      <UniqueIdentifier>{141118a5-0c22-4c39-9dd0-b7f28b1c9b7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Common\MainMenu\KeyBinding">
+      <UniqueIdentifier>{93d043da-6533-4e02-9be6-c4e71eabb836}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Common\InventoryUtilities">
+      <UniqueIdentifier>{37b35fa1-121c-4ef7-90d6-0ebd2c4f3200}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Common\Inventory">
+      <UniqueIdentifier>{ad67d001-96a8-445c-8789-7b0b657cd688}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Common\_Debug Fonts">
+      <UniqueIdentifier>{3745453c-f1b3-4f32-8c2e-86328083598e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\UIWindows">
+      <UniqueIdentifier>{49f1700d-e080-40c6-b5d2-7f0af99250f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\UIWindows\XML">
+      <UniqueIdentifier>{fec90bb9-48f4-49a5-b56d-5f1f587c82ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\UIWindows\MessageBox">
+      <UniqueIdentifier>{63b48624-78b0-4ff4-8d1b-891427afba9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\UIWindows\PropertiesBox">
+      <UniqueIdentifier>{54a5413c-1b09-402c-a45f-173fa880d4a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\UIWindows\Static">
+      <UniqueIdentifier>{68777dcd-1671-4de4-9947-616d05a7aff8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\UIWindows\EditBox">
+      <UniqueIdentifier>{9e4c43ef-a16d-4498-baee-6525bd0bc26e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\UIWindows\EditBox\customEB">
+      <UniqueIdentifier>{9fa3052b-84ec-4af1-a9bc-acc5722da957}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\UIWindows\Windows">
+      <UniqueIdentifier>{c6cb38e3-673a-483b-abe0-3012e7402b34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\UIWindows\ProgressBar">
+      <UniqueIdentifier>{33a4c7e7-f0bd-4b47-b02a-d71bf7eba4c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\UIWindows\TabControl">
+      <UniqueIdentifier>{ba1fdc85-8a4a-4d83-892f-983959195d59}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\UIWindows\ScriptWnd">
+      <UniqueIdentifier>{618b1d0f-e84e-4620-8714-0b409a3db9fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\UIWindows\Buttons">
+      <UniqueIdentifier>{aa8839da-e243-4764-858e-f5fa6458b9fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\UIWindows\ComboBox">
+      <UniqueIdentifier>{ef09e252-d6b5-4d0a-b32f-3b93d12e948c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\UIWindows\InteractiveBackground">
+      <UniqueIdentifier>{b28b9935-fa02-44e8-b60c-461e7ee83116}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\UIWindows\TrackBar">
+      <UniqueIdentifier>{f968be15-750c-4ad7-b743-e35736c693aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\UIWindows\Frames">
+      <UniqueIdentifier>{e5939ce8-2275-411b-a8de-7c23a31efe6d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\UIWindows\ScrollView">
+      <UniqueIdentifier>{2bb29834-8fd9-47ad-af77-7694c6b99b0f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\UIWindows\Lines">
+      <UniqueIdentifier>{d19aa670-fa53-4fec-81be-a63b5b444a75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\UIWindows\DragDrop">
+      <UniqueIdentifier>{999bbc8e-10c2-4abf-aedd-2e59fb04b261}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\UIWindows\ScrollBar">
+      <UniqueIdentifier>{2cd4cc59-df48-4bc2-923b-bc3b876393cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\UIWindows\SpinBox">
+      <UniqueIdentifier>{7eff9ac1-0064-4d8d-8113-30ec9bf01e5d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\UIWindows\arrow">
+      <UniqueIdentifier>{5d2283bc-c37c-4e39-81cb-84e991f199f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\UIWindows\Hint">
+      <UniqueIdentifier>{5066f289-2071-44f4-b4ee-8ecfd631d01d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\UIWindows\ListBox">
+      <UniqueIdentifier>{813a019d-eede-4ad7-ba19-11c6e90a6479}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\HUD">
+      <UniqueIdentifier>{838705ae-5ac2-459b-9d2a-ffd725fcea3c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\GameTypes">
+      <UniqueIdentifier>{916fe602-d410-4608-b19a-0a84d5741325}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\GameTypes\GameCustom">
+      <UniqueIdentifier>{ca3002c8-5c35-4be6-a6ea-aa36d03b423c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\GameTypes\Deathmatch">
+      <UniqueIdentifier>{a1688ef5-5da5-45e3-9b60-1332e6817925}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\GameTypes\Single">
+      <UniqueIdentifier>{2844dfa8-2f90-4082-bda2-cc8ea5506a34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\GameTypes\TeamDeathmatch">
+      <UniqueIdentifier>{4948efe9-3d92-4d87-b86c-c7f649dfd586}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\GameTypes\ArtefactHunt">
+      <UniqueIdentifier>{e357534e-ff0a-446f-aa5a-ea0d74adac39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\GameTypes\CaptureTheArtefact">
+      <UniqueIdentifier>{d93da34e-10eb-4380-b9ed-c0e1d4e2f84b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Multiplayer">
+      <UniqueIdentifier>{8f551fbe-0a55-4ac2-9c90-e130fbe29e0f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Multiplayer\MM_MP">
+      <UniqueIdentifier>{f70dac8c-b326-4ee2-8681-9e1dda3dedc3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Multiplayer\MM_MP\CDkey">
+      <UniqueIdentifier>{c94090d3-3203-4fe6-b21b-6f5d0cd04ab8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Multiplayer\MM_MP\MapList">
+      <UniqueIdentifier>{42a6f983-b5f7-4f6b-b1ee-bce69d6384fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Multiplayer\MM_MP\ServerList">
+      <UniqueIdentifier>{b90867ea-9d79-46ba-b76b-4fd1e704e493}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Multiplayer\MM_MP\TeamInfo">
+      <UniqueIdentifier>{8b4ee24a-8133-4773-89d3-8bfc368fa87f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Multiplayer\HUD">
+      <UniqueIdentifier>{18035dad-f395-4900-8799-9804d7f4b312}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Multiplayer\HUD\Stats">
+      <UniqueIdentifier>{b3d060d7-7c60-49b5-9184-7a10a7ea33b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Multiplayer\HUD\Stats\icons">
+      <UniqueIdentifier>{4b6e914b-45a8-465c-bf39-6e48b1fa19a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Multiplayer\HUD\Stats\TeamStates">
+      <UniqueIdentifier>{832bd608-2fa4-4fe9-967a-5e84e9205e86}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Multiplayer\HUD\Chat">
+      <UniqueIdentifier>{7a73ba15-b422-4cac-8b00-757e13c0656e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Multiplayer\HUD\GameLog">
+      <UniqueIdentifier>{2bf79bf8-2f36-4765-a46e-0a2121f4d793}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Multiplayer\HUD\SpeechMenu">
+      <UniqueIdentifier>{d4204696-3649-41a0-9cdf-290d40b2a268}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Multiplayer\HUD\common">
+      <UniqueIdentifier>{30e586b8-c19e-4cba-aa5e-299a90dcacc1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Multiplayer\BuyWeaponWnd">
+      <UniqueIdentifier>{6f50369c-8e71-4ec4-9341-3000b3a4eb46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Multiplayer\BuyWeaponWnd\rank_restrictions">
+      <UniqueIdentifier>{4a6cdaa3-6356-44a6-b597-08c5cc216b51}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Multiplayer\BuyWeaponWnd\TAB">
+      <UniqueIdentifier>{2b3b068a-122b-4411-b868-fed8684dfa9d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Multiplayer\team_skin_info">
+      <UniqueIdentifier>{62b778ea-cf64-4eae-903f-975ad8185661}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Multiplayer\team_skin_info\MapDesc">
+      <UniqueIdentifier>{27abd964-ebdf-4c5e-9a63-3fa610a6317c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Multiplayer\team_skin_info\MapDesc\MapInfo">
+      <UniqueIdentifier>{b6c0b280-5532-4ccb-8ebe-3b7d1d85771b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Multiplayer\team_skin_info\Spawn">
+      <UniqueIdentifier>{f2157a4f-39ae-493e-90eb-729cd67b4173}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Multiplayer\team_skin_info\SkinSelector">
+      <UniqueIdentifier>{e9a2eaf1-8a79-465b-bfd2-34f3c0d0d38e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Multiplayer\team_skin_info\ServerInfo">
+      <UniqueIdentifier>{dd25d328-f987-4c85-bafe-f60efa6ac770}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Multiplayer\Voting">
+      <UniqueIdentifier>{a46fdb47-ead2-4940-a474-8c892befb63e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Multiplayer\DemoPlayControl">
+      <UniqueIdentifier>{3879d314-86b2-4476-9153-8a72cb1e658d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Multiplayer\Achivements">
+      <UniqueIdentifier>{e311fea3-c9c9-45ac-8fc8-597e21202a54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Multiplayer\AdminMenu">
+      <UniqueIdentifier>{f0bfc821-e4e1-4c75-884e-efb829729e66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Cursor">
+      <UniqueIdentifier>{d4272535-0ca4-4ecb-835f-36665b47bd51}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Tutorial">
+      <UniqueIdentifier>{9e67d3ad-6d69-45a8-a079-a6d4d809f6be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics">
+      <UniqueIdentifier>{1782d4cf-95eb-4af3-aab1-4f81a7acc970}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics\Debug">
+      <UniqueIdentifier>{1a239be3-4364-4dda-9be7-68471615d11f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics\CharacterSupport">
+      <UniqueIdentifier>{ef3f5c0a-93f8-44dd-9bcd-9f608e8dac9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics\CharacterSupport\interactive_motion">
+      <UniqueIdentifier>{eb76a74a-93f2-4771-99e9-0bd7ecf146ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics\CharacterSupport\death_anims">
+      <UniqueIdentifier>{5d324211-94a6-4638-94c0-3ea2a42920c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics\CharacterSupport\hit_anims">
+      <UniqueIdentifier>{6068e96e-49a2-4056-b3cc-b05dc25ff0f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics\CharacterSupport\interactive_anims">
+      <UniqueIdentifier>{54a6755d-937e-4894-8036-d65278f4400a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics\PHCommander">
+      <UniqueIdentifier>{08e401d6-9024-4e15-b192-29b41a3b996c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics\DamagableItem">
+      <UniqueIdentifier>{cf0a5f80-b91d-4510-8e98-5f98bbad859a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics\PhysicsSoundPlayer">
+      <UniqueIdentifier>{7472478e-b5ec-459d-96f1-422bfadb0f98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics\Hit">
+      <UniqueIdentifier>{98f07866-8c47-405a-a041-e8f75107e552}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics\IK">
+      <UniqueIdentifier>{16158f29-db33-4c7f-bad5-33745b5f24db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics\animation_movement_controller">
+      <UniqueIdentifier>{9b41f9ea-d8fd-4996-a821-89ec85598a2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics\MovementControl">
+      <UniqueIdentifier>{0e849eb0-87f4-4721-b11b-28d48756ec90}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics\scripts">
+      <UniqueIdentifier>{69ebf4ce-a701-4d87-ae88-a77479be1f0c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\GameTypes\FreeMp">
+      <UniqueIdentifier>{6b2387dd-8f2f-47b8-a16b-8018d236136a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AI\AMonsters\common\net">
+      <UniqueIdentifier>{459ccbd1-4831-4852-b1e6-77370a630e09}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\GameTypes\Roleplay">
+      <UniqueIdentifier>{bff9e9c8-931c-4321-b0d5-9b1ebf07f842}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Multiplayer\Roleplay">
+      <UniqueIdentifier>{da488458-c041-4176-a2e8-5994dc36ea74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="jsonxx">
+      <UniqueIdentifier>{33080bda-ed3f-4a71-a780-c8b37658ce27}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Core">
       <UniqueIdentifier>{6fd204d6-9597-432d-9da7-5f468363e628}</UniqueIdentifier>
     </Filter>
@@ -1710,6 +2019,45 @@
     </Filter>
     <Filter Include="Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon">
       <UniqueIdentifier>{7a4bb77c-6e94-407b-a43e-433e4d00751c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Server">
+      <UniqueIdentifier>{d1d0cd53-e312-468c-9378-d55e5aa5f3b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Client">
+      <UniqueIdentifier>{20f8acb5-b4f2-4403-bf92-f2bd0f42c502}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Common">
+      <UniqueIdentifier>{7c30bc08-b417-4dd9-a159-80f66eaa7e7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Common\Weapon Generic">
+      <UniqueIdentifier>{021dd787-9ff1-450e-b441-8a47f8de4ae1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Common\Addons">
+      <UniqueIdentifier>{daf53b47-0b8c-4f30-88de-fd39d0ac83d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Common\Addons\Scope">
+      <UniqueIdentifier>{001d59bb-bcdc-4f89-872f-8b01312763cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Common\Addons\Silencer">
+      <UniqueIdentifier>{745f6f5a-6853-49cf-b25a-2bd55746089d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Common\Addons\GrenadeLauncher">
+      <UniqueIdentifier>{7cb8c611-1d54-4312-811d-8632fa60ca26}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Common\Ammo">
+      <UniqueIdentifier>{a287eb4f-1826-45b6-acf6-7930d50c44eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Common\Automatic">
+      <UniqueIdentifier>{0559ed1a-5072-465d-8b88-07f7e7a6c596}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Common\Grenades &amp; Missiles">
+      <UniqueIdentifier>{63e5d915-d653-4233-a4cb-0f2356c53468}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Common\Pistol">
+      <UniqueIdentifier>{16275ccf-e2c4-4748-9aed-aa463b0890b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Common\RocketLauncher">
+      <UniqueIdentifier>{d1de9636-a36e-4494-9339-e10d6fec350c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core\Client\Objects\items &amp; weapons\Weapons\Various weapons">
       <UniqueIdentifier>{95dc2d8a-0b47-4b86-b898-8931010844ea}</UniqueIdentifier>
@@ -2014,6 +2362,12 @@
     <Filter Include="Core\Server\Games\client\capture_the_artefact">
       <UniqueIdentifier>{6c5cfecb-bb84-4d16-8270-cef65928b53a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Server\Games\client\freemp">
+      <UniqueIdentifier>{00557b8e-492b-48c7-b4b0-332fc13aa87c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Server\Games\client\roleplay">
+      <UniqueIdentifier>{1c5daa59-a8c1-44b0-94b3-717b5321e1f7}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Core\Server\Games\server">
       <UniqueIdentifier>{7e6a1f5e-03fd-4e57-b3e2-2fd513178ec6}</UniqueIdentifier>
     </Filter>
@@ -2032,8 +2386,17 @@
     <Filter Include="Core\Server\Games\server\mp">
       <UniqueIdentifier>{3ecab47b-b92a-4c63-b596-b20fb791eb62}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Server\Games\server\mp\alife">
+      <UniqueIdentifier>{2ae953b0-54e8-4ad6-993b-aa3cb99d0660}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Core\Server\Games\server\capture_the_artefact">
       <UniqueIdentifier>{a58df264-1026-4011-a161-c1c769651a23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Server\Games\server\freemp">
+      <UniqueIdentifier>{d08e08ef-3e2f-4791-9485-377179643799}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Server\Games\server\roleplay">
+      <UniqueIdentifier>{275b40cc-c72b-4e31-9af8-bc1b0f0a7e86}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core\Server\Games\PlayerAccounts">
       <UniqueIdentifier>{c8e2f403-688c-4c8d-aae4-e6bdf83d3df5}</UniqueIdentifier>
@@ -2082,366 +2445,6 @@
     </Filter>
     <Filter Include="Core\Server\ServerConnect">
       <UniqueIdentifier>{481f93a9-63cd-424d-a7ce-b37b26abb53c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI">
-      <UniqueIdentifier>{2720abde-0061-4acb-a137-8bd082fef090}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Common">
-      <UniqueIdentifier>{6cb2bf42-9ec6-48a2-b394-3b75135c27f5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Common\InventoryWnd">
-      <UniqueIdentifier>{5d98d52e-31bc-4942-b70f-8d4677da8fad}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Common\InventoryWnd\InventoryUpgrade">
-      <UniqueIdentifier>{e1ed222a-de01-40d2-9d8d-78087e3fe927}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Common\PDA">
-      <UniqueIdentifier>{dcef8725-6019-426f-bcc6-f5d7d4e32599}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Common\PDA\MAP">
-      <UniqueIdentifier>{bc87ccc3-6a94-4c77-a5a9-4873c1c0992c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Common\PDA\Statistics &amp; Rankings">
-      <UniqueIdentifier>{cfd490d1-b758-4021-8fa2-cd6344f93058}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Common\PDA\Tasks">
-      <UniqueIdentifier>{e78f4761-2cce-4f45-8c3c-9730c5e2226b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Common\PDA\FactionWar">
-      <UniqueIdentifier>{d4ba222a-96c6-44ea-be13-03d374034dee}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Common\PDA\logs">
-      <UniqueIdentifier>{49811539-3f2e-4cba-bd0f-f698f7b0b8d8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Common\PDA\logs\News">
-      <UniqueIdentifier>{3b2a1f00-aa96-4d27-8a32-e6c768a98b54}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Common\ui-item-infos">
-      <UniqueIdentifier>{7c861d3a-c0eb-4601-9400-9cdd69229262}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Common\ui-item-infos\CharacterInfo">
-      <UniqueIdentifier>{9b115676-0bf9-444b-a331-f165e4386ff0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Common\TALK">
-      <UniqueIdentifier>{7be28dba-2ed7-4f52-ba0f-016530ff003a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Common\MainIngame">
-      <UniqueIdentifier>{5a65c4c6-a826-4436-a553-a9d67a3b3e10}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Common\OptionsItem">
-      <UniqueIdentifier>{dc2fcf23-6325-4629-8cee-ba05e728b5a9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Common\OptionsConsoleCommands">
-      <UniqueIdentifier>{a386b927-c6f0-4d20-9a02-3006805c2699}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Common\MainMenu">
-      <UniqueIdentifier>{141118a5-0c22-4c39-9dd0-b7f28b1c9b7f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Common\MainMenu\KeyBinding">
-      <UniqueIdentifier>{93d043da-6533-4e02-9be6-c4e71eabb836}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Common\InventoryUtilities">
-      <UniqueIdentifier>{37b35fa1-121c-4ef7-90d6-0ebd2c4f3200}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Common\Inventory">
-      <UniqueIdentifier>{ad67d001-96a8-445c-8789-7b0b657cd688}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Common\_Debug Fonts">
-      <UniqueIdentifier>{3745453c-f1b3-4f32-8c2e-86328083598e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\UIWindows">
-      <UniqueIdentifier>{49f1700d-e080-40c6-b5d2-7f0af99250f6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\UIWindows\XML">
-      <UniqueIdentifier>{fec90bb9-48f4-49a5-b56d-5f1f587c82ac}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\UIWindows\MessageBox">
-      <UniqueIdentifier>{63b48624-78b0-4ff4-8d1b-891427afba9c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\UIWindows\PropertiesBox">
-      <UniqueIdentifier>{54a5413c-1b09-402c-a45f-173fa880d4a2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\UIWindows\Static">
-      <UniqueIdentifier>{68777dcd-1671-4de4-9947-616d05a7aff8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\UIWindows\EditBox">
-      <UniqueIdentifier>{9e4c43ef-a16d-4498-baee-6525bd0bc26e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\UIWindows\EditBox\customEB">
-      <UniqueIdentifier>{9fa3052b-84ec-4af1-a9bc-acc5722da957}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\UIWindows\Windows">
-      <UniqueIdentifier>{c6cb38e3-673a-483b-abe0-3012e7402b34}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\UIWindows\ProgressBar">
-      <UniqueIdentifier>{33a4c7e7-f0bd-4b47-b02a-d71bf7eba4c2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\UIWindows\TabControl">
-      <UniqueIdentifier>{ba1fdc85-8a4a-4d83-892f-983959195d59}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\UIWindows\ScriptWnd">
-      <UniqueIdentifier>{618b1d0f-e84e-4620-8714-0b409a3db9fe}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\UIWindows\Buttons">
-      <UniqueIdentifier>{aa8839da-e243-4764-858e-f5fa6458b9fd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\UIWindows\ComboBox">
-      <UniqueIdentifier>{ef09e252-d6b5-4d0a-b32f-3b93d12e948c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\UIWindows\InteractiveBackground">
-      <UniqueIdentifier>{b28b9935-fa02-44e8-b60c-461e7ee83116}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\UIWindows\TrackBar">
-      <UniqueIdentifier>{f968be15-750c-4ad7-b743-e35736c693aa}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\UIWindows\Frames">
-      <UniqueIdentifier>{e5939ce8-2275-411b-a8de-7c23a31efe6d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\UIWindows\ScrollView">
-      <UniqueIdentifier>{2bb29834-8fd9-47ad-af77-7694c6b99b0f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\UIWindows\Lines">
-      <UniqueIdentifier>{d19aa670-fa53-4fec-81be-a63b5b444a75}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\UIWindows\DragDrop">
-      <UniqueIdentifier>{999bbc8e-10c2-4abf-aedd-2e59fb04b261}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\UIWindows\ScrollBar">
-      <UniqueIdentifier>{2cd4cc59-df48-4bc2-923b-bc3b876393cf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\UIWindows\SpinBox">
-      <UniqueIdentifier>{7eff9ac1-0064-4d8d-8113-30ec9bf01e5d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\UIWindows\arrow">
-      <UniqueIdentifier>{5d2283bc-c37c-4e39-81cb-84e991f199f1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\UIWindows\Hint">
-      <UniqueIdentifier>{5066f289-2071-44f4-b4ee-8ecfd631d01d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\UIWindows\ListBox">
-      <UniqueIdentifier>{813a019d-eede-4ad7-ba19-11c6e90a6479}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\HUD">
-      <UniqueIdentifier>{838705ae-5ac2-459b-9d2a-ffd725fcea3c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\GameTypes">
-      <UniqueIdentifier>{916fe602-d410-4608-b19a-0a84d5741325}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\GameTypes\GameCustom">
-      <UniqueIdentifier>{ca3002c8-5c35-4be6-a6ea-aa36d03b423c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\GameTypes\Deathmatch">
-      <UniqueIdentifier>{a1688ef5-5da5-45e3-9b60-1332e6817925}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\GameTypes\Single">
-      <UniqueIdentifier>{2844dfa8-2f90-4082-bda2-cc8ea5506a34}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\GameTypes\TeamDeathmatch">
-      <UniqueIdentifier>{4948efe9-3d92-4d87-b86c-c7f649dfd586}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\GameTypes\ArtefactHunt">
-      <UniqueIdentifier>{e357534e-ff0a-446f-aa5a-ea0d74adac39}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\GameTypes\CaptureTheArtefact">
-      <UniqueIdentifier>{d93da34e-10eb-4380-b9ed-c0e1d4e2f84b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Multiplayer">
-      <UniqueIdentifier>{8f551fbe-0a55-4ac2-9c90-e130fbe29e0f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Multiplayer\MM_MP">
-      <UniqueIdentifier>{f70dac8c-b326-4ee2-8681-9e1dda3dedc3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Multiplayer\MM_MP\CDkey">
-      <UniqueIdentifier>{c94090d3-3203-4fe6-b21b-6f5d0cd04ab8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Multiplayer\MM_MP\MapList">
-      <UniqueIdentifier>{42a6f983-b5f7-4f6b-b1ee-bce69d6384fb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Multiplayer\MM_MP\ServerList">
-      <UniqueIdentifier>{b90867ea-9d79-46ba-b76b-4fd1e704e493}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Multiplayer\MM_MP\TeamInfo">
-      <UniqueIdentifier>{8b4ee24a-8133-4773-89d3-8bfc368fa87f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Multiplayer\HUD">
-      <UniqueIdentifier>{18035dad-f395-4900-8799-9804d7f4b312}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Multiplayer\HUD\Stats">
-      <UniqueIdentifier>{b3d060d7-7c60-49b5-9184-7a10a7ea33b9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Multiplayer\HUD\Stats\icons">
-      <UniqueIdentifier>{4b6e914b-45a8-465c-bf39-6e48b1fa19a6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Multiplayer\HUD\Stats\TeamStates">
-      <UniqueIdentifier>{832bd608-2fa4-4fe9-967a-5e84e9205e86}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Multiplayer\HUD\Chat">
-      <UniqueIdentifier>{7a73ba15-b422-4cac-8b00-757e13c0656e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Multiplayer\HUD\GameLog">
-      <UniqueIdentifier>{2bf79bf8-2f36-4765-a46e-0a2121f4d793}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Multiplayer\HUD\SpeechMenu">
-      <UniqueIdentifier>{d4204696-3649-41a0-9cdf-290d40b2a268}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Multiplayer\HUD\common">
-      <UniqueIdentifier>{30e586b8-c19e-4cba-aa5e-299a90dcacc1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Multiplayer\BuyWeaponWnd">
-      <UniqueIdentifier>{6f50369c-8e71-4ec4-9341-3000b3a4eb46}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Multiplayer\BuyWeaponWnd\rank_restrictions">
-      <UniqueIdentifier>{4a6cdaa3-6356-44a6-b597-08c5cc216b51}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Multiplayer\BuyWeaponWnd\TAB">
-      <UniqueIdentifier>{2b3b068a-122b-4411-b868-fed8684dfa9d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Multiplayer\team_skin_info">
-      <UniqueIdentifier>{62b778ea-cf64-4eae-903f-975ad8185661}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Multiplayer\team_skin_info\MapDesc">
-      <UniqueIdentifier>{27abd964-ebdf-4c5e-9a63-3fa610a6317c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Multiplayer\team_skin_info\MapDesc\MapInfo">
-      <UniqueIdentifier>{b6c0b280-5532-4ccb-8ebe-3b7d1d85771b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Multiplayer\team_skin_info\Spawn">
-      <UniqueIdentifier>{f2157a4f-39ae-493e-90eb-729cd67b4173}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Multiplayer\team_skin_info\SkinSelector">
-      <UniqueIdentifier>{e9a2eaf1-8a79-465b-bfd2-34f3c0d0d38e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Multiplayer\team_skin_info\ServerInfo">
-      <UniqueIdentifier>{dd25d328-f987-4c85-bafe-f60efa6ac770}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Multiplayer\Voting">
-      <UniqueIdentifier>{a46fdb47-ead2-4940-a474-8c892befb63e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Multiplayer\DemoPlayControl">
-      <UniqueIdentifier>{3879d314-86b2-4476-9153-8a72cb1e658d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Multiplayer\Achivements">
-      <UniqueIdentifier>{e311fea3-c9c9-45ac-8fc8-597e21202a54}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Multiplayer\AdminMenu">
-      <UniqueIdentifier>{f0bfc821-e4e1-4c75-884e-efb829729e66}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Cursor">
-      <UniqueIdentifier>{d4272535-0ca4-4ecb-835f-36665b47bd51}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Tutorial">
-      <UniqueIdentifier>{9e67d3ad-6d69-45a8-a079-a6d4d809f6be}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Physics">
-      <UniqueIdentifier>{1782d4cf-95eb-4af3-aab1-4f81a7acc970}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Physics\Debug">
-      <UniqueIdentifier>{1a239be3-4364-4dda-9be7-68471615d11f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Physics\CharacterSupport">
-      <UniqueIdentifier>{ef3f5c0a-93f8-44dd-9bcd-9f608e8dac9a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Physics\CharacterSupport\interactive_motion">
-      <UniqueIdentifier>{eb76a74a-93f2-4771-99e9-0bd7ecf146ba}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Physics\CharacterSupport\death_anims">
-      <UniqueIdentifier>{5d324211-94a6-4638-94c0-3ea2a42920c3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Physics\CharacterSupport\hit_anims">
-      <UniqueIdentifier>{6068e96e-49a2-4056-b3cc-b05dc25ff0f4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Physics\CharacterSupport\interactive_anims">
-      <UniqueIdentifier>{54a6755d-937e-4894-8036-d65278f4400a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Physics\PHCommander">
-      <UniqueIdentifier>{08e401d6-9024-4e15-b192-29b41a3b996c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Physics\DamagableItem">
-      <UniqueIdentifier>{cf0a5f80-b91d-4510-8e98-5f98bbad859a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Physics\PhysicsSoundPlayer">
-      <UniqueIdentifier>{7472478e-b5ec-459d-96f1-422bfadb0f98}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Physics\Hit">
-      <UniqueIdentifier>{98f07866-8c47-405a-a041-e8f75107e552}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Physics\IK">
-      <UniqueIdentifier>{16158f29-db33-4c7f-bad5-33745b5f24db}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Physics\animation_movement_controller">
-      <UniqueIdentifier>{9b41f9ea-d8fd-4996-a821-89ec85598a2d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Physics\MovementControl">
-      <UniqueIdentifier>{0e849eb0-87f4-4721-b11b-28d48756ec90}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Physics\scripts">
-      <UniqueIdentifier>{69ebf4ce-a701-4d87-ae88-a77479be1f0c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\Games\server\freemp">
-      <UniqueIdentifier>{d08e08ef-3e2f-4791-9485-377179643799}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\Games\client\freemp">
-      <UniqueIdentifier>{00557b8e-492b-48c7-b4b0-332fc13aa87c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\GameTypes\FreeMp">
-      <UniqueIdentifier>{6b2387dd-8f2f-47b8-a16b-8018d236136a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="AI\AMonsters\common\net">
-      <UniqueIdentifier>{459ccbd1-4831-4852-b1e6-77370a630e09}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\Games\client\roleplay">
-      <UniqueIdentifier>{1c5daa59-a8c1-44b0-94b3-717b5321e1f7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\Games\server\roleplay">
-      <UniqueIdentifier>{275b40cc-c72b-4e31-9af8-bc1b0f0a7e86}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\GameTypes\Roleplay">
-      <UniqueIdentifier>{bff9e9c8-931c-4321-b0d5-9b1ebf07f842}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UI\Multiplayer\Roleplay">
-      <UniqueIdentifier>{da488458-c041-4176-a2e8-5994dc36ea74}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Server">
-      <UniqueIdentifier>{d1d0cd53-e312-468c-9378-d55e5aa5f3b4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Client">
-      <UniqueIdentifier>{20f8acb5-b4f2-4403-bf92-f2bd0f42c502}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Common">
-      <UniqueIdentifier>{7c30bc08-b417-4dd9-a159-80f66eaa7e7b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Common\Weapon Generic">
-      <UniqueIdentifier>{021dd787-9ff1-450e-b441-8a47f8de4ae1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Common\Addons">
-      <UniqueIdentifier>{daf53b47-0b8c-4f30-88de-fd39d0ac83d1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Common\Addons\Scope">
-      <UniqueIdentifier>{001d59bb-bcdc-4f89-872f-8b01312763cd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Common\Addons\Silencer">
-      <UniqueIdentifier>{745f6f5a-6853-49cf-b25a-2bd55746089d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Common\Addons\GrenadeLauncher">
-      <UniqueIdentifier>{7cb8c611-1d54-4312-811d-8632fa60ca26}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Common\Ammo">
-      <UniqueIdentifier>{a287eb4f-1826-45b6-acf6-7930d50c44eb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Common\Automatic">
-      <UniqueIdentifier>{0559ed1a-5072-465d-8b88-07f7e7a6c596}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Common\Grenades &amp; Missiles">
-      <UniqueIdentifier>{63e5d915-d653-4233-a4cb-0f2356c53468}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Common\Pistol">
-      <UniqueIdentifier>{16275ccf-e2c4-4748-9aed-aa463b0890b9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Common\RocketLauncher">
-      <UniqueIdentifier>{d1de9636-a36e-4494-9339-e10d6fec350c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="jsonxx">
-      <UniqueIdentifier>{33080bda-ed3f-4a71-a780-c8b37658ce27}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core\Common">
       <UniqueIdentifier>{dc78f354-c72a-499d-b454-e4c6329fc832}</UniqueIdentifier>
@@ -11122,6 +11125,9 @@
     </ClCompile>
     <ClCompile Include="game_sv_freemp_save.cpp">
       <Filter>Core\Server\Games\server\freemp</Filter>
+    </ClCompile>
+    <ClCompile Include="game_sv_mp_alife.cpp">
+      <Filter>Core\Server\Games\server\mp\alife</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

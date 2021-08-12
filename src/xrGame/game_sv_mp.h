@@ -221,6 +221,9 @@ public:
 				bool				TeleportPlayerTo(ClientID id, Fvector3 P);
 				bool				TeleportPlayerTo(ClientID id, Fvector3 P, Fvector3 A);
 
+
+				virtual		bool				change_level(NET_Packet& net_packet, ClientID sender);
+
 	IC			xrServer			&server					() const
 	{
 		VERIFY						(m_server);
