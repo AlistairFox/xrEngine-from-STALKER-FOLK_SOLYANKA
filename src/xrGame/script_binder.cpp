@@ -52,6 +52,7 @@ void CScriptBinder::reinit			()
 	if (g_bMEMO)
 		start							= Memory.mem_usage();
 #endif // DEBUG_MEMORY_MANAGER
+
 	if (m_object) {
 		try {
 			m_object->reinit	();
@@ -61,6 +62,7 @@ void CScriptBinder::reinit			()
 			clear			();
 		}
 	}
+
 #ifdef DEBUG_MEMORY_MANAGER
 	if (g_bMEMO) {
 //		lua_gc				(ai().script_engine().lua(),LUA_GCCOLLECT,0);
