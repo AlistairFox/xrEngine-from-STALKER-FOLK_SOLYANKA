@@ -729,22 +729,27 @@ void CWeaponMagazinedWGrenade::save(NET_Packet &output_packet)
 
 }
 
-void CWeaponMagazinedWGrenade::load(IReader &input_packet)
+void CWeaponMagazinedWGrenade::load(IReader& input_packet)
 {
-	inherited::load				(input_packet);
+	inherited::load(input_packet);
 	bool b;
-	load_data					(b, input_packet);
-	if(b!=m_bGrenadeMode)		
-		SwitchMode				();
+	load_data(b, input_packet);
+	if (b != m_bGrenadeMode)
+		SwitchMode();
 
-	u32 sz;
-	load_data					(sz, input_packet);
+	s32 sz = 0;
 
-	CCartridge					l_cartridge; 
-	l_cartridge.Load			(m_ammoTypes2[m_ammoType2].c_str(), m_ammoType2);
+	load_data(sz, input_packet);
 
-	while (sz > m_magazine2.size())
+	CCartridge					l_cartridge;
+	l_cartridge.Load(m_ammoTypes2[m_ammoType2].c_str(), m_ammoType2);
+
+	 
+	while (sz > m_magazine2.size() && sz > 0)
+	{
 		m_magazine2.push_back(l_cartridge);
+	}
+	 
 }
 
 void CWeaponMagazinedWGrenade::net_Export	(NET_Packet& P)
