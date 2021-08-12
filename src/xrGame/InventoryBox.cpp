@@ -33,7 +33,9 @@ void CInventoryBox::OnEvent(NET_Packet& P, u16 type)
 			u16 id;
             P.r_u16					(id);
 			CObject* itm			= Level().Objects.net_Find(id);  VERIFY(itm);
+			
 			m_items.push_back		(id);
+			
 			itm->H_SetParent		(this);
 			itm->setVisible			(FALSE);
 			itm->setEnabled			(FALSE);
@@ -57,9 +59,14 @@ void CInventoryBox::OnEvent(NET_Packet& P, u16 type)
             P.r_u16(id);
 			CObject* itm = Level().Objects.net_Find(id);  VERIFY(itm);
 			xr_vector<u16>::iterator it;
-			it = std::find(m_items.begin(),m_items.end(),id); VERIFY(it!=m_items.end());
-			m_items.erase		(it);
-
+			
+			it = std::find(m_items.begin(),m_items.end(),id); 
+			
+			VERIFY(it!=m_items.end());
+			
+			if (it != m_items.end())
+				m_items.erase		(it);
+			 
 			bool just_before_destroy		= !P.r_eof() && P.r_u8();
 			bool dont_create_shell			= (type==GE_TRADE_SELL) || just_before_destroy;
 

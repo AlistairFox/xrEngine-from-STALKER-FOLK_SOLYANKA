@@ -529,28 +529,37 @@ void CGameObject::spawn_supplies()
 			bLauncher		=	(NULL!=strstr(V,"launcher"));
 
 		}
-		for (u32 i=0; i<j; ++i)
-			if (::Random.randF(1.f) < p){
-				CSE_Abstract* A=Level().spawn_item	(N,Position(),ai_location().level_vertex_id(),ID(),true);
+		for (u32 i = 0; i < j; ++i)
+		{
+			if (ai().get_level_graph()->valid_vertex_id(ai_location().level_vertex_id()))
+			{
+				if (::Random.randF(1.f) < p) {
+					CSE_Abstract* A = Level().spawn_item(N, Position(), ai_location().level_vertex_id(), ID(), true);
 
-				CSE_ALifeInventoryItem*	pSE_InventoryItem = smart_cast<CSE_ALifeInventoryItem*>(A);
-				if(pSE_InventoryItem)
+					CSE_ALifeInventoryItem* pSE_InventoryItem = smart_cast<CSE_ALifeInventoryItem*>(A);
+					if (pSE_InventoryItem)
 						pSE_InventoryItem->m_fCondition = f_cond;
 
-				CSE_ALifeItemWeapon* W =  smart_cast<CSE_ALifeItemWeapon*>(A);
-				if (W) {
-					if (W->m_scope_status			== ALife::eAddonAttachable)
-						W->m_addon_flags.set(CSE_ALifeItemWeapon::eWeaponAddonScope, bScope);
-					if (W->m_silencer_status		== ALife::eAddonAttachable)
-						W->m_addon_flags.set(CSE_ALifeItemWeapon::eWeaponAddonSilencer, bSilencer);
-					if (W->m_grenade_launcher_status == ALife::eAddonAttachable)
-						W->m_addon_flags.set(CSE_ALifeItemWeapon::eWeaponAddonGrenadeLauncher, bLauncher);
-				}
+					CSE_ALifeItemWeapon* W = smart_cast<CSE_ALifeItemWeapon*>(A);
+					if (W) {
+						if (W->m_scope_status == ALife::eAddonAttachable)
+							W->m_addon_flags.set(CSE_ALifeItemWeapon::eWeaponAddonScope, bScope);
+						if (W->m_silencer_status == ALife::eAddonAttachable)
+							W->m_addon_flags.set(CSE_ALifeItemWeapon::eWeaponAddonSilencer, bSilencer);
+						if (W->m_grenade_launcher_status == ALife::eAddonAttachable)
+							W->m_addon_flags.set(CSE_ALifeItemWeapon::eWeaponAddonGrenadeLauncher, bLauncher);
+					}
 
-				NET_Packet					P;
-				A->Spawn_Write				(P,TRUE);
-				Level().Send				(P,net_flags(TRUE));
-				F_entity_Destroy			(A);
+					NET_Packet					P;
+					A->Spawn_Write(P, TRUE);
+					Level().Send(P, net_flags(TRUE));
+					F_entity_Destroy(A);
+				}
+			}
+			else 
+			{
+				Msg("Supply Try Spawn to bad vertex");
+			}
 		}
 	}
 }
@@ -608,7 +617,9 @@ u32 CGameObject::new_level_vertex_id			() const
 void CGameObject::update_ai_locations			(bool decrement_reference)
 {
 	u32								l_dwNewLevelVertexID = new_level_vertex_id();
+
 	VERIFY							(ai().level_graph().valid_vertex_id(l_dwNewLevelVertexID));
+
 	if (decrement_reference && (ai_location().level_vertex_id() == l_dwNewLevelVertexID))
 		return;
 

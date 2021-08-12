@@ -76,13 +76,19 @@ void CPhysicItem::OnH_B_Chield		()
 	inherited::deactivate_physics_shell();
 }
 
-BOOL CPhysicItem::net_Spawn			(CSE_Abstract* DC)
+BOOL CPhysicItem::net_Spawn(CSE_Abstract* DC)
 {
 	if (!inherited::net_Spawn(DC))
 		return (FALSE);
+
 	IKinematics* pK = smart_cast<IKinematics*>(Visual());
-	pK->CalculateBones_Invalidate();
-	pK->CalculateBones(TRUE);
+
+	if (pK)
+	{
+		pK->CalculateBones_Invalidate();
+		pK->CalculateBones(TRUE);
+	}
+
 	CSE_Abstract *abstract = (CSE_Abstract*)DC;
 	if (0xffff == abstract->ID_Parent)
 	{
