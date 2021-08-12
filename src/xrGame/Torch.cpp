@@ -190,7 +190,7 @@ void CTorch::Switch(bool light_on)
 		IKinematics* pVisual				= smart_cast<IKinematics*>(Visual()); VERIFY(pVisual);
 		u16 bi								= pVisual->LL_BoneID(light_trace_bone);
 		
-		Msg("SetVisualTo[%s]", light_on ? "true" : "false");
+		//Msg("SetVisualTo[%s]", light_on ? "true" : "false");
 	
 		pVisual->LL_SetBoneVisible(bi, light_on, TRUE);
 		pVisual->CalculateBones				(TRUE);
