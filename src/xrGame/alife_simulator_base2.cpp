@@ -56,7 +56,8 @@ void CALifeSimulatorBase::register_object	(CSE_ALifeDynamicObject *object, bool 
 
 void CALifeSimulatorBase::unregister_object	(CSE_ALifeDynamicObject *object, bool alife_query)
 {
-	if (object == nullptr) return;
+	if (!object) 
+		return;
 
 	object->on_unregister				();
 
