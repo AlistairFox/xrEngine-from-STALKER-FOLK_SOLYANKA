@@ -25,68 +25,68 @@ CScriptBinderObject::~CScriptBinderObject	()
 
 void CScriptBinderObject::reinit			()
 {
-	if (psDeviceFlags.test(rsDrawStatic))
+	if (psDeviceFlags.test(rsStatistic))
 		Msg("reinit [%s]", m_object->Name());
 }
 
 void CScriptBinderObject::reload			(LPCSTR section)
 {
-	if (psDeviceFlags.test(rsDrawStatic))
+	if (psDeviceFlags.test(rsStatistic))
 		Msg("reload [%s]", m_object->Name());
 }
 
 bool CScriptBinderObject::net_Spawn			(SpawnType DC)
 {
-	if (psDeviceFlags.test(rsDrawStatic))
+	if (psDeviceFlags.test(rsStatistic))
 	Msg("net_Spawn [%s]", m_object->Name());
 	return			(true);
 }
 
 void CScriptBinderObject::net_Destroy		()
 {
-	if (psDeviceFlags.test(rsDrawStatic))
+	if (psDeviceFlags.test(rsStatistic))
 	Msg("net_Destroy [%s]", m_object->Name());
 }
 
 void CScriptBinderObject::net_Import		(NET_Packet *net_packet)
 {
-	if (psDeviceFlags.test(rsDrawStatic))
+	if (psDeviceFlags.test(rsStatistic))
 	Msg("net_Import [%s]", m_object->Name());
 }
 
 void CScriptBinderObject::net_Export		(NET_Packet *net_packet)
 {
-	if (psDeviceFlags.test(rsDrawStatic))
+	if (psDeviceFlags.test(rsStatistic))
 	Msg("net_Export [%s]", m_object->Name());
 }
 
 void CScriptBinderObject::shedule_Update	(u32 time_delta)
 {
-	if (psDeviceFlags.test(rsDrawStatic))
+	if (psDeviceFlags.test(rsStatistic))
 	Msg("shedule_Update [%s]", m_object->Name());
 }
 
 void CScriptBinderObject::save				(NET_Packet *output_packet)
 {
-	if (psDeviceFlags.test(rsDrawStatic))
+	if (psDeviceFlags.test(rsStatistic))
 	Msg("save [%s]", m_object->Name());
 }
 
 void CScriptBinderObject::load				(IReader	*input_packet)
 {
-	if (psDeviceFlags.test(rsDrawStatic))
+	if (psDeviceFlags.test(rsStatistic))
 	Msg("load [%s]", m_object->Name());
 }
 
 bool CScriptBinderObject::net_SaveRelevant	()
 {
-	if (psDeviceFlags.test(rsDrawStatic))
+	if (psDeviceFlags.test(rsStatistic))
 	Msg("net_SaveRelevant [%s]", m_object->Name());
 	return		(false);
 }
 
 void CScriptBinderObject::net_Relcase		(CScriptGameObject *object)
 {
-	if (psDeviceFlags.test(rsDrawStatic))
+	if (psDeviceFlags.test(rsStatistic))
 	Msg("net_Relcase [%s]", m_object->Name());
 }
