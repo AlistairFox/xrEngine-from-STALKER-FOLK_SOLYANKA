@@ -204,16 +204,38 @@ bool CALifeUpdateManager::change_level	(NET_Packet &net_packet)
 	}
 
 	string256						autoave_name;
-	strconcat						(sizeof(autoave_name),autoave_name,Core.UserName," - ","autosave");
+	strconcat(sizeof(autoave_name), autoave_name, Core.UserName, " - ", "autosave");
+
+	typedef IGame_Persistent::params params;
+	params& p = g_pGamePersistent->m_game_params;
+
+	{
+		string256	temp, temp2;
+
+		_ReplaceItem(**m_server_command_line, 0, autoave_name, temp, '/');
+		_ReplaceItem(temp, 3, "load", temp2, '/');
+
+		*m_server_command_line = temp2;
+	}
+
+
+	/*
 	LPCSTR							temp0 = strstr(**m_server_command_line,"/");
 	VERIFY							(temp0);
 	string256						temp;
+
 	*m_server_command_line			= strconcat(sizeof(temp),temp,autoave_name,temp0);
-	
+
+	*/
+
 	bool saveFile = save			(autoave_name);
 	
 	if (saveFile)
 		Level().MakeReconnect();
+
+
+	Msg("M_Save command_line [%s]", m_server_command_line->c_str());
+
 
 	graph().actor()->m_tGraphID = safe_graph_vertex_id;
 	graph().actor()->m_tNodeID = safe_level_vertex_id;
