@@ -5,7 +5,7 @@
 
 // global
 
-static const int syncSamples = 256;
+static const int syncSamples = 0;
 
 //------------------------------------------------------------------------------
 
@@ -220,7 +220,11 @@ bool BaseClient::Sync_Thread()
 	for (; IsConnectionInit() && !net_Disconnected; )
 	{
 		// Waiting for queue empty state
-		if (net_Syncronised)	break; // Sleep(2000);
+		if (net_Syncronised)
+		{
+			//Sleep(2000);
+			break;
+		}
 		else {
 			DWORD			dwPending = 0;
 			do {
@@ -249,15 +253,26 @@ bool BaseClient::Sync_Thread()
 			break;
 		}
 
+		Msg("Synchronize Size [%d] Time[%d]", net_DeltaArray.size(), TimerAsync(device_timer));
+
 		// Waiting for reply-packet to arrive
 		if (!net_Syncronised) {
 			u32	old_size = net_DeltaArray.size();
 			u32	timeBegin = TimerAsync(device_timer);
-			while ((net_DeltaArray.size() == old_size) && (TimerAsync(device_timer) - timeBegin < 5000))		Sleep(1);
+			
+			while ((net_DeltaArray.size() == old_size) && (TimerAsync(device_timer) - timeBegin < 5000))
+			{
+				Sleep(1);
+			}
+
+			
 
 			if (net_DeltaArray.size() >= syncSamples) {
 				net_Syncronised = TRUE;
 				net_TimeDelta = net_TimeDelta_Calculated;
+
+				Msg("net_timeDelta = [%d]", net_TimeDelta);
+
 				return true;
 			}
 		}
@@ -281,6 +296,9 @@ void	BaseClient::Sync_Average()
 	if (frac > s64(size / 2))	summary_delta += (summary_delta < 0) ? -1 : 1;
 	net_TimeDelta_Calculated = s32(summary_delta);
 	net_TimeDelta = (net_TimeDelta * 5 + net_TimeDelta_Calculated) / 6;
+
+	Msg("net_timeDelta = [%d]", net_TimeDelta);
+
 	//	Msg("* CLIENT: d(%d), dc(%d), s(%d)",net_TimeDelta,net_TimeDelta_Calculated,size);
 }
 
