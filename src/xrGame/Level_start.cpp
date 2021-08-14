@@ -143,8 +143,9 @@ bool CLevel::net_start1				()
 		}
 
 		Msg("Params [%s] [%s] [%s] [%s]", p.m_game_or_spawn, p.m_game_type, p.m_alife, p.m_new_or_load);
-		/*
-		if (xr_strcmp(p.m_alife,"alife"))
+		
+		 
+		if (xr_strcmp(p.m_alife,"alife")  )
 		{
 			shared_str l_ver			= game_sv_GameState::parse_level_version(m_caServerOptions);
 			
@@ -161,7 +162,7 @@ bool CLevel::net_start1				()
 				return true;
 			}
 		}
-		*/
+		 
 	}
 	else
 	{
@@ -175,14 +176,19 @@ bool CLevel::net_start2				()
 	if (net_start_result_total && m_caServerOptions.size())
 	{
 		GameDescriptionData game_descr;
+		
 		if ((m_connect_server_err=Server->Connect(m_caServerOptions, game_descr))!=xrServer::ErrNoError)
 		{
 			net_start_result_total = false;
 			Msg				("! Failed to start server.");
 			return true;
 		}
+
 		Server->SLS_Default		();
-		//map_data.m_name			= Server->level_name(m_caServerOptions);
+		
+		if (Server->game->Type() == eGameIDRolePlay)
+			map_data.m_name	= Server->level_name(m_caServerOptions);
+		
 		if (!g_dedicated_server)
 			g_pGamePersistent->LoadTitle(true, map_data.m_name);
 	}

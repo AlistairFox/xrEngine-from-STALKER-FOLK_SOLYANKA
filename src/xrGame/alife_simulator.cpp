@@ -40,6 +40,9 @@ void restart_all				()
 #endif // DEBUG
 }
 
+#include "Level.h"
+#include "../xrEngine/x_ray.h"
+
 CALifeSimulator::CALifeSimulator		(xrServer *server, shared_str *command_line) :
 	CALifeUpdateManager			(server,alife_section),
 	CALifeInteractionManager	(server,alife_section),
@@ -81,9 +84,20 @@ CALifeSimulator::CALifeSimulator		(xrServer *server, shared_str *command_line) :
 	}
 	else
 	{
-		//load("alife", false, true);
-		load(p.m_game_or_spawn, !xr_strcmp(p.m_new_or_load, "load") ? false : true, !xr_strcmp(p.m_new_or_load, "new"));
+		if (!xr_strcmp(p.m_game_type, "rp"))
+			load(p.m_game_or_spawn, false, true);
+		else 
+			load(p.m_game_or_spawn, !xr_strcmp(p.m_new_or_load, "load") ? false : true, !xr_strcmp(p.m_new_or_load, "new"));
 	}
+
+	int	id = pApp->Level_ID(level_name().c_str(), "1.0", true);
+ 
+	Msg("Level == %s / ID == %d", level_name().c_str(), id);
+	
+	if (xr_strcmp(p.m_game_type, "rp"))
+		Level().set_level_name(level_name());
+
+	Msg("SetsName == %s", Level().name().c_str());
 
 	
 }

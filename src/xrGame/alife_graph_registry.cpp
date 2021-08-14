@@ -63,8 +63,6 @@ void CALifeGraphRegistry::update			(CSE_ALifeDynamicObject *object)
 		add							(object,object->m_tGraphID);
 }
 
-#include "Level.h"
-
 void CALifeGraphRegistry::setup_current_level	()
 {
 	m_level						= xr_new<CALifeLevelRegistry>(ai().game_graph().vertex(actor()->m_tGraphID)->level_id());
@@ -89,13 +87,6 @@ void CALifeGraphRegistry::setup_current_level	()
 	}
 	GameGraph::LEVEL_MAP::const_iterator I = ai().game_graph().header().levels().find(ai().game_graph().vertex(actor()->m_tGraphID)->level_id());
 	R_ASSERT2					(ai().game_graph().header().levels().end() != I,"Graph point level ID not found!");
-	
-	Msg("ID Level == %d", (*I).second.id());
-	Msg("graph actor == %d", actor()->m_tGraphID);
-
-	Level().set_level_name(*(*I).second.name());
-	Msg("Name == %s", Level().name().c_str());
-
 
 	int							id = pApp->Level_ID(*(*I).second.name(), "1.0", true);
 	VERIFY3(id >= 0, "Level is corrupted or doesn't exist", *(*I).second.name());

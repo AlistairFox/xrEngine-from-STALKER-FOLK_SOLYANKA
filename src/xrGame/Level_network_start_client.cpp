@@ -82,7 +82,7 @@ bool	CLevel::net_start_client3				()
 		LPCSTR					level_ver = NULL;
 		LPCSTR					download_url = NULL;
 
-		if (OnServer())	//single //psNET_direct_connect
+		if (OnServer() && Server->game->Type() == eGameIDFreeMp)	//single //psNET_direct_connect
 		{
 			shared_str const & server_options = Server->GetConnectOptions();
 			level_name	= name().c_str();//Server->level_name		(server_options).c_str();
@@ -98,6 +98,7 @@ bool	CLevel::net_start_client3				()
 
 		// Determine internal level-ID
 		Msg("LevelID [%s], [%s], [%s]", level_name, level_ver, "true");
+
 		int	level_id = pApp->Level_ID(level_name, level_ver, true);
 
 		if (level_id==-1)	
@@ -170,7 +171,9 @@ bool	CLevel::net_start_client4				()
 		{
 			// Waiting for connection/configuration completition
 			CTimer	timer_sync	;	timer_sync.Start	();
-			while	(!net_isCompleted_Connect())	Sleep	(5);
+			while	(!net_isCompleted_Connect())
+				Sleep	(5);
+
 			Msg		("* connection sync: %d ms", timer_sync.GetElapsed_ms());
 			while	(!net_isCompleted_Sync())	{ ClientReceive(); Sleep(5); }
 		}
