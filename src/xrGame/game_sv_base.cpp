@@ -382,6 +382,10 @@ void game_sv_GameState::OnPlayerDisconnect		(ClientID id_who, LPSTR, u16 )
 	signal_Syncronize	();
 }
 
+#include "ai_space.h"
+#include "alife_simulator.h"
+#include "alife_graph_registry.h"
+
 static float							rpoints_Dist [TEAM_COUNT] = {1000.f, 1000.f, 1000.f, 1000.f};
 void game_sv_GameState::Create					(shared_str &options)
 {
@@ -462,6 +466,23 @@ void game_sv_GameState::Create					(shared_str &options)
 				};
 			};
 			O->close();
+		}
+		else
+		{
+			CSE_ALifeCreatureActor* single_actor = ai().get_alife()->graph().actor();
+
+			if (single_actor)
+			{
+				RPoint R;
+				R.P = single_actor->position();
+				R.A = single_actor->o_Angle;
+
+				rpoints[0].push_back(R);
+				rpoints[1].push_back(R);
+				rpoints[2].push_back(R);
+
+				Msg("RP ADD x[%.0f]y[%.0f]z[%.0f]", single_actor->position().x, single_actor->position().y, single_actor->position().z);
+			}
 		}
 
 		FS.r_close	(F);
