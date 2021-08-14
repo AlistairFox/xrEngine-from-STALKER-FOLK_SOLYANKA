@@ -3,9 +3,17 @@
 #include "game_sv_mp.h"
 #include "../xrEngine/pure_relcase.h"
 
+struct SpawnSect
+{
+	s32 StartMoney;
+	xr_vector<xr_string> StartItems;
+//	xr_vector<xr_string> DefaultItems;
+};
+
 class game_sv_freemp : public game_sv_mp, private pure_relcase
 {
 	typedef game_sv_mp inherited;
+	SpawnSect spawned_items;
 
 public:
 									game_sv_freemp();
@@ -17,7 +25,7 @@ public:
 	virtual		bool				UseSKin() const { return false; }
 
 	virtual		LPCSTR				type_name() const { return "freemp"; };
-	void __stdcall		net_Relcase(CObject* O) {};
+	void __stdcall					net_Relcase(CObject* O) {};
 
 	// helper functions
 	void									AddMoneyToPlayer(game_PlayerState* ps, s32 amount);
@@ -42,5 +50,7 @@ public:
 	virtual		void				OnTransferMoney(NET_Packet &P, ClientID const & clientID);
 
 	virtual void SavePlayers();
+
+	virtual void LoadParamsDeffaultFMP();
 
 };

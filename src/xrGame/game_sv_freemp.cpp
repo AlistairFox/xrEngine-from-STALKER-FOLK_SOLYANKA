@@ -23,6 +23,10 @@ void game_sv_freemp::Create(shared_str & options)
 
 	::Random.seed(GetTickCount());
 	m_CorpseList.clear();
+
+	//if (Game().Type() == eGameIDFreeMp)
+	LoadParamsDeffaultFMP();
+
 }
 
 // player connect #1
@@ -166,6 +170,16 @@ void game_sv_freemp::OnPlayerReady(ClientID id_who)
 			break;
 
 		RespawnPlayer(id_who, true);
+		
+		if (Game().Type() == eGameIDFreeMp)
+		{
+			for (auto& item : spawned_items.StartItems)
+			{
+				SpawnItemToActor(ps->GameID, item.c_str());
+			}
+			// set start money
+			ps->money_for_round = spawned_items.StartMoney;
+		}
 	} break;
 
 	default:
@@ -228,6 +242,8 @@ void game_sv_freemp::OnEvent(NET_Packet &P, u16 type, u32 time, ClientID sender)
 	};
 }
 
+u32 oldTime_saveServer = 0;
+
 void game_sv_freemp::Update()
 {
 	inherited::Update();
@@ -235,6 +251,23 @@ void game_sv_freemp::Update()
 	if (Phase() != GAME_PHASE_INPROGRESS)
 	{
 		OnRoundStart();
+	}
+
+	if (Device.dwTimeGlobal - oldTime_saveServer > 1000 * 60)
+	{
+		if (ai().get_alife())
+		{
+			string_path	S;
+			S[0] = 0;
+			strconcat(sizeof(S), S, "server", "_", "autosave");
+			NET_Packet			net_packet;
+			net_packet.w_begin(M_SAVE_GAME);
+			net_packet.w_stringZ(S);
+			net_packet.w_u8(0);
+			Level().Send(net_packet, net_flags(TRUE));
+
+		}
+		oldTime_saveServer = Device.dwTimeGlobal;
 	}
 }
 
