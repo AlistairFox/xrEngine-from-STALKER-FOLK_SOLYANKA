@@ -1229,6 +1229,9 @@ void CActor::set_state_box(u32	mstate)
 	else 
 		character_physics_support()->movement()->ActivateBox(0, true);
 }
+
+#include "actor_mp_client.h"
+
 void CActor::shedule_Update	(u32 DT)
 {
 	setSVU							(OnServer());
@@ -1441,7 +1444,7 @@ void CActor::shedule_Update	(u32 DT)
 	if(!character_physics_support()->IsRemoved())
 		setVisible				(!HUDview	());
 
-	if (MpInvisibility())
+	if (MpInvisibility() || !smart_cast<CActorMP*>(this))
 		setVisible(false);
 
 
