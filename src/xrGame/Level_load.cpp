@@ -22,7 +22,15 @@ BOOL CLevel::Load_GameSpecific_Before()
 	g_pGamePersistent->LoadTitle		();
 	string_path							fn_game;
 	
-	if (GamePersistent().GameType() != eGameIDSingle && OnClient() && FS.exist(fn_game, "$level$", "alife.spawn")) {
+	if (GamePersistent().GameType() != eGameIDSingle && OnClient() )
+	{
+		if (GamePersistent().GameType() == eGameIDRolePlay)
+			FS.exist(fn_game, "$game_spawn$", "alife.spawn");
+		else 
+			FS.exist(fn_game, "$game_spawn$", "all.spawn");
+			
+		Msg("spawn name[%s]", fn_game);
+
 		spawn = FS.r_open		(fn_game);
 
 		IReader						*chunk;

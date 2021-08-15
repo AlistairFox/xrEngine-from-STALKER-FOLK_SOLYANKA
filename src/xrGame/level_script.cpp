@@ -715,6 +715,13 @@ void print_msg(LPCSTR str)
 	Msg("[lua] %s", str);
 }
 
+void print_msg_debug(LPCSTR str)
+{
+	if (psDeviceFlags.test(rsDebug))
+		Msg("[lua_debug] %s", str);
+}
+
+
 bool check_params(LPCSTR p)
 {
 	return strstr(Core.Params, p);
@@ -958,6 +965,7 @@ void CLevel::script_register(lua_State *L)
 		def("render_get_dx_level",				&render_get_dx_level),
 		def("IsImportantSave",					&IsImportantSave),
 		def("print_msg",						&print_msg),
+		def("print_msg_debug",					&print_msg_debug),
 		def("IsDedicated",						&is_dedicated),
 		def("OnClient",							&OnClient),
 		def("OnServer",							&OnServer),
