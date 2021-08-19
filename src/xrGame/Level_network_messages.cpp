@@ -97,7 +97,7 @@ void CLevel::ClientReceive()
 				/*/
 				cl_Process_Spawn(*P);
 				/*/
-				Msg("--- Client received M_SPAWN message... [%d]", Device.dwTimeGlobal);
+				//Msg("--- Client received M_SPAWN message... [%d]", Device.dwTimeGlobal);
 				game_events->insert		(*P);
 				if (g_bDebugEvents)		ProcessGameEvents();
 				//*/

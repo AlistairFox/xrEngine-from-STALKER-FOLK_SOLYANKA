@@ -69,6 +69,8 @@ CInventoryItem::~CInventoryItem()
 {
 	delete_data			(m_net_updateData);
 
+
+
 #ifndef MASTER_GOLD
 	bool B_GOOD			= (	!m_pInventory || 
 							(std::find(	m_pInventory->m_all.begin(),m_pInventory->m_all.end(), this)==m_pInventory->m_all.end()) );
@@ -234,7 +236,7 @@ void CInventoryItem::UpdateCL()
 		Interpolate();
 	}
 }
-
+#include "Level.h"
 void CInventoryItem::OnEvent (NET_Packet& P, u16 type)
 {
 	switch (type)
@@ -266,6 +268,20 @@ void CInventoryItem::OnEvent (NET_Packet& P, u16 type)
 			state.previous_position = p;
 			pSyncObj->set_State(state);
 
+		}break;
+		case GE_INSTALL_UPGRADE:
+		{
+			
+			shared_str	upgrade_id;
+			P.r_stringZ(upgrade_id);
+			
+			Msg("GE_INSTALL_UPGRADE [%s]", upgrade_id.c_str());
+			
+			if (OnServer() || this->object().Remote())
+			{
+				Game().inventory_upgrade_manager().upgrade_install(*this, upgrade_id, true);
+			} 
+			
 		}break;
 	}
 }
@@ -340,7 +356,7 @@ BOOL CInventoryItem::net_Spawn			(CSE_Abstract* DC)
 	//!!!
 	m_fCondition = pSE_InventoryItem->m_fCondition;
 	
-	if ( IsGameTypeSingle() )
+	//if ( IsGameTypeSingle() )
 	{
 		net_Spawn_install_upgrades( pSE_InventoryItem->m_upgrades );
 	}

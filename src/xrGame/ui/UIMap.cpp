@@ -121,7 +121,8 @@ Fvector2 CUICustomMap::ConvertRealToLocal  (const Fvector2& src, bool for_drawin
 		bound_rect.x2		/= UI().get_current_kx();
 		res					= ConvertRealToLocalNoTransform(src, bound_rect);
 		res.x				*= UI().get_current_kx();
-	}else
+	}
+	else
 	{
 		Fvector2 heading_pivot = GetStaticItem()->GetHeadingPivot();
 	
@@ -576,6 +577,12 @@ void CUIMiniMap::UpdateSpots()
 
 void  CUIMiniMap::Draw()
 {
+	if (psDeviceFlags.test(rsCameraPos))
+	{
+		inherited::Draw();
+		return;
+	}
+
 	u32	segments_count			= 20;
 
 	UIRender->SetShader			(*m_UIStaticItem.GetShader());
@@ -640,6 +647,12 @@ void  CUIMiniMap::Draw()
 
 bool CUIMiniMap::GetPointerTo(const Fvector2& src, float item_radius, Fvector2& pos, float& heading)
 {
+
+	if (psDeviceFlags.test(rsCameraPos))
+	{
+		return inherited::GetPointerTo(src, item_radius, pos, heading);
+	}
+
 	Fvector2 clip_center = GetStaticItem()->GetHeadingPivot();
 	float map_radius	= WorkingArea().width()/2.0f;
 	Fvector2			direction;
@@ -658,6 +671,14 @@ bool CUIMiniMap::GetPointerTo(const Fvector2& src, float item_radius, Fvector2& 
 
 bool CUIMiniMap::NeedShowPointer(Frect r)
 {
+
+
+	if (psDeviceFlags.test(rsCameraPos))
+	{
+		return inherited::NeedShowPointer(r);
+		
+	}
+
 	Fvector2 clip_center = GetStaticItem()->GetHeadingPivot();
 
 	Fvector2			spot_pos;
@@ -669,6 +690,13 @@ bool CUIMiniMap::NeedShowPointer(Frect r)
 
 bool CUIMiniMap::IsRectVisible(Frect r)
 {
+
+	if (psDeviceFlags.test(rsCameraPos))
+	{
+		return inherited::IsRectVisible(r);
+		
+	}
+
 	Fvector2 clip_center	= GetStaticItem()->GetHeadingPivot();
 	float vis_radius		= WorkingArea().width() / 2.0f;
 	Fvector2				rect_center;

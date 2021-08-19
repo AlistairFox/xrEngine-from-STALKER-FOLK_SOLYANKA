@@ -24,12 +24,13 @@ BOOL CLevel::Load_GameSpecific_Before()
 	
 	if (GamePersistent().GameType() != eGameIDSingle && OnClient() )
 	{
-		if (GamePersistent().GameType() == eGameIDRolePlay)
-			FS.exist(fn_game, "$game_spawn$", "alife.spawn");
-		else 
-			FS.exist(fn_game, "$game_spawn$", "all.spawn");
-			
-		Msg("spawn name[%s]", fn_game);
+ 		//FS.exist(fn_game, "$game_spawn$", m_game_description.spawn_name, ".spawn");
+		if (!xr_strcmp(m_game_description.spawn_name, "autosave"))
+			Msg("Load Autosave");
+
+		FS.exist(fn_game, "$game_spawn$", "all.spawn");
+
+		Msg("spawn name[%s] ", fn_game);
 
 		spawn = FS.r_open		(fn_game);
 

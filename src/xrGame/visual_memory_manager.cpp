@@ -411,6 +411,9 @@ bool CVisualMemoryManager::visible				(const CGameObject *game_object, float tim
 	return						(object->m_value >= current_state().m_visibility_threshold);
 }
 
+#include "Actor.h"
+#include "actor_mp_client.h"
+
 bool   CVisualMemoryManager::should_ignore_object (CObject const* object) const
 {
 	if ( !object )
@@ -419,13 +422,30 @@ bool   CVisualMemoryManager::should_ignore_object (CObject const* object) const
 	}
 
 #ifndef MASTER_GOLD
-	if ( smart_cast<CActor const*>(object) && psAI_Flags.test(aiIgnoreActor) )
+	if (smart_cast<CActor const*>(object) && psAI_Flags.test(aiIgnoreActor))
 	{
 		return	true;
 	}
 	else
 #endif // MASTER_GOLD
+
+	CActorMP const* const actormp = smart_cast<CActorMP const *>(object);
+	CActor const* const actorsp = smart_cast<CActor const *>(object);
 	
+	if (!actormp && actorsp)
+	{
+		//Msg("Set Ignore Visual Menager [%s] [%s]", object->cName().c_str(), actorsp->Name());
+		return true;
+	}
+
+	if (actormp != NULL && actormp->MpInvisibility())
+	{
+		//Msg("Set Ignore Visual Menager [%s] [%s]", object->cName().c_str(), actormp->Name());
+		return true;
+	}
+	
+
+
 	if ( CBaseMonster const* const monster = smart_cast<CBaseMonster const*>(object) )
 	{
 		if ( !monster->can_be_seen() )

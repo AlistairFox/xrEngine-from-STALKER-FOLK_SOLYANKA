@@ -259,8 +259,8 @@ u32	CLevel::Objects_net_Save	(NET_Packet* _Packet, u32 start, u32 max_object_siz
 			Packet.w_u16			(u16(P->ID())	);
 			Packet.w_chunk_open16	(position);
 
-			Msg("save:iterating:%d:%s, size[%d]", P->ID(), *P->cName(), Packet.w_tell());
-			Msg("save:saving:%d:%s",P->ID(),*P->cName());
+			//Msg("save:iterating:%d:%s, size[%d]", P->ID(), *P->cName(), Packet.w_tell());
+			//Msg("save:saving:%d:%s",P->ID(),*P->cName());
 
 			P->net_Save				(Packet);
 #ifdef DEBUG

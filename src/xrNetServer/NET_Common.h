@@ -8,6 +8,7 @@ struct GameDescriptionData
 	string128	map_name = "";
 	string128	map_version = "";
 	string512	download_url = "";
+    string256   spawn_name = "";
 };
     
 #define NET_MERGE_PACKETS               1

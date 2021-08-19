@@ -32,6 +32,8 @@ game_cl_GameState::game_cl_GameState()
 	m_bServerControlHits		= true;
 
 	m_WeaponUsageStatistic		= xr_new<WeaponUsageStatistic>();
+
+	m_upgrade_manager = xr_new<inventory::upgrade::Manager>();
 }
 
 game_cl_GameState::~game_cl_GameState()
@@ -44,6 +46,8 @@ game_cl_GameState::~game_cl_GameState()
 	shedule_unregister();
 	xr_delete(m_WeaponUsageStatistic);
 	xr_delete(local_player);
+
+	xr_delete(m_upgrade_manager);
 }
 
 float old_time_env = 0;

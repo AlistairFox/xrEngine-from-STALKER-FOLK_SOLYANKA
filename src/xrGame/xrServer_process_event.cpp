@@ -257,13 +257,19 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 	case GE_INSTALL_UPGRADE:
 		{
 			shared_str				upgrade_id;
+
 			P.r_stringZ				( upgrade_id );
+
 			CSE_ALifeInventoryItem* iitem = smart_cast<CSE_ALifeInventoryItem*>( receiver );
+			
 			if ( !iitem )
 			{
 				break;
 			}
+
 			iitem->add_upgrade		( upgrade_id );
+
+			SendBroadcast(BroadcastCID, P, net_flags(TRUE, TRUE));
 		}break;
 	case GE_INV_BOX_STATUS:
 		{

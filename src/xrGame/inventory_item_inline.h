@@ -57,3 +57,4 @@ IC bool CInventoryItem::process_if_exists_set( LPCSTR section, LPCSTR name, T (C
 	}
 	return true;
 }
+

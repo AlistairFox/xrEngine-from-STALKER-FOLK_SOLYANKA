@@ -91,13 +91,16 @@ void CUIZoneMap::Init()
 	//if ( IsGameTypeSingle() )
 	{
 		xml_init.InitStatic			(uiXml, "minimap:static_counter", 0, &m_Counter);
-		m_background.AttachChild	(&m_Counter);
-		xml_init.InitTextWnd		(uiXml, "minimap:static_counter:text_static", 0, &m_Counter_text);
-		m_Counter.AttachChild		(&m_Counter_text);
+		if (&m_Counter)
+		{
+			m_background.AttachChild	(&m_Counter);
+			xml_init.InitTextWnd		(uiXml, "minimap:static_counter:text_static", 0, &m_Counter_text);
+			m_Counter.AttachChild		(&m_Counter_text);
 
-		rel_pos						= m_Counter.GetWndPos();
-		rel_pos.mul					(m_background.GetWndSize());
-		m_Counter.SetWndPos			(rel_pos);
+			rel_pos						= m_Counter.GetWndPos();
+			rel_pos.mul					(m_background.GetWndSize());
+			m_Counter.SetWndPos			(rel_pos);
+		}
 	}
 
 }
@@ -134,6 +137,7 @@ void CUIZoneMap::Update()
 	}
 
 	UpdateRadar( Device.vCameraPosition );
+
 	float h, p;
 	Device.vCameraDirection.getHP( h, p );
 	SetHeading( -h );
@@ -176,15 +180,18 @@ void CUIZoneMap::SetupCurrentMap()
 	float zoom_factor				= float(m_clipFrame.GetWidth())/100.0f;
 
 	LPCSTR ln						= Level().name().c_str();
+
 	if(	pGameIni->section_exist(ln) )
 	{
 		if(pGameIni->line_exist(ln, "minimap_zoom"))
 			zoom_factor *= pGameIni->r_float(ln, "minimap_zoom");
-	}else
+	}
+	else
 	if(g_pGameLevel->pLevel->section_exist("minimap_zoom"))
 	{
 		zoom_factor *= g_pGameLevel->pLevel->r_float("minimap_zoom", "value");
 	}
+
 	wnd_size.x						= m_activeMap->BoundRect().width()*zoom_factor;
 	wnd_size.y						= m_activeMap->BoundRect().height()*zoom_factor;
 	m_activeMap->SetWndSize			(wnd_size);

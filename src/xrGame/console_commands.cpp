@@ -1629,10 +1629,7 @@ public:
 	CCC_InvUpgradesHierarchy(LPCSTR N) : IConsole_Command(N)	{ bEmptyArgsHandled = TRUE; };
 	virtual void Execute( LPCSTR args )
 	{
-		if ( ai().get_alife() )
-		{
-			ai().alife().inventory_upgrade_manager().log_hierarchy();
-		}
+		inventory_upgrade_manager().log_hierarchy();
 	}
 
 };

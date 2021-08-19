@@ -20,6 +20,7 @@
 
 #include "ai_space.h"
 #include "alife_simulator.h"
+
 #include "inventory_upgrade_manager.h"
 #include "inventory_upgrade.h"
 #include "inventory_upgrade_property.h"
@@ -151,7 +152,7 @@ void CUIInventoryUpgradeWnd::InitInventory( CInventoryItem* item, bool can_upgra
 	if (item)
 	m_btn_repair->Enable(item->GetCondition() < 0.99f/*false*/);
 	
-	if ( ai().get_alife() && m_inv_item )
+	if ( m_inv_item )
 	{
 		if ( install_item( *m_inv_item, can_upgrade ) )
 		{
@@ -388,7 +389,9 @@ void CUIInventoryUpgradeWnd::set_info_cur_upgrade( Upgrade_type* upgrade )
 	}
 }
 
+
+
 CUIInventoryUpgradeWnd::Manager_type& CUIInventoryUpgradeWnd::get_manager()
 {
-	return  ai().alife().inventory_upgrade_manager();
+	return  Game().inventory_upgrade_manager();
 }

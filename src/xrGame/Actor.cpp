@@ -1444,10 +1444,16 @@ void CActor::shedule_Update	(u32 DT)
 	if(!character_physics_support()->IsRemoved())
 		setVisible				(!HUDview	());
 
-	if (MpInvisibility() || !smart_cast<CActorMP*>(this))
+	if (MpInvisibility())
+	{
 		setVisible(false);
+	}
 
-
+	if (!smart_cast<CActorMP*>(this))
+	{
+		setVisible(false);
+		SetfHealth(1000.0f);
+	}
 	//что актер видит перед собой
 	collide::rq_result& RQ				= HUD().GetCurrentRayQuery();
 

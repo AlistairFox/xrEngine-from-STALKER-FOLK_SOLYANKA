@@ -49,9 +49,11 @@ void UIUpgrade::init_upgrade( LPCSTR upgrade_id, CInventoryItem& item )
 	update_item( &item );
 }
 
+#include "Level.h"
+
 UIUpgrade::Upgrade_type* UIUpgrade::get_upgrade()
 {
-	Upgrade_type* res = ai().alife().inventory_upgrade_manager().get_upgrade( m_upgrade_id );
+	Upgrade_type* res = Game().inventory_upgrade_manager().get_upgrade( m_upgrade_id );
 	VERIFY( res );
 	return res;
 }

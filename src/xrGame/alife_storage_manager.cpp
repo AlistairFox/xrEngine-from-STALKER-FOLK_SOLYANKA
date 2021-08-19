@@ -121,7 +121,7 @@ void CALifeStorageManager::load	(void *buffer, const u32 &buffer_size, LPCSTR fi
 		if (smart_cast<CSE_ActorMP*>(I->second))
 			continue;
 
-		//Msg("Load Name [%s]", I->second->s_name.c_str());
+		Msg("Load Name [%s]", I->second->s_name.c_str());
 
 		(*I).second->ID			= server().PerformIDgen(id);
 		VERIFY					(id == (*I).second->ID);

@@ -12,6 +12,9 @@
 #include "UIStatic.h"
 #include "UIInvUpgrade.h"
 
+#include "inventory_item.h"
+
+
 extern const LPCSTR g_inventory_upgrade_xml;
 #define		MAX_UI_UPGRADE_CELLS		25
 
