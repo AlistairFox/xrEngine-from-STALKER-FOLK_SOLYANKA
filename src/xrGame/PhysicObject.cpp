@@ -45,8 +45,10 @@ BOOL CPhysicObject::net_Spawn(CSE_Abstract* DC)
 	m_anim_blend			= 0;
 	inherited::net_Spawn	( DC );
 
-	create_collision_model  ( );
+	if (Visual() == 0)
+		return false;
 
+	create_collision_model  ( );
 
 	CPHSkeleton::Spawn(e);
 	setVisible(TRUE);
@@ -94,6 +96,7 @@ void CPhysicObject::create_collision_model			( )
 	xr_delete( collidable.model );
 	
 	VERIFY( Visual() );
+
 	IKinematics *K = Visual()->dcast_PKinematics	();
 	VERIFY( K );
 	
