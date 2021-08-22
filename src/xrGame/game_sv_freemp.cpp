@@ -251,15 +251,16 @@ void game_sv_freemp::Update()
 	if (Phase() != GAME_PHASE_INPROGRESS)
 	{
 		OnRoundStart();
+		oldTime_saveServer = Device.dwTimeGlobal;
 	}
 
-	if (Device.dwTimeGlobal - oldTime_saveServer > 1000 * 60)
+	if (Device.dwTimeGlobal - oldTime_saveServer > 1000 * 60 * 5)
 	{
 		if (ai().get_alife())
 		{
 			string_path	S;
 			S[0] = 0;
-			strconcat(sizeof(S), S, "server", "_", "autosave");
+			strconcat(sizeof(S), S, "dima", "", "");
 			NET_Packet			net_packet;
 			net_packet.w_begin(M_SAVE_GAME);
 			net_packet.w_stringZ(S);
