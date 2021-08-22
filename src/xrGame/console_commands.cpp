@@ -555,6 +555,12 @@ public:
 		}
 		*/
 
+		if (!OnServer())
+		{
+			Msg("cannot make saved game OnClient SIDE :(");
+			return;
+		}
+
 		Console->Execute("stat_memory");
 
 		string_path				S, S1;
