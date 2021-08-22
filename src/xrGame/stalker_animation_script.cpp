@@ -67,18 +67,22 @@ void CStalkerAnimationManager::add_script_animation	(LPCSTR animation, bool hand
 	rotation.mul					(PI/180.f);
 	transform.setXYZ				(rotation);
 	transform.c						= position;
-	m_script_animations.push_back	( CStalkerAnimationScript( motion, hand_usage, true, &transform, local_animation ) );
+	m_script_animations.push_back	( CStalkerAnimationScript( motion, animation, hand_usage, true, &transform, local_animation ) );
+
+
 }
 
 void CStalkerAnimationManager::add_script_animation	(LPCSTR animation, bool hand_usage, bool use_movement_controller)
 {
 	const MotionID					&motion = m_skeleton_animated->ID_Cycle_Safe(animation);
+	
 	if (!motion) {
 		ai().script_engine().script_log(eLuaMessageTypeError,"There is no animation %s (object %s)!",animation,*object().cName());
 		return;
 	}
 
-	m_script_animations.push_back	(CStalkerAnimationScript(motion,hand_usage,use_movement_controller));
+	m_script_animations.push_back	(CStalkerAnimationScript(motion, animation,hand_usage,use_movement_controller));
+
 }
 
 const CStalkerAnimationScript &CStalkerAnimationManager::assign_script_animation	()

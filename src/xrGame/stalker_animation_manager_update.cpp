@@ -73,6 +73,8 @@ IC	void CStalkerAnimationManager::play_script_impl			()
 		}
 	}
 
+	script().animation_name(selected.animation_name());
+
 	script().play			(
 		m_skeleton_animated,
 		script_play_callback,

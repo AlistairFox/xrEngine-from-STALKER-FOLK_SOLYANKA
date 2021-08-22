@@ -46,6 +46,8 @@ private:
 	bool					m_callback_on_collision;
 	CAI_Stalker*			m_object;
 
+	LPCSTR					anim_name;
+
 public:
 	bool					m_just_started;
 
@@ -70,7 +72,12 @@ public:
 			MotionID		select					(const ANIM_VECTOR &array, const ANIMATION_WEIGHTS *weights = 0);
 	IC		bool			actual					() const;
 	IC		bool			animation				(const MotionID &animation);
-	IC		const MotionID	&animation				() const;
+	IC		const MotionID& animation() const;
+
+	IC      bool			animation_name			(LPCSTR name);
+	IC		LPCSTR			animation_name			() const;
+
+
 	IC		CBlend * const&	blend					() const;
 	IC		void			step_dependence			(bool value);
 	IC		bool			step_dependence			() const;

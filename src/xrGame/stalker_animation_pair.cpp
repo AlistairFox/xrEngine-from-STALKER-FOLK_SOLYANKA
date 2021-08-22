@@ -85,6 +85,7 @@ void CStalkerAnimationPair::play_global_animation	(IKinematicsAnimated *skeleton
 	//DBG_OpenCashedDraw();
 	//DBG_DrawBones( *m_object );
 	//DBG_ClosedCashedDraw( 50000 );
+
 }
 
 #ifndef USE_HEAD_BONE_PART_FAKE
@@ -130,9 +131,6 @@ void CStalkerAnimationPair::play			(IKinematicsAnimated *skeleton_animated, Play
 			if (m_step_dependence && m_blend)
 				pos			= fmod(m_blend->timeCurrent,m_blend->timeTotal)/m_blend->timeTotal;
 		}
-//DBG_OpenCashedDraw();
-//DBG_DrawBones( *m_object );
-//DBG_ClosedCashedDraw( 50000 );
 		m_blend				= skeleton_animated->PlayCycle( animation(), TRUE, callback, m_object );
 
 		if (m_step_dependence && continue_interrupted_animation) {
@@ -142,9 +140,6 @@ void CStalkerAnimationPair::play			(IKinematicsAnimated *skeleton_animated, Play
 			if (m_blend)
 				m_blend->timeCurrent = m_blend->timeTotal*pos;
 		}
-//DBG_OpenCashedDraw();
-//DBG_DrawBones( *m_object );
-//DBG_ClosedCashedDraw( 50000 );
 	}
 	else
 #ifndef USE_HEAD_BONE_PART_FAKE
@@ -152,10 +147,14 @@ void CStalkerAnimationPair::play			(IKinematicsAnimated *skeleton_animated, Play
 #else
 		play_global_animation	(skeleton_animated,callback,bone_part,use_animation_movement_control, local_animation, mix_animations);
 #endif
+
 	m_actual				= true;
 
 	if (m_step_dependence)
 		m_object->CStepManager::on_animation_start(animation(),blend());
+
+
+	this->m_object->OnEventAnimations(true);
 
 #ifdef DEBUG
 	if (psAI_Flags.is(aiAnimation)) {
@@ -257,7 +256,6 @@ MotionID CStalkerAnimationPair::select	(const ANIM_VECTOR &array, const ANIMATIO
 	return					(m_array_animation);
 }
 
-
 void CStalkerAnimationPair::on_animation_end	()
 {
 	make_inactual				();
@@ -278,6 +276,8 @@ void CStalkerAnimationPair::on_animation_end	()
 	Callbacks::const_iterator	e = callbacks.end();
 	for ( ; i != e; ++i)
 		(*i)					();
+
+	this->m_object->OnEventAnimations(true);
 }
 
 void CStalkerAnimationPair::target_matrix			(Fvector const &position, Fvector const &direction)

@@ -1,3 +1,4 @@
+#include "stalker_animation_script.h"
 ////////////////////////////////////////////////////////////////////////////
 //	Module 		: stalker_animation_script_inline.h
 //	Created 	: 25.02.2003
@@ -8,14 +9,16 @@
 
 #pragma once
 
-IC	CStalkerAnimationScript::CStalkerAnimationScript				(
-		const MotionID &animation,
+IC	CStalkerAnimationScript::CStalkerAnimationScript(
+	const MotionID& animation,
+		shared_str name,
 		bool hand_usage,
 		bool use_movement_controller,
 		Fmatrix const* transform,
 		bool local_animation
 	) :
 	m_animation					(animation),
+	m_name_anim					(name),
 	m_hand_usage				(hand_usage),
 	m_use_movement_controller	(use_movement_controller),
 	m_local_animation			(local_animation)
@@ -46,6 +49,11 @@ IC CStalkerAnimationScript::CStalkerAnimationScript					(CStalkerAnimationScript
 IC	const MotionID &CStalkerAnimationScript::animation				() const
 {
 	return						(m_animation);
+}
+
+IC const LPCSTR CStalkerAnimationScript::animation_name() const
+{
+	return m_name_anim.c_str();
 }
 
 IC	const bool &CStalkerAnimationScript::hand_usage					() const

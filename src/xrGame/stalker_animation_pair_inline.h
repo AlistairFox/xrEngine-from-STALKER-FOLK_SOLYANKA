@@ -1,3 +1,4 @@
+#include "stalker_animation_pair.h"
 ////////////////////////////////////////////////////////////////////////////
 //	Module 		: stalker_animation_pair_inline.h
 //	Created 	: 25.02.2003
@@ -39,6 +40,18 @@ IC	bool CStalkerAnimationPair::animation			(const MotionID &animation)
 IC	const MotionID &CStalkerAnimationPair::animation() const
 {
 	return						(m_animation);
+}
+
+IC bool CStalkerAnimationPair::animation_name(LPCSTR name)
+{
+	bool result = (anim_name == name);
+	anim_name = name;
+	return (result);
+}
+
+IC LPCSTR CStalkerAnimationPair::animation_name() const
+{
+	return (anim_name);
 }
 
 IC	CBlend * const&CStalkerAnimationPair::blend		() const
