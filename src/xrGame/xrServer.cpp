@@ -313,6 +313,7 @@ void xrServer::MakeUpdatePackets()
 		// write specific data
 		{
 			tmpPacket.w_u16					(Test.ID);
+			tmpPacket.w_u32					(Level().timeServer());
 			tmpPacket.w_chunk_open8			(position);
 			Test.UPDATE_Write				(tmpPacket);
 			u32 ObjectSize					= u32(tmpPacket.w_tell()-position)-sizeof(u8);
@@ -338,6 +339,9 @@ void xrServer::MakeUpdatePackets()
 
 	m_updator.end_updates			(m_update_begin, m_update_end);
 }
+
+u32 ai_stalker, ai_mutants, items, actors, arts, others;
+u32 item_weapon;
 
 void xrServer::SendUpdatePacketsToAll()
 {
@@ -447,22 +451,47 @@ void xrServer::SendUpdatePacketsToAll()
 					if (distance <= distance_50)
 					{
 						m_updator->write_update_for(entity->ID, packet);
+						if (entity->cast_human_abstract())
+							ai_stalker += packet.B.count;
+
+						if (smart_cast<CSE_ALifeMonsterBase*>(entity))
+							ai_mutants += packet.B.count;
 					}
 					else if (need_to_update_15 && distance <= distance_100)
 					{
 						m_updator->write_update_for(entity->ID, packet);
+						if (entity->cast_human_abstract())
+							ai_stalker += packet.B.count;
+
+						if (smart_cast<CSE_ALifeMonsterBase*>(entity))
+							ai_mutants += packet.B.count;
 					}
 					else if (need_to_update_10 && distance <= distance_200)
 					{
 						m_updator->write_update_for(entity->ID, packet);
+						if (entity->cast_human_abstract())
+							ai_stalker += packet.B.count;
+
+						if (smart_cast<CSE_ALifeMonsterBase*>(entity))
+							ai_mutants += packet.B.count;
 					}
 					else if (need_to_update_5 && distance <= distance_300)
 					{
 						m_updator->write_update_for(entity->ID, packet);
+						if (entity->cast_human_abstract())
+							ai_stalker += packet.B.count;
+
+						if (smart_cast<CSE_ALifeMonsterBase*>(entity))
+							ai_mutants += packet.B.count;
 					}
 					else if (need_to_update_05)
 					{
 						m_updator->write_update_for(entity->ID, packet);
+						if (entity->cast_human_abstract())
+							ai_stalker += packet.B.count;
+
+						if (smart_cast<CSE_ALifeMonsterBase*>(entity))
+							ai_mutants += packet.B.count;
 					}
 				}
 				else if (entity->cast_actor_mp()) 
@@ -475,15 +504,20 @@ void xrServer::SendUpdatePacketsToAll()
 					if (distance <= distance_200)
 					{
 						m_updator->write_update_for(entity->ID, packet);
+						actors += packet.B.count;
 					}
 					else if (need_to_update_10 && distance <= distance_300)
 					{
 						m_updator->write_update_for(entity->ID, packet);
+						actors += packet.B.count;
 					}
 					else if (need_to_update_1)
 					{
 						m_updator->write_update_for(entity->ID, packet);
+						actors += packet.B.count;
 					}
+
+
 				}
 				else if (entity->cast_item_artefact())
 				{
@@ -495,14 +529,17 @@ void xrServer::SendUpdatePacketsToAll()
 					if (need_to_update_10 && distance <= distance_30)
 					{
 						m_updator->write_update_for(entity->ID, packet);
+						arts += packet.B.count;
 					}
 					else if (need_to_update_5 && distance <= distance_60)
 					{
 						m_updator->write_update_for(entity->ID, packet);
+						arts += packet.B.count;
 					}
 					else if (need_to_update_05)
 					{
 						m_updator->write_update_for(entity->ID, packet);
+						arts += packet.B.count;
 					}
 				}
 				else if (entity->cast_inventory_item())
@@ -510,21 +547,36 @@ void xrServer::SendUpdatePacketsToAll()
 					if (has_parent)
 					{					
 						// Inventory items with parent
-						// 0 - 200 : 30 per second
+						// 0 - 200 : 15 per second
 						// 200 - 300 : 10 per second
 						// 300 and more : 1 per sec
 
-						if (distance <= distance_200)
+						if (distance <= distance_200 && need_to_update_15)
 						{
 							m_updator->write_update_for(entity->ID, packet);
+
+							items += packet.B.count;
+
+							if (entity->cast_item_weapon())
+								item_weapon += packet.B.count;
 						}
 						else if (need_to_update_10 && distance <= distance_300)
 						{
 							m_updator->write_update_for(entity->ID, packet);
+
+							items += packet.B.count;
+
+							if (entity->cast_item_weapon())
+								item_weapon += packet.B.count;
 						}
 						else if (need_to_update_1)
 						{
 							m_updator->write_update_for(entity->ID, packet);
+
+							items += packet.B.count;
+
+							if (entity->cast_item_weapon())
+								item_weapon += packet.B.count;
 						}
 					}
 					else
@@ -532,11 +584,17 @@ void xrServer::SendUpdatePacketsToAll()
 						// Если родительский объект отсутствует, значит это просто предмет лежащий на карте.
 						// Такие объекты не обновляются постоянно (по крайней мере не должны).
 						m_updator->write_update_for(entity->ID, packet);
+
+						items += packet.B.count;
+
+						if (entity->cast_item_weapon())
+							item_weapon += packet.B.count;
 					}
 				}
 				else
 				{
 					m_updator->write_update_for(entity->ID, packet);
+					others += packet.B.count;
 				}
 			} // end for
 
@@ -576,6 +634,19 @@ void xrServer::SendUpdatePacketsToAll()
 #endif // OLD_SYNC
 }
 
+u32 xrServerExportKBS = 0;
+
+
+u32 ai_stalker_cons = 0;
+u32 ai_monster_cons = 0;
+u32 item_cons = 0;
+u32 arts_cons = 0;
+u32 actors_cons = 0;
+u32 others_cons = 0;
+
+u32 item_weapon_cons = 0;
+
+
 void xrServer::SendUpdatesToAll()
 {
 	if (IsGameTypeSingle())
@@ -601,6 +672,34 @@ void xrServer::SendUpdatesToAll()
 		VERIFY						(verify_entities());
 		m_last_update_time			= Device.dwTimeGlobal;
 	}
+
+	if (Device.dwTimeGlobal - xrServerExportKBS > 1000)
+	{
+		//Msg("Ai_Stalker [%d]", ai_stalker);
+		ai_stalker_cons = ai_stalker;
+		ai_stalker = 0;
+		
+		ai_monster_cons = ai_mutants;
+		ai_mutants = 0;
+
+		item_cons = items;
+		items = 0;
+
+		arts_cons = arts;
+		arts = 0;
+
+		actors_cons = actors;
+		actors = 0;
+
+		others_cons = others;
+		others = 0;
+
+		item_weapon_cons = item_weapon;
+		item_weapon = 0;
+
+		xrServerExportKBS = Device.dwTimeGlobal;
+	}
+
 	if (m_file_transfers)
 	{
 		m_file_transfers->update_transfer();
@@ -1288,11 +1387,15 @@ void xrServer::GetServerInfo( CServerInfo* si )
 	string256 tmp256;
 
 	si->AddItem( "Server port", itoa( GetPort(), tmp, 10 ), RGB(128,128,255) );
+	
 	LPCSTR time = InventoryUtilities::GetTimeAsString( Device.dwTimeGlobal, InventoryUtilities::etpTimeToSecondsAndDay ).c_str();
+	
 	si->AddItem( "Uptime", time, RGB(255,228,0) );
 
 //	xr_strcpy( tmp256, get_token_name(game_types, game->Type() ) );
+
 	xr_strcpy( tmp256, GameTypeToString( game->Type(), true ) );
+
 	if ( game->Type() == eGameIDDeathmatch || game->Type() == eGameIDTeamDeathmatch )
 	{
 		xr_strcat( tmp256, " [" );
@@ -1306,13 +1409,92 @@ void xrServer::GetServerInfo( CServerInfo* si )
 		xr_strcat( tmp256, "] " );
 		g_sv_ah_iReinforcementTime;
 	}
-	
-	//if ( g_sv_dm_dwTimeLimit > 0 )
+
+	si->AddItem("Game type", tmp256, RGB(128, 255, 255));
+
+	tmp256[0] = NULL;
+ 
+	if (ai_stalker_cons > 0)
 	{
-		xr_strcat( tmp256, " time limit [" );
-		xr_strcat( tmp256, itoa( g_sv_dm_dwTimeLimit, tmp, 10 ) );
-		xr_strcat( tmp256, "] " );
+		xr_strcat(tmp256, " [");
+		xr_strcat(tmp256, itoa(ai_stalker_cons, tmp, 10));
+		xr_strcat(tmp256, "]");
+
+		si->AddItem("ai_stalker_kbs", tmp256, RGB(128, 255, 255));
 	}
+
+	tmp256[0] = NULL;
+
+	if (ai_stalker_cons > 0)
+	{
+		xr_strcat(tmp256, " [");
+		xr_strcat(tmp256, itoa(ai_monster_cons, tmp, 10));
+		xr_strcat(tmp256, "]");
+
+		si->AddItem("ai_monster_kbs", tmp256, RGB(128, 255, 255));
+	}
+
+
+	tmp256[0] = NULL;	
+	if (item_cons > 0)
+	{
+		xr_strcat(tmp256, " [");
+		xr_strcat(tmp256, itoa(item_cons, tmp, 10));
+		xr_strcat(tmp256, "]");
+
+		si->AddItem("item_kbs", tmp256, RGB(128, 255, 255));
+	}
+
+
+	tmp256[0] = NULL;
+	if (arts_cons > 0)
+	{
+		xr_strcat(tmp256, " [");
+		xr_strcat(tmp256, itoa(arts_cons, tmp, 10));
+		xr_strcat(tmp256, "]");
+
+		si->AddItem("arts_kbs", tmp256, RGB(128, 255, 255));
+	}
+
+
+	tmp256[0] = NULL;
+	if (actors_cons > 0)
+	{
+		xr_strcat(tmp256, " [");
+		xr_strcat(tmp256, itoa(actors_cons, tmp, 10));
+		xr_strcat(tmp256, "]");
+
+		si->AddItem("actors_kbs", tmp256, RGB(128, 255, 255));
+	}
+
+	tmp256[0] = NULL;
+	if (item_weapon_cons > 0)
+	{
+		xr_strcat(tmp256, " [");
+		xr_strcat(tmp256, itoa(item_weapon_cons, tmp, 10));
+		xr_strcat(tmp256, "]");
+
+		si->AddItem("item_weapons", tmp256, RGB(128, 255, 255));
+	}
+	
+	tmp256[0] = NULL;
+	if (others_cons > 0)
+	{
+		xr_strcat(tmp256, " [");
+		xr_strcat(tmp256, itoa(others_cons, tmp, 10));
+		xr_strcat(tmp256, "]");
+
+		si->AddItem("others_kbs", tmp256, RGB(128, 255, 255));
+	} 
+
+	/*
+	if ( g_sv_dm_dwTimeLimit > 0 )
+	{
+		xr_strcat(tmp256, " time limit [");
+		xr_strcat(tmp256, itoa(g_sv_dm_dwTimeLimit, tmp, 10));
+		xr_strcat(tmp256, "] ");
+	}
+	
 	if ( game->Type() == eGameIDArtefactHunt || game->Type() == eGameIDCaptureTheArtefact )
 	{
 		xr_strcat( tmp256, " RT [" );
@@ -1339,6 +1521,8 @@ void xrServer::GetServerInfo( CServerInfo* si )
 		}
 		si->AddItem( "Game time", tmp256, RGB(205,228,178) );
 	}
+
+	*/
 }
 
 void xrServer::AddCheater			(shared_str const & reason, ClientID const & cheaterID)

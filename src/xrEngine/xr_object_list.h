@@ -21,6 +21,7 @@ private:
 	Objects						objects_sleeping;
 	Objects						m_crows[2];
 	u32							m_owner_thread_id;
+	u32							m_update_time;
 
 public:
 	typedef fastdelegate::FastDelegate1<CObject*>	RELCASE_CALLBACK;
@@ -59,6 +60,8 @@ public:
 
 	u32							net_Export			( NET_Packet*	P,		u32 _start, u32 _count	);	// return next start
 	void						net_Import			( NET_Packet*	P		);
+
+	u32                         net_Import_Time();
 
 	ICF CObject*				net_Find			( u16 ID				) const
 	{

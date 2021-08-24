@@ -373,6 +373,8 @@ void CObjectList::net_Import		(NET_Packet* Packet)
 	while (!Packet->r_eof())
 	{
 		u16 ID;		Packet->r_u16	(ID);
+		Packet->r_u32   (m_update_time);
+
 		u8  size;	Packet->r_u8	(size);
 		CObject* P  = net_Find		(ID);
 		if (P)		
@@ -389,6 +391,11 @@ void CObjectList::net_Import		(NET_Packet* Packet)
 	}
 
 	if (g_Dump_Import_Obj) Msg("------------------- ");
+}
+
+u32 CObjectList::net_Import_Time()
+{
+	return m_update_time;
 }
 
 /*

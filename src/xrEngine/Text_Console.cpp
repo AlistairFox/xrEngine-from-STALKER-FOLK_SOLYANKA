@@ -233,7 +233,8 @@ void CTextConsole::DrawLog( HDC hDC, RECT* pRect )
 	int Width = wRC.right - wRC.left;
 	int Height = wRC.bottom - wRC.top;
 	wRC = *pRect;
-	int y_top_max = (int)(0.32f * Height);
+	
+	int y_top_max = (int)(0.48f * Height);
 
 	//---------------------------------------------------------------------------------
 	LPCSTR s_edt = ec().str_edit();
