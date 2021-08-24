@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "net_physics_state.h"
+#include "Level.h"
 
 net_physics_state::net_physics_state()
 {
@@ -11,7 +12,7 @@ net_physics_state::net_physics_state()
 
 void net_physics_state::fill(SPHNetState &state, u32 time)
 {
-	dwTimeStamp = time;
+	//dwTimeStamp = time;
 	physics_linear_velocity = state.linear_vel;
 	physics_position = state.position;
 	physics_state_enabled = state.enabled;
@@ -20,7 +21,7 @@ void net_physics_state::fill(SPHNetState &state, u32 time)
 void net_physics_state::write(NET_Packet &packet)
 {
 	// time
-	packet.w_u32(dwTimeStamp);
+	//packet.w_u32(dwTimeStamp);
 
 	// linear velocity
 	//clamp(physics_linear_velocity.x, MIN_LINEAR_VELOCITY_COMPONENT, MAX_LINEAR_VELOCITY_COMPONENT);
@@ -43,7 +44,8 @@ void net_physics_state::write(NET_Packet &packet)
 void net_physics_state::read(NET_Packet &packet)
 {
 	// time
-	packet.r_u32(dwTimeStamp);
+	//packet.r_u32(dwTimeStamp);
+	dwTimeStamp = Level().Objects.net_Import_Time();
 
 	// linear velocity
 	//packet.r_float_q8(physics_linear_velocity.x, MIN_LINEAR_VELOCITY_COMPONENT, MAX_LINEAR_VELOCITY_COMPONENT);

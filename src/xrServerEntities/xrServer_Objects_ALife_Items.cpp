@@ -143,6 +143,28 @@ void CSE_ALifeInventoryItem::UPDATE_Write	(NET_Packet &tNetPacket)
 		tNetPacket.w_u8				(0);
 		return;
 	}
+	else
+	{
+	 
+		if (this->cast_abstract()->ID_Parent != 65535)
+		{
+			CSE_Abstract* id = Level().Server->ID_to_entity(this->cast_abstract()->ID_Parent);
+
+			if (id->cast_human_abstract())
+				Msg("--- Object [%d] has sync items Parrent is Stalker[%s]", this->cast_abstract()->ID, "true");
+			else
+				Msg("--- Object [%d] has sync items Parrent is Stalker[%s]", this->cast_abstract()->ID, "false");
+
+		}
+		else
+			Msg("--- Object [%d] has [%s] sync items Pos [%.0f][%.0f][%.0f]",
+				this->cast_abstract()->ID, this->cast_abstract()->s_name.c_str(),
+				this->cast_abstract()->o_Position.x,
+				this->cast_abstract()->o_Position.y,
+				this->cast_abstract()->o_Position.z
+			);
+
+	}
 
 	mask_num_items					num_items;
 	num_items.mask					= 0;
@@ -195,11 +217,12 @@ void CSE_ALifeInventoryItem::UPDATE_Write	(NET_Packet &tNetPacket)
 void CSE_ALifeInventoryItem::UPDATE_Read	(NET_Packet &tNetPacket)
 {
 	tNetPacket.r_u8					(m_u8NumItems);
-	if (!m_u8NumItems) {
+	if (!m_u8NumItems) 
+	{
 		//Msg("--- Object [%d] has no sync items", this->cast_abstract()->ID);
 		return;
 	}
-
+	 
 	mask_num_items					num_items;
 	num_items.common				= m_u8NumItems;
 	m_u8NumItems					= num_items.num_items;
@@ -216,8 +239,9 @@ void CSE_ALifeInventoryItem::UPDATE_Read	(NET_Packet &tNetPacket)
 	}
 	else
 	{
-	anim_use=false;
-	}*/
+		anim_use=false;
+	}
+	*/
 
 	{
 		tNetPacket.r_vec3				(State.force);
@@ -528,7 +552,8 @@ u32	CSE_ALifeItemWeapon::ef_weapon_type() const
 void CSE_ALifeItemWeapon::UPDATE_Read(NET_Packet	&tNetPacket)
 {
 	inherited::UPDATE_Read		(tNetPacket);
-
+	
+	/*
 	tNetPacket.r_float_q8		(m_fCondition,0.0f,1.0f);
 	tNetPacket.r_u8				(wpn_flags);
 	tNetPacket.r_u16			(a_elapsed);
@@ -537,6 +562,15 @@ void CSE_ALifeItemWeapon::UPDATE_Read(NET_Packet	&tNetPacket)
 	tNetPacket.r_u8				(wpn_state);
 	tNetPacket.r_u8				(m_bZoom);
 	tNetPacket.r_u8				(m_cur_scope);
+	*/
+
+	m_state.read_state(tNetPacket);
+
+	m_fCondition = m_state.m_fCondition;
+	a_elapsed = m_state.a_elapsed;
+	m_addon_flags = m_state.m_addon_flags;
+	wpn_flags = m_state.need_to_update;
+
 }
 
 void CSE_ALifeItemWeapon::clone_addons(CSE_ALifeItemWeapon* parent)
@@ -545,9 +579,17 @@ void CSE_ALifeItemWeapon::clone_addons(CSE_ALifeItemWeapon* parent)
 }
 
 void CSE_ALifeItemWeapon::UPDATE_Write(NET_Packet	&tNetPacket)
-{
-	inherited::UPDATE_Write		(tNetPacket);
+{	
+	
+	inherited::UPDATE_Write(tNetPacket);
 
+	m_state.write_state(tNetPacket);
+	 
+	Msg("Condition: %.4f", m_state.m_fCondition);
+
+	//	Msg("wpn_flags[%s] [%d]", this->s_name.c_str(), this->ID_Parent);
+
+	/*
 	tNetPacket.w_float_q8		(m_fCondition,0.0f,1.0f);
 	tNetPacket.w_u8				(wpn_flags);
 	tNetPacket.w_u16			(a_elapsed);
@@ -556,6 +598,11 @@ void CSE_ALifeItemWeapon::UPDATE_Write(NET_Packet	&tNetPacket)
 	tNetPacket.w_u8				(wpn_state);
 	tNetPacket.w_u8				(m_bZoom);
 	tNetPacket.w_u8				(m_cur_scope);
+	*/
+
+	//Msg("Cond[%.3f], elapsed[%d], addon[%d], wpn_flags[%d]", m_fCondition, a_elapsed, m_addon_flags.get(), wpn_flags);
+	//Msg("ammo_type[%d], wpn_state[%d], zoom[%d], scope[%d] ", m_state.need_to_update, m_state.wpn_state, m_state.m_bZoom, m_state.m_cur_scope);
+	//Msg("Items[%d]", m_u8NumItems);
 }
 
 void CSE_ALifeItemWeapon::STATE_Read(NET_Packet	&tNetPacket, u16 size)
@@ -596,7 +643,9 @@ void CSE_ALifeItemWeapon::OnEvent			(NET_Packet	&tNetPacket, u16 type, u32 time,
 	switch (type) {
 		case GE_WPN_STATE_CHANGE:
 			{			
-				tNetPacket.r_u8	(wpn_state);			
+				tNetPacket.r_u8	(wpn_state);	
+				m_state.wpn_state = wpn_state;
+
 //				u8 sub_state = 
 					tNetPacket.r_u8();		
 //				u8 NewAmmoType = 
@@ -638,9 +687,11 @@ u16	 CSE_ALifeItemWeapon::get_ammo_magsize	()
 
 BOOL CSE_ALifeItemWeapon::Net_Relevant()
 {
-	if (wpn_flags==1 ) //|| Device.dwTimeGlobal % 500 == 0
+	if (wpn_flags == 1) //|| Device.dwTimeGlobal % 500 == 0
+	{
+		
 		return TRUE;
-
+	}
 	return inherited::Net_Relevant();
 }
 
@@ -691,6 +742,7 @@ void CSE_ALifeItemWeaponShotGun::UPDATE_Write	(NET_Packet& P)
 	inherited::UPDATE_Write(P);
 
 	P.w_u8(u8(m_AmmoIDs.size()));
+	//Msg("AmmoIDS Size [%d]", m_AmmoIDs.size());
 	for (u32 i=0; i<m_AmmoIDs.size(); i++)
 	{
 		P.w_u8(u8(m_AmmoIDs[i]));

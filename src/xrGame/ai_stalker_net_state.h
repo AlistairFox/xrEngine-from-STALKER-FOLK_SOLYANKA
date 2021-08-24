@@ -1,0 +1,39 @@
+#pragma once
+#include "../Include/xrRender/animation_motion.h"
+
+struct ai_stalker_net_state
+{
+	public:
+		u16 old_torso_idx;
+		u16 old_legs_idx;
+		u16 old_head_idx;
+		u16 old_script_idx;
+
+		u8 old_torso_slot;
+		u8 old_legs_slot;
+		u8 old_head_slot;
+		u8 old_script_slot;
+
+		u16 u_active_slot;
+		float u_health;
+
+		float u_body_yaw;
+		float u_head_yaw;
+
+
+		ai_stalker_net_state();
+
+
+		void	fill_state(
+			u16 torso_idx, u16 legs_idx, u16 head_idx, u16 script_idx,
+			u8 torso_slot, u8 legs_slot, u8 head_slot, u8 script_slot,
+			float healtch, u16 active_slot
+		);
+
+		void	animation_write(NET_Packet& packet);
+		void	animation_read(NET_Packet& packet);
+		 
+};
+
+
+

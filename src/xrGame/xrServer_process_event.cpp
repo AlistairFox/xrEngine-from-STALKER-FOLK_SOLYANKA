@@ -387,6 +387,12 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 	
 	}break;
 
+	case GE_ANIMATION_SCRIPT:
+	{
+	//	Msg("SEND BROADCOST");
+		SendBroadcast(SV_Client->ID, P, net_flags(TRUE, TRUE));
+	}break;
+
 
 
 	default:

@@ -845,10 +845,30 @@ void CAI_Stalker::shedule_Update		( u32 DT )
 {
 	if (!IsGameTypeSingle() && OnClient())
 	{
+		/*
+		if (!on_first_update_recive)
+		{
+			on_first_update_recive = true;
+			NET_Packet packet;
+			Game().u_EventGen(packet, GE_ANIMATION_SCRIPT, this->ID());
+			Game().u_EventSend(packet);
+		}
+		*/
+
 		inherited::shedule_Update(DT);
 		return;
+	} 
+	
+	/*
+	if (Device.dwTimeGlobal - ai_stalker_oldTime > 1000/30 && this->g_Alive())
+	{
+		OnEventAnimations(false);
+		ai_stalker_oldTime = Device.dwTimeGlobal;
 	}
-
+	*/
+	 
+	 
+	 
 	START_PROFILE("stalker")
 	START_PROFILE("stalker/schedule_update")
 	VERIFY2				(getEnabled()||PPhysicsShell(), *cName());

@@ -16,6 +16,8 @@
 #include "character_info_defs.h"
 #include "infoportiondefs.h"
 
+#include "Weapon_State_Network.h"
+
 #pragma warning(push)
 #pragma warning(disable:4005)
 
@@ -158,6 +160,9 @@ SERVER_ENTITY_DECLARE_BEGIN(CSE_ALifeItemWeapon,CSE_ALifeItem)
 	u16								a_current;
 	u16								a_elapsed;
 	u8								m_cur_scope;
+
+	Weapon_State_Network            m_state;
+
 	//count of grenades to spawn in grenade launcher [ttcccccc]
 	//WARNING! hight 2 bits (tt bits) indicate type of grenade, so maximum grenade count is 2^6 = 64
 	struct grenade_count_t
@@ -174,6 +179,7 @@ SERVER_ENTITY_DECLARE_BEGIN(CSE_ALifeItemWeapon,CSE_ALifeItem)
 			grenades_count	=	b & 0x3f; //111111
 		}
 	}; //struct grenade_count_t
+
 	grenade_count_t					a_elapsed_grenades;
 
 	float							m_fHitPower;

@@ -7440,6 +7440,13 @@
     <ClInclude Include="..\jsonxx\jsonxx.h">
       <Filter>jsonxx</Filter>
     </ClInclude>
+    <ClInclude Include="ai_stalker_net_state.h">
+      <Filter>AI\AMonsters\humans\stalker</Filter>
+    </ClInclude>
+    <ClInclude Include="Weapon_State_Network.h">
+      <Filter>Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Common\Weapon Generic</Filter>
+    </ClInclude>
+    <ClInclude Include="FLOAT_16.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="damage_manager.cpp">
@@ -11129,6 +11136,16 @@
     <ClCompile Include="game_sv_mp_alife.cpp">
       <Filter>Core\Server\Games\server\mp\alife</Filter>
     </ClCompile>
+    <ClCompile Include="ai_stalker_net_events.cpp">
+      <Filter>AI\AMonsters\humans\stalker</Filter>
+    </ClCompile>
+    <ClCompile Include="ai_stalker_net_state.cpp">
+      <Filter>AI\AMonsters\humans\stalker</Filter>
+    </ClCompile>
+    <ClCompile Include="Weapon_State_Network.cpp">
+      <Filter>Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Common\Weapon Generic</Filter>
+    </ClCompile>
+    <ClCompile Include="FLOAT_16.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="ai\monsters\chimera\chimera_attack_state.h">

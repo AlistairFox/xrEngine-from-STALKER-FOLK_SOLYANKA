@@ -765,6 +765,7 @@
     <ClInclude Include="AI_PhraseDialogManager.h" />
     <ClInclude Include="ai_space.h" />
     <ClInclude Include="ai_space_inline.h" />
+    <ClInclude Include="ai_stalker_net_state.h" />
     <ClInclude Include="alife_abstract_registry.h" />
     <ClInclude Include="alife_abstract_registry_inline.h" />
     <ClInclude Include="alife_combat_manager.h" />
@@ -903,6 +904,7 @@
     <ClInclude Include="cover_point_inline.h" />
     <ClInclude Include="cta_game_artefact.h" />
     <ClInclude Include="cta_game_artefact_activation.h" />
+    <ClInclude Include="FLOAT_16.h" />
     <ClInclude Include="game_cl_roleplay.h" />
     <ClInclude Include="game_sv_roleplay.h" />
     <ClInclude Include="net_physics_state.h" />
@@ -1882,6 +1884,7 @@
     <ClInclude Include="WeaponVal.h" />
     <ClInclude Include="WeaponVintorez.h" />
     <ClInclude Include="WeaponWalther.h" />
+    <ClInclude Include="Weapon_State_Network.h" />
     <ClInclude Include="Wound.h" />
     <ClInclude Include="wrapper_abstract.h" />
     <ClInclude Include="wrapper_abstract_inline.h" />
@@ -2812,6 +2815,8 @@
     <ClCompile Include="ai_sounds.cpp" />
     <ClCompile Include="ai_space.cpp" />
     <ClCompile Include="ai_stalker_alife.cpp" />
+    <ClCompile Include="ai_stalker_net_events.cpp" />
+    <ClCompile Include="ai_stalker_net_state.cpp" />
     <ClCompile Include="alife_anomalous_zone.cpp" />
     <ClCompile Include="alife_combat_manager.cpp" />
     <ClCompile Include="alife_communication_manager.cpp" />
@@ -3057,6 +3062,7 @@
     </ClCompile>
     <ClCompile Include="cta_game_artefact.cpp" />
     <ClCompile Include="cta_game_artefact_activation.cpp" />
+    <ClCompile Include="FLOAT_16.cpp" />
     <ClCompile Include="game_cl_roleplay.cpp" />
     <ClCompile Include="game_sv_freemp_save.cpp" />
     <ClCompile Include="game_sv_freemp_trade.cpp" />
@@ -5562,6 +5568,7 @@
     </ClCompile>
     <ClCompile Include="weapon_ammo_dump_impl.cpp" />
     <ClCompile Include="weapon_dump_impl.cpp" />
+    <ClCompile Include="Weapon_State_Network.cpp" />
     <ClCompile Include="Wound.cpp" />
     <ClCompile Include="xrClientsPool.cpp" />
     <ClCompile Include="xrGame.cpp" />

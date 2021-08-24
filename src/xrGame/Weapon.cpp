@@ -575,51 +575,91 @@ BOOL CWeapon::IsUpdating()
 	return bIsActiveItem || bWorking;// || IsPending() || getVisible();
 }
 
+#include "Weapon_State_Network.h"
+
 void CWeapon::net_Export(NET_Packet& P)
 {
-	inherited::net_Export	(P);
+	inherited::net_Export(P);
 
-	P.w_float_q8			(GetCondition(),0.0f,1.0f);
+	Weapon_State_Network state;
+
+	state.m_fCondition = GetCondition();
+	state.need_to_update = IsUpdating() ? 1 : 0;
+	state.a_elapsed = u8(iAmmoElapsed);
+	state.m_addon_flags.flags = m_flagsAddOnState;
+	state.ammo_type = m_ammoType;
+	state.wpn_state = u8(GetState());
+	state.m_bZoom = IsZoomed() ? 1 : 0;
+	state.m_cur_scope = m_cur_scope;
+
+	state.write_state(P);
 
 
-	u8 need_upd				= IsUpdating() ? 1 : 0;
-	P.w_u8					(need_upd);
-	P.w_u16					(u16(iAmmoElapsed));
-	P.w_u8					(m_flagsAddOnState);
-	P.w_u8					(m_ammoType);
-	P.w_u8					((u8)GetState());
-	P.w_u8					((u8)IsZoomed());
-	P.w_u8					(m_cur_scope);
+	
+	/*
+		P.w_float_q8			(GetCondition(),0.0f,1.0f);
+
+
+
+		P.w_u8					(need_upd);
+		P.w_u16					(u16(iAmmoElapsed));
+		P.w_u8					(m_flagsAddOnState);
+		P.w_u8					(m_ammoType);
+		P.w_u8					((u8)GetState());
+		P.w_u8					((u8)IsZoomed());
+		P.w_u8					(m_cur_scope);
+
+	*/
 }
 
 void CWeapon::net_Import(NET_Packet& P)
 {
+	u32 pos = P.r_pos;
+
 	inherited::net_Import (P);
-	
+
 	float _cond;
-	P.r_float_q8			(_cond,0.0f,1.0f);
-	SetCondition			(_cond);
-
-	u8 flags				= 0;
-	P.r_u8					(flags);
-
+ 
 	u16 ammo_elapsed = 0;
-	P.r_u16					(ammo_elapsed);
 
-	u8						NewAddonState;
-	P.r_u8					(NewAddonState);
-
-	m_flagsAddOnState		= NewAddonState;
-	UpdateAddonsVisibility	();
+	u8  NewAddonState;
 
 	u8 ammoType, wstate;
-	P.r_u8					(ammoType);
-	P.r_u8					(wstate);
 
 	u8 Zoom;
+
+	Weapon_State_Network state;
+
+	state.read_state(P);
+
+	Msg("SizeWeaponDEF[%d]", P.r_pos - pos);
+
+	_cond = state.m_fCondition;
+	ammo_elapsed = state.a_elapsed;
+	NewAddonState = state.m_addon_flags.flags;
+
+	ammoType = state.ammo_type;
+	Zoom = state.m_bZoom;
+
+	wstate = state.wpn_state;
+
+	/*
+	P.r_float_q8			(_cond,0.0f,1.0f);	
+	P.r_u8					(flags);
+	P.r_u16					(ammo_elapsed);
+	P.r_u8					(NewAddonState);
+	P.r_u8					(ammoType);
+	P.r_u8					(wstate);
 	P.r_u8					((u8)Zoom);
+	P.r_u8					(m_cur_scope);
+	*/
+
+
+
+	SetCondition(_cond);
+	m_flagsAddOnState = NewAddonState;
+	UpdateAddonsVisibility();
 	
-	P.r_u8(m_cur_scope);
 	
 	if (m_old_scope != m_cur_scope)
 	{
@@ -632,6 +672,8 @@ void CWeapon::net_Import(NET_Packet& P)
 		if (Zoom) OnZoomIn();
 		else OnZoomOut();
 	};
+
+
 	switch (wstate)
 	{	
 	case eFire:

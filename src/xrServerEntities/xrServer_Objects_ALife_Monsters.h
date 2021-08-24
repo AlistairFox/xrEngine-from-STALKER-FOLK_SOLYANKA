@@ -16,6 +16,8 @@
 #include "alife_movement_manager_holder.h"
 #include "net_physics_state.h"
 
+#include "../xrGame/ai_stalker_net_state.h"
+
 class CALifeMonsterBrain;
 class CALifeHumanBrain;
 class CALifeOnlineOfflineGroupBrain;
@@ -544,6 +546,8 @@ SERVER_ENTITY_DECLARE_BEGIN2(CSE_ALifeHumanStalker,CSE_ALifeHumanAbstract,CSE_PH
 	shared_str						m_start_dialog;
 
 	net_physics_state				physics_state;
+	ai_stalker_net_state			stalker_state;
+
 
 	float							f_head_dir_pitch = 0;
 	float							f_head_dir_yaw = 0;
@@ -560,6 +564,7 @@ SERVER_ENTITY_DECLARE_BEGIN2(CSE_ALifeHumanStalker,CSE_ALifeHumanAbstract,CSE_PH
 	u8								u_script_anm_slot = 0;
 
 	u8								phSyncFlag = 0;
+	u8								test_animation = 0;
 
 									CSE_ALifeHumanStalker	(LPCSTR caSection);
 	virtual							~CSE_ALifeHumanStalker	();

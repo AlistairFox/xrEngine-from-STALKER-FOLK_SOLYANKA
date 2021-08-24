@@ -353,8 +353,20 @@ private:
 											u16 u_script_motion_idx, u8 u_script_motion_slot
 										);
 
+
+
 			void						CalculateInterpolationParams();
 			virtual void				make_Interpolation();
+
+
+public:
+//	void OnEventAnimationScript(LPCSTR name, bool hand_usage, bool use_movement_controller);
+
+//	void OnEventAnimationScript(MotionID idx, bool hand_usage, bool use_movement_controller);
+
+	void OnEventAnimations(bool update);
+ 
+	void OnEventAnimations(NET_Packet packet);
 
 private:
 	bool				m_can_kill_member;
@@ -909,6 +921,21 @@ public:
 
 private:
 	ignored_touched_objects_type		m_ignored_touched_objects;
+
+
+private: 
+//MP SYNC BLEND
+
+	CBlend* blend_torso;
+	CBlend* blend_legs;
+	CBlend* blend_head;
+	CBlend* blend_script;
+	
+	MotionID old_torso, old_head, old_legs, old_script;
+
+	bool on_first_update_recive = false;
+	u32 ai_stalker_oldTime = 0;
+
 
 public:
 	DECLARE_SCRIPT_REGISTER_FUNCTION
