@@ -27,8 +27,27 @@ BOOL CLevel::Load_GameSpecific_Before()
  		//FS.exist(fn_game, "$game_spawn$", m_game_description.spawn_name, ".spawn");
 		if (!xr_strcmp(m_game_description.spawn_name, "autosave"))
 			Msg("Load Autosave");
+		
+		if (FS.exist(fn_game, "$game_spawn$", m_game_description.spawn_name, ".spawn"))
+		{
+			string_path	file;
+			strconcat(sizeof(file), file, m_game_description.spawn_name, ".spawn");
 
-		FS.exist(fn_game, "$game_spawn$", "all.spawn");
+			FS.update_path(fn_game, "$game_spawn$", file);
+		}
+		else
+		{
+			/*
+			string_path	file;
+			strconcat(sizeof(file), file, m_game_description.spawn_name, ".scop");
+
+			FS.update_path(fn_game, "$game_saves$", file);
+			*/
+			
+			FS.update_path(fn_game, "$game_spawn$", "all.spawn");
+			
+		}
+		
 
 		Msg("spawn name[%s] ", fn_game);
 

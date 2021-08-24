@@ -79,7 +79,8 @@ CALifeSimulator::CALifeSimulator		(xrServer *server, shared_str *command_line) :
 	R_ASSERT2					(ai().script_engine().functor(start_game_callback,functor),"failed to get start game callback");
 	functor						();
 
-	if (is_single || xr_strcmp(p.m_game_type, "rp") ) {
+	if (is_single || xr_strcmp(p.m_game_type, "rp") )
+	{
 		Msg("SINGLE PARAMS");
 		load(p.m_game_or_spawn, !xr_strcmp(p.m_new_or_load, "load") ? false : true, !xr_strcmp(p.m_new_or_load, "new"));
 	}
@@ -89,16 +90,13 @@ CALifeSimulator::CALifeSimulator		(xrServer *server, shared_str *command_line) :
 		load(p.m_game_or_spawn, false, true);
 	}
 
-	int	id = pApp->Level_ID(level_name().c_str(), "1.0", true);
- 
-	Msg("Level == %s / ID == %d", level_name().c_str(), id);
-	
 	if (xr_strcmp(p.m_game_type, "rp"))
+	{
+		int	id = pApp->Level_ID(level_name().c_str(), "1.0", true);
 		Level().set_level_name(level_name());
-
-	Msg("SetsName == %s", Level().name().c_str());
-
-	
+		Msg("Level == %s / ID == %d", level_name().c_str(), id);
+		Msg("SetsName == %s", Level().name().c_str());
+	}
 }
 
 CALifeSimulator::~CALifeSimulator		()
