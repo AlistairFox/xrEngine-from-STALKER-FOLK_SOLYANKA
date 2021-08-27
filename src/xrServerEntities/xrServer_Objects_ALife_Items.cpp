@@ -666,8 +666,6 @@ u16	 CSE_ALifeItemWeapon::get_ammo_magsize	()
 
 BOOL CSE_ALifeItemWeapon::Net_Relevant()
 {
-	return TRUE;
-
 	if (wpn_flags == 1) //|| Device.dwTimeGlobal % 500 == 0
 	{
 		
