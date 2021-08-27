@@ -92,6 +92,9 @@ bool CZoneCampfire::is_on()
 {
 	return m_turned_on;
 }
+#include "Level.h"
+#include "Actor.h"
+#include "game_cl_freemp.h"
 
 void CZoneCampfire::shedule_Update(u32	dt)
 {
@@ -106,6 +109,30 @@ void CZoneCampfire::shedule_Update(u32	dt)
 		vel.mul(GamePersistent().Environment().wind_blast_direction,GamePersistent().Environment().wind_strength_factor);
 		m_pIdleParticles->UpdateParent(XFORM(),vel);
 	}
+/*
+	if (OnServer())
+	if (Device.dwTimeGlobal - m_update_save_time > 30 * 1000)
+	{
+		for (auto cl : Level().game->players)
+		{
+			CObject* obj = Level().Objects.net_Find(cl.second->GameID);
+			CActor* actor = smart_cast<CActor*>(obj);
+
+			int distanse_10 = 10 * 10;
+
+			if (actor)
+			{
+				if (distanse_10 < actor->Position().distance_to_sqr(this->Position()))
+				{
+					game_cl_freemp* game_freemp = smart_cast<game_cl_freemp*>(Level().game);
+					game_freemp->save_player(cl.second);
+				}
+			}
+		}
+		
+		m_update_save_time = Device.dwTimeGlobal;
+	}
+*/
 	inherited::shedule_Update(dt);
 }
 

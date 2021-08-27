@@ -1,9 +1,18 @@
 #pragma once
 #include "../Include/xrRender/animation_motion.h"
+#include "net_physics_state.h"
+#include "../xrServerEntities/PHSynchronize.h"
+
 
 struct ai_stalker_net_state
 {
 	public:
+		net_physics_state physics_state;
+		Fvector fv_position;
+		Fvector fv_linear_vel;
+
+		u8 phSyncFlag;
+		
 		u16 old_torso_idx;
 		u16 old_legs_idx;
 		u16 old_head_idx;
@@ -14,15 +23,17 @@ struct ai_stalker_net_state
 		u8 old_head_slot;
 		u8 old_script_slot;
 
-		u16 u_active_slot;
+		u8 u_active_slot;
+	
 		float u_health;
 
 		float u_body_yaw;
 		float u_head_yaw;
-
-
+		
 		ai_stalker_net_state();
 
+		void fill_position(CPHSynchronize * state_new);
+		
 
 		void	fill_state(
 			u16 torso_idx, u16 legs_idx, u16 head_idx, u16 script_idx,
@@ -30,8 +41,8 @@ struct ai_stalker_net_state
 			float healtch, u16 active_slot
 		);
 
-		void	animation_write(NET_Packet& packet);
-		void	animation_read(NET_Packet& packet);
+		void	state_write(NET_Packet& packet);
+		void	state_read(NET_Packet& packet);
 		 
 };
 

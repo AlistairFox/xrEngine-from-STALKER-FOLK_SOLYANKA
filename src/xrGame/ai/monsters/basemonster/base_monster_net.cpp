@@ -123,7 +123,7 @@ void CBaseMonster::net_Export(NET_Packet& P)
 			pPhSync->get_State(state);
 
 			net_physics_state physics_state;
-			physics_state.fill(state, Level().timeServer());
+			physics_state.fill(state);
 			physics_state.write(P);
 		}
 		else

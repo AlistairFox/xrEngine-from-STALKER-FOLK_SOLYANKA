@@ -3,7 +3,7 @@
 
 void write_bites(const u32& bit_count, const u32& value, u32& current, u64& output)
 {
-	output |= ((value & ((u64(1) << bit_count) - 1)) << current);
+	output |= ( (value & ( (u64(1) << bit_count) - 1) ) << current);
 	current += bit_count;
 	//VERIFY(current <= 32);
 }
@@ -16,6 +16,83 @@ u32 read_bites(const u32& bit_count, u32& current, const u64& output)
 	return		(result);
 }
 
+u8 float_to_char4(float value) //0.0666 //4bit (ÒÎÊ ÄËß FLOAT 0.f->1.f)
+{
+	if (value > 1.0f)
+		value = 1.0f;
+	return u8(15.f * value);
+}
+ 
+float char4_to_float(u8 value) //0.0666 //4 bit (ÒÎÊ ÄËß FLOAT 0.f->1.f)
+{
+	return value / 15.0f;
+}
+
+u8 float_to_char8(float value) //0.0039 //8bit (ÒÎÊ ÄËß FLOAT 0.f->1.f)
+{
+	if (value > 1.0f)
+		value = 1.0f;
+	return u8(255.0f * value);
+}
+
+float char8_to_float(u8 value) //0.0039 //8 bit (ÒÎÊ ÄËß FLOAT 0.f->1.f)
+{
+	return  value / 255.0f ;
+}
+
+u8 char_health(float value)
+{
+	bool isAlive = true;
+	
+	if (value == 0.0f)
+		isAlive = false;
+
+	if (value > 1.0f)
+		value = 1.0f;
+
+	u8 heltch_write = value * 127;
+
+	u8 heltch = 0;
+
+	heltch |= (isAlive & (u8(1) << 1) - 1) << 0;
+	
+	heltch |= (heltch_write & (u8(1) << 7) - 1) << 1;
+
+	return heltch;
+}
+
+float char_health_to_float(u8 value)
+{
+
+	u8 alive = value >> 0 & (u8(1) << 1) - 1;
+	
+	float health = value >> 1 & (u8(1) << 7) - 1;
+	
+	//Msg("alive[%f]", health);
+
+	health /= 127;
+
+	return health + (alive ? 0.01 : 0);
+}
+ 
+void ai_stalker_net_state::fill_position(CPHSynchronize * sync)
+{
+	CPHSynchronize* new_sync = sync;
+
+	if (new_sync)
+	{
+		phSyncFlag = true;
+		SPHNetState state;
+		new_sync->get_State(state);
+
+		physics_state.fill(state);
+	}
+	else
+	{
+		phSyncFlag = false;
+	}
+
+}
 
 void ai_stalker_net_state::fill_state(
 	u16 torso_idx, u16 legs_idx, u16 head_idx, u16 script_idx,
@@ -33,7 +110,7 @@ void ai_stalker_net_state::fill_state(
 	old_head_slot = head_slot;
 	old_script_slot = script_slot;
 
-	u_health = health;
+	u_health = health; 
 	u_active_slot = active_slot;
 }
 
@@ -54,16 +131,34 @@ ai_stalker_net_state::ai_stalker_net_state()
 	u_body_yaw = 0;
 	u_head_yaw = 0;
 
+	fv_position.set(0,0,0);
+	fv_linear_vel.set(0,0,0);
+
+	phSyncFlag = false;
 }
 
-void ai_stalker_net_state::animation_write(NET_Packet& packet)
+void ai_stalker_net_state::state_write(NET_Packet& packet)
 { 
-	//States
-	packet.w_float(u_health);
-	packet.w_u16(u_active_slot);
-	packet.w_angle8(u_body_yaw);
-	packet.w_angle8(u_head_yaw);
 
+	//Physic states
+	if (phSyncFlag)
+	{
+		packet.w_u8(1);
+		physics_state.write(packet);
+	}
+	else 			
+	{
+		packet.w_u8(0);
+		packet.w_vec3(fv_position);
+	}
+ 
+	//Body State
+	{
+		packet.w_u8(u_health > 0.00001f ? 1 : 0);
+		packet.w_u8(u_active_slot);
+		packet.w_angle8(u_body_yaw);
+		packet.w_angle8(u_head_yaw);
+	}
 	//Animation
 	{
 		u32 current = 0;
@@ -82,7 +177,6 @@ void ai_stalker_net_state::animation_write(NET_Packet& packet)
 		::write_bites(bit_slot, old_head_slot, current, output);
 		::write_bites(bit_slot, old_script_slot, current, output);
 
-
 		packet.w_u8(u8(output >> 0));
 		packet.w_u8(u8(output >> 8));
 		packet.w_u8(u8(output >> 16));
@@ -90,7 +184,9 @@ void ai_stalker_net_state::animation_write(NET_Packet& packet)
 		packet.w_u8(u8(output >> 32));
 		packet.w_u8(u8(output >> 40));
 
+
 	}
+
 	if (u_health < 1.0f && false)
 	{
 		Msg("write H[%.4f] S[%d] body[%.2f] head[%.2f]", u_health, u_active_slot, u_body_yaw, u_head_yaw);
@@ -102,13 +198,29 @@ void ai_stalker_net_state::animation_write(NET_Packet& packet)
 	}
 }
 
-void ai_stalker_net_state::animation_read(NET_Packet& packet)
+void ai_stalker_net_state::state_read(NET_Packet& packet)
 {
+	//physic
+	packet.r_u8(phSyncFlag);
+
+	if (phSyncFlag)
+	{
+		physics_state.read(packet);
+		fv_position.set(physics_state.physics_position);
+	}
+	else
+	{
+		packet.r_vec3(fv_position);
+	}
+	 
 	//States
-	packet.r_float(u_health);
-	packet.r_u16(u_active_slot);
-	packet.r_angle8(u_body_yaw);
-	packet.r_angle8(u_head_yaw);
+	{	
+		u_health = packet.r_u8();
+		packet.r_u8(u_active_slot);  //8 bit
+		packet.r_angle8(u_body_yaw); //8 bit
+		packet.r_angle8(u_head_yaw); //8 bit
+
+	}
 
 	//Animation
 	{
@@ -121,7 +233,6 @@ void ai_stalker_net_state::animation_read(NET_Packet& packet)
 		output |= u64(packet.r_u8()) << 24;
 		output |= u64(packet.r_u8()) << 32;
 		output |= u64(packet.r_u8()) << 40;
-
 
 		u32 bit_idx = 10;
 		u32 bit_slot = 2;
@@ -159,10 +270,4 @@ void ai_stalker_net_state::animation_read(NET_Packet& packet)
 		Msg("read HEAD		[%d][%d]", old_head_idx, old_head_slot);
 		Msg("read SCRIPT	[%d][%d]", old_script_idx, old_script_slot);
 	}
-	
-
-
-
-
-	
 }

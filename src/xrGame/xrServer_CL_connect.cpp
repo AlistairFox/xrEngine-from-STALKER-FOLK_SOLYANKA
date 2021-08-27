@@ -345,7 +345,6 @@ void xrServer::OnBuildVersionRespond				( IClient* CL, NET_Packet& P )
 
 			outfile.close();
 			
-
 			finded = true;
 		}
 

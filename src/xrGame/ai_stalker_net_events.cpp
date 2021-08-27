@@ -43,37 +43,16 @@ void CAI_Stalker::OnEventAnimations(bool update)
 	NET_Packet packet;
 	Game().u_EventGen(packet, GE_ANIMATION_SCRIPT, this->ID());
 
-	flags8 flag;
-	flag.zero();
-	flag.set(sync_flags::animation_flag, psDeviceFlags.test(rsDrawStatic));
-	flag.set(sync_flags::animation_update, update);
-
-	packet.w_u8(flag.flags);
-
-	if (flag.test(animation_flag))
-	{
-		packet.w_u16(torso_idx);
-		packet.w_u16(legs_idx);
-		packet.w_u16(head_idx);
+//		packet.w_u16(torso_idx);
+//		packet.w_u16(legs_idx);
+//		packet.w_u16(head_idx);
 		packet.w_u16(script_idx);
 
-		packet.w_u8(torso_slot);
-		packet.w_u8(legs_slot);
-		packet.w_u8(head_slot);
+//		packet.w_u8(torso_slot);
+//		packet.w_u8(legs_slot);
+//		packet.w_u8(head_slot);
 		packet.w_u8(script_slot);
-	}
-	else
-	{/*
-		ai_stalker_net_state state;
-		state.fill_state(torso_idx, legs_idx, head_idx, script_idx,
-						 torso_slot, legs_slot, head_slot, script_slot	
-						 
-		);
-		state.animation_write(packet);
-	*/	 
-	}
 
-	//Msg("PacketSize[%d]", packet.B.count);
 	Game().u_EventSend(packet);
 }
 
@@ -82,50 +61,30 @@ void CAI_Stalker::OnEventAnimations(NET_Packet packet)
 	MotionID torso, legs, head, script;
 	u16 torso_idx, legs_idx, head_idx, script_idx;
 	u8 torso_slot, legs_slot, head_slot, script_slot;
-	
-	//u32 pos = packet.r_pos;
+		 
+ 
+/*
+	packet.r_u16(torso_idx);
+	packet.r_u16(legs_idx);
+	packet.r_u16(head_idx);
 
-	flags8 flag_test;
-	packet.r_u8(flag_test.flags);
+	packet.r_u8(torso_slot);
+	packet.r_u8(legs_slot);
+	packet.r_u8(head_slot);
 
-	bool test = flag_test.test(sync_flags::animation_flag);
-	bool update = flag_test.test(sync_flags::animation_update);
+	torso.set(torso_slot, torso_idx);
+	legs.set(legs_slot, legs_idx);
+	head.set(head_slot, head_idx);
 
-	
-	if (test) 
-	{
-		packet.r_u16(torso_idx);
-		packet.r_u16(legs_idx);
-		packet.r_u16(head_idx);
-		packet.r_u16(script_idx);
-		packet.r_u8(torso_slot);
-		packet.r_u8(legs_slot);
-		packet.r_u8(head_slot);
-		packet.r_u8(script_slot);
+*/	
+ 
 
-		torso.set(torso_slot, torso_idx);
-		legs.set(legs_slot, legs_idx);
-		head.set(head_slot, head_idx);
-		script.set(script_slot, script_idx);
-	}
-	else
-	{
-		/*
-		ai_stalker_net_state state;
-		state.animation_read(packet);
-		
-		torso = state.s_torso;
-		legs = state.s_legs;
-		head = state.s_head;
-		script = state.s_script;
-		*/
+	packet.r_u16(script_idx);
+	packet.r_u8(script_slot);
+	script.set(script_slot, script_idx);
 
-	}
 
-	//Msg("SizePucket [%d] [%s] [%s]", packet.r_pos - pos, test ? "true" : "false", update ? "true" : "false");
-
-	
-	
+ 	
 	bool check = false;
 
 	if (check)
@@ -137,9 +96,10 @@ void CAI_Stalker::OnEventAnimations(NET_Packet packet)
 	}
 
 	IKinematicsAnimated* m_skeleton_animated = smart_cast<IKinematicsAnimated*>(Visual());
-	if (!this->g_Alive() || !m_skeleton_animated || true)
+	if (!this->g_Alive() || !m_skeleton_animated)
 		return;
  
+	/*
 	if (torso.valid())
 	{
 		if (u_last_torso_motion_idx != torso.idx)
@@ -196,10 +156,11 @@ void CAI_Stalker::OnEventAnimations(NET_Packet packet)
 			u_last_head_motion_idx = head.idx;
 		}
 	}
+	*/
 
 	if (script.valid())
 	{
-		if (u_last_script_motion_idx != script.idx) {
+		
 			m_skeleton_animated->LL_PlayCycle(
 				m_skeleton_animated->LL_GetMotionDef(script)->bone_or_part,
 				script,
@@ -209,10 +170,11 @@ void CAI_Stalker::OnEventAnimations(NET_Packet packet)
 				m_skeleton_animated->LL_GetMotionDef(script)->Speed(),
 				m_skeleton_animated->LL_GetMotionDef(script)->StopAtEnd(),
 				0, 0, 0
-			);
 
+			);
+			
 			u_last_script_motion_idx = script.idx;
-		}
+		
 	}
 
 }

@@ -70,10 +70,13 @@ void game_sv_freemp::OnPlayerConnectFinished(ClientID id_who)
 		xrCData->ps->team = 0;
 		xrCData->ps->setFlag(GAME_PLAYER_FLAG_SPECTATOR);
 		xrCData->ps->setFlag(GAME_PLAYER_FLAG_READY);
+		xrCData->ps->setFlag(GAME_PLAYER_MP_ON_CONNECTED);
 		xrCData->ps->net_Export(P, TRUE);
 		u_EventSend(P);
 		xrCData->net_Ready = TRUE;
 	};
+	 
+	//RespawnPlayer(id_who, true);
 }
 
 void game_sv_freemp::AddMoneyToPlayer(game_PlayerState * ps, s32 amount)
@@ -153,7 +156,6 @@ void game_sv_freemp::OnTransferMoney(NET_Packet & P, ClientID const & clientID)
 	AddMoneyToPlayer(ps_to, money);
 }
 
-
 void game_sv_freemp::OnPlayerReady(ClientID id_who)
 {
 	switch (Phase())
@@ -180,6 +182,8 @@ void game_sv_freemp::OnPlayerReady(ClientID id_who)
 			// set start money
 			ps->money_for_round = spawned_items.StartMoney;
 		}
+
+
 	} break;
 
 	default:

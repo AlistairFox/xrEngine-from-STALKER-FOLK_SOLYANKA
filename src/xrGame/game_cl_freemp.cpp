@@ -5,8 +5,6 @@
 #include "UIGameFMP.h"
 #include "actor_mp_client.h"
 
-#include "Inventory.h"
-
 game_cl_freemp::game_cl_freemp()
 {
 }
@@ -14,6 +12,7 @@ game_cl_freemp::game_cl_freemp()
 game_cl_freemp::~game_cl_freemp()
 {
 }
+bool connected_spawn = false;
 
 
 CUIGameCustom* game_cl_freemp::createGameUI()
@@ -46,19 +45,18 @@ void game_cl_freemp::net_import_update(NET_Packet & P)
 {
 	inherited::net_import_update(P);
 }
-
-#include "../jsonxx/jsonxx.h"
-using namespace jsonxx;
-#include <fstream>;
-#include <istream>;
-
 u32 old_time = 0;
-u32 ids = 0; 
 
 void game_cl_freemp::shedule_Update(u32 dt)
 {
 	game_cl_GameState::shedule_Update(dt);
  
+	if (connected_spawn)
+	{
+		connected_spawn = OnConnectedSpawnPlayer();
+	}
+		
+
 	if (!local_player)
 		return;
 
@@ -91,90 +89,12 @@ void game_cl_freemp::shedule_Update(u32 dt)
 		
 	}
 
-	if (OnServer() && Device.dwTimeGlobal - old_time > 5000)
+	if (OnServer() && Device.dwTimeGlobal - old_time > 5000 && true)
 	{
-		ids += 1;
-		if (ids > 10)
-			ids = 0;
-		//for (int ids = 1; ids <= 10; ids ++)
 		for (auto cl : players)
-		{
+			save_player(cl.second);
 
-			game_PlayerState* ps = cl.second;
-			if (!ps || ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD)) continue;
-
-			CActor* pActor = smart_cast<CActor*>(Level().Objects.net_Find(ps->GameID));
-			if (!pActor || !pActor->g_Alive()) continue;
-
-			TIItemContainer items;
-
-			pActor->inventory().AddAvailableItems(items, false);
-
-			xr_vector<PIItem>::const_iterator itemStart = items.begin();
-			xr_vector<PIItem>::const_iterator itemEnd = items.end();
-
-			Object json;
-			Array jsonArray;
-
-			for (; itemStart != itemEnd; itemStart++)
-			{
-				PIItem item = (*itemStart);
-				Object table;
-
-				string2048 updates;
-				item->get_upgrades_str(updates);
-
-				table << "section:" << Value(item->m_section_id.c_str());
-				table << "condition:" << Value(item->GetCondition());
-				table << "upgrades:" << Value(updates);
-				jsonArray << table;
-			}
-
-			json << "Inventory" << jsonArray;
-			json << "Community:" << Value(pActor->Community());
-
-
-			if (ps->m_account.name_save().size() != 0)
-			{
- 
-				string_path name;
-
-				if (FS.path_exist("$mp_saves_file$"))
-				{
- 					FS.update_path(name, "$mp_saves_file$", ps->m_account.name_save().c_str());
- 				}
-				else
-				{
-					return;
-				}
-
-				IWriter* file = FS.w_open(name);
-				FS.w_close(file);
-
-				std::ofstream ofile(name);
-
-				if (ofile.is_open())
-				{
- 					ofile << json.json().c_str();
-				}
-				else
-				{
-					CreateDirectory("Saves", NULL);					 
-				}
-
-				ofile.close();
-
-				Msg("SaveName %s", name);
-			}
-			else
-			{
-				Msg("SaveName %s", ps->m_account.name_save().c_str());
-			}
-
-			old_time = Device.dwTimeGlobal;
-
-
-		}
+		old_time = Device.dwTimeGlobal;
 	}
 
 }
@@ -240,5 +160,38 @@ void game_cl_freemp::OnConnected()
 	funct();
 
 	just_Connected = true;
+	
+
+	connected_spawn = true;
 }
 
+bool game_cl_freemp::OnConnectedSpawnPlayer()
+{
+	bool b_need_to_send_ready = false;
+
+	CObject* curr = Level().CurrentControlEntity();
+
+	if (!curr) 
+		return false;
+
+	bool is_actor = !!smart_cast<CActor*>(curr);
+	bool is_spectator = !!smart_cast<CSpectator*>(curr);
+
+	game_PlayerState* ps = local_player;
+
+	if (is_spectator || (is_actor && ps && ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD)))
+	{
+		b_need_to_send_ready = true;
+	}
+
+	if (b_need_to_send_ready)
+	{
+		CGameObject* GO = smart_cast<CGameObject*>(curr);
+		NET_Packet			P;
+		GO->u_EventGen(P, GE_GAME_EVENT, GO->ID());
+		P.w_u16(GAME_EVENT_PLAYER_READY);
+		GO->u_EventSend(P);
+
+		return true;
+ 	}
+}

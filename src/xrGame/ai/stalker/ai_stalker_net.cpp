@@ -79,47 +79,21 @@ void CAI_Stalker::net_Export(NET_Packet& P)
 	}
 	else
 	{
-		CPHSynchronize* sync = PHGetSyncItem(0);
-
-		if (sync)
-		{
-			P.w_u8(1);
-			SPHNetState state;
-			sync->get_State(state);
-
-			net_physics_state physics_state;
-			physics_state.fill(state, Level().timeServer());
-			physics_state.write(P);
-		}
-		else
-		{
-			P.w_u8(0);
-			P.w_vec3(Position());
-		}
-
-		// GLOBAL STATE DATA
-		
-		//bool test = psDeviceFlags.test(rsDrawStatic);
-		
+			
 		MotionID torso = m_animation_manager->torso().animation();
 		MotionID legs = m_animation_manager->legs().animation();
 		MotionID head = m_animation_manager->head().animation();
 		MotionID script = m_animation_manager->script().animation();
-		
+
 		u16 torso_idx, legs_idx, head_idx, script_idx;
 		u8 torso_slot, legs_slot, head_slot, script_slot;
+
+		torso_idx = torso.idx; legs_idx = legs.idx;	head_idx = head.idx; script_idx = script.idx;
+
+		torso_slot = torso.slot; legs_slot = legs.slot; head_slot = head.slot; script_slot = script.slot;
+
 		u16 u_active_slot;
 		float health;
-
-		torso_idx = torso.idx;
-		legs_idx = legs.idx;
-		head_idx = head.idx;
-		script_idx = script.idx;
-
-		torso_slot = torso.slot;
-		legs_slot = legs.slot;
-		head_slot = head.slot;
-		script_slot = script.slot;
 
 		health = GetfHealth();
 		// inventory
@@ -132,16 +106,25 @@ void CAI_Stalker::net_Export(NET_Packet& P)
 			u_active_slot = NO_ACTIVE_SLOT;
 		 
 		ai_stalker_net_state state;
+		
+		//Position
+		CPHSynchronize* sync = PHGetSyncItem(0);
+		state.fill_position(sync);
+		state.fv_position = Position();
 
+		//Animation //HP //ActiveSlot
 		state.fill_state(torso_idx, legs_idx, head_idx, script_idx,
 					     torso_slot, legs_slot, head_slot, script_slot,
 						 health, u_active_slot
 		);
 
+
+		
+		//Body Rotation
 		state.u_body_yaw = movement().m_body.current.yaw;
 		state.u_head_yaw = movement().m_head.current.yaw;
 
-		state.animation_write(P);
+		state.state_write(P);
 		 
 		 
 	}
@@ -196,55 +179,36 @@ void CAI_Stalker::net_Import(NET_Packet& P)
 	}
 	else
 	{
-		net_physics_state physics_state;
+
+		
 		ai_stalker_net_state state;
 
-		Fvector fv_position;
-		
-		u8 phSyncFlag;
-		P.r_u8(phSyncFlag);
+//		u32 pos = P.r_pos;
+		state.state_read(P);	
+//		Msg("Size [%d]", P.r_pos - pos);
 
-		if (phSyncFlag)
-		{
-			physics_state.read(P);
-			fv_position.set(physics_state.physics_position);
-		}
-		else
-		{
-			P.r_vec3(fv_position);
-		}
-		
-		state.animation_read(P);
-  
 		SetfHealth(state.u_health);
 		inventory().SetActiveSlot(state.u_active_slot);
-
-		SRotation fv_direction;
-		SRotation fv_head_orientation;
-		fv_direction.yaw = state.u_body_yaw;
-		fv_head_orientation.yaw = state.u_head_yaw;
 		
-		if (phSyncFlag)
+		if (state.phSyncFlag)
 		{
 			stalker_interpolation::net_update_A N_A;
-			N_A.State.enabled = physics_state.physics_state_enabled;
-			N_A.State.linear_vel = physics_state.physics_linear_velocity;
-			N_A.State.position = physics_state.physics_position;
-			N_A.o_torso = fv_direction;
-			N_A.head = fv_head_orientation;
-			N_A.dwTimeStamp = physics_state.dwTimeStamp;
+			N_A.State.enabled = state.physics_state.physics_state_enabled;
+			N_A.State.linear_vel = state.physics_state.physics_linear_velocity;
+			N_A.State.position = state.physics_state.physics_position;
+			N_A.o_torso.yaw = state.u_body_yaw;
+			N_A.head.yaw = state.u_head_yaw;
+			N_A.dwTimeStamp = state.physics_state.dwTimeStamp;
 
 			// interpolation
 			postprocess_packet(N_A);
 		}
 		else
 		{
-			movement().m_body.current.pitch = fv_direction.pitch;
-			movement().m_body.current.yaw = fv_direction.yaw;
-			movement().m_head.current.pitch = fv_head_orientation.pitch;
-			movement().m_head.current.yaw = fv_head_orientation.yaw;
+ 			movement().m_body.current.yaw = state.u_body_yaw;
+ 			movement().m_head.current.yaw = state.u_head_yaw;
 
-			Position().set(fv_position);
+			Position().set(state.fv_position);
 
 			NET_A.clear();
 			//TODO: disable interpolation?
@@ -416,6 +380,7 @@ void CAI_Stalker::ApplyAnimation(
 {
 	MotionID motion;
 	IKinematicsAnimated* ik_anim_obj = smart_cast<IKinematicsAnimated*>(Visual());
+	
 	if (u_last_torso_motion_idx != u_torso_motion_idx)
 	{
 		u_last_torso_motion_idx = u_torso_motion_idx;
@@ -428,6 +393,7 @@ void CAI_Stalker::ApplyAnimation(
 				ik_anim_obj->LL_GetMotionDef(motion)->Speed(), FALSE, 0, 0, 0);
 		}
 	}
+
 	if (u_last_legs_motion_idx != u_legs_motion_idx)
 	{
 		u_last_legs_motion_idx = u_legs_motion_idx;
@@ -436,10 +402,11 @@ void CAI_Stalker::ApplyAnimation(
 		if (motion.valid())
 		{
 			CStepManager::on_animation_start(motion, ik_anim_obj->LL_PlayCycle(ik_anim_obj->LL_PartID("legs"), motion,
-				TRUE, ik_anim_obj->LL_GetMotionDef(motion)->Accrue(),
-				ik_anim_obj->LL_GetMotionDef(motion)->Falloff(), ik_anim_obj->LL_GetMotionDef(motion)->Speed(), FALSE, 0, 0, 0));
+			TRUE, ik_anim_obj->LL_GetMotionDef(motion)->Accrue(), ik_anim_obj->LL_GetMotionDef(motion)->Falloff(),
+			ik_anim_obj->LL_GetMotionDef(motion)->Speed(), FALSE, 0, 0, 0));
 		}
 	}
+
 	if (u_last_head_motion_idx != u_head_motion_idx)
 	{
 		u_last_head_motion_idx = u_head_motion_idx;
@@ -453,15 +420,27 @@ void CAI_Stalker::ApplyAnimation(
 		}
 	}
 
-	if (u_last_script_motion_idx != u_script_motion_idx) {
+	if (u_last_script_motion_idx != u_script_motion_idx)
+	{
 		motion.idx = u_script_motion_idx;
 		motion.slot = u_script_motion_slot;
 		u_last_script_motion_idx = u_script_motion_idx;
+		
 		if (motion.valid())
 		{
-			ik_anim_obj->LL_PlayCycle(ik_anim_obj->LL_GetMotionDef(motion)->bone_or_part, motion, TRUE,
+			CBlend* script = ik_anim_obj->LL_PlayCycle(ik_anim_obj->LL_GetMotionDef(motion)->bone_or_part, motion, TRUE,
 				ik_anim_obj->LL_GetMotionDef(motion)->Accrue(), ik_anim_obj->LL_GetMotionDef(motion)->Falloff(),
-				ik_anim_obj->LL_GetMotionDef(motion)->Speed(), ik_anim_obj->LL_GetMotionDef(motion)->StopAtEnd(), 0, 0, 0);
+				ik_anim_obj->LL_GetMotionDef(motion)->Speed(), ik_anim_obj->LL_GetMotionDef(motion)->StopAtEnd(), 0, 0, 0); 
+
+			if (script)
+			{
+				blend_script_start_time = Device.dwTimeGlobal;
+				blend_script_end_time = blend_script_start_time + (script->timeTotal * 1000);
+		
+ 				// Msg("Blend [%s] [%d] > [%d] ", script->stop_at_end ? "true" : "false", blend_script_end_time, Device.dwTimeGlobal);
+			} 
+			 
+
 		}
 	}
 }

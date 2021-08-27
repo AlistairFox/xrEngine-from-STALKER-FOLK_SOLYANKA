@@ -49,7 +49,12 @@ public:
 	virtual		void				OnPlayerTrade(NET_Packet &P, ClientID const & clientID);
 	virtual		void				OnTransferMoney(NET_Packet &P, ClientID const & clientID);
 
-	virtual void SavePlayers();
+	virtual		bool                LoadPlayer(ClientID id_who);
+	virtual		bool				LoadPlayerPosition(game_PlayerState* ps, Fvector& position, Fvector& angle);
+
+				bool				GetPosAngleFromActor(ClientID id, Fvector& Pos, Fvector& Angle);
+
+				void				assign_RP(CSE_Abstract* E, game_PlayerState* ps_who);
 
 	virtual void LoadParamsDeffaultFMP();
 

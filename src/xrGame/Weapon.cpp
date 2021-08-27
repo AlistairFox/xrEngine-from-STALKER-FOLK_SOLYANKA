@@ -632,7 +632,7 @@ void CWeapon::net_Import(NET_Packet& P)
 
 	state.read_state(P);
 
-	Msg("SizeWeaponDEF[%d]", P.r_pos - pos);
+//	Msg("SizeWeaponDEF[%d]", P.r_pos - pos);
 
 	_cond = state.m_fCondition;
 	ammo_elapsed = state.a_elapsed;

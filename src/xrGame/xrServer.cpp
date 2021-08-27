@@ -547,11 +547,22 @@ void xrServer::SendUpdatePacketsToAll()
 					if (has_parent)
 					{					
 						// Inventory items with parent
-						// 0 - 200 : 15 per second
-						// 200 - 300 : 10 per second
+						// 0 - 50	: 15 per second
+						// 50 - 200 : 10 per second
+						// 200 - 300 : 5 per second
 						// 300 and more : 1 per sec
 
-						if (distance <= distance_200 && need_to_update_15)
+						if (distance <= distance_50 && need_to_update_15)
+						{
+							m_updator->write_update_for(entity->ID, packet);
+
+
+							items += packet.B.count;
+
+							if (entity->cast_item_weapon())
+								item_weapon += packet.B.count;
+						}						
+						else if (distance <= distance_200 && need_to_update_10)
 						{
 							m_updator->write_update_for(entity->ID, packet);
 
@@ -560,7 +571,7 @@ void xrServer::SendUpdatePacketsToAll()
 							if (entity->cast_item_weapon())
 								item_weapon += packet.B.count;
 						}
-						else if (need_to_update_10 && distance <= distance_300)
+						else if (need_to_update_5 && distance <= distance_300)
 						{
 							m_updator->write_update_for(entity->ID, packet);
 
@@ -1414,7 +1425,7 @@ void xrServer::GetServerInfo( CServerInfo* si )
 
 	tmp256[0] = NULL;
  
-	if (ai_stalker_cons > 0)
+//	if (ai_stalker_cons > 0)
 	{
 		xr_strcat(tmp256, " [");
 		xr_strcat(tmp256, itoa(ai_stalker_cons, tmp, 10));
@@ -1425,7 +1436,7 @@ void xrServer::GetServerInfo( CServerInfo* si )
 
 	tmp256[0] = NULL;
 
-	if (ai_stalker_cons > 0)
+//	if (ai_stalker_cons > 0)
 	{
 		xr_strcat(tmp256, " [");
 		xr_strcat(tmp256, itoa(ai_monster_cons, tmp, 10));
@@ -1436,7 +1447,7 @@ void xrServer::GetServerInfo( CServerInfo* si )
 
 
 	tmp256[0] = NULL;	
-	if (item_cons > 0)
+	//if (item_cons > 0)
 	{
 		xr_strcat(tmp256, " [");
 		xr_strcat(tmp256, itoa(item_cons, tmp, 10));
@@ -1447,7 +1458,8 @@ void xrServer::GetServerInfo( CServerInfo* si )
 
 
 	tmp256[0] = NULL;
-	if (arts_cons > 0)
+	
+	//if (arts_cons > 0)
 	{
 		xr_strcat(tmp256, " [");
 		xr_strcat(tmp256, itoa(arts_cons, tmp, 10));
@@ -1458,7 +1470,7 @@ void xrServer::GetServerInfo( CServerInfo* si )
 
 
 	tmp256[0] = NULL;
-	if (actors_cons > 0)
+	//if (actors_cons > 0)
 	{
 		xr_strcat(tmp256, " [");
 		xr_strcat(tmp256, itoa(actors_cons, tmp, 10));
@@ -1468,7 +1480,7 @@ void xrServer::GetServerInfo( CServerInfo* si )
 	}
 
 	tmp256[0] = NULL;
-	if (item_weapon_cons > 0)
+//	if (item_weapon_cons > 0)
 	{
 		xr_strcat(tmp256, " [");
 		xr_strcat(tmp256, itoa(item_weapon_cons, tmp, 10));
@@ -1478,7 +1490,7 @@ void xrServer::GetServerInfo( CServerInfo* si )
 	}
 	
 	tmp256[0] = NULL;
-	if (others_cons > 0)
+//	if (others_cons > 0)
 	{
 		xr_strcat(tmp256, " [");
 		xr_strcat(tmp256, itoa(others_cons, tmp, 10));

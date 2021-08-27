@@ -931,6 +931,10 @@ private:
 	CBlend* blend_head;
 	CBlend* blend_script;
 	
+	u32 blend_script_start_time;
+	u32 blend_script_end_time;
+	bool blend_script_stop_end;
+
 	MotionID old_torso, old_head, old_legs, old_script;
 
 	bool on_first_update_recive = false;

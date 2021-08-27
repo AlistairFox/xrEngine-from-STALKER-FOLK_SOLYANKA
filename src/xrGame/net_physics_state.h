@@ -12,7 +12,7 @@ struct net_physics_state
 	u32		dwTimeStamp;
 
 	net_physics_state();
-	void fill(SPHNetState &state, u32 time);
+	void fill(SPHNetState &state);
 	void write(NET_Packet &packet);
 	void read(NET_Packet &packet);
 };

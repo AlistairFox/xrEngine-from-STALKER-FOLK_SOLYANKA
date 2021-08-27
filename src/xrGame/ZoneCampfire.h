@@ -10,6 +10,7 @@ protected:
 	ref_sound				m_disabled_sound;
 	bool					m_turned_on;
 	u32						m_turn_time;
+	u32						m_update_save_time;
 
 		virtual	void		PlayIdleParticles			(bool bIdleLight=true);
 		virtual	void		StopIdleParticles			(bool bIdleLight=true);

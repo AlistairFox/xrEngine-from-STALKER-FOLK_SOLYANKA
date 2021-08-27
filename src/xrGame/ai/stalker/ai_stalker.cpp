@@ -1179,16 +1179,22 @@ bool CAI_Stalker::can_attach			(const CInventoryItem *inventory_item) const
 
 void CAI_Stalker::save (NET_Packet &packet)
 {
-	inherited::save			(packet);
-	CInventoryOwner::save	(packet);
-	brain().save			(packet);
+	if (OnServer())
+	{
+		inherited::save(packet);
+		CInventoryOwner::save(packet);
+		brain().save(packet);
+	}
 }
 
 void CAI_Stalker::load (IReader &packet)		
 {
-	inherited::load			(packet);
-	CInventoryOwner::load	(packet);
-	brain().load			(packet);
+	if (OnServer())
+	{
+		inherited::load			(packet);
+		CInventoryOwner::load	(packet);
+		brain().load			(packet);
+	}
 }
 
 void CAI_Stalker::load_critical_wound_bones()

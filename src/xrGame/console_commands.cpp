@@ -562,11 +562,14 @@ public:
 		}
 
 		Console->Execute("stat_memory");
-
 		string_path				S, S1;
+		
 		S[0] = 0;
-		strncpy_s(S, sizeof(S), args, _MAX_PATH - 1);
 
+		if (OnServer())
+		{
+			strncpy_s(S, sizeof(S), args, _MAX_PATH - 1);
+		}
  
 		if (!xr_strlen(S)) {
 			strconcat(sizeof(S), S, Core.UserName, " - ", "quicksave");

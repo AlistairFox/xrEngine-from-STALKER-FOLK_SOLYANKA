@@ -609,17 +609,18 @@ void	game_sv_mp::SpawnPlayer(ClientID id, LPCSTR N)
 		Game().m_WeaponUsageStatistic->OnPlayerSpawned(ps_who);
 	}
 	else
-		if (pS)
-		{
-			Fvector Pos, Angle;
+	if (pS)
+	{
+		Fvector Pos, Angle;
 //			ps_who->setFlag(GAME_PLAYER_FLAG_CS_SPECTATOR);
-			if (!GetPosAngleFromActor(id, Pos, Angle)) assign_RP				(E, ps_who);
-			else
-			{
-				E->o_Angle.set(Angle);
-				E->o_Position.set(Pos);				
-			}
-		};
+		if (!GetPosAngleFromActor(id, Pos, Angle))
+			assign_RP				(E, ps_who);
+		else
+		{
+			E->o_Angle.set(Angle);
+			E->o_Position.set(Pos);				
+		}
+	};
 	
 	E = spawn_end				(E,id);
 

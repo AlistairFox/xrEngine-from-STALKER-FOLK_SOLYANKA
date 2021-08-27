@@ -2213,19 +2213,8 @@ void CSE_ALifeHumanStalker::UPDATE_Write	(NET_Packet &tNetPacket)
 		tNetPacket.w_stringZ(m_start_dialog);
 	}
 	else
-	{
-		tNetPacket.w_u8(phSyncFlag);
-		if (phSyncFlag)
-		{
-			physics_state.write(tNetPacket);
-		}
-		else
-		{
-			tNetPacket.w_vec3(o_Position);
-		}
-		
-		stalker_state.animation_write(tNetPacket);
-
+	{		
+		stalker_state.state_write(tNetPacket);
 	}
 }
 
@@ -2239,18 +2228,7 @@ void CSE_ALifeHumanStalker::UPDATE_Read		(NET_Packet &tNetPacket)
 	}
 	else
 	{
-		tNetPacket.r_u8(phSyncFlag);
-		if (phSyncFlag)
-		{
-			physics_state.read(tNetPacket);
-			o_Position.set(physics_state.physics_position);
-		}
-		else
-		{			
-			o_Position.set(tNetPacket.r_vec3());
-		}
-
-		stalker_state.animation_read(tNetPacket);
+		stalker_state.state_read(tNetPacket);
 
 		set_health(stalker_state.u_health);
 		o_model = stalker_state.u_body_yaw;

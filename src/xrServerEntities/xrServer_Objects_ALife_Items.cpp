@@ -143,28 +143,7 @@ void CSE_ALifeInventoryItem::UPDATE_Write	(NET_Packet &tNetPacket)
 		tNetPacket.w_u8				(0);
 		return;
 	}
-	else
-	{
 	 
-		if (this->cast_abstract()->ID_Parent != 65535)
-		{
-			CSE_Abstract* id = Level().Server->ID_to_entity(this->cast_abstract()->ID_Parent);
-
-			if (id->cast_human_abstract())
-				Msg("--- Object [%d] has sync items Parrent is Stalker[%s]", this->cast_abstract()->ID, "true");
-			else
-				Msg("--- Object [%d] has sync items Parrent is Stalker[%s]", this->cast_abstract()->ID, "false");
-
-		}
-		else
-			Msg("--- Object [%d] has [%s] sync items Pos [%.0f][%.0f][%.0f]",
-				this->cast_abstract()->ID, this->cast_abstract()->s_name.c_str(),
-				this->cast_abstract()->o_Position.x,
-				this->cast_abstract()->o_Position.y,
-				this->cast_abstract()->o_Position.z
-			);
-
-	}
 
 	mask_num_items					num_items;
 	num_items.mask					= 0;
@@ -585,7 +564,7 @@ void CSE_ALifeItemWeapon::UPDATE_Write(NET_Packet	&tNetPacket)
 
 	m_state.write_state(tNetPacket);
 	 
-	Msg("Condition: %.4f", m_state.m_fCondition);
+	//	Msg("Condition: %.4f", m_state.m_fCondition);
 
 	//	Msg("wpn_flags[%s] [%d]", this->s_name.c_str(), this->ID_Parent);
 
@@ -687,11 +666,14 @@ u16	 CSE_ALifeItemWeapon::get_ammo_magsize	()
 
 BOOL CSE_ALifeItemWeapon::Net_Relevant()
 {
+	return TRUE;
+
 	if (wpn_flags == 1) //|| Device.dwTimeGlobal % 500 == 0
 	{
 		
 		return TRUE;
 	}
+
 	return inherited::Net_Relevant();
 }
 

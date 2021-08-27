@@ -77,7 +77,6 @@ public:
 	IC      bool			animation_name			(LPCSTR name);
 	IC		LPCSTR			animation_name			() const;
 
-
 	IC		CBlend * const&	blend					() const;
 	IC		void			step_dependence			(bool value);
 	IC		bool			step_dependence			() const;

@@ -31,6 +31,7 @@ public:
 	virtual bool Is_Rewarding_Allowed()  const { return false; };
 
 	virtual void OnConnected();
-
+	virtual bool OnConnectedSpawnPlayer();
+	virtual void save_player(game_PlayerState* cl);
 };
 

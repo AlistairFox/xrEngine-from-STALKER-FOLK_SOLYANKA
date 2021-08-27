@@ -156,6 +156,7 @@ void CStalkerAnimationPair::play			(IKinematicsAnimated *skeleton_animated, Play
 
 	this->m_object->OnEventAnimations(true);
 
+
 #ifdef DEBUG
 	if (psAI_Flags.is(aiAnimation)) {
 		CMotionDef			*motion = skeleton_animated->LL_GetMotionDef(animation());
@@ -278,6 +279,7 @@ void CStalkerAnimationPair::on_animation_end	()
 		(*i)					();
 
 	this->m_object->OnEventAnimations(true);
+
 }
 
 void CStalkerAnimationPair::target_matrix			(Fvector const &position, Fvector const &direction)
