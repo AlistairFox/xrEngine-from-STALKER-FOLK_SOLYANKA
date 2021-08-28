@@ -31,6 +31,8 @@ public:
 	void									AddMoneyToPlayer(game_PlayerState* ps, s32 amount);
 	void									SpawnItemToActor(u16 actorId, LPCSTR name);
 
+	CSE_Abstract*							SpawnItemToActorReturn(u16 actorId, LPCSTR name);
+
 	virtual		void				OnPlayerReady(ClientID id_who);
 	virtual		void				OnPlayerConnect(ClientID id_who);
 	virtual		void				OnPlayerConnectFinished(ClientID id_who);
@@ -49,7 +51,7 @@ public:
 	virtual		void				OnPlayerTrade(NET_Packet &P, ClientID const & clientID);
 	virtual		void				OnTransferMoney(NET_Packet &P, ClientID const & clientID);
 
-	virtual		bool                LoadPlayer(ClientID id_who);
+	virtual		bool                LoadPlayer(game_PlayerState* id_who);
 	virtual		bool				LoadPlayerPosition(game_PlayerState* ps, Fvector& position, Fvector& angle);
 
 				bool				GetPosAngleFromActor(ClientID id, Fvector& Pos, Fvector& Angle);

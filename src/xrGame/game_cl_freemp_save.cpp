@@ -49,7 +49,7 @@ void game_cl_freemp::save_player(game_PlayerState* cl)
 			table << "condition" << Value(item->GetCondition());
 
 		if (item->has_any_upgrades())
-			table << "upgrades" << Value(updates);
+			table << "upgrades" << String(updates);
 
 		CWeapon* weap = item->cast_weapon();
 
@@ -75,7 +75,7 @@ void game_cl_freemp::save_player(game_PlayerState* cl)
 
 		if (item->cast_weapon())
 		{
-			table << "Section" << Value(item->m_section_id.c_str());
+			table << "Section" << String(item->m_section_id.c_str());
 			jsonWeapon << table;
 		}
 		else
@@ -85,13 +85,13 @@ void game_cl_freemp::save_player(game_PlayerState* cl)
 			//Msg("ammo_size[%d] [%s]", box_size, item->NameItem());
 			Object tab;
 			tab << "count" << Number(box_size);
-			tab << "Section" << ammo->m_section_id.c_str();
+			tab << "Section" << String(ammo->m_section_id.c_str());
 			jsonAmmo << tab;
 		}
 		else
 		if (smart_cast<CCustomOutfit*>(item) || smart_cast<CHelmet*>(item))
 		{
-			table << "Section" << Value(item->m_section_id.c_str());
+			table << "Section" << String(item->m_section_id.c_str());
 			jsonOutfit << table;
 		}
 		else

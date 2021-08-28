@@ -125,6 +125,37 @@ void game_sv_freemp::SpawnItemToActor(u16 actorId, LPCSTR name)
 	spawn_end(E, m_server->GetServerClient()->ID);
 }
 
+CSE_Abstract* game_sv_freemp::SpawnItemToActorReturn(u16 actorId, LPCSTR name)
+{
+	if (!name) return NULL;
+
+	CSE_Abstract* E = spawn_begin(name);
+	E->ID_Parent = actorId;
+	E->s_flags.assign(M_SPAWN_OBJECT_LOCAL);	// flags
+
+	/*
+	CSE_ALifeItemWeapon* pWeapon = smart_cast<CSE_ALifeItemWeapon*>(E);
+	
+	if (pWeapon)
+	{
+		u16 ammo_magsize = pWeapon->get_ammo_magsize();
+		pWeapon->a_elapsed = ammo_magsize;
+	}
+	*/
+	/*
+	CSE_ALifeItemPDA* pPda = smart_cast<CSE_ALifeItemPDA*>(E);
+	
+	if (pPda)
+	{
+		pPda->m_original_owner = actorId;
+	}
+	*/
+
+//	spawn_end(E, m_server->GetServerClient()->ID);
+
+	return E;
+}
+
 
 void game_sv_freemp::OnTransferMoney(NET_Packet & P, ClientID const & clientID)
 {
@@ -171,17 +202,27 @@ void game_sv_freemp::OnPlayerReady(ClientID id_who)
 		if (!(ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD)))
 			break;
 
+		bool flag = ps->testFlag(GAME_PLAYER_MP_ON_CONNECTED);
+
 		RespawnPlayer(id_who, true);
 		
-		if (Game().Type() == eGameIDFreeMp)
+		//if (!ps->testFlag(GAME_PLAYER_MP_ON_CONNECTED))
+		
+		 
+		if (!flag)
 		{
-			for (auto& item : spawned_items.StartItems)
+			if (Game().Type() == eGameIDFreeMp)
 			{
-				SpawnItemToActor(ps->GameID, item.c_str());
+				for (auto& item : spawned_items.StartItems)
+				{
+					SpawnItemToActor(ps->GameID, item.c_str());
+				}
+				// set start money
+				ps->money_for_round = spawned_items.StartMoney;
 			}
-			// set start money
-			ps->money_for_round = spawned_items.StartMoney;
-		}
+		} else 
+			LoadPlayer(ps);
+		 
 
 
 	} break;
