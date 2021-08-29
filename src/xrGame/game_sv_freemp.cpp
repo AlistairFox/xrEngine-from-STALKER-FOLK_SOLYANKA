@@ -220,10 +220,24 @@ void game_sv_freemp::OnPlayerReady(ClientID id_who)
 				// set start money
 				ps->money_for_round = spawned_items.StartMoney;
 			}
-		} else 
-			LoadPlayer(ps);
-		 
+		}
+		else
+			if (LoadPlayer(ps))
+			{
 
+			}
+			else
+			{
+				if (Game().Type() == eGameIDFreeMp)
+				{
+					for (auto& item : spawned_items.StartItems)
+					{
+						SpawnItemToActor(ps->GameID, item.c_str());
+					}
+					// set start money
+					ps->money_for_round = spawned_items.StartMoney;
+				}
+			}
 
 	} break;
 

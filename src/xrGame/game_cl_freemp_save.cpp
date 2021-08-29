@@ -127,10 +127,16 @@ void game_cl_freemp::save_player(game_PlayerState* cl)
 	jsonInventory << "STUF" << jsonOthers;
 
 	json << "Inventory" << jsonInventory;
-	json << "Community:" << Value(pActor->Community());
+	json << "Community" << Value(pActor->Community());
 	json << "Pos[X]" << Value(pActor->Position().x);
 	json << "Pos[Y]" << Value(pActor->Position().y);
 	json << "Pos[Z]" << Value(pActor->Position().z);
+
+	if (Level().name().size() > 0)
+	json << "LevelID" << String(Level().name().c_str());
+
+	json << "money" << Number(pActor->get_money());
+
 
 	if (ps->m_account.name_save().size() != 0)
 	{

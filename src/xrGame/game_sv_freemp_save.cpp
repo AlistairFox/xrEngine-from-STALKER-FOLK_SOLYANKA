@@ -225,6 +225,23 @@ bool game_sv_freemp::LoadPlayerPosition(game_PlayerState* ps, Fvector& position,
 			jsonObj.parse(str);
 		}
 
+		if (jsonObj.has<String>("LevelID"))
+		{
+			LPCSTR level = jsonObj.get<String>("LevelID").c_str();
+			if (!xr_strcmp(Level().name().c_str(), level))
+			{
+				return false;
+			}
+		}
+
+		if (jsonObj.has<Number>("money"))
+		{
+			int money = jsonObj.get<Number>("money");
+
+			ps->money_for_round = money;
+			signal_Syncronize();
+		}
+
 		if (jsonObj.has<Number>("Pos[X]") && jsonObj.has<Number>("Pos[Y]") && jsonObj.has<Number>("Pos[Z]"))
 		{
 			float x = jsonObj.get<Number>("Pos[X]");
