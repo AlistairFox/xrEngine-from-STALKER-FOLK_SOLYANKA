@@ -69,7 +69,7 @@ void CObject::cNameVisual_set	(shared_str N)
 { 
 
 	//if (psDeviceFlags.test(rsCameraPos))
-	//Msg("cNameVisual set [%s] id[%d], SectName[%s], NameObj[%s]", N.c_str(), this->ID(), this->cNameSect_str(), this->NameObject.c_str());
+	//	Msg("cNameVisual set [%s] id[%d], SectName[%s], NameObj[%s]", N.c_str(), this->ID(), this->cNameSect_str(), this->NameObject.c_str());
 
 	// check if equal
 	if (*N && *NameVisual)
@@ -79,12 +79,8 @@ void CObject::cNameVisual_set	(shared_str N)
 	if (*N && N[0]) 
 	{
 		IRenderVisual			*old_v = renderable.visual;
-
-		NameVisual				= N;
 		
-		if (Render->model_Create(*N) == NULL)
-			return;
-
+		NameVisual				= N;
 		renderable.visual		= Render->model_Create	(*N);
 		
 		IKinematics* old_k	= old_v?old_v->dcast_PKinematics():NULL;

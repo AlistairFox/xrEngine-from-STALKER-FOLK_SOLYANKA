@@ -109,8 +109,7 @@ dxRender_Visual*	CModelPool::Instance_Load		(const char* N, BOOL allow_register)
 	// Load data from MESHES or LEVEL
 	if (!FS.exist(N))	{
 		if (!FS.exist(fn, "$level$", name))
-			if (!FS.exist(fn, "$game_meshes$", name))
-			{
+			if (!FS.exist(fn, "$game_meshes$", name)){
 #ifdef _EDITOR
 				Msg("!Can't find model file '%s'.",name);
                 return 0;
@@ -118,9 +117,7 @@ dxRender_Visual*	CModelPool::Instance_Load		(const char* N, BOOL allow_register)
 				Debug.fatal(DEBUG_INFO,"Can't find model file '%s'.",name);
 #endif
 			}
-	} 
-	else 
-	{
+	} else {
 		xr_strcpy			(fn,N);
 	}
 	
@@ -130,13 +127,6 @@ dxRender_Visual*	CModelPool::Instance_Load		(const char* N, BOOL allow_register)
 #endif // DEBUG
 
 	IReader*			data	= FS.r_open(fn);
-
-	if (!data)
-	{
-		Msg("!Can't find model file '%s'.", name);
-		return 0;
-	}
-
 	ogf_header			H;
 	data->r_chunk_safe	(OGF_HEADER,&H,sizeof(H));
 	V = Instance_Create (H.type);
@@ -261,9 +251,9 @@ dxRender_Visual* CModelPool::Create(const char* name, IReader* data)
 			if (data)		Base = Instance_Load(low_name,data,TRUE);
             else			Base = Instance_Load(low_name,TRUE);
 			bAllowChildrenDuplicate	= TRUE;
-//#ifdef _EDITOR
+#ifdef _EDITOR
 			if (!Base)		return 0;
-//#endif
+#endif
 		}
         // 3. If found - return (cloned) reference
         dxRender_Visual*		Model	= Instance_Duplicate(Base);
