@@ -228,7 +228,7 @@ bool game_sv_freemp::LoadPlayerPosition(game_PlayerState* ps, Fvector& position,
 		if (jsonObj.has<String>("LevelID"))
 		{
 			LPCSTR level = jsonObj.get<String>("LevelID").c_str();
-			if (!xr_strcmp(Level().name().c_str(), level))
+			if (xr_strcmp(Level().name().c_str(), level))
 			{
 				return false;
 			}
