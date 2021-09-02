@@ -973,6 +973,15 @@ void  CScriptGameObject::RestoreWeapon		()
 	Actor()->SetWeaponHideState(INV_STATE_BLOCK_ALL,false);
 }
 
+#include "actor_mp_client.h"
+
+bool CScriptGameObject::isSafeMode()
+{
+	CActorMP* actor = smart_cast<CActorMP*>(&object());
+	if (actor)
+	return actor->MpSafeMode();
+}
+
 void  CScriptGameObject::HideWeapon			()
 {
 #ifdef DEBUG

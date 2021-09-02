@@ -217,8 +217,6 @@ CActor::CActor() : CEntityAlive(),current_ik_cam_shift(0)
 
 	m_disabled_hitmarks		= false;
 	m_inventory_disabled	= false;
-
-	MP_SAFE_MODE_Actor		= false;
 }
 
 
@@ -272,12 +270,13 @@ bool CActor::MpInvisibility() const
 	return (ps && ps->testFlag(GAME_PLAYER_MP_INVIS));
 }
 
-bool CActor::MpSafeMode() const
+bool CActor::MpSafeMode()
 {
 	if (!g_Alive())
 		return false;
-	 
-	return MP_SAFE_MODE_Actor;
+ 
+	game_PlayerState* ps = Game().GetPlayerByGameID(ID());
+	return (ps && ps->testFlag(GAME_PLAYER_MP_SAFE_MODE));
 }
 
 void CActor::reinit	()
@@ -1448,6 +1447,11 @@ void CActor::shedule_Update	(u32 DT)
 	{
 		setVisible(false);
 	}
+
+	if (MpSafeMode())
+		cam_Set(eacLookAt);
+	else
+		cam_Set(eacFirstEye);
 
 	if (!smart_cast<CActorMP*>(this))
 	{

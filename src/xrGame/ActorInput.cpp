@@ -33,6 +33,7 @@
 #include "clsid_game.h"
 #include "hudmanager.h"
 #include "Weapon.h"
+#include "Level.h"
 
 extern u32 hud_adj_mode;
 
@@ -51,7 +52,7 @@ void CActor::IR_OnKeyboardPress(int cmd)
 			{
 				if( (mstate_wishful & mcLookout) && CheckGameFlag(F_DISABLE_WEAPON_FIRE_WHEN_LOOKOUT) ) return;
 
-				if (MP_SAFE_MODE_Actor) return;
+				if (MpSafeMode()) return;
 
 				u16 slot = inventory().GetActiveSlot();
 				if(inventory().ActiveItem() && (slot==INV_SLOT_3 || slot==INV_SLOT_2) )
@@ -68,18 +69,9 @@ void CActor::IR_OnKeyboardPress(int cmd)
 
 			case kSafeMode:
 			{
-				if (!MP_SAFE_MODE_Actor)
-				{
-					//cam_Set(eacLookAt);
-					MP_SAFE_MODE_Actor = true;
-				
-				}
-				else
-				{
-					//cam_Set(eacFirstEye);
-					MP_SAFE_MODE_Actor = false;
-				}
-
+				NET_Packet packet;
+				Game().u_EventGen(packet, GE_MODE_SWITCH, this->ID());
+				Game().u_EventSend(packet);
 			}break;
 		default:
 			{
@@ -90,7 +82,7 @@ void CActor::IR_OnKeyboardPress(int cmd)
 
 	if(m_holder && kUSE != cmd)
 	{
-		if (MP_SAFE_MODE_Actor) return;
+		if (MpSafeMode()) return;
 		m_holder->OnKeyboardPress			(cmd);
 		if(m_holder->allowWeapon() && inventory().Action((u16)cmd, CMD_START))		return;
 		return;

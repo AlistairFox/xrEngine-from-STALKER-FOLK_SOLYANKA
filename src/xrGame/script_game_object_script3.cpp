@@ -178,6 +178,7 @@ class_<CScriptGameObject> &script_register_game_object2(class_<CScriptGameObject
 		
 		.def("hide_weapon",					&CScriptGameObject::HideWeapon)
 		.def("restore_weapon",				&CScriptGameObject::RestoreWeapon)
+		.def("is_safemode",					&CScriptGameObject::isSafeMode)
 		
 		.def("weapon_is_grenadelauncher",	&CScriptGameObject::Weapon_IsGrenadeLauncherAttached)
 		.def("weapon_is_scope",				&CScriptGameObject::Weapon_IsScopeAttached)

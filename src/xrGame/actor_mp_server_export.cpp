@@ -30,7 +30,7 @@ void CSE_ActorMP::fill_state	(actor_mp_state &state)
 	state.health					= get_health();
 	state.radiation					= fRadiation;
 	state.physics_state_enabled		= m_AliveState.enabled ? 1 : 0;
-	state.MP_SAFE_MODE = MP_STATE;
+ 
 
 	m_ready_to_update				= true;
 }

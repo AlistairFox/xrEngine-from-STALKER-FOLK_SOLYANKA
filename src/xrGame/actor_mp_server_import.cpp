@@ -42,9 +42,7 @@ void CSE_ActorMP::UPDATE_Read	(NET_Packet &packet)
 	set_health					( m_state_holder.state().health );
 	fRadiation					= m_state_holder.state().radiation;
 	m_AliveState.enabled		= m_state_holder.state().physics_state_enabled;
-
-	MP_STATE = m_state_holder.state().MP_SAFE_MODE;
-
+ 
 	m_ready_to_update			= true;
 	//Msg("--- Client 0x%08x UPDATE_Read, health is: %2.04f", this->ID, m_state_holder.state().health);
 }

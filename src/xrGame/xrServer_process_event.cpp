@@ -393,7 +393,37 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 		SendBroadcast(SV_Client->ID, P, net_flags(TRUE, TRUE));
 	}break;
 
+	case GE_MODE_SWITCH:
+	{
 
+		xrClientData* data = ID_to_client(sender);
+
+		if (!data)
+			break;
+
+		if (!data->ps)
+			break;
+
+		game_PlayerState* PS = data->ps;
+
+		bool safe_mode = PS->testFlag(GAME_PLAYER_MP_SAFE_MODE);
+
+		if (!safe_mode)
+		{
+			//cam_Set(eacLookAt);
+			PS->setFlag(GAME_PLAYER_MP_SAFE_MODE);
+			Msg("Key safe_mode 1");
+		}
+		else
+		{
+			//cam_Set(eacFirstEye);
+			PS->resetFlag(GAME_PLAYER_MP_SAFE_MODE);
+			Msg("Key safe_mode 2");
+		}
+
+		game->signal_Syncronize();
+
+	}break;
 
 	default:
 		R_ASSERT2	(0,"Game Event not implemented!!!");

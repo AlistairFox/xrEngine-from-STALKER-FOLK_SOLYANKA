@@ -23,6 +23,9 @@ void CALifeSmartTerrainTask::setup_patrol_point				(const shared_str &patrol_pat
 	const CPatrolPath		*patrol_path = ai().patrol_paths().path(patrol_path_name);
 	VERIFY					(patrol_path);
 
+	if (!patrol_path)
+		Msg("ERROR Patrol_Path not find[%s]", patrol_path_name);
+
 	m_patrol_point			= &patrol_path->vertex(patrol_point_index)->data();
 	VERIFY					(m_patrol_point);
 }

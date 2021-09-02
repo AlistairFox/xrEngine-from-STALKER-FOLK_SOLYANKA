@@ -123,7 +123,8 @@ void CLevelChanger::feel_touch_new	(CObject *tpObject)
 	if (!l_tpActor->g_Alive())
 		return;
 
-	if (m_bSilentMode) {
+	if (m_bSilentMode)
+	{
 		NET_Packet	p;
 		p.w_begin	(M_CHANGE_LEVEL);
 		p.w			(&m_game_vertex_id,sizeof(m_game_vertex_id));
@@ -134,8 +135,10 @@ void CLevelChanger::feel_touch_new	(CObject *tpObject)
 		Msg("game_vertex_id %d", m_game_vertex_id);
 		Msg("m_level_vertex_id %d", m_level_vertex_id);
 		Msg("pos x[%.0f] y[%.0f] z[%.0f]", m_position.x, m_position.y, m_position.z);
+	
+		if (m_game_vertex_id != 65535)
+			Level().Send(p,net_flags(TRUE));
 
-		Level().Send(p,net_flags(TRUE));
 		return;
 	}
 	Fvector			p,r;

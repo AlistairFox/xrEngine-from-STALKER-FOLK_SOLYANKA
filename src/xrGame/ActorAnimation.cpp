@@ -510,15 +510,6 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 		
 		if (H && !MpSafeMode())
 		{
-
-			if (!MP_SAFE_MODE_Actor_old_state)
-			{
-				MP_SAFE_MODE_Actor_old_state = true;
-				m_current_legs.invalidate();
-				m_current_torso.invalidate();
-				m_current_head.invalidate();
-			}
-
 			VERIFY(H->animation_slot() <= _total_anim_slots_);
 			
 			TW = &ST->m_torso[H->animation_slot() - 1];
@@ -661,15 +652,7 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 		else
 		{	
 			state = moving_idx + 4;
-			
-			if (MP_SAFE_MODE_Actor_old_state)
-			{
-				MP_SAFE_MODE_Actor_old_state = false;
-				m_current_legs.invalidate();
-				m_current_torso.invalidate();
-				m_current_head.invalidate();
-			}
-
+ 
 			if (H)
 			{
 				if (!m_bAnimTorsoPlayed)

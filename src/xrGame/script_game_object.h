@@ -380,6 +380,8 @@ public:
 
 			void				HideWeapon			();
 			void				RestoreWeapon		();
+			bool				isSafeMode			();
+
 			void				AllowSprint			(bool b);
 
 			bool				Weapon_IsGrenadeLauncherAttached();
