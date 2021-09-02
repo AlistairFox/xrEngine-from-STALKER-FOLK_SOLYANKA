@@ -732,9 +732,9 @@ void CCC_Register()
 //	CMD3(CCC_Mask,		"rs_constant_fps",		&psDeviceFlags,		rsConstantFPS			);
 	
 	CMD3(CCC_Mask,		"rs_render_dynamics",	&psDeviceFlags,		rsDrawDynamic			);
-#endif
 
 	CMD3(CCC_ToggleMask, "rs_render_statics", &psDeviceFlags, rsDrawStatic);
+#endif
 
 	// Render device states
 	CMD4(CCC_Integer,	"r__supersample",		&ps_r__Supersample,			1,		4		);
