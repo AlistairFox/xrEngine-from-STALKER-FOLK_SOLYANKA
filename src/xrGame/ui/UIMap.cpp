@@ -128,7 +128,7 @@ Fvector2 CUICustomMap::ConvertRealToLocal  (const Fvector2& src, bool for_drawin
 	
 		res						= ConvertRealToLocalNoTransform(src, BoundRect());
 		res.sub					(heading_pivot);
-		rotation_				(res.x, res.y, GetHeading(), res.x, res.y, for_drawing?UI().get_current_kx():1.0f);
+		rotation_				(res.x, res.y, GetHeading(), res.x, res.y, 1.0f);
 		
 		res.add					(heading_pivot);
 	};
@@ -564,7 +564,7 @@ CUIMiniMap::~CUIMiniMap()
 void CUIMiniMap::Init_internal(const shared_str& name, CInifile& pLtx, const shared_str& sect_name, LPCSTR sh_name)
 {
 	inherited::Init_internal	(name, pLtx, sect_name, sh_name);
-	CUIStatic::SetTextureColor	(0x7fffffff);
+	CUIStatic::SetTextureColor	(0xafffffff);
 }
 
 void CUIMiniMap::UpdateSpots()
@@ -577,12 +577,8 @@ void CUIMiniMap::UpdateSpots()
 
 void  CUIMiniMap::Draw()
 {
-	if (psDeviceFlags.test(rsCameraPos))
-	{
-		inherited::Draw();
-		return;
-	}
-
+	return inherited::Draw();	 
+	/*
 	u32	segments_count			= 20;
 
 	UIRender->SetShader			(*m_UIStaticItem.GetShader());
@@ -639,19 +635,18 @@ void  CUIMiniMap::Draw()
 	}
 
 	UIRender->FlushPrimitive	();
-
+	
 
 //------------
 	CUIWindow::Draw(); //draw childs
+
+	*/
 }
 
 bool CUIMiniMap::GetPointerTo(const Fvector2& src, float item_radius, Fvector2& pos, float& heading)
 {
-
-	if (psDeviceFlags.test(rsCameraPos))
-	{
-		return inherited::GetPointerTo(src, item_radius, pos, heading);
-	}
+	return inherited::GetPointerTo(src, item_radius, pos, heading);
+	 
 
 	Fvector2 clip_center = GetStaticItem()->GetHeadingPivot();
 	float map_radius	= WorkingArea().width()/2.0f;
@@ -671,13 +666,7 @@ bool CUIMiniMap::GetPointerTo(const Fvector2& src, float item_radius, Fvector2& 
 
 bool CUIMiniMap::NeedShowPointer(Frect r)
 {
-
-
-	if (psDeviceFlags.test(rsCameraPos))
-	{
-		return inherited::NeedShowPointer(r);
-		
-	}
+	return inherited::NeedShowPointer(r);
 
 	Fvector2 clip_center = GetStaticItem()->GetHeadingPivot();
 
@@ -690,13 +679,8 @@ bool CUIMiniMap::NeedShowPointer(Frect r)
 
 bool CUIMiniMap::IsRectVisible(Frect r)
 {
-
-	if (psDeviceFlags.test(rsCameraPos))
-	{
-		return inherited::IsRectVisible(r);
-		
-	}
-
+	return inherited::IsRectVisible(r);
+  
 	Fvector2 clip_center	= GetStaticItem()->GetHeadingPivot();
 	float vis_radius		= WorkingArea().width() / 2.0f;
 	Fvector2				rect_center;

@@ -298,7 +298,6 @@ void CUIMainIngameWnd::Draw()
 
 	UIMotionIcon->Draw();
 
-	//if (!psDeviceFlags.test(rsCameraPos))
 	{
 		UIZoneMap->visible = true;
 		UIZoneMap->Render();

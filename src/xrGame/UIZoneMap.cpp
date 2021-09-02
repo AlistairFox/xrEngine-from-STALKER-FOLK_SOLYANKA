@@ -55,11 +55,12 @@ void CUIZoneMap::Init()
 
 	Fvector2 sz_k				= m_clipFrame.GetWndSize();
 	Fvector2 sz					= sz_k;
+
 	{
 		float k = UI().get_current_kx();
 
-		sz.y					*= UI_BASE_HEIGHT*k;
-		sz.x					= sz.y / k;
+		sz.y					*= UI_BASE_HEIGHT;
+		sz.x					= sz.y;
 
 		m_clipFrame.SetWndSize	(sz);
 		
@@ -68,7 +69,7 @@ void CUIZoneMap::Init()
 		m_clipFrame.SetWndPos	(p);
 		
 		m_background.SetHeight	(m_background.GetHeight() * UI_BASE_HEIGHT);
-		m_background.SetWidth	(m_background.GetHeight() * k);
+		m_background.SetWidth	(m_background.GetHeight());
 	}
 
 	Fvector2				map_center;
