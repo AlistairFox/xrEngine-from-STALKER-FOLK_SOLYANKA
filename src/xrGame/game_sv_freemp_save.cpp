@@ -15,7 +15,6 @@ using namespace jsonxx;
 
 bool game_sv_freemp::LoadPlayer(game_PlayerState* id_who)
 {
-
 	game_PlayerState* ps =  id_who;
 	
 	if (!ps) return false;
@@ -32,7 +31,6 @@ bool game_sv_freemp::LoadPlayer(game_PlayerState* id_who)
 	{
 		return false;
 	}
-
 	
 	std::ifstream ifile(name);
 
@@ -45,8 +43,6 @@ bool game_sv_freemp::LoadPlayer(game_PlayerState* id_who)
 	}
 
 	ifile.close();
-
-
 
 	Array jsonWeapon;
 	Array jsonAmmo;
@@ -139,42 +135,48 @@ bool game_sv_freemp::LoadPlayer(game_PlayerState* id_who)
 					if (!ent_weapon)
 						continue;
 
-					if (weapon.has<Number>("condition"))
-					{
-						ent_weapon->m_fCondition = weapon.get<Number>("condition");
-					}
+					if (weapon.has<Number>("condition")) 
+						ent_weapon->m_fCondition = weapon.get<Number>("condition"); 
 
 					if (weapon.has<Number>("ammo_count"))
-					{
 						ent_weapon->a_elapsed = weapon.get<Number>("ammo_count");
-					}
-
+					
 					if (weapon.has<Number>("ammo_type"))
-					{
 						ent_weapon->ammo_type = weapon.get<Number>("ammo_type");
-					}
+
+					if (weapon.has<Number>("addon_State"))
+						ent_weapon->m_addon_flags.flags = weapon.get<Number>("addon_State");
+
+					if (weapon.has<Number>("cur_scope"))
+						ent_weapon->m_cur_scope = weapon.get<Number>("cur_scope");
 
 					spawn_end(ent, m_server->GetServerClient()->ID);
 					
-					Msg("Section [%s]", sec);
-
+					Msg("Section [%s],con[%d],ammo[%d],type[%d], addon[%d], scope[%d]", 
+						sec,
+						ent_weapon->m_fCondition,
+						ent_weapon->a_elapsed,
+						ent_weapon->ammo_type,
+						ent_weapon->m_addon_flags.flags,
+						ent_weapon->m_cur_scope
+						);
+					/*
 					if (weapon.has<Number>("slot_id"))
 					{
 						CObject* local_obj = Level().Objects.net_Find(ent_weapon->ID);
 						
 						int slot_id = weapon.get<Number>("slot_id");
 						
-						CWeapon* weapon = smart_cast<CWeapon*>(local_obj);
-						if (weapon)
-							weapon->m_ItemCurrPlace.slot_id = slot_id;
+						CWeapon* weapon_item = smart_cast<CWeapon*>(local_obj);
 
+						if (weapon_item)
+							weapon_item->m_ItemCurrPlace.value = slot_id;
 					}
-
+					*/
 
 				}
 			}
 		}
-
 
 		if (inv.has<Object>("STUF"))
 		{
@@ -202,6 +204,11 @@ bool game_sv_freemp::LoadPlayer(game_PlayerState* id_who)
 			
 		}
 	}
+
+	SpawnItemToActor(id_who->GameID, "device_pda");
+	SpawnItemToActor(id_who->GameID, "device_torch");
+	SpawnItemToActor(id_who->GameID, "wpn_knife");
+	SpawnItemToActor(id_who->GameID, "wpn_binoc");
 
 
 	return true;
@@ -256,7 +263,6 @@ bool game_sv_freemp::LoadPlayerPosition(game_PlayerState* ps, Fvector& position,
 
 	}
 
-
 	return false;
 }
 
@@ -282,8 +288,6 @@ bool game_sv_freemp::GetPosAngleFromActor(ClientID id, Fvector& Pos, Fvector& An
 
 void game_sv_freemp::assign_RP(CSE_Abstract* E, game_PlayerState* ps_who)
 {
-
-
 	if (ps_who->testFlag(GAME_PLAYER_MP_ON_CONNECTED))
 	{
 		Fvector Pos, Angle;
@@ -302,6 +306,125 @@ void game_sv_freemp::assign_RP(CSE_Abstract* E, game_PlayerState* ps_who)
  
 	inherited::assign_RP(E, ps_who);
  
+}
+
+void game_sv_freemp::set_account_nickname(LPCSTR login, LPCSTR password, LPCSTR new_nickname, u32 team)
+{
+	Object ret;
+
+	if (FS.path_exist("$mp_saves$"));
+	{
+		string_path path_xray;
+
+		FS.update_path(path_xray, "$mp_saves$", "players.json");
+
+		std::ifstream input(path_xray);
+
+		Object jsonObj;
+
+		if (input.is_open())
+		{
+			std::string str((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
+
+			jsonObj.parse(str);
+		}
+
+		input.close();
+ 
+		Array jsonArray;
+
+		if (jsonObj.has<Array>("USERS"))
+			jsonArray = jsonObj.get<Array>("USERS");
+
+		for (int i = 0; i < jsonArray.size(); i++)
+		{
+			Object tab = jsonArray.get<Object>(i);
+
+			if (tab.has<String>("login:"))
+			{
+				std::string login_str = tab.get<String>("login:");
+				std::string password_str = tab.get<String>("password:");
+				
+				bool log = xr_strcmp(login_str.c_str(), login);
+				bool pass = xr_strcmp(password_str.c_str(), password);
+
+				if (!log && !pass)
+				{
+					//tab << "nick" << String(new_nickname);
+					jsonObj.get<Array>("USERS").get<Object>(i) << "nick:" << String(new_nickname);
+					Msg("Nick[%s] login[%s] password[%s]", new_nickname, login, password);
+
+					if (team)
+					{
+						jsonObj.get<Array>("USERS").get<Object>(i) << "team:" << Number(team);
+					}
+				}
+			}
+
+
+		}
+
+		std::ofstream outfile(path_xray);
+
+		if (outfile.is_open())
+		{
+			outfile.write(jsonObj.json().c_str(), jsonObj.json().size());
+		}
+		else
+		{
+
+		}
+
+		outfile.close();
+
+ 	};
+
+ 
+}
+
+int game_sv_freemp::get_account_team(LPCSTR login, LPCSTR password)
+{
+	int team = 0;
+	if (FS.path_exist("$mp_saves$"));
+	{
+		string_path path_xray;
+
+		FS.update_path(path_xray, "$mp_saves$", "players.json");
+
+		std::ifstream input(path_xray);
+
+		Object jsonObj;
+
+		if (input.is_open())
+		{
+			std::string str((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
+
+			jsonObj.parse(str);
+		}
+
+		input.close();
+
+		Array jsonArray;
+
+		if (jsonObj.has<Array>("USERS"))
+			jsonArray = jsonObj.get<Array>("USERS");
+
+		for (int i = 0; i < jsonArray.size(); i++)
+		{
+			Object tab = jsonArray.get<Object>(i);
+			
+			if (!xr_strcmp(tab.get<String>("login:").c_str(), login))
+			{
+				if (!xr_strcmp(tab.get<String>("password:").c_str(), password))
+				{
+					if (tab.has<Number>("team:"))
+						team = tab.get<Number>("team:");
+				}
+			}		
+		}
+	}
+	 
+	return team;
 }
 
 void game_sv_freemp::LoadParamsDeffaultFMP()

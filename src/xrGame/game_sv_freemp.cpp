@@ -43,6 +43,7 @@ void game_sv_freemp::OnPlayerConnect(ClientID id_who)
 		ps_who->team = 0;
 		ps_who->skin = -1;
 	};
+
 	ps_who->setFlag(GAME_PLAYER_FLAG_SPECTATOR);
 
 	ps_who->resetFlag(GAME_PLAYER_FLAG_SKIP);
@@ -67,7 +68,15 @@ void game_sv_freemp::OnPlayerConnectFinished(ClientID id_who)
 		GenerateGameMessage(P);
 		P.w_u32(GAME_EVENT_PLAYER_CONNECTED);
 		P.w_clientID(id_who);
-		xrCData->ps->team = 0;
+
+		int team = get_account_team(xrCData->ps->m_account.name_login().c_str(), xrCData->ps->m_account.password().c_str());
+
+		xrCData->ps->setFlag(GAME_PLAYER_MP_SAVETEAM);
+
+		xrCData->ps->team = team;
+		Msg("Setup Team [%d] log[%s], pas[%s]",
+			xrCData->ps->team, xrCData->ps->m_account.name_login().c_str(), xrCData->ps->m_account.password().c_str());
+
 		xrCData->ps->setFlag(GAME_PLAYER_FLAG_SPECTATOR);
 		xrCData->ps->setFlag(GAME_PLAYER_FLAG_READY);
 		xrCData->ps->setFlag(GAME_PLAYER_MP_ON_CONNECTED);
@@ -289,11 +298,30 @@ void game_sv_freemp::OnEvent(NET_Packet &P, u16 type, u32 time, ClientID sender)
 	
 		case M_CHANGE_LEVEL:
 		{
-			Msg("M_CHANGE_LEVEL");
+			//Msg("M_CHANGE_LEVEL");
 			if (change_level(P, sender))
 			{
 				server().SendBroadcast(BroadcastCID, P, net_flags(TRUE, TRUE));
 			}
+		}break;
+
+		case GAME_EVENT_PLAYER_NAME_ACCAUNT:
+		{
+			//Msg("GAME_EVENT_PLAYER_NAME_ACCAUNT");
+			shared_str nick;
+			P.r_stringZ(nick);
+			u32 team;
+			P.r_u32(team);
+
+			xrClientData* data = server().ID_to_client(sender);
+
+			if (data && data->ps)
+			{
+				data->ps->m_account.set_player_name(nick.c_str());
+				set_account_nickname(data->ps->m_account.name_login().c_str(), data->ps->m_account.password().c_str(), nick.c_str(), team);
+			}
+			
+			
 		}break;
 
 		default:
@@ -313,7 +341,7 @@ void game_sv_freemp::Update()
 		oldTime_saveServer = Device.dwTimeGlobal;
 	}
 
-	if (Device.dwTimeGlobal - oldTime_saveServer > 1000 * 60 * 5)
+	if (Device.dwTimeGlobal - oldTime_saveServer > 1000 * 60)
 	{
 		if (ai().get_alife())
 		{
@@ -329,6 +357,8 @@ void game_sv_freemp::Update()
 		}
 		oldTime_saveServer = Device.dwTimeGlobal;
 	}
+
+ 
 }
 
 BOOL game_sv_freemp::OnTouch(u16 eid_who, u16 eid_what, BOOL bForced)

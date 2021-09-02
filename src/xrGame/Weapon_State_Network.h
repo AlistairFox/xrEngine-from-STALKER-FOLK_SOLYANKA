@@ -16,7 +16,7 @@ struct Weapon_State_Network
 	u8 m_cur_scope;		// 1 bit					 // 1 byte
 	u8 need_to_update;		// 1 bit					 // 1 byte
 
-	
+	u8 m_cur_slot;
 	//Если сжать		//	4byte + 5 bit			 // Total 10 byte  
 
 	Weapon_State_Network();

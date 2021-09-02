@@ -160,6 +160,7 @@ SERVER_ENTITY_DECLARE_BEGIN(CSE_ALifeItemWeapon,CSE_ALifeItem)
 	u16								a_current;
 	u16								a_elapsed;
 	u8								m_cur_scope;
+	u8								m_cur_slot;
 
 	Weapon_State_Network            m_state;
 

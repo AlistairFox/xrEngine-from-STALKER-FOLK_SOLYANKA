@@ -56,10 +56,25 @@ void game_cl_roleplay::TryShowSpawnMenu()
 {
 	if (g_dedicated_server)
 		return;
+	
+	bool saveteam = local_player->testFlag(GAME_PLAYER_MP_SAVETEAM);
+	
+	if (!saveteam)
+		return;
 
-	if (!m_bTeamSelected && !m_game_ui->SpawnMenu()->IsShown())
+	Msg("Team[%d], connect [%s], select [%s]", 
+		local_player->team, saveteam ? "true" : "false", 
+		m_bTeamSelected ? "true" : "false");
+
+	if (local_player->team == 0)
 	{
-		m_game_ui->SpawnMenu()->ShowDialog(true);
+		if (!m_bTeamSelected && !m_game_ui->SpawnMenu()->IsShown())
+			m_game_ui->SpawnMenu()->ShowDialog(true); 
+ 	}
+	else
+	{
+		if (!m_bTeamSelected)
+			OnTeamSelect(local_player->team);
 	}
 }
 
@@ -90,6 +105,9 @@ void game_cl_roleplay::OnTeamSelect(int team)
 {
 	CGameObject *pObject = smart_cast<CGameObject*>(Level().CurrentEntity());
 	if (!pObject) return;
+
+	Msg("Player Dead[%s]", local_player->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD) ? "true" : "false");
+	Msg("Player Spectator[%s]", local_player->testFlag(GAME_PLAYER_FLAG_SPECTATOR) ? "true" : "false");
 
 	NET_Packet P;
 	pObject->u_EventGen(P, GE_GAME_EVENT, pObject->ID());

@@ -30,6 +30,7 @@ Weapon_State_Network::Weapon_State_Network()
 	m_cur_scope		= 0;
 	need_to_update	= 0;
 
+	m_cur_slot = 0;
 }
 
 void Weapon_State_Network::fill_state()
@@ -43,7 +44,7 @@ void Weapon_State_Network::write_state(NET_Packet& P)
 	P.w_float_q8(m_fCondition, 0.0f, 1.0f);
 	P.w_u8(a_elapsed);
 	P.w_u8(m_addon_flags.get());
-
+	P.w_u8(m_cur_slot);
 //Convert
 	u32 current = 0;
 	u32 output = 0;
@@ -59,6 +60,7 @@ void Weapon_State_Network::write_state(NET_Packet& P)
 	
 	P.w_u8(u8(output));
 	
+
 	
 	
 	/*
@@ -82,13 +84,15 @@ void Weapon_State_Network::read_state(NET_Packet& P)
 	P.r_float_q8(m_fCondition, 0.0f, 1.0f);
 	P.r_u8(a_elapsed);
 	P.r_u8(m_addon_flags.flags);
-
+	P.r_u8(m_cur_slot);
 
 	u32 current = 0;
 	u32 output = 0;
 	u32 byte1 = 1;
 
 	output = u32(P.r_u8());
+
+	 
 
 	wpn_state =		 ::read_binary(4, current, output);
 	need_to_update = ::read_binary(byte1, current, output);

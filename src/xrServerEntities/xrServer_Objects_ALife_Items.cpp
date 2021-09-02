@@ -549,7 +549,7 @@ void CSE_ALifeItemWeapon::UPDATE_Read(NET_Packet	&tNetPacket)
 	a_elapsed = m_state.a_elapsed;
 	m_addon_flags = m_state.m_addon_flags;
 	wpn_flags = m_state.need_to_update;
-
+	m_cur_slot = m_state.m_cur_slot;
 }
 
 void CSE_ALifeItemWeapon::clone_addons(CSE_ALifeItemWeapon* parent)

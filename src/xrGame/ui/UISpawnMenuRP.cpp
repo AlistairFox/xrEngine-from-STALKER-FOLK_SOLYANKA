@@ -7,6 +7,8 @@
 #include "UIStatix.h"
 #include "UIScrollView.h"
 #include "UI3tButton.h"
+#include "UIEditBox.h"
+
 #include "../xr_level_controller.h"
 #include "uicursor.h"
 #include "uigamecustom.h"
@@ -27,7 +29,16 @@ CUISpawnMenuRP::CUISpawnMenuRP()
 
 	m_pTextDesc = xr_new<CUIScrollView>();
 	m_pTextDesc->SetAutoDelete(true);
-	AttachChild(m_pTextDesc);
+//	AttachChild(m_pTextDesc);
+
+	m_pCaptionNickName = xr_new<CUIStatic>();
+	m_pCaptionNickName->SetAutoDelete(true);
+	AttachChild(m_pCaptionNickName);
+
+	m_pNickname = xr_new<CUIEditBox>();
+	m_pNickname->SetAutoDelete(true);
+	AttachChild(m_pNickname);
+
 
 	for (u8 i = 0; i < team_buttons_count; i++)
 	{
@@ -52,6 +63,9 @@ void CUISpawnMenuRP::Init()
 	CUIXmlInit::InitStatic(xml_doc, "team_selector:background", 0, m_pBackground);
 	CUIXmlInit::InitScrollView(xml_doc, "team_selector:text_desc", 0, m_pTextDesc);
 
+	CUIXmlInit::InitStatic(xml_doc, "team_selector:caption_nickname", 0, m_pCaptionNickName);
+	CUIXmlInit::InitEditBox(xml_doc, "team_selector:nickname", 0, m_pNickname);
+	
 	string32 node;
 	for (u8 i = 1; i <= team_buttons_count; i++)
 	{
@@ -66,11 +80,28 @@ void CUISpawnMenuRP::SendMessage(CUIWindow *pWnd, s16 msg, void *pData)
 	{
 		game_cl_roleplay * game = smart_cast<game_cl_roleplay*>(&Game());
 		R_ASSERT(game);
+		u32 team;
 		for (u8 i = 0; i < team_buttons_count; i++)
 		{
 			if (pWnd == m_pImages[i])
+			{
 				game->OnTeamSelect(i + 1);
+				team = i + 1;
+			}
 		}
+
+		LPCSTR nick = m_pNickname->GetText();
+		
+		//Msg("Nickname: %s", nick);
+
+		NET_Packet				P;
+		Game().u_EventGen(P, GE_GAME_EVENT, Game().local_player->GameID);
+		P.w_u16(GAME_EVENT_PLAYER_NAME_ACCAUNT);
+		P.w_stringZ(nick);
+		P.w_u32(team);
+		Game().u_EventSend(P);
+
 		HideDialog();
+		m_pNickname->ClearText();
 	}
 }

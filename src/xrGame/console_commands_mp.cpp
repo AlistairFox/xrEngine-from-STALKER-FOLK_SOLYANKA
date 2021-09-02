@@ -2672,8 +2672,9 @@ public:
 		{
 			string128 login;
 			string128 password;
+			int admin;
 
-			if (sscanf_s(args, "%s %s", &login, sizeof(login), &password, sizeof(password)) != 2)
+			if (sscanf_s(args, "%s %s %u", &login, sizeof(login), &password, sizeof(password), &admin) != 3)
 			{
 				Msg("Login and pass not good format");
 				return;
@@ -2681,9 +2682,10 @@ public:
 
 			Msg("LoginRegister [%s]", login);
 			Msg("PasswordRegister [%s]", password);
+			Msg("admin [%d]", admin);
+
 
 			Object jsonObj;
-			
 			
 			if (FS.path_exist("$mp_saves$"))
 			{
@@ -2700,10 +2702,8 @@ public:
 				}
 
 				input.close();
-
-			
-
-				Array table;
+				 
+				Array array_table;
 
 				Object tab;
 
@@ -2711,17 +2711,31 @@ public:
 
 				tab << "login:" << Value(login);
 				tab << "password:" << Value(password);
-				tab << "user: " << Value("user_" + std::to_string(rand));
+				tab << "admin:" << Number(admin);
 
 				if (jsonObj.has<Array>("USERS"))
 				{
+					for (int i = 0; i != jsonObj.get<Array>("USERS").size(); i++)
+					{
+						bool find = jsonObj.get<Array>("USERS").get<Object>(i).has<String>("login:");
+						if (find)
+						{
+							std::string login_cmp = jsonObj.get<Array>("USERS").get<Object>(i).get<String>("login:");
+							if (!xr_strcmp(login_cmp.c_str(), login));
+							{
+								Msg("--- Логин [%s] Занят укажите другой", login);
+								return;
+							}
+						}
+					}
+
 					jsonObj.get<Array>("USERS") << tab;
 				}
 				else
 				{
-					table << tab;
+					array_table << tab;
 
-					jsonObj << "USERS" << table;
+					jsonObj << "USERS" << array_table;
 				}
 
 				std::ofstream outfile(path_xray);
@@ -2739,8 +2753,9 @@ public:
 		{
 			string128 login;
 			string128 password;
+			int admin;
 
-			if (sscanf_s(args, "%s %s", &login, sizeof(login), &password, sizeof(password)) != 2)
+			if (sscanf_s(args, "%s %s %d", &login, sizeof(login), &password, sizeof(password), admin) != 3)
 			{
 				Msg("Login and pass not good format");
 				return;
@@ -2749,7 +2764,7 @@ public:
 			NET_Packet		P;
 			P.w_begin(M_REMOTE_CONTROL_CMD);
 			string128 str;
-			xr_sprintf(str, "reg %s %s", login, password);
+			xr_sprintf(str, "reg %s %s %d", login, password, admin);
 			P.w_stringZ(str);
 			Level().Send(P, net_flags(TRUE, TRUE));
 		}
@@ -2851,12 +2866,7 @@ public:
 		}
 	}
 };
-
-
-
-
-
-
+ 
 class CCC_ADD_Money_to_client_self : public IConsole_Command {
 public:
 	CCC_ADD_Money_to_client_self(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
@@ -2876,6 +2886,8 @@ public:
 	}
 	virtual void Save(IWriter* F) {};
 };
+
+
 
 void register_mp_console_commands()
 {

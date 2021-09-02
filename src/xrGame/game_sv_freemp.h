@@ -3,6 +3,9 @@
 #include "game_sv_mp.h"
 #include "../xrEngine/pure_relcase.h"
 
+#include "../jsonxx/jsonxx.h"
+using namespace jsonxx;
+
 struct SpawnSect
 {
 	s32 StartMoney;
@@ -57,6 +60,10 @@ public:
 				bool				GetPosAngleFromActor(ClientID id, Fvector& Pos, Fvector& Angle);
 
 				void				assign_RP(CSE_Abstract* E, game_PlayerState* ps_who);
+
+				void				set_account_nickname(LPCSTR login, LPCSTR password, LPCSTR new_nickname, u32 team);
+
+				int                 get_account_team(LPCSTR login, LPCSTR password);
 
 	virtual void LoadParamsDeffaultFMP();
 

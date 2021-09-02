@@ -257,8 +257,13 @@ void xrServer::OnBuildVersionRespond				( IClient* CL, NET_Packet& P )
 	shared_str login ; 
 	P.r_stringZ(login);
 
+	//shared_str player_name;
+	//P.r_stringZ(player_name);
+
 	shared_str password;
 	P.r_stringZ(password);
+
+
 
 #ifdef USE_DEBUG_AUTH
 	Msg("_our = %d", _our);
@@ -268,7 +273,8 @@ void xrServer::OnBuildVersionRespond				( IClient* CL, NET_Packet& P )
 
 	Object jsonObj;
 	bool finded = false;
-	std::string name_saves = { 0 };
+	std::string nick = { 0 };
+	int admin = 0;
 
 	if (FS.path_exist("$mp_saves$"))
 	{
@@ -303,58 +309,30 @@ void xrServer::OnBuildVersionRespond				( IClient* CL, NET_Packet& P )
 				if (name.has<String>("password:"))
 					name_password = name.get<String>("password:");
 
-
 				if (!std::strcmp(name_login.c_str(), login.c_str()))
 				{
 					if (!std::strcmp(name_password.c_str(), password.c_str()))
 					{
 						finded = true;
-						if (name.has<String>("user: "))
-						{
-							name_saves = name.get<String>("user: ");
-						}
+						
+						if (name.has<Number>("admin:"))
+							admin = name.get<Number>("admin:");
+						if (name.has<String>("nick:"))
+							nick = name.get<String>("nick:");
+						
+						 
 					}
 				}
 			}
 		}
-		else
-		{
-			Array table;
-
-			Object tab;
-
-			u32 rand = Random.randI(1, 10000);
-
-			tab << "login:" << Value("server_local");
-			tab << "password:" << Value("admin_2610");
-			tab << "user: " << Value("user_" + std::to_string(rand));
-
-			table << tab;
-
-			jsonObj << "USERS" << table;
-
-			IWriter* file = FS.w_open(path_xray);
-			FS.w_close(file);
-
-			std::ofstream outfile(path_xray);
-			
-			if (outfile.is_open())
-			{
-				outfile.write(jsonObj.json().c_str(), jsonObj.json().size());
-			}
-
-			outfile.close();
-			
-			finded = true;
-		}
-
 	} 
 
 	Msg("login: %s", login.c_str());
 	Msg("password: %s", password.c_str());
+//	Msg("player_name: %s", player_name.c_str());
 	
 
-    if (!finded)
+    if (!finded && !CL->flags.bLocal)
 	{
  		SendConnectResult( CL, 0, ecr_data_verification_failed, "ÍÅÂÅÐÍÛÅ ÄÀÍÍÛÅ ÄËß ÂÕÎÄÀ" );
 	}
@@ -388,11 +366,25 @@ void xrServer::OnBuildVersionRespond				( IClient* CL, NET_Packet& P )
 		
 		if (data->ps)
 		{
-			Msg("SetName[%s][%s]", login.c_str(), name_saves.c_str());
+			if (game->Type() == eGameIDFreeMp)
+				data->ps->m_account.set_player_name(login.c_str());
+			else 
+				data->ps->m_account.set_player_name(nick.c_str());		
 
-			data->ps->m_account.set_player_name(login.c_str());
-			data->ps->m_account.set_player_save(name_saves.c_str());
+			data->ps->m_account.set_player_login(login.c_str());
+			data->ps->m_account.set_player_password(password.c_str());
+
+			data->ps->m_account.set_player_save(login.c_str());
 			
+			{//admin 
+				data->m_admin_rights.m_has_admin_rights = TRUE;
+				data->m_admin_rights.m_dwLoginTime = Device.dwTimeGlobal;
+				data->ps->setFlag(GAME_PLAYER_HAS_ADMIN_RIGHTS);
+				Msg("# User [%s] logged as remote administrator.", login.c_str());
+
+			}
+
+			game->signal_Syncronize();
 		}
 			
 	}

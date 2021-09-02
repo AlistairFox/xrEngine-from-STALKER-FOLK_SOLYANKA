@@ -452,7 +452,6 @@ void CWeapon::Load		(LPCSTR section)
 		m_iGrenadeLauncherY = pSettings->r_s32(section,"grenade_launcher_y");
 	}
 
-	UpdateAltScope();
 	InitAddons();
 	if(pSettings->line_exist(section,"weapon_remove_time"))
 		m_dwWeaponRemoveTime = pSettings->r_u32(section,"weapon_remove_time");
@@ -530,6 +529,8 @@ BOOL CWeapon::net_Spawn		(CSE_Abstract* DC)
 	iAmmoElapsed					= E->a_elapsed;
 	m_flagsAddOnState				= E->m_addon_flags.get();
 	m_ammoType						= E->ammo_type;
+	m_cur_scope						= E->m_cur_scope;
+	
 	SetState						(E->wpn_state);
 	SetNextState					(E->wpn_state);
 	
@@ -540,7 +541,7 @@ BOOL CWeapon::net_Spawn		(CSE_Abstract* DC)
 		for(int i = 0; i < iAmmoElapsed; ++i) 
 			m_magazine.push_back(m_DefaultCartridge);
 	}
-	UpdateAltScope();
+
 	UpdateAddonsVisibility();
 	InitAddons();
 
@@ -582,15 +583,20 @@ void CWeapon::net_Export(NET_Packet& P)
 	inherited::net_Export(P);
 
 	Weapon_State_Network state;
-
+	//wpn state
 	state.m_fCondition = GetCondition();
 	state.need_to_update = IsUpdating() ? 1 : 0;
-	state.a_elapsed = u8(iAmmoElapsed);
-	state.m_addon_flags.flags = m_flagsAddOnState;
-	state.ammo_type = m_ammoType;
 	state.wpn_state = u8(GetState());
 	state.m_bZoom = IsZoomed() ? 1 : 0;
+	//wpn ammo
+	state.ammo_type = m_ammoType;
+	state.a_elapsed = u8(iAmmoElapsed);
+	//addons
+	state.m_addon_flags.flags = m_flagsAddOnState;
 	state.m_cur_scope = m_cur_scope;
+	
+	CInventoryItem* weaponitem = this->cast_inventory_item();
+	state.m_cur_slot = weaponitem->CurrSlot();
 
 	state.write_state(P);
 
@@ -628,6 +634,9 @@ void CWeapon::net_Import(NET_Packet& P)
 
 	u8 Zoom;
 
+	u8 cur_slot;
+
+
 	Weapon_State_Network state;
 
 	state.read_state(P);
@@ -643,6 +652,8 @@ void CWeapon::net_Import(NET_Packet& P)
 
 	wstate = state.wpn_state;
 
+	cur_slot = state.m_cur_slot;
+
 	/*
 	P.r_float_q8			(_cond,0.0f,1.0f);	
 	P.r_u8					(flags);
@@ -654,18 +665,21 @@ void CWeapon::net_Import(NET_Packet& P)
 	P.r_u8					(m_cur_scope);
 	*/
 
-
+	CInventoryItem* weaponitem = this->cast_inventory_item();
+	
+	if (weaponitem->CurrSlot() != cur_slot)
+		weaponitem->m_ItemCurrPlace.slot_id = cur_slot;
 
 	SetCondition(_cond);
 	m_flagsAddOnState = NewAddonState;
 	UpdateAddonsVisibility();
-	
 	
 	if (m_old_scope != m_cur_scope)
 	{
 		UpdateAltScope();
 		m_old_scope = m_cur_scope;
 	}
+	 
 
 	if (H_Parent() && H_Parent()->Remote())
 	{
@@ -1487,6 +1501,8 @@ void CWeapon::UpdateAddonsVisibility()
 
 	pWeaponVisual->CalculateBones_Invalidate				();
 	pWeaponVisual->CalculateBones							(TRUE);
+
+	UpdateAltScope();
 }
 
 

@@ -38,23 +38,25 @@ BOOL CLevel::net_Start	( LPCSTR op_server, LPCSTR op_client, LPCSTR op_auth)
 
 	if (op_auth != 0)
 	{
+//		string64 nickname;
 		string64 login_name;
-		LPCSTR	login = _GetItem(op_auth, 0, login_name, '/');
-	
 		string64 password_name;
-		LPCSTR	password = _GetItem(op_auth, 1, password_name, '/');
+
+//		_GetItem(op_auth, 0, nickname, '/');
+		_GetItem(op_auth, 0, login_name, '/');
+		_GetItem(op_auth, 1, password_name, '/');
 	
 		if (login_name != 0)
-			xr_strcpy(Core.UserName, login_name);
+			xr_strcpy(Core.UserLogin, login_name);
  
+//		if (nickname != 0)
+//			xr_strcpy(Core.UserName, nickname);
+
 		if (password_name != 0)
 			xr_strcpy(Core.UserPassword, password_name);
   
-
-		if (login_name != 0 && password_name != 0)
-			Msg("Login[%s] Pass[%s]", login_name, password_name);
-
-
+		//if (login_name != 0 && /*nickname != 0 && */ password_name != 0)
+		//	Msg("Login[%s] Nick[%s] Pass[%s]", login_name, nickname, password_name);
 	}
 
 	VERIFY( xr_strlen(player_name) );

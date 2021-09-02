@@ -5,6 +5,7 @@ class CUIStatic;
 class CUIStatix;
 class CUI3tButton;
 class CUIScrollView;
+class CUIEditBox;
 
 class CUISpawnMenuRP : public CUIDialogWnd
 {
@@ -20,7 +21,11 @@ protected:
 
 	CUIStatic*							m_pCaption;
 	CUIStatic*							m_pBackground;
-	CUIScrollView*					m_pTextDesc;
+	CUIScrollView*					    m_pTextDesc;
+
+	CUIStatic*							m_pCaptionNickName;
+	CUIEditBox*							m_pNickname;
+
 	xr_vector<CUIStatix*>		m_pImages;
 
 public:

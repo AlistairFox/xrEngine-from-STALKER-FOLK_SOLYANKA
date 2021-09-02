@@ -61,10 +61,12 @@ void game_sv_roleplay::OnPlayerSelectTeam(NET_Packet& P, ClientID sender)
 {
 	s16 team = P.r_s16();
 
-	game_PlayerState*	ps = get_id(sender);
-	if (!ps) return;
 	
-	if (ps->team == team) return;
+	game_PlayerState*	ps = get_id(sender);
+	Msg("OnPlayerSelectTeam team[%d] team_ps[%d] send[%d]", team, ps->team, sender.value());
+
+	if (!ps) return;
+	if (ps->team == team && !ps->testFlag(GAME_PLAYER_MP_SAVETEAM)) return;
 
 	// set team for player
 	ps->team = u8(team & 0x00ff);
@@ -74,12 +76,11 @@ void game_sv_roleplay::OnPlayerSelectTeam(NET_Packet& P, ClientID sender)
 	
 	xrClientData*	xrCData = (xrClientData*)m_server->ID_to_client(sender);
 	if (!xrCData) return;
-
-	CSE_ALifeCreatureActor	*pA = smart_cast<CSE_ALifeCreatureActor*>(xrCData->owner);
+	CSE_ALifeCreatureActor*  pA = smart_cast<CSE_ALifeCreatureActor*>(xrCData->owner);
 	if (!pA) return;
 
 	if (m_teamSettings.count(ps->team) == 0) return;
-		
+
 	auto teamSettings = m_teamSettings[ps->team];
 
 	// spawn start items
@@ -87,8 +88,10 @@ void game_sv_roleplay::OnPlayerSelectTeam(NET_Packet& P, ClientID sender)
 	{
 		SpawnItemToActor(pA->ID, item.c_str());
 	}
+
 	// set start money
 	ps->money_for_round = teamSettings.StartMoney;
+	ps->resetFlag(GAME_PLAYER_MP_SAVETEAM);
 
 	signal_Syncronize();
 }

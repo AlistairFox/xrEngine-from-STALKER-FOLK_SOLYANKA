@@ -111,14 +111,6 @@ void game_cl_freemp::save_player(game_PlayerState* cl)
 		}
 	}
 
-	/*
-			for (auto i = jsonOthers.kv_map().begin(); i != jsonOthers.kv_map().end(); i++ )
-			{
-				LPCSTR name = (*i).first.c_str();
-				Msg("Tab[%s]", name);
-			}
-	*/
-
 	Object jsonInventory;
 
 	jsonInventory << "WEAPON" << jsonWeapon;
@@ -127,15 +119,28 @@ void game_cl_freemp::save_player(game_PlayerState* cl)
 	jsonInventory << "STUF" << jsonOthers;
 
 	json << "Inventory" << jsonInventory;
-	json << "Community" << Value(pActor->Community());
+	
 	json << "Pos[X]" << Value(pActor->Position().x);
 	json << "Pos[Y]" << Value(pActor->Position().y);
 	json << "Pos[Z]" << Value(pActor->Position().z);
 
 	if (Level().name().size() > 0)
-	json << "LevelID" << String(Level().name().c_str());
+		json << "LevelID" << String(Level().name().c_str());
 
-	json << "money" << Number(pActor->get_money());
+	if (ps->money_for_round != 0)
+		json << "money" << Number(ps->money_for_round);
+
+	bool noclip = ps->testFlag(GAME_PLAYER_MP_NO_CLIP);
+	bool invis = ps->testFlag(GAME_PLAYER_MP_INVIS);
+	bool godmode = ps->testFlag(GAME_PLAYER_MP_GOD_MODE);
+	bool safemode = ps->testFlag(GAME_PLAYER_MP_SAFE_MODE);
+
+	json << "noclip" << Value(noclip);
+	json << "invis" << Value(invis);
+	json << "god" << Value(godmode);
+	json << "safemode" << Value(safemode);
+
+
 
 
 	if (ps->m_account.name_save().size() != 0)

@@ -125,18 +125,18 @@ void CUIMpPlayersAdm::FillPlayersList(u32 const)
 	game_cl_GameState::PLAYERS_MAP_IT b = Game().players.begin();
 	for(;b!=Game().players.end();b++)
 	{
-//		if(b->first!=Game().local_svdpnid)
-		{
-			string512 tmp_string;
-			xr_sprintf(	tmp_string, "%s, id:%u, ip:%s, ping:%u",
-						b->second->getName(),
-						b->first.value(),
-						b->second->m_player_ip.c_str(),
-						b->second->ping);
+		
+		string512 tmp_string;
+		xr_sprintf(tmp_string, "nick:%s, login:%s, id:%u, ip:%s, ping:%u",
+					b->second->m_account.name().c_str(),
+					b->second->m_account.name_login().c_str(),
+					b->first.value(),
+					b->second->m_player_ip.c_str(),
+					b->second->ping);
 
-			CUIListBoxItem* itm = m_pPlayersList->AddTextItem(tmp_string);
-			itm->SetTAG(b->first.value());
-		}
+		CUIListBoxItem* itm = m_pPlayersList->AddTextItem(tmp_string);
+		itm->SetTAG(b->first.value());
+		
 	}
 }
 
