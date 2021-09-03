@@ -2721,9 +2721,11 @@ public:
 						if (find)
 						{
 							std::string login_cmp = jsonObj.get<Array>("USERS").get<Object>(i).get<String>("login:");
-							if (!xr_strcmp(login_cmp.c_str(), login));
+							bool compere = xr_strcmp(shared_str(login_cmp.c_str()), shared_str(login));
+
+							if (!compere)
 							{
-								Msg("--- Логин [%s] Занят укажите другой", login);
+								Msg("--- Логин [%s] Логин2 [%s] Занят укажите другой значение[%s]", login, login_cmp.c_str(), compere? "true" : "false");
 								return;
 							}
 						}
