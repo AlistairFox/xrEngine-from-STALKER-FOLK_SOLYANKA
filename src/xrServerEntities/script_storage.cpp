@@ -334,7 +334,7 @@ int CScriptStorage::vscript_log		(ScriptStorage::ELuaMessageType tLuaMessageType
 	return		(0);
 #else // #ifdef PRINT_CALL_STACK
 #	ifndef NO_XRGAME_SCRIPT_ENGINE
-		if (!psAI_Flags.test(aiLua) && (tLuaMessageType != ScriptStorage::eLuaMessageTypeError))
+		if (/*!psAI_Flags.test(aiLua) && */(tLuaMessageType != ScriptStorage::eLuaMessageTypeError))
 			return(0);
 #	endif // #ifndef NO_XRGAME_SCRIPT_ENGINE
 
@@ -395,11 +395,11 @@ int CScriptStorage::vscript_log		(ScriptStorage::ELuaMessageType tLuaMessageType
 	vsprintf(S1,caFormat,marker);
 	xr_strcat	(S2,"\r\n");
 
-#ifdef DEBUG
+//#ifdef DEBUG
 #	ifndef ENGINE_BUILD
 	ai().script_engine().m_output.w(S2,xr_strlen(S2)*sizeof(char));
 #	endif // #ifdef ENGINE_BUILD
-#endif // #ifdef DEBUG
+//#endif // #ifdef DEBUG
 
 	return	(l_iResult);
 #endif // #ifdef PRINT_CALL_STACK
@@ -414,6 +414,15 @@ void CScriptStorage::print_stack		()
 
 	m_stack_is_ready		= false;
 #endif // #ifdef DEBUG
+	
+	if (true)
+	{
+		luabind::functor<void>	funct;
+		R_ASSERT(ai().script_engine().functor("mp_game_cl.callstack", funct));
+		funct();
+
+		return;
+	}
 
 	lua_State				*L = lua();
 	lua_Debug				l_tDebugInfo;
@@ -442,7 +451,7 @@ int __cdecl CScriptStorage::script_log	(ScriptStorage::ELuaMessageType tLuaMessa
 	static bool	reenterability = false;
 	if (!reenterability) {
 		reenterability = true;
-		if (eLuaMessageTypeError == tLuaMessageType)
+		if (ScriptStorage::eLuaMessageTypeError == tLuaMessageType)
 			ai().script_engine().print_stack	();
 		reenterability = false;
 	}
@@ -558,7 +567,7 @@ bool CScriptStorage::do_file	(LPCSTR caScriptName, LPCSTR caNameSpaceName)
 	string_path		l_caLuaFileName;
 	IReader			*l_tpFileReader = FS.r_open(caScriptName);
 	if (!l_tpFileReader) {
-		script_log	(eLuaMessageTypeError,"Cannot open file \"%s\"",caScriptName);
+		script_log	(ScriptStorage::eLuaMessageTypeError,"Cannot open file \"%s\"",caScriptName);
 		return		(false);
 	}
 	strconcat		(sizeof(l_caLuaFileName),l_caLuaFileName,"@",caScriptName);

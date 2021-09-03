@@ -176,6 +176,10 @@ void CScriptEngine::lua_error			(lua_State *L)
 	print_output			(L,"",LUA_ERRRUN);
 	ai().script_engine().on_error	(L);
 
+	luabind::functor<void>	funct;
+	R_ASSERT(ai().script_engine().functor("mp_game_cl.callstack", funct));
+	funct();
+
 #if !XRAY_EXCEPTIONS
 	Debug.fatal				(DEBUG_INFO,"LUA error: %s",lua_tostring(L,-1));
 #else
@@ -188,6 +192,10 @@ int  CScriptEngine::lua_pcall_failed	(lua_State *L)
 	print_output			(L,"",LUA_ERRRUN);
 	ai().script_engine().on_error	(L);
 
+	luabind::functor<void>	funct;
+	R_ASSERT(ai().script_engine().functor("mp_game_cl.callstack", funct));
+	funct();
+
 #if !XRAY_EXCEPTIONS
 	Debug.fatal				(DEBUG_INFO,"LUA error: %s",lua_isstring(L,-1) ? lua_tostring(L,-1) : "");
 #endif
@@ -199,6 +207,10 @@ int  CScriptEngine::lua_pcall_failed	(lua_State *L)
 void lua_cast_failed					(lua_State *L, LUABIND_TYPE_INFO info)
 {
 	CScriptEngine::print_output	(L,"",LUA_ERRRUN);
+
+	luabind::functor<void>	funct;
+	R_ASSERT(ai().script_engine().functor("mp_game_cl.callstack", funct));
+	funct();
 
 	Debug.fatal				(DEBUG_INFO,"LUA error: cannot cast lua value to %s",info->name());
 }
