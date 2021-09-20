@@ -11,7 +11,7 @@ using namespace jsonxx;
 #include "Weapon.h"
 #include "ActorHelmet.h"
 #include "CustomOutfit.h"
-
+#include "CustomDetector.h"
 
 void game_cl_freemp::save_player(game_PlayerState* cl)
 {
@@ -29,21 +29,25 @@ void game_cl_freemp::save_player(game_PlayerState* cl)
 	xr_vector<PIItem>::const_iterator itemEnd = items.end();
 
 	Object json;
-
-	Array jsonWeapon;
-	Array jsonAmmo;
-	Array jsonOutfit;
-	Object jsonOthers;
+	
+	Object jsonConsumable;
+	Array jsonCondition;
+	Array jsonInSlots;
 
 
 	for (; itemStart != itemEnd; itemStart++)
 	{
 		PIItem item = (*itemStart);
 
+		if (!xr_strcmp(item->m_section_id.c_str(), "mp_players_rukzak"))
+			continue;
+
 		Object table;
 
 		string2048 updates;
 		item->get_upgrades_str(updates);
+
+		table << "Section" << String(item->m_section_id.c_str());
 
 		if (item->GetCondition() < 1)
 			table << "condition" << Value(item->GetCondition());
@@ -51,72 +55,60 @@ void game_cl_freemp::save_player(game_PlayerState* cl)
 		if (item->has_any_upgrades())
 			table << "upgrades" << String(updates);
 
-		CWeapon* weap = item->cast_weapon();
-
-		if (item->CurrSlot())
+		if (item->cast_weapon())
 		{
-			int slot_val = item->m_ItemCurrPlace.value;
-			int slot_id = item->m_ItemCurrPlace.slot_id;
-			int slot_base = item->m_ItemCurrPlace.base_slot_id;
-			int slot_type = item->m_ItemCurrPlace.type;
-						
-			table << "slot_id" << Value(slot_id);
-		}
-
-		if (weap)
-		{
+			CWeapon* weap = item->cast_weapon();
 			table << "ammo_count" << Value(weap->GetAmmoElapsed());
 			table << "ammo_type" << Value(weap->m_ammoType);
 			table << "cur_scope" << Value(weap->m_cur_scope);
 			table << "addon_State" << Value(weap->GetAddonsState());
 		}
 
-		CWeaponAmmo* ammo = item->cast_weapon_ammo();
-
-		if (item->cast_weapon())
+		if (item->cast_weapon_ammo())
 		{
-			table << "Section" << String(item->m_section_id.c_str());
-			jsonWeapon << table;
+			CWeaponAmmo* ammo = item->cast_weapon_ammo();
+			table << "count" << Number(ammo->m_boxCurr);
+		}		
+		
+		if (item->m_ItemCurrPlace.type == eItemPlaceSlot || item->m_ItemCurrPlace.type == eItemPlaceBelt)
+		{
+ 			table << "slot_value" << Number(item->m_ItemCurrPlace.value);
+			jsonInSlots << table;
 		}
-		else
-		if (ammo)
+		else 
+		if (item->cast_weapon() || smart_cast<CCustomOutfit*>(item) || smart_cast<CHelmet*>(item) || item->cast_weapon_ammo())
 		{
-			int box_size = ammo->m_boxCurr;
-			//Msg("ammo_size[%d] [%s]", box_size, item->NameItem());
-			Object tab;
-			tab << "count" << Number(box_size);
-			tab << "Section" << String(ammo->m_section_id.c_str());
-			jsonAmmo << tab;
-		}
-		else
-		if (smart_cast<CCustomOutfit*>(item) || smart_cast<CHelmet*>(item))
-		{
-			table << "Section" << String(item->m_section_id.c_str());
-			jsonOutfit << table;
+			jsonCondition << table;
 		}
 		else
 		{
-			if (jsonOthers.has<Number>(item->m_section_id.c_str()))
+			if (jsonConsumable.has<Number>(item->m_section_id.c_str()))
 			{
-
-				int count = jsonOthers.get<Number>(item->m_section_id.c_str());
-
+				int count = jsonConsumable.get<Number>(item->m_section_id.c_str());
 				count += 1;
-
-				jsonOthers << item->m_section_id.c_str() << Number(count);
-
+				jsonConsumable << item->m_section_id.c_str() << Number(count);
 			}
 			else
-				jsonOthers << item->m_section_id.c_str() << Number(1);
+				jsonConsumable << item->m_section_id.c_str() << Number(1);
 		}
 	}
 
 	Object jsonInventory;
 
-	jsonInventory << "WEAPON" << jsonWeapon;
-	jsonInventory << "OUTFIT" << jsonOutfit;
-	jsonInventory << "AMMO" << jsonAmmo;
-	jsonInventory << "STUF" << jsonOthers;
+
+	CCustomDetector* det =  smart_cast<CCustomDetector*>(pActor->inventory().ItemFromSlot(DETECTOR_SLOT));
+	
+	if (det)
+	{
+		Object table;
+		table << "Section" << det->m_section_id.c_str();
+		table << "slot_value" << Number(det->cast_inventory_item()->m_ItemCurrPlace.value);
+		jsonInSlots << table;
+	}
+
+	jsonInventory << "Slots" << jsonInSlots;
+	jsonInventory << "Consumable" << jsonConsumable;
+	jsonInventory << "Condition" << jsonCondition;
 
 	json << "Inventory" << jsonInventory;
 	
@@ -140,9 +132,6 @@ void game_cl_freemp::save_player(game_PlayerState* cl)
 	json << "god" << Value(godmode);
 	json << "safemode" << Value(safemode);
 
-
-
-
 	if (ps->m_account.name_save().size() != 0)
 	{
 
@@ -165,13 +154,13 @@ void game_cl_freemp::save_player(game_PlayerState* cl)
 		if (ofile.is_open())
 		{
 			ofile << json.json().c_str();
-			Msg("SaveName %s", name);
+			//Msg("SaveName %s", name);
 		}
 		ofile.close();
 	}
 	else
 	{
-		Msg("SaveName %s", ps->m_account.name_save().c_str());
+		Msg("SaveName NULL %s", ps->m_account.name_save().c_str());
 	}
 
 }

@@ -49,6 +49,7 @@ public:
 	CSE_ALifeObject					*m_self;
 	u32								m_last_update_time;
 	xr_vector<shared_str>			m_upgrades;
+	u16								m_slot_value;
 
 public:
 									CSE_ALifeInventoryItem	(LPCSTR caSection);

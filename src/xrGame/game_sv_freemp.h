@@ -17,6 +17,7 @@ class game_sv_freemp : public game_sv_mp, private pure_relcase
 {
 	typedef game_sv_mp inherited;
 	SpawnSect spawned_items;
+ 
 
 public:
 									game_sv_freemp();
@@ -64,6 +65,9 @@ public:
 				void				set_account_nickname(LPCSTR login, LPCSTR password, LPCSTR new_nickname, u32 team);
 
 				int                 get_account_team(LPCSTR login, LPCSTR password);
+
+				void				save_inventoryBox(CSE_Abstract* ent);
+				void                load_inventoryBox(CSE_Abstract* ent);
 
 	virtual void LoadParamsDeffaultFMP();
 

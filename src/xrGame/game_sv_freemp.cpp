@@ -70,16 +70,21 @@ void game_sv_freemp::OnPlayerConnectFinished(ClientID id_who)
 		P.w_clientID(id_who);
 
 		int team = get_account_team(xrCData->ps->m_account.name_login().c_str(), xrCData->ps->m_account.password().c_str());
-
-		xrCData->ps->setFlag(GAME_PLAYER_MP_SAVETEAM);
-
-		xrCData->ps->team = team;
-		Msg("Setup Team [%d] log[%s], pas[%s]",
-			xrCData->ps->team, xrCData->ps->m_account.name_login().c_str(), xrCData->ps->m_account.password().c_str());
+		
+		if (team > 0)
+		{
+			xrCData->ps->setFlag(GAME_PLAYER_MP_SAVETEAM);
+			xrCData->ps->team = team;
+		}
+		else
+		{
+			xrCData->ps->team = 0;
+		}
 
 		xrCData->ps->setFlag(GAME_PLAYER_FLAG_SPECTATOR);
 		xrCData->ps->setFlag(GAME_PLAYER_FLAG_READY);
 		xrCData->ps->setFlag(GAME_PLAYER_MP_ON_CONNECTED);
+		
 		xrCData->ps->net_Export(P, TRUE);
 		u_EventSend(P);
 		xrCData->net_Ready = TRUE;
@@ -164,7 +169,6 @@ CSE_Abstract* game_sv_freemp::SpawnItemToActorReturn(u16 actorId, LPCSTR name)
 
 	return E;
 }
-
 
 void game_sv_freemp::OnTransferMoney(NET_Packet & P, ClientID const & clientID)
 {
@@ -268,6 +272,7 @@ void game_sv_freemp::OnPlayerKillPlayer(game_PlayerState * ps_killer, game_Playe
 		ps_killed->setFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD);
 		ps_killed->DeathTime = Device.dwTimeGlobal;
 	}
+
 	signal_Syncronize();
 }
 
@@ -330,6 +335,8 @@ void game_sv_freemp::OnEvent(NET_Packet &P, u16 type, u32 time, ClientID sender)
 }
 
 u32 oldTime_saveServer = 0;
+u32 oldTimeInventoryBoxSave = 0;
+bool loaded_inventory = false;
 
 void game_sv_freemp::Update()
 {
@@ -340,6 +347,31 @@ void game_sv_freemp::Update()
 		OnRoundStart();
 		oldTime_saveServer = Device.dwTimeGlobal;
 	}
+
+	if (!loaded_inventory && Phase() == GAME_PHASE_INPROGRESS)
+	{
+		xrS_entities* entitys = server().GetEntitys();
+		auto begin = entitys->begin();
+		auto end = entitys->end();
+
+		for (auto iter = begin; iter != end; iter++)
+		{
+			CSE_Abstract* E = server().ID_to_entity((*iter).first);
+			CSE_ALifeInventoryBox* box = smart_cast<CSE_ALifeInventoryBox*>(E);
+
+			if (box)
+			{
+				load_inventoryBox(box);
+				
+				loaded_inventory = true;
+			}
+
+			
+		}
+		
+	
+	}
+	 
 
 	if (Device.dwTimeGlobal - oldTime_saveServer > 1000 * 60)
 	{
@@ -358,7 +390,24 @@ void game_sv_freemp::Update()
 		oldTime_saveServer = Device.dwTimeGlobal;
 	}
 
- 
+	if (Device.dwTimeGlobal - oldTimeInventoryBoxSave > 2000 && loaded_inventory)
+	{
+		xrS_entities* entitys = server().GetEntitys();
+		auto begin = entitys->begin();
+		auto end = entitys->end();
+
+		for (auto iter = begin; iter != end; iter++)
+		{
+			CSE_Abstract* E = server().ID_to_entity((*iter).first);
+			CSE_ALifeInventoryBox* box = smart_cast<CSE_ALifeInventoryBox*>(E);
+
+			if (box)
+			{
+				save_inventoryBox(box);
+			}
+		}
+		oldTimeInventoryBoxSave = Device.dwTimeGlobal;
+	}
 }
 
 BOOL game_sv_freemp::OnTouch(u16 eid_who, u16 eid_what, BOOL bForced)

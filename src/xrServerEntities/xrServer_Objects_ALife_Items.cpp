@@ -68,6 +68,8 @@ CSE_ALifeInventoryItem::CSE_ALifeInventoryItem(LPCSTR caSection)
 
 	m_relevent_random.seed		(u32(CPU::GetCLK() & u32(-1)));
 	freezed						= false;
+
+	m_slot_value = 0;
 }
 
 CSE_Abstract *CSE_ALifeInventoryItem::init	()
@@ -87,6 +89,8 @@ void CSE_ALifeInventoryItem::STATE_Write	(NET_Packet &tNetPacket)
 	tNetPacket.w_float			(m_fCondition);
 	save_data					(m_upgrades, tNetPacket);
 	State.position				= base()->o_Position;
+
+	tNetPacket.w_u16(m_slot_value);
 }
 
 void CSE_ALifeInventoryItem::STATE_Read		(NET_Packet &tNetPacket, u16 size)
@@ -101,6 +105,8 @@ void CSE_ALifeInventoryItem::STATE_Read		(NET_Packet &tNetPacket, u16 size)
 	}
 
 	State.position				= base()->o_Position;
+
+	tNetPacket.r_u16(m_slot_value);
 }
 
 static inline bool check (const u8 &mask, const u8 &test)

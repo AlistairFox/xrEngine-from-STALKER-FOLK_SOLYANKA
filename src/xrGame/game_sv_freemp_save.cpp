@@ -53,164 +53,116 @@ bool game_sv_freemp::LoadPlayer(game_PlayerState* id_who)
 	{
 		Object inv = json.get<Object>("Inventory");
 		
-		if (inv.has<Array>("AMMO"))
+		if (inv.has<Array>("Slots"))
 		{
-			Array ammo = inv.get<Array>("AMMO");
-			for (int i = 0; i != ammo.size(); i++)
+			Array slots = inv.get<Array>("Slots");
+			for (int i = 0; i != slots.size(); i++)
 			{
-				Object ammo_obj = ammo.get<Object>(i);
-				CSE_ALifeItemAmmo* ammo;
-
-				if (ammo_obj.has<String>("Section"))
+				Object slots_tab = slots.get<Object>(i);
+				if (slots_tab.has<String>("Section"))
 				{
-					LPCSTR ammo_sec = ammo_obj.get<String>("Section").c_str();
-					CSE_Abstract* ent = SpawnItemToActorReturn(ps->GameID, ammo_sec);
-					ammo = smart_cast<CSE_ALifeItemAmmo*>(ent);
+					LPCSTR name = slots_tab.get<String>("Section").c_str();
+					CSE_Abstract* ent = SpawnItemToActorReturn(ps->GameID, name);
+					CSE_ALifeInventoryItem* item = smart_cast<CSE_ALifeInventoryItem*>(ent);
+					CSE_ALifeItemWeapon* ent_weapon = smart_cast<CSE_ALifeItemWeapon*>(ent);
 
-					if (ammo_obj.has<Number>("count"))
+					if (!item)
+						continue;
+
+					if (slots_tab.has<Number>("condition"))
+						item->m_fCondition = slots_tab.get<Number>("condition");
+					
+					if (slots_tab.has<Number>("slot_value"))
 					{
-						if (ammo)
-							ammo->a_elapsed = ammo_obj.get<Number>("count");
-					}
-				
-					spawn_end(ammo, m_server->GetServerClient()->ID);
-
-					Msg("Section Ammo [%s]", ammo_sec);
-
-				}
-			}
-		}
-
-		if (inv.has<Array>("OUTFIT"))
-		{
-			Array outfit = inv.get<Array>("OUTFIT");
-			for (int i = 0; i != outfit.size(); i++)
-			{
-				Object out = outfit.get<Object>(i);
-
-			
-
-				if (out.has<String>("Section"))
-				{
-					LPCSTR section = out.get<String>("Section").c_str();
-
-					CSE_Abstract* ent = SpawnItemToActorReturn(ps->GameID, section);
-
-					CSE_ALifeItemCustomOutfit* itemOutfit = smart_cast<CSE_ALifeItemCustomOutfit*>(ent);
-
-					if (out.has<Number>("condition"))
-					{
-						if (itemOutfit)
-							itemOutfit->m_fCondition = out.get<Number>("condition");
+						u16 value = slots_tab.get<Number>("slot_value");
+						item->m_slot_value = value;
 					}
 
-					if (out.has<Number>("slot_id"))
+					if (ent_weapon)
 					{
-						if (itemOutfit)
-							itemOutfit->m_in_slot = out.get<Number>("slot_id");
+						if (slots_tab.has<Number>("ammo_count"))
+							ent_weapon->a_elapsed = slots_tab.get<Number>("ammo_count");
+
+						if (slots_tab.has<Number>("ammo_type"))
+							ent_weapon->ammo_type = slots_tab.get<Number>("ammo_type");
+
+						if (slots_tab.has<Number>("addon_State"))
+							ent_weapon->m_addon_flags.flags = slots_tab.get<Number>("addon_State");
+
+						if (slots_tab.has<Number>("cur_scope"))
+							ent_weapon->m_cur_scope = slots_tab.get<Number>("cur_scope");
 					}
+					 
 
-					spawn_end(ent, m_server->GetServerClient()->ID);
-
-
-					Msg("Section Outfit [%s]", section);
+					spawn_end(ent, server().GetServerClient()->ID);
 				}
 			}
 		}
 	
-		if (inv.has<Array>("WEAPON"))
+		if (inv.has<Array>("Condition"))
 		{
-			Array weap = inv.get<Array>("WEAPON");
+			Array weap = inv.get<Array>("Condition");
 
 			for (int i = 0; i != weap.size(); i++)
 			{
-				Object weapon = weap.get<Object>(i);
+				Object condition = weap.get<Object>(i);
 
-				if (weapon.has<String>("Section"))
+				if (condition.has<String>("Section"))
 				{
-					LPCSTR sec = weapon.get<String>("Section").c_str();
-					CSE_Abstract* ent = SpawnItemToActorReturn(ps->GameID, sec);
-					CSE_ALifeItemWeapon* ent_weapon = smart_cast<CSE_ALifeItemWeapon*>(ent);
+					LPCSTR sec = condition.get<String>("Section").c_str();
 					
-					if (!ent_weapon)
+					CSE_Abstract* ent = SpawnItemToActorReturn(ps->GameID, sec);
+					CSE_ALifeInventoryItem* item = ent->cast_inventory_item();
+					CSE_ALifeItemWeapon* ent_weapon = ent->cast_item_weapon();
+					CSE_ALifeItemAmmo* ammo = ent->cast_item_ammo();
+				
+					if (!ent)
 						continue;
 
-					if (weapon.has<Number>("condition")) 
-						ent_weapon->m_fCondition = weapon.get<Number>("condition"); 
+					if (ammo && condition.has<Number>("count"))
+						ammo->a_elapsed = condition.get<Number>("count");
 
-					if (weapon.has<Number>("ammo_count"))
-						ent_weapon->a_elapsed = weapon.get<Number>("ammo_count");
+					if (item && condition.has<Number>("condition"))
+						item->m_fCondition = condition.get<Number>("condition");
+
+					if (ent_weapon && condition.has<Number>("ammo_count"))
+						ent_weapon->a_elapsed = condition.get<Number>("ammo_count");
 					
-					if (weapon.has<Number>("ammo_type"))
-						ent_weapon->ammo_type = weapon.get<Number>("ammo_type");
+					if (ent_weapon && condition.has<Number>("ammo_type"))
+						ent_weapon->ammo_type = condition.get<Number>("ammo_type");
 
-					if (weapon.has<Number>("addon_State"))
-						ent_weapon->m_addon_flags.flags = weapon.get<Number>("addon_State");
+					if (ent_weapon && condition.has<Number>("addon_State"))
+						ent_weapon->m_addon_flags.flags = condition.get<Number>("addon_State");
 
-					if (weapon.has<Number>("cur_scope"))
-						ent_weapon->m_cur_scope = weapon.get<Number>("cur_scope");
+					if (ent_weapon && condition.has<Number>("cur_scope"))
+						ent_weapon->m_cur_scope = condition.get<Number>("cur_scope");			
 
 					spawn_end(ent, m_server->GetServerClient()->ID);
-					
-					Msg("Section [%s],con[%d],ammo[%d],type[%d], addon[%d], scope[%d]", 
-						sec,
-						ent_weapon->m_fCondition,
-						ent_weapon->a_elapsed,
-						ent_weapon->ammo_type,
-						ent_weapon->m_addon_flags.flags,
-						ent_weapon->m_cur_scope
-						);
-					/*
-					if (weapon.has<Number>("slot_id"))
-					{
-						CObject* local_obj = Level().Objects.net_Find(ent_weapon->ID);
-						
-						int slot_id = weapon.get<Number>("slot_id");
-						
-						CWeapon* weapon_item = smart_cast<CWeapon*>(local_obj);
-
-						if (weapon_item)
-							weapon_item->m_ItemCurrPlace.value = slot_id;
-					}
-					*/
 
 				}
 			}
 		}
 
-		if (inv.has<Object>("STUF"))
+		if (inv.has<Object>("Consumable"))
 		{
-			Object others = inv.get<Object>("STUF");
-
+			Object others = inv.get<Object>("Consumable");
 			for (auto i = others.kv_map().begin(); i != others.kv_map().end(); i++)
 			{
 				LPCSTR name = (*i).first.c_str();
 				int count = (*i).second->number_value_;
-			
-			//	Msg("Spawn Item[%s] [%d]", count);
-
-				//if (inv.has<Number>(name))
-				{
-				//	int count = inv.get<Number>(name);
-					Msg("Spawn Item[%s] [%d]", name, count);
-
-					for (int i = 0; i != count; i++)
-					{
-						SpawnItemToActor(ps->GameID, name);
-					}
-				}
+				for (int i = 0; i != count; i++)
+					SpawnItemToActor(ps->GameID, name);
 			}
-
-			
 		}
 	}
 
-	SpawnItemToActor(id_who->GameID, "device_pda");
-	SpawnItemToActor(id_who->GameID, "device_torch");
-	SpawnItemToActor(id_who->GameID, "wpn_knife");
-	SpawnItemToActor(id_who->GameID, "wpn_binoc");
-
-
+	if (GameID() == eGameIDFreeMp) 
+	{
+		SpawnItemToActor(id_who->GameID, "device_pda");
+		SpawnItemToActor(id_who->GameID, "device_torch");
+		SpawnItemToActor(id_who->GameID, "wpn_knife");
+		SpawnItemToActor(id_who->GameID, "wpn_binoc");
+	}
 	return true;
 }
 
@@ -303,7 +255,6 @@ void game_sv_freemp::assign_RP(CSE_Abstract* E, game_PlayerState* ps_who)
 		}
 	}
 	 
- 
 	inherited::assign_RP(E, ps_who);
  
 }
@@ -425,6 +376,213 @@ int game_sv_freemp::get_account_team(LPCSTR login, LPCSTR password)
 	}
 	 
 	return team;
+}
+
+#include "InventoryBox.h"
+
+void game_sv_freemp::save_inventoryBox(CSE_Abstract* ent)
+{
+	CSE_ALifeInventoryBox* boxs = smart_cast<CSE_ALifeInventoryBox*>(ent);
+
+	if (!boxs)
+		return;
+
+	CObject* obj = Level().Objects.net_Find(boxs->ID);
+	CInventoryBox* box = smart_cast<CInventoryBox*>(obj);
+	
+	if (box)
+	{
+		TIItemContainer items;
+		box->AddAvailableItems(items);
+		
+		Array listInventory;
+		
+		Object Main;
+
+		for (auto item : items)
+		{
+			Object table;
+
+			CWeapon* wpn = smart_cast<CWeapon*>(item);
+			CWeaponAmmo* wpn_ammo = smart_cast<CWeaponAmmo*>(item);
+
+			string2048 updates;
+			item->get_upgrades_str(updates);
+			
+			table << "Section" << String(item->m_section_id.c_str());
+
+			if (item->GetCondition() < 1)
+				table << "condition" << Value(item->GetCondition());
+
+			if (item->has_any_upgrades())
+				table << "upgrades" << String(updates);
+
+			if (item->cast_weapon())
+			{
+				CWeapon* weap = item->cast_weapon();
+				table << "ammo_count" << Number(weap->GetAmmoElapsed());
+				table << "ammo_type" << Number(weap->m_ammoType);
+				table << "cur_scope" << Number(weap->m_cur_scope);
+				table << "addon_State" << Number(weap->GetAddonsState());
+			}
+
+			if (item->cast_weapon_ammo())
+				table << "count" << Number(item->cast_weapon_ammo()->m_boxCurr);
+
+			listInventory << table;
+		}
+
+		Main << "ListItems" << listInventory;
+		
+
+		if (FS.path_exist("$mp_saves_inventory$"))
+		{
+			string128 pathLevel = { 0 };
+			xr_strcat(pathLevel, Level().name().c_str());
+			
+			string128 name = { 0 };
+			xr_strcat(name, box->Name());
+			xr_strcat(name, ".json");
+
+			xr_strcat(pathLevel, "\\");
+			xr_strcat(pathLevel, name);
+			
+			string_path Level_path;
+			FS.update_path(Level_path, "$mp_saves_inventory$", pathLevel);
+						 
+			IWriter* file = FS.w_open(Level_path);
+			FS.w_close(file);
+
+			std::ofstream ofile(Level_path);
+
+			if (ofile.is_open())
+			{
+				ofile << Main.json().c_str();
+				//Msg("SaveName %s", Level_path);
+			}
+
+			ofile.close();
+		}
+	}
+
+}
+
+void game_sv_freemp::load_inventoryBox(CSE_Abstract* ent)
+{
+	CSE_ALifeInventoryBox* boxs = smart_cast<CSE_ALifeInventoryBox*>(ent);
+
+	if (!boxs)
+		return;
+
+	CObject* obj = Level().Objects.net_Find(boxs->ID);
+	CInventoryBox* box = smart_cast<CInventoryBox*>(obj);
+
+	Msg("InitLoad inv_box [%s] id [%d]", boxs->name_replace(), boxs->ID);
+
+	Object Main;
+	Array listInventory;
+
+	if (FS.path_exist("$mp_saves_inventory$"))
+	{
+		string128 pathLevel = {0};
+		xr_strcat(pathLevel, Level().name().c_str());
+
+		string128 name = {0};
+		xr_strcat(name, box->Name());
+		xr_strcat(name, ".json");
+
+		xr_strcat(pathLevel, "\\");
+		xr_strcat(pathLevel, name);
+
+		string_path Level_path;
+		FS.update_path(Level_path, "$mp_saves_inventory$", pathLevel);
+
+		std::ifstream InputFile(Level_path);
+
+		//Msg("FileName %s", Level_path);
+
+		if (InputFile.is_open())
+		{
+			std::string str((std::istreambuf_iterator<char>(InputFile)), std::istreambuf_iterator<char>());
+
+			Main.parse(str);
+
+			Msg("LoadFile Name %s", Level_path);
+		}
+
+		InputFile.close();
+	}
+	
+	if (Main.has<Array>("ListItems"))
+	{
+		listInventory = Main.get<Array>("ListItems");
+	}
+	else
+		return;
+		
+	for (int i = 0; i != listInventory.size(); i++)
+	{
+		Object table = listInventory.get<Object>(i);
+		 	
+		LPCSTR sec = {0};
+		
+		if (table.has<String>("Section"))
+			sec = table.get<String>("Section").c_str();
+
+		if (sec == 0)
+			return;
+
+		CSE_Abstract* abs = spawn_begin(sec);
+		abs->ID_Parent = boxs->ID;
+		abs->o_Position = boxs->position();
+		
+		if (!abs)
+			continue;
+
+		CSE_ALifeInventoryItem* item = smart_cast<CSE_ALifeInventoryItem*>(abs);
+		CSE_ALifeItemWeapon* wpn = smart_cast<CSE_ALifeItemWeapon*>(abs);
+		CSE_ALifeItemAmmo* wpn_ammo = smart_cast<CSE_ALifeItemAmmo*>(abs);
+
+		//string2048 updates;
+		//abs->get_upgrades_str(updates);
+	
+		//if (item->has_any_upgrades())
+		//	table << "upgrades" << String(updates);
+		
+		if (table.has<Number>("condition"))
+			item->m_fCondition = table.get<Number>("condition");
+
+		if (wpn)
+		{
+			u16 a_elapsed, ammo_type, cur_scope, addon_State;
+
+			if (table.has<Number>("ammo_count"))
+				a_elapsed = table.get<Number>("ammo_count");
+			if (table.has<Number>("ammo_type"))
+				ammo_type = table.get<Number>("ammo_type");
+			if (table.has<Number>("cur_scope"))
+				cur_scope = table.get<Number>("cur_scope");
+			if (table.has<Number>("addon_State"))
+				addon_State = table.get<Number>("addon_State");
+
+			Msg("Load Weapon [%d], [%d], [%d], [%d]", a_elapsed, ammo_type, cur_scope, addon_State);
+			wpn->a_elapsed = a_elapsed;
+			wpn->ammo_type = ammo_type;
+			wpn->m_cur_scope = cur_scope;
+			wpn->m_addon_flags.flags = addon_State;
+		}
+
+		if (wpn_ammo)
+		{
+			Msg("Load Weapon ammo");
+			if (table.has<Number>("count"))
+				wpn_ammo->a_elapsed = table.get<Number>("count");
+		}
+
+		Msg("SpawnInventoryBoxItem [%s] in box [%s]", sec, boxs->name_replace() );
+		spawn_end(abs, server().GetServerClient()->ID);
+	}
+	 
 }
 
 void game_sv_freemp::LoadParamsDeffaultFMP()

@@ -12,8 +12,9 @@ game_cl_freemp::game_cl_freemp()
 game_cl_freemp::~game_cl_freemp()
 {
 }
-bool connected_spawn = false;
 
+bool connected_spawn = false;
+extern bool just_Connected;
 
 CUIGameCustom* game_cl_freemp::createGameUI()
 {
@@ -50,16 +51,9 @@ u32 old_time = 0;
 void game_cl_freemp::shedule_Update(u32 dt)
 {
 	game_cl_GameState::shedule_Update(dt);
- 
-	if (connected_spawn)
-	{
-		connected_spawn = OnConnectedSpawnPlayer();
-	}
-		
 
 	if (!local_player)
 		return;
-
 	
 	// синхронизация имени и денег игроков для InventoryOwner
 	for (auto cl : players)
@@ -85,11 +79,60 @@ void game_cl_freemp::shedule_Update(u32 dt)
 		{
 			pActor->set_money((u32)ps->money_for_round, false);
 		}
-	 
-		
+
+		if (!connected_spawn && local_player->GameID == ps->GameID)
+		{
+			string_path filepath;
+
+			FS.update_path(filepath, "$mp_saves$", "actor.ltx");
+
+			CInifile* file = xr_new<CInifile>(filepath, true);
+
+			if (file && file->section_exist("QuickSlots"))
+			{
+				string64 Slot1, Slot2, Slot3, Slot4;
+				xr_strcpy(Slot1, file->r_string("QuickSlots", "Slot1"));
+				xr_strcpy(Slot2, file->r_string("QuickSlots", "Slot2"));
+				xr_strcpy(Slot3, file->r_string("QuickSlots", "Slot3"));
+				xr_strcpy(Slot4, file->r_string("QuickSlots", "Slot4"));
+
+				Msg("Slot[%s][%s][%s][%s]", Slot1, Slot2, Slot3, Slot4);
+
+				xr_strcpy(g_quick_use_slots[0], Slot1);
+				xr_strcpy(g_quick_use_slots[1], Slot2);
+				xr_strcpy(g_quick_use_slots[2], Slot3);
+				xr_strcpy(g_quick_use_slots[3], Slot4);
+
+				connected_spawn = true;
+			}
+		}
 	}
 
-	if (OnServer() && Device.dwTimeGlobal - old_time > 5000 && true)
+	if (local_player->GameID)
+	
+
+	if (OnClient() && Device.dwTimeGlobal - old_time > 1000 && connected_spawn)
+	{
+		string_path filepath;
+
+		FS.update_path(filepath, "$mp_saves$", "actor.ltx");
+
+		CInifile* file = xr_new<CInifile>(filepath, false);
+
+		if (file)
+		{
+			file->w_string("QuickSlots", "Slot1", g_quick_use_slots[0]);
+			file->w_string("QuickSlots", "Slot2", g_quick_use_slots[1]);
+			file->w_string("QuickSlots", "Slot3", g_quick_use_slots[2]);
+			file->w_string("QuickSlots", "Slot4", g_quick_use_slots[3]);
+		}
+
+		file->save_as(filepath);
+
+		old_time = Device.dwTimeGlobal;
+	}
+
+	if (OnServer() && Device.dwTimeGlobal - old_time > 1000)
 	{
 		for (auto cl : players)
 			save_player(cl.second);
@@ -143,26 +186,23 @@ LPCSTR game_cl_freemp::GetGameScore(string32&	score_dest)
 	return score_dest;
 }
 
-extern bool just_Connected;
-
 void game_cl_freemp::OnConnected()
 {
 	inherited::OnConnected();
+	
 	if (m_game_ui)
 	{
 		R_ASSERT(!g_dedicated_server);
 		m_game_ui = smart_cast<CUIGameFMP*>	(CurrentGameUI());
 		m_game_ui->SetClGame(this);
 	}
-
+	 
 	luabind::functor<void>	funct;
 	R_ASSERT(ai().script_engine().functor("mp_game_cl.on_connected", funct));
 	funct();
 
 	just_Connected = true;
 	
-
-	connected_spawn = true;
 }
 
 bool game_cl_freemp::OnConnectedSpawnPlayer()
