@@ -45,37 +45,24 @@ bool game_cl_roleplay::CanRespawn()
 {
 	CGameObject *pObject = smart_cast<CGameObject*>(Level().CurrentEntity());
 	if (!pObject) return false;
-	
+	if (!local_player) return false;
+
+	if (local_player->testFlag(GAME_PLAYER_FLAG_SPECTATOR) 
+	&& local_player->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD))
+		return true;
+ 
 	// If we are an actor and we are dead
-	return !!smart_cast<CActor*>(pObject) &&
-					local_player &&
-					local_player->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD);
+	return !!smart_cast<CActor*>(pObject) && local_player->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD);
 }
 
 void game_cl_roleplay::TryShowSpawnMenu()
 {
 	if (g_dedicated_server)
 		return;
-	
-	bool saveteam = local_player->testFlag(GAME_PLAYER_MP_SAVETEAM);
-	
-	if (!saveteam)
-		return;
-
-	Msg("Team[%d], connect [%s], select [%s]", 
-		local_player->team, saveteam ? "true" : "false", 
-		m_bTeamSelected ? "true" : "false");
-
-	if (local_player->team == 0)
-	{
-		if (!m_bTeamSelected && !m_game_ui->SpawnMenu()->IsShown())
-			m_game_ui->SpawnMenu()->ShowDialog(true); 
- 	}
-	else
-	{
-		if (!m_bTeamSelected)
-			OnTeamSelect(local_player->team);
-	}
+ 
+	if (!m_bTeamSelected && !m_game_ui->SpawnMenu()->IsShown())
+		m_game_ui->SpawnMenu()->ShowDialog(true); 
+ 	
 }
 
 void game_cl_roleplay::TrySwitchJumpCaption()
@@ -97,7 +84,18 @@ void game_cl_roleplay::shedule_Update(u32 dt)
 {
 	inherited::shedule_Update(dt);
 
-	TryShowSpawnMenu();
+	bool ready = local_player->testFlag(GAME_PLAYER_FLAG_READY);
+
+	bool savefile = local_player->testFlag(GAME_PLAYER_MP_SAVETEAM);
+	
+	//Msg("Ready [%s], saveFile [%s]", ready ? "true" : "false", savefile ? "true" : "false");
+	
+	if (savefile)
+		m_bTeamSelected = true;
+	
+	if (!m_bTeamSelected && ready && !savefile)
+		TryShowSpawnMenu();
+
 	TrySwitchJumpCaption();
 }
 
@@ -106,15 +104,12 @@ void game_cl_roleplay::OnTeamSelect(int team)
 	CGameObject *pObject = smart_cast<CGameObject*>(Level().CurrentEntity());
 	if (!pObject) return;
 
-	Msg("Player Dead[%s]", local_player->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD) ? "true" : "false");
-	Msg("Player Spectator[%s]", local_player->testFlag(GAME_PLAYER_FLAG_SPECTATOR) ? "true" : "false");
-
 	NET_Packet P;
 	pObject->u_EventGen(P, GE_GAME_EVENT, pObject->ID());
 	P.w_u16(GAME_EVENT_PLAYER_GAME_MENU);
 	P.w_u8(PLAYER_CHANGE_TEAM);
-
 	P.w_s16(static_cast<s16>(team));
+
 	pObject->u_EventSend(P);
 	m_bTeamSelected = true;
 }

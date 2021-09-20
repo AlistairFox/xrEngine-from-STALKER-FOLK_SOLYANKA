@@ -60,13 +60,10 @@ void game_sv_roleplay::OnEvent(NET_Packet & tNetPacket, u16 type, u32 time, Clie
 void game_sv_roleplay::OnPlayerSelectTeam(NET_Packet& P, ClientID sender)
 {
 	s16 team = P.r_s16();
-
-	
 	game_PlayerState*	ps = get_id(sender);
-	Msg("OnPlayerSelectTeam team[%d] team_ps[%d] send[%d]", team, ps->team, sender.value());
 
 	if (!ps) return;
-	if (ps->team == team && !ps->testFlag(GAME_PLAYER_MP_SAVETEAM)) return;
+	if (ps->team == team) return;
 
 	// set team for player
 	ps->team = u8(team & 0x00ff);
