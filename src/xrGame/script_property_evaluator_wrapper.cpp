@@ -37,7 +37,7 @@ bool CScriptPropertyEvaluatorWrapper::evaluate		()
 	}
 #endif
 	catch(...) {
-		ai().script_engine().script_log (ScriptStorage::eLuaMessageTypeError,"SCRIPT RUNTIME ERROR : object [%s] evaluator [%s] returns value with not a bool type!", this->m_object->Name(), m_evaluator_name);
+		ai().script_engine().script_log (ScriptStorage::eLuaMessageTypeError,"SCRIPT RUNTIME ERROR : object [%s] evaluator [%s] alive [%s] crashed!", this->m_object->Name(), m_evaluator_name, this->m_object->Alive() ? "true" : "false");
 	}
 	return		(false);
 }
