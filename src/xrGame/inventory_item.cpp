@@ -364,6 +364,11 @@ BOOL CInventoryItem::net_Spawn			(CSE_Abstract* DC)
 	if (GameID() != eGameIDSingle)
 		object().processing_activate();
 
+	if (pSE_InventoryItem->m_slot_value != 0)
+		m_ItemCurrPlace.value = pSE_InventoryItem->m_slot_value;
+	
+	//Msg("Spawn value slot [%d]", m_ItemCurrPlace.value);
+
 	m_dwItemIndependencyTime		= 0;
 	
 	m_just_after_spawn		= true;
