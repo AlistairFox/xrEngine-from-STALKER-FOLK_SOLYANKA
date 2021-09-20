@@ -2725,7 +2725,7 @@ public:
 
 							if (!compere)
 							{
-								Msg("--- Логин [%s] Логин2 [%s] Занят укажите другой значение[%s]", login, login_cmp.c_str(), compere? "true" : "false");
+								Msg("--- Логин [%s] Занят укажите другой значение", login);
 								return;
 							}
 						}
