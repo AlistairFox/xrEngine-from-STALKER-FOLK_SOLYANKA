@@ -1193,8 +1193,12 @@ CSE_Abstract*	xrServer::GetEntity			(u32 Num)
 		if (C == Num) return I->second;
 	};
 	return NULL;
-};
+}
 
+xrS_entities* xrServer::GetEntitys()
+{
+	return &entities;
+}
 
 void		xrServer::OnChatMessage(NET_Packet* P, xrClientData* CL)
 {
