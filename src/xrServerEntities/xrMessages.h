@@ -80,6 +80,8 @@ enum {
 	M_CREATE_PLAYER_STATE,
 	M_COMPRESSED_UPDATE_OBJECTS,
 
+	
+
 	MSG_FORCEDWORD				= u32(-1)
 };
 
@@ -180,6 +182,8 @@ enum {
 	
 	GE_MODE_SWITCH,
 
+	GE_UI_PDA,
+
 	GE_FORCEDWORD				= u32(-1)
 };
 
@@ -252,6 +256,7 @@ enum EGameMessages {  //game_cl <----> game_sv messages
 	GAME_EVENT_MP_TRADE,
 	GAME_EVENT_TRANSFER_MONEY,
 	GAME_EVENT_PLAYER_NAME_ACCAUNT,
+	
 
 	//-----------------------------------------
 	GAME_EVENT_SCRIPT_BEGINS_FROM,		// don't add messages after this

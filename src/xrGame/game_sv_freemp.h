@@ -6,6 +6,19 @@
 #include "../jsonxx/jsonxx.h"
 using namespace jsonxx;
 
+struct TeamPlayer
+{
+	ClientID Client;
+	u16 GameID = -1;
+};
+
+struct Team
+{
+	TeamPlayer players[4];
+	u32 leader = -1;
+	u16 cur_players = 0;
+};
+
 struct SpawnSect
 {
 	s32 StartMoney;
@@ -20,7 +33,10 @@ class game_sv_freemp : public game_sv_mp, private pure_relcase
  
 
 public:
-									game_sv_freemp();
+	xr_map<u16, Team> teamPlayers;
+	
+	
+	game_sv_freemp();
 	virtual							~game_sv_freemp();
 	
 	virtual		void				Create(shared_str &options);
@@ -71,4 +87,7 @@ public:
 
 	virtual void LoadParamsDeffaultFMP();
 
+	void OnPlayerUIContacts(NET_Packet& P, ClientID const& clientID);
+	void game_sv_freemp::OnPlayerUIContactsRecvest(NET_Packet& P, ClientID const& clientID);
+	void game_sv_freemp::OnPlayerUIContactsRecvestUpdate(ClientID Client, u32 leader);
 };

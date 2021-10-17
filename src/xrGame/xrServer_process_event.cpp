@@ -11,6 +11,7 @@
 #include "xrServer_Objects_ALife_Monsters.h"
 
 #include "Level.h"
+#include "game_sv_freemp.h"
 
 void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 {
@@ -424,6 +425,25 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 		game->signal_Syncronize();
 
 	}break;
+
+	case GE_UI_PDA:
+	{
+		game_sv_freemp* freemp = smart_cast<game_sv_freemp*>(game);
+		u8 type;
+		P.r_u8(type);
+
+		if (type == 0)
+		{
+			freemp->OnPlayerUIContactsRecvest(P, sender);
+		}
+		else if (type == 1)
+		{
+			freemp->OnPlayerUIContacts(P, sender);
+		}
+
+
+	}break;
+
 
 	default:
 		R_ASSERT2	(0,"Game Event not implemented!!!");

@@ -26,6 +26,8 @@
 #include "UITaskWnd.h"
 #include "UIRankingWnd.h"
 #include "UILogsWnd.h"
+#include "UIPda_Contacts.h"
+
 
 #define PDA_XML		"pda.xml"
 
@@ -39,6 +41,8 @@ CUIPdaWnd::CUIPdaWnd()
 //-	pUIFactionWarWnd = NULL;
 	pUIRankingWnd    = NULL;
 	pUILogsWnd       = NULL;
+	pUIContacts		 = NULL;
+
 	m_hint_wnd       = NULL;
 	Init();
 }
@@ -49,6 +53,8 @@ CUIPdaWnd::~CUIPdaWnd()
 //-	delete_data( pUIFactionWarWnd );
 	delete_data( pUIRankingWnd );
 	delete_data( pUILogsWnd );
+	delete_data( pUIContacts );
+
 	delete_data( m_hint_wnd );
 	delete_data( UINoice );
 }
@@ -67,12 +73,14 @@ void CUIPdaWnd::Init()
 	m_caption				= UIHelper::CreateTextWnd	( uiXml, "caption_static", this );
 	m_caption_const			= ( m_caption->GetText() );
 	m_clock					= UIHelper::CreateTextWnd	( uiXml, "clock_wnd", this );
+
 /*
 	m_anim_static			= xr_new<CUIAnimatedStatic>();
 	AttachChild				(m_anim_static);
 	m_anim_static->SetAutoDelete(true);
 	CUIXmlInit::InitAnimatedStatic(uiXml, "anim_static", 0, m_anim_static);
 */
+
 	m_btn_close				= UIHelper::Create3tButton( uiXml, "close_button", this );
 	m_hint_wnd				= UIHelper::CreateHint( uiXml, "hint_wnd" );
 
@@ -91,6 +99,9 @@ void CUIPdaWnd::Init()
 	pUILogsWnd						= xr_new<CUILogsWnd>();
 	pUILogsWnd->Init				();
 
+	//MP 
+	pUIContacts = xr_new<CUIPda_Contacts>();
+	pUIContacts->Init();
 
 	UITabControl					= xr_new<CUITabControl>();
 	UITabControl->SetAutoDelete		(true);
@@ -189,6 +200,10 @@ void CUIPdaWnd::SetActiveSubdialog(const shared_str& section)
 	else if ( section == "eptLogs" )
 	{
 		m_pActiveDialog = pUILogsWnd;
+	} 
+	else if (section == "eptContacts")
+	{
+		m_pActiveDialog = pUIContacts;
 	}
 
 	R_ASSERT2						(m_pActiveDialog, "active dialog is not initialized");
@@ -291,6 +306,8 @@ void CUIPdaWnd::Reset()
 //-	if ( pUIFactionWarWnd )	pUITaskWnd->ResetAll();
 	if ( pUIRankingWnd )	pUIRankingWnd->ResetAll();
 	if ( pUILogsWnd )		pUILogsWnd->ResetAll();
+	if (pUIContacts)		pUIContacts->ResetAll();
+
 }
 
 void CUIPdaWnd::SetCaption( LPCSTR text )

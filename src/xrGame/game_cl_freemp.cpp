@@ -235,3 +235,22 @@ bool game_cl_freemp::OnConnectedSpawnPlayer()
 		return true;
  	}
 }
+
+#include "ui/UIPdaWnd.h"
+#include "UIPda_Contacts.h"
+
+void game_cl_freemp::TranslateGameMessage(u32 msg, NET_Packet& P)
+{
+	switch (msg)
+	{
+	case (GE_UI_PDA):
+	{
+		m_game_ui->PdaMenu().pUIContacts->EventRecive(P);
+	}break;
+
+	default:
+		inherited::TranslateGameMessage(msg, P);
+		break;
+	}
+
+}

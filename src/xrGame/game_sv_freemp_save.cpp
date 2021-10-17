@@ -10,6 +10,9 @@
 
 #include "actor_mp_client.h"
 #include "Weapon.h"
+#include "InventoryBox.h"
+
+
 
 using namespace jsonxx;
 
@@ -36,8 +39,7 @@ bool game_sv_freemp::LoadPlayer(game_PlayerState* id_who)
 
 	if (ifile.is_open())
 	{
-		std::string str( (std::istreambuf_iterator<char>(ifile) ), std::istreambuf_iterator<char>());
-
+		std::string str( (std::istreambuf_iterator<char>(ifile) ), std::istreambuf_iterator<char>() );
 		json.parse(str);
 		Msg("Load SaveName %s", name);
 	}
@@ -156,7 +158,7 @@ bool game_sv_freemp::LoadPlayer(game_PlayerState* id_who)
 		}
 	}
 
-	if (GameID() == eGameIDFreeMp) 
+	if (GameID() == eGameIDFreeMp)
 	{
 		SpawnItemToActor(id_who->GameID, "device_pda");
 		SpawnItemToActor(id_who->GameID, "device_torch");
@@ -378,7 +380,6 @@ int game_sv_freemp::get_account_team(LPCSTR login, LPCSTR password)
 	return team;
 }
 
-#include "InventoryBox.h"
 
 void game_sv_freemp::save_inventoryBox(CSE_Abstract* ent)
 {

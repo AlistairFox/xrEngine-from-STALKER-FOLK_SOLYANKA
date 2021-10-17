@@ -1678,6 +1678,9 @@
     <ClInclude Include="UIGameSP.h" />
     <ClInclude Include="UIGameTDM.h" />
     <ClInclude Include="UIPanelsClassFactory.h" />
+    <ClInclude Include="UIPda_Chat.h" />
+    <ClInclude Include="UIPda_Contacts.h" />
+    <ClInclude Include="UIPda_Squad.h" />
     <ClInclude Include="UIPlayerItem.h" />
     <ClInclude Include="UIStaticItem.h" />
     <ClInclude Include="UITeamHeader.h" />
@@ -3063,6 +3066,7 @@
     <ClCompile Include="cta_game_artefact_activation.cpp" />
     <ClCompile Include="game_cl_freemp_save.cpp" />
     <ClCompile Include="game_cl_roleplay.cpp" />
+    <ClCompile Include="game_sv_freemp_PDA.cpp" />
     <ClCompile Include="game_sv_freemp_save.cpp" />
     <ClCompile Include="game_sv_freemp_trade.cpp" />
     <ClCompile Include="game_sv_roleplay.cpp" />
@@ -4909,6 +4913,9 @@
     </ClCompile>
     <ClCompile Include="UIGameTDM.cpp" />
     <ClCompile Include="UIPanelsClassFactory.cpp" />
+    <ClCompile Include="UIPda_Chat.cpp" />
+    <ClCompile Include="UIPda_Contacts.cpp" />
+    <ClCompile Include="UIPda_Squad.cpp" />
     <ClCompile Include="UIPlayerItem.cpp" />
     <ClCompile Include="UIStaticItem.cpp" />
     <ClCompile Include="UITeamHeader.cpp" />

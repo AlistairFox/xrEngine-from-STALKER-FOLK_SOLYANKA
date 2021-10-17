@@ -237,15 +237,31 @@ void CUICharacterInfo::InitCharacterMP(CInventoryOwner * invOwner)
 	}
 
 	m_texture_name = invOwner->IconName();
+
 	if (m_icons[eIcon])
 	{
 		m_icons[eIcon]->InitTexture(m_texture_name.c_str());
 		m_icons[eIcon]->Show(true);
 	}
+
+	if (m_icons[eCommunityIcon])
+	{
+		int comm_id = invOwner->Community();
+
+		string32 tmp = { 0 };
+		string64 community1 = { 0 };
+		itoa(comm_id, tmp, 10);
+		xr_strcat(community1, "ui_community_icon_");
+		xr_strcat(community1, tmp);
+ 		m_icons[eCommunityIcon]->InitTexture(community1);
+		m_icons[eCommunityIcon]->Show(true);
+	}
+
 	if (m_icons[eIconOver])
 	{
 		m_icons[eIconOver]->Show(true);
 	}
+
 	if (m_icons[eCommunity])
 	{
 		m_icons[eCommunity]->TextItemControl()->SetTextST(invOwner->CharacterInfo().Community().id().c_str());
@@ -277,6 +293,10 @@ void CUICharacterInfo::InitCharacterMP( LPCSTR player_name, LPCSTR player_icon )
 	{
 		m_icons[eIconOver]->Show( true );
 	}
+}
+
+void CUICharacterInfo::InitCharacterMP(CInventoryOwner* invOwner, ClientID clID)
+{
 }
 
 void  CUICharacterInfo::SetRelation( ALife::ERelationType relation, CHARACTER_GOODWILL goodwill )

@@ -27,12 +27,13 @@ protected:
 	CUIScrollView*		pUIBio;
 	bool				m_bForceUpdate;
 	u16					m_ownerID;
-
+	u32					m_clientID = 0;
 
 	enum UIItemType
 	{
 		eIcon = 0,
 		eIconOver,
+		eCommunityIcon,
 /*
 		eRankIcon,
 		eRankIconOver,
@@ -72,10 +73,18 @@ public:
 	void				ClearInfo				();
 	void				InitCharacterMP			(CInventoryOwner* invOwner);
 	void				InitCharacterMP			(LPCSTR player_name, LPCSTR player_icon );
+	void				InitCharacterMP			(CInventoryOwner* invOwner, ClientID clID);
+
 
 	virtual void		Update					();
 
 	u16					OwnerID					()	const	{	return m_ownerID;	}
+	
+	u32                 getClientID() const 
+	{
+		return m_clientID ;
+	}
+
 	CUIStatic&			UIIcon					()	const	{	VERIFY(m_icons[eIcon]);			return *m_icons[eIcon];	}
 	CUIStatic&			UIName					()	const	{	VERIFY(m_icons[eName]);			return *m_icons[eName];	}
 	CUIStatic&			UICommunity				()	const	{	VERIFY(m_icons[eCommunity]);	return *m_icons[eCommunity];	}

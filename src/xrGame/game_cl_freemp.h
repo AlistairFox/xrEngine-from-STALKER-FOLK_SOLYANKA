@@ -33,5 +33,8 @@ public:
 	virtual void OnConnected();
 	virtual bool OnConnectedSpawnPlayer();
 	virtual void save_player(game_PlayerState* cl);
+
+	virtual	void TranslateGameMessage(u32 msg, NET_Packet& P);
+
 };
 

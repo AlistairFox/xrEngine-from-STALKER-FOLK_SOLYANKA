@@ -2524,6 +2524,18 @@
     <Filter Include="Core\Client\Objects\inventory\inventory_upgrade\property">
       <UniqueIdentifier>{f5e0ea33-ab64-4f60-a9bc-c712f764f078}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UI\Common\PDA\MP">
+      <UniqueIdentifier>{c4293e4c-e9db-4c1c-83e1-3d354776f3cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Common\PDA\MP\COOP">
+      <UniqueIdentifier>{d1c5abe8-ad62-4c59-b022-4bd1429f1ca5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Common\PDA\MP\CHAT">
+      <UniqueIdentifier>{4783f6f7-3da6-4cc1-92d4-cdac20c92063}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Common\PDA\CONTACTS">
+      <UniqueIdentifier>{bba27d51-ce07-4050-b962-5fcbb8eb006f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mt_config.h">
@@ -7446,6 +7458,15 @@
     <ClInclude Include="Weapon_State_Network.h">
       <Filter>Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Common\Weapon Generic</Filter>
     </ClInclude>
+    <ClInclude Include="UIPda_Contacts.h">
+      <Filter>UI\Common\PDA\CONTACTS</Filter>
+    </ClInclude>
+    <ClInclude Include="UIPda_Squad.h">
+      <Filter>UI\Common\PDA\CONTACTS</Filter>
+    </ClInclude>
+    <ClInclude Include="UIPda_Chat.h">
+      <Filter>UI\Common\PDA\CONTACTS</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="damage_manager.cpp">
@@ -11146,6 +11167,18 @@
     </ClCompile>
     <ClCompile Include="game_cl_freemp_save.cpp">
       <Filter>Core\Server\Games\client\freemp</Filter>
+    </ClCompile>
+    <ClCompile Include="UIPda_Contacts.cpp">
+      <Filter>UI\Common\PDA\CONTACTS</Filter>
+    </ClCompile>
+    <ClCompile Include="UIPda_Squad.cpp">
+      <Filter>UI\Common\PDA\CONTACTS</Filter>
+    </ClCompile>
+    <ClCompile Include="UIPda_Chat.cpp">
+      <Filter>UI\Common\PDA\CONTACTS</Filter>
+    </ClCompile>
+    <ClCompile Include="game_sv_freemp_PDA.cpp">
+      <Filter>Core\Server\Games\server\freemp</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
