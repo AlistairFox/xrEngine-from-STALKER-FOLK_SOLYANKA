@@ -38,6 +38,9 @@
 #include "UIMainIngameWnd.h"
 #include "../Trade.h"
 
+
+#include "PDA.h"
+
 void CUIActorMenu::SetActor(CInventoryOwner* io)
 {
 	R_ASSERT			(!IsShown());
@@ -323,6 +326,9 @@ EDDListType CUIActorMenu::GetListType(CUIDragDropListEx* l)
 	if(l==m_pInventoryOutfitList)		return iActorSlot;
 	if(l==m_pInventoryHelmetList)		return iActorSlot;
 	if(l==m_pInventoryDetectorList)		return iActorSlot;
+
+	//PDA 
+	if (l == m_pInventoryPdaList)		return iActorSlot;
 	
 	if(l==m_pTradeActorBagList)			return iActorBag;
 	if(l==m_pTradeActorList)			return iActorTrade;
@@ -501,6 +507,11 @@ void CUIActorMenu::clear_highlight_lists()
 	m_HelmetSlotHighlight->Show(false);
 	m_OutfitSlotHighlight->Show(false);
 	m_DetectorSlotHighlight->Show(false);
+	
+	//PDA
+	m_PdaSlotHighlight->Show(false);
+	//
+
 	for(u8 i=0; i<4; i++)
 		m_QuickSlotsHighlight[i]->Show(false);
 	for(u8 i=0; i<e_af_count; i++)
@@ -543,6 +554,13 @@ void CUIActorMenu::highlight_item_slot(CUICellItem* cell_item)
 	CCustomDetector* detector = smart_cast<CCustomDetector*>(item);
 	CEatableItem* eatable = smart_cast<CEatableItem*>(item);
 	CArtefact* artefact = smart_cast<CArtefact*>(item);
+	CPda* pda_item = smart_cast<CPda*>(item);
+
+	if (pda_item)
+	{
+		m_PdaSlotHighlight->Show(true);
+		return;
+	}
 
 	if(weapon)
 	{
@@ -843,6 +861,9 @@ void CUIActorMenu::ClearAllLists()
 	m_pTradePartnerBagList->ClearAll			(true);
 	m_pTradePartnerList->ClearAll				(true);
 	m_pDeadBodyBagList->ClearAll				(true);
+
+	m_pInventoryPdaList->ClearAll				(true);
+
 }
 
 void CUIActorMenu::CallMessageBoxYesNo( LPCSTR text )

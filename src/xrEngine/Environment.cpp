@@ -599,11 +599,8 @@ void CEnvironment::lerp		(float& current_weight)
 	
 	if (psDeviceFlags.test(rsStatistic))
 	if (Current[0] && Current[1])
-	{
-		
 		Msg("c1[%.0f]/c2[%.0f]", Current[0]->exec_time, Current[1]->exec_time); 
 
-	}
 
 	SelectEnvs				(fGameTime);
     VERIFY					(Current[0]&&Current[1]);

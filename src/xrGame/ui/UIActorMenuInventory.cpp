@@ -256,12 +256,14 @@ void CUIActorMenu::OnInventoryAction(PIItem pItem, u16 action_type)
 				bool b_already	= false;
 
 				CUIDragDropListEx* lst_to_add		= NULL;
+
 				SInvItemPlace pl						= pItem->m_ItemCurrPlace;
 				if ( pItem->BaseSlot() == GRENADE_SLOT )
 				{
 					pl.type		= eItemPlaceRuck;
 					pl.slot_id	= GRENADE_SLOT;
 				}
+
 #ifndef MASTER_GOLD
 				Msg("item place [%d]", pl);
 #endif // #ifndef MASTER_GOLD
@@ -277,7 +279,6 @@ void CUIActorMenu::OnInventoryAction(PIItem pItem, u16 action_type)
 					else
 						lst_to_add						= GetListByType(iDeadBodyBag);
 				}
-
 
 				while ( all_lists[i] )
 				{
@@ -739,7 +740,12 @@ CUIDragDropListEx* CUIActorMenu::GetSlotList(u16 slot_idx)
 				return m_pTradeActorBagList;
 			}
 			return m_pInventoryBagList;
-			break;
+		break;
+
+		case PDA_SLOT:
+			return m_pInventoryPdaList;
+		break;
+
 	};
 	return NULL;
 }

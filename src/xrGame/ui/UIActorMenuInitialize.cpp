@@ -109,6 +109,17 @@ void CUIActorMenu::Construct()
 	m_ArtefactSlotsHighlight[0]	= UIHelper::CreateStatic(uiXml, "artefact_slot_highlight", this);
 	m_ArtefactSlotsHighlight[0]	->Show(false);
 
+	/*
+	* Se7kills PDA Slot
+	*/
+		m_PdaSlotHighlight = UIHelper::CreateStatic(uiXml, "pda_slot_highlight", this);
+		m_PdaSlotHighlight->Show(false);
+		//List
+		m_pInventoryPdaList = UIHelper::CreateDragDropListEx(uiXml, "dragdrop_pda", this);
+	/*
+	* End 	
+	*/
+
 	Fvector2 pos;
 	pos								= m_QuickSlotsHighlight[0]->GetWndPos();
 	float dx						= uiXml.ReadAttribFlt("quick_slot_highlight", 0, "dx", 24.0f);
@@ -141,6 +152,7 @@ void CUIActorMenu::Construct()
 	m_pTradePartnerBagList		= UIHelper::CreateDragDropListEx(uiXml, "dragdrop_partner_bag", this);
 	m_pTradePartnerList			= UIHelper::CreateDragDropListEx(uiXml, "dragdrop_partner_trade", this);
 	m_pDeadBodyBagList			= UIHelper::CreateDragDropListEx(uiXml, "dragdrop_deadbody_bag", this);
+
 	m_pQuickSlot				= UIHelper::CreateDragDropReferenceList(uiXml, "dragdrop_quick_slots", this);
 	m_pQuickSlot->Initialize	();
 

@@ -114,6 +114,11 @@ protected:
 	CUIStatic*					m_QuickSlotsHighlight[4];
 	CUIStatic*					m_ArtefactSlotsHighlight[e_af_count];
 
+	//PDA SLOT
+	CUIStatic*					m_PdaSlotHighlight;
+	CUIDragDropListEx*			m_pInventoryPdaList;
+	//END
+
 	CUIInventoryUpgradeWnd*		m_pUpgradeWnd;
 	
 	CUIStatic*					m_LeftBackground;
