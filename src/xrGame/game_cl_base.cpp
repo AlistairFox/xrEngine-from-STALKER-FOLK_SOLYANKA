@@ -85,7 +85,6 @@ void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 	u8 need_update;
 	P.r_u8(need_update);
 
-	shared_str name_cur = GamePersistent().Environment().CurrentWeatherName;
 
 	Level().SetEnvironmentGameTimeFactor(GameEnvironmentTime, EnvironmentTimeFactor);
 
