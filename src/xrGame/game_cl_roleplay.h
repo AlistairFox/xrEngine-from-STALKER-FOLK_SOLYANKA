@@ -39,5 +39,7 @@ public:
 	virtual bool							OnKeyboardPress(int key);
 
 	virtual void							OnSetCurrentControlEntity(CObject *O);
+
+	virtual void							OnRender();
 };
 

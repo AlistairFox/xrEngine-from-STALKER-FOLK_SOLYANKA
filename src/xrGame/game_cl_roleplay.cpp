@@ -148,3 +148,63 @@ void game_cl_roleplay::OnSetCurrentControlEntity(CObject * O)
 {
 
 }
+
+
+#define PLAYER_NAME_COLOR_1 0xff40ff40
+#define PLAYER_NAME_COLOR_2 0xff40ff40
+#define PLAYER_NAME_COLOR_3 0xff40ff40
+#define PLAYER_NAME_COLOR_4 0xff40ff40
+#define PLAYER_NAME_COLOR_5 0xff40ff40
+#define PLAYER_NAME_COLOR_6 0xff40ff40
+#define PLAYER_NAME_COLOR_7 0xff40ff40
+#define PLAYER_NAME_COLOR_8 0xff40ff40
+#define PLAYER_NAME_COLOR_9 0xff40ff40
+
+void game_cl_roleplay::OnRender()
+{
+	//Msg("Render");
+	for (auto player : Game().players)
+	{
+		game_PlayerState* ps = player.second;
+		u16 id = ps->GameID;
+		if (ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD)) continue;
+		//if (!ps->testFlag(GAME_PLAYER_FLAG_INVINCIBLE)) continue;
+
+		CObject* pObject = Level().Objects.net_Find(id);
+		if (!pObject) continue;
+		if (!pObject || !smart_cast<CActor*>(pObject)) continue;
+		if (ps == local_player) continue;
+		//if (!IsEnemy(ps)) continue;
+ 
+		VERIFY(pObject);
+		CActor* pActor = smart_cast<CActor*>(pObject);
+		VERIFY(pActor);
+		
+		Fvector IPos;
+		IPos.set(0.0f, 0.5f, 0.0f);
+		IPos.y -= 0.2f;
+		//Msg("RenderText");
+
+		float dup = 0.0f;
+		if (ps->team == 1)
+			pActor->RenderText(ps->getName(), IPos, &dup, PLAYER_NAME_COLOR_1);
+		if (ps->team == 2)
+			pActor->RenderText(ps->getName(), IPos, &dup, PLAYER_NAME_COLOR_2);
+		if (ps->team == 3)
+			pActor->RenderText(ps->getName(), IPos, &dup, PLAYER_NAME_COLOR_3);
+		if (ps->team == 4)
+			pActor->RenderText(ps->getName(), IPos, &dup, PLAYER_NAME_COLOR_4);
+		if (ps->team == 5)
+			pActor->RenderText(ps->getName(), IPos, &dup, PLAYER_NAME_COLOR_5);
+		if (ps->team == 6)
+			pActor->RenderText(ps->getName(), IPos, &dup, PLAYER_NAME_COLOR_6);
+		if (ps->team == 7)
+			pActor->RenderText(ps->getName(), IPos, &dup, PLAYER_NAME_COLOR_7);
+		if (ps->team == 8)
+			pActor->RenderText(ps->getName(), IPos, &dup, PLAYER_NAME_COLOR_8);
+		if (ps->team == 9)
+			pActor->RenderText(ps->getName(), IPos, &dup, PLAYER_NAME_COLOR_9);
+	}
+
+	inherited::OnRender();
+}
