@@ -238,7 +238,8 @@ void	CInifile::Load(IReader* F, LPCSTR path
 			}
 		}
 
-		
+		//Msg("Read IniFile [%s], name [%s] == value[%s]", path, str, str2);
+
         if (str[0] && (str[0]=='#') && strstr(str,"#include")) //handle includes
 		{
         	string_path		inc_name;	
@@ -375,6 +376,9 @@ void	CInifile::Load(IReader* F, LPCSTR path
 			}
 		}
 	}
+
+	//Msg("Read IniFile [%s], name [%s] == value[%s]", path, str, str2);
+
 	if (Current)
 	{
 		RootIt I		= std::lower_bound(DATA.begin(),DATA.end(),*Current->Name,sect_pred);
