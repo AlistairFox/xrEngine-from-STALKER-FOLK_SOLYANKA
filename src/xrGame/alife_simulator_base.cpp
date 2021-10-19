@@ -277,7 +277,7 @@ void CALifeSimulatorBase::release	(CSE_Abstract *abstract, bool alife_query)
 
 	if (!object)
 		return;
-
+	//Msg("[LSS] Release Check");
 	if (!object->children.empty()) {
 		u32							children_count = object->children.size();
 		u32							bytes = children_count*sizeof(ALife::_OBJECT_ID);
@@ -290,15 +290,17 @@ void CALifeSimulatorBase::release	(CSE_Abstract *abstract, bool alife_query)
 			CSE_ALifeDynamicObject	*child = objects().object(*I,true);
 			if (!child)
 				continue;
-
+			Msg("[LSS] Release Chield [%d] name [%s] Pre Lua", child->ID, child->name_replace());
 			release					(child,alife_query);
+			//Msg("[LSS] Release After Lua");
 		}
 	}
 
+	Msg("[LSS] Release Unregister");
 	unregister_object				(object,alife_query);
 	
 	object->m_bALifeControl			= false;
-
+ 
 	if (alife_query)
 		server().entity_Destroy		(abstract);
 }

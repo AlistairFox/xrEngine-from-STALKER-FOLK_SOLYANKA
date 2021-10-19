@@ -477,14 +477,16 @@ void game_sv_GameState::Create					(shared_str &options)
 				R.P = single_actor->position();
 				R.A = single_actor->o_Angle;
 
-				rpoints[0].push_back(R);
-				rpoints[1].push_back(R);
-				rpoints[2].push_back(R);
+				for (int i = 0; i < 32; i++)
+				{
+					rpoints[i].push_back(R);
 
-				Msg("RP ADD x[%.0f]y[%.0f]z[%.0f]", single_actor->position().x, single_actor->position().y, single_actor->position().z);
+					Msg("[NOTFINDER ANY SPAWN POINTS] RP ADD Team[%d]  x[%.0f]y[%.0f]z[%.0f]", i, single_actor->position().x, single_actor->position().y, single_actor->position().z);
+
+				}
+
 			}
 		}
-
 		FS.r_close	(F);
 	}
 

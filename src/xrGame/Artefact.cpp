@@ -550,7 +550,7 @@ void SArtefactDetectorsSupport::Blink()
 
 void SArtefactDetectorsSupport::UpdateOnFrame()
 {
-	if(m_currPatrolPath && !m_parent->getVisible() && false)
+	if(m_currPatrolPath && !m_parent->getVisible())
 	{
 		if(m_parent->Position().distance_to(m_destPoint) < 2.0f)
 		{

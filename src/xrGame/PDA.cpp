@@ -87,10 +87,14 @@ void CPda::UpdateActiveContacts	()
 
 void CPda::feel_touch_new(CObject* O) 
 {
-	if ( CInventoryOwner* pNewContactInvOwner = smart_cast<CInventoryOwner*>(O) )
+	CInventoryOwner* pNewContactInvOwner = smart_cast<CInventoryOwner*>(O);
+	
+	if (pNewContactInvOwner)
 	{
-		CInventoryOwner* pOwner	=	smart_cast<CInventoryOwner*>( H_Parent() );VERIFY(pOwner);
-		pOwner->NewPdaContact		(pNewContactInvOwner);
+		CInventoryOwner* pOwner	= smart_cast<CInventoryOwner*>( H_Parent() );
+		VERIFY(pOwner);
+		if (pOwner)
+			pOwner->NewPdaContact		(pNewContactInvOwner);
 	}
 }
 

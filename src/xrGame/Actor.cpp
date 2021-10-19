@@ -1377,6 +1377,7 @@ void CActor::shedule_Update	(u32 DT)
 		pCamBobbing = xr_new<CEffectorBobbing>	();
 		Cameras().AddCamEffector			(pCamBobbing);
 	}
+
 	pCamBobbing->SetState						(mstate_real, conditions().IsLimping(), IsZoomAimingMode());
 
 	//звук тяжелого дыхания при уталости и хромании
@@ -1448,10 +1449,12 @@ void CActor::shedule_Update	(u32 DT)
 		setVisible(false);
 	}
 
+	/*
 	if (MpSafeMode())
 		cam_Set(eacLookAt);
 	else
 		cam_Set(eacFirstEye);
+	*/
 
 	if (!smart_cast<CActorMP*>(this))
 	{

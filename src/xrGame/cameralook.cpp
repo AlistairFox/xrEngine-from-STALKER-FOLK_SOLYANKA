@@ -52,20 +52,21 @@ void CCameraLook::UpdateDistance( Fvector& point )
 
 	float d				= psCamSlideInert*prev_d+(1.f-psCamSlideInert)*(R.range-covariance);
 	prev_d = d;
-	
+	//Msg("Distance %f", d);
 	vPosition.mul		(vDirection,-d-VIEWPORT_NEAR);
 	vPosition.add		(point);
 }
 
 void CCameraLook::Move( int cmd, float val, float factor)
 {
-	switch (cmd){
-	case kCAM_ZOOM_IN:	dist	-= val?val:(rot_speed.z*Device.fTimeDelta);	break;
-	case kCAM_ZOOM_OUT:	dist	+= val?val:(rot_speed.z*Device.fTimeDelta);	break;
-	case kDOWN:			pitch	-= val?val:(rot_speed.x*Device.fTimeDelta/factor);	break;
-	case kUP:			pitch	+= val?val:(rot_speed.x*Device.fTimeDelta/factor);	break;
-	case kLEFT:			yaw		-= val?val:(rot_speed.y*Device.fTimeDelta/factor);	break;
-	case kRIGHT:		yaw		+= val?val:(rot_speed.y*Device.fTimeDelta/factor);	break;
+	switch (cmd)
+	{
+		case kCAM_ZOOM_IN:	dist	-= val?val:(rot_speed.z*Device.fTimeDelta);	break;
+		case kCAM_ZOOM_OUT:	dist	+= val?val:(rot_speed.z*Device.fTimeDelta);	break;
+		case kDOWN:			pitch	-= val?val:(rot_speed.x*Device.fTimeDelta/factor);	break;
+		case kUP:			pitch	+= val?val:(rot_speed.x*Device.fTimeDelta/factor);	break;
+		case kLEFT:			yaw		-= val?val:(rot_speed.y*Device.fTimeDelta/factor);	break;
+		case kRIGHT:		yaw		+= val?val:(rot_speed.y*Device.fTimeDelta/factor);	break;
 	}
 	if (bClampYaw)		clamp(yaw,lim_yaw[0],lim_yaw[1]);
 	if (bClampPitch)	clamp(pitch,lim_pitch[0],lim_pitch[1]);
@@ -155,9 +156,12 @@ void CCameraLook2::Update(Fvector& point, Fvector&)
 	Fvector _off					= m_cam_offset;
 	a_xform.transform_tiny			(_off);
 	vPosition.set					(_off);
+	vPosition.mul(vDirection, -1 - VIEWPORT_NEAR);
+	vPosition.add(_off);
+	//UpdateDistance(_off);
 
-	UpdateDistance(_off);
-	 
+	//Msg("vPosition [%.2f][%.2f][%.2f]", vPosition.x, vPosition.y, vPosition.z);
+	//Msg("off [%.2f][%.2f][%.2f]", _off.x, _off.y, _off.z);
 }
 
 void CCameraLook2::UpdateAutoAim()

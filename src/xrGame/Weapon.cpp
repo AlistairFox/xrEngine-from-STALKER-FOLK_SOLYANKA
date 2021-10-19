@@ -104,7 +104,8 @@ void CWeapon::UpdateXForm	()
 	// Get access to entity and its visual
 	CEntityAlive*			E = smart_cast<CEntityAlive*>(H_Parent());
 	
-	if (!E) {
+	if (!E) 
+	{
 		if (!IsGameTypeSingle())
 			UpdatePosition	(H_Parent()->XFORM());
 
@@ -140,11 +141,13 @@ void CWeapon::UpdateXForm	()
 	Fvector					R,D,N;
 	D.sub					(mL.c,mR.c);	
 
-	if(fis_zero(D.magnitude())) {
+	if(fis_zero(D.magnitude()))
+	{
 		mRes.set			(E->XFORM());
 		mRes.c.set			(mR.c);
 	}
-	else {		
+	else
+	{		
 		D.normalize			();
 		R.crossproduct		(mR.j,D);
 
@@ -168,9 +171,11 @@ void CWeapon::UpdateFireDependencies_internal()
 
 		if ( GetHUDmode() )
 		{
+			//Msg("HudMode");
 			HudItemData()->setup_firedeps		(m_current_firedeps);
 			VERIFY(_valid(m_current_firedeps.m_FireParticlesXForm));
-		} else 
+		} 
+		else 
 		{
 			// 3rd person or no parent
 			Fmatrix& parent			= XFORM();
@@ -1660,6 +1665,7 @@ void CWeapon::reload			(LPCSTR section)
 	}
 
 	m_StrapOffset			= m_Offset;
+
 	if (pSettings->line_exist(section,"strap_position") && pSettings->line_exist(section,"strap_orientation")) {
 		Fvector				pos,ypr;
 		pos					= pSettings->r_fvector3		(section,"strap_position");
@@ -1925,7 +1931,9 @@ float CWeapon::Weight() const
 
 bool CWeapon::show_crosshair()
 {
-	return !IsPending() && ( !IsZoomed() || !ZoomHideCrosshair() );
+	//Msg("zoom[%d], hide[%d], hud_mode[%d]" ,IsZoomed(), !ZoomHideCrosshair(), GetHUDmode());
+
+	return !IsPending() && ( !IsZoomed() || !ZoomHideCrosshair() || !GetHUDmode());
 }
 
 bool CWeapon::show_indicators()

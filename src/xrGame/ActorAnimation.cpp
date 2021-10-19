@@ -167,9 +167,6 @@ void STorsoWpn::Create(IKinematicsAnimated* K, LPCSTR base0, LPCSTR base1)
 	all_attack_0	= K->ID_Cycle_Safe(strconcat(sizeof(buf),buf,base0,"_all",base1,"_attack_0"));
 	all_attack_1	= K->ID_Cycle_Safe(strconcat(sizeof(buf),buf,base0,"_all",base1,"_attack_1"));
 	all_attack_2	= K->ID_Cycle_Safe(strconcat(sizeof(buf),buf,base0,"_all",base1,"_attack_2"));
-
-
- 
 }
 
 void SAnimState::Create(IKinematicsAnimated* K, LPCSTR base0, LPCSTR base1)
@@ -182,8 +179,8 @@ void SAnimState::Create(IKinematicsAnimated* K, LPCSTR base0, LPCSTR base1)
 
 	legs_fwd_safe = K->ID_Cycle(strconcat(sizeof(buf), buf, base0, base1, "_fwd_1"));
 	legs_back_safe = K->ID_Cycle(strconcat(sizeof(buf), buf, base0, base1, "_back_0"));
-	legs_ls_safe = K->ID_Cycle(strconcat(sizeof(buf), buf, base0, base1, "_fwd_1"));
-	legs_rs_safe = K->ID_Cycle(strconcat(sizeof(buf), buf, base0, base1, "_fwd_1"));
+	legs_ls_safe = K->ID_Cycle(strconcat(sizeof(buf), buf, base0, base1, "_ls_0"));
+	legs_rs_safe = K->ID_Cycle(strconcat(sizeof(buf), buf, base0, base1, "_rs_0"));
 
 
 //	Msg(strconcat(sizeof(buf), buf, base0, base1, "legs"));
@@ -565,7 +562,7 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 							switch (W->GetState())
 							{
 							case CWeapon::eIdle:		
-								M_torso = TW->moving[moving_idx];
+								M_torso = W->IsZoomed() ? TW->attack_zoom : TW->moving[moving_idx];
 								break;
 							case CWeapon::eFire:		M_torso	= W->IsZoomed()?TW->attack_zoom:TW->attack;				break;
 							case CWeapon::eFire2:		M_torso	= W->IsZoomed()?TW->attack_zoom:TW->attack;				break;
@@ -658,16 +655,33 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 				if (!m_bAnimTorsoPlayed)
 				{
 					M_torso = ST->m_torso[H->animation_slot()-1].moving[state];
-					//Msg("CurItem[%d] State[%d]", H->animation_slot()-1,state);
+					
+					Msg("Anim Safe S[%d] State[%d]", H->animation_slot()-1, state);
 					//M_head = ST->m_head_idle_safe;
 				} 
 			}
 			else
 			{
-				if (!m_bAnimTorsoPlayed)
+				if (!m_bAnimTorsoPlayed) 
+				{
+					bool sprint = false;
+					
+					if (moving_idx == 3)
+						sprint = true;
+					
+					if (mstate_rl & mcFwd && !sprint)
+						M_legs = AS->legs_fwd_safe;
+					else if (mstate_rl & mcBack && !sprint)
+						M_legs = AS->legs_back_safe;
+					else if (mstate_rl & mcLStrafe && !sprint)
+						M_legs = AS->legs_ls_safe;
+					else if (mstate_rl & mcRStrafe && !sprint)
+						M_legs = AS->legs_rs_safe;
+					 
 					M_torso = ST->m_torso[4].moving[state];
+					 
+				}
 			}
-
 		}
 	}
 

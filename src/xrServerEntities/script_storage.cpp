@@ -414,27 +414,26 @@ void CScriptStorage::print_stack		()
 
 	m_stack_is_ready		= false;
 #endif // #ifdef DEBUG
-	
-	if (true)
-	{
-		luabind::functor<void>	funct;
-		R_ASSERT(ai().script_engine().functor("mp_game_cl.callstack", funct));
-		funct();
-
-		return;
-	}
-
+ 
 	lua_State				*L = lua();
 	lua_Debug				l_tDebugInfo;
-	for (int i=0; lua_getstack(L,i,&l_tDebugInfo);++i ) {
+	for (int i=0; lua_getstack(L,i,&l_tDebugInfo); ++i ) 
+	{
 		lua_getinfo			(L,"nSlu",&l_tDebugInfo);
+		
 		if (!l_tDebugInfo.name)
-			script_log		(ScriptStorage::eLuaMessageTypeError,"%2d : [%s] %s(%d) : %s",i,l_tDebugInfo.what,l_tDebugInfo.short_src,l_tDebugInfo.currentline,"");
+			script_log(ScriptStorage::eLuaMessageTypeError,"%2d : [%s] %s(%d) : %s",i,l_tDebugInfo.what,l_tDebugInfo.short_src,l_tDebugInfo.currentline,"");
 		else
-			if (!xr_strcmp(l_tDebugInfo.what,"C"))
-				script_log	(ScriptStorage::eLuaMessageTypeError,"%2d : [C  ] %s",i,l_tDebugInfo.name);
-			else
-				script_log	(ScriptStorage::eLuaMessageTypeError,"%2d : [%s] %s(%d) : %s",i,l_tDebugInfo.what,l_tDebugInfo.short_src,l_tDebugInfo.currentline,l_tDebugInfo.name);
+			script_log(ScriptStorage::eLuaMessageTypeError, "%2d : [%s] %s(%d) : %s", i, l_tDebugInfo.what, l_tDebugInfo.short_src, l_tDebugInfo.currentline, l_tDebugInfo.name);
+
+		/*
+		if (!xr_strcmp(l_tDebugInfo.what, "C"))
+		{
+			script_log(ScriptStorage::eLuaMessageTypeError, "%2d : [C  ] %s", i, l_tDebugInfo.name);
+		}
+		else
+		*/
+				
 	}
 }
 #endif // #ifdef PRINT_CALL_STACK
@@ -767,6 +766,8 @@ bool CScriptStorage::print_output(lua_State *L, LPCSTR caScriptFileName, int iEr
 		print_error		(L,iErorCode);
 
 	LPCSTR				S = "see call_stack for details!";
+	
+	Msg("See call_stack for details!");
 
 	raii_guard			guard(iErorCode, S);
 
@@ -774,29 +775,33 @@ bool CScriptStorage::print_output(lua_State *L, LPCSTR caScriptFileName, int iEr
 		return				(false);
 	
 	S = lua_tostring(L,-1);
-	if (!xr_strcmp(S,"cannot resume dead coroutine")) {
+
+	if (!xr_strcmp(S,"cannot resume dead coroutine")) 
+	{
 		VERIFY2	("Please do not return any values from main!!!",caScriptFileName);
-#ifdef USE_DEBUGGER
-#	ifndef USE_LUA_STUDIO
-		if(ai().script_engine().debugger() && ai().script_engine().debugger()->Active() ){
-			ai().script_engine().debugger()->Write(S);
-			ai().script_engine().debugger()->ErrorBreak();
-		}
-#	endif // #ifndef USE_LUA_STUDIO
-#endif // #ifdef USE_DEBUGGER
+		#ifdef USE_DEBUGGER
+		#	ifndef USE_LUA_STUDIO
+				if(ai().script_engine().debugger() && ai().script_engine().debugger()->Active() ){
+					ai().script_engine().debugger()->Write(S);
+					ai().script_engine().debugger()->ErrorBreak();
+				}
+		#	endif // #ifndef USE_LUA_STUDIO
+		#endif // #ifdef USE_DEBUGGER
 	}
 	else {
 		if (!iErorCode)
 			script_log	(ScriptStorage::eLuaMessageTypeInfo,"Output from %s",caScriptFileName);
+
 		script_log		(iErorCode ? ScriptStorage::eLuaMessageTypeError : ScriptStorage::eLuaMessageTypeMessage,"%s",S);
-#ifdef USE_DEBUGGER
-#	ifndef USE_LUA_STUDIO
-		if (ai().script_engine().debugger() && ai().script_engine().debugger()->Active()) {
-			ai().script_engine().debugger()->Write		(S);
-			ai().script_engine().debugger()->ErrorBreak	();
-		}
-#	endif // #ifndef USE_LUA_STUDIO
-#endif // #ifdef USE_DEBUGGER
+
+		#ifdef USE_DEBUGGER
+		#	ifndef USE_LUA_STUDIO
+				if (ai().script_engine().debugger() && ai().script_engine().debugger()->Active()) {
+					ai().script_engine().debugger()->Write		(S);
+					ai().script_engine().debugger()->ErrorBreak	();
+				}
+		#	endif // #ifndef USE_LUA_STUDIO
+		#endif // #ifdef USE_DEBUGGER
 	}
 	return				(true);
 }

@@ -311,10 +311,12 @@ u32 CHudItem::PlayHUDMotion_noCB(const shared_str& motion_name, BOOL bMixIn)
 			motion_name.c_str(), 
 			Device.dwFrame);
 	}
+
 	if( HudItemData() )
 	{
 		return HudItemData()->anim_play		(motion_name, bMixIn, m_current_motion_def, m_started_rnd_anim_idx);
-	}else
+	}
+	else
 	{
 		m_started_rnd_anim_idx				= 0;
 		return g_player_hud->motion_length	(motion_name, HudSection(), m_current_motion_def );
@@ -342,7 +344,8 @@ BOOL CHudItem::GetHUDmode()
 
 void CHudItem::PlayAnimIdle()
 {
-	if (TryPlayAnimIdle()) return;
+	if (TryPlayAnimIdle()) 
+		return;
 
 	PlayHUDMotion("anm_idle", TRUE, NULL, GetState());
 }
