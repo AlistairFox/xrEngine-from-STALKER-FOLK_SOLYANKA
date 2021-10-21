@@ -768,8 +768,13 @@ void CLevel::OnFrame	()
 	else								
 		m_level_sound_manager->Update	();
 	// deffer LUA-GC-STEP
-	if (g_mt_config.test(mtLUA_GC))	Device.seqParallel.push_back	(fastdelegate::FastDelegate0<>(this,&CLevel::script_gc));
-	else							script_gc	()	;
+	 
+//	if (g_mt_config.test(mtLUA_GC))
+//		Device.seqParallel.push_back	(fastdelegate::FastDelegate0<>(this,&CLevel::script_gc));
+//	else							
+		script_gc	()	;
+
+
 	//-----------------------------------------------------
 	if (pStatGraphR)
 	{	
