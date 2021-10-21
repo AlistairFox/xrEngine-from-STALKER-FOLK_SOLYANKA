@@ -8,17 +8,14 @@
 
 #pragma once
 
-#ifdef DEBUG
+ 
 #	include "script_stack_tracker.h"
-#endif
+ 
 
 struct lua_State;
 
-#ifdef DEBUG
-	class CScriptThread : public CScriptStackTracker
-#else
-	class CScriptThread
-#endif
+ 
+class CScriptThread : public CScriptStackTracker 
 {
 private:
 	shared_str				m_script_name;
@@ -26,10 +23,10 @@ private:
 	bool					m_active;
 	lua_State				*m_virtual_machine;
 
-#ifdef DEBUG
+ 
 protected:
 	static	void			lua_hook_call		(lua_State *L, lua_Debug *dbg);
-#endif
+ 
 
 public:
 							CScriptThread		(LPCSTR caNamespaceName, bool do_string = false, bool reload = false);

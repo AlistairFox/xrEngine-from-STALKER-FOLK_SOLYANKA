@@ -245,7 +245,7 @@ void CScriptEngine::setup_callbacks		()
 	lua_atpanic							(lua(),CScriptEngine::lua_panic);
 }
 
-#ifdef DEBUG
+ 
 #	include "script_thread.h"
 void CScriptEngine::lua_hook_call		(lua_State *L, lua_Debug *dbg)
 {
@@ -254,8 +254,7 @@ void CScriptEngine::lua_hook_call		(lua_State *L, lua_Debug *dbg)
 	else
 		ai().script_engine().m_stack_is_ready	= true;
 }
-#endif
-
+ 
 int auto_load				(lua_State *L)
 {
 	if ((lua_gettop(L) < 2) || !lua_istable(L,1) || !lua_isstring(L,2)) {
@@ -311,10 +310,9 @@ void CScriptEngine::init				()
 	export_classes						(lua());
 	setup_auto_load						();
 
-#ifdef DEBUG
+ 
 	m_stack_is_ready					= true;
-#endif
-
+ 
 #ifndef USE_LUA_STUDIO
 #	ifdef DEBUG
 #		if defined(USE_DEBUGGER) && !defined(USE_LUA_STUDIO)
@@ -323,7 +321,8 @@ void CScriptEngine::init				()
 				lua_sethook					(lua(),lua_hook_call,	LUA_MASKLINE|LUA_MASKCALL|LUA_MASKRET,	0);
 #	endif // #ifdef DEBUG
 #endif // #ifndef USE_LUA_STUDIO
-//	lua_sethook							(lua(), lua_hook_call,	LUA_MASKLINE|LUA_MASKCALL|LUA_MASKRET,	0);
+
+		lua_sethook							(lua(), lua_hook_call,	LUA_MASKLINE|LUA_MASKCALL|LUA_MASKRET,	0);
 
 	bool								save = m_reload_modules;
 	m_reload_modules					= true;
@@ -391,16 +390,16 @@ void CScriptEngine::process_file_if_exists	(LPCSTR file_name, bool warn_if_not_e
 	if (m_reload_modules || (*file_name && !namespace_loaded(file_name))) {
 		FS.update_path		(S,"$game_scripts$",strconcat(sizeof(S1),S1,file_name,".script"));
 		if (!warn_if_not_exist && !FS.exist(S)) {
-#ifdef DEBUG
+ 
 #	ifndef XRSE_FACTORY_EXPORTS
-			if (psAI_Flags.test(aiNilObjectAccess))
+			//if (psAI_Flags.test(aiNilObjectAccess))
 #	endif
 			{
 				print_stack			();
 				Msg					("* trying to access variable %s, which doesn't exist, or to load script %s, which doesn't exist too",file_name,S1);
 				m_stack_is_ready	= true;
 			}
-#endif
+ 
 			add_no_file		(file_name,string_length);
 			return;
 		}

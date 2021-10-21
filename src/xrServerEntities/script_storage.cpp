@@ -240,9 +240,9 @@ CScriptStorage::CScriptStorage		()
 {
 	m_current_thread		= 0;
 
-#ifdef DEBUG
+ 
 	m_stack_is_ready		= false;
-#endif // DEBUG
+ 
 	
 	m_virtual_machine		= 0;
 
@@ -408,15 +408,16 @@ int CScriptStorage::vscript_log		(ScriptStorage::ELuaMessageType tLuaMessageType
 #ifdef PRINT_CALL_STACK
 void CScriptStorage::print_stack		()
 {
-#ifdef DEBUG
+ 
 	if (!m_stack_is_ready)
 		return;
 
 	m_stack_is_ready		= false;
-#endif // #ifdef DEBUG
- 
+  
 	lua_State				*L = lua();
 	lua_Debug				l_tDebugInfo;
+	
+ 
 	for (int i=0; lua_getstack(L,i,&l_tDebugInfo); ++i ) 
 	{
 		lua_getinfo			(L,"nSlu",&l_tDebugInfo);
@@ -424,15 +425,16 @@ void CScriptStorage::print_stack		()
 		if (!l_tDebugInfo.name)
 			script_log(ScriptStorage::eLuaMessageTypeError,"%2d : [%s] %s(%d) : %s",i,l_tDebugInfo.what,l_tDebugInfo.short_src,l_tDebugInfo.currentline,"");
 		else
-			script_log(ScriptStorage::eLuaMessageTypeError, "%2d : [%s] %s(%d) : %s", i, l_tDebugInfo.what, l_tDebugInfo.short_src, l_tDebugInfo.currentline, l_tDebugInfo.name);
+			if (!xr_strcmp(l_tDebugInfo.what, "C"))
+			{
+				script_log(ScriptStorage::eLuaMessageTypeError, "%2d : [C  ] %s", i, l_tDebugInfo.name);
+			}
+			else
+				script_log(ScriptStorage::eLuaMessageTypeError, "%2d : [%s] %s(%d) : %s", i, l_tDebugInfo.what, l_tDebugInfo.short_src, l_tDebugInfo.currentline, l_tDebugInfo.name);
 
-		/*
-		if (!xr_strcmp(l_tDebugInfo.what, "C"))
-		{
-			script_log(ScriptStorage::eLuaMessageTypeError, "%2d : [C  ] %s", i, l_tDebugInfo.name);
-		}
-		else
-		*/
+		 
+
+		 
 				
 	}
 }
