@@ -54,6 +54,9 @@ void CUICharacterInfo::InitCharacterInfo(Fvector2 pos, Fvector2 size, CUIXml* xm
 	Init_IconInfoItem( *xml_doc, "icon",                eIcon         );
 	Init_IconInfoItem( *xml_doc, "icon_over",           eIconOver     );
 
+	Init_IconInfoItem(*xml_doc, "community_icon", eCommunityIcon);
+	Init_IconInfoItem(*xml_doc, "community_icon_over", eCommunityIconOver);
+
 /*	Init_IconInfoItem( *xml_doc, "rank_icon",           eRankIcon     );
 	Init_IconInfoItem( *xml_doc, "rank_icon_over",      eRankIconOver );
 
@@ -267,6 +270,7 @@ void CUICharacterInfo::InitCharacterMP(CInventoryOwner * invOwner)
 		m_icons[eCommunity]->TextItemControl()->SetTextST(invOwner->CharacterInfo().Community().id().c_str());
 		m_icons[eCommunity]->Show(true);
 	}
+
 	if (m_icons[eReputation])
 	{
 		m_icons[eReputation]->TextItemControl()->SetTextST(GetReputationAsText(invOwner->CharacterInfo().Reputation().value()));
@@ -297,6 +301,8 @@ void CUICharacterInfo::InitCharacterMP( LPCSTR player_name, LPCSTR player_icon )
 
 void CUICharacterInfo::InitCharacterMP(CInventoryOwner* invOwner, ClientID clID)
 {
+	InitCharacterMP(invOwner);
+	m_clientID = clID.value();
 }
 
 void  CUICharacterInfo::SetRelation( ALife::ERelationType relation, CHARACTER_GOODWILL goodwill )

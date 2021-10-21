@@ -123,6 +123,9 @@ void CActor::SelectBestWeapon	(CObject* O)
 {
 	if (!O) return;
 	if ( IsGameTypeSingle() ) return;
+	if (eGameIDFreeMp == Game().Type() || eGameIDRolePlay == Game().Type())
+		return;
+
 	//if (Level().CurrentControlEntity() != this) return;
 	//if (OnClient()) return;
 	//-------------------------------------------------

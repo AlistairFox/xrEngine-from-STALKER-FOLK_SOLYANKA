@@ -149,7 +149,7 @@ void game_cl_roleplay::OnSetCurrentControlEntity(CObject * O)
 
 }
 
-
+/*
 #define PLAYER_NAME_COLOR_1 0xff40ff40
 #define PLAYER_NAME_COLOR_2 0xff40ff40
 #define PLAYER_NAME_COLOR_3 0xff40ff40
@@ -208,3 +208,4 @@ void game_cl_roleplay::OnRender()
 
 	inherited::OnRender();
 }
+*/

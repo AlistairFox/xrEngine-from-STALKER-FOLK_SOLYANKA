@@ -2,16 +2,19 @@
 #include "game_sv_freemp.h"
 #include "Level.h"
 #include "alife_simulator.h"
+bool loaded_inventory = false;
 
 game_sv_freemp::game_sv_freemp()
 	:pure_relcase(&game_sv_freemp::net_Relcase)
 {
 	m_type = eGameIDFreeMp;
-
+	loaded_inventory = false;
 }
 
 game_sv_freemp::~game_sv_freemp()
 {
+	Msg("[game_sv_freemp] Destroy Server");
+	loaded_inventory = false;
 }
 
 void game_sv_freemp::Create(shared_str & options)
@@ -47,6 +50,8 @@ void game_sv_freemp::OnPlayerConnect(ClientID id_who)
 	ps_who->setFlag(GAME_PLAYER_FLAG_SPECTATOR);
 
 	ps_who->resetFlag(GAME_PLAYER_FLAG_SKIP);
+
+//	ps_who->resetFlag(GAME_PLAYER_MP_ON_CONNECTED);
 
 	if (g_dedicated_server && (xrCData == m_server->GetServerClient()))
 	{
@@ -219,9 +224,6 @@ void game_sv_freemp::OnPlayerReady(ClientID id_who)
 
 		RespawnPlayer(id_who, true);
 		
-		//if (!ps->testFlag(GAME_PLAYER_MP_ON_CONNECTED))
-		
-		 
 		if (!flag)
 		{
 			if (Game().Type() == eGameIDFreeMp)
@@ -236,20 +238,16 @@ void game_sv_freemp::OnPlayerReady(ClientID id_who)
 		}
 		else
 			if (LoadPlayer(ps))
-			{
+				return;
 
-			}
-			else
+			if (Game().Type() == eGameIDFreeMp)
 			{
-				if (Game().Type() == eGameIDFreeMp)
+				for (auto& item : spawned_items.StartItems)
 				{
-					for (auto& item : spawned_items.StartItems)
-					{
-						SpawnItemToActor(ps->GameID, item.c_str());
-					}
-					// set start money
-					ps->money_for_round = spawned_items.StartMoney;
+					SpawnItemToActor(ps->GameID, item.c_str());
 				}
+				// set start money
+				ps->money_for_round = spawned_items.StartMoney;
 			}
 
 	} break;
@@ -336,7 +334,6 @@ void game_sv_freemp::OnEvent(NET_Packet &P, u16 type, u32 time, ClientID sender)
 
 u32 oldTime_saveServer = 0;
 u32 oldTimeInventoryBoxSave = 0;
-bool loaded_inventory = false;
 
 void game_sv_freemp::Update()
 {
@@ -365,13 +362,8 @@ void game_sv_freemp::Update()
 				
 				loaded_inventory = true;
 			}
-
-			
 		}
-		
-	
-	}
-	 
+	}					 	 
 
 	if (Device.dwTimeGlobal - oldTime_saveServer > 1000 * 60)
 	{

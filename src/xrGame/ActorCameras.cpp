@@ -33,6 +33,7 @@ void CActor::cam_Set	(EActorCameras style)
 	old_cam->OnDeactivate();
 	cam_Active()->OnActivate(old_cam);
 }
+
 float CActor::f_Ladder_cam_limit=1.f;
 void CActor::cam_SetLadder()
 {
@@ -92,6 +93,7 @@ void CActor::cam_UnsetLadder()
 	C->lim_yaw[1]			= 0;
 	C->bClampYaw			= false;
 }
+
 float cammera_into_collision_shift = 0.05f;
 float CActor::CameraHeight()
 {
@@ -289,6 +291,7 @@ void CActor::cam_Update(float dt, float fFOV)
 
 	if( (mstate_real & mcClimb) && (cam_active!=eacFreeLook) )
 		camUpdateLadder(dt);
+
 	on_weapon_shot_update();
 	float y_shift =0;
 	
@@ -362,6 +365,7 @@ void CActor::cam_Update(float dt, float fFOV)
 	{
 		collide_camera( *cameras[eacFirstEye], _viewport_near, this );
 	}
+
 	/*
 	if( psActorFlags.test(AF_PSP) )
 	{
@@ -389,7 +393,7 @@ void CActor::cam_Update(float dt, float fFOV)
 	if (Level().CurrentEntity() == this)
 	{
 		Level().Cameras().UpdateFromCamera	(C);
-		if(eacFirstEye == cam_active && !Level().Cameras().GetCamEffector(cefDemo)){
+		if(/*eacFirstEye == cam_active &&*/ !Level().Cameras().GetCamEffector(cefDemo)){
 			Cameras().ApplyDevice	(_viewport_near);
 		}
 	}

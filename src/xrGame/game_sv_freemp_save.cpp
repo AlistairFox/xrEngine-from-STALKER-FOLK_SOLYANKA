@@ -51,6 +51,15 @@ bool game_sv_freemp::LoadPlayer(game_PlayerState* id_who)
 	Array jsonOutfit;
 	Object jsonOthers;
 	
+
+	if (json.has<Number>("money"))
+	{
+		int money = json.get<Number>("money");
+
+		ps->money_for_round = money;
+		signal_Syncronize();
+	}
+
 	if (json.has<Object>("Inventory"))
 	{
 		Object inv = json.get<Object>("Inventory");
@@ -193,14 +202,6 @@ bool game_sv_freemp::LoadPlayerPosition(game_PlayerState* ps, Fvector& position,
 			{
 				return false;
 			}
-		}
-
-		if (jsonObj.has<Number>("money"))
-		{
-			int money = jsonObj.get<Number>("money");
-
-			ps->money_for_round = money;
-			signal_Syncronize();
 		}
 
 		if (jsonObj.has<Number>("Pos[X]") && jsonObj.has<Number>("Pos[Y]") && jsonObj.has<Number>("Pos[Z]"))
@@ -379,7 +380,6 @@ int game_sv_freemp::get_account_team(LPCSTR login, LPCSTR password)
 	 
 	return team;
 }
-
 
 void game_sv_freemp::save_inventoryBox(CSE_Abstract* ent)
 {

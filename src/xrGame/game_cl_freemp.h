@@ -10,6 +10,14 @@ private:
 	CUIGameFMP *m_game_ui;
 
 public:
+
+	float		Indicator_render1;
+	float		Indicator_render2;
+	Fvector		IndicatorPosition;
+	Fvector     IndicatorPositionText;
+	ui_shader	IndicatorShaderFreemp;
+	ui_shader	IndicatorShaderFreempLeader;
+
 			game_cl_freemp();
 	virtual	~game_cl_freemp();
 
@@ -35,6 +43,8 @@ public:
 	virtual void save_player(game_PlayerState* cl);
 
 	virtual	void TranslateGameMessage(u32 msg, NET_Packet& P);
+
+	virtual void OnRender();
 
 };
 

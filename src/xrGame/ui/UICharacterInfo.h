@@ -34,6 +34,7 @@ protected:
 		eIcon = 0,
 		eIconOver,
 		eCommunityIcon,
+		eCommunityIconOver,
 /*
 		eRankIcon,
 		eRankIconOver,

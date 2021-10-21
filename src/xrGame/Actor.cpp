@@ -1066,6 +1066,7 @@ void CActor::g_Physics			(Fvector& _accel, float jump, float dt)
 		}
 	}
 }
+
 float g_fov = 55.0f;
 
 float CActor::currentFOV()
@@ -1075,13 +1076,14 @@ float CActor::currentFOV()
 
 	CWeapon* pWeapon = smart_cast<CWeapon*>(inventory().ActiveItem());	
 
-	if (eacFirstEye == cam_active && pWeapon &&
-		pWeapon->IsZoomed() && 
-		( !pWeapon->ZoomTexture() || (!pWeapon->IsRotatingToZoom() && pWeapon->ZoomTexture()) )
-		 )
+	if (/*eacFirstEye == cam_active && */ pWeapon && pWeapon->IsZoomed() && (!pWeapon->ZoomTexture() || (!pWeapon->IsRotatingToZoom() && pWeapon->ZoomTexture())))
 	{
-		return pWeapon->GetZoomFactor() * (0.75f);
-	}else
+		if (eacFirstEye == cam_active)
+			pWeapon->GetZoomFactor()* (0.75f);
+
+		return pWeapon->GetZoomFactor() * (1.0f);
+	}
+	else
 	{
 		return g_fov;
 	}
@@ -1300,7 +1302,10 @@ void CActor::shedule_Update	(u32 DT)
 			}
 			*/
 		}
-		g_cl_Orientate			(mstate_real,dt);
+
+		if (!pInput->iGetAsyncKeyState(DIK_LALT))
+			g_cl_Orientate			(mstate_real,dt);
+		
 		g_Orientate				(mstate_real,dt);
 
 		g_Physics				(NET_SavedAccel,NET_Jump,dt);
@@ -1693,7 +1698,57 @@ void CActor::RenderIndicator			(Fvector dpos, float r1, float r2, const ui_shade
 	//RCache.set_Geometry			(hFriendlyIndicator);
 	//RCache.Render	   			(D3DPT_TRIANGLESTRIP,dwOffset,0, dwCount, 0, 2);
 	UIRender->FlushPrimitive();
-};
+}
+
+extern float RenderVal  = 0.1;
+extern float RenderVal2 = 0.4;
+
+
+void CActor::RenderIndicatorNew(Fvector dpos, float r1, float r2, const ui_shader& IndShader)
+{
+	if (!g_Alive()) return;
+
+	CBoneInstance& BI = smart_cast<IKinematics*>(Visual())->LL_GetBoneInstance(u16(m_head));
+	Fmatrix M;
+
+	smart_cast<IKinematics*>(Visual())->CalculateBones();
+
+	M.mul(XFORM(), BI.mTransform);
+
+	M.c.add(dpos);
+
+	Fvector4 v_res;
+	Device.mFullTransform.transform(v_res, M.c);
+
+	if (v_res.z < 0 || v_res.w < 0)	return;
+
+	if (v_res.x < -1.f || v_res.x > 1.f || v_res.y < -1.f || v_res.y>1.f) return;
+
+	float cx = (1.f + v_res.x) / 2.f * (Device.dwWidth);
+	float cy = (1.f - v_res.y) / 2.f * (Device.dwHeight);
+
+	float di_size = RenderVal / powf(v_res.w, RenderVal2);
+	float size_x = 32 * di_size;
+	float size_y = 32 * di_size;
+
+	//Msg("size [%.6f]", di_size);
+	u32 C = 0xffffffff;
+
+	UIRender->StartPrimitive(6, IUIRender::ptTriList, UI().m_currentPointType);
+	//	Tri 1
+	UIRender->PushPoint(cx - size_x, cy + size_y, 0, C, 0, 1);
+	UIRender->PushPoint(cx - size_x, cy - size_y, 0, C, 0, 0);
+	UIRender->PushPoint(cx + size_x, cy + size_y, 0, C, 1, 1);
+	//	Tri 2
+	UIRender->PushPoint(cx + size_x, cy + size_y, 0, C, 1, 1);
+	UIRender->PushPoint(cx - size_x, cy - size_y, 0, C, 0, 0);
+	UIRender->PushPoint(cx + size_x, cy - size_y, 0, C, 1, 0);
+
+	UIRender->CacheSetXformWorld(Fidentity);
+	UIRender->SetShader(*IndShader);
+	UIRender->FlushPrimitive();
+}
+;
 
 static float mid_size = 0.097f;
 static float fontsize = 15.0f;

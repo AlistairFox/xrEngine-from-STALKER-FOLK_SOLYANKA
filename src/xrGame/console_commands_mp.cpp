@@ -2006,6 +2006,14 @@ public:
 	virtual void	Info	(TInfo& I){xr_strcpy(I,"valid arguments is [info info_full on off]"); }
 };
 
+
+/**
+	
+	G_Spawns classes
+
+**/
+
+
 class CCC_SpawnToInventory : public IConsole_Command {
 public:
 	CCC_SpawnToInventory(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
@@ -2032,9 +2040,15 @@ public:
 			Msg("Spawn item to player. Format: \"sv_spawn_to_player_inv <player session id> <item section> <counts>\"");
 			return;
 		}
+
 		client_id.set(tmp_client_id);
 
 		xrClientData* CL = static_cast<xrClientData*>(Level().Server->GetClientByID(client_id));
+		
+		if (counts > 10)
+			counts = 10;
+
+		if (pSettings->section_exist(section))
 		for (u32 i = 0; i < counts; i++)
 		{
 			if (CL && CL->owner)
@@ -2063,20 +2077,30 @@ public:
 
 		u16 tmp_id;
 		string256 section;
+		u32 counts;
 
 		string1024 buff;
 		exclude_raid_from_args(arguments, buff, sizeof(buff));
 
-		if (sscanf_s(buff, "%hu %s", &tmp_id, &section, sizeof(section)) != 2)
+		if (sscanf_s(buff, "%hu %s %u", &tmp_id, &section, sizeof(section), &counts) != 3)
 		{
 			Msg("! ERROR: bad command parameters.");
-			Msg("Spawn item by ID. Format: \"sv_spawn_to_obj_with_id <player id> <item section>\"");
+			Msg("Spawn item by ID. Format: \"sv_spawn_to_obj_with_id <player id> <item section> <counts>\"");
 			return;
 		}
 
+		if (!pSettings->section_exist(section))
+		{	
+			return;
+		}
+
+		if (counts > 10)
+			counts = 10;
+
 		if (Level().Objects.net_Find(tmp_id))
 		{
-			srv->SpawnItem(section, tmp_id);
+			for (int i=0;i < counts; i++)
+				srv->SpawnItem(section, tmp_id);
 		}
 		else
 		{
@@ -2099,17 +2123,29 @@ public:
 
 		string256 section;
 		Fvector3 vec;
+		u32 counts;
+
 
 		string1024 buff;
 		exclude_raid_from_args(arguments, buff, sizeof(buff));
 
-		if (sscanf_s(buff, "%s %f %f %f", &section, sizeof(section), &vec.x, &vec.y, &vec.z) != 4)
+		u32 raid = sscanf_s(buff, "%s %u %f %f %f", &section, sizeof(section), &counts, &vec.x, &vec.y, &vec.z);
+
+		if (raid != 5 )
 		{
 			Msg("! ERROR: bad command parameters.");
-			Msg("Spawn object. Format: \"sv_spawn_on_position <item section> <position>\"");
+			Msg("Spawn object. Format: \"sv_spawn_on_position <item section> <counts> <position>\"");
 			return;
 		}
-		srv->SpawnItemToPos(section, vec);
+
+		if (counts > 10)
+		{
+			counts = 10;
+		}
+
+		if (pSettings->section_exist(section))
+		for (u32 i = 0; i < counts; i++)
+			srv->SpawnItemToPos(section, vec);
 
 	}
 	virtual void		Save(IWriter *F) {};
@@ -2122,22 +2158,35 @@ public:
 	virtual void		Execute(LPCSTR arguments)
 	{
 
-		//if (pSettings->section_exist(arguments))
+		string256 section;
+		u32 counts;
+
+		string1024 buff;
+		exclude_raid_from_args(arguments, buff, sizeof(buff));
+		sscanf_s(buff, "%s %u", &section, sizeof(section), &counts);
+
+		if (!pSettings->section_exist(section))
 		{
-			NET_Packet		P;
-			P.w_begin(M_REMOTE_CONTROL_CMD);
-			string128 str;
-			xr_sprintf(str, "sv_spawn_to_player_inv %u %s", Game().local_svdpnid.value(), arguments);
-			P.w_stringZ(str);
-			Level().Send(P, net_flags(TRUE, TRUE));
-		}
-		/*else
-		{
-			Msg("! ERROR: bad command parameters.");
-			Msg("Spawn item to player. Format: \"g_spawn_to_inv <item section>\"");
+			Msg("Cant Find section [%s]", section);
 			return;
-		}*/
+		}	
+
+		if (counts > 10)
+			counts = 10;
+
+		if (counts < 1)
+			counts = 1;
+		 
+		NET_Packet		P;
+		P.w_begin(M_REMOTE_CONTROL_CMD);
+		string128 str;
+		xr_sprintf(str, "sv_spawn_to_player_inv %u %s %u", Game().local_svdpnid.value(), section, counts);
+		Msg("command %s", str);
+		P.w_stringZ(str);
+		Level().Send(P, net_flags(TRUE, TRUE));
+		 
 	}
+
 	virtual void		Save(IWriter *F) {};
 
 	virtual void	fill_tips(vecTips& tips, u32 mode)
@@ -2156,38 +2205,53 @@ public:
 
 	virtual void		Execute(LPCSTR arguments)
 	{
-		if (pSettings->section_exist(arguments))
+		 
+		Fvector3 pos, dir, madPos;
+		float range;
+		pos.set(Device.vCameraPosition);
+		dir.set(Device.vCameraDirection);
+		collide::rq_result& RQ = HUD().GetCurrentRayQuery();
+		
+		if (RQ.O)
 		{
-			Fvector3 pos, dir, madPos;
-			float range;
-			pos.set(Device.vCameraPosition);
-			dir.set(Device.vCameraDirection);
-			collide::rq_result& RQ = HUD().GetCurrentRayQuery();
+			Msg("! ERROR: Can spawn only on ground");
+			return;
+		}  
 
-			if (RQ.O)
-			{
-				Msg("! ERROR: Can spawn only on ground");
-				return;
-			}
+		range = RQ.range;
+		dir.normalize();
+		madPos.mad(pos, dir, range);
+		
+		string256 section;
+ 		u32 counts;
 
-			range = RQ.range;
-			dir.normalize();
-			madPos.mad(pos, dir, range);
+		string1024 buff;
+		exclude_raid_from_args(arguments, buff, sizeof(buff));
+		sscanf_s(buff, "%s %u", &section, sizeof(section), &counts);
 
-			NET_Packet		P;
-			P.w_begin(M_REMOTE_CONTROL_CMD);
-			string128 str;
-			xr_sprintf(str, "sv_spawn_on_position %s %f %f %f", arguments, madPos.x, madPos.y, madPos.z);
-			P.w_stringZ(str);
-			Level().Send(P, net_flags(TRUE, TRUE));
-		}
-		else
+		if (!pSettings->section_exist(section))
 		{
-			Msg("! ERROR: bad command parameters.");
-			Msg("Spawn item. Format: \"g_spawn <item section>\"");
+			Msg("Cant Find section [%s]", section);
 			return;
 		}
+
+		if (counts > 10)
+			counts = 10;
+		
+		if (counts < 1)
+			counts = 1;
+
+		NET_Packet		P;
+		P.w_begin(M_REMOTE_CONTROL_CMD);
+		string128 str;
+		xr_sprintf(str, "sv_spawn_on_position %s %u %f %f %f", section, counts, madPos.x, madPos.y, madPos.z);
+		Msg("command %s", str);
+
+		P.w_stringZ(str);
+		Level().Send(P, net_flags(TRUE, TRUE));
+		
 	}
+
 	virtual void		Save(IWriter *F) {};
 
 	virtual void	fill_tips(vecTips& tips, u32 mode)
@@ -2212,36 +2276,44 @@ public:
 	CCC_GSpawnToInventory(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
 
 	virtual void		Execute(LPCSTR arguments)
-	{
-		if (pSettings->section_exist(arguments))
-		{
-			collide::rq_result& RQ = HUD().GetCurrentRayQuery();
+	{		
+		collide::rq_result& RQ = HUD().GetCurrentRayQuery();
 
-			CInventoryOwner* invOwner = smart_cast<CInventoryOwner*>(RQ.O);
-			CInventoryBox* invBox = smart_cast<CInventoryBox*>(RQ.O);
+		CInventoryOwner* invOwner = smart_cast<CInventoryOwner*>(RQ.O);
+		CInventoryBox* invBox = smart_cast<CInventoryBox*>(RQ.O);
 
-			if (RQ.O && (invOwner || invBox))
-			{
-				NET_Packet		P;
-				P.w_begin(M_REMOTE_CONTROL_CMD);
-				string128 str;
-				xr_sprintf(str, "sv_spawn_to_obj_with_id %hu %s", RQ.O->ID(), arguments);
-				P.w_stringZ(str);
-				Level().Send(P, net_flags(TRUE, TRUE));
-				return;
-			}
-			else
-			{
-				Msg("! ERROR: cant spawn to inventory.");
-			}
-		}
-		else
+		string256 section;
+		u32 counts;
+
+		string1024 buff;
+		exclude_raid_from_args(arguments, buff, sizeof(buff));
+		sscanf_s(buff, "%s %u", &section, sizeof(section), &counts);
+							   
+		if (!pSettings->section_exist(section))
 		{
-			Msg("! ERROR: bad command parameters.");
-			Msg("Spawn item. Format: \"g_spawn_to_inv <item section>\"");
+			Msg("Cant find section [%s]", section);
 			return;
 		}
-	}
+
+		if (counts > 10)
+			counts = 10;
+
+		if (counts < 1)
+			counts = 1;
+
+		if (RQ.O && (invOwner || invBox))
+		{
+			NET_Packet		P;
+			P.w_begin(M_REMOTE_CONTROL_CMD);
+			string128 str;
+			xr_sprintf(str, "sv_spawn_to_obj_with_id %hu %s %u", RQ.O->ID(), section, counts);
+			P.w_stringZ(str);
+			Level().Send(P, net_flags(TRUE, TRUE));
+			return;
+		}
+				
+	}	 
+
 	virtual void		Save(IWriter *F) {};
 
 	virtual void	fill_tips(vecTips& tips, u32 mode)
@@ -2253,7 +2325,6 @@ public:
 		}
 	}
 };
-
 
 class CCC_GiveMoneyToPlayer : public IConsole_Command {
 public:
@@ -2306,7 +2377,6 @@ public:
 		}
 	}
 };
-
 
 class CCC_TransferMoney: public IConsole_Command {
 public:
@@ -2391,6 +2461,32 @@ public:
 		}
 	}
 };
+
+class CCC_ADD_Money_to_client_self : public IConsole_Command {
+public:
+	CCC_ADD_Money_to_client_self(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
+	virtual void		Execute(LPCSTR args)
+	{
+		{
+			NET_Packet		P;
+			P.w_begin(M_REMOTE_CONTROL_CMD);
+
+			string128 str;
+			xr_sprintf(str, "sv_give_money %u %s", Level().GetClientID(), args);
+
+			P.w_stringZ(str);
+
+			Level().Send(P, net_flags(TRUE, TRUE));
+		}
+	}
+	virtual void Save(IWriter* F) {};
+};
+
+/**
+	
+	ADM_FETURES
+
+**/
 
 class CCC_SetNoClipForPlayer : public IConsole_Command {
 public:
@@ -2625,7 +2721,6 @@ public:
 	}
 };
 
-
 class CCC_AdmSurgeStart : public IConsole_Command {
 public:
 	CCC_AdmSurgeStart(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
@@ -2651,6 +2746,8 @@ public:
 	}
 };
 
+
+
 //jsonxx
 
 #include <fstream>;
@@ -2661,6 +2758,10 @@ public:
 
 using namespace jsonxx;
 //jsonxx
+
+/*
+	Register Accounts
+*/
 
 class CCC_AdmRegister : public IConsole_Command {
 public:
@@ -2773,7 +2874,6 @@ public:
 	}
 };
 
-
 class CCC_AdmDelateUser : public IConsole_Command {
 public:
 	CCC_AdmDelateUser(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
@@ -2869,27 +2969,11 @@ public:
 	}
 };
  
-class CCC_ADD_Money_to_client_self : public IConsole_Command {
-public:
-	CCC_ADD_Money_to_client_self(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
-	virtual void		Execute(LPCSTR args)
-	{
-		{
-			NET_Packet		P;
-			P.w_begin(M_REMOTE_CONTROL_CMD);
-			
-			string128 str;
-			xr_sprintf(str, "sv_give_money %u %s", Level().GetClientID(), args);
-
-			P.w_stringZ(str);
-
-			Level().Send(P, net_flags(TRUE, TRUE));
-		}
-	}
-	virtual void Save(IWriter* F) {};
-};
 
 
+extern float RenderVal;
+extern float RenderVal2;
+extern int right_cam;
 
 void register_mp_console_commands()
 {
@@ -2932,6 +3016,11 @@ void register_mp_console_commands()
 
 	CMD4(CCC_Integer, "net_sv_simulate_lag", &simulate_netwark_ping, 0, 100);
 	CMD4(CCC_Integer, "net_cl_simulate_lag", &simulate_netwark_ping_cl, 0, 100);
+
+	CMD4(CCC_Float, "render_ind_glob", &RenderVal, 0, 1);
+	CMD4(CCC_Float, "render_ind_exp", &RenderVal2, 0, 1);
+
+	CMD4(CCC_Integer, "cam2_right", &right_cam, 0, 1);
 
 	// Network
 #ifdef DEBUG

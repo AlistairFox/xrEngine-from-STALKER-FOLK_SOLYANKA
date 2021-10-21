@@ -118,11 +118,15 @@ void CLevelChanger::shedule_Update(u32 dt)
 #include "patrol_path_storage.h"
 void CLevelChanger::feel_touch_new	(CObject *tpObject)
 {
-	CActor*			l_tpActor = smart_cast<CActor*>(tpObject);
-	VERIFY			(l_tpActor);
-	if (!l_tpActor->g_Alive())
-		return;
+	CActor*			actor = smart_cast<CActor*>(tpObject);
+	VERIFY			(actor);
 
+	/*
+
+	if (!actor->g_Alive())
+		return;
+	 
+	if (false)
 	if (m_bSilentMode)
 	{
 		NET_Packet	p;
@@ -141,11 +145,17 @@ void CLevelChanger::feel_touch_new	(CObject *tpObject)
 
 		return;
 	}
-	Fvector			p,r;
-	bool			b = get_reject_pos(p,r);
-	CUIGameSP		*pGameSP = smart_cast<CUIGameSP*>(CurrentGameUI());
-	if (pGameSP)
-        pGameSP->ChangeLevel	(m_game_vertex_id, m_level_vertex_id, m_position, m_angles, p, r, b, m_invite_str, m_b_enabled);
+
+	if (false)
+	{
+		Fvector			p, r;
+		bool			b = get_reject_pos(p, r);
+		CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(CurrentGameUI());
+		if (pGameSP)
+			pGameSP->ChangeLevel(m_game_vertex_id, m_level_vertex_id, m_position, m_angles, p, r, b, m_invite_str, m_b_enabled);
+	}
+
+	*/
 
 	m_entrance_time	= Device.fTimeGlobal;
 }
@@ -186,11 +196,15 @@ BOOL CLevelChanger::feel_touch_contact	(CObject *object)
 
 void CLevelChanger::update_actor_invitation()
 {
-	if(m_bSilentMode)						return;
+/*
+	if(m_bSilentMode)					
+		return;
+
 	xr_vector<CObject*>::iterator it		= feel_touch.begin();
 	xr_vector<CObject*>::iterator it_e		= feel_touch.end();
 
-	for(;it!=it_e;++it){
+	for(;it!=it_e;++it)
+	{
 		CActor*			l_tpActor = smart_cast<CActor*>(*it);
 		VERIFY			(l_tpActor);
 		
@@ -208,6 +222,26 @@ void CLevelChanger::update_actor_invitation()
 			m_entrance_time		= Device.fTimeGlobal;
 		}
 	}
+
+*/
+	
+	int pl_size = Game().players.size() - 1;
+	
+	if (OnServer())
+	if (feel_touch.size() == pl_size && pl_size != 0)
+	{
+		Msg("feel_size[%d]/ pl_size[%d]", feel_touch.size(), pl_size);
+		NET_Packet	p;
+		p.w_begin(M_CHANGE_LEVEL);
+		p.w(&m_game_vertex_id, sizeof(m_game_vertex_id));
+		p.w(&m_level_vertex_id, sizeof(m_level_vertex_id));
+		p.w_vec3(m_position);
+		p.w_vec3(m_angles);
+  
+		if (m_game_vertex_id != 65535)
+			Level().Send(p, net_flags(TRUE));
+	}
+	  
 }
 
 void CLevelChanger::save(NET_Packet &output_packet)

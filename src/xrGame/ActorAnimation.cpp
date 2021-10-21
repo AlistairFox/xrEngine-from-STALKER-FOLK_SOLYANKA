@@ -656,7 +656,7 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 				{
 					M_torso = ST->m_torso[H->animation_slot()-1].moving[state];
 					
-					Msg("Anim Safe S[%d] State[%d]", H->animation_slot()-1, state);
+					//Msg("Anim Safe S[%d] State[%d]", H->animation_slot()-1, state);
 					//M_head = ST->m_head_idle_safe;
 				} 
 			}

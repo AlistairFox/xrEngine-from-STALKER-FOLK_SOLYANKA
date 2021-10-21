@@ -456,19 +456,13 @@ bool CActor::g_LadderOrient()
 void CActor::g_cl_Orientate	(u32 mstate_rl, float dt)
 {
 	// capture camera into torso (only for FirstEye & LookAt cameras)
-	if (!pInput->iGetAsyncKeyState(DIK_LALT))
+ 
+	if (eacFreeLook!=cam_active)
 	{
-		if (eacFreeLook!=cam_active)
-		{
-			r_torso.yaw		=	cam_Active()->GetWorldYaw	();
-			r_torso.pitch	=	cam_Active()->GetWorldPitch	();
-		}
-		else
-		{
-			r_torso.yaw		=	cam_FirstEye()->GetWorldYaw	();
-			r_torso.pitch	=	cam_FirstEye()->GetWorldPitch	();
-		}
+		r_torso.yaw		=	cam_Active()->GetWorldYaw	();
+		r_torso.pitch	=	cam_Active()->GetWorldPitch	();
 	}
+	 
 
 	unaffected_r_torso.yaw		= r_torso.yaw;
 	unaffected_r_torso.pitch	= r_torso.pitch;
@@ -476,13 +470,15 @@ void CActor::g_cl_Orientate	(u32 mstate_rl, float dt)
 
 	CWeaponMagazined *pWM = smart_cast<CWeaponMagazined*>(inventory().GetActiveSlot() != NO_ACTIVE_SLOT ? inventory().ItemFromSlot(inventory().GetActiveSlot()) : NULL);
 
+
 	if (pWM && pWM->GetCurrentFireMode() == 1 && eacFirstEye != cam_active)
 	{
 		Fvector dangle = weapon_recoil_last_delta();
 		r_torso.yaw		=	unaffected_r_torso.yaw + dangle.y;
 		r_torso.pitch	=	unaffected_r_torso.pitch + dangle.x;
 	}
-	
+	 
+
 	// если есть движение - выровнять модель по камере
 	if (mstate_rl&mcAnyMove)
 	{
@@ -493,16 +489,19 @@ void CActor::g_cl_Orientate	(u32 mstate_rl, float dt)
 	{
 		// if camera rotated more than 45 degrees - align model with it
 		float ty = angle_normalize(r_torso.yaw);
-		if (_abs(r_model_yaw-ty) > PI_DIV_4-30)	{
+		 
+		if (_abs(r_model_yaw-ty) > PI_DIV_4 - 30)	{
 			r_model_yaw_dest = ty;
 			// 
 			mstate_real	|= mcTurn;
 		}
+		 
+
 		if (_abs(r_model_yaw-r_model_yaw_dest)<EPS_L){
 			mstate_real	&=~mcTurn;
 		}
 		if (mstate_rl&mcTurn){
-			angle_lerp	(r_model_yaw,r_model_yaw_dest, PI_MUL_2, dt);
+			angle_lerp	(r_model_yaw,r_model_yaw_dest, 25/*PI_MUL_2*/, dt);
 		}
 	}
 }
@@ -517,6 +516,7 @@ void CActor::g_sv_Orientate(u32 /**mstate_rl/**/, float /**dt/**/)
 
 	CWeaponMagazined *pWM = smart_cast<CWeaponMagazined*>(inventory().GetActiveSlot() != NO_ACTIVE_SLOT ? 
 		inventory().ItemFromSlot(inventory().GetActiveSlot()) : NULL);
+	
 	if (pWM && pWM->GetCurrentFireMode() == 1/* && eacFirstEye != cam_active*/)
 	{
 		Fvector dangle = weapon_recoil_last_delta();

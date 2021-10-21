@@ -24,7 +24,7 @@ private:
 	float					m_entrance_time;
 	shared_str				m_invite_str;
 	bool					m_b_enabled;
-
+ 
 	void					update_actor_invitation	();
 	bool					m_bSilentMode;
 	bool					get_reject_pos(Fvector& p, Fvector& r);

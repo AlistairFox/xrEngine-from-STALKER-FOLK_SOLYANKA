@@ -7,6 +7,24 @@
 
 game_cl_freemp::game_cl_freemp()
 {
+	LPCSTR sec_name = "freemp_team_indicator";
+	Indicator_render1 = pSettings->r_float(sec_name, "indicator_1");
+	Indicator_render2 = pSettings->r_float(sec_name, "indicator_2");
+
+	IndicatorPosition.x = pSettings->r_float(sec_name, "indicator_x");
+	IndicatorPosition.y = pSettings->r_float(sec_name, "indicator_y");
+	IndicatorPosition.z = pSettings->r_float(sec_name, "indicator_z");
+
+	IndicatorPositionText.y = pSettings->r_float(sec_name, "indicator_y_text");
+
+
+	LPCSTR		ShaderType = pSettings->r_string(sec_name, "indicator_shader");
+	LPCSTR		ShaderTexture = pSettings->r_string(sec_name, "indicator_texture");
+	IndicatorShaderFreemp->create(ShaderType, ShaderTexture);
+
+	LPCSTR		ShaderTypeLeader = pSettings->r_string(sec_name, "leader_shader");
+	LPCSTR		ShaderTextureLeader = pSettings->r_string(sec_name, "leader_texture");
+	IndicatorShaderFreempLeader->create(ShaderTypeLeader, ShaderTextureLeader);
 }
 
 game_cl_freemp::~game_cl_freemp()
@@ -243,14 +261,60 @@ void game_cl_freemp::TranslateGameMessage(u32 msg, NET_Packet& P)
 {
 	switch (msg)
 	{
-	case (GE_UI_PDA):
-	{
-		m_game_ui->PdaMenu().pUIContacts->EventRecive(P);
-	}break;
+		case (GE_UI_PDA):
+		{
+			Msg("!!! GE_UI_PDA recive");
+			m_game_ui->PdaMenu().pUIContacts->EventRecive(P);
+		}break;
 
-	default:
-		inherited::TranslateGameMessage(msg, P);
-		break;
+		default:
+			inherited::TranslateGameMessage(msg, P);
+			break;
 	}
 
+}
+
+#include "UIPda_Squad.h";
+
+void game_cl_freemp::OnRender()
+{
+	Team teamPL = m_game_ui->PdaMenu().pUIContacts->squad_UI->team_players;
+
+	if (teamPL.cur_players > 0)
+		for (auto pl : teamPL.players)
+		{
+			if (pl.Client == 0)
+				continue;
+
+			game_PlayerState* ps = GetPlayerByGameID(pl.GameID);
+
+			if (!ps)
+				continue;
+
+			if (ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD)) continue;
+			if (ps == local_player) continue;
+
+			CActor* pActor = smart_cast<CActor*>(Level().Objects.net_Find(ps->GameID));
+			if (!pActor) continue;
+
+			float pos = 0.0f;
+
+			//pActor->RenderText(pActor->Name(), IndicatorPositionText, &pos, color_rgba(255, 255, 0, 255));
+
+
+
+			if (pl.Client.value() == teamPL.leader)
+			{
+				Fvector posH = IndicatorPosition;
+				//posH.y += pos;
+				pActor->RenderIndicatorNew(posH, Indicator_render1, Indicator_render2, IndicatorShaderFreempLeader);
+			}
+			else
+			{
+				Fvector posH = IndicatorPosition;
+				//posH.y += pos;
+				pActor->RenderIndicatorNew(posH, Indicator_render1, Indicator_render2, IndicatorShaderFreemp);
+			}
+
+		}
 }
