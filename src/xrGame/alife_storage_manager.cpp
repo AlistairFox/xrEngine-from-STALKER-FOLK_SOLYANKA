@@ -23,7 +23,9 @@
 #include "../xrEngine/igame_persistent.h"
 #include "autosave_manager.h"
 
-#include "actor_mp_server.h"
+#include "actor_mp_server.h"	
+
+#include "InventoryBox.h"
 
 XRCORE_API string_path g_bug_report_file;
 
@@ -119,6 +121,15 @@ void CALifeStorageManager::load	(void *buffer, const u32 &buffer_size, LPCSTR fi
 	{
 		ALife::_OBJECT_ID		id = (*I).second->ID;
 		if (smart_cast<CSE_ActorMP*>(I->second))
+			continue;
+
+		//if (smart_cast<CSE_ALifeInventoryBox*>((I->second)))
+		//	continue;
+
+		u32 parrentID = (*I).second->ID_Parent;
+		CObject* obj = Level().Objects.net_Find(parrentID);
+
+		if (smart_cast<CInventoryBox*>(obj))
 			continue;
 
 		Msg("Load ID_OBJ [%d] Name [%s] Spawn[%s]", I->second->ID,I->second->name_replace(), I->second->s_name.c_str());

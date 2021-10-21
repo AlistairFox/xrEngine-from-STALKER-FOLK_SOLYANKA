@@ -10,6 +10,9 @@
 #include "alife_object_registry.h"
 #include "ai_debug.h"
 
+#include "InventoryBox.h"
+#include "Level.h"
+
 CALifeObjectRegistry::CALifeObjectRegistry	(LPCSTR section)
 {
 }
@@ -75,8 +78,16 @@ void CALifeObjectRegistry::save				(IWriter &memory_stream)
 		if ((*I).second->redundant())
 			continue;
 
-		if ((*I).second->ID_Parent != 0xffff)
+		u16 parrent = (*I).second->ID_Parent;
+
+		if (parrent != 0xffff)
 			continue;
+
+		if (smart_cast<CInventoryBox*>(Level().Objects.net_Find(parrent)))
+			continue;
+
+		//if (smart_cast<CInventoryBox*>((*I).second))
+		//	continue;
 
 		save					(memory_stream,(*I).second, object_count);
 	}
