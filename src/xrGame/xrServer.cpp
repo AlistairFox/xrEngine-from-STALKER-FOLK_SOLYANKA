@@ -1139,6 +1139,8 @@ if( dbg_net_Draw_Flags.test( dbg_destroy ) )
 		P->owner->owner		= NULL;
 
 	P->owner = NULL;
+
+	if (false)
 	if (!ai().get_alife() || !P->m_bALifeControl)
 	{
 		F_entity_Destroy		(P);
