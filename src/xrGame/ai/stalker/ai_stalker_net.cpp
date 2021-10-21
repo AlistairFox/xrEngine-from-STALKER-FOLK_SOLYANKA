@@ -424,7 +424,7 @@ void CAI_Stalker::ApplyAnimation(
 	{
 		motion.idx = u_script_motion_idx;
 		motion.slot = u_script_motion_slot;
-		u_last_script_motion_idx = u_script_motion_idx;
+
 		
 		if (motion.valid())
 		{
@@ -434,8 +434,10 @@ void CAI_Stalker::ApplyAnimation(
 
 			if (script)
 			{
-				blend_script_start_time = Device.dwTimeGlobal;
-				blend_script_end_time = blend_script_start_time + (script->timeTotal * 1000);
+				u_last_script_motion_idx = u_script_motion_idx;
+
+				//blend_script_start_time = Device.dwTimeGlobal;
+				//blend_script_end_time = blend_script_start_time + (script->timeTotal * 1000);
 		
  				// Msg("Blend [%s] [%d] > [%d] ", script->stop_at_end ? "true" : "false", blend_script_end_time, Device.dwTimeGlobal);
 			} 
