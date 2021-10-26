@@ -497,12 +497,16 @@ void CAI_Stalker::Die				(CObject* who)
 	if (!weapon)
 		return;
 
+	if (false)
 	{
 		TIItemContainer::iterator	I = inventory().m_all.begin();
 		TIItemContainer::iterator	E = inventory().m_all.end();
 		for ( ; I != E; ++I) {
 			if (std::find(weapon->m_ammoTypes.begin(),weapon->m_ammoTypes.end(),(*I)->object().cNameSect()) == weapon->m_ammoTypes.end())
 				continue;
+
+			//if (OnClient())
+			//	Msg("Send Destroy ammo [%d] From Client", (*I)->object().ID());
 
 			NET_Packet				packet;
 			u_EventGen				(packet,GE_DESTROY,(*I)->object().ID());
