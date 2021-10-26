@@ -248,18 +248,20 @@ void CUIMainIngameWnd::Init()
 	for(int i=0; i<4; i++)
 	{
 		m_quick_slots_icons.push_back	(xr_new<CUIStatic>());
-		m_quick_slots_icons.back()	->SetAutoDelete(true);
+		m_quick_slots_icons.back()->SetAutoDelete(true);
 		AttachChild				(m_quick_slots_icons.back());
+
 		string32 path;
 		xr_sprintf				(path, "quick_slot%d", i);
 		CUIXmlInit::InitStatic	(uiXml, path, 0, m_quick_slots_icons.back());
 		xr_sprintf				(path, "%s:counter", path);
 		UIHelper::CreateStatic	(uiXml, path, m_quick_slots_icons.back());
 	}
-	m_QuickSlotText1				= UIHelper::CreateTextWnd(uiXml, "quick_slot0_text", this);
-	m_QuickSlotText2				= UIHelper::CreateTextWnd(uiXml, "quick_slot1_text", this);
-	m_QuickSlotText3				= UIHelper::CreateTextWnd(uiXml, "quick_slot2_text", this);
-	m_QuickSlotText4				= UIHelper::CreateTextWnd(uiXml, "quick_slot3_text", this);
+	
+	//m_QuickSlotText1				= UIHelper::CreateTextWnd(uiXml, "quick_slot0_text", this);
+	//m_QuickSlotText2				= UIHelper::CreateTextWnd(uiXml, "quick_slot1_text", this);
+	//m_QuickSlotText3				= UIHelper::CreateTextWnd(uiXml, "quick_slot2_text", this);
+	//m_QuickSlotText4				= UIHelper::CreateTextWnd(uiXml, "quick_slot3_text", this);
 
 	HUD_SOUND_ITEM::LoadSound				("maingame_ui", "snd_new_contact", m_contactSnd, SOUND_TYPE_IDLE);
 }
@@ -821,6 +823,8 @@ void CUIMainIngameWnd::UpdateMainIndicators()
 void CUIMainIngameWnd::UpdateQuickSlots()
 {
 	string32 tmp;
+	
+	/*
 	LPCSTR str = CStringTable().translate("quick_use_str_1").c_str();
 	strncpy_s(tmp, sizeof(tmp), str, 3);
 	if(tmp[2]==',')
@@ -844,7 +848,8 @@ void CUIMainIngameWnd::UpdateQuickSlots()
 	if(tmp[2]==',')
 		tmp[1] = '\0';
 	m_QuickSlotText4->SetTextST(tmp);
-
+	*/
+	 
 
 	CActor* pActor = smart_cast<CActor*>(Level().CurrentViewEntity());
 	if(!pActor)
@@ -853,40 +858,45 @@ void CUIMainIngameWnd::UpdateQuickSlots()
 	for(u8 i=0;i<4;i++)
 	{
 		CUIStatic* wnd = smart_cast<CUIStatic* >(m_quick_slots_icons[i]->FindChild("counter"));
+		
 		if(wnd)
 		{
 			shared_str item_name = g_quick_use_slots[i];
 			if(item_name.size())
 			{
-				u32 count = pActor->inventory().dwfGetSameItemCount(item_name.c_str(), true);
-				string32 str;
-				xr_sprintf(str, "x%d", count);
-				wnd->TextItemControl()->SetText(str);
-				wnd->Show(true);
+				//u32 count = pActor->inventory().dwfGetSameItemCount(item_name.c_str(), true);
+				//string32 str;
+				//xr_sprintf(str, "x%d", count);
+				//wnd->TextItemControl()->SetText(str);
+				wnd->Show(false);
 
 				CUIStatic* main_slot = m_quick_slots_icons[i];
 				main_slot->SetShader(InventoryUtilities::GetEquipmentIconsShader());
 				Frect texture_rect;
+
 				texture_rect.x1	= pSettings->r_float(item_name, "inv_grid_x")		*INV_GRID_WIDTH;
 				texture_rect.y1	= pSettings->r_float(item_name, "inv_grid_y")		*INV_GRID_HEIGHT;
 				texture_rect.x2	= pSettings->r_float(item_name, "inv_grid_width")	*INV_GRID_WIDTH;
-				texture_rect.y2	= pSettings->r_float(item_name, "inv_grid_height")*INV_GRID_HEIGHT;
+				texture_rect.y2	= pSettings->r_float(item_name, "inv_grid_height")  *INV_GRID_HEIGHT;
+
 				texture_rect.rb.add(texture_rect.lt);
 				main_slot->SetTextureRect(texture_rect);
 				main_slot->TextureOn();
 				main_slot->SetStretchTexture(true);
-				if(!count)
+				
+				/*if (!count)
 				{
 					wnd->SetTextureColor(color_rgba(255,255,255,0));
 					wnd->TextItemControl()->SetTextColor(color_rgba(255,255,255,0));
 					m_quick_slots_icons[i]->SetTextureColor(color_rgba(255,255,255,100));
 				}
-				else
+				else*/
 				{
 					wnd->SetTextureColor(color_rgba(255,255,255,255));
 					wnd->TextItemControl()->SetTextColor(color_rgba(255,255,255,255));
 					m_quick_slots_icons[i]->SetTextureColor(color_rgba(255,255,255,255));
 				}
+				 
 			}
 			else
 			{
@@ -896,6 +906,7 @@ void CUIMainIngameWnd::UpdateQuickSlots()
 			}
 		}
 	}
+	 
 }
 
 void CUIMainIngameWnd::DrawMainIndicatorsForInventory()
@@ -910,10 +921,10 @@ void CUIMainIngameWnd::DrawMainIndicatorsForInventory()
 	for(int i=0;i<4;i++)
 		m_quick_slots_icons[i]->Draw();
 
-	m_QuickSlotText1->Draw();
-	m_QuickSlotText2->Draw();
-	m_QuickSlotText3->Draw();
-	m_QuickSlotText4->Draw();
+	//m_QuickSlotText1->Draw();
+	//m_QuickSlotText2->Draw();
+	//m_QuickSlotText3->Draw();
+	//m_QuickSlotText4->Draw();
 
 	if(m_ind_boost_psy->IsShown())
 	{
