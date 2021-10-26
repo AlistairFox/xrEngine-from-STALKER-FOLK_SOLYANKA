@@ -158,6 +158,7 @@ void CAI_Stalker::OnEventAnimations(NET_Packet packet)
 	}
 	*/
 
+	if (Level().CurrentControlEntity())
 	if (script.valid())
 	{
 		

@@ -96,13 +96,13 @@ void xrServer::Process_event_destroy	(NET_Packet& P, ClientID sender, u32 time, 
 	}
 
 	// Everything OK, so perform entity-destroy
-	if (e_dest->m_bALifeControl && ai().get_alife()) {
+	if (e_dest->m_bALifeControl && ai().get_alife() && sender == GetServerClient()->ID) {
 			game_sv_Single*				_gameS = smart_cast<game_sv_Single*>(game);
 
 			game_sv_mp*					_gameM = smart_cast<game_sv_mp*>(game);
 		
-		//VERIFY						(_game);
-			if (ai().alife().objects().object(id_dest,true)){
+			if (ai().alife().objects().object(id_dest,true))
+			{
 				if (IsGameTypeSingle())
 				{
 					_gameS->alife().release	(e_dest,false);

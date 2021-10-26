@@ -262,47 +262,42 @@ void CALifeSimulatorBase::create	(CSE_ALifeObject *object)
 		register_object				(dynamic_object,true);
 }
 
-void CALifeSimulatorBase::release	(CSE_Abstract *abstract, bool alife_query)
+void CALifeSimulatorBase::release(CSE_Abstract* abstract, bool alife_query)
 {
-#ifdef DEBUG
-	if (psAI_Flags.test(aiALife)) {
-		Msg							("[LSS] Releasing object [%s][%s][%d][%x]",abstract->name_replace(),*abstract->s_name,abstract->ID,smart_cast<void*>(abstract));
-	}
-#endif
-
 	Msg("[LSS] Releasing object [%s][%s][%d][%x]", abstract->name_replace(), *abstract->s_name, abstract->ID, smart_cast<void*>(abstract));
 
-	CSE_ALifeDynamicObject			*object = objects().object(abstract->ID);
-	VERIFY							(object);
+	CSE_ALifeDynamicObject* object = objects().object(abstract->ID);
+	VERIFY(object);
 
 	if (!object)
 		return;
-	//Msg("[LSS] Release Check");
-	if (!object->children.empty()) {
+ 
+	if (!object->children.empty())
+	{
 		u32							children_count = object->children.size();
-		u32							bytes = children_count*sizeof(ALife::_OBJECT_ID);
-		ALife::_OBJECT_ID			*children = (ALife::_OBJECT_ID*)_alloca(bytes);
-		CopyMemory					(children,&*object->children.begin(),bytes);
+		u32							bytes = children_count * sizeof(ALife::_OBJECT_ID);
+		ALife::_OBJECT_ID* children = (ALife::_OBJECT_ID*)_alloca(bytes);
+		CopyMemory(children, &*object->children.begin(), bytes);
 
-		ALife::_OBJECT_ID			*I = children;
-		ALife::_OBJECT_ID			*E = children + children_count;
-		for ( ; I != E; ++I) {
-			CSE_ALifeDynamicObject	*child = objects().object(*I,true);
+		ALife::_OBJECT_ID* I = children;
+		ALife::_OBJECT_ID* E = children + children_count;
+		for (; I != E; ++I) {
+			CSE_ALifeDynamicObject* child = objects().object(*I, true);
 			if (!child)
 				continue;
-			Msg("[LSS] Release Chield [%d] name [%s] Pre Lua", child->ID, child->name_replace());
-			release					(child,alife_query);
-			//Msg("[LSS] Release After Lua");
-		}
+ 			release(child, alife_query);
+ 		}
 	}
 
-	Msg("[LSS] Release Unregister");
-	unregister_object				(object,alife_query);
-	
-	object->m_bALifeControl			= false;
- 
+ 	unregister_object(object, alife_query);
+
+	object->m_bALifeControl = false;
+
 	if (alife_query)
-		server().entity_Destroy		(abstract);
+	{
+		server().entity_Destroy(abstract);
+	}
+	 
 }
 
 void CALifeSimulatorBase::append_item_vector(OBJECT_VECTOR &tObjectVector, ITEM_P_VECTOR &tItemList)

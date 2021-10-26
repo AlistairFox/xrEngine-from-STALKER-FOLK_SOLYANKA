@@ -726,7 +726,7 @@ void WeaponUsageStatistic::On_Check_Respond(NET_Packet* P)
 		u32 BulletID = P->r_u32();
 		if (!FindBullet(BulletID, BulletIt)) 
 		{
-			Msg("! Warning: No bullet found! ID[%d]", BulletID);
+			//Msg("! Warning: No bullet found! ID[%d]", BulletID);
 			continue;
 		};
 		BulletIt->HitResponds++;
@@ -739,7 +739,7 @@ void WeaponUsageStatistic::On_Check_Respond(NET_Packet* P)
 		s16 BoneID = P->r_s16();
 		if (!FindBullet(BulletID, BulletIt)) 
 		{
-			Msg("! Warning: No bullet found! ID[%d]", BulletID);
+			//Msg("! Warning: No bullet found! ID[%d]", BulletID);
 			continue;
 		};
 		BulletIt->HitResponds++;
