@@ -72,7 +72,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <LibraryPath>C:\Games\omp1.2\bin;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)\..\binares\$(Platform)-$(Configuration)\</OutDir>
+    <OutDir>C:\Games\omp1.2\bin\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Midl>
@@ -3971,7 +3971,7 @@
     <ClCompile Include="pp_effector_custom.cpp" />
     <ClCompile Include="pp_effector_distance.cpp" />
     <ClCompile Include="profiler.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="profile_data_types.cpp" />
     <ClCompile Include="profile_data_types_script.cpp" />

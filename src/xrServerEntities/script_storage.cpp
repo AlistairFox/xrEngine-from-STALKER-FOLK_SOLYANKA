@@ -405,12 +405,17 @@ int CScriptStorage::vscript_log		(ScriptStorage::ELuaMessageType tLuaMessageType
 #endif // #ifdef PRINT_CALL_STACK
 }
 
+extern int PRINT_STACK = 0;
+
 #ifdef PRINT_CALL_STACK
 void CScriptStorage::print_stack		()
 {
  
 	if (!m_stack_is_ready)
 		return;
+
+	if (!PRINT_STACK)
+		return;	
 
 	m_stack_is_ready		= false;
   

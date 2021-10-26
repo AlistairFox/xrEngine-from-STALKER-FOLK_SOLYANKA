@@ -176,10 +176,6 @@ void CScriptEngine::lua_error			(lua_State *L)
 	print_output			(L,"",LUA_ERRRUN);
 	ai().script_engine().on_error	(L);
 
-	luabind::functor<void>	funct;
-	R_ASSERT(ai().script_engine().functor("mp_game_cl.callstack", funct));
-	funct();
-
 #if !XRAY_EXCEPTIONS
 	Debug.fatal				(DEBUG_INFO,"LUA error: %s",lua_tostring(L,-1));
 #else
@@ -192,10 +188,6 @@ int  CScriptEngine::lua_pcall_failed	(lua_State *L)
 	print_output			(L,"",LUA_ERRRUN);
 	ai().script_engine().on_error	(L);
 
-	luabind::functor<void>	funct;
-	R_ASSERT(ai().script_engine().functor("mp_game_cl.callstack", funct));
-	funct();
-
 #if !XRAY_EXCEPTIONS
 	Debug.fatal				(DEBUG_INFO,"LUA error: %s",lua_isstring(L,-1) ? lua_tostring(L,-1) : "");
 #endif
@@ -207,10 +199,6 @@ int  CScriptEngine::lua_pcall_failed	(lua_State *L)
 void lua_cast_failed					(lua_State *L, LUABIND_TYPE_INFO info)
 {
 	CScriptEngine::print_output	(L,"",LUA_ERRRUN);
-
-	luabind::functor<void>	funct;
-	R_ASSERT(ai().script_engine().functor("mp_game_cl.callstack", funct));
-	funct();
 
 	Debug.fatal				(DEBUG_INFO,"LUA error: cannot cast lua value to %s",info->name());
 }
@@ -322,7 +310,7 @@ void CScriptEngine::init				()
 #	endif // #ifdef DEBUG
 #endif // #ifndef USE_LUA_STUDIO
 
-		lua_sethook							(lua(), lua_hook_call,	LUA_MASKLINE|LUA_MASKCALL|LUA_MASKRET,	0);
+	lua_sethook							(lua(), lua_hook_call,	LUA_MASKLINE|LUA_MASKCALL|LUA_MASKRET,	0);
 
 	bool								save = m_reload_modules;
 	m_reload_modules					= true;
@@ -389,11 +377,10 @@ void CScriptEngine::process_file_if_exists	(LPCSTR file_name, bool warn_if_not_e
 	string_path				S,S1;
 	if (m_reload_modules || (*file_name && !namespace_loaded(file_name))) {
 		FS.update_path		(S,"$game_scripts$",strconcat(sizeof(S1),S1,file_name,".script"));
-		if (!warn_if_not_exist && !FS.exist(S)) {
+		if (!warn_if_not_exist && !FS.exist(S)) 
+		{
  
-#	ifndef XRSE_FACTORY_EXPORTS
-			//if (psAI_Flags.test(aiNilObjectAccess))
-#	endif
+			if (false)
 			{
 				print_stack			();
 				Msg					("* trying to access variable %s, which doesn't exist, or to load script %s, which doesn't exist too",file_name,S1);
