@@ -115,7 +115,8 @@ void CProfiler::setup_timer			(LPCSTR timer_id, const u64 &timer_time, const u32
 		current.m_call_count	= call_count;
 		m_actual				= false;
 	}
-	else {
+	else 
+	{
 		CProfileStats			&current = (*i).second;
 		current.m_min_time		= _min(current.m_min_time,_time);
 		current.m_max_time		= _max(current.m_max_time,_time);
@@ -153,7 +154,8 @@ void CProfiler::clear				()
 
 void CProfiler::show_stats			(CGameFont *game_font, bool show)
 {
-	if (!show) {
+	if (!show)
+	{
 #ifdef PROFILE_CRITICAL_SECTIONS
 		set_add_profile_portion	(0);
 #endif // PROFILE_CRITICAL_SECTIONS

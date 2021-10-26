@@ -8,12 +8,14 @@
 
 #pragma once
 
+#include "GamePersistent.h"
+
 IC	CProfilePortion::CProfilePortion	(LPCSTR timer_id)
 {
-	if (!psAI_Flags.test(aiStats))
+	if (g_dedicated_server)
 		return;
 
-	if (!psDeviceFlags.test(rsStatistic))
+	if (!psDeviceFlags.test(rsDebug))
 		return;
 
 	m_timer_id							= timer_id;
@@ -22,10 +24,10 @@ IC	CProfilePortion::CProfilePortion	(LPCSTR timer_id)
 
 IC	CProfilePortion::~CProfilePortion	()
 {
-	if (!psAI_Flags.test(aiStats))
+	if (g_dedicated_server)
 		return;
 
-	if (!psDeviceFlags.test(rsStatistic))
+	if (!psDeviceFlags.test(rsDebug))
 		return;
 
 	u64									temp = CPU::QPC();

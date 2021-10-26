@@ -7,14 +7,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-
-#ifdef XRGAME_EXPORTS
-#	ifdef DEBUG
-#		define	USE_PROFILER
-#	endif // DEBUG
-#endif // XRGAME_EXPORTS
-
-#ifdef USE_PROFILER
+ 
 #	include "ai_debug.h"
 
 #ifdef PROFILE_CRITICAL_SECTIONS
@@ -86,8 +79,4 @@ IC	CProfiler&	profiler();
 #	define STOP_PROFILE     }
 
 #	include "profiler_inline.h"
-
-#else // DEBUG
-#	define START_PROFILE(a) {
-#	define STOP_PROFILE		}
-#endif // DEBUG
+  
