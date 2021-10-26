@@ -149,22 +149,13 @@ void CObject::setVisible			(BOOL _visible)
 //void	CObject::Center					(Fvector& C)	const	{ VERIFY2(renderable.visual,*cName()); renderable.xform.transform_tiny(C,renderable.visual->vis.sphere.P);	}
 void	CObject::Center					(Fvector& C)	const	{
 	VERIFY2(renderable.visual,*cName()); 
-	
-	//if (renderable.visual)
-	//	Msg("x[%.0f] y[%.0f] z[%.0f]", C.x, C.y, C.z);
-
-	if (renderable.visual)
-		renderable.xform.transform_tiny(C,renderable.visual->getVisData().sphere.P);
-
-	
+	renderable.xform.transform_tiny(C,renderable.visual->getVisData().sphere.P);	
 }
+
 //float	CObject::Radius					()				const	{ VERIFY2(renderable.visual,*cName()); return renderable.visual->vis.sphere.R;								}
 float	CObject::Radius					()				const	{
 	VERIFY2(renderable.visual,*cName());
-	if (renderable.visual)
-		return renderable.visual->getVisData().sphere.R;
-	else
-		return 0;
+	return renderable.visual->getVisData().sphere.R;
 }
 //const	Fbox&	CObject::BoundingBox	()				const	{ VERIFY2(renderable.visual,*cName()); return renderable.visual->vis.box;									}
 const	Fbox&	CObject::BoundingBox	()				const	{
