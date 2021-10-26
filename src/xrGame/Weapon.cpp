@@ -538,13 +538,19 @@ BOOL CWeapon::net_Spawn		(CSE_Abstract* DC)
 	
 	SetState						(E->wpn_state);
 	SetNextState					(E->wpn_state);
-	
-	m_DefaultCartridge.Load(m_ammoTypes[m_ammoType].c_str(), m_ammoType);
-	if(iAmmoElapsed) 
+
+	if (m_ammoType >= 2)
+		m_ammoType = 0;
+
 	{
-		m_fCurrentCartirdgeDisp = m_DefaultCartridge.param_s.kDisp;
-		for(int i = 0; i < iAmmoElapsed; ++i) 
-			m_magazine.push_back(m_DefaultCartridge);
+		m_DefaultCartridge.Load(m_ammoTypes[m_ammoType].c_str(), m_ammoType);
+
+		if (iAmmoElapsed)
+		{
+			m_fCurrentCartirdgeDisp = m_DefaultCartridge.param_s.kDisp;
+			for (int i = 0; i < iAmmoElapsed; ++i)
+				m_magazine.push_back(m_DefaultCartridge);
+		}
 	}
 
 	UpdateAddonsVisibility();

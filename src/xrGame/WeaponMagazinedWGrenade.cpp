@@ -86,36 +86,42 @@ BOOL CWeaponMagazinedWGrenade::net_Spawn(CSE_Abstract* DC)
 
 	iAmmoElapsed2	= weapon->a_elapsed_grenades.grenades_count;
 	m_ammoType2		= weapon->a_elapsed_grenades.grenades_type;
+ 
+	if (m_ammoType2 >= 2)
+		m_ammoType2 = 0;
 
-	m_DefaultCartridge2.Load(m_ammoTypes2[m_ammoType2].c_str(), m_ammoType2);
-
-	if (!IsGameTypeSingle())
 	{
-		if (!m_bGrenadeMode && IsGrenadeLauncherAttached() && !getRocketCount() && iAmmoElapsed2)
+		m_DefaultCartridge2.Load(m_ammoTypes2[m_ammoType2].c_str(), m_ammoType2);
+
+		if (!IsGameTypeSingle())
 		{
-			m_magazine2.push_back(m_DefaultCartridge2);
+			if (!m_bGrenadeMode && IsGrenadeLauncherAttached() && !getRocketCount() && iAmmoElapsed2)
+			{
+				m_magazine2.push_back(m_DefaultCartridge2);
 
-			shared_str grenade_name = m_DefaultCartridge2.m_ammoSect;
-			shared_str fake_grenade_name = pSettings->r_string(grenade_name, "fake_grenade_name");
+				shared_str grenade_name = m_DefaultCartridge2.m_ammoSect;
+				shared_str fake_grenade_name = pSettings->r_string(grenade_name, "fake_grenade_name");
 
-			CRocketLauncher::SpawnRocket(*fake_grenade_name, this);
+				CRocketLauncher::SpawnRocket(*fake_grenade_name, this);
+			}
 		}
-	}else
-	{
-		xr_vector<CCartridge>* pM = NULL;
-		bool b_if_grenade_mode	= (m_bGrenadeMode && iAmmoElapsed && !getRocketCount());
-		if(b_if_grenade_mode)
-			pM = &m_magazine;
-			
-		bool b_if_simple_mode	= (!m_bGrenadeMode && m_magazine2.size() && !getRocketCount());
-		if(b_if_simple_mode)
-			pM = &m_magazine2;
-
-		if(b_if_grenade_mode || b_if_simple_mode) 
+		else
 		{
-			shared_str fake_grenade_name = pSettings->r_string(pM->back().m_ammoSect, "fake_grenade_name");
-			
-			CRocketLauncher::SpawnRocket(*fake_grenade_name, this);
+			xr_vector<CCartridge>* pM = NULL;
+			bool b_if_grenade_mode = (m_bGrenadeMode && iAmmoElapsed && !getRocketCount());
+			if (b_if_grenade_mode)
+				pM = &m_magazine;
+
+			bool b_if_simple_mode = (!m_bGrenadeMode && m_magazine2.size() && !getRocketCount());
+			if (b_if_simple_mode)
+				pM = &m_magazine2;
+
+			if (b_if_grenade_mode || b_if_simple_mode)
+			{
+				shared_str fake_grenade_name = pSettings->r_string(pM->back().m_ammoSect, "fake_grenade_name");
+
+				CRocketLauncher::SpawnRocket(*fake_grenade_name, this);
+			}
 		}
 	}
 	return l_res;
