@@ -24,21 +24,37 @@ void CScriptPropertyEvaluatorWrapper::setup_static	(CScriptPropertyEvaluator *ev
 
 bool CScriptPropertyEvaluatorWrapper::evaluate		()
 {
-	try {
-		return	(luabind::call_member<bool>(this,"evaluate"));
+	if (m_object) 
+	if (m_object->Alive())
+	{
+		try {
+			//Msg("evaluate try [%s]", this->m_evaluator_name);
+			return	(luabind::call_member<bool>(this,"evaluate"));
+		}
+	#ifdef DEBUG
+		catch(luabind::cast_failed &exception) {
+	#ifdef LOG_ACTION
+			ai().script_engine().script_log (ScriptStorage::eLuaMessageTypeError,"SCRIPT RUNTIME ERROR : evaluator [%s] returns value with not a %s type!",m_evaluator_name,exception.info()->name());
+	#else
+			ai().script_engine().script_log (ScriptStorage::eLuaMessageTypeError,"SCRIPT RUNTIME ERROR : evaluator returns value with not a %s type!",exception.info()->name());
+	#endif
+		}
+	#endif
+		catch(...) 
+		{
+			ai().script_engine().script_log (ScriptStorage::eLuaMessageTypeError,
+				"SCRIPT RUNTIME ERROR : object [%s] evaluator [%s] alive [%s] crashed!", 
+				this->m_object->Name(), 
+				m_evaluator_name,
+				this->m_object->Alive() ? "true" : "false"
+			);
+
+			//this->m_object = 0;
+			//this->m_storage = 0;
+			
+ 		}
 	}
-#ifdef DEBUG
-	catch(luabind::cast_failed &exception) {
-#ifdef LOG_ACTION
-		ai().script_engine().script_log (ScriptStorage::eLuaMessageTypeError,"SCRIPT RUNTIME ERROR : evaluator [%s] returns value with not a %s type!",m_evaluator_name,exception.info()->name());
-#else
-		ai().script_engine().script_log (ScriptStorage::eLuaMessageTypeError,"SCRIPT RUNTIME ERROR : evaluator returns value with not a %s type!",exception.info()->name());
-#endif
-	}
-#endif
-	catch(...) {
-		ai().script_engine().script_log (ScriptStorage::eLuaMessageTypeError,"SCRIPT RUNTIME ERROR : object [%s] evaluator [%s] alive [%s] crashed!", this->m_object->Name(), m_evaluator_name, this->m_object->Alive() ? "true" : "false");
-	}
+
 	return		(false);
 }
 

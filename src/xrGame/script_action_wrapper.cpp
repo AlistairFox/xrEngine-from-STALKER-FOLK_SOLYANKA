@@ -14,7 +14,15 @@
 
 void CScriptActionWrapper::setup				(CScriptGameObject *object, CPropertyStorage *storage)
 {
-	luabind::call_member<void>			(this,"setup",object,storage);
+	try
+	{
+		luabind::call_member<void>(this, "setup", object, storage);
+	}
+	catch (...)
+	{
+		Msg("[CScriptActionWrapper] cannot setup object[%s][%d]/ storage_size [%d]", object->Name(), object->ID(), storage->m_storage.size());
+	}
+
 }
 
 void CScriptActionWrapper::setup_static			(CScriptActionBase *action, CScriptGameObject *object, CPropertyStorage *storage)
@@ -24,7 +32,15 @@ void CScriptActionWrapper::setup_static			(CScriptActionBase *action, CScriptGam
 
 void CScriptActionWrapper::initialize			()
 {
-	luabind::call_member<void>			(this,"initialize");
+	try 
+	{
+		luabind::call_member<void>(this, "initialize");
+	}
+	catch (...)
+	{
+		Msg("[CScriptActionWrapper] cannot initialize object[%s][%d]/ storage_size [%d]", m_object->Name(), m_object->ID(), m_storage->m_storage.size());
+	}
+	
 }
 
 void CScriptActionWrapper::initialize_static	(CScriptActionBase *action)
@@ -34,7 +50,13 @@ void CScriptActionWrapper::initialize_static	(CScriptActionBase *action)
 
 void CScriptActionWrapper::execute				()
 {
-	luabind::call_member<void>			(this,"execute");
+	try {
+		luabind::call_member<void>(this, "execute");
+	}
+	catch (...)
+	{
+		Msg("[CScriptActionWrapper] cannot execute object[%s][%d]/ storage_size [%d]", m_object->Name(), m_object->ID(), m_storage->m_storage.size());
+	}
 }
 
 void CScriptActionWrapper::execute_static		(CScriptActionBase *action)
@@ -44,7 +66,13 @@ void CScriptActionWrapper::execute_static		(CScriptActionBase *action)
 
 void CScriptActionWrapper::finalize				()
 {
-	luabind::call_member<void>			(this,"finalize");
+	try {
+		luabind::call_member<void>			(this,"finalize");
+	}
+	catch (...)
+	{
+		Msg("[CScriptActionWrapper] cannot finalize object[%s][%d]/ storage_size [%d]", m_object->Name(), m_object->ID(), m_storage->m_storage.size());
+	}
 }
 
 void CScriptActionWrapper::finalize_static		(CScriptActionBase *action)
