@@ -257,7 +257,8 @@ void CAI_Stalker::postprocess_packet(stalker_interpolation::net_update_A &N_A)
 		}
 	};
 
-	if (!NET_A.empty()) m_bInterpolate = true;
+	if (!NET_A.empty()) 
+		m_bInterpolate = true;
 
 	Level().AddObject_To_Objects4CrPr(this);
 	CrPr_SetActivated(false);
@@ -303,20 +304,23 @@ void CAI_Stalker::PH_B_CrPr()
 			pSyncObj->set_State(NET_A.back().State);
 		}
 		else
-		{
-			auto N_A = NET_A.back();
-			NET_A_Last = N_A;
+		{	  
+			if (!NET_A.empty()) 
+			{
+				auto N_A = NET_A.back();
+				NET_A_Last = N_A;
 
-			if (!N_A.State.enabled)
-			{
-				pSyncObj->set_State(N_A.State);
+				if (!N_A.State.enabled)
+				{
+					pSyncObj->set_State(N_A.State);
+				}
+				else
+				{
+					PHUnFreeze();
+					pSyncObj->set_State(N_A.State);
+					Position().set(IStart.Pos);
+				};
 			}
-			else
-			{
-				PHUnFreeze();
-				pSyncObj->set_State(N_A.State);
-				Position().set(IStart.Pos);
-			};
 		};
 	}
 	else
@@ -428,7 +432,8 @@ void CAI_Stalker::ApplyAnimation(
 		
 		if (motion.valid())
 		{
-			CBlend* script = ik_anim_obj->LL_PlayCycle(ik_anim_obj->LL_GetMotionDef(motion)->bone_or_part, motion, TRUE,
+			CBlend* script = ik_anim_obj->LL_PlayCycle(
+				ik_anim_obj->LL_GetMotionDef(motion)->bone_or_part, motion, TRUE,
 				ik_anim_obj->LL_GetMotionDef(motion)->Accrue(), ik_anim_obj->LL_GetMotionDef(motion)->Falloff(),
 				ik_anim_obj->LL_GetMotionDef(motion)->Speed(), ik_anim_obj->LL_GetMotionDef(motion)->StopAtEnd(), 0, 0, 0); 
 
