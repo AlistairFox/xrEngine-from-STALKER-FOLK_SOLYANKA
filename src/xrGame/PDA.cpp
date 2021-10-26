@@ -100,10 +100,14 @@ void CPda::feel_touch_new(CObject* O)
 
 void CPda::feel_touch_delete(CObject* O) 
 {
-	if(!H_Parent())							return;
-	if ( CInventoryOwner* pLostContactInvOwner = smart_cast<CInventoryOwner*>(O) )
+	if(!H_Parent())							
+		return;
+	CInventoryOwner* pLostContactInvOwner = smart_cast<CInventoryOwner*>(O);
+	if (pLostContactInvOwner)
 	{
-		CInventoryOwner* pOwner	=	smart_cast<CInventoryOwner*>( H_Parent() );VERIFY(pOwner);
+		CInventoryOwner* pOwner	=	smart_cast<CInventoryOwner*>( H_Parent() );
+		VERIFY(pOwner);
+		if (pOwner)
 		pOwner->LostPdaContact		(pLostContactInvOwner);
 	}
 }
