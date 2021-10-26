@@ -71,12 +71,26 @@ void CActor::IR_OnKeyboardPress(int cmd)
 			{
 				NET_Packet packet;
 				Game().u_EventGen(packet, GE_MODE_SWITCH, this->ID());
+				packet.w_u8(0);
 				Game().u_EventSend(packet);
+			}break;
+
+			case kAnimMode:
+			{
+				NET_Packet packet;
+				Game().u_EventGen(packet, GE_MODE_SWITCH, this->ID());
+				packet.w_u8(1);
+				Game().u_EventSend(packet);
+	 
+
 			}break;
 		default:
 			{
 			}break;
 	}
+
+	if (MpAnimationMode())
+		return;
 
 	if (!g_Alive()) return;
 
@@ -106,6 +120,7 @@ void CActor::IR_OnKeyboardPress(int cmd)
 		return;
 	}
 #endif //DEBUG
+
 	switch(cmd)
 	{
 		case kJUMP:		
@@ -267,6 +282,10 @@ void CActor::IR_OnKeyboardHold(int cmd)
 	if (Remote() || !g_Alive())					return;
 	if (m_input_external_handler && !m_input_external_handler->authorized(cmd))	return;
 	if (IsTalking())							return;
+
+	if (MpAnimationMode() || !MpAnimationModeEnded())
+		return;
+
 
 	if(m_holder)
 	{

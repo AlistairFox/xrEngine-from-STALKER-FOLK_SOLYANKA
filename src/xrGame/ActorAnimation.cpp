@@ -25,10 +25,12 @@ static const float y_spin0_factor		= 0.0f;
 static const float y_spin1_factor		= 0.4f;
 static const float y_shoulder_factor	= 0.4f;
 static const float y_head_factor		= 0.2f;
+
 static const float p_spin0_factor		= 0.0f;
 static const float p_spin1_factor		= 0.2f;
-static const float p_shoulder_factor	= 0.0f; //0.7f;
+static const float p_shoulder_factor	= 0.7f;   
 static const float p_head_factor		= 0.1f;
+
 static const float r_spin0_factor		= 0.3f;
 static const float r_spin1_factor		= 0.3f;
 static const float r_shoulder_factor	= 0.2f;
@@ -288,6 +290,100 @@ void SActorSprintState::Create(IKinematicsAnimated* K)
 	legs_jump_rs	=K->ID_Cycle("norm_escape_rs_jump_00");
 }
 
+void SActorStateAnimation::CreateAnimationsScripted(IKinematicsAnimated* K)
+{
+	// Anim 1
+	anims[0].m_animation_in[0]  = K->ID_Cycle("bar_0_idle_in");
+	anims[0].m_animation_out[0] = K->ID_Cycle("bar_0_idle_out");
+	anims[0].m_animation[0]  = K->ID_Cycle("bar_0_idle_0");
+	anims[0].m_animation[1]  = K->ID_Cycle("bar_0_idle_1");
+	anims[0].m_animation[2]  = K->ID_Cycle("bar_0_idle_2");
+	anims[0].m_animation[3]  = K->ID_Cycle("bar_0_idle_3");
+	looped[0] = true;
+	
+	// Anim 2
+	anims[1].m_animation_in[0] = K->ID_Cycle("bar_2_idle_in");
+	anims[1].m_animation_out[0] = K->ID_Cycle("bar_2_idle_out");
+	anims[1].m_animation[0] = K->ID_Cycle("bar_2_idle_0");
+	looped[1] = true;
+
+	// Anim 3
+	anims[2].m_animation_in[0] = K->ID_Cycle("bar_3_idle_in");
+	anims[2].m_animation_out[0] = K->ID_Cycle("bar_3_idle_out");
+	anims[2].m_animation[0] = K->ID_Cycle("bar_3_idle_0");
+	looped[2] = true;
+
+	// Anim 4
+	anims[3].m_animation[0] = K->ID_Cycle("chest_0_idle_0");
+	anims[3].m_animation[0] = K->ID_Cycle("chest_0_idle_1");
+	anims[3].m_animation[0] = K->ID_Cycle("chest_0_idle_2");
+	anims[3].m_animation[0] = K->ID_Cycle("chest_0_idle_3");
+
+	looped[3] = false;
+
+	// Anim 5
+	anims[4].m_animation[0]  = K->ID_Cycle("dinamit_0");
+	looped[4] = false;
+
+	// Anim 6
+	anims[5].m_animation[0] = K->ID_Cycle("hello_1_idle_0");
+	looped[5] = false;
+
+
+	// Anim 7 
+	anims[6].m_animation_in[0] = K->ID_Cycle("idle_0_to_psy_0_idle_0");
+	anims[6].m_animation_out[0] = K->ID_Cycle("psy_0_idle_0_to_idle_0");
+	anims[6].m_animation[0] = K->ID_Cycle("psy_0_idle_0");
+	anims[6].m_animation[1] = K->ID_Cycle("psy_0_idle_1");
+	anims[6].m_animation[2] = K->ID_Cycle("psy_0_idle_2");
+	anims[6].m_animation[3] = K->ID_Cycle("psy_0_idle_3");
+	looped[6] = true;
+
+
+	// Anim 8
+	anims[7].m_animation_in[0] = K->ID_Cycle("idle_to_wounded_1");
+	anims[7].m_animation_out[0] = K->ID_Cycle("waunded_1_out");
+	anims[7].m_animation_out[1] = K->ID_Cycle("wounded_to_idle_0");
+	anims[7].m_animation[0] = K->ID_Cycle("waunded_1_idle_0");
+	looped[7] = true;
+ 
+	// Anim 9
+	anims[8].m_animation_in[0] = K->ID_Cycle("idle_0_to_sit_0");
+	anims[8].m_animation_out[0] = K->ID_Cycle("sit_0_lazy_idle_0");
+	anims[8].m_animation[0] = K->ID_Cycle("item_0_idle_0");
+	anims[8].m_animation[1] = K->ID_Cycle("item_0_idle_1");
+	anims[8].m_animation[2] = K->ID_Cycle("item_0_idle_2");
+	anims[8].m_animation[3] = K->ID_Cycle("item_0_idle_3");
+	looped[8] = true;
+
+	// Anim 10
+	anims[9].m_animation_in[0] = K->ID_Cycle("prisoner_0_sit_down_0");
+	anims[9].m_animation_out[0] = K->ID_Cycle("prisoner_0_stand_up_0");
+	anims[9].m_animation[0] = K->ID_Cycle("prisoner_0_sit_idle_0");
+	looped[9] = true;
+
+	// Anim 11
+	anims[10].m_animation_in[0] = K->ID_Cycle("sit_0_to_sleep_0");
+	anims[10].m_animation_out[0] = K->ID_Cycle("sleep_0_to_sit_0");
+	anims[10].m_animation_out[1] = K->ID_Cycle("sit_to_idle_0");
+
+	anims[10].m_animation[0] = K->ID_Cycle("sleep_idle_0");
+	anims[10].m_animation[1] = K->ID_Cycle("sleep_idle_1");
+	looped[10] = true;
+
+	//Anim 12 Gitar
+	m_gitar[0] = K->ID_Cycle("idle_0_to_sit_1");
+	m_gitar[1] = K->ID_Cycle("sit_1_guitar_0_0");
+	m_gitar[2] = K->ID_Cycle("sit_1_guitar_0_1");
+
+	m_gitar[3] = K->ID_Cycle("guitar_0");
+
+	m_gitar[4] = K->ID_Cycle("guitar_0_sit_1_0");
+	m_gitar[5] = K->ID_Cycle("guitar_0_sit_1_1");
+	m_gitar[6] = K->ID_Cycle("sit_1_to_idle_0");
+
+}
+
 void SActorMotions::Create(IKinematicsAnimated* V)
 {
 	m_dead_stop				= V->ID_Cycle("norm_dead_stop_0");
@@ -297,12 +393,17 @@ void SActorMotions::Create(IKinematicsAnimated* V)
 	//m_climb.Create	(V,"cr");
 	m_climb.CreateClimb(V);
 	m_sprint.Create(V);
+
+	m_ANIMS_PLAYERS.CreateAnimationsScripted(V);
+
+
 }
 
 SActorVehicleAnims::SActorVehicleAnims()
 {
 	
 }
+
 void SActorVehicleAnims::Create(IKinematicsAnimated* V)
 {
 	for(u16 i=0;TYPES_NUMBER>i;++i) m_vehicles_type_collections[i].Create(V,i);
@@ -382,6 +483,7 @@ CMotion*        FindMotionKeys(MotionID motion_ID,IRenderVisual* V)
 #ifdef DEBUG
 BOOL	g_ShowAnimationInfo = TRUE;
 #endif // DEBUG
+
 char* mov_state[] ={
 	"idle",
 	"walk",
@@ -389,11 +491,45 @@ char* mov_state[] ={
 	"sprint",
 };
 
+extern int anim_value = 0;
+u32 AnimID = 0;
+u32 AnimInputID = 0;
+u32 AnimOutputID = 0;
+
+bool CanStart1 = false;
+bool CanStart2 = false;
+
+bool AnimPlayed = true;
+	  
+
+extern bool AnimationPlayed = AnimPlayed && !CanStart1 && !CanStart2;
+
+void animation_script_callback(CBlend* blend)
+{
+	AnimPlayed = true;
+	CanStart2 = true;
+	Msg("Проиграна Середина");
+}
+
+void animation_script_callbackIn(CBlend* blend)
+{
+	AnimPlayed = true;
+	CanStart1 = true;
+	Msg("Проиграна Вступление");
+}
+
+void animation_script_callbackOut(CBlend* blend)
+{
+	AnimPlayed = true;
+	Msg("Проиграна Конец");
+}
+
+
+
 void CActor::g_SetAnimation( u32 mstate_rl )
 {
-
-
-	if (!g_Alive()) {
+	if (!g_Alive()) 
+	{
 		if (m_current_legs||m_current_torso){
 			SActorState*				ST = 0;
 			if (mstate_rl&mcCrouch)		ST = &m_anims->m_crouch;
@@ -435,6 +571,7 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 		else
 			moving_idx				= STorsoWpn::eWalk;
 	}
+
 	// анимации
 	MotionID 						M_legs;
 	MotionID 						M_torso;
@@ -444,57 +581,61 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 	bool is_standing = false;
 
 	// Legs
-	if		(mstate_rl&mcLanding)
-		M_legs	= ST->landing[0];
-	else if (mstate_rl&mcLanding2)
-		M_legs	= ST->landing[1];
-	else if ((mstate_rl&mcTurn)&& !(mstate_rl&mcClimb))
-		M_legs	= ST->legs_turn;
-	else if (mstate_rl&mcFall)		
-		M_legs	= ST->jump_idle;
-	else if (mstate_rl&mcJump)	
-		M_legs	= ST->jump_begin;
-	else if (mstate_rl&mcFwd)		
-		!MpSafeMode() ? M_legs	= AS->legs_fwd : M_legs = AS->legs_fwd_safe;
-	else if (mstate_rl&mcBack)		
-		!MpSafeMode() ? M_legs	= AS->legs_back : M_legs = AS->legs_back_safe;
-	else if (mstate_rl&mcLStrafe)	
-		!MpSafeMode() ? M_legs	= AS->legs_ls : M_legs = AS->legs_ls_safe;
-	else if (mstate_rl&mcRStrafe)	
-		!MpSafeMode() ? M_legs	= AS->legs_rs : M_legs = AS->legs_rs_safe;
-	else
-		is_standing = true;
-
-	if(mstate_rl&mcSprint)
+	if (!MpAnimationMode())
 	{
-		g_SetSprintAnimation			(mstate_rl,M_head,M_torso,M_legs);
-		moving_idx = STorsoWpn::eSprint;
-	}
+		if (mstate_rl & mcLanding)
+			M_legs = ST->landing[0];
+		else if (mstate_rl & mcLanding2)
+			M_legs = ST->landing[1];
+		else if ((mstate_rl & mcTurn) && !(mstate_rl & mcClimb))
+			M_legs = ST->legs_turn;
+		else if (mstate_rl & mcFall)
+			M_legs = ST->jump_idle;
+		else if (mstate_rl & mcJump)
+			M_legs = ST->jump_begin;
+		else if (mstate_rl & mcFwd)
+			!MpSafeMode() ? M_legs = AS->legs_fwd : M_legs = AS->legs_fwd_safe;
+		else if (mstate_rl & mcBack)
+			!MpSafeMode() ? M_legs = AS->legs_back : M_legs = AS->legs_back_safe;
+		else if (mstate_rl & mcLStrafe)
+			!MpSafeMode() ? M_legs = AS->legs_ls : M_legs = AS->legs_ls_safe;
+		else if (mstate_rl & mcRStrafe)
+			!MpSafeMode() ? M_legs = AS->legs_rs : M_legs = AS->legs_rs_safe;
+		else
+			is_standing = true;
 
-	if (this == Level().CurrentViewEntity())
-	{	
-		if ((mstate_rl&mcSprint) != (mstate_old&mcSprint))
+		if (mstate_rl & mcSprint)
 		{
-			g_player_hud->OnMovementChanged(mcSprint);
-		}else
-		if ((mstate_rl&mcAnyMove) != (mstate_old&mcAnyMove))
-		{
-			g_player_hud->OnMovementChanged(mcAnyMove);
+			g_SetSprintAnimation(mstate_rl, M_head, M_torso, M_legs);
+			moving_idx = STorsoWpn::eSprint;
 		}
-	};
+	
+		if (this == Level().CurrentViewEntity())
+		{	
+			if ((mstate_rl&mcSprint) != (mstate_old&mcSprint))
+			{
+				g_player_hud->OnMovementChanged(mcSprint);
+			}
+			else
+			if ((mstate_rl&mcAnyMove) != (mstate_old&mcAnyMove))
+			{
+				g_player_hud->OnMovementChanged(mcAnyMove);
+			}
+		};
 
-	//-----------------------------------------------------------------------
-	// Torso
-	if(mstate_rl&mcClimb)
-	{
-		if		(mstate_rl&mcFwd)		M_torso	= AS->legs_fwd;
-		else if (mstate_rl&mcBack)		M_torso	= AS->legs_back;
-		else if (mstate_rl&mcLStrafe)	M_torso	= AS->legs_ls;
-		else if (mstate_rl&mcRStrafe)	M_torso	= AS->legs_rs;
+		//-----------------------------------------------------------------------
+		// Torso
+		if(mstate_rl&mcClimb)
+		{
+			if		(mstate_rl&mcFwd)		M_torso	= AS->legs_fwd;
+			else if (mstate_rl&mcBack)		M_torso	= AS->legs_back;
+			else if (mstate_rl&mcLStrafe)	M_torso	= AS->legs_ls;
+			else if (mstate_rl&mcRStrafe)	M_torso	= AS->legs_rs;
+		}
+
 	}
 
-
-	if(!M_torso)
+	if(!M_torso && MpAnimationModeEnded())
 	{
 		CInventoryItem* _i = inventory().ActiveItem();
 		CHudItem		*H = smart_cast<CHudItem*>(_i);
@@ -684,30 +825,330 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 			}
 		}
 	}
+	
+	/*
+	if (MpAnimationMode() || !MpAnimationMode())
+	{
+		IKinematicsAnimated* k = smart_cast<IKinematicsAnimated*>(Visual());
+		SActorStateAnimation sa = m_anims->m_ANIMS_PLAYERS;
+	 
+		
 
-	// MotionID mid = smart_cast<IKinematicsAnimated*>(Visual())->ID_Cycle("norm_idle_0");
+		if (AnimPlayed && MpAnimationMode() && !CanStart1)
+		{
+			if (sa.looped)
+			{
+				MotionID input = sa.anims->m_animation_in[AnimInputID];
 
+				if (input.valid()) 
+				{
+					script_anim(input, animation_script_callbackIn, this);
+					AnimPlayed = false;
+					//CanStart1 = true;
+					AnimInputID += 1;
+					Msg("Select AnimInputID [%d][%d]", anim_value, AnimInputID);
+				}
+				else
+				{
+					CanStart1 = true;
+				}
+			}
+			else
+			{
+				CanStart1 = true;
+			}
+			return;
+		}
+		 
+		if (AnimPlayed && MpAnimationMode() && CanStart1)
+		{
+			if (sa.looped[anim_value])
+			{
+				u32 ids = 0;
+				for (auto id : sa.anims[anim_value].m_animation)
+					if (id.valid())
+						ids += 1;
+				ids -= 1;
+
+				if (AnimID > ids)
+				{
+					CanStart2 = true;
+					AnimID = 0;
+				}
+
+				Msg("Select AnimID Loop [%d]/max[%d]", AnimID, ids);
+				if (sa.anims[anim_value].m_animation[AnimID].valid())
+				{
+					script_anim(sa.anims[anim_value].m_animation[AnimID], animation_script_callback, this);
+					AnimPlayed = false;
+					AnimID += 1;
+				}
+			}  
+			else
+			{
+				u32 ids = 0;
+				for (auto id : sa.anims[anim_value].m_animation)
+					if (id.valid())
+						ids += 1;
+				ids -= 1;
+
+	
+				if (sa.anims[anim_value].m_animation[AnimID].valid())
+				{
+					script_anim(sa.anims[anim_value].m_animation[AnimID], animation_script_callback, this);
+					AnimPlayed = false;
+					AnimID += 1;
+					Msg("Select AnimID NoLoop [%d]", AnimID);
+				}
+				else
+				{
+					NET_Packet packet;
+					Game().u_EventGen(packet, GE_MODE_SWITCH, this->ID());
+					packet.w_u8(1);
+					Game().u_EventSend(packet); 
+				}
+			}
+			return;
+		}
+		 
+		if (AnimPlayed && !MpAnimationMode() && CanStart2)
+		{
+			if (sa.looped)
+			{
+				if (sa.anims[anim_value].m_animation[AnimOutputID].valid())
+				{
+					Msg("Select AnimOutputID [%d]", AnimOutputID);
+					script_anim(sa.anims[anim_value].m_animation[AnimOutputID], animation_script_callbackOut, this);
+					AnimPlayed = false;
+				}
+			}
+			else
+			{
+				AnimPlayed = false;
+			}
+					 
+			Msg("ResetAnims");
+			AnimID = 0;
+			AnimInputID = 0;
+			AnimOutputID = 0;
+			CanStart1 = false;
+			CanStart2 = false;
+
+			return;
+		}
+
+		
+	}
+	
+
+	if (MpAnimationMode() || !MpAnimationModeEnded())
+	{
+
+		return;
+	}
+	  
+
+	
+	if (MpAnimationMode() || !MpAnimationMode() && PlayedInputAnim)
+	{
+		IKinematicsAnimated* k = smart_cast<IKinematicsAnimated*>(Visual());
+		 
+		if (anim_value == 16) 
+		{
+			if (MpAnimationMode())
+			{
+				SActorStateAnimation sa = m_anims->m_ANIMS_PLAYERS;
+			
+				if (sa.m_gitar[0].valid() && !start[0] && Device.dwTimeGlobal > timer_Gitar)
+				{
+					script_anim(sa.m_gitar[0]);
+					float time = k->get_animation_length(sa.m_gitar[0]);
+					start[0] = true;
+					//Msg("Gitar 1");
+					timer_Gitar = Device.dwTimeGlobal + time * 1000;
+				}
+				else
+				if (!start[1] && sa.m_gitar[1].valid() && Device.dwTimeGlobal > timer_Gitar )
+				{
+					 
+					CInventoryItem* it = this->inventory().GetItemFromInventory("guitar_a");
+					CAttachableItem* item = smart_cast<CAttachableItem*>(it);
+
+					if (item)
+					{
+						this->attach(it);
+						bool att = this->can_attach(it);
+						item->enable(true);
+						 
+					}
+				
+					script_anim(sa.m_gitar[1]);
+					float time = k->get_animation_length(sa.m_gitar[1]) ;
+					start[1] = true;
+					//start[0] = false;
+					timer_Gitar = Device.dwTimeGlobal + time * 1000;
+				}
+				else
+				if (!start[2] && sa.m_gitar[2].valid() && Device.dwTimeGlobal > timer_Gitar)
+				{
+					//Msg("Gitar 3");
+					script_anim(sa.m_gitar[2]);
+					float time = k->get_animation_length(sa.m_gitar[2]) ;
+					start[2] = true;
+					//start[1] = false;
+					timer_Gitar = Device.dwTimeGlobal + time * 1000;
+				}
+				else
+				if (!start[3] && sa.m_gitar[3].valid() && Device.dwTimeGlobal > timer_Gitar)
+				{
+					//Msg("Gitar Loop");
+					PlayedInputAnim = true;
+					script_anim(sa.m_gitar[3]);
+					float time = k->get_animation_length(sa.m_gitar[3]) ;
+					timer_Gitar = Device.dwTimeGlobal + time * 1000;
+				}				
+			}
+
+			if (!MpAnimationMode())
+			{
+				shared_str name = "guitar_a";
+				CAttachableItem* item = smart_cast<CAttachableItem*>(attachedItem(name));
+
+				if (item)
+					item->enable(false);
+				
+				start[0] = false;
+				start[1] = false;
+				start[2] = false;
+				start[3] = false;
+
+				PlayedInputAnim = false;
+			}
+
+			return;
+		}
+		 
+	
+		if (MpAnimationMode())
+		if (Device.dwTimeGlobal > AnimationTotal)
+		{
+			SActorStateAnimation sa = m_anims->m_ANIMS_PLAYERS;
+			
+			if (!PlayedInputAnim)
+			{
+				old_animation = sa.m_anim_in[anim_value];
+			}
+			else
+			{
+				old_animation = sa.m_anim[anim_value][AnimID];
+ 			}
+
+			if (!old_animation.valid())
+				return;
+
+			bool cycle = sa.cycle[anim_value];
+ 			 
+			if (!cycle)
+			{
+				if (AnimID >= 3)
+				{
+					NET_Packet packet;
+					Game().u_EventGen(packet, GE_MODE_SWITCH, this->ID());
+					packet.w_u8(1);
+					Game().u_EventSend(packet);
+				}
+
+				AnimID += 1;
+			}
+			else
+			{
+				if (AnimID >= 3)
+					AnimID = 0;
+				else
+					AnimID += 1;
+			}
+
+			script_anim(old_animation);
+
+			float anim_time = k->get_animation_length(old_animation);
+			AnimationTotal = Device.dwTimeGlobal + (anim_time * 1000);			
+
+			if (MpAnimationMode())
+			{
+ 				Msg("Вошел в анимацию [%d]", old_animation.idx);
+
+				PlayedInputAnim = true;
+			}
+
+		}
+	    
+		if (!MpAnimationMode() && !PlayedExit && !PlayedExit2 && Device.dwTimeGlobal > AnimationTotal)
+		{
+			if (!exit_animation.valid())
+				return;
+
+			script_anim(exit_animation);
+
+			float anim_time = k->get_animation_length(exit_animation);
+			AnimationTotal = Device.dwTimeGlobal + (anim_time * 1000);
+			
+			if (exit_animation2.valid())
+				PlayedExit2 = true;
+			else 
+				PlayedExit = true;
+
+			Msg("Переход в виход из анимации [%d]", exit_animation.idx);
+
+ 		}
+
+		if (!MpAnimationMode() && PlayedExit2 && Device.dwTimeGlobal > AnimationTotal)
+		{
+			if (!exit_animation2.valid())
+				return;
+
+			script_anim(exit_animation2);
+			float anim_time = k->get_animation_length(exit_animation2);
+			AnimationTotal = Device.dwTimeGlobal + (anim_time * 1000);
+
+			PlayedExit = true;
+			PlayedExit2 = false;
+			Msg("Переход в виход из анимации 2 [%d]", exit_animation2.idx);
+		}
+
+		if (PlayedExit && Device.dwTimeGlobal > AnimationTotal)
+		{
+			Msg("Вышел из анимации");
+			PlayedExit = false;
+			PlayedInputAnim = false;
+		}
+		
+		return;
+	}
+	*/ 
+
+ 
 	if (!M_legs)
 	{
-		if((mstate_rl&mcCrouch)&&!isActorAccelerated(mstate_rl, IsZoomAimingMode()))//!(mstate_rl&mcAccel))
+		if ((mstate_rl & mcCrouch) && !isActorAccelerated(mstate_rl, IsZoomAimingMode()))//!(mstate_rl&mcAccel))
 		{
-			M_legs=smart_cast<IKinematicsAnimated*>(Visual())->ID_Cycle("cr_idle_1");
+			M_legs = smart_cast<IKinematicsAnimated*>(Visual())->ID_Cycle("cr_idle_1");
 		}
-		else 
-			!MpSafeMode() ? M_legs	= ST->legs_idle : M_legs = ST->legs_idle_safe;
+		else
+			!MpSafeMode() ? M_legs = ST->legs_idle : M_legs = ST->legs_idle_safe;
 	}
 
-	if (!M_head)					
-		!MpSafeMode() ? M_head	= ST->m_head_idle : M_head = ST->m_head_idle_safe;
+	if (!M_head)
+		!MpSafeMode() ? M_head = ST->m_head_idle : M_head = ST->m_head_idle_safe;
 
 	if (!M_torso)
 	{
-		if (m_bAnimTorsoPlayed)		
-			M_torso	= m_current_torso;
-		else						
+		if (m_bAnimTorsoPlayed)
+			M_torso = m_current_torso;
+		else
 			M_torso = ST->m_torso_idle;
 	}
-	
+ 
+
 	// есть анимация для всего - запустим / иначе запустим анимацию по частям
 
 	if (m_current_torso!=M_torso)
@@ -719,7 +1160,10 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 
 		m_current_torso=M_torso;
 	}
-	 
+
+	if (MpAnimationMode())
+		return;
+
 	if(m_current_head!=M_head)
 	{
 		if(M_head)
@@ -732,10 +1176,12 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 	{
 		float pos					= 0.f;
 		VERIFY						(!m_current_legs_blend || !fis_zero(m_current_legs_blend->timeTotal));
+		
 		if ((mstate_real & mcAnyMove) && (mstate_old & mcAnyMove) && m_current_legs_blend)
 		{
 			pos = fmod(m_current_legs_blend->timeCurrent, m_current_legs_blend->timeTotal) / m_current_legs_blend->timeTotal;
 		}
+
 		IKinematicsAnimated* ka		= smart_cast<IKinematicsAnimated*>(Visual());
 		m_current_legs_blend		= PlayMotionByParts(ka, M_legs, TRUE, legs_play_callback, this);
 //		m_current_legs_blend		= smart_cast<IKinematicsAnimated*>(Visual())->PlayCycle(M_legs,TRUE,legs_play_callback,this);
@@ -826,9 +1272,23 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 
 	CMotionDef				*motion1 = skeleton_animated->LL_GetMotionDef(m_current_legs);
 	VERIFY					(motion1);
+	
 	if (!(motion1->flags & esmSyncPart))
 		return;
 	 
 	m_current_torso_blend->timeCurrent = m_current_legs_blend->timeCurrent / m_current_legs_blend->timeTotal * m_current_torso_blend->timeTotal;
  	
+}
+
+void CActor::script_anim( MotionID exit_animation, PlayCallback Callback, LPVOID CallbackParam)
+{
+	IKinematicsAnimated* k = smart_cast<IKinematicsAnimated*>(Visual());
+	k->LL_PlayCycle(
+		k->LL_GetMotionDef(exit_animation)->bone_or_part, exit_animation, TRUE,
+		k->LL_GetMotionDef(exit_animation)->Accrue(),
+		k->LL_GetMotionDef(exit_animation)->Falloff(),
+		k->LL_GetMotionDef(exit_animation)->Speed(),
+		k->LL_GetMotionDef(exit_animation)->StopAtEnd(),
+		Callback, CallbackParam, 0
+	);
 }

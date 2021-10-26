@@ -88,15 +88,6 @@ struct SActorSprintState
 	void Create		(IKinematicsAnimated* K);
 };
 
-struct SActorMotions
-{
-	MotionID			m_dead_stop;
-	SActorState			m_normal;
-	SActorState			m_crouch;
-	SActorState			m_climb;
-	SActorSprintState	m_sprint;
-	void				Create(IKinematicsAnimated* K);
-};
 
 //vehicle anims
 struct	SVehicleAnimCollection
@@ -109,6 +100,7 @@ struct	SVehicleAnimCollection
 					SVehicleAnimCollection	();
 	void			Create				(IKinematicsAnimated* K,u16 num);
 };
+
 struct SActorVehicleAnims
 {
 	static const int TYPES_NUMBER=2;
@@ -118,3 +110,36 @@ struct SActorVehicleAnims
 };
 
 
+struct LoopedAnims
+{
+	MotionID m_animation[32];
+	MotionID m_animation_in[32];
+	MotionID m_animation_out[32];
+};
+  
+
+struct SActorStateAnimation
+{
+	LoopedAnims anims[32];
+	bool looped[32];
+
+	MotionID m_gitar[7];
+
+	void CreateAnimationsScripted(IKinematicsAnimated* K);
+
+
+};
+
+struct SActorMotions
+{
+	MotionID			 m_dead_stop;
+	SActorState			 m_normal;
+	SActorState			 m_crouch;
+	SActorState			 m_climb;
+	SActorSprintState	 m_sprint;
+
+	SActorStateAnimation m_ANIMS_PLAYERS;
+
+	void				Create(IKinematicsAnimated* K);
+
+};

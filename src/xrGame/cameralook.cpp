@@ -122,11 +122,23 @@ void CCameraLook2::Update(Fvector& point, Fvector& noise_dangle)
 	a_xform.setXYZ					(0, -yaw, 0);
 	a_xform.translate_over			(point);
 
-	dist = 1.4f;
+	CActor* actor = smart_cast<CActor*>(Level().CurrentControlEntity());
 
-	a_xform.transform_tiny			(_off);
-	UpdateDistance(_off);
+	if (actor->MpAnimationMode())
+	{
+		dist = 2;
+		Fvector3 offset; 
+		offset.set(0.0f, -0.3f, 0.0f);
 
+		a_xform.transform_tiny(offset);
+		UpdateDistance(offset);
+	}
+	else
+	{
+		dist = 1.4f;
+		a_xform.transform_tiny			(_off);
+		UpdateDistance(_off);
+	}
 }
    
 void CCameraLook2::Load(LPCSTR section)

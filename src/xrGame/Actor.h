@@ -84,8 +84,9 @@ public:
 			bool						MpGodMode					() const				;
 			bool						MpNoClip					() const				;
 			bool						MpInvisibility				() const				;
-			bool						MpSafeMode					() 				;
-
+			bool						MpSafeMode					() 						;
+			bool						MpAnimationMode() const;
+			bool                        MpAnimationModeEnded() const;
 
 	virtual BOOL						AlwaysTheCrow				()						{ return TRUE; }
 
@@ -307,6 +308,7 @@ public:
 	SRotation				&Orientation		()			 { return r_torso; };
 
 	void					g_SetAnimation		(u32 mstate_rl);
+	void					script_anim			(MotionID exit_animation, PlayCallback Callback, LPVOID CallbackParam);
 	void					g_SetSprintAnimation(u32 mstate_rl,MotionID &head,MotionID &torso,MotionID &legs);
 public:
 	virtual void			OnHUDDraw			(CCustomHUD* hud);

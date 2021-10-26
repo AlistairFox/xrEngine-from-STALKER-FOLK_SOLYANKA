@@ -396,32 +396,61 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 
 	case GE_MODE_SWITCH:
 	{
-
-		xrClientData* data = ID_to_client(sender);
-
-		if (!data)
-			break;
-
-		if (!data->ps)
-			break;
-
-		game_PlayerState* PS = data->ps;
-
-		bool safe_mode = PS->testFlag(GAME_PLAYER_MP_SAFE_MODE);
-
-		if (!safe_mode)
+		u8 type = P.r_u8();
+		
+		if (type == 0)
 		{
-			//cam_Set(eacLookAt);
-			PS->setFlag(GAME_PLAYER_MP_SAFE_MODE);
-			Msg("Key safe_mode 1");
-		}
-		else
-		{
-			//cam_Set(eacFirstEye);
-			PS->resetFlag(GAME_PLAYER_MP_SAFE_MODE);
-			Msg("Key safe_mode 2");
-		}
+			xrClientData* data = ID_to_client(sender);
 
+			if (!data)
+				break;
+
+			if (!data->ps)
+				break;
+
+			game_PlayerState* PS = data->ps;
+
+			bool safe_mode = PS->testFlag(GAME_PLAYER_MP_SAFE_MODE);
+
+			if (!safe_mode)
+			{
+ 				PS->setFlag(GAME_PLAYER_MP_SAFE_MODE);
+				Msg("Key safe_mode on");
+			}
+			else
+			{
+ 				PS->resetFlag(GAME_PLAYER_MP_SAFE_MODE);
+				Msg("Key safe_mode off");
+			}
+
+		}
+		else if (type == 1)
+		{
+			xrClientData* data = ID_to_client(sender);
+
+			if (!data)
+				break;
+
+			if (!data->ps)
+				break;
+
+			game_PlayerState* PS = data->ps;
+
+			bool anim_mode = PS->testFlag(GAME_PLAYER_MP_ANIM_MODE);
+
+			if (!anim_mode)
+			{
+ 				PS->setFlag(GAME_PLAYER_MP_ANIM_MODE);
+				Msg("Key anim_mode on");
+			}
+			else
+			{
+ 				PS->resetFlag(GAME_PLAYER_MP_ANIM_MODE);
+				Msg("Key anim_mode off");
+
+			}
+
+		}
 		game->signal_Syncronize();
 
 	}break;
@@ -440,8 +469,6 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 		{
 			freemp->OnPlayerUIContacts(P, sender);
 		}
-
-
 	}break;
 
 

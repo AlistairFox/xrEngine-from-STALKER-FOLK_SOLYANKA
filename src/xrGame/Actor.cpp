@@ -279,6 +279,25 @@ bool CActor::MpSafeMode()
 	return (ps && ps->testFlag(GAME_PLAYER_MP_SAFE_MODE));
 }
 
+bool CActor::MpAnimationMode() const
+{
+	return false;
+
+	if (!g_Alive())
+		return false; 
+
+	game_PlayerState* ps = Game().GetPlayerByGameID(ID());
+
+	return (ps && ps->testFlag(GAME_PLAYER_MP_ANIM_MODE));
+}
+
+extern bool AnimationPlayed;
+
+bool CActor::MpAnimationModeEnded() const
+{
+	return AnimationPlayed;
+}
+
 void CActor::reinit	()
 {
 	character_physics_support()->movement()->CreateCharacter		();
@@ -1218,6 +1237,7 @@ void CActor::UpdateCL	()
 }
 
 float	NET_Jump = 0;
+
 void CActor::set_state_box(u32	mstate)
 {
 		if ( mstate & mcCrouch)
@@ -1303,7 +1323,7 @@ void CActor::shedule_Update	(u32 DT)
 			*/
 		}
 
-		if (!pInput->iGetAsyncKeyState(DIK_LALT))
+		if (!pInput->iGetAsyncKeyState(DIK_LALT) && (!MpAnimationMode() && MpAnimationModeEnded()))
 			g_cl_Orientate			(mstate_real,dt);
 		
 		g_Orientate				(mstate_real,dt);
@@ -2119,13 +2139,19 @@ bool CActor::use_center_to_aim			() const
 bool CActor::can_attach			(const CInventoryItem *inventory_item) const
 {
 	const CAttachableItem	*item = smart_cast<const CAttachableItem*>(inventory_item);
-	if (!item || /*!item->enabled() ||*/ !item->can_be_attached())
+	
+	if (item->item().m_section_id != "guitar_a")
+	if (!item  || /* !item->enabled()  || */ !item->can_be_attached())
 		return			(false);
+ 
+	if (item->item().m_section_id == "guitar_a")
+	if (!item->enabled())
+		return false;
 
 	//можно ли присоединять объекты такого типа
 	if( m_attach_item_sections.end() == std::find(m_attach_item_sections.begin(),m_attach_item_sections.end(),inventory_item->object().cNameSect()) )
 		return false;
-
+ 
 	//если уже есть присоединненый объет такого типа 
 	if(attached(inventory_item->object().cNameSect()))
 		return false;
