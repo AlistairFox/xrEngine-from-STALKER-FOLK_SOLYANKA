@@ -301,6 +301,7 @@ public:
 			void			SendPlayersInfo		(ClientID const & to_client);
 public:
 	xr_string				ent_name_safe		(u16 eid);
+
 #ifdef DEBUG
 			bool			verify_entities		() const;
 			void			verify_entity		(const CSE_Abstract *entity) const;
@@ -310,6 +311,9 @@ public:
 	// scrip events
 private:
 	void					OnScriptEvent(NET_Packet & P, ClientID sender);
+
+public:
+	void					KillStalkers();
 
 public:
 	ScriptEvent*	GetLastServerScriptEvent();

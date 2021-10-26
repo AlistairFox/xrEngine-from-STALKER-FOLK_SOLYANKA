@@ -26,11 +26,13 @@ struct SpawnSect
 //	xr_vector<xr_string> DefaultItems;
 };
 
+
+
 class game_sv_freemp : public game_sv_mp, private pure_relcase
 {
 	typedef game_sv_mp inherited;
 	SpawnSect spawned_items;
- 
+	xr_map<u32, shared_str>	Map_Upgrades_Saved;
 
 public:
 	xr_map<u16, Team> teamPlayers;

@@ -363,8 +363,49 @@ void game_sv_freemp::Update()
 				loaded_inventory = true;
 			}
 		}
-	}					 	 
+	}		
 
+	if (Device.dwFrame % 60 == 0)
+	{	
+		//Msg("Upgrades Finded");
+		if (!Map_Upgrades_Saved.empty())
+		for (auto map : Map_Upgrades_Saved)
+		{
+			shared_str upgredes = map.second;
+			u16 id = map.first;
+			CObject* obj_id = Level().Objects.net_Find(id);
+
+			if (obj_id)
+			{
+				Msg("Upgrades [%d]", id);
+				Msg("Upgrades_str [%s]", upgredes.c_str());
+ 				NET_Packet packet;
+				u_EventGen(packet, GE_INSTALL_SAVE_UPGRADES, id);
+				packet.w_stringZ(upgredes);
+				u_EventSend(packet);
+
+				CInventoryItem* item = smart_cast<CInventoryItem*>(obj_id);
+				u32 count = _GetItemCount(upgredes.c_str(), ',');
+			
+				for (int i = 0; i != count; i++) 
+				{
+					string64 upgr;
+					_GetItem(upgredes.c_str(), i, upgr, ',');
+
+					item->install_upgrade(upgr);
+				}
+				
+				
+				Map_Upgrades_Saved.erase(id);
+			}
+
+		}
+
+
+		
+	}
+
+	if (false)
 	if (Device.dwTimeGlobal - oldTime_saveServer > 1000 * 60)
 	{
 		if (ai().get_alife())

@@ -283,6 +283,20 @@ void CInventoryItem::OnEvent (NET_Packet& P, u16 type)
 			} 
 			
 		}break;
+		case GE_INSTALL_SAVE_UPGRADES:
+		{
+			shared_str	upgrades_id;
+			P.r_stringZ(upgrades_id);
+			Msg("GE INSTALL SAVE UPGRADES");
+			u32 count = _GetItemCount(upgrades_id.c_str(), ',');
+			for (int i = 0; i != count; i++)
+			{
+				string64 upgrede;
+				_GetItem(upgrades_id.c_str(), i,upgrede, ',');
+
+				this->install_upgrade(upgrede);
+			}
+		}break;
 	}
 }
 

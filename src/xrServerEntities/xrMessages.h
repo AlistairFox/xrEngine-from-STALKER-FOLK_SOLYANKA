@@ -184,6 +184,8 @@ enum {
 
 	GE_UI_PDA,
 
+	GE_INSTALL_SAVE_UPGRADES,
+
 	GE_FORCEDWORD				= u32(-1)
 };
 

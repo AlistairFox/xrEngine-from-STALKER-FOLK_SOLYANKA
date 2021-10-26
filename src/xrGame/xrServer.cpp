@@ -1131,20 +1131,26 @@ void			xrServer::entity_Destroy	(CSE_Abstract *&P)
 if( dbg_net_Draw_Flags.test( dbg_destroy ) )
 		Msg	("xrServer::entity_Destroy : [%d][%s][%s]",P->ID,P->name(),P->name_replace());
 #endif
-	R_ASSERT					(P);
+
+	Msg("xrServer::entity_Destroy : [%d][%s][%s]", P->ID, P->name(), P->name_replace());
+	
+ 	R_ASSERT					(P);
+
 	entities.erase				(P->ID);
+
 	m_tID_Generator.vfFreeID	(P->ID,Device.TimerAsync());
 
 	if(P->owner && P->owner->owner==P)
 		P->owner->owner		= NULL;
 
-	P->owner = NULL;
+	if(P->owner)
+		P->owner = NULL;
 
-	if (false)
 	if (!ai().get_alife() || !P->m_bALifeControl)
 	{
 		F_entity_Destroy		(P);
 	}
+
 }
 
 //--------------------------------------------------------------------
@@ -1398,6 +1404,9 @@ extern	BOOL	g_bCollectStatisticData;
 //xr_token game_types[];
 LPCSTR GameTypeToString(EGameIDs gt, bool bShort);
 
+u32 stalkers;
+u32 oldTimeGlobal;
+
 void xrServer::GetServerInfo( CServerInfo* si )
 {
 	string32  tmp;
@@ -1431,80 +1440,70 @@ void xrServer::GetServerInfo( CServerInfo* si )
 
 	tmp256[0] = NULL;
  
-//	if (ai_stalker_cons > 0)
 	{
-		xr_strcat(tmp256, " [");
+		xr_strcat(tmp256, "stalker[");
 		xr_strcat(tmp256, itoa(ai_stalker_cons, tmp, 10));
 		xr_strcat(tmp256, "]");
 
-		si->AddItem("ai_stalker_kbs", tmp256, RGB(128, 255, 255));
-	}
-
-	tmp256[0] = NULL;
-
-//	if (ai_stalker_cons > 0)
-	{
-		xr_strcat(tmp256, " [");
+		xr_strcat(tmp256, " monster[");
 		xr_strcat(tmp256, itoa(ai_monster_cons, tmp, 10));
 		xr_strcat(tmp256, "]");
 
-		si->AddItem("ai_monster_kbs", tmp256, RGB(128, 255, 255));
-	}
-
-
-	tmp256[0] = NULL;	
-	//if (item_cons > 0)
-	{
-		xr_strcat(tmp256, " [");
+		xr_strcat(tmp256, " item[");
 		xr_strcat(tmp256, itoa(item_cons, tmp, 10));
 		xr_strcat(tmp256, "]");
 
-		si->AddItem("item_kbs", tmp256, RGB(128, 255, 255));
-	}
-
-
-	tmp256[0] = NULL;
-	
-	//if (arts_cons > 0)
-	{
-		xr_strcat(tmp256, " [");
+		xr_strcat(tmp256, " art[");
 		xr_strcat(tmp256, itoa(arts_cons, tmp, 10));
 		xr_strcat(tmp256, "]");
 
-		si->AddItem("arts_kbs", tmp256, RGB(128, 255, 255));
-	}
-
-
-	tmp256[0] = NULL;
-	//if (actors_cons > 0)
-	{
-		xr_strcat(tmp256, " [");
+		xr_strcat(tmp256, " actor[");
 		xr_strcat(tmp256, itoa(actors_cons, tmp, 10));
 		xr_strcat(tmp256, "]");
 
-		si->AddItem("actors_kbs", tmp256, RGB(128, 255, 255));
-	}
-
-	tmp256[0] = NULL;
-//	if (item_weapon_cons > 0)
-	{
-		xr_strcat(tmp256, " [");
+		xr_strcat(tmp256, " weap[");
 		xr_strcat(tmp256, itoa(item_weapon_cons, tmp, 10));
 		xr_strcat(tmp256, "]");
 
-		si->AddItem("item_weapons", tmp256, RGB(128, 255, 255));
-	}
-	
-	tmp256[0] = NULL;
-//	if (others_cons > 0)
-	{
-		xr_strcat(tmp256, " [");
+		xr_strcat(tmp256, " o[");
 		xr_strcat(tmp256, itoa(others_cons, tmp, 10));
 		xr_strcat(tmp256, "]");
 
-		si->AddItem("others_kbs", tmp256, RGB(128, 255, 255));
+
+		si->AddItem("KBS", tmp256, RGB(128, 255, 255));
 	} 
 
+	{
+		string32 FPS_str = {0};
+		string32 tmp_fps = { 0 };
+
+		if (Device.dwTimeDelta != 0)
+			xr_strcat(FPS_str, ltoa(1000 / Device.dwTimeDelta, tmp_fps, 10));
+  
+
+		si->AddItem("fps", FPS_str, RGB(255, 0, 0));
+	}
+
+	if (Device.dwTimeGlobal - oldTimeGlobal > 1000)
+	{
+		stalkers = 0;
+		for (xrS_entities::iterator iter =entities.begin(); iter != entities.end(); iter++)
+		{
+			CSE_Abstract* abs = (*iter).second;
+			if (smart_cast<CSE_ALifeHumanStalker*>(abs))
+			{
+				stalkers += 1;
+			} 
+		}
+		oldTimeGlobal = Device.dwTimeGlobal;
+	}
+
+	string32 stalk = { 0 };
+	string32 tmp_st = {0};
+	xr_strcat(stalk, ltoa(stalkers, tmp, 10));
+
+	si->AddItem("NPC", stalk, RGB(255, 0, 0));
+ 
 	/*
 	if ( g_sv_dm_dwTimeLimit > 0 )
 	{
@@ -1660,6 +1659,20 @@ void xrServer::OnScriptEvent(NET_Packet & P, ClientID sender)
 
 	pEvent->SenderID = sender.value();
 	CopyMemory(&(pEvent->Packet), &P, sizeof(NET_Packet));
+}
+
+void xrServer::KillStalkers()
+{
+	for (xrS_entities::iterator ent = entities.begin(); ent !=entities.end(); ent++ )
+	{
+		CSE_Abstract* entit = (*ent).second;
+		CSE_ALifeHumanStalker* stalker = smart_cast<CSE_ALifeHumanStalker*>(entit);
+
+		if (stalker)
+		{
+			stalker->kill();
+		}
+	}
 }
 
 ScriptEvent * xrServer::GetLastServerScriptEvent()

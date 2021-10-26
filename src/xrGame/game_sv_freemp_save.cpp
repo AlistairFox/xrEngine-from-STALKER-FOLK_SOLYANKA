@@ -12,8 +12,6 @@
 #include "Weapon.h"
 #include "InventoryBox.h"
 
-
-
 using namespace jsonxx;
 
 bool game_sv_freemp::LoadPlayer(game_PlayerState* id_who)
@@ -51,7 +49,6 @@ bool game_sv_freemp::LoadPlayer(game_PlayerState* id_who)
 	Array jsonOutfit;
 	Object jsonOthers;
 	
-
 	if (json.has<Number>("money"))
 	{
 		int money = json.get<Number>("money");
@@ -79,6 +76,32 @@ bool game_sv_freemp::LoadPlayer(game_PlayerState* id_who)
 
 					if (!item)
 						continue;
+
+					if (slots_tab.has<String>("upgrades"))
+					{
+						LPCSTR upgredes = slots_tab.get<String>("upgrades").c_str();
+						Map_Upgrades_Saved[ent->ID] = upgredes;
+
+						/*
+						 
+						u32 count = _GetItemCount(upgredes);
+						
+						
+						for (int i = 0; i != count; i++) 
+						{
+							
+							 string64 name;
+
+							_GetItem(upgredes, i, name, ',');
+							Msg("Updagede [%s]", name);
+
+							shared_str name_str;
+							name_str._set(name);
+							item->add_upgrade(name_str);
+						} 
+						*/
+
+					}
 
 					if (slots_tab.has<Number>("condition"))
 						item->m_fCondition = slots_tab.get<Number>("condition");
@@ -210,7 +233,7 @@ bool game_sv_freemp::LoadPlayerPosition(game_PlayerState* ps, Fvector& position,
 			float y = jsonObj.get<Number>("Pos[Y]");
 			float z = jsonObj.get<Number>("Pos[Z]");
 
-			Msg("Actor Postion READ [%.3f][%.3f][%.3f]", x, y, z);
+			//Msg("Actor Postion READ [%.3f][%.3f][%.3f]", x, y, z);
 			position.set(x, y, z);
 			angle.set(0, 0, 0);
 			return true;
@@ -306,7 +329,7 @@ void game_sv_freemp::set_account_nickname(LPCSTR login, LPCSTR password, LPCSTR 
 				{
 					//tab << "nick" << String(new_nickname);
 					jsonObj.get<Array>("USERS").get<Object>(i) << "nick:" << String(new_nickname);
-					Msg("Nick[%s] login[%s] password[%s]", new_nickname, login, password);
+					//Msg("Nick[%s] login[%s] password[%s]", new_nickname, login, password);
 
 					if (team)
 					{
@@ -483,6 +506,7 @@ void game_sv_freemp::load_inventoryBox(CSE_Abstract* ent)
 	Object Main;
 	Array listInventory;
 
+	if (box && box->Name())
 	if (FS.path_exist("$mp_saves_inventory$"))
 	{
 		string128 pathLevel = {0};
@@ -566,7 +590,7 @@ void game_sv_freemp::load_inventoryBox(CSE_Abstract* ent)
 			if (table.has<Number>("addon_State"))
 				addon_State = table.get<Number>("addon_State");
 
-			Msg("Load Weapon [%d], [%d], [%d], [%d]", a_elapsed, ammo_type, cur_scope, addon_State);
+			//Msg("Load Weapon [%d], [%d], [%d], [%d]", a_elapsed, ammo_type, cur_scope, addon_State);
 			wpn->a_elapsed = a_elapsed;
 			wpn->ammo_type = ammo_type;
 			wpn->m_cur_scope = cur_scope;
@@ -575,12 +599,12 @@ void game_sv_freemp::load_inventoryBox(CSE_Abstract* ent)
 
 		if (wpn_ammo)
 		{
-			Msg("Load Weapon ammo");
+			//Msg("Load Weapon ammo");
 			if (table.has<Number>("count"))
 				wpn_ammo->a_elapsed = table.get<Number>("count");
 		}
 
-		Msg("SpawnInventoryBoxItem [%s] in box [%s]", sec, boxs->name_replace() );
+		//Msg("SpawnInventoryBoxItem [%s] in box [%s]", sec, boxs->name_replace() );
 		spawn_end(abs, server().GetServerClient()->ID);
 	}
 	 

@@ -462,7 +462,6 @@ void CActor::g_cl_Orientate	(u32 mstate_rl, float dt)
 		r_torso.yaw		=	cam_Active()->GetWorldYaw	();
 		r_torso.pitch	=	cam_Active()->GetWorldPitch	();
 	}
-	 
 
 	unaffected_r_torso.yaw		= r_torso.yaw;
 	unaffected_r_torso.pitch	= r_torso.pitch;
@@ -490,7 +489,7 @@ void CActor::g_cl_Orientate	(u32 mstate_rl, float dt)
 		// if camera rotated more than 45 degrees - align model with it
 		float ty = angle_normalize(r_torso.yaw);
 		 
-		if (_abs(r_model_yaw-ty) > PI_DIV_4 - 30)	{
+		if (_abs(r_model_yaw-ty) > PI_DIV_4)	{
 			r_model_yaw_dest = ty;
 			// 
 			mstate_real	|= mcTurn;
@@ -501,7 +500,7 @@ void CActor::g_cl_Orientate	(u32 mstate_rl, float dt)
 			mstate_real	&=~mcTurn;
 		}
 		if (mstate_rl&mcTurn){
-			angle_lerp	(r_model_yaw,r_model_yaw_dest, 25/*PI_MUL_2*/, dt);
+			angle_lerp	(r_model_yaw,r_model_yaw_dest, PI_MUL_2, dt);
 		}
 	}
 }

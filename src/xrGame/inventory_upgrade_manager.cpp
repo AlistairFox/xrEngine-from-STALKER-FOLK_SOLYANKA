@@ -289,15 +289,15 @@ void Manager::test_all_upgrades( CInventoryItem& item )
 Upgrade* Manager::upgrade_verify( shared_str const& item_section, shared_str const& upgrade_id )
 {
 	Root* root_p = get_root( item_section );
-	VERIFY2( root_p,
-		make_string( "Upgrades of item <%s> don`t exist!", item_section.c_str() ) );
+	if (!root_p)
+		Msg( "Upgrades of item <%s> don`t exist!", item_section.c_str());
 
 	Upgrade* upgrade_p = get_upgrade( upgrade_id );
-	VERIFY2( upgrade_p,
-		make_string( "Upgrade <%s> in item <%s> does not exist!", upgrade_id.c_str(), item_section.c_str() ) );
+	if (!upgrade_p)
+		Msg( "Upgrade <%s> in item <%s> does not exist!", upgrade_id.c_str(), item_section.c_str());
 
-	VERIFY2( root_p->contain_upgrade( upgrade_id ),
-		make_string( "Inventory item <%s> not contain upgrade <%s> !", item_section.c_str(), upgrade_id.c_str() ) );
+	if (!root_p->contain_upgrade( upgrade_id ) )
+		Msg( "Inventory item <%s> not contain upgrade <%s> !", item_section.c_str(), upgrade_id.c_str());
 
 	return ( upgrade_p );
 }
@@ -336,6 +336,7 @@ bool Manager::is_disabled_upgrade( CInventoryItem& item, shared_str const& upgra
 
 bool Manager::upgrade_install( CInventoryItem& item, shared_str const& upgrade_id, bool loading )
 {
+	//Msg("upgrade_ID[%s] / load[%s]", upgrade_id.c_str(), loading ? "true":"false");
 	Upgrade* upgrade = upgrade_verify( item.m_section_id, upgrade_id );
 	UpgradeStateResult res = upgrade->can_install( item, loading );
 	
@@ -375,8 +376,8 @@ bool Manager::upgrade_install( CInventoryItem& item, shared_str const& upgrade_i
 
 void Manager::init_install( CInventoryItem& item )
 {
-	if ( !get_root( item.m_section_id ) ) return;
-	
+ 	if ( !get_root( item.m_section_id ) ) return;
+ 
 #ifdef DEBUG
 	test_all_upgrades( item );
 #endif // DEBUG

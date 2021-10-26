@@ -2138,9 +2138,9 @@ public:
 			return;
 		}
 
-		if (counts > 10)
+		if (counts > 200)
 		{
-			counts = 10;
+			counts = 1;
 		}
 
 		if (pSettings->section_exist(section))
@@ -2172,11 +2172,8 @@ public:
 		}	
 
 		if (counts > 10)
-			counts = 10;
-
-		if (counts < 1)
 			counts = 1;
-		 
+ 		 
 		NET_Packet		P;
 		P.w_begin(M_REMOTE_CONTROL_CMD);
 		string128 str;
@@ -2235,12 +2232,9 @@ public:
 			return;
 		}
 
-		if (counts > 10)
-			counts = 10;
-		
-		if (counts < 1)
+		if (counts > 200)
 			counts = 1;
-
+ 
 		NET_Packet		P;
 		P.w_begin(M_REMOTE_CONTROL_CMD);
 		string128 str;
@@ -2296,11 +2290,8 @@ public:
 		}
 
 		if (counts > 10)
-			counts = 10;
-
-		if (counts < 1)
 			counts = 1;
-
+ 
 		if (RQ.O && (invOwner || invBox))
 		{
 			NET_Packet		P;
@@ -2968,15 +2959,37 @@ public:
 		}
 	}
 };
- 
+
+
+class CCC_AdmKillStalkers : public IConsole_Command
+{
+public:
+	CCC_AdmKillStalkers(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
+
+	virtual void Execute(LPCSTR args)
+	{
+		if (OnServer())
+			Level().Server->KillStalkers();
+		else
+			Msg("Please Run From Server");
+	}
+};
+
+
+
 
 
 extern float RenderVal;
 extern float RenderVal2;
 extern int right_cam;
+extern int anim_value;
+
+extern int PRINT_STACK;
 
 void register_mp_console_commands()
 {
+	CMD4(CCC_Integer, "call_stack", &PRINT_STACK, 0, 1);
+
 	CMD1(CCC_SpawnToInventory,		"sv_spawn_to_player_inv");
 	CMD1(CCC_SpawnToObjWithId,		"sv_spawn_to_obj_with_id");
 	CMD1(CCC_SpawnOnPosition,		"sv_spawn_on_position"	);
@@ -2992,6 +3005,10 @@ void register_mp_console_commands()
 	CMD1(CCC_AdmGodMode,			"adm_god_mode"			);
 
 	CMD1(CCC_ADD_Money_to_client_self, "g_money");
+	CMD1(CCC_AdmKillStalkers, "g_kill_all_stalker");
+
+
+	CMD4(CCC_Integer, "anim", &anim_value, 0, 32);
 
 
 	CMD1(CCC_MovePlayerToRPoint,	"sv_move_player_to_rpoint");
@@ -3027,7 +3044,7 @@ void register_mp_console_commands()
 	CMD4(CCC_Integer,	"net_cl_update_rate",	&psNET_ClientUpdate,20,		100				);
 	CMD4(CCC_Integer,	"net_cl_pending_lim",	&psNET_ClientPending,0,		10				);
 #endif
-	CMD4(CCC_Integer,	"net_sv_update_rate",	&psNET_ServerUpdate,1,		100				);
+	CMD4(CCC_Integer,	"net_sv_update_rate",	&psNET_ServerUpdate,1,		1000			);
 	CMD4(CCC_Integer,	"net_sv_pending_lim",	&psNET_ServerPending,0,		10				);
 	CMD4(CCC_Integer,	"net_sv_gpmode",	    &psNET_GuaranteedPacketMode,0, 2)	;
 	CMD3(CCC_Mask,		"net_sv_log_data",		&psNET_Flags,		NETFLAG_LOG_SV_PACKETS	);
