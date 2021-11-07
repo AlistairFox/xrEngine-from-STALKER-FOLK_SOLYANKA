@@ -2380,12 +2380,6 @@
     <Filter Include="Core\Server\Games\PlayerAccounts">
       <UniqueIdentifier>{c8e2f403-688c-4c8d-aae4-e6bdf83d3df5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core\Server\GameSpy">
-      <UniqueIdentifier>{b26a7385-2317-4424-8e9b-77c04cbf6538}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\GameSpy\CdkeyDecode">
-      <UniqueIdentifier>{09d6ad21-f307-44c4-ac3f-113b676c9111}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Core\Server\ID_Generator">
       <UniqueIdentifier>{d3512420-b2d9-44fe-8456-ada69b7531d1}</UniqueIdentifier>
     </Filter>
@@ -2535,6 +2529,12 @@
     </Filter>
     <Filter Include="UI\Common\PDA\CONTACTS">
       <UniqueIdentifier>{bba27d51-ce07-4050-b962-5fcbb8eb006f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Server\GameSpy">
+      <UniqueIdentifier>{b26a7385-2317-4424-8e9b-77c04cbf6538}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Server\GameSpy\CdkeyDecode">
+      <UniqueIdentifier>{09d6ad21-f307-44c4-ac3f-113b676c9111}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

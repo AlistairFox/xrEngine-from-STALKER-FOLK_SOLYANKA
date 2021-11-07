@@ -65,9 +65,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>C:\Games\omp1.2\bin;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Games\omp1.2\bins\x86\;$(LibraryPath)</LibraryPath>
     <ExternalIncludePath>C:\Users\dima\Documents\GitHub\omp-engine\src\Layers\xrRenderPC_R4;$(ExternalIncludePath)</ExternalIncludePath>
-    <OutDir>C:\Games\omp1.2\bin\</OutDir>
+    <OutDir>C:\Games\omp1.2\bins\x86\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Mixed|Win32'">
     <LinkIncremental>false</LinkIncremental>
