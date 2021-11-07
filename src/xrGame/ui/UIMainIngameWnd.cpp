@@ -234,9 +234,17 @@ void CUIMainIngameWnd::Init()
 
 	uiXml.SetLocalRoot						(uiXml.GetRoot());
 	
-	UIMotionIcon							= xr_new<CUIMotionIcon>(); UIMotionIcon->SetAutoDelete(true);
-	UIZoneMap->MapFrame().AttachChild		(UIMotionIcon);
-	UIMotionIcon->Init						(UIZoneMap->MapFrame().GetWndRect());
+	UIMotionIcon = xr_new<CUIMotionIcon>();
+	UIMotionIcon->SetAutoDelete(true);
+	
+	if (false)
+	{
+		UIZoneMap->MapFrame().AttachChild(UIMotionIcon);
+	}
+
+	UIMotionIcon->Init(UIZoneMap->MapFrame().GetWndRect());
+
+
 
 	UIStaticDiskIO							= UIHelper::CreateStatic(uiXml, "disk_io", this);
 
@@ -306,6 +314,7 @@ void CUIMainIngameWnd::Draw()
 	}
 
 	bool tmp = UIMotionIcon->IsShown();
+
 	UIMotionIcon->Show(false);
 	CUIWindow::Draw();
 	UIMotionIcon->Show(tmp);

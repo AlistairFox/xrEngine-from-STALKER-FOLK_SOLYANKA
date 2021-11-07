@@ -32,7 +32,14 @@ void CScriptActionPlannerActionWrapper::initialize_static	(CScriptActionPlannerA
 
 void CScriptActionPlannerActionWrapper::execute				()
 {
-	luabind::call_member<void>			(this,"execute");
+	try
+	{
+		luabind::call_member<void>			(this,"execute");
+	}
+	catch (...)
+	{
+		Msg("[ActionPlannerActionWrapper][Error] Action Name [%s], Action [%d]", this->object().Name(), this->m_current_action_id);
+	}
 }
 
 void CScriptActionPlannerActionWrapper::execute_static		(CScriptActionPlannerAction *action)

@@ -153,6 +153,8 @@ CSE_Abstract *CALifeSimulatorBase::create(CSE_ALifeGroupAbstract *tpALifeGroupAb
 	CSE_ALifeDynamicObject		*k = smart_cast<CSE_ALifeDynamicObject*>(l_tpAbstract);
 	R_ASSERT2					(k,"Non-ALife object in the 'game.spawn'");
 
+	
+
 	j->Spawn_Write				(tNetPacket,TRUE);
 	k->Spawn_Read				(tNetPacket);
 	tNetPacket.w_begin			(M_UPDATE);

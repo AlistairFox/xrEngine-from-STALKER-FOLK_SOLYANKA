@@ -244,9 +244,25 @@ void CBaseMonster::net_Import(NET_Packet& P)
 
 		u16 u_motion_idx;
 		// u8 u_motion_slot;
+		
+		if (Level().CurrentControlEntity())
+		{
+			float dist_120 = 120 * 120;
 
-		setVisible(TRUE);
-		setEnabled(TRUE);
+			float dist = Level().CurrentControlEntity()->Position().distance_to_sqr(this->Position());
+					 			  
+			if (dist < dist_120)
+			{
+				setVisible(TRUE);
+				setEnabled(TRUE);
+			}
+			else
+			{
+				setVisible(FALSE);
+				setEnabled(FALSE);
+			}
+		}
+		
 		
 		P.r_u8(flags.flags);
 
@@ -337,7 +353,8 @@ void CBaseMonster::net_Import(NET_Packet& P)
 		}
 		
 		// apply animation
-		ApplyAnimation(u_motion_idx, 0, flags.test(sync_flags::fAnimNoLoop));
+		if (this->getVisible())
+			ApplyAnimation(u_motion_idx, 0, flags.test(sync_flags::fAnimNoLoop));
 	}
 }
 

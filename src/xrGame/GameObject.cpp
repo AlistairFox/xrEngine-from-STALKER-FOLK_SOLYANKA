@@ -494,6 +494,9 @@ void CGameObject::load			(IReader &input_packet)
 
 void CGameObject::spawn_supplies()
 {
+	if (OnClient())
+		return;
+
 	if (!spawn_ini() || ai().get_alife())
 		return;
 
@@ -506,7 +509,8 @@ void CGameObject::spawn_supplies()
 	bool bSilencer			=	false;
 	bool bLauncher			=	false;
 
-	for (u32 k = 0, j; spawn_ini()->r_line("spawn",k,&N,&V); k++) {
+	for (u32 k = 0, j; spawn_ini()->r_line("spawn",k,&N,&V); k++)
+	{
 		VERIFY				(xr_strlen(N));
 		j					= 1;
 		p					= 1.f;
@@ -529,11 +533,13 @@ void CGameObject::spawn_supplies()
 			bLauncher		=	(NULL!=strstr(V,"launcher"));
 
 		}
+
 		for (u32 i = 0; i < j; ++i)
 		{
 			if (ai().get_level_graph()->valid_vertex_id(ai_location().level_vertex_id()))
 			{
-				if (::Random.randF(1.f) < p) {
+				if (::Random.randF(1.f) < p) 
+				{
 					CSE_Abstract* A = Level().spawn_item(N, Position(), ai_location().level_vertex_id(), ID(), true);
 
 					CSE_ALifeInventoryItem* pSE_InventoryItem = smart_cast<CSE_ALifeInventoryItem*>(A);

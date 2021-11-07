@@ -130,6 +130,7 @@ void _BCL CUIGameFMP::OnFrame()
 		m_stats->Enable(false);
 	}
 }
+extern bool caps_lock;
 
 bool CUIGameFMP::IR_UIOnKeyboardPress(int dik)
 {
@@ -149,18 +150,31 @@ bool CUIGameFMP::IR_UIOnKeyboardPress(int dik)
 	if (!pActor->g_Alive())
 		return false;
 
+	if (dik == DIK_CAPSLOCK)
+	{
+		if (caps_lock)
+			caps_lock = false;
+		else
+			caps_lock = true;
+	} 
+
+
+
 	switch (get_binded_action(dik))
 	{
-	case kACTIVE_JOBS:
-		{
-			if (!pActor->inventory_disabled())
-				ShowPdaMenu();			
-		} break;
-	case kINVENTORY:
-		{
-			if (!pActor->inventory_disabled())
-				ShowActorMenu();			
-		} break;
+		case kACTIVE_JOBS:
+			{
+				if (!pActor->inventory_disabled())
+					ShowPdaMenu();			
+			} break;
+		case kINVENTORY:
+			{
+				if (!pActor->inventory_disabled())
+					ShowActorMenu();			
+			} break;
+
+		
+
 	default:
 		break;
 	}

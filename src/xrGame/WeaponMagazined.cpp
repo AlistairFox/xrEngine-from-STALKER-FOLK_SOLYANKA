@@ -478,6 +478,7 @@ void CWeaponMagazined::state_Fire(float dt)
 		d.set(get_LastFD());
 
 		if (!H_Parent()) return;
+
 		if (smart_cast<CMPPlayersBag*>(H_Parent()) != NULL)
 		{
 			Msg("! WARNING: state_Fire of object [%d][%s] while parent is CMPPlayerBag...", ID(), cNameSect().c_str());
@@ -541,8 +542,8 @@ void CWeaponMagazined::state_Fire(float dt)
 
 	if(fShotTimeCounter<0)
 	{
-/*
-		if(bDebug && H_Parent() && (H_Parent()->ID() != Actor()->ID()))
+ 
+		if(H_Parent() && (H_Parent()->ID() != Actor()->ID()))
 		{
 			Msg("stop shooting w=[%s] magsize=[%d] sshot=[%s] qsize=[%d] shotnum=[%d]",
 					IsWorking()?"true":"false", 
@@ -551,7 +552,7 @@ void CWeaponMagazined::state_Fire(float dt)
 					m_iQueueSize,
 					m_iShotNum);
 		}
-*/
+
 		if(iAmmoElapsed == 0)
 			OnMagazineEmpty();
 

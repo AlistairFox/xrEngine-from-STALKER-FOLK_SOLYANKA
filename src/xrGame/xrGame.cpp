@@ -49,9 +49,9 @@ BOOL APIENTRY DllMain(HANDLE hModule, u32 ul_reason_for_call, LPVOID lpReserved)
 			CCC_RegisterInput	();
 
 			setup_luabind_allocator	();
-#ifdef DEBUG
+ 
 			g_profiler			= xr_new<CProfiler>();
-#endif
+ 
 			break;
 		}
 

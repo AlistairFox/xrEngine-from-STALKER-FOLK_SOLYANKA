@@ -70,14 +70,13 @@ void CUIPda_Contacts::Init()
 	squad_window->AttachChild(squad_UI);
 
 	property_box = xr_new<CUIPropertiesBox>();
-
 	property_box->InitPropertiesBox(Fvector2().set(0, 0), Fvector2().set(100, 75));
-	AttachChild(property_box);
+	AttachChild(property_box);	
 	property_box->Hide();
 	property_box->SetWindowName("property_box");
 
-	property_box->AddItem("add_to_squad", NULL, PDA_PROPERTY_ADD_TO_SQUAD);
-	property_box->AddItem("add_to_chat", NULL, PDA_PROPERTY_ADD_TO_CHAT);
+	property_box->AddItem("Пригласить в отряд", NULL, PDA_PROPERTY_ADD_TO_SQUAD);
+ 	property_box->AddItem("Выйти", NULL, PDA_PROPERTY_EXIT);
 
 	squad_UI_invite = UIHelper::CreateFrameWindow(xml, "squad_invite", squad_window);
 
@@ -116,7 +115,7 @@ void CUIPda_Contacts::Show(bool status)
 void CUIPda_Contacts::Update()
 {
 	inherited::Update();
-
+ 
 	if (invite_mode)
 	{
 		if (squad_UI->IsShown())
@@ -130,8 +129,7 @@ void CUIPda_Contacts::Update()
 		}
 
 		int TextSize = xr_strlen(squad_UI_invite_text->GetText());
-		//Msg("TextSize %d", TextSize);
-
+ 
 		if (TextSize == 0 && last_inviter)
 		{
 			CActor* actor;
@@ -144,12 +142,11 @@ void CUIPda_Contacts::Update()
 			}
 
 			if (actor)
-				if (xr_strlen(actor->Name()) > 0)
-				{
-					Msg("SetInviteText %s", actor->Name());
-					SetInvite(actor->Name());
-				}
-
+			if (xr_strlen(actor->Name()) > 0)
+			{
+				Msg("SetInviteText %s", actor->Name());
+				SetInvite(actor->Name());
+			}
 		}
 	}
 	else
@@ -195,8 +192,6 @@ void CUIPda_Contacts::Update()
 				xml.Load(CONFIG_PATH, UI_PATH, PDA_CONTACTS_XML);
 				player_info->InitCharacterInfo(&xml, "char_info");
 				player_info->InitCharacterMP(actor, pl.first.value());
-				//Msg("SetClientID == %u", player_info->getClientID());
-				//Msg("SetOwnerID == %d", player_info->OwnerID());
 
 				CUIWindow* static_line = xr_new<CUIWindow>();
 				CUIXmlInit::InitAutoStaticGroup(xml, "pda_char_auto_statics", 0, static_line);
@@ -222,27 +217,12 @@ bool CUIPda_Contacts::OnMouseAction(float x, float y, EUIMessages mouse_action)
 {
 	inherited::OnMouseAction(x, y, mouse_action);
 
-	/*
-	if (mouse_action == WINDOW_LBUTTON_DOWN)
-	{
-		if (squad_UI->IsShown())
-		{
-			squad_UI->Show(false);
-			squad_UI_invite->Show(true);
-		}
-		else
-		{
-			squad_UI->Show(true);
-			squad_UI_invite->Show(false);
-		}
-	}
-	*/
-
 	if (mouse_action != WINDOW_RBUTTON_DOWN)
 		return true;
 
 	CUIScrollView* win = contacts_list;
 	auto child = win->Items();
+
 	for (auto iter = child.rbegin(); iter != child.rend(); iter++)
 	{
 		CUIWindow* w = (*iter);
@@ -261,12 +241,6 @@ bool CUIPda_Contacts::OnMouseAction(float x, float y, EUIMessages mouse_action)
 
 			if (info && wndRect.in(pos))
 			{
-				/*
-				Msg("Click CHARACTER inside [%s]",
-					wndRect.in(pos) ? "true" : "false"
-				);
-				*/
-
 				pos.x = x;
 				pos.y = y;
 
@@ -274,43 +248,39 @@ bool CUIPda_Contacts::OnMouseAction(float x, float y, EUIMessages mouse_action)
 
 				id_actor = info->OwnerID();
 				id_client = info->getClientID();
-
-				//Msg("ClientID %u", id_client);
-				//Msg("OwnerID %d", id_actor);
+ 
 			}
 		}
 	}
+   
+
 	return true;
 }
 
 void xr_stdcall CUIPda_Contacts::property_box_clicked(CUIWindow* w, void* d)
 {
-	//Msg("Property Clicked");
-	if (!property_box->GetClickedItem())
+ 	if (!property_box->GetClickedItem())
 		return;
 
 	switch (property_box->GetClickedItem()->GetTAG())
 	{
-	case (PDA_PROPERTY_ADD_TO_SQUAD):
-	{
-		ClientID id;
-		id.set(id_client);
+		case (PDA_PROPERTY_ADD_TO_SQUAD):
+		{
+ 
+			ClientID id;
+			id.set(id_client);
 
-		NET_Packet packet;
-		Level().game->u_EventGen(packet, GE_UI_PDA, 0);
-		packet.w_u8(0);
-		packet.w_clientID(id);
-		packet.w_u16(id_actor);
-		packet.w_clientID(Game().local_svdpnid);
-		Level().game->u_EventSend(packet);
-	};
-	break;
+			NET_Packet packet;
+			Level().game->u_EventGen(packet, GE_UI_PDA, 0);
+			packet.w_u8(0);
+			packet.w_clientID(id);
+			packet.w_u16(id_actor);
+			packet.w_clientID(Game().local_svdpnid);
+			Level().game->u_EventSend(packet);
+		};
+		break;
 
-	case (PDA_PROPERTY_ADD_TO_CHAT):
-	{
-		Msg("Clicked CHAT");
-	};
-	break;
+		break;
 	}
 }
 
@@ -367,7 +337,6 @@ void CUIPda_Contacts::EventRecive(NET_Packet& P)
 	{
 		Team TeamPlayers;
 		P.r(&TeamPlayers, sizeof(TeamPlayers));
-
 		squad_UI->EventRecive(TeamPlayers);
 	}
 }

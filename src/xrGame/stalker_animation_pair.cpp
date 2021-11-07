@@ -46,7 +46,6 @@ void CStalkerAnimationPair::synchronize		(IKinematicsAnimated *skeleton_animated
 #ifndef USE_HEAD_BONE_PART_FAKE
 void CStalkerAnimationPair::play_global_animation	(IKinematicsAnimated *skeleton_animated, PlayCallback callback, const bool &use_animation_movement_control)
 #else
-
 void CStalkerAnimationPair::play_global_animation	(IKinematicsAnimated *skeleton_animated, PlayCallback callback, const u32 &bone_part, const bool &use_animation_movement_control, const bool &local_animation, bool mix_animations)
 #endif
 {
@@ -55,26 +54,27 @@ void CStalkerAnimationPair::play_global_animation	(IKinematicsAnimated *skeleton
 	//DBG_ClosedCashedDraw( 50000 );
 
 	m_blend				= 0;
-	for (u16 i=0; i<MAX_PARTS; ++i) {
+	for (u16 i=0; i<MAX_PARTS; ++i) 
+	{
 #ifdef USE_HEAD_BONE_PART_FAKE
 		if (!(bone_part & (1 << i)))
 			continue;
 #endif
 
 		CBlend			*blend = 0;
-		if (!m_blend) {
-
-
-
+		if (!m_blend) 
+		{
 			blend		= skeleton_animated->LL_PlayCycle(i, animation(), mix_animations ? TRUE : FALSE, callback, m_object);
 			
 			if (blend && !m_blend)
 				m_blend	= blend;
 
-			if ( use_animation_movement_control || this->use_animation_movement_control(skeleton_animated, animation())) {
+			if ( use_animation_movement_control || this->use_animation_movement_control(skeleton_animated, animation())) 
+			{
 				m_object->create_anim_mov_ctrl( blend, m_target_matrix, local_animation);
 			}
-			else {
+			else 
+			{
 				if (m_object->animation_movement() && m_global_animation)
 					m_object->animation_movement()->stop	();
 			}
@@ -95,7 +95,8 @@ void CStalkerAnimationPair::play			(IKinematicsAnimated *skeleton_animated, Play
 #endif
 {
 	VERIFY					(animation());
-	if (actual()) {
+	if (actual()) 
+	{
 #if 0
 #	ifdef DEBUG
 		if (psAI_Flags.is(aiAnimation) && blend())
@@ -109,7 +110,8 @@ void CStalkerAnimationPair::play			(IKinematicsAnimated *skeleton_animated, Play
 		return;
 	}
 
-	if (animation() != m_array_animation) {
+	if (animation() != m_array_animation) 
+	{
 		m_array_animation.invalidate	();
 		m_array							= 0;
 	}
@@ -118,7 +120,8 @@ void CStalkerAnimationPair::play			(IKinematicsAnimated *skeleton_animated, Play
 	m_just_started			= true;
 #endif // DEBUG
 
-	if (!global_animation()) {
+	if (!global_animation()) 
+	{
 		// here we should know if it is a head
 		// ugly way to find this out :-(
 		// fix it in the future
@@ -126,14 +129,17 @@ void CStalkerAnimationPair::play			(IKinematicsAnimated *skeleton_animated, Play
 			m_object->animation_movement()->stop();
 
 		float				pos = 0.f;
-		if (m_step_dependence && continue_interrupted_animation) {
+		if (m_step_dependence && continue_interrupted_animation)
+		{
 			VERIFY			(!m_blend || !fis_zero(m_blend->timeTotal));
 			if (m_step_dependence && m_blend)
 				pos			= fmod(m_blend->timeCurrent,m_blend->timeTotal)/m_blend->timeTotal;
 		}
+		
 		m_blend				= skeleton_animated->PlayCycle( animation(), TRUE, callback, m_object );
 
-		if (m_step_dependence && continue_interrupted_animation) {
+		if (m_step_dependence && continue_interrupted_animation)
+		{
 			if (m_object->animation().standing()) 
 				pos			= 0.5f;
 

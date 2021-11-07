@@ -8,14 +8,15 @@ using namespace jsonxx;
 
 struct TeamPlayer
 {
-	ClientID Client;
+	ClientID Client = -1;
 	u16 GameID = -1;
 };
 
 struct Team
 {
 	TeamPlayer players[4];
-	u32 leader = -1;
+	u32 ClientLeader = -1;
+	u16 LeaderGameID = -1;
 	u16 cur_players = 0;
 };
 
@@ -32,8 +33,7 @@ class game_sv_freemp : public game_sv_mp, private pure_relcase
 {
 	typedef game_sv_mp inherited;
 	SpawnSect spawned_items;
-	xr_map<u32, shared_str>	Map_Upgrades_Saved;
-
+ 
 public:
 	xr_map<u16, Team> teamPlayers;
 	
@@ -90,6 +90,8 @@ public:
 	virtual void LoadParamsDeffaultFMP();
 
 	void OnPlayerUIContacts(NET_Packet& P, ClientID const& clientID);
-	void game_sv_freemp::OnPlayerUIContactsRecvest(NET_Packet& P, ClientID const& clientID);
-	void game_sv_freemp::OnPlayerUIContactsRecvestUpdate(ClientID Client, u32 leader);
+	void OnPlayerUIContactsRecvest(NET_Packet& P, ClientID const& clientID);
+	void OnPlayerUIContactsRecvestUpdate(ClientID Client, u32 leader);
+
+	void OnPlayerUIContactsRemoveUser(ClientID Client, u16 GameID, u16 Leader);
 };

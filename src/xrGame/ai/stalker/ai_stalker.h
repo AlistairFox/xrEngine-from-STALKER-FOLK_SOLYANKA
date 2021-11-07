@@ -248,6 +248,33 @@ public:
 	u16				u_last_head_motion_idx;
 	u16				u_last_script_motion_idx;
 
+	bool TorsoAnimPlay = true;
+	bool LegsAnimPlay  = true;
+	bool HeadAnimPlay  = true;
+	bool ScriptAnimPlay = true;
+
+	CBlend* m_current_legs_blend;
+	CBlend* m_current_torso_blend;
+	CBlend* m_current_head_blend;
+	CBlend* m_current_script_blend;
+
+	MotionID	m_current_legs;
+	MotionID	m_current_torso;
+	MotionID	m_current_head;
+	MotionID    m_current_script;
+
+	u32 time_Torso;
+	u32 time_Legs;
+	u32 time_Head;
+	u32 time_Script;
+
+
+	bool last_looped_script = false;
+	bool last_looped_legs = false;
+	bool last_looped_torso = false;
+	bool last_looped_head = false;
+
+
 	//save/load server serialization
 	virtual void						save								(NET_Packet &output_packet);
 	virtual void						load								(IReader &input_packet);
@@ -350,7 +377,8 @@ private:
 											u16 u_torso_motion_idx, u8 u_torso_motion_slot,
 											u16 u_legs_motion_idx, u8 u_legs_motion_slot,
 											u16 u_head_motion_idx, u8 u_head_motion_slot,
-											u16 u_script_motion_idx, u8 u_script_motion_slot
+											u16 u_script_motion_idx, u8 u_script_motion_slot,
+											float u_time_torso, float u_time_legs, float u_time_head, float u_time_script
 										);
 
 

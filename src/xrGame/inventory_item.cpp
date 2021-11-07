@@ -291,10 +291,12 @@ void CInventoryItem::OnEvent (NET_Packet& P, u16 type)
 			u32 count = _GetItemCount(upgrades_id.c_str(), ',');
 			for (int i = 0; i != count; i++)
 			{
+
 				string64 upgrede;
 				_GetItem(upgrades_id.c_str(), i,upgrede, ',');
-
-				this->install_upgrade(upgrede);
+				Msg("Install Update id[%d] upgrade [%s] ", this->object_id(), upgrede);
+				//install_upgrade(upgrede);
+				Game().inventory_upgrade_manager().upgrade_install(*this, upgrede, true);
 			}
 		}break;
 	}

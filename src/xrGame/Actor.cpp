@@ -1791,7 +1791,7 @@ void CActor::RenderText				(LPCSTR Text, Fvector dpos, float* pdup, u32 color)
 	Device.mFullTransform.transform(v0r,v0);
 	Device.mFullTransform.transform(v1r,v1);
 	float size = v1r.distance_to(v0r);
-	CGameFont* pFont = UI().Font().pFontGraffiti22Russian;
+	CGameFont* pFont = UI().Font().pFontArial14;
 	if (!pFont) return;
 //	float OldFontSize = pFont->GetHeight	();	
 	float delta_up = 0.0f;
@@ -1809,14 +1809,18 @@ void CActor::RenderText				(LPCSTR Text, Fvector dpos, float* pdup, u32 color)
 	if (v_res.z < 0 || v_res.w < 0)	return;
 	if (v_res.x < -1.f || v_res.x > 1.f || v_res.y<-1.f || v_res.y>1.f) return;
 
-	float x = (1.f + v_res.x)/2.f * (Device.dwWidth);
-	float y = (1.f - v_res.y)/2.f * (Device.dwHeight);
+	float cx = (1.f + v_res.x) / 2.f * (Device.dwWidth);
+	float cy = (1.f - v_res.y) / 2.f * (Device.dwHeight);
+
+	float di_size = RenderVal / powf(v_res.w, RenderVal2);
 
 	pFont->SetAligment	(CGameFont::alCenter);
 	pFont->SetColor		(color);
 //	pFont->SetHeight	(NewFontSize);
-//	pFont->SetHeight	(0.2);
-	pFont->Out			(x,y,Text);
+// 	pFont->SetHeight    (di_size * 18);
+	pFont->Out			(cx, cy,Text);
+
+
 	//-------------------------------------------------
 //	pFont->SetHeight(OldFontSize);
 	*pdup = delta_up;
@@ -1848,6 +1852,7 @@ void CActor::ForceTransform(const Fmatrix& m)
 }
 
 ENGINE_API extern float		psHUD_FOV;
+
 float CActor::Radius()const
 { 
 	float R		= inherited::Radius();

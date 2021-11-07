@@ -83,7 +83,8 @@ u32 CLevelGraph::vertex		(u32 current_node_id, const Fvector& position) const
 
 	u32						id;
 
-	if (valid_vertex_position(position)) {
+	if (valid_vertex_position(position)) 
+	{
 		// so, our position is inside the level graph bounding box
 		if (valid_vertex_id(current_node_id) && inside(vertex(current_node_id),position)) {
 			// so, our node corresponds to the position
@@ -103,7 +104,8 @@ u32 CLevelGraph::vertex		(u32 current_node_id, const Fvector& position) const
 				{
 					CVertex const 	&vertex = *this->vertex(current_node_id);
 					for (u32 i=0; i<4; ++i) {
-						if (vertex.link(i) == _vertex_id) {
+						if (vertex.link(i) == _vertex_id) 
+						{
 #ifndef AI_COMPILER
 							Device.Statistic->AI_Node.End();
 #endif // AI_COMPILER

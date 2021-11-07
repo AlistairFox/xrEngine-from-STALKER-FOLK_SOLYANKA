@@ -228,7 +228,7 @@ void CRenderDevice::PreCache	(u32 amount, bool b_draw_loadscreen, bool b_wait_us
 }
 
 
-int g_svDedicateServerUpdateReate = 100;
+extern int g_svDedicateServerUpdateReate = 100;
 
 ENGINE_API xr_list<LOADING_EVENT>			g_loading_events;
 
@@ -301,7 +301,8 @@ void CRenderDevice::on_idle		()
 		if (Begin())				{
 
 			seqRender.Process						(rp_Render);
-			if (psDeviceFlags.test(rsCameraPos) || psDeviceFlags.test(rsStatistic) || Statistic->errors.size())	
+			if (psDeviceFlags.test(rsCameraPos) || psDeviceFlags.test(rsStatistic)
+				|| Statistic->errors.size() || psDeviceFlags.test(rsProfiler))	
 				Statistic->Show						();
 			//	TEST!!!
 			//Statistic->RenderTOTAL_Real.End			();
@@ -314,6 +315,8 @@ void CRenderDevice::on_idle		()
 	Statistic->RenderTOTAL.accum	= Statistic->RenderTOTAL_Real.accum;
 #endif // #ifndef DEDICATED_SERVER
 
+	if (g_dedicated_server)
+		g_pGamePersistent->Statistics(nullptr);
 
 
 	if (Device.fTimeDelta > EPS_S) {

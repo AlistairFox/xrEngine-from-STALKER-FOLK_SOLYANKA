@@ -10,6 +10,9 @@
 #include "../xrEngine/xr_object.h"
 #include "../xrEngine/IGame_Persistent.h"
 
+//IWriter* writerCFGs;
+CInifile* fileIni;
+
 void CLevel::cl_Process_Spawn(NET_Packet& P)
 {
 	// Begin analysis
@@ -35,17 +38,60 @@ void CLevel::cl_Process_Spawn(NET_Packet& P)
 //-------------------------------------------------
 	//force object to be local for server client
 
+  /*
+	if (!writerCFGs)
+	{	
+		string_path file_path;
+		if (FS.path_exist("$dump_mp_spawn_ini$"))
+			FS.update_path(file_path, "$dump_mp_spawn_ini$", "sections.ltx");
+
+		writerCFGs = FS.w_open(file_path);
+	}
+  */
+	
+	string_path file_path;
+	if (FS.path_exist("$dump_mp_spawn_ini$"))
+		FS.update_path(file_path, "$dump_mp_spawn_ini$", "sections.ltx");
+
+	if (!fileIni)
+	{
+		fileIni = xr_new<CInifile>(file_path, false, false);
+	}
+
+	if (fileIni)
+	{  
+		//Msg("write to file %s", writerCFGs->fName.c_str());
+		for (auto sec : E->spawn_ini().sections())
+		{
+			for (auto line : sec->Data)
+			{
+				if (!xr_strcmp(line.first, "cfg"))
+				{
+					fileIni->w_string(E->s_name.c_str(), E->name_replace(), line.second.c_str());
+				}
+			}
+		}
+	}
+
+	if (fileIni)
+		fileIni->save_as(file_path);
+
+/*
 	string_path file_path;
 	if (FS.path_exist("$dump_mp_spawn_ini$"))
 		FS.update_path(file_path, "$dump_mp_spawn_ini$", E->name_replace());
-
-	//IWriter* save = FS.w_open(file_path);
-	if (OnClient())
-	if (E->spawn_ini().section_count() > 0)
-		E->spawn_ini().save_as(file_path);
-
-	//FS.w_close(save);
-
+ 
+	for (auto sec : E->spawn_ini().sections())
+	{
+		for (auto line : sec->Data)
+		{
+			if (!xr_strcmp(line.first, "cfg"))
+			{
+  				E->spawn_ini().save_as(file_path);
+ 			}
+		}
+	}
+*/
 	if (OnServer())		
 	{
 		E->s_flags.set(M_SPAWN_OBJECT_LOCAL, TRUE);
@@ -54,11 +100,12 @@ void CLevel::cl_Process_Spawn(NET_Packet& P)
 	/*
 	game_spawn_queue.push_back(E);
 	if (g_bDebugEvents)		ProcessGameSpawns();
-	/*/
+	*/
+
 	g_sv_Spawn					(E);
 
 	F_entity_Destroy			(E);
-	//*/
+
 };
 
 void CLevel::g_cl_Spawn		(LPCSTR name, u8 rp, u16 flags, Fvector pos)

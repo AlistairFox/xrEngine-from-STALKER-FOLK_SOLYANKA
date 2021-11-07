@@ -2232,6 +2232,14 @@ void CSE_ALifeHumanStalker::UPDATE_Read		(NET_Packet &tNetPacket)
 
 		set_health(stalker_state.u_health);
 		o_model = stalker_state.u_body_yaw;
+	
+		if (stalker_state.fv_position.x == 0 &&
+			stalker_state.fv_position.y == 0 &&
+			stalker_state.fv_position.z == 0)
+		{
+		}
+		else 
+			o_Position = stalker_state.fv_position;
 	}
 }
 
@@ -2249,7 +2257,7 @@ BOOL CSE_ALifeHumanStalker::Net_Relevant()
 	}
 	else
 	{
-		return g_Alive();
+		return g_Alive() || s_flags.test(M_SPAWN_UPDATE);
 	}
 }
 
@@ -2332,7 +2340,8 @@ void CSE_ALifeOnlineOfflineGroup::STATE_Read				(NET_Packet &tNetPacket, u16 siz
 
 #if 1
 	u32							container_size = tNetPacket.r_u32();
-	for (u32 i=0; i<container_size; ++i) {
+	for (u32 i=0; i<container_size; ++i) 
+	{
 		MEMBERS::value_type		pair;
 		load_data				(pair.first,tNetPacket);
 		pair.second				= 0;

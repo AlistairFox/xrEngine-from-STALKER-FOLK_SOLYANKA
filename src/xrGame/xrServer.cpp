@@ -1404,9 +1404,10 @@ extern	BOOL	g_bCollectStatisticData;
 //xr_token game_types[];
 LPCSTR GameTypeToString(EGameIDs gt, bool bShort);
 
-u32 stalkers;
-u32 oldTimeGlobal;
-
+//u32 stalkers;
+//u32 stalkersALive;
+//u32 oldTimeConsole;
+ 
 void xrServer::GetServerInfo( CServerInfo* si )
 {
 	string32  tmp;
@@ -1428,7 +1429,8 @@ void xrServer::GetServerInfo( CServerInfo* si )
 		xr_strcat( tmp256, itoa( g_sv_dm_dwFragLimit, tmp, 10 ) );
 		xr_strcat( tmp256, "] " );
 	}
-	else if ( game->Type() == eGameIDArtefactHunt || game->Type() == eGameIDCaptureTheArtefact )
+	else 
+	if ( game->Type() == eGameIDArtefactHunt || game->Type() == eGameIDCaptureTheArtefact )
 	{
 		xr_strcat( tmp256, " [" );
 		xr_strcat( tmp256, itoa( g_sv_ah_dwArtefactsNum, tmp, 10 ) );
@@ -1477,33 +1479,86 @@ void xrServer::GetServerInfo( CServerInfo* si )
 		string32 FPS_str = {0};
 		string32 tmp_fps = { 0 };
 
-		if (Device.dwTimeDelta != 0)
-			xr_strcat(FPS_str, ltoa(1000 / Device.dwTimeDelta, tmp_fps, 10));
-  
-
-		si->AddItem("fps", FPS_str, RGB(255, 0, 0));
-	}
-
-	if (Device.dwTimeGlobal - oldTimeGlobal > 1000)
-	{
-		stalkers = 0;
-		for (xrS_entities::iterator iter =entities.begin(); iter != entities.end(); iter++)
-		{
-			CSE_Abstract* abs = (*iter).second;
-			if (smart_cast<CSE_ALifeHumanStalker*>(abs))
-			{
-				stalkers += 1;
-			} 
-		}
-		oldTimeGlobal = Device.dwTimeGlobal;
-	}
-
-	string32 stalk = { 0 };
-	string32 tmp_st = {0};
-	xr_strcat(stalk, ltoa(stalkers, tmp, 10));
-
-	si->AddItem("NPC", stalk, RGB(255, 0, 0));
  
+		xr_strcat(FPS_str, ltoa(Device.Statistic->fFPS, tmp_fps, 10));
+		if (Device.Statistic->fFPS > 60)
+			si->AddItem("Server FPS", FPS_str, RGB(0, 255, 0));
+		else 
+			si->AddItem("Server FPS", FPS_str, RGB(255, 0, 0));
+	}
+
+	u32 stalkers = 0;
+	u32 stalkersAlive = 0;
+	u32 mosters = 0;
+	u32 mostersAlive = 0;
+	u32 items = 0;
+	u32 arts = 0;
+ 
+	for (xrS_entities::iterator iter = entities.begin(); iter != entities.end(); iter++)
+	{
+		CSE_Abstract* abs = (*iter).second;
+		CSE_ALifeHumanStalker* stalker = smart_cast<CSE_ALifeHumanStalker*>(abs);
+		CSE_ALifeMonsterBase* monster = smart_cast<CSE_ALifeMonsterBase*>(abs);
+		CSE_ALifeItem* item = smart_cast<CSE_ALifeItem*>(abs);
+		CSE_ALifeItemArtefact* artefact = smart_cast<CSE_ALifeItemArtefact*>(abs);
+
+
+		if (stalker)
+		{
+			if (stalker->g_Alive())
+				stalkersAlive += 1;
+
+			stalkers += 1;
+		}
+
+		if (monster)
+		{
+			if (monster->g_Alive())
+				mostersAlive += 1;
+
+			mosters += 1;
+		}
+
+		if (item)
+		{
+			items += 1;
+		}
+
+		if (artefact)
+		{
+			arts += 1;
+		}
+
+
+
+	}
+
+	string32 stalker = { 0 };
+	
+ 	xr_strcat(stalker, itoa(stalkers, tmp, 10));
+	xr_strcat(stalker, "/");
+	xr_strcat(stalker, itoa(stalkersAlive, tmp, 10));
+
+	si->AddItem("stalkers", stalker, RGB(0, 255, 0));
+
+	string64 monster_str = {0};
+	xr_strcat(monster_str, itoa(mosters, tmp, 10));
+	xr_strcat(monster_str, "/");
+	xr_strcat(monster_str, itoa(mostersAlive, tmp, 10));
+
+	si->AddItem("monster", monster_str, RGB(0, 255, 0));
+
+	string32 items_str = { 0 };
+	xr_strcat(items_str, itoa(items, tmp, 10));
+	si->AddItem("items", items_str, RGB(0, 128, 0));
+
+	string32 artefacts = { 0 };
+	xr_strcat(artefacts, itoa(arts, tmp, 10));
+	si->AddItem("artefacts", artefacts, RGB(0, 128, 0));
+
+	si->AddItem("ClientObjects", itoa(Level().Objects.o_count(), tmp, 10), RGB(255,0,0));
+	si->AddItem("ServerObjects", itoa(entities.size(), tmp, 10), RGB(255, 0, 0));
+
 	/*
 	if ( g_sv_dm_dwTimeLimit > 0 )
 	{

@@ -14,20 +14,12 @@
 struct lua_State;
 class CScriptThread;
 
-#ifndef MASTER_GOLD
+#	define PRINT_CALL_STACK
 #	define USE_DEBUGGER
-#	define USE_LUA_STUDIO
-#endif // #ifndef MASTER_GOLD
+//#	define USE_LUA_STUDIO
+ 
 
-#ifdef XRGAME_EXPORTS
-//#	ifndef MASTER_GOLD
-#		define PRINT_CALL_STACK
-//#	endif // #ifndef MASTER_GOLD
-#else // #ifdef XRGAME_EXPORTS
-#	ifndef NDEBUG
-#		define PRINT_CALL_STACK
-#	endif // #ifndef NDEBUG
-#endif // #ifdef XRGAME_EXPORTS
+ 
 
 using namespace ScriptStorage;
 
@@ -56,6 +48,7 @@ protected:
 public:
 #ifdef PRINT_CALL_STACK
 			void				print_stack					();
+			static void				static_print_stack(lua_State *state);
 #endif // #ifdef PRINT_CALL_STACK
 
 public:

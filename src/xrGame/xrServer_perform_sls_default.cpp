@@ -23,6 +23,8 @@ void xrServer::SLS_Default	()
 #endif
 
 	string_path				fn_spawn;
+
+	if (game->Type() != eGameIDFreeMp && game->Type() != eGameIDRolePlay)
 	if (FS.exist(fn_spawn, "$level$", "level.spawn")) {
 		IReader*			SP		= FS.r_open(fn_spawn);
 		NET_Packet			P;
@@ -62,6 +64,9 @@ void xrServer::SLS_Default	()
 	_actor->o_Position		= Fvector().set(0.f,0.f,0.f);
 	_actor->set_name_replace("designer");
 	_actor->s_flags.flags	|= M_SPAWN_OBJECT_ASPLAYER;
+
+	Msg("Actor SLS SPAWN");
+
 	NET_Packet				packet;
 	packet.w_begin			(M_SPAWN);
 	_actor->Spawn_Write		(packet,TRUE);

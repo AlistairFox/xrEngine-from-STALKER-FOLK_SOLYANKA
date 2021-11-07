@@ -71,20 +71,18 @@ void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 
 	u64				GameEnvironmentTime;
 	P.r_u64(GameEnvironmentTime);
+	
 	float			EnvironmentTimeFactor;
 	P.r_float(EnvironmentTimeFactor);
 
 	float wfx_time;
 	P.r_float(wfx_time);
 
- 
 	shared_str name;
 	P.r_stringZ(name);
 	 
-
 	u8 need_update;
 	P.r_u8(need_update);
-
 
 	Level().SetEnvironmentGameTimeFactor(GameEnvironmentTime, EnvironmentTimeFactor);
 
@@ -94,13 +92,25 @@ void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 
 		if (!(wfx_time > 1))
 		{
+
 			if (old_time_env != EnvironmentTimeFactor || need_update == 1 || just_Connected)
 			{
 				GamePersistent().Environment().Invalidate();
 				GamePersistent().Environment().SetGameTime(GameEnvironmentTime, EnvironmentTimeFactor);
 				old_time_env = EnvironmentTimeFactor;
 				need_wait_update_name = true;
+				just_Connected = false;
 				dwTimeStart = Device.dwTimeGlobal;
+				/*
+				Msg("Invalidate [%s], wfx[%.2f], [%.0f]/[%.0f], update[%s]/connected[%s]", 
+					name.c_str(),
+					wfx_time , 
+					EnvironmentTimeFactor,
+					old_time_env,
+					need_update ? "true" : "false",
+					just_Connected ? "true" : "false"
+				);
+				*/
 			}
 		}
 
@@ -121,13 +131,14 @@ void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 					GamePersistent().Environment().SetWeather(name, false);
 				}
 			}
+
+
 		}
 		else
 		{
 			if (Device.dwTimeGlobal - dwTimeStart > 1000)
 			{
 				need_wait_update_name = false;
-				
 				
 				if (xr_strcmp(GamePersistent().Environment().CurrentWeatherName, name))
 				{
@@ -136,12 +147,11 @@ void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 						GamePersistent().Environment().SetWeather(name, false);
 
 					Msg("Weather [%s]", name.c_str());
-				}
+				}	
+
+				dwTimeStart = Device.dwTimeGlobal;
 			}
 		}
-
-
-		
 		old_time_game = GameTime;
 	}
 }

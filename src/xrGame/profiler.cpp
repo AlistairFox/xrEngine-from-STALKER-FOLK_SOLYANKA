@@ -175,7 +175,7 @@ void CProfiler::show_stats			(CGameFont *game_font, bool show)
 #endif // PROFILE_CRITICAL_SECTIONS
 
 	m_section.Enter				();
-
+  
 	if (!m_portions.empty()) {
 		std::sort				(m_portions.begin(),m_portions.end(),CProfilePortionPredicate());
 		u64						timer_time = 0;
@@ -228,28 +228,52 @@ void CProfiler::show_stats			(CGameFont *game_font, bool show)
 			(*I).second.m_time	*= .99f;
 
 		float					average = (*I).second.m_count ? (*I).second.m_total_time/float((*I).second.m_count) : 0.f;
-		if (average >= (*I).second.m_time)
-			game_font->SetColor	(color_xrgb(127,127,127));
-		else
-			game_font->SetColor	(color_xrgb(255,255,255));
+		
+		if (!g_dedicated_server)
+		{
+			if (average >= (*I).second.m_time)
+				game_font->SetColor(color_xrgb(127, 127, 127));
+			else
+				game_font->SetColor(color_xrgb(255, 255, 255));
 
-		game_font->OutNext		(
-//			"%s.. %8.3f %8.3f %8.3f %8.3f %8.3f %8d %12.3f",
-			"%s%c%c %8.3f %8.3f %8.3f %6.1f %8d %12.3f",
-			*(*I).second.m_name,
-			white_character,
-			white_character,
-			(*I).second.m_time,
-			average,
-			(*I).second.m_max_time,
-			float((*I).second.m_call_count)/m_call_count,//float((*I).second.m_count),
-//			(*I).second.m_min_time,
-			(*I).second.m_call_count,
-			(*I).second.m_total_time
-		);
+
+			game_font->OutNext(
+				//			"%s.. %8.3f %8.3f %8.3f %8.3f %8.3f %8d %12.3f",
+				"%s%c%c %8.3f %8.3f %8.3f %6.1f %8d %12.3f",
+				*(*I).second.m_name,
+				white_character,
+				white_character,
+				(*I).second.m_time,
+				average,
+				(*I).second.m_max_time,
+				float((*I).second.m_call_count) / m_call_count,//float((*I).second.m_count),
+	//			(*I).second.m_min_time,
+				(*I).second.m_call_count,
+				(*I).second.m_total_time
+			);
+		}
+		else
+		{
+			Msg(
+				//			"%s.. %8.3f %8.3f %8.3f %8.3f %8.3f %8d %12.3f",
+				"%s%c%c %8.3f %8.3f %8.3f %6.1f %8d %12.3f",
+				*(*I).second.m_name,
+				white_character,
+				white_character,
+				(*I).second.m_time,
+				average,
+				(*I).second.m_max_time,
+				float((*I).second.m_call_count) / m_call_count,
+				//float((*I).second.m_count),
+				//(*I).second.m_min_time,
+				(*I).second.m_call_count,
+				(*I).second.m_total_time
+			);
+		}
 	}
 
-	game_font->SetColor			(color_xrgb(255,255,255));
+	if (!g_dedicated_server)
+		game_font->SetColor			(color_xrgb(255,255,255));
 }
 
 void CProfiler::add_profile_portion	(const CProfileResultPortion &profile_portion)

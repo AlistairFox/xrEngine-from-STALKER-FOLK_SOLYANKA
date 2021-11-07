@@ -260,8 +260,48 @@ void game_sv_freemp::OnPlayerReady(ClientID id_who)
 // player disconnect
 void game_sv_freemp::OnPlayerDisconnect(ClientID id_who, LPSTR Name, u16 GameID)
 {
-	inherited::OnPlayerDisconnect(id_who, Name, GameID);
+	inherited::OnPlayerDisconnect(id_who, Name, GameID);		  
+
+	for (auto table : teamPlayers)
+	{
+		for (auto pl : table.second.players)
+		{
+			if (pl.GameID == GameID)
+			{
+				pl.GameID = -1;
+				pl.Client = -1;
+
+				table.second.cur_players -= 1;
+			}
+			
+			OnPlayerUIContactsRecvestUpdate(pl.Client, GameID);
+			
+		}
+	}
 }
+
+struct real_sender
+{
+	xrServer* server_for_send;
+	NET_Packet* P;
+	u32	flags_to_send;
+
+	real_sender(xrServer* server, NET_Packet* Packet, u32 flags = DPNSEND_GUARANTEED)
+	{
+		server_for_send = server;
+		P = Packet;
+		flags_to_send = flags;
+	}
+	void operator()(IClient* client)
+	{
+		xrClientData* tmp_client = static_cast<xrClientData*>(client);
+		game_PlayerState* ps = tmp_client->ps;
+		if (!ps || !tmp_client->net_Ready)
+			return;
+
+		server_for_send->SendTo(client->ID, *P, flags_to_send);
+	}
+};
 
 void game_sv_freemp::OnPlayerKillPlayer(game_PlayerState * ps_killer, game_PlayerState * ps_killed, KILL_TYPE KillType, SPECIAL_KILL_TYPE SpecialKillType, CSE_Abstract * pWeaponA)
 {
@@ -310,8 +350,7 @@ void game_sv_freemp::OnEvent(NET_Packet &P, u16 type, u32 time, ClientID sender)
 
 		case GAME_EVENT_PLAYER_NAME_ACCAUNT:
 		{
-			//Msg("GAME_EVENT_PLAYER_NAME_ACCAUNT");
-			shared_str nick;
+ 			shared_str nick;
 			P.r_stringZ(nick);
 			u32 team;
 			P.r_u32(team);
@@ -319,9 +358,26 @@ void game_sv_freemp::OnEvent(NET_Packet &P, u16 type, u32 time, ClientID sender)
 			xrClientData* data = server().ID_to_client(sender);
 
 			if (data && data->ps)
-			{
+			{			
+				LPCSTR old_name = data->name.c_str();
+				data->name = nick.c_str();
 				data->ps->m_account.set_player_name(nick.c_str());
 				set_account_nickname(data->ps->m_account.name_login().c_str(), data->ps->m_account.password().c_str(), nick.c_str(), team);
+		
+				NET_Packet			P;
+				GenerateGameMessage(P);
+				P.w_u32(GAME_EVENT_PLAYER_NAME);
+				P.w_u16(data->owner->ID);
+				P.w_s16(data->ps->team);
+				P.w_stringZ(old_name);
+				P.w_stringZ(data->ps->getName());
+				//---------------------------------------------------
+				real_sender tmp_functor(m_server, &P);
+				m_server->ForEachClientDoSender(tmp_functor);
+				//---------------------------------------------------
+				data->owner->set_name_replace(data->name.c_str());
+
+				signal_Syncronize();
 			}
 			
 			
@@ -364,50 +420,11 @@ void game_sv_freemp::Update()
 			}
 		}
 	}		
-
-	if (Device.dwFrame % 60 == 0)
-	{	
-		//Msg("Upgrades Finded");
-		if (!Map_Upgrades_Saved.empty())
-		for (auto map : Map_Upgrades_Saved)
-		{
-			shared_str upgredes = map.second;
-			u16 id = map.first;
-			CObject* obj_id = Level().Objects.net_Find(id);
-
-			if (obj_id)
-			{
-				Msg("Upgrades [%d]", id);
-				Msg("Upgrades_str [%s]", upgredes.c_str());
- 				NET_Packet packet;
-				u_EventGen(packet, GE_INSTALL_SAVE_UPGRADES, id);
-				packet.w_stringZ(upgredes);
-				u_EventSend(packet);
-
-				CInventoryItem* item = smart_cast<CInventoryItem*>(obj_id);
-				u32 count = _GetItemCount(upgredes.c_str(), ',');
-			
-				for (int i = 0; i != count; i++) 
-				{
-					string64 upgr;
-					_GetItem(upgredes.c_str(), i, upgr, ',');
-
-					item->install_upgrade(upgr);
-				}
-				
-				
-				Map_Upgrades_Saved.erase(id);
-			}
-
-		}
-
-
-		
-	}
-
-	if (false)
+  
+ 	if (false)
 	if (Device.dwTimeGlobal - oldTime_saveServer > 1000 * 60)
 	{
+ 
 		if (ai().get_alife())
 		{
 			string_path	S;
@@ -420,8 +437,26 @@ void game_sv_freemp::Update()
 			Level().Send(net_packet, net_flags(TRUE));
 
 		}
+		
 		oldTime_saveServer = Device.dwTimeGlobal;
 	}
+
+	if (Device.dwTimeGlobal % 500 == 0)
+	{
+ 
+		for (auto players : teamPlayers)
+		{
+			for (auto player : players.second.players)
+			{
+				if (player.GameID != -1) 
+				{
+					OnPlayerUIContactsRecvestUpdate(player.Client, players.second.LeaderGameID);
+					Msg("Recvest Send %d / Leader %d", player.GameID, players.second.LeaderGameID);
+				}
+			}
+		}
+	}
+
 
 	if (Device.dwTimeGlobal - oldTimeInventoryBoxSave > 2000 && loaded_inventory)
 	{

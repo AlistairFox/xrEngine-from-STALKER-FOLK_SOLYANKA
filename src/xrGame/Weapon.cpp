@@ -1898,12 +1898,13 @@ void CWeapon::render_item_ui()
 
 bool CWeapon::unlimited_ammo() 
 { 
-	if (IsGameTypeSingle())
+	if (H_Parent() && !smart_cast<CActor*>(H_Parent()))
 	{
 		if(m_pInventory)
 		{
 			return inventory_owner().unlimited_ammo() && m_DefaultCartridge.m_flags.test(CCartridge::cfCanBeUnlimited);
-		}else
+		}
+		else
 			return false;
 	}
 

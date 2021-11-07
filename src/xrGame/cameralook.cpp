@@ -38,6 +38,7 @@ void CCameraLook::Update(Fvector& point, Fvector& /**noise_dangle/**/)
 		parent->XFORM().transform_dir(vDirection);
 		parent->XFORM().transform_dir(vNormal);
 	}
+
 	UpdateDistance		(point);
 }
 
@@ -94,6 +95,8 @@ int cam_dik = DIK_LALT;
 Fvector CCameraLook2::m_cam_offset;
 Fvector CCameraLook2::m_cam_offset_rs;
 
+extern float camerapos_x = 0; 
+
 void CCameraLook2::OnActivate( CCameraBase* old_cam )
 {
 	CCameraLook::OnActivate( old_cam );
@@ -102,25 +105,30 @@ void CCameraLook2::OnActivate( CCameraBase* old_cam )
 extern int right_cam = 0;
 
 void CCameraLook2::Update(Fvector& point, Fvector& noise_dangle)
-{
-	 
+{ 
 	Fvector _off;
+	Fmatrix mR;
 
 	if (right_cam)
 		_off = m_cam_offset_rs;
 	else
 		_off = m_cam_offset;
 	
+	if (camerapos_x != 0)
+	{
+		_off.x = camerapos_x;
+	}
 	    
-	Fmatrix mR;
+	vPosition.set(point);
 	mR.setHPB						(-yaw,-pitch,-roll);
-
 	vDirection.set					(mR.k);
 	vNormal.set						(mR.j);
 
 	Fmatrix							a_xform;
 	a_xform.setXYZ					(0, -yaw, 0);
 	a_xform.translate_over			(point);
+ 
+	
 
 	CActor* actor = smart_cast<CActor*>(Level().CurrentControlEntity());
 
@@ -128,17 +136,23 @@ void CCameraLook2::Update(Fvector& point, Fvector& noise_dangle)
 	{
 		dist = 2;
 		Fvector3 offset; 
-		offset.set(0.0f, -0.3f, 0.0f);
+		offset.set(0.0f, 0.0f, 0.0f);
 
 		a_xform.transform_tiny(offset);
 		UpdateDistance(offset);
 	}
 	else
 	{
-		dist = 1.4f;
-		a_xform.transform_tiny			(_off);
+		dist = 1.2f;
+		a_xform.transform_tiny(_off);
 		UpdateDistance(_off);
+  
+		//Msg("CAM yaw[%f]/pitch[%f]/rool[%f]", yaw, pitch,roll);
+		
+	
 	}
+
+
 }
    
 void CCameraLook2::Load(LPCSTR section)

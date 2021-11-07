@@ -12,10 +12,8 @@
 
 IC	CProfilePortion::CProfilePortion	(LPCSTR timer_id)
 {
-	if (g_dedicated_server)
-		return;
-
-	if (!psDeviceFlags.test(rsDebug))
+	 
+	if (!psDeviceFlags.test(rsProfiler))
 		return;
 
 	m_timer_id							= timer_id;
@@ -24,10 +22,8 @@ IC	CProfilePortion::CProfilePortion	(LPCSTR timer_id)
 
 IC	CProfilePortion::~CProfilePortion	()
 {
-	if (g_dedicated_server)
-		return;
-
-	if (!psDeviceFlags.test(rsDebug))
+	 
+	if (!psDeviceFlags.test(rsProfiler))
 		return;
 
 	u64									temp = CPU::QPC();

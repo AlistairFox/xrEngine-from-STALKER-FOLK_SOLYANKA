@@ -417,31 +417,69 @@ void CScriptStorage::print_stack		()
 	if (!PRINT_STACK)
 		return;	
 
+	Msg("Print Stack:");
+
 	m_stack_is_ready		= false;
-  
+ 
 	lua_State				*L = lua();
 	lua_Debug				l_tDebugInfo;
 	
- 
 	for (int i=0; lua_getstack(L,i,&l_tDebugInfo); ++i ) 
 	{
 		lua_getinfo			(L,"nSlu",&l_tDebugInfo);
 		
 		if (!l_tDebugInfo.name)
-			script_log(ScriptStorage::eLuaMessageTypeError,"%2d : [%s] %s(%d) : %s",i,l_tDebugInfo.what,l_tDebugInfo.short_src,l_tDebugInfo.currentline,"");
+		{
+			Msg("!l_tDebugInfo.name");
+			script_log(ScriptStorage::eLuaMessageTypeError, "%2d : [%s] %s(%d) : %s", i, l_tDebugInfo.what, l_tDebugInfo.short_src, l_tDebugInfo.currentline, "");
+		}
 		else
 			if (!xr_strcmp(l_tDebugInfo.what, "C"))
 			{
+				Msg("C");
 				script_log(ScriptStorage::eLuaMessageTypeError, "%2d : [C  ] %s", i, l_tDebugInfo.name);
 			}
 			else
+			{
+				Msg("l_tDebugInfo full print");
 				script_log(ScriptStorage::eLuaMessageTypeError, "%2d : [%s] %s(%d) : %s", i, l_tDebugInfo.what, l_tDebugInfo.short_src, l_tDebugInfo.currentline, l_tDebugInfo.name);
-
-		 
-
-		 
-				
+			}
 	}
+
+	Msg("//  End Print Stack ");
+}
+void CScriptStorage::static_print_stack(lua_State *state)
+{
+
+	Msg("PrintStack Static :");
+
+	lua_State* L = state;
+	lua_Debug				l_tDebugInfo;
+
+	for (int i = 0; lua_getstack(L, i, &l_tDebugInfo); ++i)
+	{
+		lua_getinfo(L, "nSlu", &l_tDebugInfo);
+
+		if (!l_tDebugInfo.name)
+		{
+			Msg("!l_tDebugInfo.name");
+			script_log(ScriptStorage::eLuaMessageTypeError, "%2d : [%s] %s(%d) : %s", i, l_tDebugInfo.what, l_tDebugInfo.short_src, l_tDebugInfo.currentline, "");
+		}
+		else
+			if (!xr_strcmp(l_tDebugInfo.what, "C"))
+			{
+				Msg("C");
+				script_log(ScriptStorage::eLuaMessageTypeError, "%2d : [C  ] %s", i, l_tDebugInfo.name);
+			}
+			else
+			{
+				Msg("l_tDebugInfo full print");
+				script_log(ScriptStorage::eLuaMessageTypeError, "%2d : [%s] %s(%d) : %s", i, l_tDebugInfo.what, l_tDebugInfo.short_src, l_tDebugInfo.currentline, l_tDebugInfo.name);
+			}
+	}
+
+
+	Msg("// End PrintStack Static");
 }
 #endif // #ifdef PRINT_CALL_STACK
 
@@ -776,6 +814,8 @@ bool CScriptStorage::print_output(lua_State *L, LPCSTR caScriptFileName, int iEr
 	
 	Msg("See call_stack for details!");
 
+	//static_print_stack(L);
+
 	raii_guard			guard(iErorCode, S);
 
 	if (!lua_isstring(L,-1))		
@@ -795,7 +835,8 @@ bool CScriptStorage::print_output(lua_State *L, LPCSTR caScriptFileName, int iEr
 		#	endif // #ifndef USE_LUA_STUDIO
 		#endif // #ifdef USE_DEBUGGER
 	}
-	else {
+	else
+	{
 		if (!iErorCode)
 			script_log	(ScriptStorage::eLuaMessageTypeInfo,"Output from %s",caScriptFileName);
 

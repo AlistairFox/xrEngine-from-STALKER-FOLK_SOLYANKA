@@ -1161,8 +1161,6 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 		m_current_torso=M_torso;
 	}
 
-	if (MpAnimationMode())
-		return;
 
 	if(m_current_head!=M_head)
 	{

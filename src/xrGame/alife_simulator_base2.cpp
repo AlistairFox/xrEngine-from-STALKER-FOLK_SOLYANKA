@@ -35,8 +35,11 @@ void CALifeSimulatorBase::register_object	(CSE_ALifeDynamicObject *object, bool 
 
 	setup_simulator						(object);
 	
+	Msg("register_object : [%s], id [%d], time[%d]", object->name(), object->ID, Device.dwTimeGlobal);
+
 	CSE_ALifeInventoryItem				*item = smart_cast<CSE_ALifeInventoryItem*>(object);
-	if (item && item->attached()) {
+	if (item && item->attached()) 
+	{
 		CSE_ALifeDynamicObject			*II = objects().object(item->base()->ID_Parent);
 
 #ifdef DEBUG

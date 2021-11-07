@@ -280,8 +280,10 @@ void CALifeUpdateManager::new_game			(LPCSTR save_name)
 
 	for (; I != E; ++I)
 	{
-		if (psDeviceFlags.test(rsDebug))
+		if (psDeviceFlags.test(rsLogAlifeNames))
 			Msg("Name[%s]", (*I).second->name_replace());
+
+
 		(*I).second->on_register();
 	}
 #ifdef DEBUG

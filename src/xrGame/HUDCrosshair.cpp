@@ -104,15 +104,42 @@ void CHUDCrosshair::OnRenderFirstBulletDispertion()
 	UIRender->FlushPrimitive				();
 }
 #endif
+#include "../xrEngine/CameraBase.h"
+#include "Actor.h"
+#include "Inventory.h"
+#include "HUDManager.h"
+#include "Weapon.h"
 
 extern ENGINE_API BOOL g_bRendering; 
+
 void CHUDCrosshair::OnRender ()
 {
 	VERIFY			(g_bRendering);
-	Fvector2		center;
-	Fvector2		scr_size;
+	Fvector2		center, scr_size;
 	scr_size.set	(float(::Render->getTarget()->get_width()), float(::Render->getTarget()->get_height()));
+
 	center.set		(scr_size.x/2.0f, scr_size.y/2.0f);
+
+	CWeapon* weapon = smart_cast<CWeapon*>(Actor()->inventory().ActiveItem());
+	//CCameraBase* pCam = Actor()->cam_Active();
+	//float dist = HUD().GetCurrentRayQuery().range * 1.2f;
+
+	Fvector			result;
+	Fvector4		v_res;
+	float			x, y;
+
+	if (weapon)
+	{
+		result = weapon->get_LastFP();
+		//result.add(Fvector(Device.vCameraPosition).mul(dist));  
+	}
+	//result.x -= camerapos_x;
+
+	Device.mFullTransform.transform(v_res, result);
+	x = (1.f + v_res.x) / 2.f * (Device.dwWidth);
+	y = (1.f - v_res.y) / 2.f * (Device.dwHeight);
+
+	//center.set(x, y);
 
 	UIRender->StartPrimitive		(10, IUIRender::ptLineList, UI().m_currentPointType);
 	

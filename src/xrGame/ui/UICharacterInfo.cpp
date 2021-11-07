@@ -303,6 +303,7 @@ void CUICharacterInfo::InitCharacterMP(CInventoryOwner* invOwner, ClientID clID)
 {
 	InitCharacterMP(invOwner);
 	m_clientID = clID.value();
+	m_ownerID = invOwner->object_id();
 }
 
 void  CUICharacterInfo::SetRelation( ALife::ERelationType relation, CHARACTER_GOODWILL goodwill )

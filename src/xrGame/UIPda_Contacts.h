@@ -49,6 +49,7 @@ public:
 
 	CUIPropertiesBox* property_box;
 
+
 	//functions
 
 
@@ -65,6 +66,7 @@ public:
 
 	//void методы
 	void xr_stdcall		property_box_clicked(CUIWindow* w, void* d);
+
 	void xr_stdcall     button_yes(CUIWindow* w, void* d);
 	void xr_stdcall     button_no(CUIWindow* w, void* d);
 

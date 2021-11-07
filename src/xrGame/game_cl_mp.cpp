@@ -1012,6 +1012,7 @@ void	game_cl_mp::OnPlayerChangeName		(NET_Packet& P)
 	CObject* pObj = Level().Objects.net_Find(ObjID);
 	if (pObj)
 	{
+		Msg("Set name %s", NewName);
 		pObj->cName_set(NewName);
 	}
 

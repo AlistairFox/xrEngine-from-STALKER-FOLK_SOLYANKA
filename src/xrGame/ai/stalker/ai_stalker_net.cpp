@@ -26,12 +26,13 @@ extern int g_cl_InterpolationType;
 void CAI_Stalker::net_Save(NET_Packet& P)
 {
 	inherited::net_Save(P);
+
 	m_pPhysics_support->in_NetSave(P);
 }
 
 BOOL CAI_Stalker::net_SaveRelevant()
 {
-	return (inherited::net_SaveRelevant() || BOOL(PPhysicsShell() != NULL));
+	return (inherited::net_SaveRelevant() /* || BOOL(PPhysicsShell() != NULL) */);
 }
 
 void CAI_Stalker::net_Export(NET_Packet& P)
@@ -110,12 +111,11 @@ void CAI_Stalker::net_Export(NET_Packet& P)
 		//Position
 		CPHSynchronize* sync = PHGetSyncItem(0);
 		state.fill_position(sync);
-		state.fv_position = Position();
-
+ 
 		//Animation //HP //ActiveSlot
 		state.fill_state(torso_idx, legs_idx, head_idx, script_idx,
 					     torso_slot, legs_slot, head_slot, script_slot,
-						 health, u_active_slot
+						 health, u_active_slot, Position()
 		);
 
 
@@ -123,6 +123,13 @@ void CAI_Stalker::net_Export(NET_Packet& P)
 		//Body Rotation
 		state.u_body_yaw = movement().m_body.current.yaw;
 		state.u_head_yaw = movement().m_head.current.yaw;
+
+		if (animation().torso().blend())
+		state.u_time_torso = animation().torso().blend()->timeCurrent;
+		if (animation().head().blend())
+		state.u_time_head = animation().head().blend()->timeCurrent;
+		if (animation().legs().blend())
+		state.u_time_legs = animation().legs().blend()->timeCurrent;
 
 		state.state_write(P);
 		 
@@ -183,10 +190,8 @@ void CAI_Stalker::net_Import(NET_Packet& P)
 		
 		ai_stalker_net_state state;
 
-//		u32 pos = P.r_pos;
-		state.state_read(P);	
-//		Msg("Size [%d]", P.r_pos - pos);
-
+ 		state.state_read(P);	
+ 
 		SetfHealth(state.u_health);
 		inventory().SetActiveSlot(state.u_active_slot);
 		
@@ -216,15 +221,44 @@ void CAI_Stalker::net_Import(NET_Packet& P)
 		
 		// Pavel: create structure for animation?
 		
-		ApplyAnimation(
-			state.old_torso_idx, state.old_torso_slot,
-			state.old_legs_idx, state.old_legs_slot,
-			state.old_head_idx, state.old_head_slot,
-			state.old_script_idx, state.old_script_slot
-		);
+
+		//	Msg("Import[%d] [%.0f][%.0f][%.0f]", this->ID(), state.fv_position.x, state.fv_position.y, state.fv_position.z);
+ 
+		if (Level().CurrentControlEntity())
+		{		  
+			float dist_120 = 120 * 120;
+
+			float dist = Level().CurrentControlEntity()->Position().distance_to_sqr(this->Position());
+
+			if (dist < dist_120)
+			{
+				//Msg("Distance %f", dist);
+				setVisible(TRUE);
+				setEnabled(TRUE);
+			}
+			else
+			{
+				setVisible(FALSE);
+				setEnabled(FALSE);
+			}
+		}
+	
+		if (this->getVisible())
+		if (g_Alive())
+		{
+			ApplyAnimation(
+				state.old_torso_idx, state.old_torso_slot,
+				state.old_legs_idx, state.old_legs_slot,
+				state.old_head_idx, state.old_head_slot,
+				state.old_script_idx, state.old_script_slot,
+				state.u_time_torso, state.u_time_legs, state.u_time_head, state.u_time_script
+			);
+
+			//Msg("StateTime torso[%.3f] legs[%.3f] head[%.3f] script[%.3f]", state.u_time_torso, state.u_time_legs, state.u_time_head, state.u_time_script);
+		}
+
 		
-		setVisible(TRUE);
-		setEnabled(TRUE);
+		
 	}
 }
 
@@ -264,7 +298,6 @@ void CAI_Stalker::postprocess_packet(stalker_interpolation::net_update_A &N_A)
 	CrPr_SetActivated(false);
 	CrPr_SetActivationStep(0);
 }
-
 
 void CAI_Stalker::PH_B_CrPr()
 {
@@ -375,81 +408,159 @@ void CAI_Stalker::PH_A_CrPr()
 	CalculateInterpolationParams();
 }
 
+void TorsoAnimPlayed(CBlend* blend)
+{
+	CAI_Stalker* stalker = (CAI_Stalker*)blend->CallbackParam;
+
+	if (stalker)
+		stalker->TorsoAnimPlay = true;
+}
+
+void HeadAnimPlayed(CBlend* blend)
+{
+	CAI_Stalker* stalker = (CAI_Stalker*)blend->CallbackParam;
+
+	if (stalker)
+		stalker->HeadAnimPlay = true;
+}
+
+void LegsAnimPlayed(CBlend* blend)
+{
+	CAI_Stalker* stalker = (CAI_Stalker*)blend->CallbackParam;
+
+	if (stalker)
+		stalker->LegsAnimPlay = true;
+}
+
+void ScriptAnimPlayed(CBlend* blend)
+{
+	CAI_Stalker* stalker = (CAI_Stalker*)blend->CallbackParam;
+
+	if (stalker)
+		stalker->ScriptAnimPlay = true;
+}
+
 void CAI_Stalker::ApplyAnimation(
 	u16 u_torso_motion_idx, u8 u_torso_motion_slot,
 	u16 u_legs_motion_idx, u8 u_legs_motion_slot,
 	u16 u_head_motion_idx, u8 u_head_motion_slot,
-	u16 u_script_motion_idx, u8 u_script_motion_slot
+	u16 u_script_motion_idx, u8 u_script_motion_slot,
+	float u_time_torso, float u_time_legs, float u_time_head, float u_time_script
 )
 {
 	MotionID motion;
 	IKinematicsAnimated* ik_anim_obj = smart_cast<IKinematicsAnimated*>(Visual());
-	
-	if (u_last_torso_motion_idx != u_torso_motion_idx)
-	{
-		u_last_torso_motion_idx = u_torso_motion_idx;
-		motion.idx = u_torso_motion_idx;
-		motion.slot = u_torso_motion_slot;
-		if (motion.valid())
-		{
-			ik_anim_obj->LL_PlayCycle(ik_anim_obj->LL_PartID("torso"), motion, TRUE,
-				ik_anim_obj->LL_GetMotionDef(motion)->Accrue(), ik_anim_obj->LL_GetMotionDef(motion)->Falloff(),
-				ik_anim_obj->LL_GetMotionDef(motion)->Speed(), FALSE, 0, 0, 0);
-		}
-	}
 
-	if (u_last_legs_motion_idx != u_legs_motion_idx)
-	{
-		u_last_legs_motion_idx = u_legs_motion_idx;
-		motion.idx = u_legs_motion_idx;
-		motion.slot = u_legs_motion_slot;
-		if (motion.valid())
-		{
-			CStepManager::on_animation_start(motion, ik_anim_obj->LL_PlayCycle(ik_anim_obj->LL_PartID("legs"), motion,
-			TRUE, ik_anim_obj->LL_GetMotionDef(motion)->Accrue(), ik_anim_obj->LL_GetMotionDef(motion)->Falloff(),
-			ik_anim_obj->LL_GetMotionDef(motion)->Speed(), FALSE, 0, 0, 0));
-		}
-	}
+	if (!ik_anim_obj->dcast_RenderVisual())
+		return;
 
-	if (u_last_head_motion_idx != u_head_motion_idx)
-	{
-		u_last_head_motion_idx = u_head_motion_idx;
-		motion.idx = u_head_motion_idx;
-		motion.slot = u_head_motion_slot;
-		if (motion.valid())
-		{
-			ik_anim_obj->LL_PlayCycle(ik_anim_obj->LL_PartID("head"), motion, TRUE,
-				ik_anim_obj->LL_GetMotionDef(motion)->Accrue(), ik_anim_obj->LL_GetMotionDef(motion)->Falloff(),
-				ik_anim_obj->LL_GetMotionDef(motion)->Speed(), FALSE, 0, 0, 0);
-		}
-	}
+//	Msg("torso[%d] legs[%d] // head[%d] script[%d]", u_torso_motion_idx, u_legs_motion_idx, u_head_motion_idx, u_script_motion_idx);
 
-	if (u_last_script_motion_idx != u_script_motion_idx)
+
+	if ((u_last_script_motion_idx != u_script_motion_idx) || ScriptAnimPlay)
 	{
 		motion.idx = u_script_motion_idx;
 		motion.slot = u_script_motion_slot;
 
+		u_last_script_motion_idx = u_script_motion_idx;
+	
+		if (motion.valid())
+		{
+			CMotionDef* def = ik_anim_obj->LL_GetMotionDef(motion);
+
+			if (def->StopAtEnd())
+				m_current_script_blend = ik_anim_obj->PlayCycle(motion, TRUE, ScriptAnimPlayed, this, 0);
+			else 
+				m_current_script_blend = ik_anim_obj->PlayCycle(motion, TRUE, 0, 0, 0);
+
+			ScriptAnimPlay = false;
+		
+		}
+	}
+
+	if ((u_last_head_motion_idx != u_head_motion_idx) || HeadAnimPlay)
+	{
+		u_last_head_motion_idx = u_head_motion_idx;
+		motion.idx = u_head_motion_idx;
+		motion.slot = u_head_motion_slot;
+
+		if (motion.valid())
+		{
+			CMotionDef* def = ik_anim_obj->LL_GetMotionDef(motion);
+			if (def->StopAtEnd())
+				m_current_head_blend = ik_anim_obj->PlayCycle(motion, TRUE, HeadAnimPlayed, this, 0);
+			else
+				m_current_head_blend = ik_anim_obj->PlayCycle(motion, TRUE, 0, 0, 0);
+
+			HeadAnimPlay = false;
+		}
+	}
+	
+	if ((u_last_torso_motion_idx != u_torso_motion_idx || TorsoAnimPlay )) 
+	{
+		u_last_torso_motion_idx = u_torso_motion_idx;
+		motion.idx = u_torso_motion_idx;
+		motion.slot = u_torso_motion_slot;
 		
 		if (motion.valid())
 		{
-			CBlend* script = ik_anim_obj->LL_PlayCycle(
-				ik_anim_obj->LL_GetMotionDef(motion)->bone_or_part, motion, TRUE,
-				ik_anim_obj->LL_GetMotionDef(motion)->Accrue(), ik_anim_obj->LL_GetMotionDef(motion)->Falloff(),
-				ik_anim_obj->LL_GetMotionDef(motion)->Speed(), ik_anim_obj->LL_GetMotionDef(motion)->StopAtEnd(), 0, 0, 0); 
+			CMotionDef* def = ik_anim_obj->LL_GetMotionDef(motion);
+			if (def->StopAtEnd())
+				m_current_torso_blend = ik_anim_obj->PlayCycle(motion, TRUE, TorsoAnimPlayed, this, 0);
+			else 
+				m_current_torso_blend = ik_anim_obj->PlayCycle(motion, TRUE, 0, 0, 0);
 
-			if (script)
-			{
-				u_last_script_motion_idx = u_script_motion_idx;
-
-				//blend_script_start_time = Device.dwTimeGlobal;
-				//blend_script_end_time = blend_script_start_time + (script->timeTotal * 1000);
-		
- 				// Msg("Blend [%s] [%d] > [%d] ", script->stop_at_end ? "true" : "false", blend_script_end_time, Device.dwTimeGlobal);
-			} 
-			 
-
+			TorsoAnimPlay = false;
 		}
 	}
+
+	if ((u_last_legs_motion_idx != u_legs_motion_idx ) || LegsAnimPlay)
+	{
+		u_last_legs_motion_idx = u_legs_motion_idx;
+		motion.idx = u_legs_motion_idx;
+		motion.slot = u_legs_motion_slot;
+		
+		if (motion.valid())
+		{
+			CMotionDef* def = ik_anim_obj->LL_GetMotionDef(motion);
+			
+			if (def->StopAtEnd())
+			{
+				m_current_legs_blend = ik_anim_obj->PlayCycle(motion, TRUE, LegsAnimPlayed, this, 0);
+			}
+			else
+			{
+				m_current_legs_blend = ik_anim_obj->PlayCycle(motion, TRUE, 0, 0, 0);
+				
+			}
+			
+			LegsAnimPlay = false;
+			CStepManager::on_animation_start(motion, m_current_legs_blend);
+		}
+	}
+ 
+
+	if (false)
+	if (this->g_Alive())
+	{
+		if (m_current_script_blend && !ScriptAnimPlay)
+			if (u_time_script > 0)
+				m_current_script_blend->timeCurrent = u_time_script;
+		
+		if (m_current_head_blend && !HeadAnimPlay)
+			if (u_time_head > 0)
+				m_current_head_blend->timeCurrent = u_time_head;
+
+		if (m_current_legs_blend && !LegsAnimPlay)
+			if (u_time_legs > 0)
+				m_current_legs_blend->timeCurrent = u_time_legs;
+		
+		if (m_current_torso_blend && !TorsoAnimPlay)
+			if (u_time_torso > 0)
+				m_current_torso_blend->timeCurrent = u_time_torso;
+
+	}
+
 }
 
 void CAI_Stalker::CalculateInterpolationParams()

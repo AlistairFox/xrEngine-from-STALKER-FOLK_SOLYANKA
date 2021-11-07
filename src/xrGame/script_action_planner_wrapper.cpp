@@ -31,7 +31,15 @@ void CScriptActionPlannerWrapper::update		()
 		set_use_log							(!!psAI_Flags.test(aiGOAPScript));
 #endif
 
-	luabind::call_member<void>				(this,"update");
+	try 
+	{
+		luabind::call_member<void>(this, "update");
+	}
+	catch(...)
+	{
+		Msg("[CScriptActionPlannerWrapper] [Error] ActionPlannerWrapper [%s], Action [%d]", this->object().Name(), this->m_current_action_id);
+	}
+	
 }
 
 void CScriptActionPlannerWrapper::update_static	(CScriptActionPlanner *planner)

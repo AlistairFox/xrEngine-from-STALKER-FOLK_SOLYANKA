@@ -25,18 +25,20 @@ IWriter* filelog = nullptr;
 #include <sstream>
 void FlushLog			()
 {
-	if (!no_log){
+	if (false)
+	if (!no_log)
+	{
 		logCS.Enter			();
 		
-        if (filelog) {
-			/*
-			for (u32 it=0; it<LogFile->size(); it++)	{
-				LPCSTR		s	= *((*LogFile)[it]);
-				filelog->w_string	(s?s:"");
-			}
-			*/
-			filelog->flush();
-        }
+        if (filelog) 
+		{
+			FS.w_close(filelog);
+			xr_free(filelog);
+			filelog = FS.w_open(logFName);
+		}
+
+		if (LogFile)
+			LogFile->clear_and_free();
 
 		logCS.Leave			();
     }
@@ -45,7 +47,7 @@ void FlushLog			()
 void AddOne				(const char *split) 
 {
 	if(!LogFile)		
-						return;
+		return;
 
 	logCS.Enter			();
 
@@ -53,22 +55,18 @@ void AddOne				(const char *split)
 //	OutputDebugString	("\n");
 
 
-//	DUMP_PHASE;
-	{
-		shared_str			temp = shared_str(split);
-//		DUMP_PHASE;
-		LogFile->push_back	(temp);
-	}
+ 	//MemUSAGE
+ 	LogFile->push_back	(split);
 
 	//exec CallBack
 	if (LogExecCB&&LogCB)
 		LogCB(split);
 
 	if (filelog)
+	{
 		filelog->w_string(split);
-
- 
-
+		filelog->flush();
+	}
 	 
 
 	logCS.Leave				();
@@ -79,12 +77,14 @@ void Log				(const char *s)
 	int		i,j;
 
 	u32			length = xr_strlen( s );
+
 #ifndef _EDITOR    
 	PSTR split  = (PSTR)_alloca( (length + 1) * sizeof(char) );
 #else
 	PSTR split  = (PSTR)alloca( (length + 1) * sizeof(char) );
 #endif
-	for (i=0,j=0; s[i]!=0; i++) {
+	for (i=0,j=0; s[i]!=0; i++) 
+	{
 		if (s[i]=='\n') {
 			split[j]=0;	// end of line
 			if (split[0]==0) { split[0]=' '; split[1]=0; }
@@ -96,8 +96,7 @@ void Log				(const char *s)
 	}
 	split[j]=0;
 	AddOne(split);
-
-	FlushLog();
+//	xr_delete(split);
 }
 
 void __cdecl Msg		( const char *format, ...)
@@ -107,11 +106,14 @@ void __cdecl Msg		( const char *format, ...)
 	va_start	(mark, format );
 	int sz		= _vsnprintf(buf, sizeof(buf)-1, format, mark ); buf[sizeof(buf)-1]=0;
     va_end		(mark);
-	if (sz)		Log(buf);
+	if (sz)		
+		Log(buf);
+
 }
 
 void Log				(const char *msg, const char *dop) {
-	if (!dop) {
+	if (!dop) 
+	{
 		Log		(msg);
 		return;
 	}

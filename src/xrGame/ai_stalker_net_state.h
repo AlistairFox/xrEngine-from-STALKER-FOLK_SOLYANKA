@@ -29,6 +29,12 @@ struct ai_stalker_net_state
 
 		float u_body_yaw;
 		float u_head_yaw;
+
+		float u_time_torso;
+		float u_time_head;
+		float u_time_legs;
+
+		float u_time_script;
 		
 		ai_stalker_net_state();
 
@@ -38,7 +44,7 @@ struct ai_stalker_net_state
 		void	fill_state(
 			u16 torso_idx, u16 legs_idx, u16 head_idx, u16 script_idx,
 			u8 torso_slot, u8 legs_slot, u8 head_slot, u8 script_slot,
-			float healtch, u16 active_slot
+			float healtch, u16 active_slot, Fvector3 position
 		);
 
 		void	state_write(NET_Packet& packet);

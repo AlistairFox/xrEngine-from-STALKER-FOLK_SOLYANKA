@@ -61,13 +61,15 @@ IC	_object_type &CPlanner::object		() const
 	VERIFY					(m_object);
 	return					(*m_object);
 }
-
+#include "profiler.h"
 TEMPLATE_SPECIALIZATION
 void CPlanner::update				()
 {
+	START_PROFILE("stalker/sPlaner/solve")
 	m_solving				= true;
 	solve					();
 	m_solving				= false;
+	STOP_PROFILE
 
 #ifdef LOG_ACTION
 	// printing solution
@@ -99,6 +101,8 @@ void CPlanner::update				()
 
 	THROW							(!solution().empty());
 
+	START_PROFILE("stalker/sPlaner/current_action")
+
 	if (initialized()) {
 		if (current_action_id() != solution().front()) {
 			current_action().finalize	();
@@ -112,7 +116,11 @@ void CPlanner::update				()
 		current_action().initialize	();
 	}
 
+
+
 	current_action().execute	();
+
+	STOP_PROFILE
 }
 
 TEMPLATE_SPECIALIZATION

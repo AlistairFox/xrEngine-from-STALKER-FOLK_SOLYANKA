@@ -80,27 +80,14 @@ bool game_sv_freemp::LoadPlayer(game_PlayerState* id_who)
 					if (slots_tab.has<String>("upgrades"))
 					{
 						LPCSTR upgredes = slots_tab.get<String>("upgrades").c_str();
-						Map_Upgrades_Saved[ent->ID] = upgredes;
-
-						/*
-						 
-						u32 count = _GetItemCount(upgredes);
-						
-						
-						for (int i = 0; i != count; i++) 
+						int counts = _GetItemCount(upgredes);
+						for (int i = 0; i != counts; i++)
 						{
-							
-							 string64 name;
-
-							_GetItem(upgredes, i, name, ',');
-							Msg("Updagede [%s]", name);
-
-							shared_str name_str;
-							name_str._set(name);
-							item->add_upgrade(name_str);
-						} 
-						*/
-
+							string256 upgrede;
+							_GetItem(upgredes, i, upgrede, ',');
+							 
+							item->add_upgrade(upgrede);
+						}	
 					}
 
 					if (slots_tab.has<Number>("condition"))
@@ -129,6 +116,7 @@ bool game_sv_freemp::LoadPlayer(game_PlayerState* id_who)
 					 
 
 					spawn_end(ent, server().GetServerClient()->ID);
+    
 				}
 			}
 		}

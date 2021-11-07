@@ -161,7 +161,9 @@ bool CStalkerAnimationManager::play_global					()
 {
 	bool					animation_movement_controller = false;
 	const MotionID			&global_animation = assign_global_animation(animation_movement_controller);
-	if (!global_animation) {
+	
+	if (!global_animation)
+	{
 		clear_unsafe_callbacks	();
 		global().reset		();
 		return				(false);

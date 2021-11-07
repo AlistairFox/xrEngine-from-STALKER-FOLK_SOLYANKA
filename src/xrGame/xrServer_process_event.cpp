@@ -469,6 +469,16 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 		{
 			freemp->OnPlayerUIContacts(P, sender);
 		}
+		else if (type == 2)
+		{
+			ClientID id;
+			P.r_clientID(id);
+			u16 GameID;
+			P.r_u16(GameID);
+			u16 LeaderID;
+			P.r_u16(LeaderID);
+			freemp->OnPlayerUIContactsRemoveUser(id, GameID, LeaderID);
+		}
 	}break;
 
 

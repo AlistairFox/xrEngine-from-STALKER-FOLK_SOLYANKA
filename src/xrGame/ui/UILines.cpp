@@ -65,10 +65,12 @@ void CUILines::SetUseNewLineMode(bool mode){
 }
 
 
-void CUILines::SetText(const char* text){
-	
+void CUILines::SetText(const char* text)
+{
 	if (!m_pFont)
-        m_pFont = UI().Font().pFontLetterica16Russian;
+	{
+		m_pFont = UI().Font().pFontLetterica16Russian;
+	}
 
 	if (text && text[0] != 0)
 	{

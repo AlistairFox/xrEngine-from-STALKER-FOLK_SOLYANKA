@@ -69,10 +69,10 @@ CGamePersistent::CGamePersistent(void)
 	m_pMainMenu					= NULL;
 	m_intro						= NULL;
 	m_intro_event.bind			(this, &CGamePersistent::start_logo_intro);
-#ifdef DEBUG
+
 	m_frame_counter				= 0;
 	m_last_stats_frame			= u32(-2);
-#endif
+
 	// 
 	//dSetAllocHandler			(ode_alloc		);
 	//dSetReallocHandler			(ode_realloc	);
@@ -558,9 +558,9 @@ void CGamePersistent::OnFrame	()
 	if(0==Device.dwFrame%200)
 		CUITextureMaster::FreeCachedShaders();
 
-#ifdef DEBUG
+ 
 	++m_frame_counter;
-#endif
+ 
 	if (!g_dedicated_server && !m_intro_event.empty())	m_intro_event();
 	
 	if(!g_dedicated_server && Device.dwPrecacheFrame==0 && !m_intro && m_intro_event.empty())
@@ -749,12 +749,8 @@ void CGamePersistent::OnEvent(EVENT E, u64 P1, u64 P2, u64 P3)
 
 void CGamePersistent::Statistics	(CGameFont* F)
 {
- 
-#	ifndef _EDITOR
-		m_last_stats_frame		= m_frame_counter;
-		profiler().show_stats	(F,!!psDeviceFlags.test(rsDebug));
-#	endif
- 
+	m_last_stats_frame		= m_frame_counter;
+	profiler().show_stats	(F, psDeviceFlags.test(rsProfiler)); 
 }
 
 float CGamePersistent::MtlTransparent(u32 mtl_idx)

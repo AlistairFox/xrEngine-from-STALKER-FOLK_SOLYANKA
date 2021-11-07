@@ -488,6 +488,7 @@ void CKinematicsAnimated::LL_UpdateTracks( float dt, bool b_force, bool leave_bl
 	
 	LL_UpdateFxTracks(dt);
 }
+
 void	CKinematicsAnimated::LL_UpdateFxTracks( float dt )
 {
 		// FX
@@ -532,6 +533,7 @@ void	CKinematicsAnimated::LL_UpdateFxTracks( float dt )
 		}
 	}
 }
+
 void CKinematicsAnimated::UpdateTracks	()
 {
 	_DBG_SINGLE_USE_MARKER;
@@ -572,6 +574,7 @@ CKinematicsAnimated::~CKinematicsAnimated	()
 {
 	IBoneInstances_Destroy	();
 }
+
 CKinematicsAnimated::CKinematicsAnimated(): 
 	CKinematics(), 
 	IKinematicsAnimated(),
@@ -626,14 +629,17 @@ void CKinematicsAnimated::Spawn	()
 	channels.init();
 
 }
+
 void CKinematicsAnimated::ChannelFactorsStartup()
 {
 	channels.init();
 }
+
 void	CKinematicsAnimated::LL_SetChannelFactor (u16	channel,float factor)
 {
 	channels.set_factor( channel, factor );
 }
+
 void CKinematicsAnimated::IBlend_Startup	()
 {
 	_DBG_SINGLE_USE_MARKER;
@@ -671,6 +677,7 @@ CBlend*	CKinematicsAnimated::IBlend_Create	()
 	FATAL("Too many blended motions requisted");
 	return 0;
 }
+
 void CKinematicsAnimated::Load(const char* N, IReader *data, u32 dwFlags)
 {
 	inherited::Load	(N, data, dwFlags);

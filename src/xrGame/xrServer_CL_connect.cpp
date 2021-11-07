@@ -87,28 +87,15 @@ void xrServer::SendConnectionData(IClient* _CL)
 	std::string name;
 	name.append("spawns_ini.ltx");
 
-	string_path file_path;
-	if (FS.path_exist("$dump_mp_spawn_ini$"))
-		FS.update_path(file_path, "$dump_mp_spawn_ini$", name.c_str());
-	
-	IWriter* save = FS.w_open(file_path);
-
 	for (I=entities.begin(); I!=E; ++I)		
 	{
 		Perform_connect_spawn(I->second, CL, P);
- 
-		 
-		if (I->second->spawn_ini().section_count() > 0)
-			I->second->spawn_ini().save_as(*save);
-
-	//	Msg("ini_sect[%s]", name.c_str());
-
+ 		
 		index += 1;
-		Msg("[%d]: Perform connect spawn [%d]", index, P.B.count);
-	}
 
-	FS.w_close(save);
- 
+		if (psDeviceFlags.test(rsDebug))
+			Msg("[%d]: Perform connect spawn [%d]", index, P.B.count);
+	}
 
 	// Start to send server logo and rules
 	SendServerInfoToClient			(CL->ID);

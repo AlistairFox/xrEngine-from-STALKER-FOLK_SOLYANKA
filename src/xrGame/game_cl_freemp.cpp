@@ -276,11 +276,13 @@ void game_cl_freemp::TranslateGameMessage(u32 msg, NET_Packet& P)
 
 #include "UIPda_Squad.h";
 
+extern bool caps_lock = false;
+
 void game_cl_freemp::OnRender()
 {
 	Team teamPL = m_game_ui->PdaMenu().pUIContacts->squad_UI->team_players;
 
-	if (teamPL.cur_players > 0)
+		if (teamPL.cur_players > 0)
 		for (auto pl : teamPL.players)
 		{
 			if (pl.Client == 0)
@@ -299,22 +301,41 @@ void game_cl_freemp::OnRender()
 
 			float pos = 0.0f;
 
+
+			
 			//pActor->RenderText(pActor->Name(), IndicatorPositionText, &pos, color_rgba(255, 255, 0, 255));
+	
 
 
 
-			if (pl.Client.value() == teamPL.leader)
-			{
-				Fvector posH = IndicatorPosition;
-				//posH.y += pos;
-				pActor->RenderIndicatorNew(posH, Indicator_render1, Indicator_render2, IndicatorShaderFreempLeader);
-			}
-			else
+
+ 
 			{
 				Fvector posH = IndicatorPosition;
 				//posH.y += pos;
 				pActor->RenderIndicatorNew(posH, Indicator_render1, Indicator_render2, IndicatorShaderFreemp);
 			}
 
+		}
+
+
+		if (caps_lock && local_player->testFlag(GAME_PLAYER_HAS_ADMIN_RIGHTS))
+		for (auto pl : players)
+		{
+			game_PlayerState* ps = GetPlayerByGameID(pl.second->GameID);
+
+			if (!ps)
+				continue;
+
+			if (ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD)) continue;
+			if (ps == local_player) continue;
+				
+			CActor* pActor = smart_cast<CActor*>(Level().Objects.net_Find(ps->GameID));
+			if (!pActor) continue;
+			if (!pActor->cast_actor_mp()) continue;
+
+			float pos = 0.0f;
+
+			pActor->RenderText(pActor->Name(), IndicatorPositionText, &pos, color_rgba(255, 255, 0, 255));			 
 		}
 }

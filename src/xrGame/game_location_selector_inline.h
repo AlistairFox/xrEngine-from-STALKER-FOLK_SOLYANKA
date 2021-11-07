@@ -49,7 +49,9 @@ TEMPLATE_SPECIALIZATION
 IC	void CGameLocationSelector::select_location	(const _vertex_id_type start_vertex_id, _vertex_id_type &dest_vertex_id)
 {
 	switch (m_selection_type) {
-		case eSelectionTypeMask : {
+		case eSelectionTypeMask :
+		{
+			//Msg("eSelectionTypeMask");
 			if (used())
 				perform_search	(start_vertex_id);
 			else
@@ -58,7 +60,9 @@ IC	void CGameLocationSelector::select_location	(const _vertex_id_type start_vert
 		}
 		case eSelectionTypeRandomBranching : {
 			if (m_graph)
-				select_random_location(start_vertex_id,dest_vertex_id);
+				select_random_location(start_vertex_id, dest_vertex_id);
+			
+			//Msg("eSelectionTypeRandomBranching");
 			m_failed			= m_failed && (start_vertex_id == dest_vertex_id);
 			break;
 		}
@@ -100,17 +104,28 @@ IC	void CGameLocationSelector::select_random_location(const _vertex_id_type star
 
 		// * подходит по маске
 		for (I = B; I != E; ++I)
-			if (m_graph->mask((*I).tMask,curr_types))
+		{
+			if (m_graph->mask((*I).tMask, curr_types))
+			{
 				++branch_factor;
+			}
+			//Msg("Type cur[%d]/mask[%d]", curr_types, (*I).tMask);
+		}
+
+		
 	}
 
-	if (!branch_factor) {
+	if (!branch_factor)
+	{
+		//Msg("branch_factor");
 		if ((start_vertex_id != m_previous_vertex_id) && accessible(m_previous_vertex_id))
 			dest_vertex_id		= m_previous_vertex_id;
 		else
 			dest_vertex_id		= start_vertex_id;
 	}
-	else {
+	else
+	{
+		//Msg("else branch");
 		u32						choice = ::Random.randI(0,branch_factor);
 		branch_factor			= 0;
 		bool					found = false;
@@ -124,6 +139,8 @@ IC	void CGameLocationSelector::select_random_location(const _vertex_id_type star
 			if ((m_graph->vertex((*i).vertex_id())->level_id() != ai().level_graph().level_id()))
 				continue;
 
+			
+
 			// * accessible 
 			if (!accessible((*i).vertex_id()))
 				continue;
@@ -132,12 +149,13 @@ IC	void CGameLocationSelector::select_random_location(const _vertex_id_type star
 
 			// * подходит по маске
 			for (I = B; I != E; ++I)
-				if (m_graph->mask((*I).tMask,curr_types)) {
+				if (m_graph->mask((*I).tMask,curr_types))
+				{
 					if (choice != branch_factor) {
 						++branch_factor;
 						continue;
 					}
-
+					//Msg("Type %d", curr_types);
 					dest_vertex_id	= (*i).vertex_id();
 					found		= true;
 					break;

@@ -60,7 +60,8 @@ void CStalkerAnimationManager::torso_play_callback	(CBlend *blend)
 	CStalkerAnimationPair			&pair = animation.torso();
 	pair.on_animation_end			();
 
-	if (animation.m_looking_back) {
+	if (animation.m_looking_back) 
+	{
 		animation.m_change_direction_time	= Device.dwTimeGlobal + need_look_back_time_interval;
 		animation.m_looking_back	= 0;
 	}

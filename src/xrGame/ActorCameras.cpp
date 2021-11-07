@@ -35,6 +35,7 @@ void CActor::cam_Set	(EActorCameras style)
 }
 
 float CActor::f_Ladder_cam_limit=1.f;
+
 void CActor::cam_SetLadder()
 {
 	CCameraBase* C			= cameras[eacFirstEye];
@@ -179,6 +180,7 @@ void	dbg_draw_viewport( const T &cam_info, float _viewport_near )
 
 }
 #endif
+
 IC void get_box_mat( Fmatrix33	&mat, float alpha, const SRotation	&r_torso  )
 {
 	float dZ			= ((PI_DIV_2-((PI+alpha)/2)));
@@ -188,6 +190,7 @@ IC void get_box_mat( Fmatrix33	&mat, float alpha, const SRotation	&r_torso  )
 	mat.j				= xformR.j;
 	mat.k				= xformR.k;
 }
+
 IC void get_q_box( Fbox &xf,  float c, float alpha, float radius )
 {
 	Fvector src_pt,		tgt_pt;
@@ -275,6 +278,7 @@ void	CActor::cam_Lookout	( const Fmatrix &xform, float camera_height )
 			r_torso.roll = 0.f;
 		}
 }
+
 #ifdef	DEBUG
 BOOL ik_cam_shift = true;
 float ik_cam_shift_tolerance = 0.2f;
@@ -295,7 +299,9 @@ void CActor::cam_Update(float dt, float fFOV)
 	on_weapon_shot_update();
 	float y_shift =0;
 	
-	if( GamePersistent().GameType() != eGameIDSingle && ik_cam_shift && character_physics_support() && character_physics_support()->ik_controller() )
+	if( GamePersistent().GameType() != eGameIDSingle && ik_cam_shift &&
+		character_physics_support() && character_physics_support()->ik_controller() 
+	)
 	{
 		y_shift = character_physics_support()->ik_controller()->Shift();
 		float cam_smooth_k = 1.f;
@@ -335,14 +341,17 @@ void CActor::cam_Update(float dt, float fFOV)
 	float flCurrentPlayerY	= xform.c.y;
 
 	// Smooth out stair step ups
-	if ((character_physics_support()->movement()->Environment()==CPHMovementControl::peOnGround) && (flCurrentPlayerY-fPrevCamPos>0)){
+	if ((character_physics_support()->movement()->Environment()==CPHMovementControl::peOnGround) && (flCurrentPlayerY-fPrevCamPos>0))
+	{
 		fPrevCamPos			+= dt*1.5f;
 		if (fPrevCamPos > flCurrentPlayerY)
 			fPrevCamPos		= flCurrentPlayerY;
 		if (flCurrentPlayerY-fPrevCamPos>0.2f)
 			fPrevCamPos		= flCurrentPlayerY-0.2f;
 		point.y				+= fPrevCamPos-flCurrentPlayerY;
-	}else{
+	}
+	else
+	{
 		fPrevCamPos			= flCurrentPlayerY;
 	}
 
@@ -393,7 +402,8 @@ void CActor::cam_Update(float dt, float fFOV)
 	if (Level().CurrentEntity() == this)
 	{
 		Level().Cameras().UpdateFromCamera	(C);
-		if(/*eacFirstEye == cam_active &&*/ !Level().Cameras().GetCamEffector(cefDemo)){
+		if(/*eacFirstEye == cam_active &&*/ !Level().Cameras().GetCamEffector(cefDemo))
+		{
 			Cameras().ApplyDevice	(_viewport_near);
 		}
 	}
@@ -418,8 +428,10 @@ void CActor::update_camera (CCameraShotEffector* effector)
 
 	effector->ChangeHP( &(pACam->pitch), &(pACam->yaw) );
 
-	if (pACam->bClampYaw)	clamp(pACam->yaw,pACam->lim_yaw[0],pACam->lim_yaw[1]);
-	if (pACam->bClampPitch)	clamp(pACam->pitch,pACam->lim_pitch[0],pACam->lim_pitch[1]);
+	if (pACam->bClampYaw)	
+		clamp(pACam->yaw,pACam->lim_yaw[0],pACam->lim_yaw[1]);
+	if (pACam->bClampPitch)	
+		clamp(pACam->pitch,pACam->lim_pitch[0],pACam->lim_pitch[1]);
 
 	if (effector && !effector->IsActive())
 	{

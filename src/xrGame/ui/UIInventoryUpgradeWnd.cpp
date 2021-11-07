@@ -150,7 +150,7 @@ void CUIInventoryUpgradeWnd::InitInventory( CInventoryItem* item, bool can_upgra
 	
 	//MPFIX
 	if (item)
-	m_btn_repair->Enable(item->GetCondition() < 0.99f/*false*/);
+		m_btn_repair->Enable(item->GetCondition() < 0.99f/*false*/);
 	
 	if ( m_inv_item )
 	{

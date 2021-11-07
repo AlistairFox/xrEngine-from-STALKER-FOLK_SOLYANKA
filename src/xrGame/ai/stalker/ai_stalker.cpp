@@ -497,16 +497,13 @@ void CAI_Stalker::Die				(CObject* who)
 	if (!weapon)
 		return;
 
-	if (false)
+	if (OnServer())
 	{
 		TIItemContainer::iterator	I = inventory().m_all.begin();
 		TIItemContainer::iterator	E = inventory().m_all.end();
 		for ( ; I != E; ++I) {
-			if (std::find(weapon->m_ammoTypes.begin(),weapon->m_ammoTypes.end(),(*I)->object().cNameSect()) == weapon->m_ammoTypes.end())
+			if (std::find(weapon->m_ammoTypes.begin(),weapon->m_ammoTypes.end(), (*I)->object().cNameSect()) == weapon->m_ammoTypes.end())
 				continue;
-
-			//if (OnClient())
-			//	Msg("Send Destroy ammo [%d] From Client", (*I)->object().ID());
 
 			NET_Packet				packet;
 			u_EventGen				(packet,GE_DESTROY,(*I)->object().ID());
@@ -751,16 +748,20 @@ void CAI_Stalker::destroy_anim_mov_ctrl	()
 
 void CAI_Stalker::UpdateCL()
 {
+
 	START_PROFILE("stalker")
 	START_PROFILE("stalker/client_update")
 	VERIFY2						(PPhysicsShell()||getEnabled(), *cName());
 
-	if (g_Alive() && Remote() && !IsGameTypeSingle()) {
+	if (g_Alive() && Remote() && !IsGameTypeSingle())
+	{
 		make_Interpolation();
 	}
 
-	if (g_Alive()) {
-		if (g_mt_config.test(mtObjectHandler) && CObjectHandler::planner().initialized()) {
+	if (g_Alive())
+	{
+		if (g_mt_config.test(mtObjectHandler) && CObjectHandler::planner().initialized()) 
+		{
 			fastdelegate::FastDelegate0<>								f = fastdelegate::FastDelegate0<>(this,&CAI_Stalker::update_object_handler);
 #ifdef DEBUG
 			xr_vector<fastdelegate::FastDelegate0<> >::const_iterator	I;
@@ -769,7 +770,8 @@ void CAI_Stalker::UpdateCL()
 #endif
 			Device.seqParallel.push_back	(fastdelegate::FastDelegate0<>(this,&CAI_Stalker::update_object_handler));
 		}
-		else {
+		else 
+		{
 			START_PROFILE("stalker/client_update/object_handler")
 			update_object_handler			();
 			STOP_PROFILE
@@ -800,13 +802,23 @@ void CAI_Stalker::UpdateCL()
 	STOP_PROFILE
 	
 	START_PROFILE("stalker/client_update/physics")
-	m_pPhysics_support->in_UpdateCL	();
+		if (Level().CurrentControlEntity())
+		{
+			float dist_120 = 120 * 120;
+
+			float dist = Level().CurrentControlEntity()->Position().distance_to_sqr(this->Position());
+			if (dist < dist_120)
+				m_pPhysics_support->in_UpdateCL();
+
+		}
 	STOP_PROFILE
 
-	if (g_Alive()) {
+	if (g_Alive())
+	{
 		START_PROFILE("stalker/client_update/sight_manager")
 		VERIFY						(!m_pPhysicsShell);
-		try {
+		try 
+		{
 			sight().update			();
 		}
 		catch(...) {
@@ -847,6 +859,7 @@ CPHDestroyable*		CAI_Stalker::		ph_destroyable	()
 
 void CAI_Stalker::shedule_Update		( u32 DT )
 {
+
 	if (!IsGameTypeSingle() && OnClient())
 	{
 		/*
@@ -862,29 +875,22 @@ void CAI_Stalker::shedule_Update		( u32 DT )
 		inherited::shedule_Update(DT);
 		return;
 	} 
-	
-	/*
-	if (Device.dwTimeGlobal - ai_stalker_oldTime > 1000/30 && this->g_Alive())
-	{
-		OnEventAnimations(false);
-		ai_stalker_oldTime = Device.dwTimeGlobal;
-	}
-	*/
-	 
 	 
 	 
 	START_PROFILE("stalker")
 	START_PROFILE("stalker/schedule_update")
 	VERIFY2				(getEnabled()||PPhysicsShell(), *cName());
 
-	if (!CObjectHandler::planner().initialized()) {
+	if (!CObjectHandler::planner().initialized())
+	{
 		START_PROFILE("stalker/client_update/object_handler")
 		update_object_handler			();
 		STOP_PROFILE
 	}
+
 //	if (Position().distance_to(Level().CurrentEntity()->Position()) <= 50.f)
 //		Msg				("[%6d][SH][%s]",Device.dwTimeGlobal,*cName());
-	// Queue shrink
+
 	VERIFY				(_valid(Position()));
 	u32	dwTimeCL		= Level().timeServer()-NET_Latency;
 	VERIFY				(!NET.empty());
@@ -898,17 +904,20 @@ void CAI_Stalker::shedule_Update		( u32 DT )
 	if (g_Alive()) {
 		animation().play_delayed_callbacks	();
 
-#ifndef USE_SCHEDULER_IN_AGENT_MANAGER
-		agent_manager().update			();
-#endif // USE_SCHEDULER_IN_AGENT_MANAGER
+		#ifndef USE_SCHEDULER_IN_AGENT_MANAGER
+				agent_manager().update			();
+		#endif // USE_SCHEDULER_IN_AGENT_MANAGER
 
-//		bool			check = !!memory().enemy().selected();
-#if 0//def DEBUG
-		memory().visual().check_visibles();
-#endif
-		if ( false && g_mt_config.test(mtAiVision) )
+		//		bool			check = !!memory().enemy().selected();
+		
+		#if 0//def DEBUG
+				memory().visual().check_visibles();
+		#endif
+
+		if ( g_mt_config.test(mtAiVision) )
 			Device.seqParallel.push_back(fastdelegate::FastDelegate0<>(this,&CCustomMonster::Exec_Visibility));
-		else {
+		else 
+		{
 			START_PROFILE("stalker/schedule_update/vision")
 			Exec_Visibility				();
 			STOP_PROFILE
@@ -931,7 +940,8 @@ void CAI_Stalker::shedule_Update		( u32 DT )
 	inherited::inherited::shedule_Update(DT);
 	STOP_PROFILE
 	
-	if (Remote())		{
+	if (Remote())	
+	{
 	} else {
 		// here is monster AI call
 		VERIFY							(_valid(Position()));

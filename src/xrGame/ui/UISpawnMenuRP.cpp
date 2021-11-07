@@ -78,9 +78,18 @@ void CUISpawnMenuRP::SendMessage(CUIWindow *pWnd, s16 msg, void *pData)
 {
 	if (BUTTON_CLICKED == msg)
 	{
+		LPCSTR nick = m_pNickname->GetText();
+		
+		if (xr_strlen(nick) == 0)
+		{
+			Msg("Null Nick Name");
+			return;
+		}
+
 		game_cl_roleplay * game = smart_cast<game_cl_roleplay*>(&Game());
 		R_ASSERT(game);
 		u32 team;
+		
 		for (u8 i = 0; i < team_buttons_count; i++)
 		{
 			if (pWnd == m_pImages[i])
@@ -90,10 +99,6 @@ void CUISpawnMenuRP::SendMessage(CUIWindow *pWnd, s16 msg, void *pData)
 			}
 		}
 
-		LPCSTR nick = m_pNickname->GetText();
-		
-		//Msg("Nickname: %s", nick);
-
 		NET_Packet				P;
 		Game().u_EventGen(P, GE_GAME_EVENT, Game().local_player->GameID);
 		P.w_u16(GAME_EVENT_PLAYER_NAME_ACCAUNT);
@@ -102,6 +107,6 @@ void CUISpawnMenuRP::SendMessage(CUIWindow *pWnd, s16 msg, void *pData)
 		Game().u_EventSend(P);
 
 		HideDialog();
-		m_pNickname->ClearText();
+		//m_pNickname->ClearText();
 	}
 }

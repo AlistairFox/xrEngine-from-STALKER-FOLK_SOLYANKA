@@ -163,6 +163,9 @@ void CStats::Show()
 	////////////////////////////////////////////////
 	if (g_dedicated_server) return;
 	////////////////////////////////////////////////
+
+
+
 	int frm = 2000;
 	div_t ddd = div(Device.dwFrame,frm);
 	if( ddd.rem < frm/2.0f ){
@@ -187,6 +190,16 @@ void CStats::Show()
 		pFont->OnRender	();
 		pFont->SetHeight(sz);
 	};
+
+	if (psDeviceFlags.test(rsProfiler))
+	{
+		F.OutSet(0, 0);
+		F.SetHeightI(0.015);
+		g_pGamePersistent->Statistics(&F);
+		pFont->OnRender();
+		return;
+	}
+
 
 	// Show them
 	if (psDeviceFlags.test(rsStatistic))

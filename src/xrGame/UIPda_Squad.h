@@ -1,9 +1,11 @@
 #pragma once
 #include "ui/UIWindow.h"
+#include "ui/UIWndCallback.h"
 
 class CUIFrameWindow;
 class CUIStatic;
 class CUICharacterInfo;
+class CUIPropertiesBox;
 
 struct TeamPlayer
 {
@@ -14,13 +16,14 @@ struct TeamPlayer
 struct Team
 {
 	TeamPlayer players[4];
-	u16 leader = -1;
+	u32 ClientLeader = -1;
+	u16 LeaderGameID = -1;
 	u16 cur_players = 0;
 };
 
 
 
-class CUIPda_Squad : public CUIWindow
+class CUIPda_Squad : public CUIWindow, public CUIWndCallback
 {
 private:
 	typedef CUIWindow	inherited;
@@ -28,6 +31,11 @@ private:
 
 	u8 idxPlayer = 0;
 	bool initPanel = false;
+
+	ClientID selected_user;
+	u16 selected_GameID;
+
+
 
 	CUIFrameWindow* squad_wnd_team[4];
 
@@ -38,6 +46,7 @@ private:
 
 	CUICharacterInfo* character_team[4];
 
+	CUIPropertiesBox* property_box_squad;
 
 public:
 	Team team_players;
@@ -52,6 +61,12 @@ public:
 	virtual void		ResetAll();
 
 	void				EventRecive(Team player_team);
+	
+	//PropertyBox
+	virtual bool		OnMouseAction(float x, float y, EUIMessages mouse_action);
+	void xr_stdcall		property_box_squad_clicked(CUIWindow* w, void* d);
+	void				InitCallBacks();
+	void				SendMessage(CUIWindow* pWnd, s16 msg, void* pData);
 
 };
 

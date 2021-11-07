@@ -97,7 +97,7 @@ void ai_stalker_net_state::fill_position(CPHSynchronize * sync)
 void ai_stalker_net_state::fill_state(
 	u16 torso_idx, u16 legs_idx, u16 head_idx, u16 script_idx,
 	 u8 torso_slot, u8 legs_slot, u8 head_slot, u8 script_slot,
-	float health, u16 active_slot
+	float health, u16 active_slot, Fvector3 position
 )
 {
 	old_torso_idx = torso_idx;
@@ -112,6 +112,7 @@ void ai_stalker_net_state::fill_state(
 
 	u_health = health; 
 	u_active_slot = active_slot;
+	fv_position = position;
 }
 
 ai_stalker_net_state::ai_stalker_net_state()
@@ -133,6 +134,10 @@ ai_stalker_net_state::ai_stalker_net_state()
 
 	fv_position.set(0,0,0);
 	fv_linear_vel.set(0,0,0);
+
+	u_time_torso = 0;
+	u_time_head = 0;
+	u_time_legs = 0;
 
 	phSyncFlag = false;
 }
@@ -159,6 +164,12 @@ void ai_stalker_net_state::state_write(NET_Packet& packet)
 		packet.w_angle8(u_body_yaw);
 		packet.w_angle8(u_head_yaw);
 	}
+
+	packet.w_float(u_time_script);
+	packet.w_float(u_time_torso);
+	packet.w_float(u_time_legs);
+	packet.w_float(u_time_head);
+
 	//Animation
 	{
 		u32 current = 0;
@@ -213,6 +224,8 @@ void ai_stalker_net_state::state_read(NET_Packet& packet)
 		packet.r_vec3(fv_position);
 	}
 	 
+	//Msg("Import [%.0f][%.0f][%.0f]", fv_position.x, fv_position.y, fv_position.z);
+
 	//States
 	{	
 		u_health = packet.r_u8();
@@ -221,6 +234,11 @@ void ai_stalker_net_state::state_read(NET_Packet& packet)
 		packet.r_angle8(u_head_yaw); //8 bit
 
 	}
+
+	u_time_script = packet.r_float();
+	u_time_torso  = packet.r_float();
+	u_time_legs   = packet.r_float();
+	u_time_head   = packet.r_float();
 
 	//Animation
 	{
@@ -258,6 +276,7 @@ void ai_stalker_net_state::state_read(NET_Packet& packet)
 
 		if (old_script_idx == 1023)
 			old_script_idx = 65535;
+
 
 	}
 	

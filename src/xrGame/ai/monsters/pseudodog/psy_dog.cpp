@@ -48,7 +48,8 @@ void CPsyDog::Load(LPCSTR section)
 
 BOOL CPsyDog::net_Spawn(CSE_Abstract *dc)
 {
-	if (!inherited::net_Spawn(dc)) return FALSE;
+	if (!inherited::net_Spawn(dc)) 
+		return FALSE;
 
 	return TRUE;
 }
@@ -130,6 +131,8 @@ void CPsyDog::Think()
 	inherited::Think();
 	if (!g_Alive()) return;
 	
+	
+	if (false)
 	m_aura->update_schedule();
 
 	// check spawn / destroy phantoms

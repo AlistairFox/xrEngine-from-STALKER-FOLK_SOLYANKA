@@ -122,31 +122,43 @@ void CMemoryManager::update_enemies	(const bool &registered_in_combat)
 
 void CMemoryManager::update			(float time_delta)
 {
-	START_PROFILE("Memory Manager")
+START_PROFILE("Memory Manager")
 
+	START_PROFILE("Memory Manager/visual-sound-hit")
 	visual().update		(time_delta);
 	sound().update		();
-	hit().update		();
+	hit().update		();			 
+	STOP_PROFILE
 	
 	bool				registered_in_combat = false;
-	if (m_stalker)
-		registered_in_combat	= m_stalker->agent_manager().member().registered_in_combat(m_stalker);
-
-	// update enemies and items
-	enemy().reset		();
-	item().reset		();
-
-	if (visual().enabled())
-		update			(visual().objects(),true);
-
-	update				(sound().objects(),registered_in_combat ? true : false);
-	update				(hit().objects(),registered_in_combat ? true : false);
+	 
+	START_PROFILE("Memory Manager/register in combat")
+		if (m_stalker)
+			registered_in_combat	= m_stalker->agent_manager().member().registered_in_combat(m_stalker);
+	STOP_PROFILE
 	
-	update_enemies		(registered_in_combat);
-	item().update		();
-	danger().update		();
+	START_PROFILE("Memory Manager/reset ")
+		// update enemies and items
+		enemy().reset		();
+		item().reset		();
+	STOP_PROFILE
+
+
+	START_PROFILE("Memory Manager/update")
+		if (visual().enabled())
+			update			(visual().objects(),true);
+
+		update				(sound().objects(),registered_in_combat ? true : false);
+		update				(hit().objects(),registered_in_combat ? true : false);
+	
+		update_enemies		(registered_in_combat);
+		item().update		();
+		danger().update		();
 	
 	STOP_PROFILE
+	
+
+STOP_PROFILE
 }
 
 void CMemoryManager::enable			(const CObject *object, bool enable)

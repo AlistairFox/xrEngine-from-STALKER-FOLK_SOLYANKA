@@ -2611,20 +2611,25 @@ public:
 
 		ClientID client_id(0);
 		u32 tmp_client_id;
-		u32 value;
-		if (sscanf_s(buff, "%u %u", &tmp_client_id, &value) != 2)
+
+		if (sscanf_s(buff, "%u %u", &tmp_client_id) != 1)
 		{
 			Msg("! ERROR: bad command parameters.");
-			Msg("Set god mode for player. Format: \"sv_set_god_mode <player session id> <value>\"");
+			Msg("Set god mode for player. Format: \"sv_set_god_mode <player session id>\" ");
 			return;
 		}
+
 		client_id.set(tmp_client_id);
 
 		xrClientData* CL = static_cast<xrClientData*>(Level().Server->GetClientByID(client_id));
-		if (CL && CL->ps && (CL != Level().Server->GetServerClient()) && (value == 0 || value == 1))
+
+		if (CL && CL->ps && (CL != Level().Server->GetServerClient()))
 		{
-			if (value) CL->ps->setFlag(GAME_PLAYER_MP_GOD_MODE);
-			else CL->ps->resetFlag(GAME_PLAYER_MP_GOD_MODE);
+			if (CL->ps->testFlag(GAME_PLAYER_MP_GOD_MODE))
+				CL->ps->resetFlag(GAME_PLAYER_MP_GOD_MODE);
+			else 
+				CL->ps->setFlag(GAME_PLAYER_MP_GOD_MODE);
+
 			srv->signal_Syncronize();
 		}
 		else
@@ -2688,27 +2693,16 @@ public:
 
 class CCC_AdmGodMode : public IConsole_Command {
 public:
-	CCC_AdmGodMode(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
+	CCC_AdmGodMode(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
 
 	virtual void Execute(LPCSTR args)
 	{
-		u32 value = u32(-1);
-
-		if (sscanf(args, "%u", &value) == 1 && (value == 0 || value == 1))
-		{
-			NET_Packet		P;
-			P.w_begin(M_REMOTE_CONTROL_CMD);
-			string128 str;
-			xr_sprintf(str, "sv_set_god_mode %u %u", Game().local_svdpnid.value(), value);
-			P.w_stringZ(str);
-			Level().Send(P, net_flags(TRUE, TRUE));
-		}
-		else
-		{
-			Msg("! ERROR: bad command parameters.");
-			Msg("Set noclip for self. Format: \"adm_god_mode [0,1]\"");
-			return;
-		}
+		NET_Packet		P;
+		P.w_begin(M_REMOTE_CONTROL_CMD);
+		string128 str;
+		xr_sprintf(str, "sv_set_god_mode %u", Game().local_svdpnid.value());
+		P.w_stringZ(str);
+		Level().Send(P, net_flags(TRUE, TRUE)); 
 	}
 };
 
@@ -2960,7 +2954,6 @@ public:
 	}
 };
 
-
 class CCC_AdmKillStalkers : public IConsole_Command
 {
 public:
@@ -2975,14 +2968,29 @@ public:
 	}
 };
 
+class CCC_PSP : public IConsole_Command
+{
+public:
+	CCC_PSP(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
 
-
-
+	virtual void Execute(LPCSTR args)
+	{
+		if (psActorFlags.test(AF_PSP))
+		{
+			psActorFlags.set(AF_PSP, false);
+		}
+		else
+		{
+			psActorFlags.set(AF_PSP, true);
+		}
+	}
+};
 
 extern float RenderVal;
 extern float RenderVal2;
 extern int right_cam;
 extern int anim_value;
+extern float camerapos_x;
 
 extern int PRINT_STACK;
 
@@ -3007,9 +3015,11 @@ void register_mp_console_commands()
 	CMD1(CCC_ADD_Money_to_client_self, "g_money");
 	CMD1(CCC_AdmKillStalkers, "g_kill_all_stalker");
 
+	CMD4(CCC_Float, "cam_offset", &camerapos_x, -1, 1)
+
 
 	CMD4(CCC_Integer, "anim", &anim_value, 0, 32);
-
+	CMD1(CCC_PSP, "actor_psp");
 
 	CMD1(CCC_MovePlayerToRPoint,	"sv_move_player_to_rpoint");
 
@@ -3040,10 +3050,10 @@ void register_mp_console_commands()
 	CMD4(CCC_Integer, "cam2_right", &right_cam, 0, 1);
 
 	// Network
-#ifdef DEBUG
-	CMD4(CCC_Integer,	"net_cl_update_rate",	&psNET_ClientUpdate,20,		100				);
+ 
+	CMD4(CCC_Integer,	"net_cl_update_rate",	&psNET_ClientUpdate, 60,		256				);
 	CMD4(CCC_Integer,	"net_cl_pending_lim",	&psNET_ClientPending,0,		10				);
-#endif
+ 
 	CMD4(CCC_Integer,	"net_sv_update_rate",	&psNET_ServerUpdate,1,		1000			);
 	CMD4(CCC_Integer,	"net_sv_pending_lim",	&psNET_ServerPending,0,		10				);
 	CMD4(CCC_Integer,	"net_sv_gpmode",	    &psNET_GuaranteedPacketMode,0, 2)	;

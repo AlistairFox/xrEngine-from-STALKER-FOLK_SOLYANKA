@@ -60,18 +60,33 @@ float CActor::GetWeaponAccuracy() const
 }
 
 
+#include "Weapon.h"
+
 void CActor::g_fireParams	(const CHudItem* pHudItem, Fvector &fire_pos, Fvector &fire_dir)
 {
-	fire_pos		= Cameras().Position();
-	fire_dir		= Cameras().Direction();
+	//if (cam_active == eacFirstEye)
+	{
+		fire_pos = Cameras().Position();
+		fire_dir = Cameras().Direction();
+	}
 
 	const CMissile	*pMissile = smart_cast <const CMissile*> (pHudItem);
+	CWeapon* weapon = smart_cast<CWeapon*>(inventory().ActiveItem());
+
 	if (pMissile)
 	{
 		Fvector offset;
 		XFORM().transform_dir(offset, pMissile->throw_point_offset());
 		fire_pos.add(offset);
 	}
+
+	if (psActorFlags.test(AF_PSP))
+	if (weapon && cam_active != eacFirstEye)
+	{
+		fire_pos = weapon->get_LastFP();
+		//fire_dir = weapon->get_LastFD();
+	}
+
 }
 
 void CActor::g_WeaponBones	(int &L, int &R1, int &R2)
@@ -205,8 +220,10 @@ void	CActor::HitSector(CObject* who, CObject* weapon)
 		}
 	}
 
-	if (!bShowHitSector) return;	
-		Level().MapManager().AddMapLocation(ENEMY_HIT_SPOT, who->ID());
+	if (!bShowHitSector)
+		return;	
+		
+	Level().MapManager().AddMapLocation(ENEMY_HIT_SPOT, who->ID());
 }
 
 void CActor::on_weapon_shot_start		(CWeapon *weapon)
@@ -214,7 +231,8 @@ void CActor::on_weapon_shot_start		(CWeapon *weapon)
 	//CWeaponMagazined* pWM = smart_cast<CWeaponMagazined*> (weapon);
 	CameraRecoil const& camera_recoil = ( IsZoomAimingMode() )? weapon->zoom_cam_recoil : weapon->cam_recoil;
 		
-	CCameraShotEffector* effector = smart_cast<CCameraShotEffector*>( Cameras().GetCamEffector(eCEShot) );
+	CCameraShotEffector* effector = smart_cast<CCameraShotEffector*>( Cameras().GetCamEffector(eCEShot) );		  
+
 	if ( !effector )
 	{
 		effector = (CCameraShotEffector*)Cameras().AddCamEffector( xr_new<CCameraShotEffector>( camera_recoil ) );

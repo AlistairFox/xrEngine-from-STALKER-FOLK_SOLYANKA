@@ -40,20 +40,20 @@ void CAI_Stalker::OnEventAnimations(bool update)
 	script_slot = script.slot;
 
 
-	NET_Packet packet;
-	Game().u_EventGen(packet, GE_ANIMATION_SCRIPT, this->ID());
+//	NET_Packet packet;
+//	Game().u_EventGen(packet, GE_ANIMATION_SCRIPT, this->ID());
 
 //		packet.w_u16(torso_idx);
 //		packet.w_u16(legs_idx);
 //		packet.w_u16(head_idx);
-		packet.w_u16(script_idx);
+//		packet.w_u16(script_idx);
 
 //		packet.w_u8(torso_slot);
 //		packet.w_u8(legs_slot);
 //		packet.w_u8(head_slot);
-		packet.w_u8(script_slot);
+//		packet.w_u8(script_slot);
 
-	Game().u_EventSend(packet);
+//	Game().u_EventSend(packet);
 }
 
 void CAI_Stalker::OnEventAnimations(NET_Packet packet)
@@ -156,9 +156,9 @@ void CAI_Stalker::OnEventAnimations(NET_Packet packet)
 			u_last_head_motion_idx = head.idx;
 		}
 	}
-	*/
+	
 
-	if (Level().CurrentControlEntity())
+ 
 	if (script.valid())
 	{
 		
@@ -177,5 +177,5 @@ void CAI_Stalker::OnEventAnimations(NET_Packet packet)
 			u_last_script_motion_idx = script.idx;
 		
 	}
-
+	*/
 }

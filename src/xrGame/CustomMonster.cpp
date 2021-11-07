@@ -451,8 +451,10 @@ void CCustomMonster::UpdateCL	()
 	if( animation_movement() )
 				animation_movement()->DBG_verify_position_not_chaged();
 #endif
-
+	
+	START_PROFILE("CustomMonster/client_update/sound_callbacks")
 	CScriptEntity::process_sound_callbacks();
+	STOP_PROFILE
 
 	/*	//. hack just to skip 'CalculateBones'
 	if (sound().need_bone_data()) {
@@ -472,7 +474,8 @@ void CCustomMonster::UpdateCL	()
 	}
 
 	START_PROFILE("CustomMonster/client_update/network extrapolation")
-	if (NET.empty()) {
+	if (NET.empty())
+	{
 		update_animation_movement_controller	();
 		return;
 	}
@@ -482,11 +485,14 @@ void CCustomMonster::UpdateCL	()
 	// distinguish interpolation/extrapolation
 	u32	dwTime			= Level().timeServer()-NET_Latency;
 	net_update&	N		= NET.back();
-	if ((dwTime > N.dwTimeStamp) || (NET.size() < 2)) {
+	
+	if ((dwTime > N.dwTimeStamp) || (NET.size() < 2))
+	{
 		// BAD.	extrapolation
 		NET_Last		= N;
 	}
-	else {
+	else 
+	{
 		// OK.	interpolation
 		NET_WasExtrapolating		= FALSE;
 		// Search 2 keyframes for interpolation
@@ -526,7 +532,8 @@ void CCustomMonster::UpdateCL	()
 				animation_movement()->DBG_verify_position_not_chaged();
 #endif
 
-	if (Local() && g_Alive()) {
+	if (Local() && g_Alive())
+	{
 #pragma todo("Dima to All : this is FAKE, network is not supported here!")
 
 		UpdatePositionAnimation();
@@ -555,9 +562,9 @@ void CCustomMonster::UpdateCL	()
 	if (IsMyCamera())
 		UpdateCamera				();
 #endif // DEBUG
-
+	START_PROFILE("CustomMonster/client_update/update_animation_movement")
 	update_animation_movement_controller	();
-
+	STOP_PROFILE
 #ifdef DEBUG
 	if( animation_movement() )
 				animation_movement()->DBG_verify_position_not_chaged();

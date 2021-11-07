@@ -349,20 +349,27 @@ IC	typename CProblemSolverAbstract::_operator_ptr CProblemSolverAbstract::get_op
 	THROW						(m_operators.end() != I);
 	return						((*I).get_operator());
 }
-
+#include "profiler.h"
 TEMPLATE_SPECIALIZATION
 IC	void CProblemSolverAbstract::solve			()
 {
 #ifndef AI_COMPILER
+
+	START_PROFILE("stalker/solver")
 	m_solution_changed			= false;
+	
+	START_PROFILE("stalker/solver/actual")
 
 	if (actual())
 		return;
 
+	STOP_PROFILE
+
 	m_actuality					= true;
 	m_solution_changed			= true;
 	m_current_state.clear		();
-	
+
+	START_PROFILE("stalker/solver/graph")
 	m_failed					= !
 		ai().graph_engine().search(
 			*this,
@@ -375,6 +382,8 @@ IC	void CProblemSolverAbstract::solve			()
 				8000
 			)
 		);
+	STOP_PROFILE
+	STOP_PROFILE
 #endif
 }
 

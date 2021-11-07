@@ -749,6 +749,8 @@ void CCC_Register()
 
 	CMD3(CCC_Mask,		"rs_cam_pos",			&psDeviceFlags,		rsCameraPos				);
 	CMD3(CCC_Mask,		"rs_debug_lua",			&psDeviceFlags,		rsDebug);
+	CMD3(CCC_Mask,		"rs_profiler",			&psDeviceFlags,		rsProfiler);
+	CMD3(CCC_Mask,		"alife_log_names",		&psDeviceFlags,		rsLogAlifeNames);
 
 #ifdef DEBUG
 	CMD3(CCC_Mask,		"rs_occ_draw",			&psDeviceFlags,		rsOcclusionDraw			);
