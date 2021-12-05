@@ -187,14 +187,15 @@ void CTorch::Switch(bool light_on)
 
 	if (*light_trace_bone) 
 	{
-		IKinematics* pVisual				= smart_cast<IKinematics*>(Visual()); VERIFY(pVisual);
+		IKinematics* pVisual				= smart_cast<IKinematics*>(Visual()); 
+		VERIFY(pVisual);
 		u16 bi								= pVisual->LL_BoneID(light_trace_bone);
-		
-		//Msg("SetVisualTo[%s]", light_on ? "true" : "false");
-	
+				 
 		pVisual->LL_SetBoneVisible(bi, light_on, TRUE);
-		pVisual->CalculateBones				(TRUE);
+		pVisual->CalculateBones(TRUE);	 
 	}
+	 
+
 }
 bool CTorch::torch_active					() const
 {
@@ -284,8 +285,10 @@ void CTorch::UpdateCL()
 {
 	inherited::UpdateCL			();
 
-	if (!m_switched_on)					return;
-
+	if (!m_switched_on)
+	{	  
+		return;
+	}
 
 	CBoneInstance& BI = smart_cast<IKinematics*>(Visual())->LL_GetBoneInstance(guid_bone);
 	Fmatrix					M;
@@ -294,9 +297,11 @@ void CTorch::UpdateCL()
 	if (H_Parent()) 
 	{
 		CActor*			actor = smart_cast<CActor*>(H_Parent());
-		if (actor)		smart_cast<IKinematics*>(H_Parent()->Visual())->CalculateBones_Invalidate	();
+		if (actor)		
+			smart_cast<IKinematics*>(H_Parent()->Visual())->CalculateBones_Invalidate	();
 
-		if (H_Parent()->XFORM().c.distance_to_sqr(Device.vCameraPosition)<_sqr(OPTIMIZATION_DISTANCE) || GameID() != eGameIDSingle) {
+		if (H_Parent()->XFORM().c.distance_to_sqr(Device.vCameraPosition)<_sqr(OPTIMIZATION_DISTANCE) || GameID() != eGameIDSingle)
+		{
 			// near camera
 			smart_cast<IKinematics*>(H_Parent()->Visual())->CalculateBones	();
 			M.mul_43				(XFORM(),BI.mTransform);
@@ -379,7 +384,7 @@ void CTorch::UpdateCL()
 			light_render->set_active(false);
 			light_omni->set_active(false);
 			glow_render->set_active	(false);
-		}//if (getVisible() && m_pPhysicsShell)  
+ 		}//if (getVisible() && m_pPhysicsShell)  
 	}
 
 	if (!m_switched_on)					return;
@@ -473,7 +478,8 @@ void CTorch::afterDetach			()
 }
 void CTorch::renderable_Render()
 {
-	inherited::renderable_Render();
+	if (m_switched_on)
+		inherited::renderable_Render();
 }
 
 void CTorch::enable(bool value)

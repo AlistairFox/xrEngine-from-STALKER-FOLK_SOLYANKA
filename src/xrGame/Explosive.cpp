@@ -364,8 +364,10 @@ void CExplosive::Explode()
 	//////////////////////////////
 	//-------------------------------------
 	bool SendHits = false;
-	if (OnServer()) SendHits = true;
-	else SendHits = false;
+	if (OnServer())
+		SendHits = true;
+	else 
+		SendHits = false;
 
 
 	for(int i = 0; i < m_iFragsNum; ++i){
