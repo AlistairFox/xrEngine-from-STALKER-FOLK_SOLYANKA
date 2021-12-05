@@ -2307,7 +2307,16 @@ CSE_ALifeOnlineOfflineGroup::~CSE_ALifeOnlineOfflineGroup	()
 #ifdef XRGAME_EXPORTS
 	while ( !m_members.empty() )
 		unregister_member( (*m_members.begin()).first );
-	xr_delete					(m_brain);
+	
+	try
+	{
+		xr_delete(m_brain);
+	}
+	catch (...)
+	{
+		Msg("Crashing then Delate [%s]", m_brain->object().name_replace());
+	}
+	 
 #endif
 }
 #ifdef XRGAME_EXPORTS
