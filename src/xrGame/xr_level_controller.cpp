@@ -44,8 +44,8 @@ _action  actions[]		= {
 	{ "wpn_5",				kWPN_5					,_both},	
 	{ "wpn_6",				kWPN_6					,_both},	
 
-	{ "wpn_safe_mode",      kSafeMode				,_both},
-	{ "actor_animation_mode", kAnimMode				,_both},
+	{ "btn_safe_mode",      kSafeMode				,_both},
+	{ "btn_animation_mode", kAnimMode				,_both},
 
 
 	{ "artefact",			kARTEFACT				,_both/*_mp*/},		

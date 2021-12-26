@@ -48,13 +48,10 @@ void  CActor::Spin0Callback(CBoneInstance* B)
 	float				bone_roll	= angle_normalize_signed(A->r_torso.roll)*r_spin0_factor;
 	Fvector c			= B->mTransform.c;
 	spin.setXYZ			(-bone_pitch,bone_yaw,bone_roll);
-	
-	//Msg("Spin0Callback");
-	
-	{
-		B->mTransform.mulA_43(spin);
-		B->mTransform.c		= c;
-	}
+ 
+	B->mTransform.mulA_43(spin);
+	B->mTransform.c		= c;
+	 
 }
 void  CActor::Spin1Callback(CBoneInstance* B)
 {
@@ -67,13 +64,9 @@ void  CActor::Spin1Callback(CBoneInstance* B)
 	Fvector c			= B->mTransform.c;
 	spin.setXYZ			(-bone_pitch,bone_yaw,bone_roll);
 	
-	//Msg("Spin1Callback");
+	B->mTransform.mulA_43(spin);
+	B->mTransform.c = c;
 
-	//if (!safe_mode
-	{
-		B->mTransform.mulA_43(spin);
-		B->mTransform.c = c;
-	}
 }
 void  CActor::ShoulderCallback(CBoneInstance* B)
 {
@@ -85,14 +78,9 @@ void  CActor::ShoulderCallback(CBoneInstance* B)
 	Fvector c			= B->mTransform.c;
 	spin.setXYZ			(-bone_pitch,bone_yaw,bone_roll);
 
-	//Msg("ShoulderCallback");
-
-	//if (!safe_mode)
- 
-	{
-		B->mTransform.mulA_43(spin);
-		B->mTransform.c = c;
-	}
+	B->mTransform.mulA_43(spin);
+	B->mTransform.c = c;
+	 
 }
 void  CActor::HeadCallback(CBoneInstance* B)
 {
@@ -102,22 +90,15 @@ void  CActor::HeadCallback(CBoneInstance* B)
 	float				bone_pitch	= angle_normalize_signed(A->r_torso.pitch)*p_head_factor;
 	float				bone_roll	= angle_normalize_signed(A->r_torso.roll)*r_head_factor;
 	Fvector c			= B->mTransform.c;
-
-	//Msg("HeadCallback");
-
-	//if (!safe_mode)
+ 
+	spin.setXYZ(-bone_pitch, bone_yaw, bone_roll);
+	B->mTransform.mulA_43(spin);
+	B->mTransform.c = c;
 	 
-	{
-		spin.setXYZ(-bone_pitch, bone_yaw, bone_roll);
-		B->mTransform.mulA_43(spin);
-		B->mTransform.c = c;
-	}
 }
 
 void  CActor::VehicleHeadCallback(CBoneInstance* B)
 {
-	
-
 	CActor*	A			= static_cast<CActor*>(B->callback_param());	VERIFY	(A);
 	Fmatrix				spin;
 	float				bone_yaw	= angle_normalize_signed(A->r_torso.yaw)*0.75f;
@@ -125,25 +106,16 @@ void  CActor::VehicleHeadCallback(CBoneInstance* B)
 	float				bone_roll	= angle_normalize_signed(A->r_torso.roll)*r_head_factor;
 	Fvector c			= B->mTransform.c;
 	
+	spin.setHPB(bone_yaw, bone_pitch, -bone_roll);
+	B->mTransform.mulA_43(spin);
+	B->mTransform.c = c;
 	
-
-	//Msg("VehicleHeadCallback");
-	
-	
-	//if (!safe_mode)
- 
-	{
-		spin.setHPB(bone_yaw, bone_pitch, -bone_roll);
-		B->mTransform.mulA_43(spin);
-		B->mTransform.c = c;
-	}
 }
 
 void STorsoWpn::Create(IKinematicsAnimated* K, LPCSTR base0, LPCSTR base1)
 {
 	char			buf[128];
 
-	 
 	moving[eIdle]	= K->ID_Cycle_Safe(strconcat(sizeof(buf),buf,base0,"_torso",base1,"_aim_1"));
 	moving[eWalk]	= K->ID_Cycle_Safe(strconcat(sizeof(buf),buf,base0,"_torso",base1,"_aim_2"));
 	moving[eRun]	= K->ID_Cycle_Safe(strconcat(sizeof(buf),buf,base0,"_torso",base1,"_aim_3"));
@@ -153,7 +125,6 @@ void STorsoWpn::Create(IKinematicsAnimated* K, LPCSTR base0, LPCSTR base1)
 	moving[eWalkSafe] = K->ID_Cycle_Safe(strconcat(sizeof(buf), buf, base0, "_torso", base1, "_walk_1"));
 	moving[eRunSafe]  = K->ID_Cycle_Safe(strconcat(sizeof(buf), buf, base0, "_torso", base1, "_run_1"));
 	moving[eSprintSafe] = K->ID_Cycle_Safe(strconcat(sizeof(buf), buf, base0, "_torso", base1, "_run_1"));
-	 
 
 	zoom			= K->ID_Cycle_Safe(strconcat(sizeof(buf),buf,base0,"_torso",base1,"_aim_0"));
 	holster			= K->ID_Cycle_Safe(strconcat(sizeof(buf),buf,base0,"_torso",base1,"_holster_0"));
@@ -230,7 +201,6 @@ void SActorState::CreateClimb(IKinematicsAnimated* K)
 		m_damage[k]	= K->ID_FX(strconcat(sizeof(buf),buf,base,"_damage_",itoa(k,buf1,10)));
 }
 
-
 void SActorState::Create(IKinematicsAnimated* K, LPCSTR base)
 {
 	string128		buf,buf1;
@@ -241,7 +211,6 @@ void SActorState::Create(IKinematicsAnimated* K, LPCSTR base)
 	
 	m_walk.Create	(K,base,"_walk");
 	m_run.Create	(K,base,"_run");
-
 
 	m_torso[0].Create(K,base,"_1");
 	m_torso[1].Create(K,base,"_2");
@@ -292,96 +261,103 @@ void SActorSprintState::Create(IKinematicsAnimated* K)
 
 void SActorStateAnimation::CreateAnimationsScripted(IKinematicsAnimated* K)
 {
-	// Anim 1
-	anims[0].m_animation_in[0]  = K->ID_Cycle("bar_0_idle_in");
-	anims[0].m_animation_out[0] = K->ID_Cycle("bar_0_idle_out");
-	anims[0].m_animation[0]  = K->ID_Cycle("bar_0_idle_0");
-	anims[0].m_animation[1]  = K->ID_Cycle("bar_0_idle_1");
-	anims[0].m_animation[2]  = K->ID_Cycle("bar_0_idle_2");
-	anims[0].m_animation[3]  = K->ID_Cycle("bar_0_idle_3");
-	looped[0] = true;
-	
-	// Anim 2
-	anims[1].m_animation_in[0] = K->ID_Cycle("bar_2_idle_in");
-	anims[1].m_animation_out[0] = K->ID_Cycle("bar_2_idle_out");
-	anims[1].m_animation[0] = K->ID_Cycle("bar_2_idle_0");
-	looped[1] = true;
+	string_path filepath;
+	FS.update_path(filepath, "$game_config$", "actor_anims.ltx");
+	CInifile* file = xr_new<CInifile>(filepath, true, true);
 
-	// Anim 3
-	anims[2].m_animation_in[0] = K->ID_Cycle("bar_3_idle_in");
-	anims[2].m_animation_out[0] = K->ID_Cycle("bar_3_idle_out");
-	anims[2].m_animation[0] = K->ID_Cycle("bar_3_idle_0");
-	looped[2] = true;
+	if (file && file->section_exist("animations"))
+	{
+		u32 count = file->r_u32("animations", "count");
 
-	// Anim 4
-	anims[3].m_animation[0] = K->ID_Cycle("chest_0_idle_0");
-	anims[3].m_animation[0] = K->ID_Cycle("chest_0_idle_1");
-	anims[3].m_animation[0] = K->ID_Cycle("chest_0_idle_2");
-	anims[3].m_animation[0] = K->ID_Cycle("chest_0_idle_3");
+		for (int i = 0; i < count; i++)
+		{
+			string32 tmp = { 0 };
+			itoa(i, tmp, 10);
+			string32 animation = { 0 };
+			xr_strcat(animation, "anim_");
+			xr_strcat(animation, tmp);
 
-	looped[3] = false;
+			if (file->section_exist(animation))
+			{
+				bool anim_loop = file->r_bool(animation, "anim_loop");
 
-	// Anim 5
-	anims[4].m_animation[0]  = K->ID_Cycle("dinamit_0");
-	looped[4] = false;
+				if (file->line_exist(animation, "anim_snd"))
+				{
+					shared_str snd = file->r_string(animation, "anim_snd");
 
-	// Anim 6
-	anims[5].m_animation[0] = K->ID_Cycle("hello_1_idle_0");
-	looped[5] = false;
+					u32 snds = 0;
 
+					if (file->line_exist(animation, "anim_snd_rnd"))
+					{
+						snds = file->r_u32(animation, "anim_snd_rnd");
+						m_rnd_snds[i] = snds;
+					}
+					else
+					{
+						snds = 1;
+					}
 
-	// Anim 7 
-	anims[6].m_animation_in[0] = K->ID_Cycle("idle_0_to_psy_0_idle_0");
-	anims[6].m_animation_out[0] = K->ID_Cycle("psy_0_idle_0_to_idle_0");
-	anims[6].m_animation[0] = K->ID_Cycle("psy_0_idle_0");
-	anims[6].m_animation[1] = K->ID_Cycle("psy_0_idle_1");
-	anims[6].m_animation[2] = K->ID_Cycle("psy_0_idle_2");
-	anims[6].m_animation[3] = K->ID_Cycle("psy_0_idle_3");
-	looped[6] = true;
+					for (int snd_i = 1; snd_i <= snds; snd_i++)
+					{
+						string32 tmp = { 0 };
+						itoa(snd_i, tmp, 10);
 
+						string128 path_snd = { 0 };
+						xr_strcat(path_snd, snd.c_str());
+						xr_strcat(path_snd, tmp);
 
-	// Anim 8
-	anims[7].m_animation_in[0] = K->ID_Cycle("idle_to_wounded_1");
-	anims[7].m_animation_out[0] = K->ID_Cycle("waunded_1_out");
-	anims[7].m_animation_out[1] = K->ID_Cycle("wounded_to_idle_0");
-	anims[7].m_animation[0] = K->ID_Cycle("waunded_1_idle_0");
-	looped[7] = true;
- 
-	// Anim 9
-	anims[8].m_animation_in[0] = K->ID_Cycle("idle_0_to_sit_0");
-	anims[8].m_animation_out[0] = K->ID_Cycle("sit_0_lazy_idle_0");
-	anims[8].m_animation[0] = K->ID_Cycle("item_0_idle_0");
-	anims[8].m_animation[1] = K->ID_Cycle("item_0_idle_1");
-	anims[8].m_animation[2] = K->ID_Cycle("item_0_idle_2");
-	anims[8].m_animation[3] = K->ID_Cycle("item_0_idle_3");
-	looped[8] = true;
+						m_sound_Animation[i][snd_i].create(path_snd, st_Effect, 0);
+					}
+				}
+				m_animation_loop[i] = anim_loop;
 
-	// Anim 10
-	anims[9].m_animation_in[0] = K->ID_Cycle("prisoner_0_sit_down_0");
-	anims[9].m_animation_out[0] = K->ID_Cycle("prisoner_0_stand_up_0");
-	anims[9].m_animation[0] = K->ID_Cycle("prisoner_0_sit_idle_0");
-	looped[9] = true;
+				if (file->line_exist(animation, "attached_item"))
+					m_animation_attach[i] = file->r_string(animation, "attached_item");
 
-	// Anim 11
-	anims[10].m_animation_in[0] = K->ID_Cycle("sit_0_to_sleep_0");
-	anims[10].m_animation_out[0] = K->ID_Cycle("sleep_0_to_sit_0");
-	anims[10].m_animation_out[1] = K->ID_Cycle("sit_to_idle_0");
+				LPCSTR anims_in = file->r_string(animation, "anim_in");
+				LPCSTR anims_out = file->r_string(animation, "anim_out");
+				LPCSTR anims_middle = file->r_string(animation, "anim_middle");
+				u32 countIN = _GetItemCount(anims_in, ',');
+				u32 countOUT = _GetItemCount(anims_out, ',');
+				u32 countMID = _GetItemCount(anims_middle, ',');
 
-	anims[10].m_animation[0] = K->ID_Cycle("sleep_idle_0");
-	anims[10].m_animation[1] = K->ID_Cycle("sleep_idle_1");
-	looped[10] = true;
+				for (int id = 0; id != countIN; id++)
+				{
+					string64 anim = { 0 };
+					_GetItem(anims_in, id, anim, ',');
 
-	//Anim 12 Gitar
-	m_gitar[0] = K->ID_Cycle("idle_0_to_sit_1");
-	m_gitar[1] = K->ID_Cycle("sit_1_guitar_0_0");
-	m_gitar[2] = K->ID_Cycle("sit_1_guitar_0_1");
+					MotionID motionAnim = K->ID_Cycle_Safe(anim);
+					in_anims.m_animation_in[i][id] = motionAnim;
+				}
 
-	m_gitar[3] = K->ID_Cycle("guitar_0");
+				in_anims.count[i] = countIN;
 
-	m_gitar[4] = K->ID_Cycle("guitar_0_sit_1_0");
-	m_gitar[5] = K->ID_Cycle("guitar_0_sit_1_1");
-	m_gitar[6] = K->ID_Cycle("sit_1_to_idle_0");
+				for (int id = 0; id != countOUT; id++)
+				{
+					string64 anim = { 0 };
+					_GetItem(anims_out, id, anim, ',');
 
+					MotionID motionAnim = K->ID_Cycle_Safe(anim);
+
+					out_anims.m_animation_out[i][id] = motionAnim;
+				}
+
+				out_anims.count[i] = countOUT;
+
+				for (int id = 0; id != countMID; id++)
+				{
+					string64 anim = { 0 };
+					_GetItem(anims_middle, id, anim, ',');
+
+					MotionID motionAnim = K->ID_Cycle_Safe(anim);
+
+					middle_anims.m_animation[i][id] = motionAnim;
+				}
+
+				middle_anims.count[i] = countMID;
+			}
+		}
+	}
 }
 
 void SActorMotions::Create(IKinematicsAnimated* V)
@@ -394,7 +370,7 @@ void SActorMotions::Create(IKinematicsAnimated* V)
 	m_climb.CreateClimb(V);
 	m_sprint.Create(V);
 
-	m_ANIMS_PLAYERS.CreateAnimationsScripted(V);
+	m_script.CreateAnimationsScripted(V);
 
 
 }
@@ -491,41 +467,6 @@ char* mov_state[] ={
 	"sprint",
 };
 
-extern int anim_value = 0;
-u32 AnimID = 0;
-u32 AnimInputID = 0;
-u32 AnimOutputID = 0;
-
-bool CanStart1 = false;
-bool CanStart2 = false;
-
-bool AnimPlayed = true;
-	  
-
-extern bool AnimationPlayed = AnimPlayed && !CanStart1 && !CanStart2;
-
-void animation_script_callback(CBlend* blend)
-{
-	AnimPlayed = true;
-	CanStart2 = true;
-	Msg("Проиграна Середина");
-}
-
-void animation_script_callbackIn(CBlend* blend)
-{
-	AnimPlayed = true;
-	CanStart1 = true;
-	Msg("Проиграна Вступление");
-}
-
-void animation_script_callbackOut(CBlend* blend)
-{
-	AnimPlayed = true;
-	Msg("Проиграна Конец");
-}
-
-
-
 void CActor::g_SetAnimation( u32 mstate_rl )
 {
 	if (!g_Alive()) 
@@ -558,12 +499,16 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 		ST = &m_anims->m_normal;
 
 	bool bAccelerated = isActorAccelerated(mstate_rl, IsZoomAimingMode());
+	
 	if ( bAccelerated )
 	{
 		AS							= &ST->m_run;
-	}else{
+	}
+	else
+	{
 		AS							= &ST->m_walk;
 	}
+
 	if(mstate_rl&mcAnyMove)
 	{
 		if( bAccelerated )
@@ -581,61 +526,60 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 	bool is_standing = false;
 
 	// Legs
-	if (!MpAnimationMode())
+   
+	if (mstate_rl & mcLanding)
+		M_legs = ST->landing[0];
+	else if (mstate_rl & mcLanding2)
+		M_legs = ST->landing[1];
+	else if ((mstate_rl & mcTurn) && !(mstate_rl & mcClimb))
+		M_legs = ST->legs_turn;
+	else if (mstate_rl & mcFall)
+		M_legs = ST->jump_idle;
+	else if (mstate_rl & mcJump)
+		M_legs = ST->jump_begin;
+	else if (mstate_rl & mcFwd)
+		!MpSafeMode() ? M_legs = AS->legs_fwd : M_legs = AS->legs_fwd_safe;
+	else if (mstate_rl & mcBack)
+		!MpSafeMode() ? M_legs = AS->legs_back : M_legs = AS->legs_back_safe;
+	else if (mstate_rl & mcLStrafe)
+		!MpSafeMode() ? M_legs = AS->legs_ls : M_legs = AS->legs_ls_safe;
+	else if (mstate_rl & mcRStrafe)
+		!MpSafeMode() ? M_legs = AS->legs_rs : M_legs = AS->legs_rs_safe;
+	else
+		is_standing = true;
+
+	if (mstate_rl & mcSprint)
 	{
-		if (mstate_rl & mcLanding)
-			M_legs = ST->landing[0];
-		else if (mstate_rl & mcLanding2)
-			M_legs = ST->landing[1];
-		else if ((mstate_rl & mcTurn) && !(mstate_rl & mcClimb))
-			M_legs = ST->legs_turn;
-		else if (mstate_rl & mcFall)
-			M_legs = ST->jump_idle;
-		else if (mstate_rl & mcJump)
-			M_legs = ST->jump_begin;
-		else if (mstate_rl & mcFwd)
-			!MpSafeMode() ? M_legs = AS->legs_fwd : M_legs = AS->legs_fwd_safe;
-		else if (mstate_rl & mcBack)
-			!MpSafeMode() ? M_legs = AS->legs_back : M_legs = AS->legs_back_safe;
-		else if (mstate_rl & mcLStrafe)
-			!MpSafeMode() ? M_legs = AS->legs_ls : M_legs = AS->legs_ls_safe;
-		else if (mstate_rl & mcRStrafe)
-			!MpSafeMode() ? M_legs = AS->legs_rs : M_legs = AS->legs_rs_safe;
-		else
-			is_standing = true;
-
-		if (mstate_rl & mcSprint)
-		{
-			g_SetSprintAnimation(mstate_rl, M_head, M_torso, M_legs);
-			moving_idx = STorsoWpn::eSprint;
-		}
+		g_SetSprintAnimation(mstate_rl, M_head, M_torso, M_legs);
+		moving_idx = STorsoWpn::eSprint;
+	}
 	
-		if (this == Level().CurrentViewEntity())
-		{	
-			if ((mstate_rl&mcSprint) != (mstate_old&mcSprint))
-			{
-				g_player_hud->OnMovementChanged(mcSprint);
-			}
-			else
-			if ((mstate_rl&mcAnyMove) != (mstate_old&mcAnyMove))
-			{
-				g_player_hud->OnMovementChanged(mcAnyMove);
-			}
-		};
-
-		//-----------------------------------------------------------------------
-		// Torso
-		if(mstate_rl&mcClimb)
+	if (this == Level().CurrentViewEntity())
+	{	
+		if ((mstate_rl&mcSprint) != (mstate_old&mcSprint))
 		{
-			if		(mstate_rl&mcFwd)		M_torso	= AS->legs_fwd;
-			else if (mstate_rl&mcBack)		M_torso	= AS->legs_back;
-			else if (mstate_rl&mcLStrafe)	M_torso	= AS->legs_ls;
-			else if (mstate_rl&mcRStrafe)	M_torso	= AS->legs_rs;
+			g_player_hud->OnMovementChanged(mcSprint);
 		}
+		else
+		if ((mstate_rl&mcAnyMove) != (mstate_old&mcAnyMove))
+		{
+			g_player_hud->OnMovementChanged(mcAnyMove);
+		}
+	};
 
+	//-----------------------------------------------------------------------
+	// Torso
+	if(mstate_rl&mcClimb)
+	{
+		if		(mstate_rl&mcFwd)		M_torso	= AS->legs_fwd;
+		else if (mstate_rl&mcBack)		M_torso	= AS->legs_back;
+		else if (mstate_rl&mcLStrafe)	M_torso	= AS->legs_ls;
+		else if (mstate_rl&mcRStrafe)	M_torso	= AS->legs_rs;
 	}
 
-	if(!M_torso && MpAnimationModeEnded())
+	 
+
+	if(!M_torso)
 	{
 		CInventoryItem* _i = inventory().ActiveItem();
 		CHudItem		*H = smart_cast<CHudItem*>(_i);
@@ -825,308 +769,7 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 			}
 		}
 	}
-	
-	/*
-	if (MpAnimationMode() || !MpAnimationMode())
-	{
-		IKinematicsAnimated* k = smart_cast<IKinematicsAnimated*>(Visual());
-		SActorStateAnimation sa = m_anims->m_ANIMS_PLAYERS;
 	 
-		
-
-		if (AnimPlayed && MpAnimationMode() && !CanStart1)
-		{
-			if (sa.looped)
-			{
-				MotionID input = sa.anims->m_animation_in[AnimInputID];
-
-				if (input.valid()) 
-				{
-					script_anim(input, animation_script_callbackIn, this);
-					AnimPlayed = false;
-					//CanStart1 = true;
-					AnimInputID += 1;
-					Msg("Select AnimInputID [%d][%d]", anim_value, AnimInputID);
-				}
-				else
-				{
-					CanStart1 = true;
-				}
-			}
-			else
-			{
-				CanStart1 = true;
-			}
-			return;
-		}
-		 
-		if (AnimPlayed && MpAnimationMode() && CanStart1)
-		{
-			if (sa.looped[anim_value])
-			{
-				u32 ids = 0;
-				for (auto id : sa.anims[anim_value].m_animation)
-					if (id.valid())
-						ids += 1;
-				ids -= 1;
-
-				if (AnimID > ids)
-				{
-					CanStart2 = true;
-					AnimID = 0;
-				}
-
-				Msg("Select AnimID Loop [%d]/max[%d]", AnimID, ids);
-				if (sa.anims[anim_value].m_animation[AnimID].valid())
-				{
-					script_anim(sa.anims[anim_value].m_animation[AnimID], animation_script_callback, this);
-					AnimPlayed = false;
-					AnimID += 1;
-				}
-			}  
-			else
-			{
-				u32 ids = 0;
-				for (auto id : sa.anims[anim_value].m_animation)
-					if (id.valid())
-						ids += 1;
-				ids -= 1;
-
-	
-				if (sa.anims[anim_value].m_animation[AnimID].valid())
-				{
-					script_anim(sa.anims[anim_value].m_animation[AnimID], animation_script_callback, this);
-					AnimPlayed = false;
-					AnimID += 1;
-					Msg("Select AnimID NoLoop [%d]", AnimID);
-				}
-				else
-				{
-					NET_Packet packet;
-					Game().u_EventGen(packet, GE_MODE_SWITCH, this->ID());
-					packet.w_u8(1);
-					Game().u_EventSend(packet); 
-				}
-			}
-			return;
-		}
-		 
-		if (AnimPlayed && !MpAnimationMode() && CanStart2)
-		{
-			if (sa.looped)
-			{
-				if (sa.anims[anim_value].m_animation[AnimOutputID].valid())
-				{
-					Msg("Select AnimOutputID [%d]", AnimOutputID);
-					script_anim(sa.anims[anim_value].m_animation[AnimOutputID], animation_script_callbackOut, this);
-					AnimPlayed = false;
-				}
-			}
-			else
-			{
-				AnimPlayed = false;
-			}
-					 
-			Msg("ResetAnims");
-			AnimID = 0;
-			AnimInputID = 0;
-			AnimOutputID = 0;
-			CanStart1 = false;
-			CanStart2 = false;
-
-			return;
-		}
-
-		
-	}
-	
-
-	if (MpAnimationMode() || !MpAnimationModeEnded())
-	{
-
-		return;
-	}
-	  
-
-	
-	if (MpAnimationMode() || !MpAnimationMode() && PlayedInputAnim)
-	{
-		IKinematicsAnimated* k = smart_cast<IKinematicsAnimated*>(Visual());
-		 
-		if (anim_value == 16) 
-		{
-			if (MpAnimationMode())
-			{
-				SActorStateAnimation sa = m_anims->m_ANIMS_PLAYERS;
-			
-				if (sa.m_gitar[0].valid() && !start[0] && Device.dwTimeGlobal > timer_Gitar)
-				{
-					script_anim(sa.m_gitar[0]);
-					float time = k->get_animation_length(sa.m_gitar[0]);
-					start[0] = true;
-					//Msg("Gitar 1");
-					timer_Gitar = Device.dwTimeGlobal + time * 1000;
-				}
-				else
-				if (!start[1] && sa.m_gitar[1].valid() && Device.dwTimeGlobal > timer_Gitar )
-				{
-					 
-					CInventoryItem* it = this->inventory().GetItemFromInventory("guitar_a");
-					CAttachableItem* item = smart_cast<CAttachableItem*>(it);
-
-					if (item)
-					{
-						this->attach(it);
-						bool att = this->can_attach(it);
-						item->enable(true);
-						 
-					}
-				
-					script_anim(sa.m_gitar[1]);
-					float time = k->get_animation_length(sa.m_gitar[1]) ;
-					start[1] = true;
-					//start[0] = false;
-					timer_Gitar = Device.dwTimeGlobal + time * 1000;
-				}
-				else
-				if (!start[2] && sa.m_gitar[2].valid() && Device.dwTimeGlobal > timer_Gitar)
-				{
-					//Msg("Gitar 3");
-					script_anim(sa.m_gitar[2]);
-					float time = k->get_animation_length(sa.m_gitar[2]) ;
-					start[2] = true;
-					//start[1] = false;
-					timer_Gitar = Device.dwTimeGlobal + time * 1000;
-				}
-				else
-				if (!start[3] && sa.m_gitar[3].valid() && Device.dwTimeGlobal > timer_Gitar)
-				{
-					//Msg("Gitar Loop");
-					PlayedInputAnim = true;
-					script_anim(sa.m_gitar[3]);
-					float time = k->get_animation_length(sa.m_gitar[3]) ;
-					timer_Gitar = Device.dwTimeGlobal + time * 1000;
-				}				
-			}
-
-			if (!MpAnimationMode())
-			{
-				shared_str name = "guitar_a";
-				CAttachableItem* item = smart_cast<CAttachableItem*>(attachedItem(name));
-
-				if (item)
-					item->enable(false);
-				
-				start[0] = false;
-				start[1] = false;
-				start[2] = false;
-				start[3] = false;
-
-				PlayedInputAnim = false;
-			}
-
-			return;
-		}
-		 
-	
-		if (MpAnimationMode())
-		if (Device.dwTimeGlobal > AnimationTotal)
-		{
-			SActorStateAnimation sa = m_anims->m_ANIMS_PLAYERS;
-			
-			if (!PlayedInputAnim)
-			{
-				old_animation = sa.m_anim_in[anim_value];
-			}
-			else
-			{
-				old_animation = sa.m_anim[anim_value][AnimID];
- 			}
-
-			if (!old_animation.valid())
-				return;
-
-			bool cycle = sa.cycle[anim_value];
- 			 
-			if (!cycle)
-			{
-				if (AnimID >= 3)
-				{
-					NET_Packet packet;
-					Game().u_EventGen(packet, GE_MODE_SWITCH, this->ID());
-					packet.w_u8(1);
-					Game().u_EventSend(packet);
-				}
-
-				AnimID += 1;
-			}
-			else
-			{
-				if (AnimID >= 3)
-					AnimID = 0;
-				else
-					AnimID += 1;
-			}
-
-			script_anim(old_animation);
-
-			float anim_time = k->get_animation_length(old_animation);
-			AnimationTotal = Device.dwTimeGlobal + (anim_time * 1000);			
-
-			if (MpAnimationMode())
-			{
- 				Msg("Вошел в анимацию [%d]", old_animation.idx);
-
-				PlayedInputAnim = true;
-			}
-
-		}
-	    
-		if (!MpAnimationMode() && !PlayedExit && !PlayedExit2 && Device.dwTimeGlobal > AnimationTotal)
-		{
-			if (!exit_animation.valid())
-				return;
-
-			script_anim(exit_animation);
-
-			float anim_time = k->get_animation_length(exit_animation);
-			AnimationTotal = Device.dwTimeGlobal + (anim_time * 1000);
-			
-			if (exit_animation2.valid())
-				PlayedExit2 = true;
-			else 
-				PlayedExit = true;
-
-			Msg("Переход в виход из анимации [%d]", exit_animation.idx);
-
- 		}
-
-		if (!MpAnimationMode() && PlayedExit2 && Device.dwTimeGlobal > AnimationTotal)
-		{
-			if (!exit_animation2.valid())
-				return;
-
-			script_anim(exit_animation2);
-			float anim_time = k->get_animation_length(exit_animation2);
-			AnimationTotal = Device.dwTimeGlobal + (anim_time * 1000);
-
-			PlayedExit = true;
-			PlayedExit2 = false;
-			Msg("Переход в виход из анимации 2 [%d]", exit_animation2.idx);
-		}
-
-		if (PlayedExit && Device.dwTimeGlobal > AnimationTotal)
-		{
-			Msg("Вышел из анимации");
-			PlayedExit = false;
-			PlayedInputAnim = false;
-		}
-		
-		return;
-	}
-	*/ 
-
- 
 	if (!M_legs)
 	{
 		if ((mstate_rl & mcCrouch) && !isActorAccelerated(mstate_rl, IsZoomAimingMode()))//!(mstate_rl&mcAccel))
@@ -1289,4 +932,335 @@ void CActor::script_anim( MotionID exit_animation, PlayCallback Callback, LPVOID
 		k->LL_GetMotionDef(exit_animation)->StopAtEnd(),
 		Callback, CallbackParam, 0
 	);
+}
+
+extern int AnimCurrent;
+
+void callbackAnim(CBlend* blend)
+{
+	CActor* act = (CActor*)blend->CallbackParam;
+	if (act)
+		act->CanChange = true;
+}
+
+
+void CActor::ReciveAnimationPacket(NET_Packet& packet)
+{
+	MotionID motion;
+	packet.r(&motion, sizeof(motion));
+
+	Msg("ReciveAnimationPacket [%d] [%d]", motion.idx, motion.slot);
+
+	if (motion.valid())
+	{
+		IKinematicsAnimated* k = smart_cast<IKinematicsAnimated*>(Visual());
+		k->LL_PlayCycle(
+			k->LL_GetMotionDef(motion)->bone_or_part,
+			motion,
+			TRUE,
+			k->LL_GetMotionDef(motion)->Accrue(),
+			k->LL_GetMotionDef(motion)->Falloff(),
+			k->LL_GetMotionDef(motion)->Speed(),
+			k->LL_GetMotionDef(motion)->StopAtEnd(),
+			callbackAnim, this, 0
+		);
+
+		CanChange = false;
+	}
+
+}
+
+void CActor::ReciveActivateItem(NET_Packet& packet)
+{
+	shared_str item;
+	packet.r_stringZ(item);
+	bool activate = packet.r_u8();
+
+	Msg("Activate Item [%s] -> [%d]", item.c_str(), activate);
+
+	CInventoryItem* inv_item = this->inventory().GetItemFromInventory(item.c_str());
+	CAttachableItem* item_attach = smart_cast<CAttachableItem*>(inv_item);
+
+	if (item_attach)
+	{
+		if (this->can_attach(inv_item) && activate)
+		{
+			this->attach(inv_item);
+		}
+
+		if (activate)
+		{
+			item_attach->enable(true);
+		}
+		else
+		{
+			item_attach->enable(false);
+		}
+	}
+}
+
+void CActor::ReciveSoundPlay(NET_Packet packet)
+{
+	u32 snd_id, selectedID;
+	packet.r_u32(selectedID);
+	packet.r_u32(snd_id);
+	bool activate = packet.r_u8();
+
+	Msg("Recive SND Packet [%d] / act[%d]", snd_id, activate);
+
+	if (activate)
+	{
+		if (selected._p)
+			if (!selected._feedback())
+			{
+				selected.stop();
+			}
+
+		ref_sound snd_sel = m_anims->m_script.m_sound_Animation[selectedID][snd_id];
+
+		if (!snd_sel._feedback())
+		{
+			snd_sel.play_at_pos(this, Position(), false, 0);
+			selected = snd_sel;
+		}
+	}
+	else
+	{
+		if (selected._p)
+			if (selected._feedback())
+			{
+				selected.stop();
+			}
+	}
+
+}
+
+void CActor::SendAnimationToServer(MotionID motion)
+{
+	NET_Packet packet;
+	u_EventGen(packet, GE_ACTOR_ANIMATION_SCRIPT, this->ID());
+	packet.w(&motion, sizeof(motion));
+	u_EventSend(packet, net_flags(true, true));
+}
+
+void CActor::SendActivateItem(shared_str item, bool activate)
+{
+	NET_Packet packet;
+	u_EventGen(packet, GE_ACTOR_ITEM_ACTIVATE, this->ID());
+	packet.w_stringZ(item);
+	packet.w_u8(activate ? 1 : 0);
+	u_EventSend(packet, net_flags(true, true));
+}
+
+void CActor::SendSoundPlay(u32 ID, bool Activate)
+{
+	NET_Packet packet;
+	u_EventGen(packet, GE_ACTOR_SND_ACTIVATE, this->ID());
+	packet.w_u32(selectedID);
+	packet.w_u32(ID);
+	packet.w_u8(Activate);
+	u_EventSend(packet, net_flags(true, true));
+}
+
+void CActor::SelectScriptAnimation()
+{
+	if (oldAnim != AnimCurrent)
+	{
+		if (InPlay && MidPlay && OutPlay)
+		{
+			oldAnim = AnimCurrent;
+			InputAnim = 0;
+			OutAnim = 0;
+			MidAnim = 0;
+		}
+	}
+
+	u32 selectedAnimation = oldAnim;
+	selectedID = selectedAnimation;
+
+	u32 countIN = m_anims->m_script.in_anims.count[selectedAnimation];
+
+	if (false)
+		if (m_anims->m_script.m_animation_attach[selectedAnimation].size() == 0)
+		{
+			for (auto item : this->attached_objects())
+			{
+				item->enable(false);
+				SendActivateItem(item->item().m_section_id.c_str(), false);
+
+			}
+		}
+
+	MidPlay = false;
+	OutPlay = false;
+	InPlay = false;
+
+	//Msg("Anim counts INPUT[%d]", countIN);
+
+	MotionID script_BODY;
+
+	if (countIN == 0)
+		InPlay = true;
+	else
+	{
+		if (InputAnim >= countIN)
+		{
+			InPlay = true;
+		}
+		else
+		{
+			InPlay = false;
+		}
+	}
+
+	//Msg("Anim in Play[%s]", InPlay ? "true" : "false");
+
+	if (!InPlay)
+	{
+		script_BODY = m_anims->m_script.in_anims.m_animation_in[selectedAnimation][InputAnim];
+		script_anim(script_BODY, callbackAnim, this);
+		InputAnim += 1;
+
+		if (m_anims->m_script.m_animation_attach[selectedAnimation].size() > 0)
+		{
+			shared_str attach = m_anims->m_script.m_animation_attach[selectedAnimation];
+
+			CInventoryItem* inv_item = this->inventory().GetItemFromInventory(attach.c_str());
+			CAttachableItem* item = smart_cast<CAttachableItem*>(inv_item);
+
+			//Msg("Find Anim Attach Item [%s]", attach.c_str());
+
+			if (item)
+			{
+				item->enable(true);
+				SendActivateItem(attach, true);
+
+				bool att = this->can_attach(inv_item);
+
+				if (att)
+				{
+					//Msg("Anim Attach Item [%s] Attached END", attach.c_str());
+					this->attach(inv_item);
+
+				}
+				else
+				{
+					//Msg("Anim Attach Item [%s] Cant ATTACH", attach.c_str());
+				}
+
+			}
+		}
+
+		//Msg("Anim InputAnim[%d]", InputAnim);
+	}
+
+	if (!InPlay)
+	{
+		return;
+	}
+
+	//Msg("InPlay");
+
+	u32 countMid = m_anims->m_script.middle_anims.count[selectedAnimation];
+
+	if (MidAnim >= countMid)
+	{
+		if (!MpAnimationMode())
+		{
+			MidPlay = true;
+		}
+		else
+		{
+			bool valid = selectedAnimation != AnimCurrent;
+			if (m_anims->m_script.m_animation_loop[selectedAnimation] && !valid)
+			{
+				MidAnim = 0;
+			}
+			else
+			{
+				MidPlay = true;
+			}
+		}
+	}
+	else
+	{
+		if (countMid == 0)
+		{
+			MidPlay = true;
+		}
+		else
+			MidPlay = false;
+	}
+
+	if (!MidPlay)
+	{
+		script_BODY = m_anims->m_script.middle_anims.m_animation[selectedAnimation][MidAnim];
+		script_anim(script_BODY, callbackAnim, this);
+		MidAnim += 1;
+
+		//Msg("Anim middle [%d][%d]", selectedAnimation, MidAnim);
+	}
+
+	if (!MidPlay)
+	{
+		return;
+	}
+
+	//Msg("MidPlay");
+
+	u32 countOUT = m_anims->m_script.out_anims.count[selectedAnimation];
+
+	if (countOUT == 0)
+		OutPlay = true;
+
+	if (OutAnim >= countOUT)
+	{
+		OutPlay = true;
+	}
+	else
+	{
+		OutPlay = false;
+	}
+
+	if (OutPlay != true)
+	{
+		script_BODY = m_anims->m_script.out_anims.m_animation_out[selectedAnimation][OutAnim];
+		script_anim(script_BODY, callbackAnim, this);
+		OutAnim += 1;
+
+		//Msg("Anim Out[%d]", OutAnim);
+	}
+
+	if (OutPlay)
+	{
+		//Msg("OutPlay");
+
+		if (m_anims->m_script.m_animation_attach[selectedAnimation].size() > 0)
+		{
+			shared_str attach = m_anims->m_script.m_animation_attach[selectedAnimation];
+
+			CInventoryItem* inv_item = this->inventory().GetItemFromInventory(attach.c_str());
+			CAttachableItem* item = smart_cast<CAttachableItem*>(inv_item);
+			if (item)
+			{
+				item->enable(false);
+				SendActivateItem(attach, false);
+			}
+		}
+
+		for (auto snd : m_anims->m_script.m_sound_Animation[selectedID])
+		{
+			if (snd._feedback())
+			{
+				snd.stop();
+				SendSoundPlay(selectedID, 0);
+			}
+		}
+	}
+
+	if (!OutPlay)
+	{
+		//Msg("!OutPlay");
+		return;
+	}
 }

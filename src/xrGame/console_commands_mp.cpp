@@ -2190,7 +2190,11 @@ public:
 	{
 		for (auto sect : pSettings->sections())
 		{
-			if (sect->line_exist("description") && !sect->line_exist("value") && !sect->line_exist("scheme_index"))
+			if (sect->line_exist("description")
+				&& !sect->line_exist("value") 
+				&& !sect->line_exist("scheme_index") 
+				&& !sect->line_exist("ignore_spawn")
+			)
 				tips.push_back(sect->Name);
 		}
 	}
@@ -2255,6 +2259,7 @@ public:
 			if ( (sect->line_exist("description")
 					&& !sect->line_exist("value")
 					&& !sect->line_exist("scheme_index")
+					&& !sect->line_exist("ignore_spawn")
 				 )
 				|| sect->line_exist("species") || sect->line_exist("script_binding")
 			)
@@ -2311,7 +2316,11 @@ public:
 	{
 		for (auto sect : pSettings->sections())
 		{
-			if (sect->line_exist("description") && !sect->line_exist("value") && !sect->line_exist("scheme_index"))
+			if (sect->line_exist("description") 
+				&& !sect->line_exist("value")
+				&& !sect->line_exist("scheme_index")
+				&& !sect->line_exist("ignore_spawn")
+			)
 				tips.push_back(sect->Name);
 		}
 	}
@@ -2989,10 +2998,12 @@ public:
 extern float RenderVal;
 extern float RenderVal2;
 extern int right_cam;
-extern int anim_value;
-extern float camerapos_x;
+extern int AnimCurrent = 0;
 
+extern float camerapos_x;
 extern int PRINT_STACK;
+
+#include "actor_anim_defs.h"
 
 void register_mp_console_commands()
 {
@@ -3018,7 +3029,7 @@ void register_mp_console_commands()
 	CMD4(CCC_Float, "cam_offset", &camerapos_x, -1, 1)
 
 
-	CMD4(CCC_Integer, "anim", &anim_value, 0, 32);
+	CMD4(CCC_Integer, "anim", &AnimCurrent, 0, MAX_ANIMS);
 	CMD1(CCC_PSP, "actor_psp");
 
 	CMD1(CCC_MovePlayerToRPoint,	"sv_move_player_to_rpoint");

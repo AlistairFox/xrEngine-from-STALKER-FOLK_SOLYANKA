@@ -481,6 +481,13 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 		}
 	}break;
 
+	case GE_ACTOR_SND_ACTIVATE:
+	case GE_ACTOR_ANIMATION_SCRIPT:
+	case GE_ACTOR_ITEM_ACTIVATE:
+	{
+		SendBroadcast(sender, P, net_flags(true, true));
+	}break;
+
 
 	default:
 		R_ASSERT2	(0,"Game Event not implemented!!!");

@@ -81,12 +81,14 @@ public:
 
 public:
 	
-			bool						MpGodMode					() const				;
-			bool						MpNoClip					() const				;
-			bool						MpInvisibility				() const				;
-			bool						MpSafeMode					() 						;
-			bool						MpAnimationMode() const;
-			bool                        MpAnimationModeEnded() const;
+	bool						MpGodMode					() const				;
+	bool						MpNoClip					() const				;
+	bool						MpInvisibility				() const				;
+				
+	//SE7Kills
+	bool						MpSafeMode					() const;
+	bool						MpAnimationMode				() const;
+
 
 	virtual BOOL						AlwaysTheCrow				()						{ return TRUE; }
 
@@ -310,7 +312,41 @@ public:
 	void					g_SetAnimation		(u32 mstate_rl);
 	void					script_anim			(MotionID exit_animation, PlayCallback Callback, LPVOID CallbackParam);
 	void					g_SetSprintAnimation(u32 mstate_rl,MotionID &head,MotionID &torso,MotionID &legs);
+	bool					MpAnimationMode_Check();
+
+	void					SelectScriptAnimation();
+	void					soundPlay();
+
+	void					ReciveSoundPlay(NET_Packet packet);
+	void					ReciveAnimationPacket(NET_Packet& packet);
+	void					ReciveActivateItem(NET_Packet& packet);
+
+	void					SendSoundPlay(u32 ID, bool Activate);
+	void					SendAnimationToServer(MotionID motion);
+	void					SendActivateItem(shared_str item, bool activate);
+
+
+	
+protected:
+		int oldAnim = 0;
+		int InputAnim = 0;
+		int OutAnim = 0;
+		int MidAnim = 0;
+
+		u32 selectedID = 0;
+		u32 sSndID = 0;
+		ref_sound selected;
+
+		bool start_sel = false;
+		bool InPlay = true;
+		bool OutPlay = true;
+		bool MidPlay = true;
+
+
+
 public:
+	bool CanChange = true;
+
 	virtual void			OnHUDDraw			(CCustomHUD* hud);
 			BOOL			HUDview				( )const ;
 

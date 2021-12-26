@@ -270,7 +270,7 @@ bool CActor::MpInvisibility() const
 	return (ps && ps->testFlag(GAME_PLAYER_MP_INVIS));
 }
 
-bool CActor::MpSafeMode()
+bool CActor::MpSafeMode() const
 {
 	if (!g_Alive())
 		return false;
@@ -281,8 +281,6 @@ bool CActor::MpSafeMode()
 
 bool CActor::MpAnimationMode() const
 {
-	return false;
-
 	if (!g_Alive())
 		return false; 
 
@@ -291,12 +289,17 @@ bool CActor::MpAnimationMode() const
 	return (ps && ps->testFlag(GAME_PLAYER_MP_ANIM_MODE));
 }
 
-extern bool AnimationPlayed;
-
-bool CActor::MpAnimationModeEnded() const
+bool CActor::MpAnimationMode_Check()
 {
-	return AnimationPlayed;
+	if (MpAnimationMode())
+		return false;
+
+	if (!OutPlay)
+		return false;
+
+	return CanChange;
 }
+
 
 void CActor::reinit	()
 {
@@ -1192,6 +1195,13 @@ void CActor::UpdateCL	()
 			B = !((mstate_real & mcLookout) && CheckGameFlag(F_DISABLE_RENDER_WEAPON_CROSSHAIR_WHEN_LOOKOUT)) && pWeapon->show_crosshair();
 			psHUD_Flags.set( HUD_CROSSHAIR_RT2, B);			
 			psHUD_Flags.set( HUD_DRAW_RT, pWeapon->show_indicators() );
+
+			 
+			g_pGamePersistent->m_pGShaderConstants->hud_params.x = bInZoom;  //--#SM+#--
+			g_pGamePersistent->m_pGShaderConstants->hud_params.y = pWeapon->GetSecondVPFov(); //--#SM+#--
+			g_pGamePersistent->m_pGShaderConstants->hud_params.z = bUseMark; //--#SM+#--
+			g_pGamePersistent->m_pGShaderConstants->m_blender_mode.x = bNVEnbl;  //--#SM+#--
+		 
 		}
 	}
 	else
@@ -1323,7 +1333,7 @@ void CActor::shedule_Update	(u32 DT)
 			*/
 		}
 
-		if (!pInput->iGetAsyncKeyState(DIK_LALT) && (!MpAnimationMode() && MpAnimationModeEnded()))
+		if (!pInput->iGetAsyncKeyState(DIK_LALT) && MpAnimationMode_Check())
 			g_cl_Orientate			(mstate_real,dt);
 		
 		g_Orientate				(mstate_real,dt);

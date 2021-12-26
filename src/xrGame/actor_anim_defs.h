@@ -109,25 +109,38 @@ struct SActorVehicleAnims
 	void				Create							(IKinematicsAnimated* K);
 };
 
+#define MAX_ANIMS 256
 
-struct LoopedAnims
+struct SScript_AnimInput
 {
-	MotionID m_animation[32];
-	MotionID m_animation_in[32];
-	MotionID m_animation_out[32];
+	MotionID m_animation_in[MAX_ANIMS][32];
+	u32 count[MAX_ANIMS];
 };
-  
+
+struct SScript_AnimOut
+{
+	MotionID m_animation_out[MAX_ANIMS][32];
+	u32 count[MAX_ANIMS];
+};
+
+struct SScript_AnimMiddle
+{
+	MotionID m_animation[MAX_ANIMS][32];
+	u32 count[MAX_ANIMS];
+};
 
 struct SActorStateAnimation
 {
-	LoopedAnims anims[32];
-	bool looped[32];
+	SScript_AnimInput  in_anims;
+	SScript_AnimOut    out_anims;
+	SScript_AnimMiddle middle_anims;
 
-	MotionID m_gitar[7];
+	bool m_animation_loop[MAX_ANIMS];
+	u32	 m_rnd_snds[MAX_ANIMS];
+	ref_sound m_sound_Animation[MAX_ANIMS][32];
+	shared_str m_animation_attach[MAX_ANIMS];
 
 	void CreateAnimationsScripted(IKinematicsAnimated* K);
-
-
 };
 
 struct SActorMotions
@@ -138,7 +151,7 @@ struct SActorMotions
 	SActorState			 m_climb;
 	SActorSprintState	 m_sprint;
 
-	SActorStateAnimation m_ANIMS_PLAYERS;
+	SActorStateAnimation m_script;
 
 	void				Create(IKinematicsAnimated* K);
 

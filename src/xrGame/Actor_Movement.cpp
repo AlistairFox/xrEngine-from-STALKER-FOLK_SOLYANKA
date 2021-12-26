@@ -581,6 +581,9 @@ bool CActor::CanSprint()
 
 bool CActor::CanJump()
 {
+	if (!MpAnimationMode_Check())
+		return false;
+
 	bool can_Jump = 
 		!character_physics_support()->movement()->PHCapture() &&((mstate_real&mcJump)==0) && (m_fJumpTime<=0.f) 
 		&& !m_bJumpKeyPressed &&!IsZoomAimingMode();
@@ -590,6 +593,9 @@ bool CActor::CanJump()
 
 bool CActor::CanMove()
 {
+	if (!MpAnimationMode_Check())
+		return false;
+
 	if( conditions().IsCantWalk() )
 	{
 		if(mstate_wishful&mcAnyMove)
