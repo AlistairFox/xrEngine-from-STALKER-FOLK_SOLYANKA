@@ -330,9 +330,6 @@
     <ClInclude Include="IGame_ObjectPool.h">
       <Filter>Game API\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="IGame_Persistent.h">
-      <Filter>Game API\Objects</Filter>
-    </ClInclude>
     <ClInclude Include="pure_relcase.h">
       <Filter>Game API\Objects</Filter>
     </ClInclude>
@@ -620,6 +617,12 @@
     </ClInclude>
     <ClInclude Include="xrSASH.h">
       <Filter>OpenAutomate</Filter>
+    </ClInclude>
+    <ClInclude Include="ShadersExternalData.h">
+      <Filter>Game API</Filter>
+    </ClInclude>
+    <ClInclude Include="IGame_Persistent.h">
+      <Filter>Game API</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

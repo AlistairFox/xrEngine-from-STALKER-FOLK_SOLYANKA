@@ -1196,12 +1196,12 @@ void CActor::UpdateCL	()
 			psHUD_Flags.set( HUD_CROSSHAIR_RT2, B);			
 			psHUD_Flags.set( HUD_DRAW_RT, pWeapon->show_indicators() );
 
-			 
-			g_pGamePersistent->m_pGShaderConstants->hud_params.x = bInZoom;  //--#SM+#--
-			g_pGamePersistent->m_pGShaderConstants->hud_params.y = pWeapon->GetSecondVPFov(); //--#SM+#--
-			g_pGamePersistent->m_pGShaderConstants->hud_params.z = bUseMark; //--#SM+#--
-			g_pGamePersistent->m_pGShaderConstants->m_blender_mode.x = bNVEnbl;  //--#SM+#--
-		 
+			
+			g_pGamePersistent->m_pGShaderConstants->hud_params.x = pWeapon->bInZoomRightNow();  //--#SM+#--
+			g_pGamePersistent->m_pGShaderConstants->hud_params.y = false; //--#SM+#--
+			g_pGamePersistent->m_pGShaderConstants->hud_params.z = pWeapon->bInZoomRightNow(); //--#SM+#--
+			g_pGamePersistent->m_pGShaderConstants->m_blender_mode.x = false;  //--#SM+#--
+			
 		}
 	}
 	else
@@ -1210,6 +1210,9 @@ void CActor::UpdateCL	()
 		{
 			HUD().SetCrosshairDisp(0.f);
 			HUD().ShowCrosshair(false);
+
+			g_pGamePersistent->m_pGShaderConstants->hud_params.set(0.f, 0.f, 0.f, 0.f); //--#SM+#--
+			g_pGamePersistent->m_pGShaderConstants->m_blender_mode.set(0.f, 0.f, 0.f, 0.f); //--#SM+#--
 		}
 	}
 

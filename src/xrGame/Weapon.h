@@ -34,8 +34,32 @@ public:
 							CWeapon				();
 	virtual					~CWeapon			();
 
+	// [FFT++]: аддоны и управление аддонами
+	
 	// Generic
 	virtual void			Load				(LPCSTR section);
+
+
+	//#STALKER WEAPON PACK 3.1
+
+	bool			bUseAltScope;
+	bool			bScopeIsHasTexture;
+
+	virtual	bool	bInZoomRightNow() const { return m_zoom_params.m_fZoomRotationFactor > 0.05; }
+	bool			bLoadAltScopesParams(LPCSTR section);
+ 	void			LoadOriginalScopesParams(LPCSTR section);
+	void			LoadCurrentScopeParams(LPCSTR section);
+	//обновление видимости для косточек аддонов
+	void			UpdateAltScope();
+	void			UpdateAddonsVisibility();
+	void			UpdateHUDAddonsVisibility();
+	//инициализация свойств присоединенных аддонов
+	virtual void	InitAddons();
+
+
+	shared_str		GetNameWithAttachment();
+
+	///#STALKER WEAPON PACK 3.1
 
 	virtual BOOL			net_Spawn			(CSE_Abstract* DC);
 	virtual void			net_Destroy			();
@@ -148,23 +172,16 @@ public:
 
 	virtual bool UseScopeTexture() {return true;};
 
-	//обновление видимости для косточек аддонов
-			void UpdateAltScope();
-			void UpdateAddonsVisibility();
-			void UpdateHUDAddonsVisibility();
-	//инициализация свойств присоединенных аддонов
-	virtual void InitAddons();
-
 	//для отоброажения иконок апгрейдов в интерфейсе
-	int	GetScopeX() {return pSettings->r_s32(m_scopes[m_cur_scope], "scope_x");}
-	int	GetScopeY() {return pSettings->r_s32(m_scopes[m_cur_scope], "scope_y");}
+	int	GetScopeX();
+	int	GetScopeY();
 	int	GetSilencerX() {return m_iSilencerX;}
 	int	GetSilencerY() {return m_iSilencerY;}
 	int	GetGrenadeLauncherX() {return m_iGrenadeLauncherX;}
 	int	GetGrenadeLauncherY() {return m_iGrenadeLauncherY;}
 
 	const shared_str& GetGrenadeLauncherName	() const{return m_sGrenadeLauncherName;}
-	const shared_str GetScopeName				() const{return pSettings->r_string(m_scopes[m_cur_scope], "scope_name");}
+	const shared_str GetScopeName() const;
 	const shared_str& GetSilencerName			() const{return m_sSilencerName;}
 
 	IC void	ForceUpdateAmmo						()		{ m_BriefInfo_CalcFrame = 0; }
@@ -500,4 +517,6 @@ public:
 	
 	virtual void				DumpActiveParams			(shared_str const & section_name, CInifile & dst_ini) const;
 	virtual shared_str const	GetAnticheatSectionName		() const { return cNameSect(); };
+
+	float GetHudFov();
 };

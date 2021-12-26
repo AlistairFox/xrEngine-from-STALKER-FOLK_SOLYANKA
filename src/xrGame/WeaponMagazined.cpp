@@ -543,7 +543,7 @@ void CWeaponMagazined::state_Fire(float dt)
 	if(fShotTimeCounter<0)
 	{
  
-		if(H_Parent() && (H_Parent()->ID() != Actor()->ID()))
+		if(H_Parent() && Actor() && (H_Parent()->ID() != Actor()->ID()))
 		{
 			Msg("stop shooting w=[%s] magsize=[%d] sshot=[%s] qsize=[%d] shotnum=[%d]",
 					IsWorking()?"true":"false", 
@@ -792,8 +792,14 @@ bool CWeaponMagazined::CanAttach(PIItem pIItem)
 		SCOPES_VECTOR_IT it = m_scopes.begin();
 		for(; it!=m_scopes.end(); it++)
 		{
-			if(pSettings->r_string((*it),"scope_name")==pIItem->object().cNameSect())
-				return true;
+			if (bUseAltScope)
+			{
+				if (*it == pIItem->object().cNameSect())
+					return true;
+			}
+			else
+				if(pSettings->r_string((*it),"scope_name")==pIItem->object().cNameSect())
+					return true;
 		}
 		return false;
 	}
@@ -820,8 +826,16 @@ bool CWeaponMagazined::CanDetach(const char* item_section_name)
 		SCOPES_VECTOR_IT it = m_scopes.begin();
 		for(; it!=m_scopes.end(); it++)
 		{
-			if(pSettings->r_string((*it),"scope_name")==item_section_name)
-				return true;
+			if (bUseAltScope)
+			{
+				if (*it == item_section_name)
+					return true;
+			}
+			else
+			{
+				if (pSettings->r_string((*it), "scope_name") == item_section_name)
+					return true;
+			}
 		}
 		return false;
 	}
@@ -854,8 +868,16 @@ bool CWeaponMagazined::Attach(PIItem pIItem, bool b_send_event)
 		SCOPES_VECTOR_IT it = m_scopes.begin();
 		for(; it!=m_scopes.end(); it++)
 		{
-			if(pSettings->r_string((*it),"scope_name")==pIItem->object().cNameSect())
-				m_cur_scope = u8(it-m_scopes.begin());
+			if (bUseAltScope)
+			{
+				if (*it == pIItem->object().cNameSect())
+					m_cur_scope = u8(it - m_scopes.begin());
+			}
+			else
+			{
+				if (pSettings->r_string((*it), "scope_name") == pIItem->object().cNameSect())
+					m_cur_scope = u8(it - m_scopes.begin());
+			}
 		}
 		m_flagsAddOnState |= CSE_ALifeItemWeapon::eWeaponAddonScope;
 		result = true;
@@ -901,7 +923,17 @@ bool CWeaponMagazined::DetachScope(const char* item_section_name, bool b_spawn_i
 	SCOPES_VECTOR_IT it = m_scopes.begin();
 	for(; it!=m_scopes.end(); it++)
 	{
-		LPCSTR iter_scope_name = pSettings->r_string((*it),"scope_name");
+		shared_str iter_scope_name = "none";
+		
+		if (bUseAltScope)
+		{
+			iter_scope_name = (*it);
+		}
+		else
+		{
+			iter_scope_name = pSettings->r_string((*it), "scope_name");
+		}
+		
 		if(!xr_strcmp(iter_scope_name, item_section_name))
 		{
 			m_cur_scope = NULL;
@@ -971,6 +1003,7 @@ void CWeaponMagazined::InitAddons()
 		shared_str scope_tex_name;
 		if ( m_eScopeStatus == ALife::eAddonAttachable )
 		{
+			/*
 			//m_scopes[cur_scope]->m_sScopeName = pSettings->r_string(cNameSect(), "scope_name");
 			//m_scopes[cur_scope]->m_iScopeX	 = pSettings->r_s32(cNameSect(),"scope_x");
 			//m_scopes[cur_scope]->m_iScopeY	 = pSettings->r_s32(cNameSect(),"scope_y");
@@ -1003,6 +1036,9 @@ void CWeaponMagazined::InitAddons()
 					xr_delete(m_UIScope);
 				}
 			}
+
+			*/
+			LoadCurrentScopeParams(GetScopeName().c_str());
 		}
 	}
 	else
