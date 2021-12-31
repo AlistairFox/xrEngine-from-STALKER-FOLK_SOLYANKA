@@ -116,7 +116,10 @@ public:
 #else
 	{}
 #endif
-	virtual	void					LoadTitle			(bool change_tip=false, shared_str map_name=""){}
+	virtual	void					LoadTitle			(bool change_tip, shared_str map_name=""){}
+
+	virtual void					LoadTitle			(shared_str stage_name) {}
+
 	virtual bool					CanBePaused			()		{ return true;}
 };
 

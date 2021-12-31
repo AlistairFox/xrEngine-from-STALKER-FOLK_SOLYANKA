@@ -253,6 +253,12 @@ public:
 	bool HeadAnimPlay  = true;
 	bool ScriptAnimPlay = true;
 
+	bool loop_torso = true;
+	bool loop_legs = true;
+	bool loop_head = true;
+	bool loop_script = true;
+
+
 	CBlend* m_current_legs_blend;
 	CBlend* m_current_torso_blend;
 	CBlend* m_current_head_blend;

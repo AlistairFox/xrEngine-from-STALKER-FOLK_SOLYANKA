@@ -8,6 +8,11 @@
 #include "../../xrEngine/xr_ioconsole.h"
 #include "UIDialogWnd.h"
 
+//Atmosfear 3 
+#include "pch_script.h"
+#include "ai_space.h"
+#include "../xrServerEntities/script_engine.h"
+
 CUIMpServerAdm::CUIMpServerAdm()
 {
 	m_pBackBtn = xr_new<CUI3tButton>();
@@ -29,10 +34,20 @@ CUIMpServerAdm::CUIMpServerAdm()
 	m_pMainSelectionWnd->AttachChild(m_pFastRestartBtn);
 	m_pFastRestartBtn->SetMessageTarget(this);
 
-	m_pChangeWeatherBtn = xr_new<CUI3tButton>();
-	m_pChangeWeatherBtn->SetAutoDelete(true);
-	m_pMainSelectionWnd->AttachChild(m_pChangeWeatherBtn);
-	m_pChangeWeatherBtn->SetMessageTarget(this);
+	if (false)
+	{
+		m_pChangeWeatherBtn = xr_new<CUI3tButton>();
+		m_pChangeWeatherBtn->SetAutoDelete(true);
+		m_pMainSelectionWnd->AttachChild(m_pChangeWeatherBtn);
+		m_pChangeWeatherBtn->SetMessageTarget(this);
+	}
+
+	//Atmosfear 3 
+	m_pWeatherAtmosfear3 = xr_new<CUI3tButton>();
+	m_pWeatherAtmosfear3->SetAutoDelete(true);
+	m_pMainSelectionWnd->AttachChild(m_pWeatherAtmosfear3);
+	m_pWeatherAtmosfear3->SetMessageTarget(this);
+	//End 
 
 	m_pChangeGameTypeBtn = xr_new<CUI3tButton>();
 	m_pChangeGameTypeBtn->SetAutoDelete(true);
@@ -232,7 +247,7 @@ void CUIMpServerAdm::Init(CUIXml& xml_doc)
 	CUIXmlInit::InitWindow(xml_doc, "server_adm:main_selection_wnd", 0, m_pMainSelectionWnd);
 	CUIXmlInit::Init3tButton(xml_doc, "server_adm:main_selection_wnd:restart_button", 0, m_pRestartBtn);
 	CUIXmlInit::Init3tButton(xml_doc, "server_adm:main_selection_wnd:fast_restart_button", 0, m_pFastRestartBtn);
-	CUIXmlInit::Init3tButton(xml_doc, "server_adm:main_selection_wnd:change_weather_button", 0, m_pChangeWeatherBtn);
+	//CUIXmlInit::Init3tButton(xml_doc, "server_adm:main_selection_wnd:change_weather_button", 0, m_pChangeWeatherBtn);
 	CUIXmlInit::Init3tButton(xml_doc, "server_adm:main_selection_wnd:change_game_type_button", 0, m_pChangeGameTypeBtn);
 	CUIXmlInit::Init3tButton(xml_doc, "server_adm:main_selection_wnd:change_game_limits_button", 0, m_pChangeGameLimitsBtn);
 	CUIXmlInit::Init3tButton(xml_doc, "server_adm:main_selection_wnd:vote_stop_button", 0, m_pVoteStopBtn);
@@ -277,6 +292,8 @@ void CUIMpServerAdm::Init(CUIXml& xml_doc)
 	CUIXmlInit::InitCheck(xml_doc, "server_adm:game_limits_selection_wnd:friendly_indic_check", 0, m_pFriendlyIndicCheck);
 	CUIXmlInit::InitCheck(xml_doc, "server_adm:game_limits_selection_wnd:bearer_cant_sprint_check", 0, m_pBearerCantSprintCheck);
 
+	CUIXmlInit::Init3tButton(xml_doc, "atmosfear3:button", 0, m_pWeatherAtmosfear3);
+
 	m_pSpectatorFECheck->SetCurrentOptValue();
 	m_pSpectatorFFCheck->SetCurrentOptValue();
 	m_pSpectatorFLCheck->SetCurrentOptValue();
@@ -297,6 +314,10 @@ void CUIMpServerAdm::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
 		{
 			if(pWnd==m_pBackBtn)
 				OnBackBtn();
+			else if (pWnd == m_pWeatherAtmosfear3)
+			{
+				ShowAtmosfear3();
+			}
 			else if(pWnd==m_pChangeWeatherBtn)
 				ShowChangeWeatherBtns();
 			else if(pWnd==m_pChangeGameTypeBtn)
@@ -503,6 +524,13 @@ void CUIMpServerAdm::ShowChangeGameLimitsBtns()
 	m_pMainSelectionWnd->Show(false);
 	m_pBackBtn->Show(true);
 	m_pGameLimitsSelectionWnd->Show(true);
+}
+void CUIMpServerAdm::ShowAtmosfear3()
+{
+	smart_cast<CUIDialogWnd*>(GetParent())->HideDialog();
+	luabind::functor<void>	funct;
+	ai().script_engine().functor("atmosfear.OnButton_af_options_clicked", funct);
+	funct();
 }
 void CUIMpServerAdm::OnBackBtn()
 {

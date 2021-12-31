@@ -277,7 +277,10 @@ protected:
 	bool					m_strapped_mode;
 	bool					m_can_be_strapped;
 
+public:
 	Fmatrix					m_Offset;
+
+protected:
 	// 0-используется без участия рук, 1-одна рука, 2-две руки
 	EHandDependence			eHandDependence;
 	bool					m_bIsSingleHanded;

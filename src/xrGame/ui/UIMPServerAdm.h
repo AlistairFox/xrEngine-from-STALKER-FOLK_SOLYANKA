@@ -16,6 +16,8 @@ class CUIMpServerAdm :	public CUIWindow, public CUIWndCallback
 		typedef CUIWindow	inherited;
 		CUI3tButton*		m_pBackBtn;
 
+		CUI3tButton*		m_pWeatherAtmosfear3;
+
 		CUIWindow*			m_pMainSelectionWnd;
 		CUI3tButton*		m_pRestartBtn;
 		CUI3tButton*		m_pFastRestartBtn;
@@ -37,6 +39,7 @@ class CUIMpServerAdm :	public CUIWindow, public CUIWndCallback
 		CUI3tButton*		m_pTDMBtn;
 		CUI3tButton*		m_pCTABtn;
 		CUI3tButton*		m_pAHBtn;
+
 
 		CUIWindow*			m_pGameLimitsSelectionWnd;
 		CUI3tButton*		m_pSetTimeLimitBtn;
@@ -71,6 +74,9 @@ public:
 				void		ShowChangeWeatherBtns();
 				void		ShowChangeGameTypeBtns();
 				void		ShowChangeGameLimitsBtns();
+
+				void		ShowAtmosfear3();
+
 				void		OnBackBtn();
 				bool		IsBackBtnShown() {return m_pBackBtn->IsShown();};
 };

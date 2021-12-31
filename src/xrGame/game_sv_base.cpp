@@ -364,7 +364,7 @@ void game_sv_GameState::net_Export_GameTime						(NET_Packet& P)
 	
 	P.w_stringZ(g_pGamePersistent->Environment().CurrentWeatherName);
 
-	P.w_u8(need_update ? 0 : 1);
+	P.w_u8(need_update);
 
 	if (need_update)
 		need_update = false;

@@ -72,7 +72,8 @@ void CHW::Reset		(HWND hwnd)
 	else					DevPP.FullScreen_RefreshRateInHz	= D3DPRESENT_RATE_DEFAULT;
 #endif
 
-	while	(TRUE)	{
+	while	(TRUE)
+	{
 		HRESULT _hr							= HW.pDevice->Reset	(&DevPP);
 		if (SUCCEEDED(_hr))					break;
 		Msg		("! ERROR: [%dx%d]: %s",DevPP.BackBufferWidth,DevPP.BackBufferHeight,Debug.error2string(_hr));
@@ -554,14 +555,16 @@ void	CHW::updateWindowProps	(HWND m_hWnd)
 
 			RECT			m_rcWindowBounds;
 			BOOL			bCenter = FALSE;
+			BOOL			bRight = FALSE;
 			if (strstr(Core.Params, "-center_screen"))	bCenter = TRUE;
+			if (strstr(Core.Params, "-right_screen")) bRight = TRUE;
 
 #ifndef _EDITOR
 			if (g_dedicated_server)
 				bCenter		= TRUE;
 #endif
-
-			if(bCenter){
+			if(bCenter)
+			{
 				RECT				DesktopRect;
 				
 				GetClientRect		(GetDesktopWindow(), &DesktopRect);
@@ -571,7 +574,18 @@ void	CHW::updateWindowProps	(HWND m_hWnd)
 									(DesktopRect.bottom-DevPP.BackBufferHeight)/2, 
 									(DesktopRect.right+DevPP.BackBufferWidth)/2, 
 									(DesktopRect.bottom+DevPP.BackBufferHeight)/2			);
-			}else{
+			}
+			else
+				if (bRight)
+				{
+					SetRect(&m_rcWindowBounds,
+						1024,
+						0,
+						DevPP.BackBufferWidth + 1024,
+						DevPP.BackBufferHeight);
+				}
+			else
+			{
 				SetRect(			&m_rcWindowBounds,
 									0, 
 									0, 

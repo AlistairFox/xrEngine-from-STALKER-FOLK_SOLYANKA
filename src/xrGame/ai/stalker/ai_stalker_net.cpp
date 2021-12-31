@@ -407,7 +407,7 @@ void CAI_Stalker::PH_A_CrPr()
 
 	CalculateInterpolationParams();
 }
-
+ 
 void TorsoAnimPlayed(CBlend* blend)
 {
 	CAI_Stalker* stalker = (CAI_Stalker*)blend->CallbackParam;
@@ -431,6 +431,7 @@ void LegsAnimPlayed(CBlend* blend)
 	if (stalker)
 		stalker->LegsAnimPlay = true;
 }
+ 
 
 void ScriptAnimPlayed(CBlend* blend)
 {
@@ -448,75 +449,113 @@ void CAI_Stalker::ApplyAnimation(
 	float u_time_torso, float u_time_legs, float u_time_head, float u_time_script
 )
 {
-	MotionID motion;
+
 	IKinematicsAnimated* ik_anim_obj = smart_cast<IKinematicsAnimated*>(Visual());
+	MotionID motion;
 
-	if (!ik_anim_obj->dcast_RenderVisual())
-		return;
-
-//	Msg("torso[%d] legs[%d] // head[%d] script[%d]", u_torso_motion_idx, u_legs_motion_idx, u_head_motion_idx, u_script_motion_idx);
-
-
-	if ((u_last_script_motion_idx != u_script_motion_idx) || ScriptAnimPlay)
+	if (u_last_torso_motion_idx != u_torso_motion_idx)
 	{
-		motion.idx = u_script_motion_idx;
-		motion.slot = u_script_motion_slot;
-
-		u_last_script_motion_idx = u_script_motion_idx;
-	
+		u_last_torso_motion_idx = u_torso_motion_idx;
+		motion.idx = u_torso_motion_idx;
+		motion.slot = u_torso_motion_slot;
 		if (motion.valid())
 		{
-			CMotionDef* def = ik_anim_obj->LL_GetMotionDef(motion);
-
-			if (def->StopAtEnd())
-				m_current_script_blend = ik_anim_obj->PlayCycle(motion, TRUE, ScriptAnimPlayed, this, 0);
-			else 
-				m_current_script_blend = ik_anim_obj->PlayCycle(motion, TRUE, 0, 0, 0);
-
-			ScriptAnimPlay = false;
-		
+			ik_anim_obj->LL_PlayCycle(ik_anim_obj->LL_PartID("torso"),
+				motion, TRUE,
+				ik_anim_obj->LL_GetMotionDef(motion)->Accrue(), 
+				ik_anim_obj->LL_GetMotionDef(motion)->Falloff(),
+				ik_anim_obj->LL_GetMotionDef(motion)->Speed(),
+				FALSE, 0, 0, 0);
 		}
 	}
-
-	if ((u_last_head_motion_idx != u_head_motion_idx) || HeadAnimPlay)
+	if (u_last_legs_motion_idx != u_legs_motion_idx)
+	{
+		u_last_legs_motion_idx = u_legs_motion_idx;
+		motion.idx = u_legs_motion_idx;
+		motion.slot = u_legs_motion_slot;
+		if (motion.valid())
+		{
+			CStepManager::on_animation_start(motion, 
+				ik_anim_obj->LL_PlayCycle(ik_anim_obj->LL_PartID("legs"),
+				motion,	TRUE, 
+				ik_anim_obj->LL_GetMotionDef(motion)->Accrue(),
+				ik_anim_obj->LL_GetMotionDef(motion)->Falloff(),
+				ik_anim_obj->LL_GetMotionDef(motion)->Speed(),
+				FALSE, 0, 0, 0));
+		}
+	}
+	if (u_last_head_motion_idx != u_head_motion_idx)
 	{
 		u_last_head_motion_idx = u_head_motion_idx;
 		motion.idx = u_head_motion_idx;
 		motion.slot = u_head_motion_slot;
-
 		if (motion.valid())
 		{
-			CMotionDef* def = ik_anim_obj->LL_GetMotionDef(motion);
-			if (def->StopAtEnd())
-				m_current_head_blend = ik_anim_obj->PlayCycle(motion, TRUE, HeadAnimPlayed, this, 0);
-			else
-				m_current_head_blend = ik_anim_obj->PlayCycle(motion, TRUE, 0, 0, 0);
-
-			HeadAnimPlay = false;
+			ik_anim_obj->LL_PlayCycle(ik_anim_obj->LL_PartID("head"),
+				motion, TRUE,
+				ik_anim_obj->LL_GetMotionDef(motion)->Accrue(), 
+				ik_anim_obj->LL_GetMotionDef(motion)->Falloff(),
+				ik_anim_obj->LL_GetMotionDef(motion)->Speed(), 
+				FALSE, 0, 0, 0);
 		}
 	}
-	
-	if ((u_last_torso_motion_idx != u_torso_motion_idx || TorsoAnimPlay )) 
+
+	if (u_last_script_motion_idx != u_script_motion_idx) {
+		motion.idx = u_script_motion_idx;
+		motion.slot = u_script_motion_slot;
+		u_last_script_motion_idx = u_script_motion_idx;
+		if (motion.valid())
+		{
+			ik_anim_obj->LL_PlayCycle(ik_anim_obj->LL_GetMotionDef(motion)->bone_or_part, motion, TRUE,
+			ik_anim_obj->LL_GetMotionDef(motion)->Accrue(),
+			ik_anim_obj->LL_GetMotionDef(motion)->Falloff(),
+			ik_anim_obj->LL_GetMotionDef(motion)->Speed(),
+			ik_anim_obj->LL_GetMotionDef(motion)->StopAtEnd(),
+			0, 0, 0);
+		}
+	}
+
+
+	/*
+	if (TorsoAnimPlay)
 	{
-		u_last_torso_motion_idx = u_torso_motion_idx;
+		MotionID motion;
 		motion.idx = u_torso_motion_idx;
 		motion.slot = u_torso_motion_slot;
 		
 		if (motion.valid())
 		{
 			CMotionDef* def = ik_anim_obj->LL_GetMotionDef(motion);
-			if (def->StopAtEnd())
+			if (def->StopAtEnd() && false)
+			{
+				Msg("torso set callback anim");
 				m_current_torso_blend = ik_anim_obj->PlayCycle(motion, TRUE, TorsoAnimPlayed, this, 0);
-			else 
-				m_current_torso_blend = ik_anim_obj->PlayCycle(motion, TRUE, 0, 0, 0);
-
-			TorsoAnimPlay = false;
+				TorsoAnimPlay = false;
+ 			}
+			else
+			{
+				if (u_last_torso_motion_idx != u_torso_motion_idx)
+				{
+					u_last_torso_motion_idx = u_torso_motion_idx;
+					m_current_torso_blend = ik_anim_obj->LL_PlayCycle(
+						ik_anim_obj->LL_PartID("torso"), 
+						motion, TRUE,
+						ik_anim_obj->LL_GetMotionDef(motion)->Accrue(),
+						ik_anim_obj->LL_GetMotionDef(motion)->Falloff(),
+						ik_anim_obj->LL_GetMotionDef(motion)->Speed(),
+						FALSE,
+						0, 0, 0
+					);
+				}
+ 			}
+			 
+			
 		}
 	}
-
-	if ((u_last_legs_motion_idx != u_legs_motion_idx ) || LegsAnimPlay)
+   
+	if (LegsAnimPlay)
 	{
-		u_last_legs_motion_idx = u_legs_motion_idx;
+		MotionID motion;
 		motion.idx = u_legs_motion_idx;
 		motion.slot = u_legs_motion_slot;
 		
@@ -524,43 +563,102 @@ void CAI_Stalker::ApplyAnimation(
 		{
 			CMotionDef* def = ik_anim_obj->LL_GetMotionDef(motion);
 			
-			if (def->StopAtEnd())
+			if (def->StopAtEnd() && false)
 			{
+				Msg("legs set callback anim");
 				m_current_legs_blend = ik_anim_obj->PlayCycle(motion, TRUE, LegsAnimPlayed, this, 0);
+				LegsAnimPlay = false;
+ 			}
+			else
+			{
+				if (u_last_legs_motion_idx != u_legs_motion_idx)
+				{
+					u_last_legs_motion_idx = u_legs_motion_idx;
+					m_current_legs_blend = ik_anim_obj->LL_PlayCycle(
+						ik_anim_obj->LL_PartID("legs"),
+						motion, TRUE,
+						ik_anim_obj->LL_GetMotionDef(motion)->Accrue(),
+						ik_anim_obj->LL_GetMotionDef(motion)->Falloff(),
+						ik_anim_obj->LL_GetMotionDef(motion)->Speed(),
+						FALSE,
+						0, 0, 0
+					);
+				}
+			}
+			
+			if (&m_current_legs_blend)
+				CStepManager::on_animation_start(motion, m_current_legs_blend);
+		}
+	}
+
+	if (HeadAnimPlay)
+	{
+		MotionID motion;
+		motion.idx = u_head_motion_idx;
+		motion.slot = u_head_motion_slot;
+
+		if (motion.valid())
+		{
+			CMotionDef* def = ik_anim_obj->LL_GetMotionDef(motion);
+			if (def->StopAtEnd() && false)
+			{
+				Msg("head set callback anim");
+				m_current_head_blend = ik_anim_obj->PlayCycle(motion, TRUE, HeadAnimPlayed, this, 0);
+				HeadAnimPlay = false;
 			}
 			else
 			{
-				m_current_legs_blend = ik_anim_obj->PlayCycle(motion, TRUE, 0, 0, 0);
-				
+				if (u_last_head_motion_idx != u_head_motion_idx)
+				{
+					m_current_head_blend = ik_anim_obj->LL_PlayCycle(
+						ik_anim_obj->LL_PartID("head"),
+						motion, TRUE,
+						ik_anim_obj->LL_GetMotionDef(motion)->Accrue(),
+						ik_anim_obj->LL_GetMotionDef(motion)->Falloff(),
+						ik_anim_obj->LL_GetMotionDef(motion)->Speed(),
+						FALSE,
+						0, 0, 0
+					);
+					u_last_head_motion_idx = u_head_motion_idx;
+				}
 			}
-			
-			LegsAnimPlay = false;
-			CStepManager::on_animation_start(motion, m_current_legs_blend);
+
 		}
 	}
- 
 
-	if (false)
-	if (this->g_Alive())
+	if (ScriptAnimPlay)
 	{
-		if (m_current_script_blend && !ScriptAnimPlay)
-			if (u_time_script > 0)
-				m_current_script_blend->timeCurrent = u_time_script;
-		
-		if (m_current_head_blend && !HeadAnimPlay)
-			if (u_time_head > 0)
-				m_current_head_blend->timeCurrent = u_time_head;
+		MotionID motion;
+		motion.idx = u_script_motion_idx;
+		motion.slot = u_script_motion_slot;
 
-		if (m_current_legs_blend && !LegsAnimPlay)
-			if (u_time_legs > 0)
-				m_current_legs_blend->timeCurrent = u_time_legs;
-		
-		if (m_current_torso_blend && !TorsoAnimPlay)
-			if (u_time_torso > 0)
-				m_current_torso_blend->timeCurrent = u_time_torso;
+		if (motion.valid())
+		{
+			CMotionDef* def = ik_anim_obj->LL_GetMotionDef(motion);
 
-	}
-
+			if (def->StopAtEnd() && false)
+			{
+				Msg("script set callback anim");
+				m_current_script_blend = ik_anim_obj->PlayCycle(motion, TRUE, ScriptAnimPlayed, this, 0);
+				ScriptAnimPlay = false;
+			}
+			else
+			{
+				if (u_last_script_motion_idx != u_script_motion_idx)
+				{
+					m_current_script_blend = ik_anim_obj->LL_PlayCycle(
+						ik_anim_obj->LL_GetMotionDef(motion)->bone_or_part, motion, TRUE,
+						ik_anim_obj->LL_GetMotionDef(motion)->Accrue(),
+						ik_anim_obj->LL_GetMotionDef(motion)->Falloff(),
+						ik_anim_obj->LL_GetMotionDef(motion)->Speed(),
+						TRUE,
+						0, 0, 0
+					);
+					u_last_script_motion_idx = u_script_motion_idx;
+				}
+			}
+		}
+	}  */
 }
 
 void CAI_Stalker::CalculateInterpolationParams()

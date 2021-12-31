@@ -261,6 +261,8 @@ void	CInifile::Load(IReader* F, LPCSTR path
                     #endif
                     );
 					FS.r_close	(I);
+
+					//Msg("Read IniFile include [%s]", inc_name);
 				}
             }
         } 

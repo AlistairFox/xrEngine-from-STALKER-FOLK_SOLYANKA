@@ -824,18 +824,22 @@ void CGamePersistent::LoadTitle(bool change_tip, shared_str map_name)
 		string512				buff;
 		u8						tip_num;
 		luabind::functor<u8>	m_functor;
-		bool is_single = !xr_strcmp(m_game_params.m_game_type,"single");
-		if(is_single)
+		
+		//bool is_single = !xr_strcmp(m_game_params.m_game_type,"single");
+							
+		bool is_single = true;
+ 
+		if (is_single)
 		{
-			R_ASSERT( ai().script_engine().functor( "loadscreen.get_tip_number", m_functor ) );
-			tip_num				= m_functor(map_name.c_str());
-		}
+			R_ASSERT(ai().script_engine().functor("loadscreen.get_tip_number", m_functor));
+			tip_num = m_functor(map_name.c_str());
+		}	
 		else
 		{
 			R_ASSERT( ai().script_engine().functor( "loadscreen.get_mp_tip_number", m_functor ) );
 			tip_num				= m_functor(map_name.c_str());
 		}
-//		tip_num = 83;
+ 
 		xr_sprintf				(buff, "%s%d:", CStringTable().translate("ls_tip_number").c_str(), tip_num);
 		shared_str				tmp = buff;
 		
@@ -846,6 +850,30 @@ void CGamePersistent::LoadTitle(bool change_tip, shared_str map_name)
 
 		pApp->LoadTitleInt		(CStringTable().translate("ls_header").c_str(), tmp.c_str(), CStringTable().translate(buff).c_str());
 	}
+	
+ 
+}
+
+void CGamePersistent::LoadTitle(shared_str stage_name)
+{
+	pApp->LoadStage();
+
+	string512				buff;
+	u8						tip_num;
+
+	tip_num = Random.randI(1, 101);
+	xr_sprintf(buff, "%s%d:", CStringTable().translate("ls_tip_number").c_str(), tip_num);
+	shared_str				tmp = buff;
+
+ 
+	xr_sprintf(buff, "ls_tip_%d", tip_num);
+ 
+	if (stage_name.size() == 0)
+		pApp->LoadTitleInt(CStringTable().translate("ls_header").c_str(), tmp.c_str(), CStringTable().translate(buff).c_str());
+	else
+		pApp->LoadTitleInt(CStringTable().translate("ls_header").c_str(), tmp.c_str(), stage_name.c_str());
+
+	Msg("Stage %s", stage_name.c_str());
 }
 
 bool CGamePersistent::CanBePaused()

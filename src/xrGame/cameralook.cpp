@@ -102,17 +102,12 @@ void CCameraLook2::OnActivate( CCameraBase* old_cam )
 	CCameraLook::OnActivate( old_cam );
 }
 
-extern int right_cam = 0;
-
 void CCameraLook2::Update(Fvector& point, Fvector& noise_dangle)
 { 
 	Fvector _off;
 	Fmatrix mR;
 
-	if (right_cam)
-		_off = m_cam_offset_rs;
-	else
-		_off = m_cam_offset;
+	_off = m_cam_offset;
 	
 	if (camerapos_x != 0)
 	{
@@ -134,9 +129,8 @@ void CCameraLook2::Update(Fvector& point, Fvector& noise_dangle)
 
 	if (actor->MpAnimationMode())
 	{
-		dist = 2;
 		Fvector3 offset; 
-		offset.set(0.0f, 0.0f, 0.0f);
+		offset.set(0.0f, 0.0f, -2.0f);
 
 		a_xform.transform_tiny(offset);
 		UpdateDistance(offset);
@@ -146,10 +140,6 @@ void CCameraLook2::Update(Fvector& point, Fvector& noise_dangle)
 		dist = 1.2f;
 		a_xform.transform_tiny(_off);
 		UpdateDistance(_off);
-  
-		//Msg("CAM yaw[%f]/pitch[%f]/rool[%f]", yaw, pitch,roll);
-		
-	
 	}
 
 
@@ -161,8 +151,6 @@ void CCameraLook2::Load(LPCSTR section)
 	m_cam_offset			= pSettings->r_fvector3	(section,"offset");
 	m_cam_offset_rs			= pSettings->r_fvector3(section, "offset_rs");
 
-//	m_autoaim_inertion_yaw	= pSettings->r_fvector2	(section,"autoaim_speed_y");
-//	m_autoaim_inertion_pitch= pSettings->r_fvector2	(section,"autoaim_speed_x");
 }
 
  

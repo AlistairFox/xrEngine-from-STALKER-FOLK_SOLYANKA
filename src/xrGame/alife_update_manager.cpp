@@ -259,8 +259,8 @@ bool CALifeUpdateManager::change_level	(NET_Packet &net_packet)
 #include "../xrEngine/igame_persistent.h"
 void CALifeUpdateManager::new_game			(LPCSTR save_name)
 {
-//	g_pGamePersistent->LoadTitle		("st_creating_new_game");
-	g_pGamePersistent->LoadTitle		();
+	g_pGamePersistent->LoadTitle		("st_creating_new_game");
+//	g_pGamePersistent->LoadTitle		();
 	Msg									("* Creating new game...");
 
 	unload								();
@@ -295,8 +295,8 @@ void CALifeUpdateManager::new_game			(LPCSTR save_name)
 
 void CALifeUpdateManager::load			(LPCSTR game_name, bool no_assert, bool new_only)
 {
-//	g_pGamePersistent->LoadTitle		("st_loading_alife_simulator");
-	g_pGamePersistent->LoadTitle		();
+	g_pGamePersistent->LoadTitle		("st_loading_alife_simulator");
+	//	g_pGamePersistent->LoadTitle		();
 
 #ifdef DEBUG
 	Memory.mem_compact					();

@@ -508,6 +508,11 @@ if(!g_dedicated_server)
 	m_sInventoryBoxUseAction		= "inventory_box_use";
 	//---------------------------------------------------------------------
 	m_sHeadShotParticle	= READ_IF_EXISTS(pSettings,r_string,section,"HeadShotParticle",0);
+
+	if (this == Level().CurrentEntity()) //--#SM+#-- [reset some render flags]
+	{
+		g_pGamePersistent->m_pGShaderConstants->m_blender_mode.set(0.f, 0.f, 0.f, 0.f);
+	}
 }
 
 void CActor::PHHit(SHit &H)
@@ -1502,7 +1507,7 @@ void CActor::shedule_Update	(u32 DT)
 	//что актер видит перед собой
 	collide::rq_result& RQ				= HUD().GetCurrentRayQuery();
 
-	if(!input_external_handler_installed() && RQ.O && RQ.O->getVisible() &&  RQ.range<2.0f) 
+	if(!input_external_handler_installed() && RQ.O && RQ.O->getVisible() &&  RQ.range<8.0f) 
 	{
 		m_pObjectWeLookingAt			= smart_cast<CGameObject*>(RQ.O);
 		

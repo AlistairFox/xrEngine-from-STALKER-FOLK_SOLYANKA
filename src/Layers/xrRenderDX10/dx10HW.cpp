@@ -759,7 +759,10 @@ void CHW::updateWindowProps(HWND m_hWnd)
 
 			RECT			m_rcWindowBounds;
 			BOOL			bCenter = FALSE;
+			BOOL			bRight = FALSE;
+		   
 			if (strstr(Core.Params, "-center_screen"))	bCenter = TRUE;
+			if (strstr(Core.Params, "-right_screen")) bRight = TRUE;
 
 			if (bCenter) {
 				RECT				DesktopRect;
@@ -771,7 +774,22 @@ void CHW::updateWindowProps(HWND m_hWnd)
 					(DesktopRect.bottom-m_ChainDesc.BufferDesc.Height)/2, 
 					(DesktopRect.right+m_ChainDesc.BufferDesc.Width)/2, 
 					(DesktopRect.bottom+m_ChainDesc.BufferDesc.Height)/2);
-			}else{
+			}
+			else
+				if (bRight)
+				{
+					RECT				DesktopRect;
+
+					GetClientRect(GetDesktopWindow(), &DesktopRect);
+
+					SetRect(&m_rcWindowBounds,
+						1024,
+						0,
+						m_ChainDesc.BufferDesc.Width + 1024,
+						m_ChainDesc.BufferDesc.Height);
+				}
+			else
+			{
 				SetRect(			&m_rcWindowBounds,
 					0, 
 					0, 

@@ -309,8 +309,7 @@ public:
 	void					RenderLast			();
 
 	bool					SetWeatherFX		(shared_str name);
-	bool					SetWeatherFXClient  (shared_str name, float time1, float time2, float fGameTime_client);
-
+ 
 	float					GetEnv1Time();
 	float					GetEnv2Time();
 

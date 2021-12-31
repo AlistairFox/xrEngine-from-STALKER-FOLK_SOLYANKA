@@ -56,6 +56,7 @@ struct SActorState
 
 	MotionID		landing[2];
 	MotionID		legs_turn;
+	MotionID		legs_turn_safe;
 	MotionID		death;
 	SAnimState		m_walk;
 	SAnimState		m_run;

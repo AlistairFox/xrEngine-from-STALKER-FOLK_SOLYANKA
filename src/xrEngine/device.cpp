@@ -539,31 +539,19 @@ void CRenderDevice::Pause(BOOL bOn, BOOL bTimer, BOOL bSound, LPCSTR reason)
 	if(bOn)
 	{
 		if(!Paused())						
-			bShowPauseString				= 
-#ifdef INGAME_EDITOR
-				editor() ? FALSE : 
-#endif // #ifdef INGAME_EDITOR
-#ifdef DEBUG
-				!xr_strcmp(reason, "li_pause_key_no_clip")?	FALSE:
-#endif // DEBUG
-				TRUE;
+			bShowPauseString				= TRUE;
 
 		if( bTimer && (!g_pGamePersistent || g_pGamePersistent->CanBePaused()) )
 		{
 			g_pauseMngr.Pause				(TRUE);
-#ifdef DEBUG
-			if(!xr_strcmp(reason, "li_pause_key_no_clip"))
-				TimerGlobal.Pause				(FALSE);
-#endif // DEBUG
 		}
 	
-		if (bSound && ::Sound) {
+		if (bSound && ::Sound) 
+		{
 			snd_emitters_ =					::Sound->pause_emitters(true);
-#ifdef DEBUG
-//			Log("snd_emitters_[true]",snd_emitters_);
-#endif // DEBUG
 		}
-	}else
+	}
+	else
 	{
 		if( bTimer && /*g_pGamePersistent->CanBePaused() &&*/ g_pauseMngr.Paused() )
 		{
@@ -576,13 +564,6 @@ void CRenderDevice::Pause(BOOL bOn, BOOL bTimer, BOOL bSound, LPCSTR reason)
 			if(snd_emitters_>0) //avoid crash
 			{
 				snd_emitters_ =				::Sound->pause_emitters(false);
-#ifdef DEBUG
-//				Log("snd_emitters_[false]",snd_emitters_);
-#endif // DEBUG
-			}else {
-#ifdef DEBUG
-				Log("Sound->pause_emitters underflow");
-#endif // DEBUG
 			}
 		}
 	}
@@ -606,20 +587,13 @@ void CRenderDevice::OnWM_Activate(WPARAM wParam, LPARAM lParam)
 
 	if (bActive!=Device.b_is_Active)
 	{
-
-
 		if (Device.b_is_Active)	
 		{
 			Device.seqAppActivate.Process(rp_AppActivate);
 			app_inactive_time		+= TimerMM.GetElapsed_ms() - app_inactive_time_start;
-
-#ifndef DEDICATED_SERVER
-#	ifdef INGAME_EDITOR
-			if (!editor())
-#	endif // #ifdef INGAME_EDITOR
-				ShowCursor			(FALSE);
-#endif // #ifndef DEDICATED_SERVER
-		}else	
+			ShowCursor			(FALSE);
+		}
+		else	
 		{
 			app_inactive_time_start	= TimerMM.GetElapsed_ms();
 			Device.seqAppDeactivate.Process(rp_AppDeactivate);
@@ -630,7 +604,7 @@ void CRenderDevice::OnWM_Activate(WPARAM wParam, LPARAM lParam)
 
 void	CRenderDevice::AddSeqFrame			( pureFrame* f, bool mt )
 {
-		if ( mt )	
+	if ( mt )	
 		seqFrameMT.Add	(f,REG_PRIORITY_HIGH);
 	else								
 		seqFrame.Add		(f,REG_PRIORITY_LOW);

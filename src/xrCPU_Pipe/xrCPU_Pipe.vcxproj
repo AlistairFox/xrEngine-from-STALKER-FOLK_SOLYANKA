@@ -75,7 +75,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>C:\Games\omp1.2\bins\x86\</OutDir>
+    <OutDir>A:\Games\TEST\Dead Edge\bin\x86</OutDir>
+    <LibraryPath>A:\Games\TEST\Dead Edge\bin\x86\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IgnoreImportLibrary>true</IgnoreImportLibrary>

@@ -1250,8 +1250,8 @@ void CApplication::LoadStage()
 {
 	load_stage++;
 	VERIFY						(ll_dwReference);
-	Msg							("* phase time: %d ms",phase_timer.GetElapsed_ms());	phase_timer.Start();
-	Msg							("* phase cmem: %d K", Memory.mem_usage()/1024);
+	Msg							("*stage [%d] phase time: %d ms", load_stage, phase_timer.GetElapsed_ms());	phase_timer.Start();
+	Msg							("*stage [%d] phase cmem: %d K",  load_stage,Memory.mem_usage()/1024);
 	
 	if (g_pGamePersistent->GameType()==1 && strstr(Core.Params,"alife"))
 		max_load_stage			= 17;

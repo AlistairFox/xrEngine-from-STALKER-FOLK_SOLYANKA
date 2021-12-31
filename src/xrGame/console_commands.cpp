@@ -165,9 +165,6 @@ static void full_memory_stats	( )
 	int		_eco_smem		= (int)g_pSharedMemoryContainer->stat_economy	();
 	u32		m_base=0,c_base=0,m_lmaps=0,c_lmaps=0;
 
-
-	//if (Device.Resources)	Device.Resources->_GetMemoryUsage	(m_base,c_base,m_lmaps,c_lmaps);
-	//	Resource check moved to m_pRender
 	if (Device.m_pRender) Device.m_pRender->ResourcesGetMemoryUsage(m_base,c_base,m_lmaps,c_lmaps);
 
 	log_vminfo	();
@@ -1267,54 +1264,6 @@ public:
 
 };
 
-class CCC_ScriptCommand : public IConsole_Command {
-public:
-	CCC_ScriptCommand	(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = false; };
-	
-	virtual void	Execute				(LPCSTR args)
-	{
-		if (!xr_strlen(args))
-			Log("* Specify string to run!");
-		else {
-			if (ai().script_engine().script_process(ScriptEngine::eScriptProcessorLevel)) {
-				ai().script_engine().script_process(ScriptEngine::eScriptProcessorLevel)->add_script(args,true,true);
-				return;
-			}
-
-			string4096		S;
-			shared_str		m_script_name = "console command";
-			xr_sprintf			(S,"%s\n",args);
-			int				l_iErrorCode = luaL_loadbuffer(ai().script_engine().lua(),S,xr_strlen(S),"@console_command");
-			if (!l_iErrorCode) {
-				l_iErrorCode = lua_pcall(ai().script_engine().lua(),0,0,0);
-				if (l_iErrorCode) {
-					ai().script_engine().print_output	(ai().script_engine().lua(),*m_script_name,l_iErrorCode);
-					ai().script_engine().on_error		(ai().script_engine().lua());
-					return;
-				}
-			}
-
-			ai().script_engine().print_output	(ai().script_engine().lua(),*m_script_name,l_iErrorCode);
-		}
-	}//void	Execute
-
-	virtual void Status( TStatus& S )
-	{
-		xr_strcpy( S, "<script_name.function()> (Specify script and function name!)" );
-	}
-	virtual void Save( IWriter* F ) {}
-
-	virtual void fill_tips( vecTips& tips, u32 mode )
-	{
-		if ( mode == 1 )
-		{
-			get_files_list( tips, "$game_scripts$", ".script" );
-			return;
-		}
-
-		IConsole_Command::fill_tips( tips, mode );
-	}
-};
 
 class CCC_TimeFactor : public IConsole_Command {
 public:
@@ -1344,7 +1293,59 @@ public:
 	}
 };
 
+
+
 #endif // MASTER_GOLD
+
+
+class CCC_ScriptCommand : public IConsole_Command {
+public:
+	CCC_ScriptCommand(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
+
+	virtual void	Execute(LPCSTR args)
+	{
+		if (!xr_strlen(args))
+			Log("* Specify string to run!");
+		else {
+			if (ai().script_engine().script_process(ScriptEngine::eScriptProcessorLevel)) {
+				ai().script_engine().script_process(ScriptEngine::eScriptProcessorLevel)->add_script(args, true, true);
+				return;
+			}
+
+			string4096		S;
+			shared_str		m_script_name = "console command";
+			xr_sprintf(S, "%s\n", args);
+			int				l_iErrorCode = luaL_loadbuffer(ai().script_engine().lua(), S, xr_strlen(S), "@console_command");
+			if (!l_iErrorCode) {
+				l_iErrorCode = lua_pcall(ai().script_engine().lua(), 0, 0, 0);
+				if (l_iErrorCode) {
+					ai().script_engine().print_output(ai().script_engine().lua(), *m_script_name, l_iErrorCode);
+					ai().script_engine().on_error(ai().script_engine().lua());
+					return;
+				}
+			}
+
+			ai().script_engine().print_output(ai().script_engine().lua(), *m_script_name, l_iErrorCode);
+		}
+	}//void	Execute
+
+	virtual void Status(TStatus& S)
+	{
+		xr_strcpy(S, "<script_name.function()> (Specify script and function name!)");
+	}
+	virtual void Save(IWriter* F) {}
+
+	virtual void fill_tips(vecTips& tips, u32 mode)
+	{
+		if (mode == 1)
+		{
+			get_files_list(tips, "$game_scripts$", ".script");
+			return;
+		}
+
+		IConsole_Command::fill_tips(tips, mode);
+	}
+};
 
 #include "GamePersistent.h"
 
@@ -1989,9 +1990,11 @@ CMD4(CCC_Integer,			"hit_anims_tune",						&tune_hit_anims,		0, 1);
 	CMD3(CCC_Mask,			"g_god",			&psActorFlags,	AF_GODMODE	);
 	CMD3(CCC_Mask,			"g_unlimitedammo",	&psActorFlags,	AF_UNLIMITEDAMMO);
 	CMD1(CCC_Script,		"run_script");
-	CMD1(CCC_ScriptCommand,	"run_string");
+
 	CMD1(CCC_TimeFactor,	"time_factor");		
 #endif // MASTER_GOLD
+
+	CMD1(CCC_ScriptCommand, "run_string");
 
 	CMD3(CCC_Mask,		"g_autopickup",			&psActorFlags,	AF_AUTOPICKUP);
 	CMD3(CCC_Mask,		"g_dynamic_music",		&psActorFlags,	AF_DYNAMIC_MUSIC);

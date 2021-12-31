@@ -166,6 +166,7 @@ void set_time_factor(float time_factor)
 #endif // #ifdef INGAME_EDITOR
 
 	Level().Server->game->SetGameTimeFactor(time_factor);
+	Level().Server->game->SetEnvironmentGameTimeFactor(time_factor);
 }
 
 float get_time_factor()
@@ -215,6 +216,7 @@ void change_game_time(u32 days, u32 hours, u32 mins)
 		value			*= 1000;//msec		
 		g_pGamePersistent->Environment().ChangeGameTime(fValue);
 		tpGame->alife().time_manager().change_game_time(value);
+		
 	}
 }
 

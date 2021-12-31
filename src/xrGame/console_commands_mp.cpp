@@ -2715,6 +2715,12 @@ public:
 	}
 };
 
+enum surges {
+	Surge = 1,
+	Fallout = 2,
+	PsiStorm = 3
+};
+
 class CCC_AdmSurgeStart : public IConsole_Command {
 public:
 	CCC_AdmSurgeStart(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
@@ -2726,6 +2732,7 @@ public:
 			NET_Packet		P;
 			P.w_begin(M_SCRIPT_EVENT);
 			P.w_u8(8);
+			P.w_u8(Surge);
 			Level().Send(P, net_flags(TRUE, TRUE));
 		}
 		else
@@ -2733,7 +2740,59 @@ public:
 			NET_Packet		P;
 			P.w_begin(M_REMOTE_CONTROL_CMD);
 			string128 str;
-			xr_sprintf(str, "sv_surge");
+			xr_sprintf(str, "adm_surge");
+			P.w_stringZ(str);
+			Level().Send(P, net_flags(TRUE, TRUE));
+		}
+	}
+};
+
+class CCC_AdmFalloutStart : public IConsole_Command {
+public:
+	CCC_AdmFalloutStart(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
+
+	virtual void Execute(LPCSTR args)
+	{
+		if (OnServer())
+		{
+			NET_Packet		P;
+			P.w_begin(M_SCRIPT_EVENT);
+			P.w_u8(8);
+			P.w_u8(Fallout);
+			Level().Send(P, net_flags(TRUE, TRUE));
+		}
+		else
+		{
+			NET_Packet		P;
+			P.w_begin(M_REMOTE_CONTROL_CMD);
+			string128 str;
+			xr_sprintf(str, "adm_fallout");
+			P.w_stringZ(str);
+			Level().Send(P, net_flags(TRUE, TRUE));
+		}
+	}
+};
+
+class CCC_AdmPsiStormStart : public IConsole_Command {
+public:
+	CCC_AdmPsiStormStart(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
+
+	virtual void Execute(LPCSTR args)
+	{
+		if (OnServer())
+		{
+			NET_Packet		P;
+			P.w_begin(M_SCRIPT_EVENT);
+			P.w_u8(8);
+			P.w_u8(PsiStorm);
+			Level().Send(P, net_flags(TRUE, TRUE));
+		}
+		else
+		{
+			NET_Packet		P;
+			P.w_begin(M_REMOTE_CONTROL_CMD);
+			string128 str;
+			xr_sprintf(str, "adm_psi_storm");
 			P.w_stringZ(str);
 			Level().Send(P, net_flags(TRUE, TRUE));
 		}
@@ -2977,37 +3036,160 @@ public:
 	}
 };
 
-class CCC_PSP : public IConsole_Command
+class CCC_WeatherCurr : public IConsole_Command
 {
 public:
-	CCC_PSP(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
+	CCC_WeatherCurr(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
 
 	virtual void Execute(LPCSTR args)
 	{
-		if (psActorFlags.test(AF_PSP))
-		{
-			psActorFlags.set(AF_PSP, false);
-		}
-		else
-		{
-			psActorFlags.set(AF_PSP, true);
-		}
+		Msg("Weather[%s] W0[%s] W1[%s]", g_pGamePersistent->Environment().CurrentWeatherName.c_str(), g_pGamePersistent->Environment().Current[0]->m_identifier.c_str(), g_pGamePersistent->Environment().Current[1]->m_identifier.c_str());
+	}
+};
+
+
+class CCC_WeatherSync : public IConsole_Command
+{
+public:
+	CCC_WeatherSync(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
+
+	virtual void Execute(LPCSTR args)
+	{
+		g_pGamePersistent->Environment().Invalidate();
 	}
 };
 
 extern float RenderVal;
 extern float RenderVal2;
-extern int right_cam;
+
 extern int AnimCurrent = 0;
 
-extern float camerapos_x;
 extern int PRINT_STACK;
 
+class ÑÑÑ_CheckOutfitCFS :  public IConsole_Command
+{
+public:
+	ÑÑÑ_CheckOutfitCFS(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
+
+	virtual void Execute(LPCSTR args)
+	{
+		for (auto sect : pSettings->sections())
+		{
+			if (sect->line_exist("actor_visual"))
+			{
+				LPCSTR check_path = pSettings->r_string(sect->Name, "actor_visual");
+				string_path path;
+				FS.update_path(path, "$game_meshes$", check_path);
+				
+				{
+					Msg("Outfit [%s] exist[%s]", path, FS.exist(path)? "true" : "false");
+				}
+
+			}
+		}
+	}
+
+};
+
+#include "Inventory.h"
+#include "Weapon.h"
+
+class CCC_WEAPON_POSITION : public IConsole_Command
+{
+public:
+	CCC_WEAPON_POSITION(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
+
+	virtual void Execute(LPCSTR args)
+	{
+		{		  
+ 			Fvector pos, ypr;
+
+			sscanf(args, "%f,%f,%f,%f,%f,%f", &pos.x, &pos.y, &pos.z, &ypr.x, &ypr.y, &ypr.z);
+
+ 			if (CActor* act = smart_cast<CActor*>(Level().CurrentControlEntity()))
+			{
+				PIItem item = act->inventory().ActiveItem();
+
+				if (CWeapon* w = smart_cast<CWeapon*>(item))
+				{
+
+					Msg("Pos [%f][%f][%f]", pos.x, pos.y, pos.z);
+					Msg("Angle [%f][%f][%f]", ypr.x, ypr.y, ypr.z);
+
+					Fvector position = pos;
+					Fvector orientation = ypr;
+
+					w->m_Offset.setHPB(ypr.x, ypr.y, ypr.z);
+					ypr.mul(PI / 180.f);
+					w->m_Offset.translate_over(pos);
+					string_path path;
+					FS.update_path(path,"$mp_saves$", "weapon.ltx");
+					
+					CInifile* file = xr_new<CInifile>(path, false, true);
+
+					if (file)
+					{
+						
+						if (file->section_exist(w->m_section_id.c_str()))
+						{
+							file->remove_line(w->m_section_id.c_str(), "position");
+							file->remove_line(w->m_section_id.c_str(), "orientation");
+						}
+						file->w_fvector3(w->m_section_id.c_str(), "position", position);
+						file->w_fvector3(w->m_section_id.c_str(), "orientation", orientation);
+					}
+
+					file->save_as(path);
+				
+					
+				}
+
+
+
+			}
+
+		}
+
+	}
+};	
+
+class CCC_WEAPON_CURRENT_POS : public IConsole_Command
+{
+public:
+	CCC_WEAPON_CURRENT_POS(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
+
+	virtual void Execute(LPCSTR args)
+	{
+		if (CActor* act = smart_cast<CActor*>(Level().CurrentControlEntity()))
+		{
+			PIItem item = act->inventory().ActiveItem();
+
+			if (CWeapon* w = smart_cast<CWeapon*>(item))
+			{
+				Fvector pos, ypr;
+
+				pos = pSettings->r_fvector3(w->m_section_id, "position");
+				ypr = pSettings->r_fvector3(w->m_section_id, "orientation");
+
+			 
+
+				Msg("Pos [%f][%f][%f]", pos.x, pos.y, pos.z);
+				Msg("Angle [%f][%f][%f]", ypr.x, ypr.y, ypr.z);
+			}
+		}
+	}
+};
+
 #include "actor_anim_defs.h"
+#include "cameralook.h"
 
 void register_mp_console_commands()
 {
 	CMD4(CCC_Integer, "call_stack", &PRINT_STACK, 0, 1);
+	CMD1(ÑÑÑ_CheckOutfitCFS, "outfit_path_check");
+
+	CMD1(CCC_WEAPON_POSITION, "weapon_offset");
+	CMD1(CCC_WEAPON_CURRENT_POS, "weapon_offset_current");
 
 	CMD1(CCC_SpawnToInventory,		"sv_spawn_to_player_inv");
 	CMD1(CCC_SpawnToObjWithId,		"sv_spawn_to_obj_with_id");
@@ -3026,11 +3208,17 @@ void register_mp_console_commands()
 	CMD1(CCC_ADD_Money_to_client_self, "g_money");
 	CMD1(CCC_AdmKillStalkers, "g_kill_all_stalker");
 
-	CMD4(CCC_Float, "cam_offset", &camerapos_x, -1, 1)
-
-
+	CMD4(CCC_Vector3, "cam_2_offset", &CCameraLook2::m_cam_offset, Fvector().set(-1000, -1000, -1000), Fvector().set(1000, 1000, 1000));
 	CMD4(CCC_Integer, "anim", &AnimCurrent, 0, MAX_ANIMS);
-	CMD1(CCC_PSP, "actor_psp");
+	CMD4(CCC_Integer, "net_sv_simulate_lag", &simulate_netwark_ping, 0, 100);
+	CMD4(CCC_Integer, "net_cl_simulate_lag", &simulate_netwark_ping_cl, 0, 100);
+
+	CMD4(CCC_Float, "render_ind_glob", &RenderVal, 0, 1);
+	CMD4(CCC_Float, "render_ind_exp", &RenderVal2, 0, 1);
+
+
+	CMD1(CCC_WeatherCurr, "weather_current");
+	CMD1(CCC_WeatherSync, "weather_sync");
 
 	CMD1(CCC_MovePlayerToRPoint,	"sv_move_player_to_rpoint");
 
@@ -3052,13 +3240,8 @@ void register_mp_console_commands()
 
 	CMD4(CCC_Integer, "draw_mp_statistic", &g_cl_draw_mp_statistic, 0, 1);
 
-	CMD4(CCC_Integer, "net_sv_simulate_lag", &simulate_netwark_ping, 0, 100);
-	CMD4(CCC_Integer, "net_cl_simulate_lag", &simulate_netwark_ping_cl, 0, 100);
 
-	CMD4(CCC_Float, "render_ind_glob", &RenderVal, 0, 1);
-	CMD4(CCC_Float, "render_ind_exp", &RenderVal2, 0, 1);
-
-	CMD4(CCC_Integer, "cam2_right", &right_cam, 0, 1);
+   
 
 	// Network
  
@@ -3236,6 +3419,7 @@ void register_mp_console_commands()
 	CMD4(CCC_SV_Integer,	"net_compressor_gather_stats"	,	(int*)&g_net_compressor_gather_stats,0,1);
 	CMD1(CCC_MpStatistics,	"sv_dump_online_statistics");
 	CMD4(CCC_SV_Integer,	"sv_dump_online_statistics_period"	,	(int*)&g_sv_mp_iDumpStatsPeriod	,	0,60); //min
+
 #ifdef DEBUG
 	CMD4(CCC_SV_Integer,	"cl_dbg_min_ping",			(int*)&lag_simmulator_min_ping,	0,	1000);
 	CMD4(CCC_SV_Integer,	"cl_dbg_max_ping",			(int*)&lag_simmulator_max_ping,	0,	1000);
@@ -3255,7 +3439,11 @@ void register_mp_console_commands()
 	CMD4(CCC_Integer,						"sv_traffic_optimization_level",	(int*)&g_sv_traffic_optimization_level, 0, 7);
 
 
-	CMD1(CCC_AdmSurgeStart, "sv_surge");
+	CMD1(CCC_AdmSurgeStart,    "adm_surge");
+	CMD1(CCC_AdmPsiStormStart, "adm_psi_storm");
+	CMD1(CCC_AdmFalloutStart,  "adm_fallout");
+
+
 	CMD1(CCC_AdmRegister, "reg");
 	CMD1(CCC_AdmDelateUser, "unreg");
 
