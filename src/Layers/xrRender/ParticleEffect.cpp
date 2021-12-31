@@ -536,7 +536,10 @@ void CParticleEffect::Render(float )
     u32 			p_cnt;
     ParticleManager()->GetParticles(m_HandleEffect,particles,p_cnt);
 
-	if(p_cnt>0){
+
+	if (psDeviceFlags.test(rsDebug))
+	if(p_cnt>0)
+	{
 		if (m_Def&&m_Def->m_Flags.is(CPEDef::dfSprite)){
 			FVF::LIT* pv_start	= (FVF::LIT*)RCache.Vertex.Lock(p_cnt*4*4,geom->vb_stride,dwOffset);
 			FVF::LIT* pv		= pv_start;
