@@ -87,8 +87,10 @@ BOOL CWeaponMagazinedWGrenade::net_Spawn(CSE_Abstract* DC)
 	iAmmoElapsed2	= weapon->a_elapsed_grenades.grenades_count;
 	m_ammoType2		= weapon->a_elapsed_grenades.grenades_type;
  
-	if (m_ammoType2 >= 2)
-		m_ammoType2 = 0;
+ 
+	m_ammoType2 = 0;
+
+	//Msg("type %d", m_ammoType2);
 
 	{
 		m_DefaultCartridge2.Load(m_ammoTypes2[m_ammoType2].c_str(), m_ammoType2);
@@ -124,6 +126,7 @@ BOOL CWeaponMagazinedWGrenade::net_Spawn(CSE_Abstract* DC)
 			}
 		}
 	}
+
 	return l_res;
 }
 

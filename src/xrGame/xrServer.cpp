@@ -1132,7 +1132,7 @@ if( dbg_net_Draw_Flags.test( dbg_destroy ) )
 		Msg	("xrServer::entity_Destroy : [%d][%s][%s]",P->ID,P->name(),P->name_replace());
 #endif
 
-	Msg("xrServer::entity_Destroy : [%d][%s][%s]", P->ID, P->name(), P->name_replace());
+//	Msg("xrServer::entity_Destroy : [%d][%s][%s]", P->ID, P->name(), P->name_replace());
 	
  	R_ASSERT					(P);
 

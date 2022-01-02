@@ -122,8 +122,6 @@ void CCameraLook2::Update(Fvector& point, Fvector& noise_dangle)
 	Fmatrix							a_xform;
 	a_xform.setXYZ					(0, -yaw, 0);
 	a_xform.translate_over			(point);
- 
-	
 
 	CActor* actor = smart_cast<CActor*>(Level().CurrentControlEntity());
 
@@ -148,8 +146,9 @@ void CCameraLook2::Update(Fvector& point, Fvector& noise_dangle)
 void CCameraLook2::Load(LPCSTR section)
 {
 	CCameraLook::Load		(section);
-	m_cam_offset			= pSettings->r_fvector3	(section,"offset");
-	m_cam_offset_rs			= pSettings->r_fvector3(section, "offset_rs");
+	m_cam_offset = Fvector().set(0.34, 0.2, 0);
+	//	m_cam_offset			= pSettings->r_fvector3	(section,"offset");
+//	m_cam_offset_rs			= pSettings->r_fvector3(section, "offset_rs");
 
 }
 

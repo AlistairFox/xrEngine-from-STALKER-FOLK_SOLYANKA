@@ -2536,6 +2536,9 @@
     <Filter Include="Core\Server\GameSpy\CdkeyDecode">
       <UniqueIdentifier>{09d6ad21-f307-44c4-ac3f-113b676c9111}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SaveINIFILE">
+      <UniqueIdentifier>{1028b5a6-b51c-4c14-8f5d-e72d72982b58}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mt_config.h">
@@ -7467,6 +7470,9 @@
     <ClInclude Include="UIPda_Chat.h">
       <Filter>UI\Common\PDA\CONTACTS</Filter>
     </ClInclude>
+    <ClInclude Include="SIniFileStream.h">
+      <Filter>SaveINIFILE</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="damage_manager.cpp">
@@ -11179,6 +11185,9 @@
     </ClCompile>
     <ClCompile Include="game_sv_freemp_PDA.cpp">
       <Filter>Core\Server\Games\server\freemp</Filter>
+    </ClCompile>
+    <ClCompile Include="SIniFileStream.cpp">
+      <Filter>SaveINIFILE</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

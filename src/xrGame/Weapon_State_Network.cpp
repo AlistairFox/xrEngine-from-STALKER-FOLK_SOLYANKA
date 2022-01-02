@@ -44,7 +44,7 @@ void Weapon_State_Network::write_state(NET_Packet& P)
 	P.w_float_q8(m_fCondition, 0.0f, 1.0f);
 	P.w_u8(a_elapsed);
 	P.w_u8(m_addon_flags.get());
-	P.w_u8(m_cur_slot);
+
 //Convert
 	u32 current = 0;
 	u32 output = 0;
@@ -84,8 +84,7 @@ void Weapon_State_Network::read_state(NET_Packet& P)
 	P.r_float_q8(m_fCondition, 0.0f, 1.0f);
 	P.r_u8(a_elapsed);
 	P.r_u8(m_addon_flags.flags);
-	P.r_u8(m_cur_slot);
-
+ 
 	u32 current = 0;
 	u32 output = 0;
 	u32 byte1 = 1;

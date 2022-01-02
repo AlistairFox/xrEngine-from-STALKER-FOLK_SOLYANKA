@@ -2265,6 +2265,7 @@ public:
 			)
 				tips.push_back(sect->Name);
 
+			
 		  
 		}
 	}
@@ -2322,6 +2323,8 @@ public:
 				&& !sect->line_exist("ignore_spawn")
 			)
 				tips.push_back(sect->Name);
+
+			
 		}
 	}
 };
@@ -3180,6 +3183,95 @@ public:
 	}
 };
 
+class CCC_SPAWN_SLOT_ITEMS : public IConsole_Command
+{
+public:
+	CCC_SPAWN_SLOT_ITEMS(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
+
+	virtual void Execute(LPCSTR args)
+	{
+		game_sv_mp* srv = smart_cast<game_sv_mp*>(Level().Server->game);
+
+		if (!srv)
+			return;
+
+		u32 raid;
+		sscanf(args, "%u", &raid);
+
+		for (auto section : pSettings->sections())
+		{
+			if (section->line_exist("class") && !section->line_exist("ignore_spawn"))
+			{
+				
+				CLASS_ID clsid = pSettings->r_clsid("outfit_base", "class");
+				CLASS_ID clsid_check = pSettings->r_clsid(section->Name.c_str(), "class");		
+				Msg("clsid %d == clsid", clsid == clsid_check);
+
+				if (clsid == clsid_check)
+				{
+					srv->SpawnItem(section->Name.c_str(), raid);
+					Msg("Spawn Item [%s]", section->Name.c_str());
+				}
+				 
+			}
+		}
+	}
+};
+
+#include "SIniFileStream.h"
+
+class CCC_SaveStalkers : public IConsole_Command
+{
+public:
+	CCC_SaveStalkers(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
+
+	virtual void Execute(LPCSTR args)
+	{
+		string_path file_path;
+		FS.update_path(file_path, "$mp_saves_stalker$", "stalkers.ltx");
+		CInifile* file = xr_new<CInifile>(file_path, false, false);
+
+		u32 id = 0;
+
+		if (file)
+	 	for (u32 I = 0; I < Level().Objects.o_count(); I++) 
+		{
+			CObject* object = Level().Objects.o_get_by_iterator(I);
+			CAI_Stalker* stalker = smart_cast<CAI_Stalker*>(object);
+			if (stalker)
+			{
+				id += 1;
+				NET_Packet packet;
+				SIniFileStream file_stream;
+				
+				string64 tmp_file = { 0 };
+				string32 tmp = { 0 };
+				itoa(id, tmp, 10);
+				xr_strcmp(tmp_file, tmp);
+ 
+
+				file_stream.ini = file;
+				file_stream.sect = tmp_file;
+				file_stream.move_begin();
+				
+				packet.inistream = &file_stream;
+				stalker->save(packet);
+			}
+
+		}
+
+		file->save_as(file_path);
+	}
+
+	
+};
+
+
+
+
+
+
+
 #include "actor_anim_defs.h"
 #include "cameralook.h"
 
@@ -3187,6 +3279,8 @@ void register_mp_console_commands()
 {
 	CMD4(CCC_Integer, "call_stack", &PRINT_STACK, 0, 1);
 	CMD1(ÑÑÑ_CheckOutfitCFS, "outfit_path_check");
+
+	CMD1(CCC_SPAWN_SLOT_ITEMS, "spawn_slot_items");
 
 	CMD1(CCC_WEAPON_POSITION, "weapon_offset");
 	CMD1(CCC_WEAPON_CURRENT_POS, "weapon_offset_current");

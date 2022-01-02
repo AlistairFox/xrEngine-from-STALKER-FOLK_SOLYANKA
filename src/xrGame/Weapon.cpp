@@ -518,8 +518,6 @@ void CWeapon::LoadFireParams		(LPCSTR section)
 	CShootingObject::LoadFireParams(section);
 };
 
-
-
 BOOL CWeapon::net_Spawn		(CSE_Abstract* DC)
 {
 	m_fRTZoomFactor					= m_zoom_params.m_fScopeZoomFactor;
@@ -532,6 +530,11 @@ BOOL CWeapon::net_Spawn		(CSE_Abstract* DC)
 	m_flagsAddOnState				= E->m_addon_flags.get();
 	m_ammoType						= E->ammo_type;
 	m_cur_scope						= E->m_cur_scope;
+
+	CInventoryItem* weaponitem = this->cast_inventory_item();
+
+	if (weaponitem->CurrSlot() != E->m_cur_slot)
+		weaponitem->m_ItemCurrPlace.slot_id = E->m_cur_slot;
 	
 	SetState						(E->wpn_state);
 	SetNextState					(E->wpn_state);
@@ -643,7 +646,7 @@ void CWeapon::net_Import(NET_Packet& P)
 
 	u8 Zoom;
 
-	u8 cur_slot;
+//	u8 cur_slot;
 
 
 	Weapon_State_Network state;
@@ -661,7 +664,7 @@ void CWeapon::net_Import(NET_Packet& P)
 
 	wstate = state.wpn_state;
 
-	cur_slot = state.m_cur_slot;
+//	cur_slot = state.m_cur_slot;
 
 	/*
 	P.r_float_q8			(_cond,0.0f,1.0f);	
@@ -674,11 +677,6 @@ void CWeapon::net_Import(NET_Packet& P)
 	P.r_u8					(m_cur_scope);
 	*/
 
-	CInventoryItem* weaponitem = this->cast_inventory_item();
-	
-	if (weaponitem->CurrSlot() != cur_slot)
-		weaponitem->m_ItemCurrPlace.slot_id = cur_slot;
-
 	SetCondition(_cond);
 	m_flagsAddOnState = NewAddonState;
 	
@@ -688,6 +686,7 @@ void CWeapon::net_Import(NET_Packet& P)
 		UpdateAltScope();
 		m_old_scope = m_cur_scope;
 	}
+
 	UpdateAddonsVisibility();
 
 	if (H_Parent() && H_Parent()->Remote())

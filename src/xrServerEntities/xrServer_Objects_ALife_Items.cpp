@@ -516,6 +516,8 @@ CSE_ALifeItemWeapon::CSE_ALifeItemWeapon	(LPCSTR caSection) : CSE_ALifeItem(caSe
 	m_grenade_launcher_status	=	(EWeaponAddonStatus)pSettings->r_s32(s_name,"grenade_launcher_status");
 	m_ef_main_weapon_type		= READ_IF_EXISTS(pSettings,r_u32,caSection,"ef_main_weapon_type",u32(-1));
 	m_ef_weapon_type			= READ_IF_EXISTS(pSettings,r_u32,caSection,"ef_weapon_type",u32(-1));
+
+	m_cur_slot = 0;
 }
 
 CSE_ALifeItemWeapon::~CSE_ALifeItemWeapon	()
@@ -555,7 +557,7 @@ void CSE_ALifeItemWeapon::UPDATE_Read(NET_Packet	&tNetPacket)
 	a_elapsed = m_state.a_elapsed;
 	m_addon_flags = m_state.m_addon_flags;
 	wpn_flags = m_state.need_to_update;
-	m_cur_slot = m_state.m_cur_slot;
+	//m_cur_slot = m_state.m_cur_slot;
 }
 
 void CSE_ALifeItemWeapon::clone_addons(CSE_ALifeItemWeapon* parent)
@@ -606,8 +608,11 @@ void CSE_ALifeItemWeapon::STATE_Read(NET_Packet	&tNetPacket, u16 size)
 	if (m_wVersion > 122)
 		a_elapsed_grenades.unpack_from_byte(tNetPacket.r_u8());
 
-	tNetPacket.r_u8				(m_cur_scope);
-
+	if (m_wVersion > 128)
+	{	
+		tNetPacket.r_u8(m_cur_scope);
+		tNetPacket.r_u8(m_cur_slot);
+	}
 }
 
 void CSE_ALifeItemWeapon::STATE_Write		(NET_Packet	&tNetPacket)
@@ -619,7 +624,9 @@ void CSE_ALifeItemWeapon::STATE_Write		(NET_Packet	&tNetPacket)
 	tNetPacket.w_u8				(m_addon_flags.get());
 	tNetPacket.w_u8				(ammo_type);
 	tNetPacket.w_u8				(a_elapsed_grenades.pack_to_byte());
+
 	tNetPacket.w_u8				(m_cur_scope);
+	tNetPacket.w_u8				(m_cur_slot);
 }
 
 void CSE_ALifeItemWeapon::OnEvent			(NET_Packet	&tNetPacket, u16 type, u32 time, ClientID sender )
