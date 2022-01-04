@@ -228,7 +228,7 @@ bool CUIInventoryUpgradeWnd::install_item( CInventoryItem& inv_item, bool can_up
 	m_back->DetachAll();
 	m_btn_repair->Enable( (inv_item.GetCondition() < 0.99f) );
 
-	Msg("Condition == %f", inv_item.GetCondition());
+//	Msg("Condition == %f", inv_item.GetCondition());
 
 	if ( !can_upgrade )
 	{
