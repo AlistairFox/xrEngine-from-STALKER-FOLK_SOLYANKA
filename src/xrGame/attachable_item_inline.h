@@ -12,6 +12,7 @@ IC	CAttachableItem::CAttachableItem				()
 {
 	m_item				= 0;
 	m_offset.identity	();
+	m_offset_actor.identity();
 	m_bone_name			= "";
 	m_enabled			= true;
 //	m_auto_attach		= true;
@@ -28,6 +29,11 @@ IC	shared_str CAttachableItem::bone_name			() const
 
 IC	const Fmatrix &CAttachableItem::offset			() const
 {
+	if (parrent_actor)
+	{
+		return m_offset_actor;
+	}	 
+
 	VERIFY				(m_valid);
 	return				(m_offset);
 }

@@ -46,7 +46,7 @@ _action  actions[]		= {
 
 	{ "btn_safe_mode",      kSafeMode				,_both},
 	{ "btn_animation_mode", kAnimMode				,_both},
-
+	{ "btn_voice",			kVoice					,_both },
 
 	{ "artefact",			kARTEFACT				,_both/*_mp*/},		
 	{ "wpn_next",			kWPN_NEXT				,_both},	// means next ammo type

@@ -50,11 +50,28 @@ bool CAttachableItem::load_attach_position(LPCSTR section)
 	if (!pSettings->line_exist(section,"attach_angle_offset"))
 		return false;
 
+	
+
 	Fvector							angle_offset = pSettings->r_fvector3	(section,"attach_angle_offset");
 	Fvector							position_offset	= pSettings->r_fvector3	(section,"attach_position_offset");
+
+	if (pSettings->line_exist(section, "attach_angle_offset")) 
+	{
+		Fvector							actor_angle_offset = pSettings->r_fvector3(section, "actor_angle_offset");
+		Fvector							actor_position_offset = pSettings->r_fvector3(section, "actor_position_offset");
+
+		m_offset_actor.setHPB(VPUSH(actor_angle_offset));
+		m_offset_actor.c = actor_position_offset;
+	}
+
 	m_offset.setHPB					(VPUSH(angle_offset));
 	m_offset.c						= position_offset;
+
+
+
 	m_bone_name						= pSettings->r_string	(section,"attach_bone_name");
+
+
 	return							true;
 }
 
@@ -84,7 +101,14 @@ void CAttachableItem::enable			(bool value)
 		return;
 	}
 
-	if (value && !enabled() && object().H_Parent()) {
+	if (ParrentActor())
+		parrent_actor = true;
+	else
+		parrent_actor = false;
+
+
+	if (value && !enabled() && object().H_Parent())
+	{
 		CGameObject			*game_object = smart_cast<CGameObject*>(object().H_Parent());
 		CAttachmentOwner	*owner = smart_cast<CAttachmentOwner*>(game_object);
 		if (owner) {
@@ -103,6 +127,18 @@ void CAttachableItem::enable			(bool value)
 			object().setVisible	(false);
 		}
 	}
+}
+
+#include "Level.h"
+#include "Actor.h"
+bool CAttachableItem::ParrentActor()
+{	
+	CObject* obj = Level().Objects.net_Find(item().parent_id());
+	CActor* actor = smart_cast<CActor*>(obj);
+	if (actor)
+		return true;
+  
+	return false;
 }
 
 bool  CAttachableItem::can_be_attached	() const

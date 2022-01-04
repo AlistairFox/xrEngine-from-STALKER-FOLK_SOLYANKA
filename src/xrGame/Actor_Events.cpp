@@ -46,9 +46,8 @@ void CActor::OnEvent(NET_Packet& P, u16 type)
 			CGameObject* _GO		= smart_cast<CGameObject*>(Obj);
 			if (!IsGameTypeSingle() && !g_Alive())
 			{
-				Msg("! WARNING: dead player [%d][%s] can't take items [%d][%s]",
-					ID(), Name(), _GO->ID(), _GO->cNameSect().c_str());
-				break;
+				Msg("! WARNING: dead player [%d][%s] can't take items [%d][%s]", ID(), Name(), _GO->ID(), _GO->cNameSect().c_str());
+				//break;
 			}
 			
 			if( inventory().CanTakeItem(smart_cast<CInventoryItem*>(_GO)) )

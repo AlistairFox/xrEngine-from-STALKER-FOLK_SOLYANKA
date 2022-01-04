@@ -12,7 +12,7 @@
 
 #include "Level.h"
 #include "game_sv_freemp.h"
-
+ 
 void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 {
 #	ifdef SLOW_VERIFY_ENTITIES
@@ -488,6 +488,38 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 		SendBroadcast(sender, P, net_flags(true, true));
 	}break;
 
+	case GE_VOICE_CAPTURE:
+	{
+		//Msg("Server Recive Packet");
+ 		u32 count;
+		
+		voiceData data;
+		
+		P.r_u32(count);
+		P.r(data.data, sizeof(data.data));
+
+		Msg("voiceData [%d] count[%d] ", sizeof(data.data), count);
+
+		CSE_Abstract* ent = game->get_entity_from_eid(game->get_id_2_eid(sender));
+		if (!ent)
+			return;
+
+		NET_Packet packet;
+		game->GenerateGameMessage(packet);
+		packet.w_u32(GE_VOICE_CAPTURE);		
+		
+		packet.w_vec3(ent->position());
+		packet.w_u32(count);
+		packet.w(data.data, sizeof(data.data));
+
+		SendBroadcast(sender, packet, net_flags(true, true));
+		//SendTo(sender, packet, net_flags(true, true));
+	}break;
+
+    case GAME_EVENT_PDA_CHAT:
+	{
+		Process_events_PDA(P, sender);
+	}break;
 
 	default:
 		R_ASSERT2	(0,"Game Event not implemented!!!");

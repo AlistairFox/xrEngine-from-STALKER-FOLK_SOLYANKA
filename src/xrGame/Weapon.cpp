@@ -431,7 +431,7 @@ void CWeapon::Load		(LPCSTR section)
  
 	bUseAltScope = bLoadAltScopesParams(section);
 
-	Msg("Load Scopes [%s]", bUseAltScope ? "true" : "false");
+	//Msg("Load Scopes [%s]", bUseAltScope ? "true" : "false");
 
 	if (!bUseAltScope)
 	{
@@ -531,11 +531,12 @@ BOOL CWeapon::net_Spawn		(CSE_Abstract* DC)
 	m_ammoType						= E->ammo_type;
 	m_cur_scope						= E->m_cur_scope;
 
-	CInventoryItem* weaponitem = this->cast_inventory_item();
+	if (E->m_cur_slot != 0)
+	{
+		m_ItemCurrPlace.value = E->m_cur_slot;
+		//Msg("SlotID = %d", E->m_cur_slot);
+	}
 
-	if (weaponitem->CurrSlot() != E->m_cur_slot)
-		weaponitem->m_ItemCurrPlace.slot_id = E->m_cur_slot;
-	
 	SetState						(E->wpn_state);
 	SetNextState					(E->wpn_state);
 
@@ -607,8 +608,8 @@ void CWeapon::net_Export(NET_Packet& P)
 	state.m_addon_flags.flags = m_flagsAddOnState;
 	state.m_cur_scope = m_cur_scope;
 	
-	CInventoryItem* weaponitem = this->cast_inventory_item();
-	state.m_cur_slot = weaponitem->CurrSlot();
+//	CInventoryItem* weaponitem = this->cast_inventory_item();
+//	state.m_cur_slot = weaponitem->CurrSlot();
 
 	state.write_state(P);
 
@@ -1842,19 +1843,9 @@ void CWeapon::render_item_ui()
 
 bool CWeapon::unlimited_ammo() 
 { 
-	if (H_Parent() && !smart_cast<CActor*>(H_Parent()))
-	{
-		if(m_pInventory)
-		{
-			return inventory_owner().unlimited_ammo() && m_DefaultCartridge.m_flags.test(CCartridge::cfCanBeUnlimited);
-		}
-		else
-			return false;
-	}
-
-	return ((GameID() == eGameIDDeathmatch) && 
-			m_DefaultCartridge.m_flags.test(CCartridge::cfCanBeUnlimited)); 
-			
+	if (H_Parent())
+	if(m_pInventory)
+	return inventory_owner().unlimited_ammo() && m_DefaultCartridge.m_flags.test(CCartridge::cfCanBeUnlimited);		
 };
 
 float CWeapon::Weight() const
@@ -1882,7 +1873,9 @@ float CWeapon::Weight() const
 
 bool CWeapon::show_crosshair()
 {
-	//Msg("zoom[%d], hide[%d], hud_mode[%d]" ,IsZoomed(), !ZoomHideCrosshair(), GetHUDmode());
+	if (CActor* actor = smart_cast<CActor*>(H_Parent()))
+	if (actor->MpSafeMode())
+	return false;
 
 	return !IsPending() && ( !IsZoomed() || !ZoomHideCrosshair() || !GetHUDmode());
 }
@@ -2052,7 +2045,7 @@ bool CWeapon::bLoadAltScopesParams(LPCSTR section)
 	if (!xr_strcmp(pSettings->r_string(section, "scopes"), "none"))
 		return false;
 
-	Msg("Load AltScopes [%s]", section);
+	//Msg("Load AltScopes [%s]", section);
 
 	if (m_eScopeStatus == ALife::eAddonAttachable)
 	{
@@ -2062,7 +2055,7 @@ bool CWeapon::bLoadAltScopesParams(LPCSTR section)
 			string128 scope_section;
 			_GetItem(str, i, scope_section);
 			m_scopes.push_back(scope_section);	 
-			Msg("Scope [%s]", scope_section);
+			//Msg("Scope [%s]", scope_section);
 		}
 	}
 	else if (m_eScopeStatus == ALife::eAddonPermanent)
@@ -2122,7 +2115,7 @@ bool CWeapon::bLoadAltScopesParams(LPCSTR section)
 
 void CWeapon::LoadOriginalScopesParams(LPCSTR section)
 {
-	Msg("Load Original [%s]", section);
+	//Msg("Load Original [%s]", section);
 
 	if (m_eScopeStatus == ALife::eAddonAttachable)
 	{

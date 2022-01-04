@@ -1,7 +1,72 @@
 #pragma once
-class CUIPda_Chat
-{
 
+#include "ui/UIWindow.h"
+#include "ui/UIWndCallback.h"
+#include "../xrEngine/xr_input.h" 
+#include "Actor.h"
+
+class CUIXmlInit;
+class CUIFrameWindow;
+class CUIScrollView;
+class CUITextWnd;
+class CUI3tButton;
+class CUIEditBox;
+class CUICharacterInfo;
+class GAME_NEWS_DATA;
+
+class UIPdaChat : public CUIWindow, public CUIWndCallback
+{
+	typedef CUIWindow	inherited;
+
+	WINDOW_LIST player_chat;
+	CUIXml xml;
+	CActor* LocalActor;
+	CActor* SecondActor;
+
+	CUI3tButton* send_money_button;
+	CUI3tButton* send_msg_to_user;
+	CUIScrollView* chat_users;
+	CUIScrollView* chat_text;
+
+	CUIFrameWindow* m_background;
+	CUIFrameWindow* m_background_players;
+	CUIFrameWindow* m_background_chat;
+	CUIFrameWindow* m_background_chat_text;
+
+
+	CUICharacterInfo* infoActor;
+	CUICharacterInfo* infoPartner;
+
+	CUITextWnd* CaptionOnline;
+	CUITextWnd* player_1_money;
+	CUITextWnd* player_2_money;
+
+	CUIEditBox* chat_editbox;
+	CUIEditBox* money_editbox;
+
+	virtual bool	OnMouseAction(float x, float y, EUIMessages mouse_action);
+	void xr_stdcall     button_click_send_msg(CUIWindow* w, void* d);
+	void xr_stdcall     button_click_send_money(CUIWindow* w, void* d);
+	virtual void		SendMessage(CUIWindow* pWnd, s16 msg, void* pData);
+	void AddNewsData(GAME_NEWS_DATA data, u16 PlayerID);
+	void SendPacket(GAME_NEWS_DATA data);
+	u32 old_size = 0;
+	u32 old_second_id = 0;
+	u32 old_time = 0;
+
+public:
+
+	xr_map<u16, xr_vector<GAME_NEWS_DATA>> news_data;
+
+	UIPdaChat();
+	virtual ~UIPdaChat();
+
+	void			Init();
+	void			InitCallBacks();
+	virtual void 	Show(bool status);
+	virtual void	Update();
+	virtual void	ResetAll();
+	void RecivePacket(NET_Packet& P);
 
 };
 

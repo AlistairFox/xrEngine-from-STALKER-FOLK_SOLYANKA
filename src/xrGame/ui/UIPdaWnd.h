@@ -21,7 +21,7 @@ class CUIPda_Contacts;
 
 class CUIAnimatedStatic;
 class UIHint;
-
+class UIPdaChat;
 
 class CUIPdaWnd: public CUIDialogWnd
 {
@@ -50,6 +50,7 @@ public:
 	CUIRankingWnd*			pUIRankingWnd;
 	CUILogsWnd*				pUILogsWnd;
 	CUIPda_Contacts*		pUIContacts;
+	UIPdaChat*				pUIChatWnd;
 
 	virtual void			Reset				();
 

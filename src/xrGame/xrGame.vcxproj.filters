@@ -11189,6 +11189,9 @@
     <ClCompile Include="SIniFileStream.cpp">
       <Filter>SaveINIFILE</Filter>
     </ClCompile>
+    <ClCompile Include="xrServer_process_events_PDA.cpp">
+      <Filter>Core\Server\ServerProcess</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="ai\monsters\chimera\chimera_attack_state.h">

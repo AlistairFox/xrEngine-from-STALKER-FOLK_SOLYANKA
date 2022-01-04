@@ -257,16 +257,15 @@ void game_sv_freemp::assign_RP(CSE_Abstract* E, game_PlayerState* ps_who)
 	if (ps_who->testFlag(GAME_PLAYER_MP_ON_CONNECTED))
 	{
 		Fvector Pos, Angle;
-
+		ps_who->resetFlag(GAME_PLAYER_MP_ON_CONNECTED);
 		if (LoadPlayerPosition(ps_who, Pos, Angle))
 		{
 			E->o_Position.set(Pos);
 			E->o_Angle.set(Angle);
-
-			//Msg("Position Set [%.0f][%.0f][%.0f]", Pos.x, Pos.y, Pos.z);
-			ps_who->resetFlag(GAME_PLAYER_MP_ON_CONNECTED);
 			return;
 		}
+
+
 	}
 	 
 	inherited::assign_RP(E, ps_who);

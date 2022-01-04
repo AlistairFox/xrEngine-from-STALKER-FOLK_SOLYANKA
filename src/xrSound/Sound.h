@@ -42,6 +42,8 @@ XRSOUND_API extern int				psSoundCacheSizeMB		;
 XRSOUND_API extern xr_token*		snd_devices_token		;
 XRSOUND_API extern u32				snd_device_id			;
 
+
+
 // Flags
 enum {
 	ss_Hardware			= (1ul<<1ul),	//!< Use hardware mixing only
@@ -291,6 +293,7 @@ public:
 
 class  CSound_manager_interface;
 extern XRSOUND_API CSound_manager_interface*		Sound;
+  
 
 /// ********* Sound ********* (utils, accessors, helpers)
 IC ref_sound_data::ref_sound_data				()																{	handle=0;feedback=0;g_type=0;g_object=0;s_type=st_Effect;			}

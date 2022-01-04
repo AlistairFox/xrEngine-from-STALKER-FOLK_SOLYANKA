@@ -51,8 +51,6 @@ void game_sv_freemp::OnPlayerConnect(ClientID id_who)
 
 	ps_who->resetFlag(GAME_PLAYER_FLAG_SKIP);
 
-//	ps_who->resetFlag(GAME_PLAYER_MP_ON_CONNECTED);
-
 	if (g_dedicated_server && (xrCData == m_server->GetServerClient()))
 	{
 		ps_who->setFlag(GAME_PLAYER_FLAG_SKIP);

@@ -112,7 +112,7 @@ void game_sv_roleplay::RespawnPlayer(ClientID id_who, bool NoSpectator)
 	CSE_ALifeCreatureActor	*pA = smart_cast<CSE_ALifeCreatureActor*>(xrCData->owner);
 	if (!pA) return;
 	
-	SpawnItemToActor(pA->ID, "mp_players_rukzak");
+//	SpawnItemToActor(pA->ID, "mp_players_rukzak");
 
 	if (m_teamSettings.count(ps->team) == 0) return;
 
@@ -136,7 +136,7 @@ BOOL game_sv_roleplay::OnTouch(u16 eid_who, u16 eid_what, BOOL bForced)
 	// pick up players bag
 	if (e_entity->m_tClassID == CLSID_OBJECT_PLAYERS_BAG)
 	{
-		return OnTouchPlayersBag(e_who, e_entity);
+	//	return OnTouchPlayersBag(e_who, e_entity);
 	}
 
 	return TRUE;
@@ -155,6 +155,6 @@ void game_sv_roleplay::OnDetach(u16 eid_who, u16 eid_what)
 	// drop players bag
 	if (e_entity->m_tClassID == CLSID_OBJECT_PLAYERS_BAG)
 	{
-		OnDetachPlayersBag(e_who, e_entity);
+	//	OnDetachPlayersBag(e_who, e_entity);
 	}
 }

@@ -209,6 +209,8 @@ public:
 	void					Process_event_destroy	(NET_Packet& P, ClientID sender, u32 time, u16 ID, NET_Packet* pEPack);
 	void					Process_event_activate	(NET_Packet& P, const ClientID sender, const u32 time, const u16 id_parent, const u16 id_entity, bool send_message = true);
 	
+	void					Process_events_PDA		(NET_Packet& p, ClientID sender);
+
 	xrClientData*			SelectBestClientToMigrateTo		(CSE_Abstract* E, BOOL bForceAnother=FALSE);
 	void					SendConnectResult		(IClient* CL, u8 res, u8 res1, char* ResultStr);
 	void	__stdcall		SendConfigFinished		(ClientID const & clientId);

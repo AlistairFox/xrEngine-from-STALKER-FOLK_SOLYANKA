@@ -189,6 +189,9 @@ enum {
 	GE_ACTOR_ANIMATION_SCRIPT,
 	GE_ACTOR_ITEM_ACTIVATE,
 	GE_ACTOR_SND_ACTIVATE,
+	
+	GE_VOICE_CAPTURE, 
+	GAME_EVENT_PDA_CHAT,
 
 
 	GE_FORCEDWORD				= u32(-1)
@@ -263,7 +266,7 @@ enum EGameMessages {  //game_cl <----> game_sv messages
 	GAME_EVENT_MP_TRADE,
 	GAME_EVENT_TRANSFER_MONEY,
 	GAME_EVENT_PLAYER_NAME_ACCAUNT,
-	
+
 
 	//-----------------------------------------
 	GAME_EVENT_SCRIPT_BEGINS_FROM,		// don't add messages after this

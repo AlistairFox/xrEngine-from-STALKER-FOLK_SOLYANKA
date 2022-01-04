@@ -928,7 +928,11 @@ void CActor::Die	(CObject* who)
 			else
 			{
 				CCustomOutfit *pOutfit = smart_cast<CCustomOutfit *> (item_in_slot);
-				if (pOutfit) continue;
+				if (pOutfit)
+				{
+					pOutfit->DestroyObject();
+				}
+				continue;
 			};
 			if(item_in_slot) 
 				inventory().Ruck(item_in_slot);
@@ -1507,7 +1511,7 @@ void CActor::shedule_Update	(u32 DT)
 	//что актер видит перед собой
 	collide::rq_result& RQ				= HUD().GetCurrentRayQuery();
 
-	if(!input_external_handler_installed() && RQ.O && RQ.O->getVisible() &&  RQ.range<8.0f) 
+	if(!input_external_handler_installed() && RQ.O && RQ.O->getVisible() &&  RQ.range<4.0f) 
 	{
 		m_pObjectWeLookingAt			= smart_cast<CGameObject*>(RQ.O);
 		
@@ -1530,7 +1534,7 @@ void CActor::shedule_Update	(u32 DT)
 				{
 					m_sDefaultObjAction = m_sCharacterUseAction;
 				}
-				else if ( pEntityAlive && !pEntityAlive->g_Alive() && !pEntityAlive->cast_actor())
+				else if ( pEntityAlive && !pEntityAlive->g_Alive() )	 //!pEntityAlive->cast_actor()
 				{
 					if ( m_pPersonWeLookingAt && m_pPersonWeLookingAt->deadbody_closed_status() )
 					{
@@ -1539,7 +1543,7 @@ void CActor::shedule_Update	(u32 DT)
 					else
 					{
 						// See also CUIActorMenu::CheckDistance()
-						bool checkDistance = (this->Position().distance_to(pEntityAlive->Position()) < 3.0f);
+						bool checkDistance = (this->Position().distance_to(pEntityAlive->Position()) < 4.0f);
 
 						bool b_allow_drag = !!pSettings->line_exist("ph_capture_visuals",pEntityAlive->cNameVisual());
 						if ( b_allow_drag )
@@ -2158,17 +2162,16 @@ bool CActor::use_center_to_aim			() const
 {
 	return							(!!(mstate_real&mcCrouch));
 }
-
+#include "Torch.h"
 bool CActor::can_attach			(const CInventoryItem *inventory_item) const
 {
 	const CAttachableItem	*item = smart_cast<const CAttachableItem*>(inventory_item);
-	
-	if (item->item().m_section_id != "guitar_a")
-	if (!item  || /* !item->enabled()  || */ !item->can_be_attached())
-		return			(false);
  
-	if (item->item().m_section_id == "guitar_a")
-	if (!item->enabled())
+	if (!item)
+		return false;
+ 
+	if (!dynamic_cast<const CTorch*>(inventory_item))
+	if (!item->enabled() )
 		return false;
 
 	//можно ли присоединять объекты такого типа
@@ -2349,5 +2352,11 @@ void CActor::On_SetEntity()
 
 bool CActor::unlimited_ammo()
 {
-	return !!psActorFlags.test(AF_UNLIMITEDAMMO);
+	if (!g_Alive())
+		return false;
+
+	game_PlayerState* ps = Game().GetPlayerByGameID(ID());
+
+	return (ps && ps->testFlag(GAME_PLAYER_MP_UNLIMATED_AMMO));
+  
 }

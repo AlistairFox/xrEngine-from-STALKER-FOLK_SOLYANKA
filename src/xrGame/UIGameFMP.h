@@ -27,4 +27,6 @@ public:
 	virtual void	_BCL OnFrame();
 
 	virtual bool IR_UIOnKeyboardPress(int dik);
+
+	virtual void reciveVoicePacket(NET_Packet& packet);
 };

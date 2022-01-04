@@ -81,6 +81,7 @@ void CUIZoneMap::Init()
 	cp.y = m_clipFrame.GetHeight()/2.0f;
 	m_center.SetWndPos		(cp);
 
+
 	Fvector2 rel_pos		= m_compass.GetWndPos();
 	rel_pos.mul				(m_background.GetWndSize());
 	m_compass.SetWndPos		(rel_pos);

@@ -140,6 +140,7 @@ bool  CAttachmentOwner::attached			(shared_str sect_name) const
 bool CAttachmentOwner::can_attach			(const CInventoryItem *inventory_item) const
 {
 	const CAttachableItem	*item = smart_cast<const CAttachableItem*>(inventory_item);
+
 	if (!item || !item->enabled() || !item->can_be_attached())
 		return			(false);
 

@@ -16,12 +16,15 @@ private:
 	CInventoryItem				*m_item;
 	shared_str					m_bone_name;
 	Fmatrix						m_offset;
+	Fmatrix						m_offset_actor;
 	u16							m_bone_id;
 	bool						m_enabled;
+	bool						parrent_actor;
 #ifdef DEBUG
 	bool						m_valid;
 #endif
 
+	bool	ParrentActor();
 
 public:
 	IC							CAttachableItem			();
@@ -44,8 +47,11 @@ public:
 	IC		const Fmatrix		&offset					() const;
 	IC		bool				enabled					() const;
 	virtual	void				enable					(bool value);
+
+
+
 protected:
-	virtual bool		use_parent_ai_locations	() const	=0
+	virtual bool		use_parent_ai_locations			() const	=0
 	{
 		return !enabled();
 	}

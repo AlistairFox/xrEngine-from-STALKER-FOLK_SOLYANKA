@@ -256,6 +256,7 @@ bool game_cl_freemp::OnConnectedSpawnPlayer()
 
 #include "ui/UIPdaWnd.h"
 #include "UIPda_Contacts.h"
+#include "UIPda_Chat.h"
 
 void game_cl_freemp::TranslateGameMessage(u32 msg, NET_Packet& P)
 {
@@ -263,8 +264,21 @@ void game_cl_freemp::TranslateGameMessage(u32 msg, NET_Packet& P)
 	{
 		case (GE_UI_PDA):
 		{
-			Msg("!!! GE_UI_PDA recive");
-			m_game_ui->PdaMenu().pUIContacts->EventRecive(P);
+ 			m_game_ui->PdaMenu().pUIContacts->EventRecive(P);
+		}break;
+
+		case (GE_VOICE_CAPTURE):
+		{
+ 			if (g_dedicated_server)
+				return;
+
+			if (m_game_ui)
+				m_game_ui->reciveVoicePacket(P);
+		}break;
+
+		if (GAME_EVENT_PDA_CHAT)
+		{
+			m_game_ui->PdaMenu().pUIChatWnd->RecivePacket(P);
 		}break;
 
 		default:
@@ -304,12 +318,7 @@ void game_cl_freemp::OnRender()
 
 			
 			//pActor->RenderText(pActor->Name(), IndicatorPositionText, &pos, color_rgba(255, 255, 0, 255));
-	
-
-
-
-
- 
+		    
 			{
 				Fvector posH = IndicatorPosition;
 				//posH.y += pos;
@@ -339,3 +348,9 @@ void game_cl_freemp::OnRender()
 			pActor->RenderText(pActor->Name(), IndicatorPositionText, &pos, color_rgba(255, 255, 0, 255));			 
 		}
 }
+
+void game_cl_freemp::SetGain(float value)
+{
+	Voice_Export->setGain(value);
+}
+ 

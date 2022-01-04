@@ -449,17 +449,18 @@ void CActor::ActorUse()
 
 	if(!m_pUsableObject||m_pUsableObject->nonscript_usable())
 	{
-		if(m_pPersonWeLookingAt && !smart_cast<CActor*>(m_pPersonWeLookingAt))
+		if(m_pPersonWeLookingAt)
 		{
 			CEntityAlive* pEntityAliveWeLookingAt = 
 				smart_cast<CEntityAlive*>(m_pPersonWeLookingAt);
 
 			VERIFY(pEntityAliveWeLookingAt);
 
-			if(pEntityAliveWeLookingAt->g_Alive())
+			if(pEntityAliveWeLookingAt->g_Alive() && !smart_cast<CActor*>(m_pPersonWeLookingAt))
 			{
 				TryToTalk();
-			}else
+			}
+			else
 			{
 				if (!m_pPersonWeLookingAt->deadbody_closed_status())
 				{

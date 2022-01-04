@@ -463,7 +463,16 @@ void CActor::g_cl_Orientate	(u32 mstate_rl, float dt)
 	if (eacFreeLook!=cam_active)
 	{
 		r_torso.yaw		=	cam_Active()->GetWorldYaw	();
- 		r_torso.pitch	=	cam_Active()->GetWorldPitch	();
+		if (!MpSafeMode())
+			r_torso.pitch = cam_Active()->GetWorldPitch();
+		else
+			if (cam_Active()->GetWorldPitch() > 0.3f)
+				r_torso.pitch = 0.3f;
+			else if (cam_Active()->GetWorldPitch() < -0.3f)
+				r_torso.pitch = -0.3f;
+			else 
+				r_torso.pitch = cam_Active()->GetWorldPitch();
+			
 	}
 
 	unaffected_r_torso.yaw		= r_torso.yaw;
@@ -498,7 +507,6 @@ void CActor::g_cl_Orientate	(u32 mstate_rl, float dt)
 		if (_abs(r_model_yaw-ty) > PI_DIV_4 - 5)	
 		{
 			r_model_yaw_dest = ty;
-			// 
 			mstate_real	|= mcTurn;
 		}
 		 

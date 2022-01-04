@@ -27,6 +27,7 @@
 #include "UIRankingWnd.h"
 #include "UILogsWnd.h"
 #include "UIPda_Contacts.h"
+#include "UIPda_Chat.h"
 
 
 #define PDA_XML		"pda.xml"
@@ -42,6 +43,7 @@ CUIPdaWnd::CUIPdaWnd()
 	pUIRankingWnd    = NULL;
 	pUILogsWnd       = NULL;
 	pUIContacts		 = NULL;
+	pUIChatWnd		 = NULL;
 
 	m_hint_wnd       = NULL;
 	Init();
@@ -54,6 +56,7 @@ CUIPdaWnd::~CUIPdaWnd()
 	delete_data( pUIRankingWnd );
 	delete_data( pUILogsWnd );
 	delete_data( pUIContacts );
+	delete_data(pUIChatWnd);
 
 	delete_data( m_hint_wnd );
 	delete_data( UINoice );
@@ -102,6 +105,9 @@ void CUIPdaWnd::Init()
 	//MP 
 	pUIContacts = xr_new<CUIPda_Contacts>();
 	pUIContacts->Init();
+
+	pUIChatWnd = xr_new<UIPdaChat>();
+	pUIChatWnd->Init();
 
 	UITabControl					= xr_new<CUITabControl>();
 	UITabControl->SetAutoDelete		(true);
@@ -205,6 +211,10 @@ void CUIPdaWnd::SetActiveSubdialog(const shared_str& section)
 	{
 		m_pActiveDialog = pUIContacts;
 	}
+	else if (section == "eptChat")
+	{
+		m_pActiveDialog = pUIChatWnd;
+	}
 
 	R_ASSERT2						(m_pActiveDialog, "active dialog is not initialized");
 	UIMainPdaFrame->AttachChild		(m_pActiveDialog);
@@ -307,7 +317,7 @@ void CUIPdaWnd::Reset()
 	if ( pUIRankingWnd )	pUIRankingWnd->ResetAll();
 	if ( pUILogsWnd )		pUILogsWnd->ResetAll();
 	if (pUIContacts)		pUIContacts->ResetAll();
-
+	if (pUIChatWnd)			pUIChatWnd->ResetAll();
 }
 
 void CUIPdaWnd::SetCaption( LPCSTR text )
@@ -342,6 +352,7 @@ void RearrangeTabButtons(CUITabControl* pTab)
 
 bool CUIPdaWnd::OnKeyboardAction(int dik, EUIMessages keyboard_action)
 {
+	if (!this->pUIChatWnd->IsShown())
 	if ( is_binded(kACTIVE_JOBS, dik) )
 	{
 		if ( WINDOW_KEY_PRESSED == keyboard_action )

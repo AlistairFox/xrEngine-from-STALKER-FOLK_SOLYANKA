@@ -3227,6 +3227,9 @@ public:
 
 	virtual void Execute(LPCSTR args)
 	{
+		if (!OnServer())
+			return;
+
 		string_path file_path;
 		FS.update_path(file_path, "$mp_saves_stalker$", "stalkers.ltx");
 		CInifile* file = xr_new<CInifile>(file_path, false, false);
@@ -3246,10 +3249,10 @@ public:
 				
 				string64 tmp_file = { 0 };
 				string32 tmp = { 0 };
-				itoa(id, tmp, 10);
-				xr_strcmp(tmp_file, tmp);
- 
-
+				
+				xr_strcat(tmp_file, "stalker_");
+				xr_strcat(tmp_file, itoa(id, tmp, 10));
+				Msg("Section %s", tmp_file);
 				file_stream.ini = file;
 				file_stream.sect = tmp_file;
 				file_stream.move_begin();
@@ -3267,24 +3270,98 @@ public:
 };
 
 
+class CCC_UnlimatedAmmo : public IConsole_Command
+{
+public:
+	CCC_UnlimatedAmmo(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
 
+	virtual void Execute(LPCSTR args)
+	{
+		if (OnServer())
+		{
+			string256 new_args;
+			exclude_raid_from_args(args, new_args, sizeof(new_args));
 
+			if (!g_pGameLevel || !Level().Server) return;
+
+			game_sv_mp* srv = smart_cast<game_sv_mp*>(Level().Server->game);
+			if (!srv) return;
+	  
+			u32 tmp_cl;
+			ClientID clientID;
+
+			sscanf(new_args, "%u",  &tmp_cl);
+			clientID.set(tmp_cl);
+			Msg("ClientID %u", tmp_cl);
+			xrClientData* CL = static_cast<xrClientData*>(Level().Server->GetClientByID(clientID));
+			
+			if (!CL)
+				return;
+
+			if (CL && CL->ps && (CL != Level().Server->GetServerClient()))
+			{
+				if (CL->ps->testFlag(GAME_PLAYER_MP_UNLIMATED_AMMO))
+					CL->ps->resetFlag(GAME_PLAYER_MP_UNLIMATED_AMMO);
+				else
+					CL->ps->setFlag(GAME_PLAYER_MP_UNLIMATED_AMMO);
+
+				srv->signal_Syncronize();
+			}
+
+		}
+		else 
+		{
+			NET_Packet		P;
+			P.w_begin(M_REMOTE_CONTROL_CMD);
+			string128 str;
+			xr_sprintf(str, "adm_unlimited_ammo %u", Game().local_svdpnid);
+			P.w_stringZ(str);
+			Level().Send(P, net_flags(TRUE, TRUE));
+		}
+		 
+	}
+
+};
 
 
 
 #include "actor_anim_defs.h"
 #include "cameralook.h"
+#include "game_cl_freemp.h"
+
+class CCC_SET_VOICE_GAIN : public IConsole_Command
+{
+public:
+	CCC_SET_VOICE_GAIN(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
+	
+	virtual void Execute(LPCSTR args)
+	{						
+		float gain;
+		sscanf(args, "%f", gain);
+
+ 		game_cl_freemp* freemp = smart_cast<game_cl_freemp*>(Level().game);
+		if (freemp)
+		{
+			freemp->SetGain(gain);
+		}
+	}
+
+};
+
 
 void register_mp_console_commands()
 {
+	CMD1(CCC_SET_VOICE_GAIN, "voice_gain");
+
 	CMD4(CCC_Integer, "call_stack", &PRINT_STACK, 0, 1);
 	CMD1(ÑÑÑ_CheckOutfitCFS, "outfit_path_check");
 
 	CMD1(CCC_SPAWN_SLOT_ITEMS, "spawn_slot_items");
+	CMD1(CCC_SaveStalkers, "save_stalkers");
 
 	CMD1(CCC_WEAPON_POSITION, "weapon_offset");
 	CMD1(CCC_WEAPON_CURRENT_POS, "weapon_offset_current");
-
+ 
 	CMD1(CCC_SpawnToInventory,		"sv_spawn_to_player_inv");
 	CMD1(CCC_SpawnToObjWithId,		"sv_spawn_to_obj_with_id");
 	CMD1(CCC_SpawnOnPosition,		"sv_spawn_on_position"	);
@@ -3295,11 +3372,16 @@ void register_mp_console_commands()
 	CMD1(CCC_SetNoClipForPlayer,	"sv_set_no_clip"		);
 	CMD1(CCC_SetInvisForPlayer,		"sv_set_invis"			);
 	CMD1(CCC_SetGodModForPlayer,	"sv_set_god_mode"		);
+
 	CMD1(CCC_AdmNoClip,				"adm_no_clip"			);
 	CMD1(CCC_AdmInvis,				"adm_invis"				);
 	CMD1(CCC_AdmGodMode,			"adm_god_mode"			);
+	CMD1(CCC_UnlimatedAmmo,			"adm_unlimited_ammo");
 
 	CMD1(CCC_ADD_Money_to_client_self, "g_money");
+
+
+
 	CMD1(CCC_AdmKillStalkers, "g_kill_all_stalker");
 
 	CMD4(CCC_Vector3, "cam_2_offset", &CCameraLook2::m_cam_offset, Fvector().set(-1000, -1000, -1000), Fvector().set(1000, 1000, 1000));

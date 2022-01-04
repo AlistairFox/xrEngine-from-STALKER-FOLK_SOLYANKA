@@ -46,5 +46,8 @@ public:
 
 	virtual void OnRender();
 
+	virtual void SetGain(float value);
+ 
+
 };
 

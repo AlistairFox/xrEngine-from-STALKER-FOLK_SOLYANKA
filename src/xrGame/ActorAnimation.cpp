@@ -583,6 +583,41 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 	}
   
 	bool need_use = false;
+ 
+	if (!CanChange)
+	{
+		if (!OutPlay && Level().CurrentControlEntity() == this)
+			soundPlay();
+		return;
+	}
+
+	if (!MpAnimationMode())
+	{
+		if (!OutPlay)
+		{
+			if (Level().CurrentControlEntity() == this)
+				SelectScriptAnimation();
+			
+			return;
+		}
+		else
+		{
+			if (OutPlay)
+			{
+				InputAnim = 0;
+				OutAnim = 0;
+				MidAnim = 0;
+			}
+		}
+	}
+	else
+	{
+		if (Level().CurrentControlEntity() == this)
+			SelectScriptAnimation();
+		
+		return;
+	}
+
 	if(!M_torso)
 	{
 		CInventoryItem* _i = inventory().ActiveItem();
@@ -924,20 +959,23 @@ void CActor::g_SetAnimation( u32 mstate_rl )
  	
 }
 
-void CActor::script_anim( MotionID exit_animation, PlayCallback Callback, LPVOID CallbackParam)
+extern int AnimCurrent;
+
+void CActor::script_anim( MotionID animation, PlayCallback Callback, LPVOID CallbackParam)
 {
 	IKinematicsAnimated* k = smart_cast<IKinematicsAnimated*>(Visual());
 	k->LL_PlayCycle(
-		k->LL_GetMotionDef(exit_animation)->bone_or_part, exit_animation, TRUE,
-		k->LL_GetMotionDef(exit_animation)->Accrue(),
-		k->LL_GetMotionDef(exit_animation)->Falloff(),
-		k->LL_GetMotionDef(exit_animation)->Speed(),
-		k->LL_GetMotionDef(exit_animation)->StopAtEnd(),
+		k->LL_GetMotionDef(animation)->bone_or_part, animation, TRUE,
+		k->LL_GetMotionDef(animation)->Accrue(),
+		k->LL_GetMotionDef(animation)->Falloff(),
+		k->LL_GetMotionDef(animation)->Speed(),
+		k->LL_GetMotionDef(animation)->StopAtEnd(),
 		Callback, CallbackParam, 0
 	);
-}
 
-extern int AnimCurrent;
+	CanChange = false;
+	SendAnimationToServer(animation);
+}
 
 void callbackAnim(CBlend* blend)
 {
@@ -945,7 +983,6 @@ void callbackAnim(CBlend* blend)
 	if (act)
 		act->CanChange = true;
 }
-
 
 void CActor::ReciveAnimationPacket(NET_Packet& packet)
 {
@@ -1083,23 +1120,10 @@ void CActor::SelectScriptAnimation()
 
 	u32 countIN = m_anims->m_script.in_anims.count[selectedAnimation];
 
-	if (false)
-		if (m_anims->m_script.m_animation_attach[selectedAnimation].size() == 0)
-		{
-			for (auto item : this->attached_objects())
-			{
-				item->enable(false);
-				SendActivateItem(item->item().m_section_id.c_str(), false);
-
-			}
-		}
-
 	MidPlay = false;
 	OutPlay = false;
 	InPlay = false;
-
-	//Msg("Anim counts INPUT[%d]", countIN);
-
+ 
 	MotionID script_BODY;
 
 	if (countIN == 0)
@@ -1107,16 +1131,10 @@ void CActor::SelectScriptAnimation()
 	else
 	{
 		if (InputAnim >= countIN)
-		{
 			InPlay = true;
-		}
 		else
-		{
 			InPlay = false;
-		}
 	}
-
-	//Msg("Anim in Play[%s]", InPlay ? "true" : "false");
 
 	if (!InPlay)
 	{
@@ -1127,42 +1145,21 @@ void CActor::SelectScriptAnimation()
 		if (m_anims->m_script.m_animation_attach[selectedAnimation].size() > 0)
 		{
 			shared_str attach = m_anims->m_script.m_animation_attach[selectedAnimation];
-
 			CInventoryItem* inv_item = this->inventory().GetItemFromInventory(attach.c_str());
 			CAttachableItem* item = smart_cast<CAttachableItem*>(inv_item);
-
-			//Msg("Find Anim Attach Item [%s]", attach.c_str());
-
 			if (item)
 			{
+				this->attach(inv_item);
 				item->enable(true);
 				SendActivateItem(attach, true);
-
-				bool att = this->can_attach(inv_item);
-
-				if (att)
-				{
-					//Msg("Anim Attach Item [%s] Attached END", attach.c_str());
-					this->attach(inv_item);
-
-				}
-				else
-				{
-					//Msg("Anim Attach Item [%s] Cant ATTACH", attach.c_str());
-				}
+				inventory().Activate(NO_ACTIVE_SLOT);
 
 			}
 		}
-
-		//Msg("Anim InputAnim[%d]", InputAnim);
 	}
 
 	if (!InPlay)
-	{
 		return;
-	}
-
-	//Msg("InPlay");
 
 	u32 countMid = m_anims->m_script.middle_anims.count[selectedAnimation];
 
@@ -1174,23 +1171,17 @@ void CActor::SelectScriptAnimation()
 		}
 		else
 		{
-			bool valid = selectedAnimation != AnimCurrent;
-			if (m_anims->m_script.m_animation_loop[selectedAnimation] && !valid)
-			{
+			bool valid = selectedAnimation == AnimCurrent;
+			if (m_anims->m_script.m_animation_loop[selectedAnimation] && valid)
 				MidAnim = 0;
-			}
 			else
-			{
 				MidPlay = true;
-			}
 		}
 	}
 	else
 	{
 		if (countMid == 0)
-		{
 			MidPlay = true;
-		}
 		else
 			MidPlay = false;
 	}
@@ -1200,48 +1191,32 @@ void CActor::SelectScriptAnimation()
 		script_BODY = m_anims->m_script.middle_anims.m_animation[selectedAnimation][MidAnim];
 		script_anim(script_BODY, callbackAnim, this);
 		MidAnim += 1;
-
-		//Msg("Anim middle [%d][%d]", selectedAnimation, MidAnim);
 	}
 
 	if (!MidPlay)
-	{
 		return;
-	}
-
-	//Msg("MidPlay");
 
 	u32 countOUT = m_anims->m_script.out_anims.count[selectedAnimation];
 
 	if (countOUT == 0)
 		OutPlay = true;
-
+ 
 	if (OutAnim >= countOUT)
-	{
 		OutPlay = true;
-	}
 	else
-	{
 		OutPlay = false;
-	}
 
 	if (OutPlay != true)
 	{
 		script_BODY = m_anims->m_script.out_anims.m_animation_out[selectedAnimation][OutAnim];
 		script_anim(script_BODY, callbackAnim, this);
 		OutAnim += 1;
-
-		//Msg("Anim Out[%d]", OutAnim);
 	}
-
 	if (OutPlay)
 	{
-		//Msg("OutPlay");
-
 		if (m_anims->m_script.m_animation_attach[selectedAnimation].size() > 0)
 		{
 			shared_str attach = m_anims->m_script.m_animation_attach[selectedAnimation];
-
 			CInventoryItem* inv_item = this->inventory().GetItemFromInventory(attach.c_str());
 			CAttachableItem* item = smart_cast<CAttachableItem*>(inv_item);
 			if (item)
@@ -1260,10 +1235,34 @@ void CActor::SelectScriptAnimation()
 			}
 		}
 	}
+}
 
-	if (!OutPlay)
+void CActor::soundPlay()
+{
+	if (MidPlay || !InPlay)
 	{
-		//Msg("!OutPlay");
 		return;
+	}
+
+	u32 rnd = Random.randI(1, m_anims->m_script.m_rnd_snds[selectedID]);
+
+	sSndID = rnd;
+
+	if (!start_sel)
+	{
+		ref_sound snd_sel = m_anims->m_script.m_sound_Animation[selectedID][sSndID];
+		if (!snd_sel._feedback())
+		{
+			snd_sel.play_at_pos(this, Position(), false, 0);
+			selected = snd_sel;
+			SendSoundPlay(sSndID, 1);
+		}
+		start_sel = true;
+	}
+
+	if (!selected._feedback())
+	{
+		selected.stop();
+		start_sel = false;
 	}
 }
