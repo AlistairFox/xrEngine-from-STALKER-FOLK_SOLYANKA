@@ -467,6 +467,8 @@ void CWeaponMagazined::UpdateSounds	()
 //. nah	m_sounds.SetPosition("sndEmptyClick", P);
 }
 
+#include "ai/stalker/ai_stalker.h"
+
 void CWeaponMagazined::state_Fire(float dt)
 {
 	if(iAmmoElapsed > 0)
@@ -486,12 +488,21 @@ void CWeaponMagazined::state_Fire(float dt)
 		}
 
 		CInventoryOwner* io		= smart_cast<CInventoryOwner*>(H_Parent());
+
+		if (H_Parent())
+		if (smart_cast<CAI_Stalker*>(H_Parent()))
 		if(NULL == io->inventory().ActiveItem())
 		{
-				Log("current_state", GetState() );
-				Log("next_state", GetNextState());
-				Log("item_sect", cNameSect().c_str());
-				Log("H_Parent", H_Parent()->cNameSect().c_str());
+			Log("current_state", GetState() );
+			Log("next_state", GetNextState());
+			Log("item_sect", cNameSect().c_str());
+			Log("H_Parent", H_Parent()->cNameSect().c_str());
+		}
+
+		if (io) 
+		{
+			Log("item slot 2 [%s]", io->inventory().ItemFromSlot(INV_SLOT_2) ? io->inventory().ItemFromSlot(INV_SLOT_2)->NameItem() : "NULL");
+			Log("item slot 3 [%s]", io->inventory().ItemFromSlot(INV_SLOT_3) ? io->inventory().ItemFromSlot(INV_SLOT_3)->NameItem() : "NULL");
 		}
 
 		CEntity* E = smart_cast<CEntity*>(H_Parent());
@@ -542,7 +553,7 @@ void CWeaponMagazined::state_Fire(float dt)
 
 	if(fShotTimeCounter<0)
 	{
- 
+ 		if (psDeviceFlags.test(rsDebug))
 		if(H_Parent() && Actor() && (H_Parent()->ID() != Actor()->ID()))
 		{
 			Msg("stop shooting w=[%s] magsize=[%d] sshot=[%s] qsize=[%d] shotnum=[%d]",

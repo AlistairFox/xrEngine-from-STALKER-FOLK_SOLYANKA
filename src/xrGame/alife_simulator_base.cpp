@@ -266,7 +266,8 @@ void CALifeSimulatorBase::create	(CSE_ALifeObject *object)
 
 void CALifeSimulatorBase::release(CSE_Abstract* abstract, bool alife_query)
 {
-	Msg("[LSS] Releasing object [%s][%s][%d][%x]", abstract->name_replace(), *abstract->s_name, abstract->ID, smart_cast<void*>(abstract));
+	if (psDeviceFlags.test(rsDebug))
+		Msg("[LSS] Releasing object [%s][%s][%d][%x]", abstract->name_replace(), *abstract->s_name, abstract->ID, smart_cast<void*>(abstract));
 
 	CSE_ALifeDynamicObject* object = objects().object(abstract->ID);
 	VERIFY(object);

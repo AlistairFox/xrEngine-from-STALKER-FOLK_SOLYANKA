@@ -308,7 +308,7 @@ ID3DBaseTexture*	CRender::texture_load(LPCSTR fRName, u32& ret_msize, bool bStag
 	ZeroMemory(&IMG, sizeof(IMG));
 
 	//	Staging control
-	static bool bAllowStaging = false;//!strstr(Core.Params, "-no_staging");
+	static bool bAllowStaging = strstr(Core.Params, "-staging");
 	bStaging &= bAllowStaging;
 
 	ID3DBaseTexture*		pTexture2D		= NULL;
@@ -352,9 +352,9 @@ _DDS:
 		// Load and get header
 
 		S						= FS.r_open	(fn);
-#ifdef DEBUG
-		Msg						("* Loaded: %s[%d]b",fn,S->length());
-#endif // DEBUG
+ 
+//		Msg						("* Loaded: %s[%d]",fn,S->length());
+ 
 		img_size				= S->length	();
 		R_ASSERT				(S);
 		//R_CHK2					(D3DXGetImageInfoFromFileInMemory	(S->pointer(),S->length(),&IMG), fn);
@@ -397,7 +397,7 @@ _DDS_CUBE:
 			}
 			else
 			{
-				LoadInfo.Usage = D3D_USAGE_DEFAULT;
+				LoadInfo.Usage = D3D_USAGE_IMMUTABLE;//D3D_USAGE_DEFAULT;
 				LoadInfo.BindFlags = D3D_BIND_SHADER_RESOURCE;
 			}
 			
@@ -451,7 +451,7 @@ _DDS_2D:
 			//	&T_sysmem
 			//	), fn);
 
-			img_loaded_lod			= get_texture_load_lod(fn);
+
 
 			//	Inited to default by provided default constructor
 #ifdef USE_DX11
@@ -459,14 +459,19 @@ _DDS_2D:
 #else
 			D3DX10_IMAGE_LOAD_INFO LoadInfo;
 #endif
+			
 			//LoadInfo.FirstMipLevel = img_loaded_lod;
 			LoadInfo.Width	= IMG.Width;
 			LoadInfo.Height	= IMG.Height;
+			
+			 
+			img_loaded_lod			= get_texture_load_lod(fn); 
 
 			if (img_loaded_lod)
 			{
 				Reduce(LoadInfo.Width, LoadInfo.Height, IMG.MipLevels, img_loaded_lod);
 			}
+			 
 
 			//LoadInfo.Usage = D3D_USAGE_IMMUTABLE;
 			if (bStaging)
@@ -477,7 +482,7 @@ _DDS_2D:
 			}
 			else
 			{
-				LoadInfo.Usage = D3D_USAGE_DEFAULT;
+				LoadInfo.Usage = D3D_USAGE_IMMUTABLE;// D3D_USAGE_DEFAULT;
 				LoadInfo.BindFlags = D3D_BIND_SHADER_RESOURCE;
 			}
 			LoadInfo.pSrcInfo = &IMG;

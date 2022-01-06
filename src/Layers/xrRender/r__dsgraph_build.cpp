@@ -76,12 +76,13 @@ void R_dsgraph_structure::r_dsgraph_insert_dynamic	(dxRender_Visual *pVisual, Fv
 	{
 		if (sh->flags.bStrictB2F)	
 		{
-			mapSorted_Node* N = mapHUDSorted.insertInAnyWay(distSQ);
+			mapSorted_Node* N = mapHUDSorted.insertInAnyWay(distSQ); //mapHUDSorted
 			N->val.ssa = SSA;
 			N->val.pObject = RI.val_pObject;
 			N->val.pVisual = pVisual;
 			N->val.Matrix = *RI.val_pTransform;
 			N->val.se = sh;
+			return;
 		} 
 		else 
 		{
@@ -91,7 +92,7 @@ void R_dsgraph_structure::r_dsgraph_insert_dynamic	(dxRender_Visual *pVisual, Fv
 			N->val.pVisual			= pVisual;
 			N->val.Matrix			= *RI.val_pTransform;
 			N->val.se				= sh;
-		}
+		
 
 #if RENDER!=R_R1
 		if (sh->flags.bEmissive) 
@@ -104,8 +105,10 @@ void R_dsgraph_structure::r_dsgraph_insert_dynamic	(dxRender_Visual *pVisual, Fv
 			N->val.se				= &*pVisual->shader->E[4];		// 4=L_special
 		}
 #endif	//	RENDER!=R_R1
+		}
 
 		return;
+
 		
 	}
 

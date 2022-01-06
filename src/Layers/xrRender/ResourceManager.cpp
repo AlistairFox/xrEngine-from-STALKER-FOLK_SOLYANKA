@@ -337,10 +337,16 @@ void CResourceManager::Delete(const Shader* S)
 void CResourceManager::DeferredUpload()
 {
 	if (!RDEVICE.b_is_Ready) return;
+	CTimer timer;
+	timer.Start();
+	Msg("Load textures sizes [%d] ", m_textures.size());
 	for (map_TextureIt t=m_textures.begin(); t!=m_textures.end(); t++)
 	{
 		t->second->Load();
 	}
+	Msg("Loading End [%d] ", timer.GetElapsed_ms());
+
+	
 }
  
 void	CResourceManager::DeferredUnload	()

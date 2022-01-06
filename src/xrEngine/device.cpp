@@ -536,34 +536,55 @@ void CRenderDevice::Pause(BOOL bOn, BOOL bTimer, BOOL bSound, LPCSTR reason)
 
 #ifndef DEDICATED_SERVER	
 
-	if(bOn)
+	if (bOn)
 	{
-		if(!Paused())						
-			bShowPauseString				= TRUE;
+		if (!Paused())
+			bShowPauseString =
+#ifdef INGAME_EDITOR
+			editor() ? FALSE :
+#endif // #ifdef INGAME_EDITOR
+#ifdef DEBUG
+			!xr_strcmp(reason, "li_pause_key_no_clip") ? FALSE :
+#endif // DEBUG
+			TRUE;
 
-		if( bTimer && (!g_pGamePersistent || g_pGamePersistent->CanBePaused()) )
+		if (bTimer && (!g_pGamePersistent || g_pGamePersistent->CanBePaused()))
 		{
-			g_pauseMngr.Pause				(TRUE);
+			g_pauseMngr.Pause(TRUE);
+#ifdef DEBUG
+			if (!xr_strcmp(reason, "li_pause_key_no_clip"))
+				TimerGlobal.Pause(FALSE);
+#endif // DEBUG
 		}
-	
-		if (bSound && ::Sound) 
-		{
-			snd_emitters_ =					::Sound->pause_emitters(true);
+
+		if (bSound && ::Sound) {
+			snd_emitters_ = ::Sound->pause_emitters(true);
+#ifdef DEBUG
+			//			Log("snd_emitters_[true]",snd_emitters_);
+#endif // DEBUG
 		}
 	}
 	else
 	{
-		if( bTimer && /*g_pGamePersistent->CanBePaused() &&*/ g_pauseMngr.Paused() )
+		if (bTimer && /*g_pGamePersistent->CanBePaused() &&*/ g_pauseMngr.Paused())
 		{
-			fTimeDelta						= EPS_S + EPS_S;
-			g_pauseMngr.Pause				(FALSE);
+			fTimeDelta = EPS_S + EPS_S;
+			g_pauseMngr.Pause(FALSE);
 		}
-		
-		if(bSound)
+
+		if (bSound)
 		{
-			if(snd_emitters_>0) //avoid crash
+			if (snd_emitters_ > 0) //avoid crash
 			{
-				snd_emitters_ =				::Sound->pause_emitters(false);
+				snd_emitters_ = ::Sound->pause_emitters(false);
+#ifdef DEBUG
+				//				Log("snd_emitters_[false]",snd_emitters_);
+#endif // DEBUG
+			}
+			else {
+#ifdef DEBUG
+				Log("Sound->pause_emitters underflow");
+#endif // DEBUG
 			}
 		}
 	}
@@ -582,11 +603,14 @@ void CRenderDevice::OnWM_Activate(WPARAM wParam, LPARAM lParam)
 	u16 fActive						= LOWORD(wParam);
 	BOOL fMinimized					= (BOOL) HIWORD(wParam);
 	BOOL bActive					= ((fActive!=WA_INACTIVE) && (!fMinimized))?TRUE:FALSE;
- 		 
-	Device.b_is_Active = true;
+
+//	Msg("Active [%s]", bActive ? "true" : "false");
 
 	if (bActive!=Device.b_is_Active)
 	{
+
+		Device.b_is_Active = bActive;
+
 		if (Device.b_is_Active)	
 		{
 			Device.seqAppActivate.Process(rp_AppActivate);
@@ -595,11 +619,12 @@ void CRenderDevice::OnWM_Activate(WPARAM wParam, LPARAM lParam)
 		}
 		else	
 		{
-			//app_inactive_time_start	= TimerMM.GetElapsed_ms();
-			//Device.seqAppDeactivate.Process(rp_AppDeactivate);
-			//ShowCursor				(TRUE);
+			app_inactive_time_start	= TimerMM.GetElapsed_ms();
+			Device.seqAppDeactivate.Process(rp_AppDeactivate);
+			ShowCursor				(TRUE);
 		}
 	}
+
 }
 
 void	CRenderDevice::AddSeqFrame			( pureFrame* f, bool mt )
