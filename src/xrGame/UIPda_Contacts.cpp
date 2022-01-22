@@ -76,7 +76,7 @@ void CUIPda_Contacts::Init()
 	property_box->SetWindowName("property_box");
 
 	property_box->AddItem("Пригласить в отряд", NULL, PDA_PROPERTY_ADD_TO_SQUAD);
- 	property_box->AddItem("Выйти", NULL, PDA_PROPERTY_EXIT);
+ //	property_box->AddItem("Выйти", NULL, PDA_PROPERTY_EXIT);
 
 	squad_UI_invite = UIHelper::CreateFrameWindow(xml, "squad_invite", squad_window);
 
@@ -130,7 +130,7 @@ void CUIPda_Contacts::Update()
 
 		int TextSize = xr_strlen(squad_UI_invite_text->GetText());
  
-		if (TextSize == 0 && last_inviter)
+		if (TextSize == 0 && last_inviter.value())
 		{
 			CActor* actor;
 			for (auto pl : Game().players)
@@ -163,8 +163,7 @@ void CUIPda_Contacts::Update()
 			squad_UI_invite_no->Reset();
 			squad_UI_invite_text->SetText("");
 		}
-	}
-
+	} 
 
 	if (Device.dwTimeGlobal - m_previous_time > m_delay && old_size_players != Game().players.size())
 	{
@@ -223,7 +222,8 @@ bool CUIPda_Contacts::OnMouseAction(float x, float y, EUIMessages mouse_action)
 	CUIScrollView* win = contacts_list;
 	auto child = win->Items();
 
-	for (auto iter = child.rbegin(); iter != child.rend(); iter++)
+	if (squad_UI->team_players.ClientLeader == -1 || squad_UI->team_players.ClientLeader == Game().local_svdpnid)
+ 	for (auto iter = child.rbegin(); iter != child.rend(); iter++)
 	{
 		CUIWindow* w = (*iter);
 
@@ -274,8 +274,7 @@ void xr_stdcall CUIPda_Contacts::property_box_clicked(CUIWindow* w, void* d)
 			Level().game->u_EventGen(packet, GE_UI_PDA, 0);
 			packet.w_u8(0);
 			packet.w_clientID(id);
-			packet.w_u16(id_actor);
-			packet.w_clientID(Game().local_svdpnid);
+ 			packet.w_clientID(Game().local_svdpnid);
 			Level().game->u_EventSend(packet);
 		};
 		break;
@@ -288,18 +287,15 @@ void xr_stdcall CUIPda_Contacts::button_yes(CUIWindow* w, void* d)
 {
 	invite_mode = false;
 
-	if (!last_inviter)
-		return;
+	//Msg("button_yes");
 
-	if (!smart_cast<CActor*>(Level().Objects.net_Find(Game().local_player->GameID)))
+	if (!last_inviter.value())
 		return;
-
-	Msg("button_yes");
 
 	NET_Packet packet;
 	Game().u_EventGen(packet, GE_UI_PDA, -1);
 	packet.w_u8(1);
-	packet.w_u16(Game().local_player->GameID);
+	packet.w_clientID(Game().local_svdpnid);
 	packet.w_clientID(ClientID(last_inviter));
 	Game().u_EventSend(packet);
 
@@ -329,7 +325,7 @@ void CUIPda_Contacts::EventRecive(NET_Packet& P)
 		ClientID who;
 		P.r_clientID(who);
 
-		last_inviter = who.value();
+		last_inviter = who;
 		invite_mode = true;
 	}
 

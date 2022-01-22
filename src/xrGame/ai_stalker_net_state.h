@@ -29,6 +29,8 @@ struct ai_stalker_net_state
 
 		float u_body_yaw;
 		float u_head_yaw;
+		float u_body_pitch;
+		float u_head_pitch;
 
 		float u_time_torso;
 		float u_time_head;

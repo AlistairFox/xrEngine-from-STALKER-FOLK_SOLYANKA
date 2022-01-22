@@ -89,6 +89,7 @@ void UIPdaChat::InitCallBacks()
 	Register(send_money_button);
 	AddCallback(send_msg_to_user, BUTTON_CLICKED, CUIWndCallback::void_function(this, &UIPdaChat::button_click_send_msg));
 	AddCallback(send_money_button, BUTTON_CLICKED, CUIWndCallback::void_function(this, &UIPdaChat::button_click_send_money));
+
 }
 
 void UIPdaChat::Show(bool status)
@@ -110,8 +111,6 @@ void UIPdaChat::Show(bool status)
 			if (infoActor)
 				infoActor->InitCharacterMP(act);
 		}
-
-
 	}
 }
 
@@ -119,7 +118,7 @@ void UIPdaChat::Update()
 {
 	inherited::Update();
 
-	if (Device.dwFrame % 60 && CaptionOnline)
+	if (Device.dwFrame % 60 == 0 && CaptionOnline)
 	{
 		string32 tmp;
 
@@ -149,7 +148,7 @@ void UIPdaChat::Update()
 			infoPartner->InitCharacterMP(SecondActor);
 		}
 
-		if (Device.dwTimeGlobal - old_time > 3000)
+		//if (Device.dwFrame % 30 == 0)
 		{
 			chat_users->Clear();
 
@@ -169,7 +168,7 @@ void UIPdaChat::Update()
 				}
 			}
 
-			old_time = Device.dwTimeGlobal;
+			//old_time = Device.dwTimeGlobal;
 		}
 
 		if (!SecondActor)
@@ -236,7 +235,7 @@ bool UIPdaChat::OnMouseAction(float x, float y, EUIMessages mouse_action)
 			{
 				u16 owner = info->OwnerID();
 
-				//Msg("Set OwnerID %d", owner);
+				Msg("Set OwnerID %d", owner);
 
 				CActor* actor = smart_cast<CActor*>(Level().Objects.net_Find(owner));
 
@@ -335,7 +334,7 @@ void UIPdaChat::AddNewsData(GAME_NEWS_DATA data, u16 PlayerID)
 
 void UIPdaChat::RecivePacket(NET_Packet& P)
 {
-	//Msg("Recive Packet");
+	Msg("Recive Packet");
 
 	GAME_NEWS_DATA data;
 

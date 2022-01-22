@@ -115,7 +115,8 @@ CSE_Abstract::CSE_Abstract					(LPCSTR caSection)
 //	m_max_spawn_interval		= 0;
 	m_ini_file					= 0;
 
-	if (pSettings->line_exist(caSection,"custom_data")) {
+	if (pSettings->line_exist(caSection,"custom_data"))
+	{
 		pcstr const raw_file_name	= pSettings->r_string(caSection,"custom_data");
 		IReader const* config	= 0;
 #ifdef XRGAME_EXPORTS
@@ -129,6 +130,8 @@ CSE_Abstract::CSE_Abstract					(LPCSTR caSection)
 			if ( FS.exist(file_name) )
 				config			= FS.r_open(file_name);
 		}
+
+		//Msg("Read Cfg = [%s]", raw_file_name);
 
 		if ( config ) {
 			int					size = config->length()*sizeof(char);

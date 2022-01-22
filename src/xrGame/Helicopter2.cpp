@@ -41,10 +41,10 @@ void CHelicopter::TurnLighting(bool bOn)
 }
 void  CHelicopter::TurnEngineSound(bool bOn)
 {
-	if(bOn)
+	//if(bOn)
 		m_engineSound.set_volume(1.0f);
-	else
-		m_engineSound.set_volume(0.0f);
+	//else
+	//	m_engineSound.set_volume(0.0f);
 
 }
 
@@ -112,6 +112,9 @@ void CHelicopter::ExplodeHelicopter ()
 	CExplosive::SetInitiator(ID());
 	CExplosive::GenExplodeEvent(Position(),Fvector().set(0.f,1.f,0.f));
 	m_brokenSound.stop					();
+
+	if (OnServer())
+		this->DestroyObject();
 
 }
 
@@ -244,9 +247,10 @@ void	CHelicopter::Hit							(SHit* pHDS)
 		( smart_cast<CActor*>(pHDS->who)	||
 		smart_cast<CAI_Stalker*>(pHDS->who)		||
 		smart_cast<CCustomZone*>(pHDS->who) )
-		){
-			callback(GameObject::eHelicopterOnHit)(pHDS->damage(),pHDS->impulse,pHDS->hit_type,pHDS->who->ID());
-		}
+		)
+	{
+		callback(GameObject::eHelicopterOnHit)(pHDS->damage(),pHDS->impulse,pHDS->hit_type,pHDS->who->ID());
+	}
 
 	CPHDestroyable::SetFatalHit(*pHDS);
 

@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "ai_stalker_net_state.h"
 
+#define HALF_FLOAT
+
 void write_bites(const u32& bit_count, const u32& value, u32& current, u64& output)
 {
 	output |= ( (value & ( (u64(1) << bit_count) - 1) ) << current);
@@ -161,8 +163,11 @@ void ai_stalker_net_state::state_write(NET_Packet& packet)
 	{
 		packet.w_u8(u_health > 0.00001f ? 1 : 0);
 		packet.w_u8(u_active_slot);
-		packet.w_angle8(u_body_yaw);
-		packet.w_angle8(u_head_yaw);
+
+		packet.w_float(u_body_yaw);
+		packet.w_float(u_head_yaw);
+		packet.w_float(u_body_pitch);
+		packet.w_float(u_head_pitch);
 	}
 
 	packet.w_float(u_time_script);
@@ -230,8 +235,10 @@ void ai_stalker_net_state::state_read(NET_Packet& packet)
 	{	
 		u_health = packet.r_u8();
 		packet.r_u8(u_active_slot);  //8 bit
-		packet.r_angle8(u_body_yaw); //8 bit
-		packet.r_angle8(u_head_yaw); //8 bit
+		packet.r_float(u_body_yaw); //8 bit
+		packet.r_float(u_head_yaw); //8 bit
+		packet.r_float(u_body_pitch);
+		packet.r_float(u_head_pitch);
 
 	}
 
@@ -276,8 +283,6 @@ void ai_stalker_net_state::state_read(NET_Packet& packet)
 
 		if (old_script_idx == 1023)
 			old_script_idx = 65535;
-
-
 	}
 	
 	if (u_health < 1.0f && false)

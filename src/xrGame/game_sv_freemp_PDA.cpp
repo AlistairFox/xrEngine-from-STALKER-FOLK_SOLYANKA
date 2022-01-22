@@ -4,34 +4,17 @@
 
 void game_sv_freemp::OnPlayerUIContacts(NET_Packet& P, ClientID const& clientID)
 {
-	u16 player;
-	P.r_u16(player);
-	ClientID cl_leader;
-	P.r_clientID(cl_leader);
- 
-	xrClientData* data = (xrClientData*)get_client(player);
-	xrClientData* data_leader = (xrClientData*)server().ID_to_client(cl_leader);
+	ClientID player;
+	P.r_clientID(player);
 
-	if (!data)
-		return;
-
-	if (!data_leader)
-		return;
-
-	u16 leader = data_leader->ps->GameID;
-
-	teamPlayers[leader].ClientLeader = cl_leader.value();
-	teamPlayers[leader].LeaderGameID = leader;
+	ClientID leader;
+	P.r_clientID(leader);
 
 	if (teamPlayers[leader].cur_players == 0)
 	{
 		teamPlayers[leader].cur_players = 1;
-		u32 leader_gameid = data_leader->ps->GameID;
-
-		teamPlayers[leader].players[0].GameID = leader_gameid;
-		teamPlayers[leader].players[0].Client = cl_leader;
-
-		Msg("[OnPlayerUIContacts] Leader GameID [%d] Leader[%d]/cl_leader[%u] Players [%d]", leader_gameid, leader, cl_leader.value(), teamPlayers[leader].cur_players + 1);
+		teamPlayers[leader].players[0] = leader;
+		teamPlayers[leader].ClientLeader = leader.value();
 	}
 
 	if (teamPlayers[leader].cur_players > 3)
@@ -39,31 +22,28 @@ void game_sv_freemp::OnPlayerUIContacts(NET_Packet& P, ClientID const& clientID)
 		return;
 	}
 
-	teamPlayers[leader].players[teamPlayers[leader].cur_players].GameID = player;
-	teamPlayers[leader].players[teamPlayers[leader].cur_players].Client = data->ID;
-    
-	Msg("[OnPlayerUIContacts] Player GameID [%d] ClientID [%d] players [%d]", player, data->ID, teamPlayers[leader].cur_players + 1);
-
+ 	teamPlayers[leader].players[teamPlayers[leader].cur_players] = player;
 	teamPlayers[leader].cur_players += 1;
+
+	//Msg("[OnPlayerUIContacts] LeaderID [%u] Players [%d]", leader.value(), teamPlayers[leader].cur_players + 1);
+	//Msg("[OnPlayerUIContacts] ClientID [%u] players [%d]", player.value(), teamPlayers[leader].cur_players + 1);
 
 	for (auto pl : teamPlayers[leader].players)
 	{
-		if (pl.Client != 0)
-			OnPlayerUIContactsRecvestUpdate(pl.Client, leader);
+		if (pl != 0)
+			OnPlayerUIContactsRecvestUpdate(pl, leader);
 	}
 }
 
 void game_sv_freemp::OnPlayerUIContactsRecvest(NET_Packet& P, ClientID const& clientID)
 {
-	Msg("OnPlayerUIContactsRecvest");
+	//Msg("OnPlayerUIContactsRecvest");
 	
-	u16 actor;
-	ClientID who;
+ 	ClientID who;
 	ClientID id_client_to_send;
 
 	P.r_clientID(id_client_to_send);
-	P.r_u16(actor);
-	P.r_clientID(who);
+ 	P.r_clientID(who);
 
 	xrClientData* data = server().ID_to_client(who);
 
@@ -79,62 +59,44 @@ void game_sv_freemp::OnPlayerUIContactsRecvest(NET_Packet& P, ClientID const& cl
 	server().SendTo(id_client_to_send, packet, net_flags(true, true));
 }
 
-void game_sv_freemp::OnPlayerUIContactsRecvestUpdate(ClientID Client, u32 leader)
+void game_sv_freemp::OnPlayerUIContactsRecvestUpdate(ClientID Client, ClientID leader)
 {
 	NET_Packet packet;
 	GenerateGameMessage(packet);
 	packet.w_u32(GE_UI_PDA);
 	packet.w_u8(1);
 	packet.w(&teamPlayers[leader] , sizeof(Team));
-
-	//	Msg("leader[%u] client[%u]", leader, Client);
-
 	server().SendTo(Client, packet, net_flags(true, true));
 }
  
 
-void game_sv_freemp::OnPlayerUIContactsRemoveUser(ClientID Client, u16 GameID, u16 Leader)
+void game_sv_freemp::OnPlayerUIContactsRemoveUser(ClientID Client, ClientID Leader)
 {
-	Msg("remove user [%u] / [%d] / leader[%d]", Client, GameID, Leader);
-	
-	Team team_clear;
+	//Msg("remove user [%u] / leader[%u]", Client, Leader);
 
-	NET_Packet packet;
-	GenerateGameMessage(packet);
-	packet.w_u32(GE_UI_PDA);
-	packet.w_u8(1);
-	packet.w(&team_clear, sizeof(Team));
+	ClientID ids[4];
 
-	if (GameID == Leader)
+	u32 id = 0;
+	for (auto player : teamPlayers[Leader].players)
 	{
-		for (auto players : teamPlayers[Leader].players)
+		ids[id] = player;
+		if (Client == player)
 		{
-			server().SendTo(players.Client, packet, net_flags(true, true));
+			teamPlayers[Leader].players[id] = 0;
+			teamPlayers[Leader].cur_players -= 1;
 		}
-
-		Msg("Player Leader Remove");
-		teamPlayers[Leader] = team_clear;
-		return;
-	}
-	else 
+ 
+		id += 1;
+	}	
+	if (Client == Leader)
 	{
-		for (auto players : teamPlayers[Leader].players)
-		{
-			if (GameID == players.GameID)
-			{
-				players.GameID = -1;
-				players.Client = -1;
-				teamPlayers[Leader].cur_players -= 1;
-				server().SendTo(Client, packet, net_flags(true, true));
-			}
-		}
-
-		Msg("Player Remove");
-
-		
+		teamPlayers.erase(Leader); 
 	}
 
-	
+	for (auto pl : ids)
+	{
+		OnPlayerUIContactsRecvestUpdate(pl, Leader);
+	}
 }
 
 

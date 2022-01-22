@@ -245,6 +245,7 @@ void CCustomOutfit::ApplySkinModel(CActor* pActor, bool bDress, bool bHUDOnly)
 		{
 			shared_str NewVisual = NULL;
 			char* TeamSection = Game().getTeamSection(pActor->g_Team());
+		
 			if (TeamSection)
 			{
 				if (pSettings->line_exist(TeamSection, *cNameSect()))
@@ -258,6 +259,7 @@ void CCustomOutfit::ApplySkinModel(CActor* pActor, bool bDress, bool bHUDOnly)
 					NewVisual._set(SkinName);
 				}
 			}
+
 			if (!NewVisual.size())
 				NewVisual = m_ActorVisual;
 
@@ -267,7 +269,8 @@ void CCustomOutfit::ApplySkinModel(CActor* pActor, bool bDress, bool bHUDOnly)
 
 		if (pActor == Level().CurrentViewEntity())	
 			g_player_hud->load(pSettings->r_string(cNameSect(),"player_hud_section"));
-	}else
+	}
+	else
 	{
 		if (!bHUDOnly && m_ActorVisual.size())
 		{

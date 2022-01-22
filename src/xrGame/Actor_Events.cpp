@@ -291,13 +291,16 @@ void CActor::OnEvent(NET_Packet& P, u16 type)
 		{
 			u16 id = P.r_u16();
 			CObject* O	= Level().Objects.net_Find	(id);
-			if (!O){
+			if (!O)
+			{
 				Msg("! Error: No object to attach holder [%d]", id);
 				break;
 			}
+
 			VERIFY(m_holder==NULL);
 			CHolderCustom*	holder = smart_cast<CHolderCustom*>(O);
-			if(!holder->Engaged())	use_Holder		(holder);
+			if(!holder->Engaged())
+				use_Holder		(holder);
 
 		}break;
 	case GEG_PLAYER_DETACH_HOLDER:
@@ -337,6 +340,10 @@ void CActor::OnEvent(NET_Packet& P, u16 type)
 	case GE_ACTOR_ITEM_ACTIVATE:
 	{
 		ReciveActivateItem(P);
+	}break;
+	case GE_ACTOR_HIDE_ALL_WEAPONS:
+	{
+		inventory().SetActiveSlot(NO_ACTIVE_SLOT);
 	}break;
 
 	}

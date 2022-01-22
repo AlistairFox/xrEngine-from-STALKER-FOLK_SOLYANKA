@@ -49,26 +49,21 @@ bool CAttachableItem::load_attach_position(LPCSTR section)
 {
 	if (!pSettings->line_exist(section,"attach_angle_offset"))
 		return false;
+ 
+	Fvector	angle_offset = pSettings->r_fvector3	(section,"attach_angle_offset");
+	Fvector	position_offset	= pSettings->r_fvector3	(section,"attach_position_offset");
+	m_offset.setHPB(VPUSH(angle_offset));
+	m_offset.c = position_offset;
 
-	
-
-	Fvector							angle_offset = pSettings->r_fvector3	(section,"attach_angle_offset");
-	Fvector							position_offset	= pSettings->r_fvector3	(section,"attach_position_offset");
-
-	if (pSettings->line_exist(section, "attach_angle_offset")) 
+	if (pSettings->line_exist(section, "actor_position_offset")) 
 	{
-		Fvector							actor_angle_offset = pSettings->r_fvector3(section, "actor_angle_offset");
-		Fvector							actor_position_offset = pSettings->r_fvector3(section, "actor_position_offset");
+		Fvector	actor_angle_offset = pSettings->r_fvector3(section, "actor_angle_offset");
+		Fvector	actor_position_offset = pSettings->r_fvector3(section, "actor_position_offset");
 
 		m_offset_actor.setHPB(VPUSH(actor_angle_offset));
 		m_offset_actor.c = actor_position_offset;
 	}
-
-	m_offset.setHPB					(VPUSH(angle_offset));
-	m_offset.c						= position_offset;
-
-
-
+ 
 	m_bone_name						= pSettings->r_string	(section,"attach_bone_name");
 
 
@@ -86,6 +81,12 @@ void CAttachableItem::renderable_Render	()
 {
 	::Render->set_Transform			(&object().XFORM());
 	::Render->add_Visual			(object().Visual());
+
+	if (ParrentActor() && (pSettings->line_exist(this->item().m_section_id, "actor_position_offset")))
+		parrent_actor = true;
+	else
+		parrent_actor = false;
+
 }
 
 void CAttachableItem::OnH_A_Independent	()
@@ -100,12 +101,6 @@ void CAttachableItem::enable			(bool value)
 		m_enabled			= value;
 		return;
 	}
-
-	if (ParrentActor())
-		parrent_actor = true;
-	else
-		parrent_actor = false;
-
 
 	if (value && !enabled() && object().H_Parent())
 	{

@@ -667,6 +667,7 @@ public		:
 
 ENGINE_API float    psHUD_FOV_def = 0.45f;
 ENGINE_API float	psHUD_FOV     = psHUD_FOV_def;
+ENGINE_API float	VIEWPORT_NEAR = 0.05f;
 
 //extern int			psSkeletonUpdate;
 extern int			rsDVB_Size;
@@ -690,6 +691,8 @@ extern int			g_ErrorLineCount;
 ENGINE_API int			ps_r__Supersample			= 1;
 void CCC_Register()
 {
+	CMD4(CCC_Float, "r__viewport_near", &VIEWPORT_NEAR,0.05f, 1.0f);
+
 	// General
 	CMD1(CCC_Help,		"help"					);
 	CMD1(CCC_Quit,		"quit"					);

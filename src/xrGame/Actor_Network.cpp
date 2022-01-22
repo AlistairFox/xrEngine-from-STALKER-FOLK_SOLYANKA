@@ -709,13 +709,9 @@ BOOL CActor::net_Spawn		(CSE_Abstract* DC)
 	m_s16LastHittedElement = -1;
 	m_bWasHitted = false;
 	m_dwILastUpdateTime		= 0;
-
-	//if (IsGameTypeSingle())
-
-	if (Level().CurrentControlEntity())
-	if (OnClient() && this == Level().CurrentControlEntity())
+  
+	if (Local())
 	{
-
 		Level().MapManager().AddMapLocation("actor_location",ID());
 		Level().MapManager().AddMapLocation("actor_location_p",ID());
 
@@ -924,7 +920,7 @@ void	CActor::ChangeVisual			( shared_str NewVisual )
 	}
 
 	cNameVisual_set(NewVisual);
-
+	CanChange = true;
 	g_SetAnimation(mstate_real);
 	Visual()->dcast_PKinematics()->CalculateBones_Invalidate();
 	Visual()->dcast_PKinematics()->CalculateBones(TRUE);

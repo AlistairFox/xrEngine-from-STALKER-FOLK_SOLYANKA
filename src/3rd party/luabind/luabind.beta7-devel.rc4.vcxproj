@@ -59,7 +59,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>A:\Games\TEST\Dead Edge\bin\x86\;$(LibraryPath)</LibraryPath>
+    <LibraryPath>A:\Games\TEST\Dead Edge\bin\x86\libs\;$(LibraryPath)</LibraryPath>
     <OutDir>A:\Games\TEST\Dead Edge\bin\x86\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Mixed|Win32'">

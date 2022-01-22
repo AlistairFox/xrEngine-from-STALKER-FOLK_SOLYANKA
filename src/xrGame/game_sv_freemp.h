@@ -6,25 +6,17 @@
 #include "../jsonxx/jsonxx.h"
 using namespace jsonxx;
 
-struct TeamPlayer
-{
-	ClientID Client = -1;
-	u16 GameID = -1;
-};
-
 struct Team
 {
-	TeamPlayer players[4];
-	u32 ClientLeader = -1;
-	u16 LeaderGameID = -1;
-	u16 cur_players = 0;
+	ClientID players[4];
+	ClientID ClientLeader = -1;
+ 	u16 cur_players = 0;
 };
 
 struct SpawnSect
 {
 	s32 StartMoney;
 	xr_vector<xr_string> StartItems;
-//	xr_vector<xr_string> DefaultItems;
 };
 
 
@@ -35,7 +27,7 @@ class game_sv_freemp : public game_sv_mp, private pure_relcase
 	SpawnSect spawned_items;
  
 public:
-	xr_map<u16, Team> teamPlayers;
+	xr_map<ClientID, Team> teamPlayers;
 	
 	
 	game_sv_freemp();
@@ -89,9 +81,12 @@ public:
 
 	virtual void LoadParamsDeffaultFMP();
 
-	void OnPlayerUIContacts(NET_Packet& P, ClientID const& clientID);
-	void OnPlayerUIContactsRecvest(NET_Packet& P, ClientID const& clientID);
-	void OnPlayerUIContactsRecvestUpdate(ClientID Client, u32 leader);
 
-	void OnPlayerUIContactsRemoveUser(ClientID Client, u16 GameID, u16 Leader);
+	void OnPlayerUIContacts(NET_Packet& P, ClientID const& clientID);
+	
+	void OnPlayerUIContactsRecvest(NET_Packet& P, ClientID const& clientID);
+
+	void OnPlayerUIContactsRecvestUpdate(ClientID Client, ClientID leader);
+
+	void OnPlayerUIContactsRemoveUser(ClientID Client, ClientID Leader);
 };

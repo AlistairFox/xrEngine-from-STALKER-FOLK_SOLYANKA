@@ -604,12 +604,10 @@ void CRenderDevice::OnWM_Activate(WPARAM wParam, LPARAM lParam)
 	BOOL fMinimized					= (BOOL) HIWORD(wParam);
 	BOOL bActive					= ((fActive!=WA_INACTIVE) && (!fMinimized))?TRUE:FALSE;
 
-//	Msg("Active [%s]", bActive ? "true" : "false");
-
 	if (bActive!=Device.b_is_Active)
 	{
 
-		Device.b_is_Active = bActive;
+		Device.b_is_Active = true;//bActive;
 
 		if (Device.b_is_Active)	
 		{

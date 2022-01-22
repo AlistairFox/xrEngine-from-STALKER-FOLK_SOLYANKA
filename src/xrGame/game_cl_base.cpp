@@ -72,27 +72,33 @@ void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 	float			EnvironmentTimeFactor;
 	P.r_float(EnvironmentTimeFactor);
 
+	u32 timefactor_old = Level().GetGameTimeFactor();
+
 	Level().SetGameTimeFactor(GameTime, TimeFactor);
 	Level().SetEnvironmentGameTimeFactor(GameEnvironmentTime, EnvironmentTimeFactor);
 
+	if (OnServer() && g_pGamePersistent)
+	{
+		if (timefactor_old != TimeFactor)
+		{
+			GamePersistent().Environment().Invalidate();
+		}
+	}
+	
 	float wfx_time;
 	P.r_float(wfx_time);
 
 	shared_str name;
 	P.r_stringZ(name);
-	 
-	u8 need_update;
-	P.r_u8(need_update);
-
-
-
-	if (OnClient() && g_pGamePersistent)
+ 
+ 
+	if (OnClient() && g_pGamePersistent && Device.dwFrame % 60 == 0)
 	{
  		g_pGamePersistent->Environment().wfx_time = wfx_time;
 
-		if (!(wfx_time > 1))
+		if (wfx_time < 1)
 		{
-			if (old_time_env != EnvironmentTimeFactor || need_update == 1 || just_Connected)
+			if (old_time_env != EnvironmentTimeFactor || just_Connected)
 			{
 				GamePersistent().Environment().Invalidate();
 				GamePersistent().Environment().SetGameTime(GameEnvironmentTime, EnvironmentTimeFactor);
@@ -100,8 +106,6 @@ void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 				need_wait_update_name = true;
 				just_Connected = false;
 				dwTimeStart = Device.dwTimeGlobal;
-
-				Msg("Invalidate Weather");
 			}
 		}
 
@@ -113,7 +117,9 @@ void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 				{
 					Msg("Weather FX Set[%s] WFX_TIME [%f]", name.c_str(), wfx_time);
 					if (!GamePersistent().Environment().StartWeatherFXFromTime(name, wfx_time))
+					{
 						GamePersistent().Environment().SetWeatherFX(name);
+					}
 				}
 				else
 				{
@@ -132,8 +138,10 @@ void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 				{
 					
 					if (!GamePersistent().Environment().SetWeatherFX(name))
-						GamePersistent().Environment().SetWeather(name, false);
-
+					{
+						GamePersistent().Environment().SetWeather(name, true);
+					}
+					 
 					Msg("Weather [%s]", name.c_str());
 				}	
 
@@ -403,6 +411,17 @@ ClientID game_cl_GameState::GetClientIDByOrderID	(u32 idx)
 	PLAYERS_MAP_IT I = players.begin();
 	std::advance(I,idx);
 	return I->first;
+}
+
+u16 game_cl_GameState::GetPlayerByClientID(ClientID id)
+{		
+	for (auto pl : players)
+	{	
+		if (pl.first == id)
+			return pl.second->GameID;
+	}
+
+	return 0;
 }
 
 void game_cl_GameState::shedule_Update		(u32 dt)

@@ -7,8 +7,11 @@ bool loaded_inventory = false;
 game_sv_freemp::game_sv_freemp()
 	:pure_relcase(&game_sv_freemp::net_Relcase)
 {
-	m_type = eGameIDFreeMp;
-	loaded_inventory = false;
+	if (g_dedicated_server)
+	{
+		m_type = eGameIDFreeMp;
+		loaded_inventory = false;
+	}
 }
 
 game_sv_freemp::~game_sv_freemp()
@@ -260,20 +263,22 @@ void game_sv_freemp::OnPlayerDisconnect(ClientID id_who, LPSTR Name, u16 GameID)
 {
 	inherited::OnPlayerDisconnect(id_who, Name, GameID);		  
 
+	if (&teamPlayers[id_who])
+	{
+		teamPlayers.erase(id_who);
+	}
+	else
 	for (auto table : teamPlayers)
 	{
 		for (auto pl : table.second.players)
 		{
-			if (pl.GameID == GameID)
+			if (pl == id_who)
 			{
-				pl.GameID = -1;
-				pl.Client = -1;
-
+				pl = 0;
 				table.second.cur_players -= 1;
 			}
 			
-			OnPlayerUIContactsRecvestUpdate(pl.Client, GameID);
-			
+			OnPlayerUIContactsRecvestUpdate(pl, GameID);
 		}
 	}
 }
@@ -446,11 +451,9 @@ void game_sv_freemp::Update()
 		{
 			for (auto player : players.second.players)
 			{
-				if (player.GameID != -1) 
-				{
-					OnPlayerUIContactsRecvestUpdate(player.Client, players.second.LeaderGameID);
-					Msg("Recvest Send %d / Leader %d", player.GameID, players.second.LeaderGameID);
-				}
+				OnPlayerUIContactsRecvestUpdate(player, players.second.ClientLeader);
+				Msg("Recvest Send %u / Leader %u", player, players.second.ClientLeader);
+				
 			}
 		}
 	}

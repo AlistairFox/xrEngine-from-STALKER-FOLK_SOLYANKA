@@ -19,7 +19,7 @@
 
 void	CCar::OnMouseMove(int dx, int dy)
 {
-	if (Remote())					return;
+//	if (Remote())					return;
 
 	CCameraBase* C	= active_camera;
 	float scale		= (C->f_fov/g_fov)*psMouseSens * psMouseSensScale/50.f;
@@ -119,7 +119,7 @@ void CCar::vfProcessInputKey	(int iCommand, bool bPressed)
 
 void CCar::OnKeyboardPress(int cmd)
 {
-	if (Remote())								return;
+	//if (Remote())								return;
 
 	switch (cmd)	
 	{
@@ -142,7 +142,7 @@ void CCar::OnKeyboardPress(int cmd)
 
 void	CCar::OnKeyboardRelease(int cmd)
 {
-	if (Remote())								return;
+//	if (Remote())								return;
 	switch (cmd)	
 	{
 	case kACCEL:break;
@@ -156,7 +156,7 @@ void	CCar::OnKeyboardRelease(int cmd)
 
 void	CCar::OnKeyboardHold(int cmd)
 {
-	if (Remote())								return;
+//	if (Remote())								return;
 
 	switch(cmd)
 	{

@@ -276,7 +276,7 @@ void game_cl_freemp::TranslateGameMessage(u32 msg, NET_Packet& P)
 				m_game_ui->reciveVoicePacket(P);
 		}break;
 
-		if (GAME_EVENT_PDA_CHAT)
+		case (GAME_EVENT_PDA_CHAT):
 		{
 			m_game_ui->PdaMenu().pUIChatWnd->RecivePacket(P);
 		}break;
@@ -299,10 +299,10 @@ void game_cl_freemp::OnRender()
 		if (teamPL.cur_players > 0)
 		for (auto pl : teamPL.players)
 		{
-			if (pl.Client == 0)
+			if (pl == 0)
 				continue;
 
-			game_PlayerState* ps = GetPlayerByGameID(pl.GameID);
+			game_PlayerState* ps = GetPlayerByGameID(GetPlayerByClientID(pl));
 
 			if (!ps)
 				continue;
@@ -314,38 +314,47 @@ void game_cl_freemp::OnRender()
 			if (!pActor) continue;
 
 			float pos = 0.0f;
-
-
+	
+			Fvector posH = IndicatorPosition;
+ 			pActor->RenderIndicatorNew(posH, Indicator_render1, Indicator_render2, IndicatorShaderFreemp);
 			
-			//pActor->RenderText(pActor->Name(), IndicatorPositionText, &pos, color_rgba(255, 255, 0, 255));
-		    
-			{
-				Fvector posH = IndicatorPosition;
-				//posH.y += pos;
-				pActor->RenderIndicatorNew(posH, Indicator_render1, Indicator_render2, IndicatorShaderFreemp);
-			}
-
 		}
 
 
 		if (caps_lock && local_player->testFlag(GAME_PLAYER_HAS_ADMIN_RIGHTS))
-		for (auto pl : players)
 		{
-			game_PlayerState* ps = GetPlayerByGameID(pl.second->GameID);
+			for (auto pl : players)
+			{
+				game_PlayerState* ps = GetPlayerByGameID(pl.second->GameID);
 
-			if (!ps)
-				continue;
+				if (!ps)
+					continue;
 
-			if (ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD)) continue;
-			if (ps == local_player) continue;
-				
-			CActor* pActor = smart_cast<CActor*>(Level().Objects.net_Find(ps->GameID));
-			if (!pActor) continue;
-			if (!pActor->cast_actor_mp()) continue;
+				//if (ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD)) continue;
+				if (ps == local_player) continue;
 
-			float pos = 0.0f;
+				CActor* pActor = smart_cast<CActor*>(Level().Objects.net_Find(ps->GameID));
+				if (!pActor) continue;
+				if (!pActor->cast_actor_mp()) continue;
 
-			pActor->RenderText(pActor->Name(), IndicatorPositionText, &pos, color_rgba(255, 255, 0, 255));			 
+				float pos = 0.0f;
+				Fvector posPOINT = IndicatorPositionText;
+				posPOINT.y -= 0.5f;
+
+				string256 str = { 0 };
+				xr_strcpy(str, pActor->Name());
+				xr_strcat(str, "(");
+				xr_strcat(str, ps->m_account.name_login().c_str());
+				xr_strcat(str, ")");
+
+				pActor->RenderText(str, posPOINT, &pos, color_rgba(255, 255, 0, 255));
+			}
+
+		}
+		else
+		{
+			//Msg("caps_lock %s", caps_lock? "true" : "false");
+			//Msg("admin %s", local_player->testFlag(GAME_PLAYER_HAS_ADMIN_RIGHTS) ? "true" : "false");
 		}
 }
 

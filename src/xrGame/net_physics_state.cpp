@@ -2,6 +2,8 @@
 #include "net_physics_state.h"
 #include "Level.h"
 
+//#define HALF_FLOAT;
+
 typedef unsigned short ushort;
 typedef unsigned int uint;
 
@@ -48,30 +50,23 @@ void net_physics_state::fill(SPHNetState &state)
 	physics_state_enabled = state.enabled;
 }
 
-void net_physics_state::write(NET_Packet &packet)
+void net_physics_state::write(NET_Packet& packet)
 {
-	// linear velocity
-	//clamp(physics_linear_velocity.x, MIN_LINEAR_VELOCITY_COMPONENT, MAX_LINEAR_VELOCITY_COMPONENT);
-	//clamp(physics_linear_velocity.y, MIN_LINEAR_VELOCITY_COMPONENT, MAX_LINEAR_VELOCITY_COMPONENT);
-	//clamp(physics_linear_velocity.z, MIN_LINEAR_VELOCITY_COMPONENT, MAX_LINEAR_VELOCITY_COMPONENT);
- 
-	//packet.w_float_q8(physics_linear_velocity.x, MIN_LINEAR_VELOCITY_COMPONENT, MAX_LINEAR_VELOCITY_COMPONENT);
-	//packet.w_float_q8(physics_linear_velocity.y, MIN_LINEAR_VELOCITY_COMPONENT, MAX_LINEAR_VELOCITY_COMPONENT);
-	//packet.w_float_q8(physics_linear_velocity.z, MIN_LINEAR_VELOCITY_COMPONENT, MAX_LINEAR_VELOCITY_COMPONENT);
-
 	// position
-	//packet.w_float(physics_position.x);
-	//packet.w_float(physics_position.y);
-	//packet.w_float(physics_position.z);
-
+ 
+#ifdef	HALF_FLOAT 
 	u16 x = float_to_half(physics_position.x);
 	u16 y = float_to_half(physics_position.z);
 	u16 z = float_to_half(physics_position.y);
 
 	packet.w_u16(x);
 	packet.w_u16(y);
-	packet.w_u16(z);
-
+	packet.w_u16(z);   
+#else	
+	packet.w_float(physics_position.x);
+	packet.w_float(physics_position.y);
+	packet.w_float(physics_position.z);	
+#endif
 	// physics state enabled
 	packet.w_u8(physics_state_enabled ? 1 : 0);
 }
@@ -79,30 +74,32 @@ void net_physics_state::write(NET_Packet &packet)
 void net_physics_state::read(NET_Packet &packet)
 {
 	dwTimeStamp = Level().Objects.net_Import_Time();
+ 
+#ifdef	HALF_FLOAT 
+	{
 
-	// linear velocity
-	//packet.r_float_q8(physics_linear_velocity.x, MIN_LINEAR_VELOCITY_COMPONENT, MAX_LINEAR_VELOCITY_COMPONENT);
-	//packet.r_float_q8(physics_linear_velocity.y, MIN_LINEAR_VELOCITY_COMPONENT, MAX_LINEAR_VELOCITY_COMPONENT);
-	//packet.r_float_q8(physics_linear_velocity.z, MIN_LINEAR_VELOCITY_COMPONENT, MAX_LINEAR_VELOCITY_COMPONENT);
-
-	// position
-	//packet.r_float(physics_position.x);
-	//packet.r_float(physics_position.y);
-	//packet.r_float(physics_position.z);
-	u16 x,y,z;
-	packet.r_u16(x);
-	packet.r_u16(y);
-	packet.r_u16(z);
+	
+		u16 x,y,z;
+		packet.r_u16(x);
+		packet.r_u16(y);
+		packet.r_u16(z);
 
 
-	float decode_x = half_to_float(x);
-	float decode_y = half_to_float(z);
-	float decode_z = half_to_float(y);
+		float decode_x = half_to_float(x);
+		float decode_y = half_to_float(z);
+		float decode_z = half_to_float(y);
 
-	physics_position.x = decode_x;
-	physics_position.y = decode_y;
-	physics_position.z = decode_z;
-
+		physics_position.x = decode_x;
+		physics_position.y = decode_y;
+		physics_position.z = decode_z;
+	}
+#else
+	{
+		packet.r_float(physics_position.x);
+		packet.r_float(physics_position.y);
+		packet.r_float(physics_position.z);
+	}
+#endif
 	// physics state enabled
 	physics_state_enabled = static_cast<bool>(packet.r_u8());
 }

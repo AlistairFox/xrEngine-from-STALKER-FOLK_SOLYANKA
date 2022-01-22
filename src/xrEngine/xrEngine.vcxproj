@@ -130,7 +130,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Dedicated|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>$(LibraryPath);A:\Games\TEST\Dead Edge\bin\x86\LIBS\</LibraryPath>
+    <LibraryPath>$(LibraryPath);A:\Games\TEST\Dead Edge\bin\x86\LIBS\;A:\Games\TEST\Dead Edge\bin\dedicated\LIBS\</LibraryPath>
     <OutDir>A:\Games\TEST\Dead Edge\bin\dedicated\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -442,7 +442,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <FixedBaseAddress>false</FixedBaseAddress>
       <DataExecutionPrevention />
-      <ImportLibrary />
+      <ImportLibrary>$(OutDir)LIBS\$(TargetName).lib</ImportLibrary>
       <AdditionalLibraryDirectories>$(SolutionDir)\..\binares\Win32-Release\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>

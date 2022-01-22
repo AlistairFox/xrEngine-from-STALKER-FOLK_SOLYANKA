@@ -84,6 +84,9 @@ public:
 				game_PlayerState*	GetPlayerByGameID		(u32 GameID);
 				game_PlayerState*	GetPlayerByOrderID		(u32 id);
 				ClientID			GetClientIDByOrderID	(u32 id);
+				
+				u16					GetPlayerByClientID		(ClientID id);
+
 				u32					GetPlayersCount			() const {return players.size();};
 	virtual		CUIGameCustom*		createGameUI			(){return NULL;};
 	virtual		void				SetGameUI				(CUIGameCustom*){};

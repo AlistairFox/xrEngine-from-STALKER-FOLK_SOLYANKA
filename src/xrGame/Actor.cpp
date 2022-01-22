@@ -277,29 +277,7 @@ bool CActor::MpSafeMode() const
  
 	game_PlayerState* ps = Game().GetPlayerByGameID(ID());
 	return (ps && ps->testFlag(GAME_PLAYER_MP_SAFE_MODE));
-}
-
-bool CActor::MpAnimationMode() const
-{
-	if (!g_Alive())
-		return false; 
-
-	game_PlayerState* ps = Game().GetPlayerByGameID(ID());
-
-	return (ps && ps->testFlag(GAME_PLAYER_MP_ANIM_MODE));
-}
-
-bool CActor::MpAnimationMode_Check()
-{
-	if (MpAnimationMode())
-		return false;
-
-	if (!OutPlay)
-		return false;
-
-	return CanChange;
-}
-
+} 
 
 void CActor::reinit	()
 {
@@ -329,6 +307,7 @@ void CActor::reload	(LPCSTR section)
 		memory().reload			(section);
 	m_location_manager->reload	(section);
 }
+
 void set_box(LPCSTR section, CPHMovementControl &mc, u32 box_num )
 {
 	Fbox	bb;Fvector	vBOX_center,vBOX_size;
@@ -1135,6 +1114,7 @@ void CActor::UpdateCL	()
 				m_bPickupMode=true;
 		}
 	}
+ 
 
 	UpdateInventoryOwner			(Device.dwTimeDelta);
 
@@ -1345,8 +1325,12 @@ void CActor::shedule_Update	(u32 DT)
 			*/
 		}
 
-		if (!pInput->iGetAsyncKeyState(DIK_LALT) && MpAnimationMode_Check())
+		if (!pInput->iGetAsyncKeyState(DIK_LALT) && !MpAnimationMode())
 			g_cl_Orientate			(mstate_real,dt);
+
+		if (MpAnimationMode() || MpSafeMode())
+			cam_Set(eacLookAt);
+	
 		
 		g_Orientate				(mstate_real,dt);
 
@@ -1742,10 +1726,6 @@ void CActor::RenderIndicator			(Fvector dpos, float r1, float r2, const ui_shade
 	UIRender->FlushPrimitive();
 }
 
-extern float RenderVal  = 0.1;
-extern float RenderVal2 = 0.4;
-
-
 void CActor::RenderIndicatorNew(Fvector dpos, float r1, float r2, const ui_shader& IndShader)
 {
 	if (!g_Alive()) return;
@@ -1769,7 +1749,7 @@ void CActor::RenderIndicatorNew(Fvector dpos, float r1, float r2, const ui_shade
 	float cx = (1.f + v_res.x) / 2.f * (Device.dwWidth);
 	float cy = (1.f - v_res.y) / 2.f * (Device.dwHeight);
 
-	float di_size = RenderVal / powf(v_res.w, RenderVal2);
+	float di_size = 0.75f / powf(v_res.w, 0.5);
 	float size_x = 32 * di_size;
 	float size_y = 32 * di_size;
 
@@ -1834,7 +1814,7 @@ void CActor::RenderText				(LPCSTR Text, Fvector dpos, float* pdup, u32 color)
 	float cx = (1.f + v_res.x) / 2.f * (Device.dwWidth);
 	float cy = (1.f - v_res.y) / 2.f * (Device.dwHeight);
 
-	float di_size = RenderVal / powf(v_res.w, RenderVal2);
+	float di_size = 0.75f / powf(v_res.w, 0.4);
 
 	pFont->SetAligment	(CGameFont::alCenter);
 	pFont->SetColor		(color);

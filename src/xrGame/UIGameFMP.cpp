@@ -9,16 +9,19 @@
 
 #include "ui/UIStatic.h"
 #include "ui/UIXmlInit.h"
+#include "UIAnimMode.h"
 
 BOOL g_cl_draw_mp_statistic = FALSE;
 
 CUIGameFMP::CUIGameFMP()
 {
 	m_game = NULL;
+	m_animation = NULL;
 }
 
 CUIGameFMP::~CUIGameFMP()
 {
+	xr_delete(m_animation);
 }
 
 void CUIGameFMP::Init(int stage)
@@ -48,6 +51,9 @@ void CUIGameFMP::Init(int stage)
 		inherited::Init(stage);
 		m_window->AttachChild(m_stats);
 	}
+	m_animation = xr_new<CUIAMode>();
+	m_animation->Init();
+	m_window->AttachChild(m_animation);
 }
 
 void CUIGameFMP::SetClGame(game_cl_GameState * g)
@@ -130,7 +136,7 @@ void _BCL CUIGameFMP::OnFrame()
 		m_stats->Enable(false);
 	}
  
-	if (Voice_Export->sizeCapture() > 1)
+	if (Voice_Export->sizeCapture() > 1 && Voice_Export->getCaptureState())
 	{
 		voiceData captured;
 		captured = Voice_Export->CapturedVoice();
@@ -141,14 +147,17 @@ void _BCL CUIGameFMP::OnFrame()
 		packet.w_u32(captured.size);
  		packet.w(captured.data, sizeof(captured.data));
 
- 		Game().u_EventSend(packet);
+ 		Game().u_EventSend(packet);		
 	}
+
+
 	 
 }
 
 
 void CUIGameFMP::reciveVoicePacket(NET_Packet& packet)
 {
+	Msg("Recive Packet");
 	Fvector3 pos;
 	u32 size;
 	voiceData captured;
@@ -158,8 +167,8 @@ void CUIGameFMP::reciveVoicePacket(NET_Packet& packet)
 	packet.r(captured.data, sizeof(captured.data));
 
 	captured.size = size;	
-
 	captured.pos = pos;
+
 	Voice_Export->PlayCapture(captured);
 }
 
@@ -188,45 +197,49 @@ bool CUIGameFMP::IR_UIOnKeyboardPress(int dik)
 
 	if (dik == DIK_CAPSLOCK)
 	{
+		Msg("DIK_CAPSLOCK");
 		if (caps_lock)
 			caps_lock = false;
 		else
 			caps_lock = true;
 	} 
 
-
-
 	switch (get_binded_action(dik))
 	{
 		case kACTIVE_JOBS:
-			{
-				if (!pActor->inventory_disabled())
-					ShowPdaMenu();			
-			} break;
+		{
+			if (!pActor->inventory_disabled())
+				ShowPdaMenu();			
+		} break;
+
 		case kINVENTORY:
-			{
-				if (!pActor->inventory_disabled())
-					ShowActorMenu();			
-			} break;
+		{
+			if (!pActor->inventory_disabled())
+				ShowActorMenu();			
+		} break;
 
 		case kVoice:
 		{
 			if (!Voice_Export->getCaptureState())
 			{
-				Msg("Activate Voice");
-				Voice_Export->createVoice();
+				//Msg("Activate Voice");
+				//Voice_Export->createVoice();
 			}
 			else
 			{
-				Msg("DeActivate Voice");
-				Voice_Export->UpdateCapture(false);
+				//Msg("DeActivate Voice");
+				//Voice_Export->UpdateCapture(false);
 			}
 		}break;
 		
-		
-
-	default:
-		break;
+		case kAnimMode:
+		{
+			if (!m_animation->IsShown())
+				m_animation->ShowDialog(false);
+		}break;
+ 
+		default:
+			break;
 	}
 	return false;
 }

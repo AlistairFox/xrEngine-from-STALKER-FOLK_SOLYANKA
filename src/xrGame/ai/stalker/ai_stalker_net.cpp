@@ -123,6 +123,8 @@ void CAI_Stalker::net_Export(NET_Packet& P)
 		//Body Rotation
 		state.u_body_yaw = movement().m_body.current.yaw;
 		state.u_head_yaw = movement().m_head.current.yaw;
+		state.u_body_pitch = movement().m_body.current.pitch;
+		state.u_head_pitch = movement().m_head.current.pitch;
 
 		if (animation().torso().blend())
 		state.u_time_torso = animation().torso().blend()->timeCurrent;
@@ -194,15 +196,27 @@ void CAI_Stalker::net_Import(NET_Packet& P)
  
 		SetfHealth(state.u_health);
 		inventory().SetActiveSlot(state.u_active_slot);
-		
+
+		SRotation Torso, Head;
+		Torso.yaw = state.u_body_yaw;
+		Torso.pitch = state.u_body_pitch;
+
+		Head.yaw = state.u_head_yaw;
+		Head.pitch = state.u_head_pitch;
+
+		//Msg("Torso Yaw %f Pitch %f", Torso.yaw, Torso.pitch);
+		//Msg("Head Yaw %f Pitch %f", Head.yaw, Head.pitch);
+	    
 		if (state.phSyncFlag)
 		{
 			stalker_interpolation::net_update_A N_A;
 			N_A.State.enabled = state.physics_state.physics_state_enabled;
 			N_A.State.linear_vel = state.physics_state.physics_linear_velocity;
 			N_A.State.position = state.physics_state.physics_position;
-			N_A.o_torso.yaw = state.u_body_yaw;
-			N_A.head.yaw = state.u_head_yaw;
+			
+			N_A.o_torso = Torso;
+			N_A.head = Head;
+	 
 			N_A.dwTimeStamp = state.physics_state.dwTimeStamp;
 
 			// interpolation
@@ -210,9 +224,8 @@ void CAI_Stalker::net_Import(NET_Packet& P)
 		}
 		else
 		{
- 			movement().m_body.current.yaw = state.u_body_yaw;
- 			movement().m_head.current.yaw = state.u_head_yaw;
-
+ 			movement().m_body.current = Torso;
+			movement().m_head.current = Head;
 			Position().set(state.fv_position);
 
 			NET_A.clear();
@@ -431,7 +444,6 @@ void LegsAnimPlayed(CBlend* blend)
 	if (stalker)
 		stalker->LegsAnimPlay = true;
 }
- 
 
 void ScriptAnimPlayed(CBlend* blend)
 {
@@ -827,6 +839,7 @@ void CAI_Stalker::make_Interpolation()
 			movement().m_body.current.pitch = angle_lerp(IStart.o_torso.pitch, IEnd.o_torso.pitch, factor);
 			//movement().m_body.current.roll = angle_lerp(IStart.o_torso.roll, IEnd.o_torso.roll, factor);
 			movement().m_body.current.yaw = angle_lerp(IStart.o_torso.yaw, IEnd.o_torso.yaw, factor);
+
 			movement().m_head.current.pitch = angle_lerp(IStart.head.pitch, IEnd.head.pitch, factor);
 			movement().m_head.current.yaw = angle_lerp(IStart.head.yaw, IEnd.head.yaw, factor);
 

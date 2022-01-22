@@ -415,42 +415,14 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 			if (!safe_mode)
 			{
  				PS->setFlag(GAME_PLAYER_MP_SAFE_MODE);
-				Msg("Key safe_mode on");
-			}
+ 			}
 			else
 			{
  				PS->resetFlag(GAME_PLAYER_MP_SAFE_MODE);
-				Msg("Key safe_mode off");
-			}
+ 			}
 
 		}
-		else if (type == 1)
-		{
-			xrClientData* data = ID_to_client(sender);
-
-			if (!data)
-				break;
-
-			if (!data->ps)
-				break;
-
-			game_PlayerState* PS = data->ps;
-
-			bool anim_mode = PS->testFlag(GAME_PLAYER_MP_ANIM_MODE);
-
-			if (!anim_mode)
-			{
- 				PS->setFlag(GAME_PLAYER_MP_ANIM_MODE);
-				Msg("Key anim_mode on");
-			}
-			else
-			{
- 				PS->resetFlag(GAME_PLAYER_MP_ANIM_MODE);
-				Msg("Key anim_mode off");
-
-			}
-
-		}
+		  
 		game->signal_Syncronize();
 
 	}break;
@@ -473,14 +445,14 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 		{
 			ClientID id;
 			P.r_clientID(id);
-			u16 GameID;
-			P.r_u16(GameID);
-			u16 LeaderID;
-			P.r_u16(LeaderID);
-			freemp->OnPlayerUIContactsRemoveUser(id, GameID, LeaderID);
+			ClientID LeaderID;
+			P.r_clientID(LeaderID);
+			freemp->OnPlayerUIContactsRemoveUser(id, LeaderID);
 		}
+		 
 	}break;
 
+	case GE_ACTOR_HIDE_ALL_WEAPONS:
 	case GE_ACTOR_SND_ACTIVATE:
 	case GE_ACTOR_ANIMATION_SCRIPT:
 	case GE_ACTOR_ITEM_ACTIVATE:
@@ -498,7 +470,7 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 		P.r_u32(count);
 		P.r(data.data, sizeof(data.data));
 
-		Msg("voiceData [%d] count[%d] ", sizeof(data.data), count);
+		//Msg("voiceData [%d] count[%d] ", sizeof(data.data), count);
 
 		CSE_Abstract* ent = game->get_entity_from_eid(game->get_id_2_eid(sender));
 		if (!ent)

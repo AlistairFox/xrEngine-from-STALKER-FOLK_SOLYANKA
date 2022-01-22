@@ -103,42 +103,46 @@ void CCameraLook2::OnActivate( CCameraBase* old_cam )
 }
 
 void CCameraLook2::Update(Fvector& point, Fvector& noise_dangle)
-{ 
+{
 	Fvector _off;
 	Fmatrix mR;
 
 	_off = m_cam_offset;
-	
+
 	if (camerapos_x != 0)
 	{
 		_off.x = camerapos_x;
 	}
-	    
+
 	vPosition.set(point);
-	mR.setHPB						(-yaw,-pitch,-roll);
-	vDirection.set					(mR.k);
-	vNormal.set						(mR.j);
+	mR.setHPB(-yaw, -pitch, -roll);
+	vDirection.set(mR.k);
+	vNormal.set(mR.j);
 
 	Fmatrix							a_xform;
-	a_xform.setXYZ					(0, -yaw, 0);
-	a_xform.translate_over			(point);
+	a_xform.setXYZ(0, -yaw, 0);
+	a_xform.translate_over(point);
 
 	CActor* actor = smart_cast<CActor*>(Level().CurrentControlEntity());
 
-	if (actor->MpAnimationMode())
+	if (actor)
 	{
-		Fvector3 offset; 
-		offset.set(0.0f, 0.0f, -2.0f);
+		if (actor->MpAnimationMode())
+		{
+			Fvector3 offset;
+			offset.set(0.0f, 0.0f, -1.0f);
 
-		a_xform.transform_tiny(offset);
-		UpdateDistance(offset);
+			a_xform.transform_tiny(offset);
+			UpdateDistance(offset);
+		}
+		else
+		{
+			dist = 1.2f;
+			a_xform.transform_tiny(_off);
+			UpdateDistance(_off);
+		}
 	}
-	else
-	{
-		dist = 1.2f;
-		a_xform.transform_tiny(_off);
-		UpdateDistance(_off);
-	}
+	
 
 
 }

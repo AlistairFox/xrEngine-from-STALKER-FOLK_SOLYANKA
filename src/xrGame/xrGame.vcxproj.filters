@@ -7473,6 +7473,9 @@
     <ClInclude Include="SIniFileStream.h">
       <Filter>SaveINIFILE</Filter>
     </ClInclude>
+    <ClInclude Include="UIAnimMode.h">
+      <Filter>UI\GameTypes\FreeMp</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="damage_manager.cpp">
@@ -11191,6 +11194,12 @@
     </ClCompile>
     <ClCompile Include="xrServer_process_events_PDA.cpp">
       <Filter>Core\Server\ServerProcess</Filter>
+    </ClCompile>
+    <ClCompile Include="UIAnimMode.cpp">
+      <Filter>UI\GameTypes\FreeMp</Filter>
+    </ClCompile>
+    <ClCompile Include="ActorAnimation_Scripted.cpp">
+      <Filter>Core\Client\Objects\actor\base</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

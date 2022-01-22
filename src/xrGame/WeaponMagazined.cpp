@@ -489,8 +489,7 @@ void CWeaponMagazined::state_Fire(float dt)
 
 		CInventoryOwner* io		= smart_cast<CInventoryOwner*>(H_Parent());
 
-		if (H_Parent())
-		if (smart_cast<CAI_Stalker*>(H_Parent()))
+		if (H_Parent() && psDeviceFlags.test(rsDebug))
 		if(NULL == io->inventory().ActiveItem())
 		{
 			Log("current_state", GetState() );
@@ -498,8 +497,9 @@ void CWeaponMagazined::state_Fire(float dt)
 			Log("item_sect", cNameSect().c_str());
 			Log("H_Parent", H_Parent()->cNameSect().c_str());
 		}
-
-		if (io) 
+ 
+		if (H_Parent() && psDeviceFlags.test(rsDebug))
+		if (io)
 		{
 			Log("item slot 2 [%s]", io->inventory().ItemFromSlot(INV_SLOT_2) ? io->inventory().ItemFromSlot(INV_SLOT_2)->NameItem() : "NULL");
 			Log("item slot 3 [%s]", io->inventory().ItemFromSlot(INV_SLOT_3) ? io->inventory().ItemFromSlot(INV_SLOT_3)->NameItem() : "NULL");

@@ -2,8 +2,10 @@
 
 #include "UIGameMP.h"
 
+
 class game_cl_freemp;
 class CUITextWnd;
+class CUIAMode;
 
 class CUIGameFMP : public UIGameMP
 {
@@ -13,6 +15,7 @@ private:
 
 protected:
 	CUITextWnd*			m_stats;
+	CUIAMode* m_animation;
 
 public:
 				CUIGameFMP();

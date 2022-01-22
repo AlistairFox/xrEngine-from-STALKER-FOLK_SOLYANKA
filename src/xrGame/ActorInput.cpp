@@ -52,8 +52,6 @@ void CActor::IR_OnKeyboardPress(int cmd)
 			{
 				if( (mstate_wishful & mcLookout) && CheckGameFlag(F_DISABLE_WEAPON_FIRE_WHEN_LOOKOUT) ) return;
 
-				if (MpSafeMode()) return;
-
 				u16 slot = inventory().GetActiveSlot();
 				if(inventory().ActiveItem() && (slot==INV_SLOT_3 || slot==INV_SLOT_2) )
 					mstate_wishful &=~mcSprint;
@@ -74,28 +72,18 @@ void CActor::IR_OnKeyboardPress(int cmd)
 				packet.w_u8(0);
 				Game().u_EventSend(packet);
 			}break;
+			
 
-			case kAnimMode:
-			{
-				NET_Packet packet;
-				Game().u_EventGen(packet, GE_MODE_SWITCH, this->ID());
-				packet.w_u8(1);
-				Game().u_EventSend(packet);
-			}break;
 		default:
 			{
 			}break;
 	}
 
-	if (!MpAnimationMode_Check())
-		return;
-
 	if (!g_Alive()) return;
 
 	if(m_holder && kUSE != cmd)
 	{
-		if (MpSafeMode()) return;
-		m_holder->OnKeyboardPress			(cmd);
+ 		m_holder->OnKeyboardPress			(cmd);
 		if(m_holder->allowWeapon() && inventory().Action((u16)cmd, CMD_START))		return;
 		return;
 	}
@@ -280,11 +268,7 @@ void CActor::IR_OnKeyboardHold(int cmd)
 	if (Remote() || !g_Alive())					return;
 	if (m_input_external_handler && !m_input_external_handler->authorized(cmd))	return;
 	if (IsTalking())							return;
-
-	if (!MpAnimationMode_Check())
-		return;
-
-
+ 
 	if(m_holder)
 	{
 		m_holder->OnKeyboardHold(cmd);
@@ -372,44 +356,63 @@ void CActor::IR_OnMouseMove(int dx, int dy)
 #include "HudItem.h"
 bool CActor::use_Holder				(CHolderCustom* holder)
 {
+	Msg("use Holder");
 
-	if(m_holder){
+	if(m_holder)
+	{
 		bool b = false;
 		CGameObject* holderGO			= smart_cast<CGameObject*>(m_holder);
 		
-		if(smart_cast<CCar*>(holderGO))
+		if (smart_cast<CCar*>(holderGO))
+		{
 			b = use_Vehicle(0);
+			Msg("Use Car 1");
+		}
 		else
 			if (holderGO->CLS_ID==CLSID_OBJECT_W_STATMGUN)
 				b = use_MountedWeapon(0);
 
-		if(inventory().ActiveItem()){
+		if(inventory().ActiveItem())
+		{
 			CHudItem* hi = smart_cast<CHudItem*>(inventory().ActiveItem());
-			if(hi) hi->OnAnimationEnd(hi->GetState());
+			if(hi)
+				hi->OnAnimationEnd(hi->GetState());
 		}
 
 		return b;
-	}else{
+	}
+	else
+	{
 		bool b = false;
 		CGameObject* holderGO			= smart_cast<CGameObject*>(holder);
-		if(smart_cast<CCar*>(holder))
+		
+		if (smart_cast<CCar*>(holder))
+		{
 			b = use_Vehicle(holder);
+			Msg("Use Car 2");
+		}
 
 		if (holderGO->CLS_ID==CLSID_OBJECT_W_STATMGUN)
 			b = use_MountedWeapon(holder);
 		
-		if(b){//used succesfully
+		if(b)
+		{
+			//used succesfully
 			// switch off torch...
 			CAttachableItem *I = CAttachmentOwner::attachedItem(CLSID_DEVICE_TORCH);
-			if (I){
+			if (I)
+			{
 				CTorch* torch = smart_cast<CTorch*>(I);
-				if (torch) torch->Switch(false);
+				if (torch)
+					torch->Switch(false);
 			}
 		}
 
-		if(inventory().ActiveItem()){
+		if(inventory().ActiveItem())
+		{
 			CHudItem* hi = smart_cast<CHudItem*>(inventory().ActiveItem());
-			if(hi) hi->OnAnimationEnd(hi->GetState());
+			if(hi) 
+				hi->OnAnimationEnd(hi->GetState());
 		}
 
 		return b;
@@ -504,7 +507,7 @@ void CActor::ActorUse()
 					NET_Packet		P;
 					CGameObject::u_EventGen		(P, GEG_PLAYER_ATTACH_HOLDER, ID());
 					P.w_u16						(object->ID());
-					CGameObject::u_EventSend	(P);
+					CGameObject::u_EventSend	(P, net_flags(true, true));
 					return;
 			}
 

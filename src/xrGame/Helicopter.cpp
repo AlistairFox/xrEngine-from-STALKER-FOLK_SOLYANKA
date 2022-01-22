@@ -139,7 +139,6 @@ void ContactCallbackAlife(CDB::TRI* T,dContactGeom* c)
 }
 BOOL CHelicopter::net_Spawn(CSE_Abstract*	DC)
 {
-
 	SetfHealth(100.0f);
 	setState(CHelicopter::eAlive);
 	m_flame_started					=false;
@@ -210,12 +209,18 @@ BOOL CHelicopter::net_Spawn(CSE_Abstract*	DC)
 	m_bind_y.set			(matrices[m_rotate_y_bone].c);
 	
 	IKinematicsAnimated	*A	= smart_cast<IKinematicsAnimated*>(Visual());
-	if (A) {
-		A->PlayCycle		(*heli->startup_animation);
+ 
+	if (A) 
+	{
+		if (heli->startup_animation.size() > 0)
+			A->PlayCycle		(*heli->startup_animation);
+
 		K->CalculateBones	(TRUE);
 	}
 
-	m_engineSound.create			(*heli->engine_sound,st_Effect,sg_SourceType);
+	Msg("HELI SOUND %s", heli->engine_sound.c_str());
+
+	m_engineSound.create			(*heli->engine_sound, st_Effect, sg_SourceType);
 	m_engineSound.play_at_pos		(0,XFORM().c,sm_Looped);
 	
 	CShootingObject::Light_Create	();
@@ -288,6 +293,9 @@ float GetCurrAcc(float V0, float V1, float dist, float a0, float a1);
 
 void CHelicopter::MoveStep()
 {
+	if (!OnServer())
+		return;
+
 	Fvector dir, pathDir;
 	float desired_H = m_movement.currPathH;
 	float desired_P;
@@ -321,12 +329,17 @@ void CHelicopter::MoveStep()
 		m_movement.currP.mad	(dir, vp);
 		m_movement.curLinearSpeed += m_movement.curLinearAcc*STEP;
 		static bool aaa = false;
+		
 		if(aaa)
 			Log("1-m_movement.curLinearSpeed=",m_movement.curLinearSpeed);
+		
 		clamp(m_movement.curLinearSpeed,0.0f,1000.0f);
+
 		if(aaa)
 			Log("2-m_movement.curLinearSpeed=",m_movement.curLinearSpeed);
-	}else{ //go stopping
+	}
+	else
+	{ //go stopping
 		if( !fis_zero(m_movement.curLinearSpeed) ){
 			m_movement.curLinearAcc = -m_movement.LinearAcc_bk;
 
@@ -381,7 +394,9 @@ void CHelicopter::UpdateCL()
 {
 	inherited::UpdateCL	();
 	CExplosive::UpdateCL();
-	if(PPhysicsShell() && (state() == CHelicopter::eDead) ){
+
+	if(PPhysicsShell() && (state() == CHelicopter::eDead) )
+	{
 
 		PPhysicsShell()->InterpolateGlobalTransform(&XFORM());
 
@@ -402,7 +417,10 @@ void CHelicopter::UpdateCL()
 	m_movement.Update();
 
 	m_stepRemains+=Device.fTimeDelta;
-	while(m_stepRemains>STEP){
+
+	if (OnServer())
+	while(m_stepRemains>STEP)
+	{
 		MoveStep();
 		m_stepRemains-=STEP;
 	}
@@ -418,9 +436,11 @@ void CHelicopter::UpdateCL()
 	}
 #endif
 
-	if(m_engineSound._feedback())
+	if (m_engineSound._feedback())
+	{
 		m_engineSound.set_position(XFORM().c);
-	
+	 
+	}
 
 
 	m_enemy.Update();
@@ -501,6 +521,35 @@ void CHelicopter::load(IReader &input_packet)
 	load_data		(m_time_between_rocket_attack, input_packet);
 	load_data		(m_syncronize_rocket, input_packet);
 }
+
+void CHelicopter::net_Import(NET_Packet& P)
+{
+	Fmatrix body;
+	float health;
+	P.r_matrix(body);
+	P.r_float(health);
+	
+	SetHeliHealth(health);
+	XFORM().set(body);
+
+	//Msg("Import Pos [%f][%f][%f]", body.c.x, body.c.y, body.c.z);
+}
+
+
+void CHelicopter::net_Export(NET_Packet& P)
+{
+	P.w_matrix(XFORM());
+	P.w_float(GetHeliHealth());
+
+	//Msg("Export Pos [%f][%f][%f]", XFORM().c.x, XFORM().c.y, XFORM().c.x);
+}
+
+
+BOOL CHelicopter::net_Relevant()
+{
+	return true;
+}
+
 void CHelicopter::net_Relcase(CObject* O )
 {
 	CExplosive::net_Relcase(O);

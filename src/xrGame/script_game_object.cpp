@@ -176,7 +176,8 @@ cphysics_shell_scripted* CScriptGameObject::get_physics_shell() const
 CHelicopter* CScriptGameObject::get_helicopter	()
 {
 	CHelicopter		*helicopter = smart_cast<CHelicopter*>(&object());
-	if (!helicopter) {
+	if (!helicopter)
+	{
 		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,"CGameObject : cannot access class member get_helicopter!");
 		NODEFAULT;
 	}

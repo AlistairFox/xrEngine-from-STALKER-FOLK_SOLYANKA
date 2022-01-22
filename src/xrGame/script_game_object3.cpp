@@ -436,6 +436,8 @@ void CScriptGameObject::set_dest_game_vertex_id( GameGraph::_GRAPH_ID game_verte
 #endif
 			return;
 		}
+
+		//Msg("Stalker[%d] Select GRAPH [%d]", stalker->ID(), game_vertex_id);
 		stalker->movement().set_game_dest_vertex(game_vertex_id);
 	
 	}

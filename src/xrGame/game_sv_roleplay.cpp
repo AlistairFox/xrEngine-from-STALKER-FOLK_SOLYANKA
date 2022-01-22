@@ -1,10 +1,12 @@
 #include "stdafx.h"
 #include "game_sv_roleplay.h"
 #include "clsid_game.h"
+#include "Level.h"
 
 game_sv_roleplay::game_sv_roleplay()
 {
-	m_type = eGameIDRolePlay;
+	if (g_dedicated_server)
+		m_type = eGameIDRolePlay;
 }
 
 game_sv_roleplay::~game_sv_roleplay()

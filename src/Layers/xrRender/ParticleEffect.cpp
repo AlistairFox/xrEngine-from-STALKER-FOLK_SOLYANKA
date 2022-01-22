@@ -536,8 +536,6 @@ void CParticleEffect::Render(float )
     u32 			p_cnt;
     ParticleManager()->GetParticles(m_HandleEffect,particles,p_cnt);
 
-
-	if (psDeviceFlags.test(rsDebug))
 	if(p_cnt>0)
 	{
 		if (m_Def&&m_Def->m_Flags.is(CPEDef::dfSprite)){

@@ -66,7 +66,9 @@ void CUIPda_Squad::Init()
 	property_box_squad->SetWindowName("property_box");
 
 	property_box_squad->AddItem("Выкинуть игрока", NULL, PDA_PROPERTY_REMOVE_USER);
-	property_box_squad->AddItem("Чат с игроком", NULL, PDA_PROPERTY_ADD_TO_CHAT);
+	property_box_squad->AddItem("Выйти из отряда", NULL, PDA_PROPERTY_EXIT_SQUAD);
+
+	//property_box_squad->AddItem("Чат с игроком", NULL, PDA_PROPERTY_ADD_TO_CHAT);
 
 	InitCallBacks();
 
@@ -75,40 +77,36 @@ void CUIPda_Squad::Init()
 void CUIPda_Squad::Show(bool status)
 {
 	inherited::Show(status);
-	if (!status)
-		initPanel = false;
+ 
 }
 
 void CUIPda_Squad::Update()
 {
 	inherited::Update();
 
-	if (!initPanel && this->IsShown())
+	if (this->IsShown() && Device.dwFrame % 100 == 0)
 	{
 		int idx = 0;
 
 		for (auto player : team_players.players)
 		{
-			if (player.GameID != u16(-1) && character_team[idx])
+			if (player != u16(-1) && character_team[idx])
 			{
-				CActor* actor_player = smart_cast<CActor*>(Level().Objects.net_Find(player.GameID));
+				u16 gameID = Game().GetPlayerByClientID(player);
+				if (gameID == 0)
+					continue;
 
-				if (actor_player)
-				{
-					Msg("InitCharacterMP [%d] [%d] [%u]", idx, player.GameID, player.Client);
-					character_team[idx]->InitCharacterMP(actor_player, player.Client);
-				}
+				CActor* actor_player = smart_cast<CActor*>( Level().Objects.net_Find(gameID) );
+				if (actor_player /* && character_team[idx]->OwnerID() != actor_player->ID()*/)
+ 					character_team[idx]->InitCharacterMP(actor_player, player);
 			}
 			else
 			{
 				character_team[idx]->ClearInfo();
 			}
 
-			//Msg("InitCharacterMP [%d]", idx);
-			idx += 1;
+ 			idx += 1;
 		}
-
-		initPanel = true;
 	}
 }
 
@@ -120,22 +118,21 @@ void CUIPda_Squad::ResetAll()
 	character_team[1]->ClearInfo();
 	character_team[2]->ClearInfo();
 	character_team[3]->ClearInfo();
-	initPanel = false;
-}
+ }
 
 void CUIPda_Squad::EventRecive(Team player_team)
 {
  	team_players = player_team;
 
-	Msg("Leader [%d]", player_team.LeaderGameID);
+	/*
 	Msg("LeaderCL[%u]", player_team.ClientLeader);
 	Msg("NumPlayers [%d]", player_team.cur_players);
-	Msg("Player1 [%d]", player_team.players[0].GameID);
-	Msg("Player2 [%d]", player_team.players[1].GameID);
-	Msg("Player3 [%d]", player_team.players[2].GameID);
-	Msg("Player4 [%d]", player_team.players[3].GameID);
-
-	ResetAll();
+	Msg("Player1 [%u]", player_team.players[0]);
+	Msg("Player2 [%u]", player_team.players[1]);
+	Msg("Player3 [%u]", player_team.players[2]);
+	Msg("Player4 [%u]", player_team.players[3]);
+	*/
+//	ResetAll();
 }
 
 bool CUIPda_Squad::OnMouseAction(float x, float y, EUIMessages mouse_action)
@@ -160,10 +157,12 @@ bool CUIPda_Squad::OnMouseAction(float x, float y, EUIMessages mouse_action)
 			pos.x = x;
 			pos.y = y;
 
-			property_box_squad->Show(wndAbsolute, pos);
+			if (Game().local_svdpnid.value() == team_players.ClientLeader.value() || Game().local_svdpnid.value() == team_players.players[id].value())
+			{
+				property_box_squad->Show(wndAbsolute, pos);
 
-			selected_GameID = team_players.players[id].GameID;
-			selected_user = team_players.players[id].Client;
+				selected_user = team_players.players[id];
+			}
 
 		}
 		id += 1;
@@ -183,29 +182,35 @@ void xr_stdcall CUIPda_Squad::property_box_squad_clicked(CUIWindow* w, void* d)
 
 		case (PDA_PROPERTY_REMOVE_USER):
 		{
-			Msg("Remove user");
-		
+			Msg("Исключен Лидером");
+			
+			if (Game().local_svdpnid != team_players.ClientLeader)
+				return;
+
 			NET_Packet packet;
 
 			Game().u_EventGen(packet, GE_UI_PDA, -1);
 			packet.w_u8(2);
 			packet.w_clientID(selected_user);
-			packet.w_u16(selected_GameID);
-			packet.w_u16(team_players.LeaderGameID);
-
-			Msg("GameID %d", selected_GameID);
-			Msg("UserID %u", selected_user.value());
-			Msg("LeaderID %d", team_players.LeaderGameID);
-			Game().u_EventSend(packet);
+ 			packet.w_clientID(team_players.ClientLeader);
+ 			Game().u_EventSend(packet);
 
 		}	break;
 
-		case (PDA_PROPERTY_ADD_TO_CHAT):
+		case (PDA_PROPERTY_EXIT_SQUAD):
 		{
-			Msg("Clicked CHAT");
+			Msg("Выйти из отряда");
 
-			
+			NET_Packet packet;
+			Game().u_EventGen(packet, GE_UI_PDA, -1);
+			packet.w_u8(2);
+			packet.w_clientID(selected_user);
+			packet.w_clientID(team_players.ClientLeader);
+			Game().u_EventSend(packet);
 
+			Team players;
+			team_players = players;
+			ResetAll();
 		};
 		break;
 	}

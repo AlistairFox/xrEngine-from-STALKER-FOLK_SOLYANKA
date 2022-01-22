@@ -464,9 +464,7 @@ void CWeapon::Load		(LPCSTR section)
 		m_bAutoSpawnAmmo = pSettings->r_bool(section,"auto_spawn_ammo");
 	else
 		m_bAutoSpawnAmmo = TRUE;
-
-
-
+    
 	m_zoom_params.m_bHideCrosshairInZoom		= true;
 
 	if(pSettings->line_exist(hud_sect, "zoom_hide_crosshair"))
@@ -1604,6 +1602,7 @@ void CWeapon::reload			(LPCSTR section)
 		m_addon_holder_fov_modifier		= m_holder_fov_modifier;
 	}
 
+	Msg("Reload Offset");
 
 	{
 		Fvector				pos,ypr;
@@ -1617,7 +1616,8 @@ void CWeapon::reload			(LPCSTR section)
 
 	m_StrapOffset			= m_Offset;
 
-	if (pSettings->line_exist(section,"strap_position") && pSettings->line_exist(section,"strap_orientation")) {
+	if (pSettings->line_exist(section,"strap_position") && pSettings->line_exist(section,"strap_orientation"))
+	{
 		Fvector				pos,ypr;
 		pos					= pSettings->r_fvector3		(section,"strap_position");
 		ypr					= pSettings->r_fvector3		(section,"strap_orientation");

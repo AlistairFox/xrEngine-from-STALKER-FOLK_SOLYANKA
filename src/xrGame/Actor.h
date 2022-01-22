@@ -75,6 +75,34 @@ class	CActor:
 	friend class CActorCondition;
 private:
 	typedef CEntityAlive	inherited;
+
+	ref_sound selected;
+
+	int oldAnim = 0;
+	int InputAnim = 0;
+	int OutAnim = 0;
+	int MidAnim = 0;
+	u32 selectedID = 0;
+	u32 sSndID = 0;
+																													   
+	bool NEED_EXIT = false;
+	bool start_sel = false;
+	bool InPlay    = true;
+	bool OutPlay   = true;
+	bool MidPlay   = true;
+
+	void					SelectScriptAnimation();
+	void					soundPlay();
+	void					script_anim(MotionID exit_animation, PlayCallback Callback, LPVOID CallbackParam);
+	void					ReciveSoundPlay(NET_Packet packet);
+	void					ReciveAnimationPacket(NET_Packet& packet);
+	void					ReciveActivateItem(NET_Packet& packet);
+
+	void					SendSoundPlay(u32 ID, bool Activate);
+	void					SendAnimationToServer(MotionID motion);
+	void					SendActivateItem(shared_str item, bool activate);
+	void					StopAllSNDs();
+
 public:
 										CActor				();
 	virtual								~CActor				();
@@ -88,8 +116,9 @@ public:
 	//SE7Kills
 	bool						MpSafeMode					() const;
 	bool						MpAnimationMode				() const;
-
-
+ 
+	bool CanChange = true;
+ 
 	virtual BOOL						AlwaysTheCrow				()						{ return TRUE; }
 
 	virtual CAttachmentOwner*			cast_attachment_owner		()						{return this;}
@@ -310,42 +339,7 @@ public:
 	SRotation				&Orientation		()			 { return r_torso; };
 
 	void					g_SetAnimation		(u32 mstate_rl);
-	void					script_anim			(MotionID exit_animation, PlayCallback Callback, LPVOID CallbackParam);
 	void					g_SetSprintAnimation(u32 mstate_rl,MotionID &head,MotionID &torso,MotionID &legs);
-	bool					MpAnimationMode_Check();
-
-	void					SelectScriptAnimation();
-	void					soundPlay();
-
-	void					ReciveSoundPlay(NET_Packet packet);
-	void					ReciveAnimationPacket(NET_Packet& packet);
-	void					ReciveActivateItem(NET_Packet& packet);
-
-	void					SendSoundPlay(u32 ID, bool Activate);
-	void					SendAnimationToServer(MotionID motion);
-	void					SendActivateItem(shared_str item, bool activate);
-
-
-	
-protected:
-		int oldAnim = 0;
-		int InputAnim = 0;
-		int OutAnim = 0;
-		int MidAnim = 0;
-
-		u32 selectedID = 0;
-		u32 sSndID = 0;
-		ref_sound selected;
-
-		bool start_sel = false;
-		bool InPlay = true;
-		bool OutPlay = true;
-		bool MidPlay = true;
-
-
-
-public:
-	bool CanChange = true;
 
 	virtual void			OnHUDDraw			(CCustomHUD* hud);
 			BOOL			HUDview				( )const ;

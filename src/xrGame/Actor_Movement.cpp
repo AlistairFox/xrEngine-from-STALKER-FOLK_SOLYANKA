@@ -222,11 +222,8 @@ void CActor::g_cl_CheckControls(u32 mstate_wf, Fvector &vControlAccel, float &Ju
 		}
 
 		if ((mstate_wf&mcSprint) && !CanSprint())
-			mstate_wf				&= ~mcSprint;
-
-		if ((mstate_wf & mcSprint) && MpSafeMode())
-			mstate_wf &= ~mcSprint;
-
+			mstate_wf			&= ~mcSprint;
+ 
 		mstate_real &= (~move);
 		mstate_real |= (mstate_wf & move);
 
@@ -466,10 +463,10 @@ void CActor::g_cl_Orientate	(u32 mstate_rl, float dt)
 		if (!MpSafeMode())
 			r_torso.pitch = cam_Active()->GetWorldPitch();
 		else
-			if (cam_Active()->GetWorldPitch() > 0.3f)
-				r_torso.pitch = 0.3f;
-			else if (cam_Active()->GetWorldPitch() < -0.3f)
-				r_torso.pitch = -0.3f;
+			if (cam_Active()->GetWorldPitch() > 0.1f)
+				r_torso.pitch = 0.1f;
+			else if (cam_Active()->GetWorldPitch() < -0.1f)
+				r_torso.pitch = -0.1f;
 			else 
 				r_torso.pitch = cam_Active()->GetWorldPitch();
 			
@@ -584,12 +581,15 @@ bool CActor::CanSprint()
 						&& InventoryAllowSprint()
 						;
 
+	if (MpAnimationMode() || MpSafeMode())
+		return false;
+
 	return can_Sprint && (m_block_sprint_counter<=0);
 }
 
 bool CActor::CanJump()
 {
-	if (!MpAnimationMode_Check())
+	if (MpAnimationMode())
 		return false;
 
 	bool can_Jump = 
@@ -601,7 +601,7 @@ bool CActor::CanJump()
 
 bool CActor::CanMove()
 {
-	if (!MpAnimationMode_Check())
+	if (MpAnimationMode())
 		return false;
 
 	if( conditions().IsCantWalk() )

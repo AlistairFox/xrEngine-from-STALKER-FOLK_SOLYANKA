@@ -694,6 +694,13 @@ bool game_sv_mp::SpawnItemToPos(LPCSTR section, Fvector3 position)
 		anomaly->o_Position = position;
 		spawn_end(anomaly, m_server->GetServerClient()->ID);
 	}
+	else 
+	if (smart_cast<CSE_ALifeCar*>(E))
+	{
+		position.y += 0.2;
+		E->o_Position = position;
+		spawn_end(E, m_server->GetServerClient()->ID);
+	}
 	else
 	{
 		E->o_Position = position;

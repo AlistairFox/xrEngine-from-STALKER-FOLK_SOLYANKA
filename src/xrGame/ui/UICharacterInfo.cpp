@@ -232,7 +232,7 @@ void CUICharacterInfo::InitCharacter(u16 id)
 void CUICharacterInfo::InitCharacterMP(CInventoryOwner * invOwner)
 {
 	ClearInfo();
-
+	m_ownerID = invOwner->object_id();
 	if (m_icons[eName])
 	{
 		m_icons[eName]->TextItemControl()->SetText(invOwner->Name());
@@ -367,8 +367,9 @@ void CUICharacterInfo::Update()
 
 		CSE_ALifeTraderAbstract* T = detail::object_exists_in_alife_registry(m_ownerID) ?
 									 ch_info_get_from_id(m_ownerID) : NULL;
-		if (NULL==T){
-			m_ownerID = u16(-1);
+		if (NULL==T)
+		{
+		//	m_ownerID = u16(-1);
 			return;
 		}
 		else

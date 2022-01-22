@@ -2,6 +2,8 @@
 #include "ui/UIWindow.h"
 #include "ui/UIWndCallback.h"
 
+#include "game_sv_freemp.h"
+
 class CUIFrameWindow;
 class CUIStatic;
 class CUICharacterInfo;
@@ -13,16 +15,6 @@ struct TeamPlayer
 	u16 GameID = -1;
 };
 
-struct Team
-{
-	TeamPlayer players[4];
-	u32 ClientLeader = -1;
-	u16 LeaderGameID = -1;
-	u16 cur_players = 0;
-};
-
-
-
 class CUIPda_Squad : public CUIWindow, public CUIWndCallback
 {
 private:
@@ -31,11 +23,7 @@ private:
 
 	u8 idxPlayer = 0;
 	bool initPanel = false;
-
 	ClientID selected_user;
-	u16 selected_GameID;
-
-
 
 	CUIFrameWindow* squad_wnd_team[4];
 

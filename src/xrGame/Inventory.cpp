@@ -636,8 +636,14 @@ bool CInventory::Action(u16 cmd, u32 flags)
 {
 	CActor *pActor = smart_cast<CActor*>(m_pOwner);
 	
+
+
+
 	if (pActor)
 	{
+		if (pActor->MpAnimationMode() || pActor->MpSafeMode())
+			return false;
+
 		switch(cmd)
 		{
 			case kWPN_FIRE:

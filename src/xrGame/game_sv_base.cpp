@@ -353,7 +353,7 @@ void game_sv_GameState::net_Export_GameTime						(NET_Packet& P)
 
 	if (old_time_env_sv != GetEnvironmentGameTimeFactor())
 	{
-		Msg("Import GameState Time [%d][%f]", GetEnvironmentGameTime(), GetEnvironmentGameTimeFactor());
+		Msg("Export GameState Time[%u][%f]", GetEnvironmentGameTime(), GetEnvironmentGameTimeFactor());
 		old_time_env_sv = GetEnvironmentGameTimeFactor();
 	}
 
@@ -361,13 +361,8 @@ void game_sv_GameState::net_Export_GameTime						(NET_Packet& P)
 	P.w_float(GetEnvironmentGameTimeFactor());
 
 	P.w_float(g_pGamePersistent->Environment().wfx_time);
-	
 	P.w_stringZ(g_pGamePersistent->Environment().CurrentWeatherName);
 
-	P.w_u8(need_update);
-
-	if (need_update)
-		need_update = false;
 
 };
 

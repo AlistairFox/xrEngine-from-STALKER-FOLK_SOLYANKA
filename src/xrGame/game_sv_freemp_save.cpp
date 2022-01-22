@@ -159,6 +159,19 @@ bool game_sv_freemp::LoadPlayer(game_PlayerState* id_who)
 					if (ent_weapon && condition.has<Number>("cur_scope"))
 						ent_weapon->m_cur_scope = condition.get<Number>("cur_scope");			
 
+					if (condition.has<String>("upgrades"))
+					{
+						LPCSTR upgredes = condition.get<String>("upgrades").c_str();
+						int counts = _GetItemCount(upgredes);
+						for (int i = 0; i != counts; i++)
+						{
+							string256 upgrede;
+							_GetItem(upgredes, i, upgrede, ',');
+
+							item->add_upgrade(upgrede);
+						}
+					}
+
 					spawn_end(ent, m_server->GetServerClient()->ID);
 
 				}
@@ -377,8 +390,10 @@ int game_sv_freemp::get_account_team(LPCSTR login, LPCSTR password)
 		{
 			Object tab = jsonArray.get<Object>(i);
 			
+			if (tab.has<String>("login:"))
 			if (!xr_strcmp(tab.get<String>("login:").c_str(), login))
 			{
+				if (tab.has<String>("password:"))
 				if (!xr_strcmp(tab.get<String>("password:").c_str(), password))
 				{
 					if (tab.has<Number>("team:"))

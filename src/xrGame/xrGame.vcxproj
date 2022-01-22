@@ -910,6 +910,7 @@
     <ClInclude Include="net_physics_state.h" />
     <ClInclude Include="script_event.h" />
     <ClInclude Include="SIniFileStream.h" />
+    <ClInclude Include="UIAnimMode.h" />
     <ClInclude Include="UIGameFMP.h" />
     <ClInclude Include="CustomDetector.h" />
     <ClInclude Include="CustomMonster.h" />
@@ -2296,6 +2297,7 @@
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <ClCompile Include="ActorAnimation.cpp" />
+    <ClCompile Include="ActorAnimation_Scripted.cpp" />
     <ClCompile Include="ActorCameras.cpp" />
     <ClCompile Include="ActorCondition.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">pch_script.h</PrecompiledHeaderFile>
@@ -3086,6 +3088,7 @@
     </ClCompile>
     <ClCompile Include="game_sv_mp_alife.cpp" />
     <ClCompile Include="SIniFileStream.cpp" />
+    <ClCompile Include="UIAnimMode.cpp" />
     <ClCompile Include="UIGameFMP.cpp" />
     <ClCompile Include="CustomDetector.cpp" />
     <ClCompile Include="CustomMonster.cpp">

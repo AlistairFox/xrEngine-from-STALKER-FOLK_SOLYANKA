@@ -88,14 +88,16 @@ void UpdateListner(void* args)
 	    
 		alSourceUnqueueBuffers(source, 1, &buf);
 		alBufferData(buf, AL_FORMAT_MONO16, recived.data, recived.size * 2, 22050);/* bytes here, not frames */
-		
+		/*
 		alSource3f(source, AL_POSITION, recived.pos.x, recived.pos.y, recived.pos.z);
 		alSource3f(source, AL_DIRECTION, 0.0f, 0.0f, 0.0f);
 		alSource3f(source, AL_VELOCITY, 0.0f, 0.0f, 0.0f);
+	
 		alSourcef(source, AL_GAIN, gain);
 		alSourcef(source, AL_PITCH, 1);
 		alSourcef(source, AL_REFERENCE_DISTANCE, 5.0f);
  		alSourcef(source, AL_MAX_DISTANCE, 30.0f);
+		*/
 
 		alSourceQueueBuffers(source, 1, &buf);
  		
@@ -120,8 +122,7 @@ void UpdateListner(void* args)
 xrVoice::xrVoice()
 {
 	Voice_Export = xr_new<xrVoice>();
-	//createLestner();
-	//thread_spawn(UpdateListner, "xrVoicePlay", 0, 0);
+ 	thread_spawn(UpdateListner, "xrVoicePlay", 0, 0);
 	stopPlay = true;
 }
 
@@ -135,8 +136,7 @@ xrVoice::~xrVoice()
 void xrVoice::createVoice()
 {
 	Capture = true;
-	thread_spawn(UpdateMicro,   "xrVoice", 0, 0);
-	
+	thread_spawn(UpdateMicro,   "xrVoice", 0, 0);	
 }
 
 voiceData xrVoice::CapturedVoice()

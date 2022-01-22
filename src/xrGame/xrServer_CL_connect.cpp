@@ -314,10 +314,15 @@ void xrServer::OnBuildVersionRespond				( IClient* CL, NET_Packet& P )
 		}
 	} 
 
-	Msg("login: %s", login.c_str());
-	Msg("password: %s", password.c_str());
+//	Msg("login: %s", login.c_str());
+//	Msg("password: %s", password.c_str());
 //	Msg("player_name: %s", player_name.c_str());
 	
+	if (CL->flags.bLocal && !g_dedicated_server)
+	{
+		SendConnectResult(CL, 0, ecr_data_verification_failed, "Нельзя запустить сервер с клиента (ИДИ НАХУЙ)");
+		return;
+	}
 
     if (!finded && !CL->flags.bLocal)
 	{
@@ -363,7 +368,9 @@ void xrServer::OnBuildVersionRespond				( IClient* CL, NET_Packet& P )
 
 			data->ps->m_account.set_player_save(login.c_str());
 			
-			{//admin 
+			if (admin == 1)
+			{
+				//admin 
 				data->m_admin_rights.m_has_admin_rights = TRUE;
 				data->m_admin_rights.m_dwLoginTime = Device.dwTimeGlobal;
 				data->ps->setFlag(GAME_PLAYER_HAS_ADMIN_RIGHTS);

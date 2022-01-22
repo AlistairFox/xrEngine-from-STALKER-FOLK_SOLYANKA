@@ -24,7 +24,7 @@ private:
 	u16					id_actor;
 	u32					id_client;
 
-	u32					last_inviter;
+	ClientID			last_inviter;
 	bool				invite_mode = false;
 	u8                  UI_ID = 0;
 

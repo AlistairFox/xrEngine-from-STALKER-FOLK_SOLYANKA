@@ -1687,6 +1687,9 @@ CSE_ALifeHelicopter::CSE_ALifeHelicopter	(LPCSTR caSection) : CSE_ALifeDynamicOb
 	m_flags.set					(flUseSwitches,		FALSE);
 	m_flags.set					(flSwitchOffline,	FALSE);
 	m_flags.set					(flInteractive,		FALSE);
+
+	startup_animation = "idle";
+	engine_sound = "vehicles\\helicopter\\helicopter";
 }
 
 CSE_ALifeHelicopter::~CSE_ALifeHelicopter	()
@@ -1723,12 +1726,18 @@ void CSE_ALifeHelicopter::UPDATE_Read		(NET_Packet	&tNetPacket)
 {
 	inherited1::UPDATE_Read		(tNetPacket);
 	inherited3::UPDATE_Read		(tNetPacket);
+
+	tNetPacket.r_matrix(heli_xform);
+	tNetPacket.r_float(health);
 }
 
 void CSE_ALifeHelicopter::UPDATE_Write		(NET_Packet	&tNetPacket)
 {
 	inherited1::UPDATE_Write		(tNetPacket);
 	inherited3::UPDATE_Write		(tNetPacket);
+
+	tNetPacket.w_matrix(heli_xform);
+	tNetPacket.w_float(health);
 }
 
 void CSE_ALifeHelicopter::load		(NET_Packet &tNetPacket)
@@ -1736,10 +1745,24 @@ void CSE_ALifeHelicopter::load		(NET_Packet &tNetPacket)
 	inherited1::load(tNetPacket);
 	inherited3::load(tNetPacket);
 }
+
 bool CSE_ALifeHelicopter::can_save() const
 {
 	return						CSE_PHSkeleton::need_save();
 }
+
+
+BOOL CSE_ALifeHelicopter::Net_Relevant()
+{
+	//if (health > 0)
+	{
+		return true;
+	}
+
+	return false;
+};
+
+
 
 #ifndef XRGAME_EXPORTS
 void CSE_ALifeHelicopter::FillProps(LPCSTR pref, PropItemVec& values)
@@ -1787,6 +1810,14 @@ void CSE_ALifeCar::STATE_Read			(NET_Packet	&tNetPacket, u16 size)
 	if(health>1.0f) health/=100.0f;
 }
 
+
+u32 time_OLD_EXPORT = 0;
+
+BOOL CSE_ALifeCar::Net_Relevant()
+{
+	return true;
+}
+
 void CSE_ALifeCar::STATE_Write			(NET_Packet	&tNetPacket)
 {
 	inherited1::STATE_Write		(tNetPacket);
@@ -1794,16 +1825,29 @@ void CSE_ALifeCar::STATE_Write			(NET_Packet	&tNetPacket)
 	tNetPacket.w_float(health);
 }
 
+
 void CSE_ALifeCar::UPDATE_Read			(NET_Packet	&tNetPacket)
 {
 	inherited1::UPDATE_Read		(tNetPacket);
 	inherited2::UPDATE_Read		(tNetPacket);
+
+	//tNetPacket.r_vec3(o_Position);
+	//tNetPacket.r_vec3(o_Angle);
+ 
+	tNetPacket.r_matrix(CAR_XFORM);
+	tNetPacket.r_float(health);
 }
 
 void CSE_ALifeCar::UPDATE_Write			(NET_Packet	&tNetPacket)
 {
 	inherited1::UPDATE_Write		(tNetPacket);
 	inherited2::UPDATE_Write		(tNetPacket);
+	 
+	//tNetPacket.w_vec3(o_Position);
+	//tNetPacket.w_vec3(o_Angle);
+
+	tNetPacket.w_matrix(CAR_XFORM);
+	tNetPacket.w_float(health);
 }
 
 bool CSE_ALifeCar::used_ai_locations() const
