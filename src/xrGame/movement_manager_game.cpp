@@ -65,12 +65,13 @@ void CMovementManager::process_game_path()
 			m_path_state		= ePathStateBuildGamePath;
 	}
 
-	switch (m_path_state) {
+	switch (m_path_state) 
+	{
 		case ePathStateSelectGameVertex : 
 		{
 
 			u32					current = game_path().m_dest_vertex_id;
-			game_selector().select_location(object().ai_location().game_vertex_id(),game_path().m_dest_vertex_id);
+			game_selector().select_location(object().ai_location().game_vertex_id(), game_path().m_dest_vertex_id);
 			
 			if ( (current == game_path().m_dest_vertex_id) && game_selector().used() ) 
 			{
@@ -79,7 +80,10 @@ void CMovementManager::process_game_path()
 			}
 
 			if (game_selector().failed())
+			{
+
 				break;
+			}
 
 			m_path_state		= ePathStateBuildGamePath;
 		}
@@ -94,7 +98,7 @@ void CMovementManager::process_game_path()
 			if (game_path().failed()) 
 			{
 				show_game_path_info	();
-				//m_path_state = ePathStateSelectGameVertex;
+				m_path_state = ePathStateSelectGameVertex;
 				break;
 			}
 			
@@ -104,7 +108,9 @@ void CMovementManager::process_game_path()
 		case ePathStateContinueGamePath : 
 		{
 			game_path().select_intermediate_vertex();
-			if (ai().game_graph().vertex(object().ai_location().game_vertex_id())->level_id() != ai().game_graph().vertex(game_path().intermediate_vertex_id())->level_id()) {
+
+			if (ai().game_graph().vertex(object().ai_location().game_vertex_id())->level_id() != ai().game_graph().vertex(game_path().intermediate_vertex_id())->level_id()) 
+			{
 				m_path_state	= ePathStateTeleport;
 				VERIFY			(ai().get_alife());
 				VERIFY			(ai().alife().graph().level().level_id() == ai().game_graph().vertex(object().ai_location().game_vertex_id())->level_id());
@@ -143,7 +149,8 @@ void CMovementManager::process_game_path()
 				&temp
 			);
 
-			if (can_use_distributed_computations(mtLevelPath)) {
+			if (can_use_distributed_computations(mtLevelPath)) 
+			{
 				level_path_builder().register_to_process	();
 				break;
 			}
@@ -153,7 +160,8 @@ void CMovementManager::process_game_path()
 			break;
 		}
 
-		case ePathStateContinueLevelPath : {
+		case ePathStateContinueLevelPath : 
+		{
 			VERIFY				(!level_path().failed());
 
 			level_path().select_intermediate_vertex();
@@ -176,7 +184,8 @@ void CMovementManager::process_game_path()
 				level_path().intermediate_index()
 			);
 
-			if (can_use_distributed_computations(mtDetailPath)) {
+			if (can_use_distributed_computations(mtDetailPath)) 
+			{
 				detail_path_builder().register_to_process	();
 				break;
 			}
@@ -186,7 +195,8 @@ void CMovementManager::process_game_path()
 			break;
 		}
 
-		case ePathStatePathVerification : {
+		case ePathStatePathVerification :
+		{
 			if (!game_selector().actual(object().ai_location().game_vertex_id(),path_completed()))
 				m_path_state	= ePathStateSelectGameVertex;
 			else

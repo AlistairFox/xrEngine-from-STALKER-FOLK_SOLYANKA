@@ -152,51 +152,62 @@ const xr_vector<DetailPathManager::STravelPathPoint>	&CMovementManager::path	() 
 }
 
 void CMovementManager::update_path				()
-{
-	START_PROFILE("Build Path::update")
-
-	if (!enabled()) //|| wait_for_distributed_computation()
+{ 
+	if (level_path().failed())
 		return;
+
+	if (!enabled())	    // || wait_for_distributed_computation()
+		return;
+ 
+	START_PROFILE("Build Path::update")
 
 	if (!game_path().evaluator())
 		game_path().set_evaluator	(base_game_params());
 
 	if (!level_path().evaluator())
 		level_path().set_evaluator	(base_level_params());
+ 
 
 #pragma todo("Optimize this in case of slowdown or not intended behaviour")
-	if (!restrictions().actual()) {
+	if (!restrictions().actual()) 
+	{
 		m_path_actuality	= false;
 	}
 
 	restrictions().actual	(true);
 
-	if (!actual()) {
-
+	if (!actual())
+	{
 		game_path().make_inactual();
 		level_path().make_inactual();
 		patrol().make_inactual();
-		switch (m_path_type) {
-			case ePathTypeGamePath : {
+		switch (m_path_type)
+		{
+			case ePathTypeGamePath : 
+			{
 				m_path_state	= ePathStateSelectGameVertex;
 				break;
 			}
-			case ePathTypeLevelPath : {
+			case ePathTypeLevelPath :
+			{
 				m_path_state	= ePathStateBuildLevelPath;
-				if (!restrictions().accessible(level_path().dest_vertex_id())) {
+				if (!restrictions().accessible(level_path().dest_vertex_id())) 
+				{
 					Fvector							temp;
 					level_path().set_dest_vertex	(restrictions().accessible_nearest(ai().level_graph().vertex_position(level_path().dest_vertex_id()),temp));
 					detail().set_dest_position		(temp);
 				}
 				else {
-					if (!restrictions().accessible(detail().dest_position())) {
+					if (!restrictions().accessible(detail().dest_position())) 
+					{
 						detail().set_dest_position	(ai().level_graph().vertex_position(level_path().dest_vertex_id()));
 					}
 				}
 				break;
 			}
-			case ePathTypePatrolPath : {
-//				Msg				("[%6d][%s] actuality is false",Device.dwFrame,*object().cName());
+			case ePathTypePatrolPath : 
+			{
+				Msg				("[%6d][%s] actuality is false",Device.dwFrame,*object().cName());
 				m_path_state	= ePathStateSelectPatrolPoint;
 				break;
 			}
@@ -209,20 +220,25 @@ void CMovementManager::update_path				()
 		m_path_actuality	= true;
 	}
 
-	switch (m_path_type) {
-		case ePathTypeGamePath : {
-			process_game_path	();
+	switch (m_path_type)
+	{
+		case ePathTypeGamePath : 
+		{
+ 			process_game_path	();
 			break;
 		}
-		case ePathTypeLevelPath : {
-			process_level_path	();
+		case ePathTypeLevelPath : 
+		{
+ 			process_level_path	();
 			break;
 		}
-		case ePathTypePatrolPath : {
-			process_patrol_path();
+		case ePathTypePatrolPath :
+		{
+ 			process_patrol_path();
 			break;
 		}
-		case ePathTypeNoPath : {
+		case ePathTypeNoPath : 
+		{
 			break;
 		}
 		default :				NODEFAULT;
@@ -354,7 +370,7 @@ void CMovementManager::on_frame					(CPHMovementControl *movement_control, Fvect
 		)
 		update_path					();
 			
-	move_along_path					(movement_control,dest_position,object().client_update_fdelta());
+	move_along_path					(movement_control,dest_position, object().client_update_fdelta());
 }
 
 void CMovementManager::on_travel_point_change	(const u32 &previous_travel_point_index)
@@ -426,7 +442,8 @@ Fvector CMovementManager::predict_position	(const float &time_delta, const Fvect
 		++current_travel_point;
 	}
 
-	while (current_travel_point < (path_size - 1)) {
+	while (current_travel_point < (path_size - 1))
+	{
 		const Fvector		&current = path[current_travel_point].position;
 		const Fvector		&next = path[current_travel_point + 1].position;
 		float				distance = current.distance_to(next);

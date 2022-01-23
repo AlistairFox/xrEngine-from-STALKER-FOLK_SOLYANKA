@@ -432,10 +432,12 @@ bool CDetailPathManager::compute_path(
 				dest.direction.mul	(-1.f);
 
 			m_temp_path.clear		();
-			if (compute_trajectory(start,dest,m_tpTravelLine ? &m_temp_path : 0,time,(*I).index,real_straight_line_index,(*i).index,direction_type)) {
+			if (compute_trajectory(start,dest,m_tpTravelLine ? &m_temp_path : 0,time,(*I).index,real_straight_line_index,(*i).index,direction_type)) 
+			{
 				if (!m_try_min_time || (time < min_time)) {
 					min_time		= time;
-					if (m_tpTravelLine) {
+					if (m_tpTravelLine) 
+					{
 						m_tpTravelLine->resize(size);
 						m_tpTravelLine->insert(m_tpTravelLine->end(),m_temp_path.begin(),m_temp_path.end());
 
@@ -446,6 +448,7 @@ bool CDetailPathManager::compute_path(
 						return		(true);
 				}
 			}
+ 
 		}
 	}
 	
@@ -500,6 +503,7 @@ bool CDetailPathManager::init_build(
 		dest.direction					= ai().level_graph().v2d(m_dest_direction);
 	else
 		dest.direction.set				(0.f,1.f);
+
 	dest.vertex_id						= level_path.back();
 	
 	validate_vertex_position			(dest);
@@ -531,7 +535,8 @@ bool CDetailPathManager::init_build(
 		STravelParamsIndex				temp;
 		(STravelParams&)temp			= (*I).second;
 		temp.index						= (*I).first;
-		if (check_mask(m_desirable_mask,(*I).first)) {
+		if (check_mask(m_desirable_mask,(*I).first)) 
+		{
 			m_start_params.insert		(m_start_params.begin(),temp);
 			if (max_linear_velocity < temp.linear_velocity) {
 				straight_line_index		= temp.index;
@@ -693,7 +698,8 @@ void CDetailPathManager::build_path_via_key_points(
 	s 									= start;
 	xr_vector<STravelPoint>::const_iterator	I = m_key_points.begin(), B = I;
 	xr_vector<STravelPoint>::const_iterator	E = m_key_points.end();
-	for (B != E ? ++I : I; I != E; ++I) {
+	for (B != E ? ++I : I; I != E; ++I)
+	{
 		VERIFY							(ai().level_graph().inside((*I).vertex_id,(*I).position));
 
 		bool							last_point = (I + 1) == E;
@@ -707,7 +713,10 @@ void CDetailPathManager::build_path_via_key_points(
 			d							= dest;
 
 		bool							succeed = compute_path(s,d,&m_path,m_start_params,last_point ? finish_params : m_start_params,straight_line_index,straight_line_index_negative);
-		if (!succeed) {
+	
+		if (!succeed)
+		{
+			//Msg("DONT COMPUTE PATH [%d]", m_path.size());
 			m_path.clear();
 			return;
 		}
@@ -722,7 +731,8 @@ void CDetailPathManager::build_path_via_key_points(
 			ai().level_graph().v2d(m_path[m_path.size() - 2].position)
 		);
 
-		while ( fis_zero(s.direction.magnitude()) ) {
+		while ( fis_zero(s.direction.magnitude()) )
+		{
 			m_path.pop_back				();
 			VERIFY						(m_path.size() > 1);
 			s.direction.sub				(
@@ -736,7 +746,8 @@ void CDetailPathManager::build_path_via_key_points(
 		m_path.pop_back					();
 
 		d								= p;
-		if (!m_path.empty()) {
+		if (!m_path.empty()) 
+		{
 			if (is_negative(velocity(m_path.back().velocity).linear_velocity))
 				s.direction.mul			(-1.f);
 		}
@@ -744,7 +755,10 @@ void CDetailPathManager::build_path_via_key_points(
 		VERIFY							(!fis_zero(s.direction.magnitude()));
 	}
 
-	if ((B == E) && !compute_path(s,dest,&m_path,m_start_params,finish_params,straight_line_index,straight_line_index_negative)) {
+	//Msg("COMPUTE PATH [%d]", m_path.size());
+
+	if ((B == E) && !compute_path(s,dest,&m_path,m_start_params,finish_params,straight_line_index,straight_line_index_negative)) 
+	{
 		m_path.clear					();
 		return;
 	}
@@ -767,6 +781,8 @@ void CDetailPathManager::postprocess_key_points(
 	if (m_key_points.size() < 3)
 		return;
 
+	
+
 	if (m_key_points[m_key_points.size() - 2].position.similar(m_key_points[m_key_points.size() - 1].position,EPS_S))
 		m_key_points.pop_back();
 
@@ -775,7 +791,8 @@ void CDetailPathManager::postprocess_key_points(
 		STravelPoint		key_point1 = compute_better_key_point(m_key_points[i+1],m_key_points[i],m_key_points[i-1],true);
 		{
 			u32				vertex_id = ai().level_graph().check_position_in_direction(m_key_points[i-1].vertex_id,m_key_points[i-1].position,key_point0.position);
-			if (!ai().level_graph().valid_vertex_id(vertex_id)) {
+			if (!ai().level_graph().valid_vertex_id(vertex_id))
+			{
 				vertex_id	= vertex_id;
 			}
 		}
@@ -847,13 +864,15 @@ void CDetailPathManager::build_smooth_path		(
 	u32									straight_line_index, straight_line_index_negative;
 	STrajectoryPoint					start,dest;
 
+	
 	if (!init_build(level_path,intermediate_index,start,dest,straight_line_index,straight_line_index_negative))
 		return;
-
+ 
 	VERIFY								(!level_path.empty());
 	m_dest_vertex_id					= level_path.back();
 
-	if (m_restricted_object) {
+	if (m_restricted_object)
+	{
 #ifdef DEBUG
 		Fvector							start_pos = ai().level_graph().v3d(start.position);
 		start_pos.y						= ai().level_graph().vertex_plane_y(start.vertex_id,start_pos.x,start_pos.z);
@@ -870,20 +889,24 @@ void CDetailPathManager::build_smooth_path		(
 		VERIFY3							((alvi && asp) || (!asp && !alvi) || show_restrictions(m_restricted_object),"Invalid restrictions (see log for details) for object ",*m_restricted_object->object().cName());
 #endif
 		m_restricted_object->add_border	(start.vertex_id,dest.vertex_id);
+ 
 	}
 
 	xr_vector<STravelParamsIndex>		&finish_params = m_use_dest_orientation ? m_start_params : m_dest_params;
 
-	if (!fill_key_points(level_path,intermediate_index,start,dest)) {
+	if (!fill_key_points(level_path,intermediate_index,start,dest)) 
+	{
 		if (m_restricted_object)
 			m_restricted_object->remove_border();
+
+ 
 		return;
 	}
 
 	postprocess_key_points				(level_path,intermediate_index,start,dest,finish_params,straight_line_index,straight_line_index_negative);
-
+	 
 	build_path_via_key_points			(start,dest,finish_params,straight_line_index,straight_line_index_negative);
-
+ 
 	if (m_restricted_object)
 		m_restricted_object->remove_border();
 

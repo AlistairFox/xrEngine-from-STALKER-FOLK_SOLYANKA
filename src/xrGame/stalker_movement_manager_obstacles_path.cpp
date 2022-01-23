@@ -30,7 +30,8 @@ bool stalker_movement_manager_obstacles::simulate_path_navigation	()
 	Fvector							current_position = object().Position();
 	Fvector							previous_position = current_position;
 	u32								current_travel_point = 0;
-	while (!detail().completed(current_position,!detail().state_patrol_path(),current_travel_point)) {
+	while (!detail().completed(current_position,!detail().state_patrol_path(),current_travel_point))
+	{
 		m_static_obstacles.on_before_query	();
 		m_static_obstacles.query			(current_position,previous_position);
 		
@@ -143,7 +144,8 @@ void stalker_movement_manager_obstacles::build_level_path					()
 
 		inherited::build_level_path	();
 
-		if (level_path().failed()) {
+		if (level_path().failed())
+		{
 			if ( !pure_search_tried ) {
 				pure_search_tried	= true;
 
@@ -157,10 +159,11 @@ void stalker_movement_manager_obstacles::build_level_path					()
 				pure_search_result	= !level_path().failed();
 			}
 			
-			if (!pure_search_result) {
-#ifndef MASTER_GOLD
+			if (!pure_search_result) 
+			{
+ 
 				Msg					("! level_path().failed() during navigation");
-#endif // #ifndef MASTER_GOLD
+ 
 				break;
 			}
 		}

@@ -23,6 +23,13 @@ void CLocationManager::Load			(LPCSTR section)
 		setup_location_types			(m_vertex_types,pSettings,pSettings->r_string(section,"terrain"));
 	else
 		setup_location_types			(m_vertex_types,pSettings,section);
+	
+	if (pSettings->line_exist(section, "terrain"))
+		Msg("Location %s %s", section, pSettings->r_string(section, "terrain"));
+	else 
+		Msg("Location SETUPED obj [%s] terrain [%s]", this->m_object->Name(),section);
+
+	
 
 }
 

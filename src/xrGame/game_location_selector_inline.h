@@ -48,7 +48,10 @@ IC	void CGameLocationSelector::reinit			(const CGameGraph *graph)
 TEMPLATE_SPECIALIZATION
 IC	void CGameLocationSelector::select_location	(const _vertex_id_type start_vertex_id, _vertex_id_type &dest_vertex_id)
 {
-	switch (m_selection_type) {
+//	Msg("Select Location");
+
+	switch (m_selection_type)
+	{
 		case eSelectionTypeMask :
 		{
 			//Msg("eSelectionTypeMask");
@@ -57,8 +60,10 @@ IC	void CGameLocationSelector::select_location	(const _vertex_id_type start_vert
 			else
 				m_failed		= false;
 			break;
-		}
-		case eSelectionTypeRandomBranching : {
+		} 
+
+		case eSelectionTypeRandomBranching : 
+		{
 			if (m_graph)
 				select_random_location(start_vertex_id, dest_vertex_id);
 			
@@ -66,6 +71,7 @@ IC	void CGameLocationSelector::select_location	(const _vertex_id_type start_vert
 			m_failed			= m_failed && (start_vertex_id == dest_vertex_id);
 			break;
 		}
+
 		default :				NODEFAULT;
 	}
 }
@@ -87,8 +93,12 @@ IC	void CGameLocationSelector::select_random_location(const _vertex_id_type star
 
 	_Graph::const_iterator		i,e;
 	m_graph->begin				(start_vertex_id,i,e);
-	for ( ; i != e; ++i) {
+	for ( ; i != e; ++i)
+	{
 		// * не соответствует предыдещей вершине
+
+		//Msg("Vertex ID %d", (*i).vertex_id());
+
 		if ((*i).vertex_id() == m_previous_vertex_id)
 			continue;
 
@@ -102,6 +112,8 @@ IC	void CGameLocationSelector::select_random_location(const _vertex_id_type star
 
 		const u8				*curr_types = m_graph->vertex((*i).vertex_id())->vertex_type();
 
+		 
+
 		// * подходит по маске
 		for (I = B; I != E; ++I)
 		{
@@ -109,7 +121,6 @@ IC	void CGameLocationSelector::select_random_location(const _vertex_id_type star
 			{
 				++branch_factor;
 			}
-			//Msg("Type cur[%d]/mask[%d]", curr_types, (*I).tMask);
 		}
 
 		
@@ -131,6 +142,9 @@ IC	void CGameLocationSelector::select_random_location(const _vertex_id_type star
 		bool					found = false;
 		m_graph->begin			(start_vertex_id,i,e);
 		for ( ; i != e; ++i) {
+
+
+
 			// * не соответствует предыдещей вершине
 			if ((*i).vertex_id() == m_previous_vertex_id)
 				continue;
@@ -138,8 +152,6 @@ IC	void CGameLocationSelector::select_random_location(const _vertex_id_type star
 			// * вершина на текущем уровне?
 			if ((m_graph->vertex((*i).vertex_id())->level_id() != ai().level_graph().level_id()))
 				continue;
-
-			
 
 			// * accessible 
 			if (!accessible((*i).vertex_id()))
@@ -151,11 +163,18 @@ IC	void CGameLocationSelector::select_random_location(const _vertex_id_type star
 			for (I = B; I != E; ++I)
 				if (m_graph->mask((*I).tMask,curr_types))
 				{
-					if (choice != branch_factor) {
+					if ((*i).distance() > 360)
+					{
+						//	Msg("Distance [%f] id [%d]", (*i).distance(), i);
+ 					}
+
+					if (choice != branch_factor)
+					{
 						++branch_factor;
 						continue;
 					}
-					//Msg("Type %d", curr_types);
+					//Msg("Distance [%f] id [%d]", (*i).distance(), i);
+					//Msg("ID Vertex %d", (*i).vertex_id());
 					dest_vertex_id	= (*i).vertex_id();
 					found		= true;
 					break;
