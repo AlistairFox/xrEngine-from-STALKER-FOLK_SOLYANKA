@@ -89,10 +89,12 @@ void	CObjectList::o_sleep		( CObject*		O		)
 	objects_sleeping.push_back	(O);
 	O->MakeMeCrow				();
 }
+#include "../xrServerEntities/clsid_game.h"
 
 void	CObjectList::SingleUpdate	(CObject* O)
 {
-	if ( Device.dwFrame == O->dwFrame_UpdateCL ) {
+	if ( Device.dwFrame == O->dwFrame_UpdateCL ) 
+	{
 #ifdef DEBUG
 //		if (O->getDestroy())
 //			Msg					("- !!!processing_enabled ->destroy_queue.push_back %s[%d] frame [%d]",O->cName().c_str(), O->ID(), Device.dwFrame);
@@ -118,7 +120,29 @@ void	CObjectList::SingleUpdate	(CObject* O)
 
 //	Msg							("[%d][0x%08x]IAmNotACrowAnyMore (CObjectList::SingleUpdate)", Device.dwFrame, dynamic_cast<void*>(O));
 
-	O->UpdateCL					();
+
+ 
+	
+	 
+	if (!g_dedicated_server)
+	{
+		if (CLSID_SPECTATOR != O->CLS_ID && O->CLS_ID != CLSID_OBJECT_ACTOR && Device.vCameraPosition.distance_to_sqr(O->Position()) > 300 * 300)
+		{ 
+			//O->UpdateCL();
+		}
+		else
+		{
+			O->UpdateCL();
+		}
+
+
+	}
+	else
+	{
+		O->UpdateCL();
+	}
+
+	
 
 	VERIFY3						(O->dbg_update_cl == Device.dwFrame, "Broken sequence of calls to 'UpdateCL'",*O->cName());
 #if 0//ndef DEBUG
@@ -228,7 +252,8 @@ void CObjectList::Update		(bool bForce)
 			Objects* workload			= 0;
 			if (!psDeviceFlags.test(rsDisableObjectsAsCrows))	
 				workload				= &crows;
-			else {
+			else 
+			{
 				workload				= &objects_active;
 				clear_crow_vec			(crows);
 			}
@@ -245,7 +270,8 @@ void CObjectList::Update		(bool bForce)
 
 			CObject** b					= objects;
 			CObject** e					= objects + objects_count;
-			for (CObject** i = b; i != e; ++i) {
+			for (CObject** i = b; i != e; ++i)
+			{
 				(*i)->IAmNotACrowAnyMore();
 				(*i)->dwFrame_AsCrow	= u32(-1);
 			}

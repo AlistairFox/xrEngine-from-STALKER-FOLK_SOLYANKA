@@ -437,7 +437,8 @@ void CSheduler::Update				()
 #ifdef DEBUG_SCHEDULER
 		Msg							("SCHEDULER: process step [%s][%x][true]",*T.Object->shedule_Name(),T.Object);
 #endif // DEBUG_SCHEDULER
-		if(!T.Object->shedule_Needed()){
+		if(!T.Object->shedule_Needed())
+		{
 #ifdef DEBUG_SCHEDULER
 			Msg						("SCHEDULER: process unregister [%s][%x][%s]",*T.Object->shedule_Name(),T.Object,"false");
 #endif // DEBUG_SCHEDULER

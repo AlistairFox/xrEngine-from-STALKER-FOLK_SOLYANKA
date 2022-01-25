@@ -91,9 +91,7 @@ public:
 	CStatTimer	netServer;
 	CStatTimer	netClientCompressor;
 	CStatTimer	netServerCompressor;
-	
-
-	
+ 	
 	CStatTimer	TEST0;				// debug counter
 	CStatTimer	TEST1;				// debug counter
 	CStatTimer	TEST2;				// debug counter
