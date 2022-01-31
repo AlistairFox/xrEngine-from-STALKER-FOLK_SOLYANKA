@@ -185,8 +185,8 @@ void	CHW::selectResolution	(u32 &dwWidth, u32 &dwHeight, BOOL bWindowed)
 #ifndef _EDITOR
 	if (g_dedicated_server)
 	{
-		dwWidth		= 640;
-		dwHeight	= 480;
+		dwWidth		= 1280;
+		dwHeight	= 900;
 	}
 	else
 #endif
