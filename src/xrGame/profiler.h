@@ -66,6 +66,7 @@ public:
 						CProfiler			();
 						~CProfiler			();
 			void		show_stats			(CGameFont *game_font, bool show);
+			void		GetServerInfo			(CServerInfo* si);
 			void		clear				();
 			void		add_profile_portion	(const CProfileResultPortion &profile_portion);
 };

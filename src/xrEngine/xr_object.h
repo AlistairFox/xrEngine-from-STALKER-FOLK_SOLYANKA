@@ -74,6 +74,7 @@ public:
 	u32									dbg_update_cl;
 #endif
 	u32									dwFrame_UpdateCL;
+	u32									old_dwFrame_UpdateCL;
 	u32									dwFrame_AsCrow;
 
 	// Crow-MODE

@@ -111,22 +111,24 @@ struct SActorVehicleAnims
 };
 
 #define MAX_ANIMS 256
+#define MAX_ANIMS_CYCLE 32
+#define MAX_SOUNDS 32
 
 struct SScript_AnimInput
 {
-	MotionID m_animation_in[MAX_ANIMS][32];
+	MotionID m_animation_in[MAX_ANIMS][MAX_ANIMS_CYCLE];
 	u32 count[MAX_ANIMS];
 };
 
 struct SScript_AnimOut
 {
-	MotionID m_animation_out[MAX_ANIMS][32];
+	MotionID m_animation_out[MAX_ANIMS][MAX_ANIMS_CYCLE];
 	u32 count[MAX_ANIMS];
 };
 
 struct SScript_AnimMiddle
 {
-	MotionID m_animation[MAX_ANIMS][32];
+	MotionID m_animation[MAX_ANIMS][MAX_ANIMS_CYCLE];
 	u32 count[MAX_ANIMS];
 };
 
@@ -138,8 +140,8 @@ struct SActorStateAnimation
 
 	bool m_animation_loop[MAX_ANIMS];
 	u32	 m_rnd_snds[MAX_ANIMS];
-	ref_sound m_sound_Animation[MAX_ANIMS][32];
-	shared_str m_animation_attach[MAX_ANIMS];
+	ref_sound m_sound_Animation[MAX_ANIMS][MAX_SOUNDS];
+ 	u16 m_animation_use_slot[MAX_ANIMS];
 
 	void CreateAnimationsScripted(IKinematicsAnimated* K);
 };

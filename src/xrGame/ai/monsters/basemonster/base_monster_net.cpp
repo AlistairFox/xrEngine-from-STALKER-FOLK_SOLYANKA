@@ -176,8 +176,11 @@ void CBaseMonster::net_Export(NET_Packet& P)
 		m_sv_snd_sync_flag = snd_flags::monster_sound_no;
 		m_sv_snd_sync_sound = 0;
 		m_sv_snd_sync_sound_delay = 0;
+
+		
 	}
 }
+
 
 void CBaseMonster::net_Import(NET_Packet& P)
 {
@@ -247,7 +250,7 @@ void CBaseMonster::net_Import(NET_Packet& P)
 		
 		if (Level().CurrentControlEntity())
 		{
-			float dist_120 = 120 * 120;
+			float dist_120 = 450 * 450;
 
 			float dist = Level().CurrentControlEntity()->Position().distance_to_sqr(this->Position());
 					 			  
@@ -355,6 +358,8 @@ void CBaseMonster::net_Import(NET_Packet& P)
 		// apply animation
 		if (this->getVisible())
 			ApplyAnimation(u_motion_idx, 0, flags.test(sync_flags::fAnimNoLoop));
+
+		 
 	}
 }
 

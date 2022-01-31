@@ -167,6 +167,7 @@ private:
 	bool					m_wait_for_distributed_computation;
 	int                     m_errors;
 	u32						m_wait_errors;
+	u32						WaitTime;
 
 public:
 	CGameVertexParams		*m_base_game_selector;

@@ -153,12 +153,31 @@ const xr_vector<DetailPathManager::STravelPathPoint>	&CMovementManager::path	() 
 
 void CMovementManager::update_path				()
 { 
-	if (level_path().failed())
-		return;
+	//Msg("Object[%s], wait[%d]", this->object().Name(), wait_for_distributed_computation());
+		
+	/*
+	if (level_path().failed() )
+		m_wait_errors += 1;
 
-	if (!enabled())	    // || wait_for_distributed_computation()
+	if (m_wait_errors > 20 && !WaitTime)
+	{
+		WaitTime = Device.dwTimeGlobal;
+		return;
+	}
+	  
+	if (Device.dwTimeGlobal - WaitTime > 2000)
+	{
+		m_wait_errors = 0;
+		WaitTime = 0;
+	}
+	else
+		return;
+	*/
+
+	if (!enabled() || wait_for_distributed_computation()) 
 		return;
  
+
 	START_PROFILE("Build Path::update")
 
 	if (!game_path().evaluator())

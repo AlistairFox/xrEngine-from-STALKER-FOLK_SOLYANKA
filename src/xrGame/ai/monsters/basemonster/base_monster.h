@@ -132,6 +132,10 @@ public:
 	u16						u_last_motion_slot;
 	u8						u_last_motion_no_loop;
 
+	u32 LastShedule = 0;
+	u32 LastUpdate = 0;
+
+
 	virtual bool			HasCustomSyncFlag() const { return false; }
 	virtual u8				GetCustomSyncFlag() const { return 0; }
 	virtual void			ProcessCustomSyncFlag_CL(u8 flags) {};
@@ -145,7 +149,9 @@ public:
 	virtual bool			HavePlayersNearby(float distance) const;
 
 	virtual void			UpdateCL						();
+	virtual	float			shedule_Scale();
 	virtual void			shedule_Update					(u32 dt);
+
 
 	virtual void			InitThink						() {}
 	virtual void			Think							();

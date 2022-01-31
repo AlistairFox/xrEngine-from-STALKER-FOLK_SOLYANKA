@@ -18,6 +18,8 @@
 #include "level_graph.h"
 #include "alife_monster_movement_manager.h"
 #include "alife_monster_detail_path_manager.h"
+#include "Level.h"
+#include "Actor.h"
 
 #pragma warning(push)
 #pragma warning(disable:4995)
@@ -60,6 +62,7 @@ void CSE_ALifeOnlineOfflineGroup::update	()
 		m_tNodeID					= commander->m_tNodeID;
 		m_tGraphID					= commander->m_tGraphID;
 	}
+
 	if (!bfActive())
 		return;
 
@@ -177,19 +180,44 @@ void CSE_ALifeOnlineOfflineGroup::try_switch_online		()
 	if (!can_switch_online())	
 		return;
 
-	if (!can_switch_offline()) {
+	if (!can_switch_offline())
+	{
 	    inherited1::try_switch_online	();
 		return;
 	}
+
 	MEMBERS::iterator			I = m_members.begin();
 	MEMBERS::iterator			E = m_members.end();
 	for ( ; I != E; ++I) {
 		VERIFY3					((*I).second->g_Alive(),"Incorrect situation : some of the OnlineOffline group members is dead",(*I).second->name_replace());
 		VERIFY3					((*I).second->can_switch_online(),"Incorrect situation : some of the OnlineOffline group members cannot be switched online due to their personal properties",(*I).second->name_replace());
 		VERIFY3					((*I).second->can_switch_offline(),"Incorrect situation : some of the OnlineOffline group members cannot be switched online due to their personal properties",(*I).second->name_replace());
-		if (alife().graph().actor()->o_Position.distance_to((*I).second->o_Position) > alife().online_distance()){
+		
+		bool distance = false;
+
+		for (auto player : Level().game->players)
+		{
+			CObject* obj = Level().Objects.net_Find(player.second->GameID);
+			CActor* actor = smart_cast<CActor*>(obj);
+			
+			if (actor)
+			if (actor->Position().distance_to((*I).second->position()) < alife().online_distance())
+			{
+				distance = true;
+				break;
+			}
+		}
+
+ 		if (!distance)
+			continue;
+	    
+		/*
+		if (alife().graph().actor()->o_Position.distance_to((*I).second->o_Position) > alife().online_distance())
+		{
 			continue;
 		}
+		*/
+
 		inherited1::try_switch_online	();
 		return;
 	}
@@ -204,19 +232,41 @@ void CSE_ALifeOnlineOfflineGroup::try_switch_offline	()
 	if (!can_switch_offline())
 		return;
 	
-	if (!can_switch_online()) {
+	if (!can_switch_online()) 
+	{
 		alife().switch_offline	(this);
 		return;
 	}
 	
 	MEMBERS::iterator			I = m_members.begin();
 	MEMBERS::iterator			E = m_members.end();
-	for ( ; I != E; ++I) {
+
+	for ( ; I != E; ++I) 
+	{
 		VERIFY3					((*I).second->g_Alive(),"Incorrect situation : some of the OnlineOffline group members is dead",(*I).second->name_replace());
 		VERIFY3					((*I).second->can_switch_offline(),"Incorrect situation : some of the OnlineOffline group members cannot be switched online due to their personal properties",(*I).second->name_replace());
 		VERIFY3					((*I).second->can_switch_online(),"Incorrect situation : some of the OnlineOffline group members cannot be switched online due to their personal properties",(*I).second->name_replace());
 	
+		/*
 		if (alife().graph().actor()->o_Position.distance_to((*I).second->o_Position) <= alife().offline_distance())
+			return;	
+		*/
+	
+		bool distance = false;
+
+		for (auto player : Level().game->players)
+		{
+			CObject* obj = Level().Objects.net_Find(player.second->GameID);
+			CActor* actor = smart_cast<CActor*>(obj);
+			if (actor)
+			if (actor->Position().distance_to((*I).second->position()) < alife().offline_distance())
+			{
+				distance = true;
+				break;
+			}
+		}
+
+		if (distance)
 			return;
 	}
 

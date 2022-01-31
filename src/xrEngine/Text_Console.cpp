@@ -276,53 +276,92 @@ void CTextConsole::DrawLog( HDC hDC, RECT* pRect )
 	TextOut( hDC, Width - 8 * qn, Height-tm.tmHeight-tm.tmHeight, q2, qn );
 
 	int ypos = Height - tm.tmHeight - tm.tmHeight;
-	for( int i = LogFile->size()-1-scroll_delta; i >= 0; --i ) 
+
+	if (!psDeviceFlags.test(rsProfiler))
 	{
-		ypos -= tm.tmHeight;
-		if ( ypos < y_top_max )
+		for (int i = LogFile->size() - 1 - scroll_delta; i >= 0; --i)
 		{
-			break;
+			ypos -= tm.tmHeight;
+			if (ypos < y_top_max)
+			{
+				break;
+			}
+
+			LPCSTR ls = ((*LogFile)[i]).c_str();
+
+			if (!ls)
+			{
+				continue;
+			}
+			Console_mark cm = (Console_mark)ls[0];
+			COLORREF     c2 = (COLORREF)bgr2rgb(get_mark_color(cm));
+			SetTextColor(hDC, c2);
+			u8 b = (is_mark(cm)) ? 2 : 0;
+			LPCSTR pOut = ls + b;
+
+			BOOL res = TextOut(hDC, 10, ypos, pOut, xr_strlen(pOut));
+			if (!res)
+			{
+				R_ASSERT2(0, "TextOut(..) return NULL");
+			}
 		}
 
-		LPCSTR ls = ((*LogFile)[i]).c_str();
-
-		if ( !ls )
+		if (g_pGameLevel && (Device.dwTimeGlobal - m_last_time > 500))
 		{
-			continue;
+			m_last_time = Device.dwTimeGlobal;
+
+			m_server_info.ResetData();
+			g_pGameLevel->GetLevelInfo(&m_server_info);
 		}
-		Console_mark cm = (Console_mark)ls[0];
-		COLORREF     c2 = (COLORREF)bgr2rgb( get_mark_color( cm ) );
-		SetTextColor( hDC, c2 );
-		u8 b = (is_mark( cm ))? 2 : 0;
-		LPCSTR pOut = ls + b;
 
-		BOOL res = TextOut( hDC, 10, ypos, pOut, xr_strlen(pOut) );
-		if ( !res )
+		ypos = 5;
+		for (u32 i = 0; i < m_server_info.Size(); ++i)
 		{
-			R_ASSERT2( 0, "TextOut(..) return NULL" );
+			SetTextColor(hDC, m_server_info[i].color);
+			TextOut(hDC, 10, ypos, m_server_info[i].name, xr_strlen(m_server_info[i].name));
+
+			ypos += tm.tmHeight;
+			if (ypos > y_top_max)
+			{
+				break;
+			}
+		}
+	}
+	else
+	{
+		if (g_pGameLevel && (Device.dwTimeGlobal - m_last_time > 100))
+		{
+			m_last_time = Device.dwTimeGlobal;
+
+			m_server_info.ResetData();
+			
+			g_pGameLevel->GetLevelInfo(&m_server_info);
+		}
+		bool right = false;
+
+		ypos = 5;
+		for (u32 i = 0; i < m_server_info.Size(); ++i)
+		{
+			SetTextColor(hDC, m_server_info[i].color);
+			
+			if (!right)
+				TextOut(hDC, 10, ypos, m_server_info[i].name, xr_strlen(m_server_info[i].name));
+			else 
+				TextOut(hDC, 550, ypos, m_server_info[i].name, xr_strlen(m_server_info[i].name));
+
+			ypos += tm.tmHeight;
+
+			if (ypos > Height - 80)
+			{
+				ypos = 5;
+				right = true;
+				//break;
+			}
+			 
 		}
 	}
 
-	if ( g_pGameLevel && ( Device.dwTimeGlobal - m_last_time > 500 ) )
-	{
-		m_last_time = Device.dwTimeGlobal;
-
-		m_server_info.ResetData();
-		g_pGameLevel->GetLevelInfo( &m_server_info );
-	}
-
-	ypos = 5;
-	for ( u32 i = 0; i < m_server_info.Size(); ++i )
-	{
-		SetTextColor( hDC, m_server_info[i].color );
-		TextOut( hDC, 10, ypos, m_server_info[i].name, xr_strlen(m_server_info[i].name) );
-
-		ypos += tm.tmHeight;
-		if ( ypos > y_top_max )
-		{
-			break;
-		}
-	}
+	
 }
 /*
 void CTextConsole::IR_OnKeyboardPress( int dik ) !!!!!!!!!!!!!!!!!!!!!

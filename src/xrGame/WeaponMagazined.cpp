@@ -498,7 +498,7 @@ void CWeaponMagazined::state_Fire(float dt)
 			Log("H_Parent", H_Parent()->cNameSect().c_str());
 		}
  
-		if (H_Parent() && psDeviceFlags.test(rsDebug))
+		if (H_Parent() && false )
 		if (io)
 		{
 			Log("item slot 2 [%s]", io->inventory().ItemFromSlot(INV_SLOT_2) ? io->inventory().ItemFromSlot(INV_SLOT_2)->NameItem() : "NULL");

@@ -280,6 +280,8 @@ public:
 	bool last_looped_torso = false;
 	bool last_looped_head = false;
 
+	u32 LastShedule = 0;
+	u32 LastUpdate = 0;
 
 	//save/load server serialization
 	virtual void						save								(NET_Packet &output_packet);

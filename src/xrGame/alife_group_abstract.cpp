@@ -17,6 +17,9 @@
 #include "game_level_cross_table.h"
 #include "level_graph.h"
 
+#include "Level.h"
+#include "Actor.h"
+
 void CSE_ALifeGroupAbstract::switch_online	()
 {
 	CSE_ALifeDynamicObject		*object = smart_cast<CSE_ALifeDynamicObject*>(this);
@@ -124,6 +127,8 @@ void CSE_ALifeGroupAbstract::try_switch_offline		()
 	if (m_tpMembers.empty())
 		return;
 
+	
+
 	// so, we have a group of objects
 	// therefore check all the group members if they are ready to switch offline
 
@@ -131,30 +136,50 @@ void CSE_ALifeGroupAbstract::try_switch_offline		()
 	VERIFY								(I);
 	
 	// iterating on group members
-	for (u32 i=0, N = (u32)m_tpMembers.size(); i<N; ++i) {
+	for (u32 i=0, N = (u32)m_tpMembers.size(); i<N; ++i)
+	{
+ 
 		// casting group member to the abstract monster to get access to the Health property
 		CSE_ALifeMonsterAbstract		*tpGroupMember = smart_cast<CSE_ALifeMonsterAbstract*>(ai().alife().objects().object(m_tpMembers[i]));
 		if (!tpGroupMember)
 			continue;
-			
+		
 		// check if monster is not dead
-		if (tpGroupMember->g_Alive()) {
+		if (tpGroupMember->g_Alive()) 
+		{
 			// so, monster is not dead
 			// checking if the object is _not_ ready to switch offline
 			if (!tpGroupMember->can_switch_offline())
 				continue;
+
 			
 			if (!tpGroupMember->can_switch_online())
 				// so, it is not ready, breaking a cycle, because we can't 
 				// switch group offline since not all the group members are ready
 				// to switch offline
 				break;
-			
-			if (I->alife().graph().actor()->o_Position.distance_to(tpGroupMember->o_Position) <= I->alife().offline_distance())
+
+			//if (I->alife().graph().actor()->o_Position.distance_to(tpGroupMember->o_Position) <= I->alife().offline_distance())
 				// so, it is not ready, breaking a cycle, because we can't 
 				// switch group offline since not all the group members are ready
 				// to switch offline
-				break;
+			//	break;
+	  
+			bool distance = false;
+
+			for (auto player : Level().game->players)
+			{
+				CObject* obj = Level().Objects.net_Find(player.second->GameID);
+				CActor* actor = smart_cast<CActor*>(obj);
+				if (actor)
+				if (actor->Position().distance_to(tpGroupMember->o_Position) < I->alife().offline_distance())
+				{
+					distance = true;
+				}
+			}
+
+			if (distance)
+				break;	  
 
 			continue;
 		}

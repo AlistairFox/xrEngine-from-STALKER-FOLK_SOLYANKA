@@ -227,11 +227,16 @@ void CALifeSwitchManager::try_switch_offline(CSE_ALifeDynamicObject	*I)
 
 void CALifeSwitchManager::switch_object	(CSE_ALifeDynamicObject	*I)
 {
-	if (I->redundant()) {
+	if (I->redundant()) 
+	{
 		release				(I);
 		return;
 	}
 
+	if (!I->m_bOnline)
+		try_switch_online(I);
+
+	/*
 	if (!synchronize_location(I))
 		return;
 
@@ -239,6 +244,7 @@ void CALifeSwitchManager::switch_object	(CSE_ALifeDynamicObject	*I)
 		try_switch_offline	(I);
 	else
 		try_switch_online	(I);
+	*/
 
 	if (I->redundant())
 		release				(I);

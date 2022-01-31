@@ -64,7 +64,7 @@ float CActor::GetWeaponAccuracy() const
 
 void CActor::g_fireParams	(const CHudItem* pHudItem, Fvector &fire_pos, Fvector &fire_dir)
 {
-	//if (cam_active == eacFirstEye)
+	if (cam_active == eacFirstEye)
 	{
 		fire_pos = Cameras().Position();
 		fire_dir = Cameras().Direction();
@@ -80,8 +80,7 @@ void CActor::g_fireParams	(const CHudItem* pHudItem, Fvector &fire_pos, Fvector 
 		fire_pos.add(offset);
 	}
 
-	if (psActorFlags.test(AF_PSP))
-	if (weapon && cam_active != eacFirstEye)
+ 	if (weapon && cam_active != eacFirstEye)
 	{
 		fire_pos = weapon->get_LastFP();
 		//fire_dir = weapon->get_LastFD();

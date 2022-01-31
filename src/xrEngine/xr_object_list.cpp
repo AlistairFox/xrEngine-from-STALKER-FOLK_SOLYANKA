@@ -103,7 +103,8 @@ void	CObjectList::SingleUpdate	(CObject* O)
 		return;
 	}
 
-	if ( !O->processing_enabled() ) {
+	if ( !O->processing_enabled() ) 
+	{
 #ifdef DEBUG
 //		if (O->getDestroy())
 //			Msg					("- !!!processing_enabled ->destroy_queue.push_back %s[%d] frame [%d]",O->cName().c_str(), O->ID(), Device.dwFrame);
@@ -120,29 +121,10 @@ void	CObjectList::SingleUpdate	(CObject* O)
 
 //	Msg							("[%d][0x%08x]IAmNotACrowAnyMore (CObjectList::SingleUpdate)", Device.dwFrame, dynamic_cast<void*>(O));
 
-
+  
+	O->UpdateCL();
  
-	
-	 
-	if (!g_dedicated_server)
-	{
-		if (CLSID_SPECTATOR != O->CLS_ID && O->CLS_ID != CLSID_OBJECT_ACTOR && Device.vCameraPosition.distance_to_sqr(O->Position()) > 300 * 300)
-		{ 
-			//O->UpdateCL();
-		}
-		else
-		{
-			O->UpdateCL();
-		}
 
-
-	}
-	else
-	{
-		O->UpdateCL();
-	}
-
-	
 
 	VERIFY3						(O->dbg_update_cl == Device.dwFrame, "Broken sequence of calls to 'UpdateCL'",*O->cName());
 #if 0//ndef DEBUG
@@ -208,6 +190,9 @@ void CObjectList::clear_crow_vec(Objects& o)
 	}
 	o.clear_not_free();
 }
+
+u32 time_update;
+u32 updateCL_time_ms;
 
 void CObjectList::Update		(bool bForce)
 {
@@ -276,8 +261,25 @@ void CObjectList::Update		(bool bForce)
 				(*i)->dwFrame_AsCrow	= u32(-1);
 			}
 
+			CTimer time;
+
+			time.Start();
+
 			for (CObject** i = b; i != e; ++i)
 				SingleUpdate			(*i);
+
+			updateCL_time_ms += time.GetElapsed_ms();
+			
+			//Msg("Time Update [%d]", time.GetElapsed_ms());
+
+			if (Device.dwTimeGlobal - time_update > 1000)
+			{
+				Msg("Time UpdateCL [%d]", updateCL_time_ms);
+				time_update = Device.dwTimeGlobal;
+				updateCL_time_ms = 0;
+			}
+
+
 
 			Device.Statistic->UpdateClient.End		();
 		}

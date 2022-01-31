@@ -3461,11 +3461,13 @@ public:
 
 
 extern int PRINT_STACK;
+extern float Shedule_Scale_AI_Stalker;
 
 
 void register_mp_console_commands()
 {
 	CMD1(CCC_TeleportToPosition, "adm_teleport");
+	CMD4(CCC_Float, "ai_shedule", &Shedule_Scale_AI_Stalker, 0, 1);
 
 	CMD1(CCC_SET_VOICE_GAIN, "voice_gain");
 

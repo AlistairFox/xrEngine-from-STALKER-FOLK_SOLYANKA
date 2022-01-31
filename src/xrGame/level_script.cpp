@@ -822,8 +822,6 @@ u32 get_size_server_events()
 	return Level().Server->GetSizeServerScriptEvent();
 }
 
-
-
 #pragma optimize("s",on)
 void CLevel::script_register(lua_State *L)
 {

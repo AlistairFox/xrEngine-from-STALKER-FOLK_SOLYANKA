@@ -149,7 +149,7 @@ void CMovementManager::process_game_path()
 				&temp
 			);
 
-			if (can_use_distributed_computations(mtLevelPath)) 
+			if (can_use_distributed_computations(mtLevelPath))
 			{
 				level_path_builder().register_to_process	();
 				break;

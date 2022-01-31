@@ -52,6 +52,8 @@ void CUIActorMenu::InitInventoryMode()
 	m_pTrashList->Show					(true);
 	m_RightDelimiter->Show				(false);
 
+	m_pInventoryPdaList->Show			(true);
+
 	InitInventoryContents				(m_pInventoryBagList);
 
 	VERIFY( CurrentGameUI() );
@@ -244,6 +246,7 @@ void CUIActorMenu::OnInventoryAction(PIItem pItem, u16 action_type)
 		m_pInventoryBagList,
 		m_pTradeActorBagList,
 		m_pTradeActorList,
+		m_pInventoryPdaList,
 		NULL
 	};
 
@@ -432,6 +435,7 @@ void CUIActorMenu::InitInventoryContents(CUIDragDropListEx* pBagList)
 	InitCellForSlot				(DETECTOR_SLOT);
 	InitCellForSlot				(GRENADE_SLOT);
 	InitCellForSlot				(HELMET_SLOT);
+	InitCellForSlot				(PDA_SLOT);
 
 	curr_list					= m_pInventoryBeltList;
 	TIItemContainer::iterator itb = m_pActorInvOwner->inventory().m_belt.begin();
@@ -744,7 +748,7 @@ CUIDragDropListEx* CUIActorMenu::GetSlotList(u16 slot_idx)
 
 		case PDA_SLOT:
 			return m_pInventoryPdaList;
-		break;
+			break;
 
 	};
 	return NULL;

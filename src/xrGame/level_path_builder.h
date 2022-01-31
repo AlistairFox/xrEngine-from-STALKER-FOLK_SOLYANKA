@@ -26,7 +26,8 @@ private:
 	bool						m_use_delay_after_fail;
 
 private:
-	enum {
+	enum 
+	{
 		time_to_wait_after_fail	= u32(2000),
 	};
 
@@ -65,7 +66,7 @@ public:
 		}
 	}
 
-			void			register_to_process	()
+	void			register_to_process	()
 	{
 		m_object->m_wait_for_distributed_computation	= true;
 		if ( Device.dwTimeGlobal < m_last_fail_time + time_to_wait_after_fail )
@@ -74,16 +75,17 @@ public:
 		Device.seqParallel.push_back	(fastdelegate::FastDelegate0<>(this,&CLevelPathBuilder::process));
 	}
 
-			void			process_impl		()
+	void			process_impl		()
 	{
 		m_object->m_wait_for_distributed_computation	= false;
 		m_object->level_path().build_path	(m_start_vertex_id,m_dest_vertex_id);
 
-		if (m_object->level_path().failed()) {
+		if (m_object->level_path().failed()) 
+		{
 			if ( m_use_delay_after_fail )
 				m_last_fail_time			= Device.dwTimeGlobal;
 
-			m_object->m_path_state			= CMovementManager::ePathStateBuildLevelPath;
+				m_object->m_path_state			= CMovementManager::ePathStateBuildLevelPath;
 			return;
 		}
 
@@ -102,7 +104,7 @@ public:
 		inherited::process_impl				(false);
 	}
 
-			void __stdcall	process				()
+	void __stdcall	process				()
 	{
 		if ( Device.dwTimeGlobal < m_last_fail_time + time_to_wait_after_fail )
 			return;

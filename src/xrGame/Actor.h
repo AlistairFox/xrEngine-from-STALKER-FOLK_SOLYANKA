@@ -100,7 +100,8 @@ private:
 
 	void					SendSoundPlay(u32 ID, bool Activate);
 	void					SendAnimationToServer(MotionID motion);
-	void					SendActivateItem(shared_str item, bool activate);
+ 	void					SendActivateItem(u16 slot, bool activate);
+
 	void					StopAllSNDs();
 
 public:

@@ -354,11 +354,15 @@ SERVER_ENTITY_DECLARE_BEGIN3(CSE_ALifeCreatureActor,CSE_ALifeCreatureAbstract,CS
 	virtual bool					can_save				()const{return true;}
 	virtual bool					natural_weapon			() const {return false;}
 	virtual bool					natural_detector		() const {return false;}
+	virtual bool					can_switch_online() const;
+	virtual bool					can_switch_offline() const;
+
 #ifdef XRGAME_EXPORTS
 	virtual void					spawn_supplies			();
 	virtual	void					add_online				(const bool &update_registries);
 	virtual	void					add_offline				(const xr_vector<ALife::_OBJECT_ID> &saved_children, const bool &update_registries);
 #endif
+
 #ifdef DEBUG
 	virtual bool					match_configuration		() const;
 #endif

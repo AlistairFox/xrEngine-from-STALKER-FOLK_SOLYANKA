@@ -727,6 +727,8 @@ void CAI_Stalker::create_anim_mov_ctrl	( CBlend *b, Fmatrix *start_pose, bool lo
 	inherited::create_anim_mov_ctrl	( b, start_pose, local_animation );
 }
 
+ 
+
 void CAI_Stalker::destroy_anim_mov_ctrl	()
 {
 	inherited::destroy_anim_mov_ctrl();
@@ -746,12 +748,44 @@ void CAI_Stalker::destroy_anim_mov_ctrl	()
 	movement().update				(0);
 }
 
+#include "actor_mp_client.h"
+
+u64 updateCL = 0;
+u64 updateCL_CUSTOM_MONSTER = 0;
+u64 updateCL_PHYSIC = 0;
+
+u32 old_TIME_PRINT = 0;
+
 void CAI_Stalker::UpdateCL()
 {
+	bool need_update = false;
+
+	for (auto pl : Game().players)
+	{
+		if (u32 id = pl.second->GameID)
+		{
+			CObject* obj = Level().Objects.net_Find(id);
+
+			if (smart_cast<CActorMP*>(obj))
+				if (obj->Position().distance_to(this->Position()) < 60)
+				{
+					need_update = true;
+					break;
+				}
+		}
+	}
+
+	if (!need_update)
+		return;
+
+	LastUpdate = Device.dwTimeGlobal;
 
 	START_PROFILE("stalker")
 	START_PROFILE("stalker/client_update")
 	VERIFY2						(PPhysicsShell()||getEnabled(), *cName());
+
+	CTimer timer;
+	timer.Start();
 
 	if (g_Alive() && Remote() && !IsGameTypeSingle())
 	{
@@ -797,22 +831,24 @@ void CAI_Stalker::UpdateCL()
 		}
 	}
 
+	updateCL += timer.GetElapsed_ticks();
+
+	timer.Start();
 	START_PROFILE("stalker/client_update/inherited")
 	inherited::UpdateCL				();
 	STOP_PROFILE
+		
+	updateCL_CUSTOM_MONSTER += timer.GetElapsed_ticks();
 	
+	timer.Start();
 	START_PROFILE("stalker/client_update/physics")
-		if (Level().CurrentControlEntity())
-		{
-			float dist_120 = 120 * 120;
-
-			float dist = Level().CurrentControlEntity()->Position().distance_to_sqr(this->Position());
-			if (dist < dist_120)
-				m_pPhysics_support->in_UpdateCL();
-
-		}
+ 	if (OnClient())
+		m_pPhysics_support->in_UpdateCL();
 	STOP_PROFILE
 
+	updateCL_PHYSIC += timer.GetElapsed_ticks();
+
+	timer.Start();
 	if (g_Alive())
 	{
 		START_PROFILE("stalker/client_update/sight_manager")
@@ -838,11 +874,30 @@ void CAI_Stalker::UpdateCL()
 			weapon_shot_effector().Update	();
 		STOP_PROFILE
 	}
+
+	updateCL += timer.GetElapsed_ticks();
+
+
 #ifdef DEBUG
 	debug_text	();
 #endif
 	STOP_PROFILE
 	STOP_PROFILE
+
+	/*
+	if (OnServer() && Device.dwTimeGlobal - old_TIME_PRINT > 1000)
+	{
+		old_TIME_PRINT = Device.dwTimeGlobal;
+
+		Msg("UpdateClient [%u]", updateCL * 1000 / CPU::qpc_freq);
+		Msg("UpdateCustom [%u]", updateCL_CUSTOM_MONSTER * 1000 / CPU::qpc_freq);
+		Msg("UpdatePhysic [%u]", updateCL_PHYSIC * 1000 / CPU::qpc_freq);
+
+		updateCL = 0;
+		updateCL_CUSTOM_MONSTER = 0;
+		updateCL_PHYSIC = 0;
+	} 
+	*/
 }
 
 void CAI_Stalker ::PHHit				(SHit &H )
@@ -857,9 +912,10 @@ CPHDestroyable*		CAI_Stalker::		ph_destroyable	()
 
 #include "../../enemy_manager.h"
 
+ 
+
 void CAI_Stalker::shedule_Update		( u32 DT )
 {
-
 	if (!IsGameTypeSingle() && OnClient())
 	{
 		/*
@@ -901,7 +957,8 @@ void CAI_Stalker::shedule_Update		( u32 DT )
 	// *** general stuff
 	float dt			= float(DT)/1000.f;
 
-	if (g_Alive()) {
+	if (g_Alive()) 
+	{
 		animation().play_delayed_callbacks	();
 
 		#ifndef USE_SCHEDULER_IN_AGENT_MANAGER
@@ -1257,12 +1314,43 @@ void CAI_Stalker::on_after_change_team			()
 	agent_manager().member().register_in_combat	(this);
 }
 
+extern float Shedule_Scale_AI_Stalker = 0.0f;
+
 float CAI_Stalker::shedule_Scale				()
 {
-	if (!sniper_update_rate())
-		return				(inherited::shedule_Scale());
+	//if (sniper_update_rate())
+	//	return				0.0f;
 
-	return					(0.f);
+ 	/*
+	if (memory().enemy().selected())
+	{
+		return Position().distance_to(memory().enemy().selected()->Position()) / 50;
+	}
+	*/
+	if (Game().players.size() > 0)
+	{
+		bool finded = false;
+
+		for (auto pl : Game().players)
+		{
+			CObject* obj = Level().Objects.net_Find(pl.second->GameID);
+
+			if (smart_cast<CActorMP*>(obj))
+			{
+				if (obj->Position().distance_to(this->Position()) < 60)
+				{
+					finded = true;
+					break;
+				}
+			}
+		}
+
+		if (finded)
+			return 0;
+	}
+
+
+ 	return Shedule_Scale_AI_Stalker;
 }
 
 void CAI_Stalker::aim_bone_id					(shared_str const &bone_id)

@@ -343,7 +343,9 @@ void CActor::OnEvent(NET_Packet& P, u16 type)
 	}break;
 	case GE_ACTOR_HIDE_ALL_WEAPONS:
 	{
-		inventory().SetActiveSlot(NO_ACTIVE_SLOT);
+		u16 slot;
+		P.r_u16(slot);
+		inventory().SetActiveSlot(slot);
 	}break;
 
 	}

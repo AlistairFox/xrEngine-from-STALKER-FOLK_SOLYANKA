@@ -401,6 +401,19 @@ bool CBaseMonster::HavePlayersNearby(float distance) const
 	return have;
 }
 
+u32 TimerGlobal = 0;
+
+u64 shedule_inherted = 0;
+u64 shedule_auras = 0;
+u64 shedule_all = 0;
+
+u64 monster_timers = 0;
+u64 monster_update_groop = 0;
+u64 monster_update_control = 0;
+
+
+#include "actor_mp_client.h"
+
 void CBaseMonster::UpdateCL()
 {
 #ifdef DEBUG
@@ -415,13 +428,37 @@ void CBaseMonster::UpdateCL()
 	}
 #endif
 
+	bool need_update = false;
+
+ 	for (auto pl : Game().players)
+	{
+		if (u32 id = pl.second->GameID)
+		{
+			CObject* obj = Level().Objects.net_Find(id);
+
+			if (smart_cast<CActorMP*>(obj))
+			if (obj->Position().distance_to(this->Position()) < 60)
+			{
+				need_update = true;
+				break;
+			}
+		}
+	}
+
+	if (!need_update)  
+		return;
+ 
+	CTimer time;
+	 
 	if ((IsGameTypeSingle() || OnServer()) && EatedCorpse && !CorpseMemory.is_valid_corpse(EatedCorpse) )
 	{
 		EatedCorpse = NULL;
 	}
 
+	time.Start();
 	inherited::UpdateCL();
-
+	monster_timers += time.GetElapsed_ticks();
+    
 	if (g_Alive() && Remote() && !IsGameTypeSingle())
 	{
 		make_Interpolation();
@@ -429,18 +466,79 @@ void CBaseMonster::UpdateCL()
 
 	if ( g_Alive() ) 
 	{
-		update_enemy_accessible_and_at_home_info();
+		time.Start();
+		//update_enemy_accessible_and_at_home_info();
+		
 		CStepManager::update(false);
+ 
+		//if (IsGameTypeSingle() || OnServer())
+		//	update_pos_by_grouping_behaviour();
 
-		if (IsGameTypeSingle() || OnServer())
-			update_pos_by_grouping_behaviour();
+		monster_update_groop += time.GetElapsed_ticks();
 	}
-	
+
+	time.Start();
 	if(IsGameTypeSingle() || OnServer())
 		control().update_frame();
 
-	m_pPhysics_support->in_UpdateCL();
+	monster_update_control += time.GetElapsed_ticks();
+
+ 	m_pPhysics_support->in_UpdateCL();
+
+	/*
+	if (Device.dwTimeGlobal - TimerGlobal > 1000 && OnServer())
+	{
+		Msg("inherted [%u]", (monster_timers * 1000) / CPU::qpc_freq);
+		Msg("groop	  [%u]", (monster_update_groop * 1000) / CPU::qpc_freq);
+		Msg("control  [%u]", (monster_update_control * 1000) / CPU::qpc_freq);
+		Msg("shedule  [%u]", (shedule_inherted * 1000) / CPU::qpc_freq);
+		Msg("auras    [%u]", (shedule_auras * 1000) / CPU::qpc_freq);
+		Msg("sh_all   [%u]", (shedule_all * 1000) / CPU::qpc_freq);
+		TimerGlobal = Device.dwTimeGlobal;
+		monster_timers = 0;
+		monster_update_groop = 0;
+		monster_update_control = 0;
+		shedule_inherted = 0;
+		shedule_auras = 0;
+		shedule_all = 0;
+	}
+	*/
+	
 }
+
+extern float Shedule_Scale_AI_Stalker;
+
+float CBaseMonster::shedule_Scale()
+{
+	if (Game().players.size() > 0)
+	{
+		bool finded = false;
+		
+		for (auto pl : Game().players)
+		{
+			CObject* obj = Level().Objects.net_Find(pl.second->GameID);
+
+			if (smart_cast<CActorMP*>(obj))
+			{
+				if (obj->Position().distance_to(this->Position()) < 60)
+				{
+					finded = true;
+					break;
+				}
+			}
+		}
+
+		if (finded)
+			return 0;
+	}
+
+
+	return Shedule_Scale_AI_Stalker;
+}
+
+
+
+
 
 void CBaseMonster::shedule_Update(u32 dt)
 {
@@ -451,9 +549,46 @@ void CBaseMonster::shedule_Update(u32 dt)
 		return;
 	}
 #endif
+	bool need_update = false;
 
-	inherited::shedule_Update	(dt);
+ 	for (auto pl : Game().players)
+	{
+		if (u32 id = pl.second->GameID)
+		{
+			CObject* obj = Level().Objects.net_Find(id);
 
+			if (smart_cast<CActorMP*>(obj))
+			if (obj->Position().distance_to_sqr(this->Position()) < 60 * 60)
+			{
+				need_update = true;
+				break;
+			}
+		}
+	}
+
+	if (!need_update)
+		return;
+
+	if (!need_update && LastShedule + 2000 < Device.dwTimeGlobal)
+		return;
+
+	LastShedule = Device.dwTimeGlobal;
+
+	CTimer time;
+	time.Start();
+
+	if (OnClient())
+	{
+		inherited::shedule_Update(dt);
+		shedule_inherted += time.GetElapsed_ticks();
+		return;
+	}
+ 
+	inherited::shedule_Update(dt);
+	shedule_inherted += time.GetElapsed_ticks();
+
+
+	time.Start();
 	update_eyes_visibility		();
 
 	if ( m_anti_aim )
@@ -466,6 +601,9 @@ void CBaseMonster::shedule_Update(u32 dt)
 	m_base_aura.update_schedule();
 	m_radiation_aura.update_schedule();
 
+	shedule_auras += time.GetElapsed_ticks();
+
+	time.Start();
 	if (IsGameTypeSingle() || OnServer())
 	{
 		control().update_schedule();
@@ -474,6 +612,7 @@ void CBaseMonster::shedule_Update(u32 dt)
 	}
 	
 	m_pPhysics_support->in_shedule_Update(dt);
+	shedule_all += time.GetElapsed_ticks();
 
 #ifdef DEBUG	
 	show_debug_info();

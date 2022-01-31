@@ -337,7 +337,8 @@ void CCustomMonster::shedule_Update	( u32 DT )
 
 	float dt			= float(DT)/1000.f;
 	// *** general stuff
-	if (g_Alive()) {
+	if (g_Alive())
+	{
 		if ( false && g_mt_config.test(mtAiVision) )
 #ifndef DEBUG
 			Device.seqParallel.push_back	(fastdelegate::FastDelegate0<>(this,&CCustomMonster::Exec_Visibility));
@@ -351,6 +352,7 @@ void CCustomMonster::shedule_Update	( u32 DT )
 #endif // DEBUG
 		else
 			Exec_Visibility					();
+
 		memory().update						(dt);
 	}
 	inherited::shedule_Update	(DT);
@@ -361,8 +363,11 @@ void CCustomMonster::shedule_Update	( u32 DT )
 	m_dwCurrentTime	= Device.dwTimeGlobal;
 
 	VERIFY				(_valid(Position()));
-	if (Remote())		{
-	} else {
+	if (Remote())	
+	{
+	}
+	else
+	{
 		// here is monster AI call
 		m_fTimeUpdateDelta				= dt;
 		Device.Statistic->AI_Think.Begin	();
@@ -379,7 +384,8 @@ void CCustomMonster::shedule_Update	( u32 DT )
 
 		// Look and action streams
 		float							temp = conditions().health();
-		if (temp > 0) {
+		if (temp > 0) 
+		{
 			Exec_Action				(dt);
 			VERIFY					(_valid(Position()));
 			//Exec_Visibility		();
@@ -455,16 +461,7 @@ void CCustomMonster::UpdateCL	()
 	START_PROFILE("CustomMonster/client_update/sound_callbacks")
 	CScriptEntity::process_sound_callbacks();
 	STOP_PROFILE
-
-	/*	//. hack just to skip 'CalculateBones'
-	if (sound().need_bone_data()) {
-		// we do this because we know here would be virtual function call
-		IKinematics					*kinematics = smart_cast<IKinematics*>(Visual());
-		VERIFY						(kinematics);
-		kinematics->CalculateBones	();
-	}
-	*/
-
+ 
 	if (g_mt_config.test(mtSoundPlayer))
 		Device.seqParallel.push_back	(fastdelegate::FastDelegate0<>(this,&CCustomMonster::update_sound_player));
 	else {
@@ -512,10 +509,12 @@ void CCustomMonster::UpdateCL	()
 			float					factor = d2 ? (float(d1)/float(d2)) : 1.f;
 			Fvector					l_tOldPosition = Position();
 			NET_Last.lerp			(A,B,factor);
-			if (Local()) {
+			if (Local()) 
+			{
 				NET_Last.p_pos		= l_tOldPosition;
 			}
-			else {
+			else 
+			{
 				if (!bfScriptAnimation())
 					SelectAnimation	(XFORM().k,movement().detail().direction(),movement().speed());
 			}
@@ -540,7 +539,8 @@ void CCustomMonster::UpdateCL	()
 	}
 
 	// Use interpolated/last state
-	if (g_Alive()) {
+	if (g_Alive()) 
+	{
 		if (!animation_movement_controlled() && m_update_rotation_on_frame)
 			XFORM().rotateY			(NET_Last.o_model);
 		if( !animation_movement_controlled() )
@@ -562,9 +562,11 @@ void CCustomMonster::UpdateCL	()
 	if (IsMyCamera())
 		UpdateCamera				();
 #endif // DEBUG
+
 	START_PROFILE("CustomMonster/client_update/update_animation_movement")
 	update_animation_movement_controller	();
 	STOP_PROFILE
+
 #ifdef DEBUG
 	if( animation_movement() )
 				animation_movement()->DBG_verify_position_not_chaged();
@@ -573,16 +575,30 @@ void CCustomMonster::UpdateCL	()
 	STOP_PROFILE
 }
 
+u32 anims_total = 0;
+u32 oldTIME_GLOBAL = 0;
+
 void CCustomMonster::UpdatePositionAnimation()
-{
+{		
+	CTimer anims;
+	anims.Start();
 	START_PROFILE("CustomMonster/client_update/movement")
-	movement().on_frame			(character_physics_support()->movement(),NET_Last.p_pos);
+		movement().on_frame			(character_physics_support()->movement(),NET_Last.p_pos);
 	STOP_PROFILE
 	
 	START_PROFILE("CustomMonster/client_update/animation")
 	if (!bfScriptAnimation())
 		SelectAnimation			(XFORM().k,movement().detail().direction(),movement().speed());
 	STOP_PROFILE
+
+	anims_total += anims.GetElapsed_ticks();
+
+	if (Device.dwTimeGlobal - oldTIME_GLOBAL > 1000)
+	{
+		Msg("TimeAnimsPos %d", anims_total);
+		anims_total = 0;
+		oldTIME_GLOBAL = Device.dwTimeGlobal;
+	}
 }
 
 BOOL CCustomMonster::feel_visible_isRelevant (CObject* O)
@@ -771,7 +787,8 @@ BOOL CCustomMonster::net_Spawn	(CSE_Abstract* DC)
 	eye_bone					= smart_cast<IKinematics*>(Visual())->LL_BoneID(pSettings->r_string(cNameSect(),"bone_head"));
 
 	// weapons
-	if (Local()) {
+	if (Local()) 
+	{
 		net_update				N;
 		N.dwTimeStamp			= Level().timeServer()-NET_Latency;
 		N.o_model				= -E->o_torso.yaw;
@@ -789,7 +806,8 @@ BOOL CCustomMonster::net_Spawn	(CSE_Abstract* DC)
 
 	// Sheduler
 	shedule.t_min				= 100;
-	shedule.t_max				= 250; // This equaltiy is broken by Dima :-( // 30 * NET_Latency / 4;
+	shedule.t_max				= 15000;
+	// This equaltiy is broken by Dima :-( // 30 * NET_Latency / 4;
 
 	m_moving_object				= xr_new<moving_object>(this);
 

@@ -79,8 +79,7 @@ void CAI_Stalker::net_Export(NET_Packet& P)
 		P.w_stringZ(m_sStartDialog);
 	}
 	else
-	{
-			
+	{	
 		MotionID torso = m_animation_manager->torso().animation();
 		MotionID legs = m_animation_manager->legs().animation();
 		MotionID head = m_animation_manager->head().animation();
@@ -239,7 +238,7 @@ void CAI_Stalker::net_Import(NET_Packet& P)
  
 		if (Level().CurrentControlEntity())
 		{		  
-			float dist_120 = 120 * 120;
+			float dist_120 = 450 * 450;
 
 			float dist = Level().CurrentControlEntity()->Position().distance_to_sqr(this->Position());
 

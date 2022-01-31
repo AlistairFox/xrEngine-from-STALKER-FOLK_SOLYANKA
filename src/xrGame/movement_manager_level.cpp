@@ -64,7 +64,8 @@ void CMovementManager::process_level_path()
 				level_path().intermediate_index()
 			);
 
-			if (can_use_distributed_computations(mtDetailPath)) {
+			if (can_use_distributed_computations(mtDetailPath)) 
+			{
 				detail_path_builder().register_to_process	();
 				break;
 			}

@@ -9,6 +9,127 @@ float			psShedulerTarget		= 10.f	;
 const	float	psShedulerReaction		= 0.1f	;
 BOOL			g_bSheduleInProgress	= FALSE	;
 
+BOOL mt_shedule_end = false;
+typedef xr_vector<Item> vec_items;
+
+void mtShedulerWorker(void* pSheduler, vec_items& items)
+{
+	CSheduler* pTrySheduler = ((CSheduler*)(pSheduler));
+	u32		dwTime = Device.dwTimeGlobal;
+
+	//Msg("Thread Start Items[%d]", items.size());
+	u32 id;
+	for (auto item : items)
+	{
+		id += 1;
+		Item T = pTrySheduler->Top();
+
+		bool condition = (NULL == T.Object || !T.Object->shedule_Needed());
+
+		if (condition)
+		{
+			pTrySheduler->Pop();
+			continue;
+		}
+
+		pTrySheduler->Pop();
+
+		if (!T.Object)
+			return;
+
+		// Update
+ 		u32		delta_ms = dwTime - T.dwTimeForExecute;
+		u32		Elapsed = dwTime - T.dwTimeOfLastExecute;
+ 
+		// Calc next update interval
+		u32		dwMin = _max(u32(30), T.Object->shedule.t_min);
+		u32		dwMax = (1000 + T.Object->shedule.t_max) / 2;
+		float	scale = T.Object->shedule_Scale();
+		u32		dwUpdate = dwMin + iFloor(float(dwMax - dwMin) * scale);
+		clamp	(dwUpdate, u32(_max(dwMin, u32(20))), dwMax);
+
+		//Msg("Object [%s] / SheduleTimeNext [%d]", T.Object->shedule_Name().c_str(), dwUpdate);
+		
+		
+		T.Object->shedule_Update(clampr(Elapsed, u32(1), u32( _max(u32(T.Object->shedule.t_max), u32(1000) ) )));
+
+		//Msg("After [%d] / size[%d]", id, items.size());
+	 
+		// Fill item structure
+		Item						TNext;
+		TNext.dwTimeForExecute = dwTime + dwUpdate;
+		TNext.dwTimeOfLastExecute = dwTime;
+		TNext.Object = T.Object;
+		TNext.scheduled_name = T.Object->shedule_Name();
+
+
+		//Msg("Pre Items Processed");
+		pTrySheduler->ItemsProcessed.push_back(TNext);
+		//Msg("Items Processed");
+
+		if (Device.dwPrecacheFrame == 0 && CPU::QPC() > pTrySheduler->cycles_limit)
+		{
+			// we have maxed out the load - increase heap
+			psShedulerTarget += (psShedulerReaction * 3);
+			//Msg("!!!Break");
+			break;
+		}
+		//Msg("END");
+	}	
+
+	// Push "processed" back
+	while (pTrySheduler->ItemsProcessed.size())
+	{
+		pTrySheduler->Push(pTrySheduler->ItemsProcessed.back());
+		pTrySheduler->ItemsProcessed.pop_back();
+	}
+
+	// always try to decrease target
+	psShedulerTarget -= psShedulerReaction;
+
+  
+	mt_shedule_end = true;
+}
+
+#include <thread>
+
+void mtShedulerThread(void* pSheduler)
+{
+
+	// Normal priority
+	CSheduler* pTrySheduler = ((CSheduler*)(pSheduler));
+	
+	u32		dwTime = Device.dwTimeGlobal;
+	vec_items items_to_thread;
+	u32 size = pTrySheduler->Items.size();
+	
+	//Msg("SizeToProcess[%d]", size);
+	
+	std::thread thr = std::thread(mtShedulerWorker, pSheduler, pTrySheduler->Items);
+	thr.detach();
+ 	
+	/*
+	for (int i = 0; !pTrySheduler->Items.empty() && pTrySheduler->Top().dwTimeForExecute < dwTime; ++i)
+	{	
+		Item item = pTrySheduler->Top();
+		items_to_thread.push_back(item);
+		
+		if (items_to_thread.size() > 500 || items_to_thread.size() == size)
+		{
+ 			std::thread thr = std::thread(mtShedulerWorker, pSheduler, items_to_thread);
+			//thr.join();
+			thr.detach();
+			
+			items_to_thread.clear();
+		}
+	}
+	*/
+ 
+
+
+}
+
+
 //-------------------------------------------------------------------------------------
 void CSheduler::Initialize		()
 {
@@ -250,7 +371,8 @@ void	CSheduler::Unregister	(ISheduled* A						)
 	Msg			("SCHEDULER: unregister [%s][%x]",*A->shedule_Name(),A);
 #endif // DEBUG_SCHEDULER
 
-	if (m_processing_now) {
+	if (m_processing_now) 
+	{
 		if (internal_Unregister(A,A->shedule.b_RT,false))
 			return;
 	}
@@ -291,32 +413,31 @@ void CSheduler::Pop					()
 	Items.pop_back	();
 }
 
+u32 old_time;
+u32 save_time_ms;
+
+#include "../xrServerEntities/clsid_game.h"
+#include "IGame_Persistent.h"
+
 void CSheduler::ProcessStep			()
 {
 	// Normal priority
 	u32		dwTime					= Device.dwTimeGlobal;
 	CTimer							eTimer;
-	for (int i=0;!Items.empty() && Top().dwTimeForExecute < dwTime; ++i) {
+	eTimer.Start();
+
+
+	for (int i=0;!Items.empty() && Top().dwTimeForExecute < dwTime; ++i)
+	{
 		u32		delta_ms			= dwTime - Top().dwTimeForExecute;
 
 		// Update
 		Item	T					= Top	();
-#ifdef DEBUG_SCHEDULER
-		Msg		("SCHEDULER: process step [%s][%x][false]",*T.scheduled_name,T.Object);
-#endif // DEBUG_SCHEDULER
 		u32		Elapsed				= dwTime-T.dwTimeOfLastExecute;
-		bool	condition;
-		
-		condition					= (NULL==T.Object || !T.Object->shedule_Needed());
-		if (condition) {
-			// Erase element
-#ifdef DEBUG_SCHEDULER
-			Msg						("SCHEDULER: process unregister [%s][%x][%s]",*T.scheduled_name,T.Object,"false");
-#endif // DEBUG_SCHEDULER
-//			if (T.Object)
-//				Msg					("0x%08x UNREGISTERS because shedule_Needed() returned false",T.Object);
-//			else
-//				Msg					("UNREGISTERS unknown object");
+		bool	condition					= (NULL==T.Object || !T.Object->shedule_Needed());
+
+		if (condition) 
+		{ 
 			Pop						();
 			continue;
 		}
@@ -324,44 +445,23 @@ void CSheduler::ProcessStep			()
 		// Insert into priority Queue
 		Pop							();
 
-		// Real update call
-		// Msg						("------- %d:",Device.dwFrame);
-#ifdef DEBUG
-		T.Object->dbg_startframe	= Device.dwFrame;
-		eTimer.Start				();
-//		LPCSTR		_obj_name		= T.Object->shedule_Name().c_str();
-#endif // DEBUG
-
 		// Calc next update interval
 		u32		dwMin				= _max(u32(30),T.Object->shedule.t_min);
 		u32		dwMax				= (1000+T.Object->shedule.t_max)/2;
 		float	scale				= T.Object->shedule_Scale	(); 
 		u32		dwUpdate			= dwMin+iFloor(float(dwMax-dwMin)*scale);
 		clamp	(dwUpdate,u32(_max(dwMin,u32(20))),dwMax);
-
-		
-
+	 
 		m_current_step_obj = T.Object;
-//			try {
-			T.Object->shedule_Update	(clampr(Elapsed,u32(1),u32(_max(u32(T.Object->shedule.t_max),u32(1000)))) );
-			if (!m_current_step_obj)
-			{
-#ifdef DEBUG_SCHEDULER
-				Msg						("SCHEDULER: process unregister (self unregistering) [%s][%x][%s]",*T.scheduled_name,T.Object,"false");
-#endif // DEBUG_SCHEDULER
-				continue;
-			}
-//			} catch (...) {
-#ifdef DEBUG
-//				Msg		("! xrSheduler: object '%s' raised an exception", _obj_name);
-//				throw	;
-#endif // DEBUG
-//			}
-		m_current_step_obj = NULL;
+ 
+		T.Object->shedule_Update(clampr(Elapsed, u32(1), u32(_max(u32(T.Object->shedule.t_max), u32(1000)))));
 
-#ifdef DEBUG
-//		u32	execTime				= eTimer.GetElapsed_ms		();
-#endif // DEBUG
+		if (!m_current_step_obj)
+		{
+			continue;
+		}
+ 
+		m_current_step_obj = NULL;
 
 		// Fill item structure
 		Item						TNext;
@@ -370,20 +470,7 @@ void CSheduler::ProcessStep			()
 		TNext.Object				= T.Object;
 		TNext.scheduled_name		= T.Object->shedule_Name();
 		ItemsProcessed.push_back	(TNext);
-
-
-#ifdef DEBUG
-//		u32	execTime				= eTimer.GetElapsed_ms		();
-		// VERIFY3					(T.Object->dbg_update_shedule == T.Object->dbg_startframe, "Broken sequence of calls to 'shedule_Update'", _obj_name );
-		if (delta_ms> 3*dwUpdate)	{
-			//Msg	("! xrSheduler: failed to shedule object [%s] (%dms)",	_obj_name, delta_ms	);
-		}
-//		if (execTime> 15)			{
-//			Msg	("* xrSheduler: too much time consumed by object [%s] (%dms)",	_obj_name, execTime	);
-//		}
-#endif // DEBUG
-
-		// 
+ 
 		if ((i % 3) != (3 - 1))
 			continue;
 
@@ -395,8 +482,19 @@ void CSheduler::ProcessStep			()
 		}
 	}
 
+	save_time_ms += eTimer.GetElapsed_ms();
+
+	if (Device.dwTimeGlobal - old_time > 1000)
+	{
+		//Msg("Shedule Time [%d] DeviceDwTime[%d]", save_time_ms, Device.dwTimeGlobal);
+		save_time_ms = 0;
+		old_time = Device.dwTimeGlobal;
+	}
+	 
+
 	// Push "processed" back
-	while (ItemsProcessed.size())	{
+	while (ItemsProcessed.size())
+	{
 		Push	(ItemsProcessed.back())	;
 		ItemsProcessed.pop_back		()	;
 	}
@@ -404,6 +502,7 @@ void CSheduler::ProcessStep			()
 	// always try to decrease target
 	psShedulerTarget	-= psShedulerReaction;
 }
+
 /*
 void CSheduler::Switch				()
 {
@@ -414,6 +513,7 @@ void CSheduler::Switch				()
 	}
 }
 */
+
 void CSheduler::Update				()
 {
 	R_ASSERT						(Device.Statistic);
@@ -456,11 +556,18 @@ void CSheduler::Update				()
 	}
 
 	// Normal (sheduled)
+	
+ 
 	ProcessStep						();
+ 
+
+
 	m_processing_now				= false;
+
 #ifdef DEBUG_SCHEDULER
 	Msg								("SCHEDULER: PROCESS STEP FINISHED %d",Device.dwFrame);
 #endif // DEBUG_SCHEDULER
+
 	clamp							(psShedulerTarget,3.f,66.f);
 	psShedulerCurrent				= 0.9f*psShedulerCurrent + 0.1f*psShedulerTarget;
 	Device.Statistic->fShedulerLoad	= psShedulerCurrent;

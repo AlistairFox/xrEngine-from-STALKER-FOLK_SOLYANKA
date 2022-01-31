@@ -3,7 +3,8 @@
 #include "Inventory.h"
 #include "actor_anim_defs.h"
 #include "../Include/xrRender/Kinematics.h"
- 
+#include "Weapon.h"
+
 extern int ANIM_SELECTED;
 
 bool CActor::MpAnimationMode() const
@@ -63,9 +64,10 @@ void SActorStateAnimation::CreateAnimationsScripted(IKinematicsAnimated* K)
 				}
 
 				m_animation_loop[i] = anim_loop;
+ 
+				if (file->line_exist(animation, "anim_use_slot"))
+					m_animation_use_slot[i] = file->r_u32(animation, "anim_use_slot");
 
-				if (file->line_exist(animation, "attached_item"))
-					m_animation_attach[i] = file->r_string(animation, "attached_item");
 
 				LPCSTR anims_in = file->r_string(animation, "anim_in");
 				LPCSTR anims_out = file->r_string(animation, "anim_out");
@@ -157,30 +159,20 @@ void CActor::ReciveAnimationPacket(NET_Packet& packet)
 
 void CActor::ReciveActivateItem(NET_Packet& packet)
 {
-	shared_str item;
-	packet.r_stringZ(item);
+	u16 slot;
+	packet.r_u16(slot);
 	bool activate = packet.r_u8();
-
-	Msg("Activate Item [%s] -> [%d]", item.c_str(), activate);
-
-	CInventoryItem* inv_item = this->inventory().GetItemFromInventory(item.c_str());
-	CAttachableItem* item_attach = smart_cast<CAttachableItem*>(inv_item);
-
-	if (item_attach)
+ 
+	PIItem item = this->inventory().ItemFromSlot(slot);
+ 
+	if (item)
 	{
-		if (this->can_attach(inv_item) && activate)
-		{
-			this->attach(inv_item);
-		}
-
+		item->enable(activate);
+		
 		if (activate)
-		{
-			item_attach->enable(true);
-		}
-		else
-		{
-			item_attach->enable(false);
-		}
+			this->attach_no_check(item);
+		else 
+			this->detach(item);
 	}
 }
 
@@ -228,11 +220,11 @@ void CActor::SendAnimationToServer(MotionID motion)
 	u_EventSend(packet, net_flags(true, true));
 }
 
-void CActor::SendActivateItem(shared_str item, bool activate)
+void CActor::SendActivateItem(u16 slot, bool activate)
 {
 	NET_Packet packet;
 	u_EventGen(packet, GE_ACTOR_ITEM_ACTIVATE, this->ID());
-	packet.w_stringZ(item);
+	packet.w_u16(slot);
 	packet.w_u8(activate ? 1 : 0);
 	u_EventSend(packet, net_flags(true, true));
 }
@@ -280,10 +272,6 @@ void CActor::SelectScriptAnimation()
 	if (!CanChange)
 		return;
 
-	//Msg("In [%d] [%s]", InputAnim, InPlay ? "true" : "false");
-	//Msg("Mid [%d] [%s]", MidAnim, MidPlay ? "true" : "false");
-	//Msg("Out [%d] [%s]", OutAnim, OutPlay ? "true" : "false");
-
 	if (oldAnim != ANIM_SELECTED)
 	{
 		if (InPlay && MidPlay && OutPlay)
@@ -294,8 +282,6 @@ void CActor::SelectScriptAnimation()
 			MidAnim = 0;
 		}
 	}
-
-	//Msg("Selected [%d] UI_SEL [%d]", oldAnim, ANIM_SELECTED);
 
 	u32 selectedAnimation = oldAnim;
 
@@ -325,29 +311,40 @@ void CActor::SelectScriptAnimation()
 		script_anim(script_BODY, callbackAnim, this);
 		InputAnim += 1;
 		NEED_EXIT = true;
+ 
+		bool weapon = false;
 
-		if (m_anims->m_script.m_animation_attach[selectedAnimation].size() > 0)
+		if (m_anims->m_script.m_animation_use_slot[selectedAnimation] > 0)
 		{
-			shared_str attach = m_anims->m_script.m_animation_attach[selectedAnimation];
-
-			CInventoryItem* inv_item = this->inventory().GetItemFromInventory(attach.c_str());
-			CAttachableItem* item = smart_cast<CAttachableItem*>(inv_item);
-
-			if (item)
+			u16 slot = m_anims->m_script.m_animation_use_slot[selectedAnimation];
+			PIItem item =  this->inventory().ItemFromSlot(slot);
+			CWeapon* wpn = smart_cast<CWeapon*>(item);
+			if (item && !wpn)
 			{
 				item->enable(true);
-				SendActivateItem(attach, true);
-
-				bool att = this->can_attach(inv_item);
-
-				if (att)
-					this->attach(inv_item);
+				this->attach_no_check(item);
+				SendActivateItem(slot, true);
+			}
+			else
+			{
+				if (wpn)
+				{
+					weapon = true;
+					NET_Packet packet;
+					u_EventGen(packet, GE_ACTOR_HIDE_ALL_WEAPONS, this->ID());
+					packet.w_u16(slot);
+					u_EventSend(packet, net_flags(true, true));
+				}
 			}
 		}
 
-		NET_Packet packet;
-		u_EventGen(packet, GE_ACTOR_HIDE_ALL_WEAPONS, this->ID());
-		u_EventSend(packet, net_flags(true, true));
+		if (!weapon)
+		{
+			NET_Packet packet;
+			u_EventGen(packet, GE_ACTOR_HIDE_ALL_WEAPONS, this->ID());
+			packet.w_u16(0);
+			u_EventSend(packet, net_flags(true, true));
+		}
 	}
 
 	if (!InPlay)
@@ -414,16 +411,20 @@ void CActor::SelectScriptAnimation()
 		if (selected._feedback())
 			selected.stop();
 		NEED_EXIT = false;
-		if (m_anims->m_script.m_animation_attach[selectedAnimation].size() > 0)
-		{
-			shared_str attach = m_anims->m_script.m_animation_attach[selectedAnimation];
-			CInventoryItem* inv_item = this->inventory().GetItemFromInventory(attach.c_str());
-			CAttachableItem* item = smart_cast<CAttachableItem*>(inv_item);
 
-			if (item)
+		if (!m_anims->m_script.m_animation_loop)
+			ANIM_SELECTED = 0;
+ 
+		if (m_anims->m_script.m_animation_use_slot[selectedAnimation] > 0)
+		{
+			u16 slot = m_anims->m_script.m_animation_use_slot[selectedAnimation];
+			PIItem item = this->inventory().ItemFromSlot(slot);
+			CWeapon* wpn = smart_cast<CWeapon*>(item);
+			if (item && !wpn)
 			{
 				item->enable(false);
-				SendActivateItem(attach, false);
+				this->detach(item);
+				SendActivateItem(slot, false);
 			}
 		}
 	}

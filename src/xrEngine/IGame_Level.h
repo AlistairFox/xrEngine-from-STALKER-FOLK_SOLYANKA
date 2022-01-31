@@ -22,7 +22,7 @@ private:
 		string128	name;
 		u32			color;
 	};
-	enum { max_item = 15 };
+	enum { max_item = 128 };
 	svector<SItem_ServerInfo,max_item>	data;
 
 public:

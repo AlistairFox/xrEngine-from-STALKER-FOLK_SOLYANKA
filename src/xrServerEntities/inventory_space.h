@@ -3,7 +3,8 @@
 #define CMD_START	(1<<0)
 #define CMD_STOP	(1<<1)
 
-enum{
+enum
+{
 	NO_ACTIVE_SLOT	= 0,
 	KNIFE_SLOT		= 1,//btn1			was (0)			!!!
 	INV_SLOT_2,		//btn2 PISTOL_SLOT	was (1)
@@ -17,7 +18,10 @@ enum{
 	TORCH_SLOT,		// torch
 	ARTEFACT_SLOT,	// artefact
 	HELMET_SLOT,
-	LAST_SLOT		= HELMET_SLOT
+	GUITAR_SLOT, 
+	HORMONICA_SLOT,
+	RACIA_SLOT,
+	LAST_SLOT = RACIA_SLOT
 };
 
 #define RUCK_HEIGHT			280

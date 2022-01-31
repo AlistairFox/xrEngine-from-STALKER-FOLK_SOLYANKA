@@ -3,34 +3,38 @@
 
 #include "ISheduled.h"
 
+struct Item
+{
+	u32			dwTimeForExecute;
+	u32			dwTimeOfLastExecute;
+	shared_str	scheduled_name;
+	ISheduled* Object;
+	u32			dwPadding;				// for align-issues
+	u32			dwLastTimeUpdateClient;
+
+	IC bool		operator < (Item& I)
+	{
+		return dwTimeForExecute > I.dwTimeForExecute;
+	}
+};
+struct	ItemReg
+{
+	BOOL		OP;
+	BOOL		RT;
+	ISheduled* Object;
+};
+
 class	ENGINE_API	CSheduler
 {
-private:
-	struct Item
-	{
-		u32			dwTimeForExecute;
-		u32			dwTimeOfLastExecute;
-		shared_str	scheduled_name;
-		ISheduled*	Object;
-		u32			dwPadding;				// for align-issues
 
-		IC bool		operator < (Item& I)
-		{	return dwTimeForExecute > I.dwTimeForExecute; }
-	};
-	struct	ItemReg
-	{
-		BOOL		OP;
-		BOOL		RT;
-		ISheduled*	Object;
-	};
-private:
+public:
 	xr_vector<Item>			ItemsRT			;
 	xr_vector<Item>			Items			;
 	xr_vector<Item>			ItemsProcessed	;
 	xr_vector<ItemReg>		Registration	;
 	ISheduled*				m_current_step_obj;
 	bool					m_processing_now;
-
+ 
 	IC void			Push	(Item& I);
 	IC void			Pop		();
 	IC Item&		Top		()
@@ -40,14 +44,14 @@ private:
 	void			internal_Register		(ISheduled* A, BOOL RT=FALSE		);
 	bool			internal_Unregister		(ISheduled* A, BOOL RT, bool warn_on_not_found = true);
 	void			internal_Registration	();
-public:
+
 	u64				cycles_start;
 	u64				cycles_limit;
-public:
+ 
 	void			ProcessStep	();
 	void			Process		();
 	void			Update		();
-
+ 
 #ifdef DEBUG
 	bool			Registered	(ISheduled *object) const;
 #endif // DEBUG

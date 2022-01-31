@@ -63,8 +63,13 @@ PROTECT_API void CRenderDevice::Initialize			()
 
         // Set the window's initial width
         RECT rc;
-        SetRect			( &rc, 0, 0, 640, 480 );
-        AdjustWindowRect( &rc, m_dwWindowStyle, FALSE );
+
+		if (strstr(Core.Params, "-dedicated"))
+			SetRect			( &rc, 0, 0, 1280, 900 );
+		else 
+			SetRect(&rc, 0, 0, 640, 480);
+		
+		AdjustWindowRect( &rc, m_dwWindowStyle, FALSE );
 
         // Create the render window
 		m_hWnd = CreateWindowEx( WS_EX_TOPMOST, 

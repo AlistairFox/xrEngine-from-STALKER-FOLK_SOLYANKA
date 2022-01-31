@@ -1481,6 +1481,7 @@ void xrServer::GetServerInfo( CServerInfo* si )
 
  
 		xr_strcat(FPS_str, ltoa(Device.Statistic->fFPS, tmp_fps, 10));
+ 
 		if (Device.Statistic->fFPS > 60)
 			si->AddItem("Server FPS", FPS_str, RGB(0, 255, 0));
 		else 

@@ -62,7 +62,8 @@ IC	u32 compute_string_length		(LPCSTR str)
 {
 	LPCSTR						i, j = str;
 	u32							count = 0;
-	while ((i = strchr(j,'/')) != 0) {
+	while ((i = strchr(j,'/')) != 0)
+	{
 		j = i					= i + 1;
 		++count;
 	}
@@ -74,7 +75,8 @@ IC	void CProfiler::convert_string	(LPCSTR str, shared_str &out, u32 max_string_s
 	string256					m_temp;
 	LPCSTR						i, j = str;
 	u32							count = 0;
-	while ((i = strchr(j,'/')) != 0) {
+	while ((i = strchr(j,'/')) != 0)
+	{
 		j = i					= i + 1;
 		++count;
 	}
@@ -83,8 +85,10 @@ IC	void CProfiler::convert_string	(LPCSTR str, shared_str &out, u32 max_string_s
 		xr_strcat					(m_temp,indent);
 	xr_strcat						(m_temp,j);
 	count						= xr_strlen(m_temp);
-	for ( ; count < max_string_size; ++count)
-		m_temp[count]			= white_character;
+	
+	//for ( ; count < max_string_size; ++count)
+	//	m_temp[count]			= white_character;
+
 	m_temp[max_string_size]		= 0;
 	out							= m_temp;
 }
@@ -154,7 +158,7 @@ void CProfiler::clear				()
 
 void CProfiler::show_stats			(CGameFont *game_font, bool show)
 {
-	if (!show)
+ 	if (!show)
 	{
 #ifdef PROFILE_CRITICAL_SECTIONS
 		set_add_profile_portion	(0);
@@ -162,7 +166,8 @@ void CProfiler::show_stats			(CGameFont *game_font, bool show)
 		clear					();
 		return;
 	}
-
+ 
+	
 #ifdef PROFILE_CRITICAL_SECTIONS
 	set_add_profile_portion		(&::add_profile_portion);
 #endif // PROFILE_CRITICAL_SECTIONS
@@ -176,7 +181,8 @@ void CProfiler::show_stats			(CGameFont *game_font, bool show)
 
 	m_section.Enter				();
   
-	if (!m_portions.empty()) {
+	if (!m_portions.empty()) 
+	{
 		std::sort				(m_portions.begin(),m_portions.end(),CProfilePortionPredicate());
 		u64						timer_time = 0;
 		u32						call_count = 0;
@@ -200,7 +206,8 @@ void CProfiler::show_stats			(CGameFont *game_font, bool show)
 
 		m_section.Leave			();
 
-		if (!m_actual) {
+		if (!m_actual) 
+		{
 			u32					max_string_size = 0;
 			TIMERS::iterator	I = m_timers.begin();
 			TIMERS::iterator	E = m_timers.end();
@@ -208,6 +215,7 @@ void CProfiler::show_stats			(CGameFont *game_font, bool show)
 				max_string_size	= _max(max_string_size,compute_string_length(*(*I).first));
 
 			I					= m_timers.begin();
+
 			for ( ; I != E; ++I)
 				convert_string	(*(*I).first,(*I).second.m_name,max_string_size);
 
@@ -223,7 +231,9 @@ void CProfiler::show_stats			(CGameFont *game_font, bool show)
 
 	TIMERS::iterator			I = m_timers.begin();
 	TIMERS::iterator			E = m_timers.end();
-	for ( ; I != E; ++I) {
+
+	for ( ; I != E; ++I)
+	{
 		if ((*I).second.m_update_time != Device.dwTimeGlobal)
 			(*I).second.m_time	*= .99f;
 
@@ -254,9 +264,9 @@ void CProfiler::show_stats			(CGameFont *game_font, bool show)
 		}
 		else
 		{
+			/*
 			Msg(
-				//			"%s.. %8.3f %8.3f %8.3f %8.3f %8.3f %8d %12.3f",
-				"%s%c%c %8.3f %8.3f %8.3f %6.1f %8d %12.3f",
+ 				"%s%c%c %8.3f %8.3f %8.3f %6.1f %8d %12.3f",
 				*(*I).second.m_name,
 				white_character,
 				white_character,
@@ -269,11 +279,55 @@ void CProfiler::show_stats			(CGameFont *game_font, bool show)
 				(*I).second.m_call_count,
 				(*I).second.m_total_time
 			);
+			*/
 		}
 	}
 
 	if (!g_dedicated_server)
 		game_font->SetColor			(color_xrgb(255,255,255));
+}
+
+void CProfiler::GetServerInfo(CServerInfo* si)
+{
+	TIMERS::iterator			I = m_timers.begin();
+	TIMERS::iterator			E = m_timers.end();
+
+	int i = 0;
+	for (; I != E; ++I)
+	{
+		i += 1;
+
+		if ((*I).second.m_update_time != Device.dwTimeGlobal)
+			(*I).second.m_time *= .99f;
+ 
+		shared_str name = *(*I).second.m_name;
+ 		float TIME = (*I).second.m_time;
+		float average = (*I).second.m_count ? (*I).second.m_total_time / float((*I).second.m_count) : 0.f;
+ 		float max_TIME = (*I).second.m_max_time;
+		float m_calls  = float((*I).second.m_call_count) / m_call_count;
+		u32 call_count = (*I).second.m_call_count;
+		float time_total = (*I).second.m_total_time;
+		
+		string256 tmp;
+
+
+		sprintf(tmp, "time[%.3f] max[%.3f] total[%.0f] name[%s]", //calls[%6.1f] c_count[%8u] 
+			TIME,
+			//average,
+			max_TIME,
+			//m_calls,
+			//call_count,
+			time_total,
+			name.c_str()
+		);	
+
+		string32 temp;
+		si->AddItem(itoa(i, temp, 10), tmp, RGB(128, 255, 255));
+		
+		//Msg(tmp);
+ 
+	}
+
 }
 
 void CProfiler::add_profile_portion	(const CProfileResultPortion &profile_portion)

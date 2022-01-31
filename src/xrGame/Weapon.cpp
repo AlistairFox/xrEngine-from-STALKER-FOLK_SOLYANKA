@@ -1602,7 +1602,7 @@ void CWeapon::reload			(LPCSTR section)
 		m_addon_holder_fov_modifier		= m_holder_fov_modifier;
 	}
 
-	Msg("Reload Offset");
+	//Msg("Reload Offset");
 
 	{
 		Fvector				pos,ypr;

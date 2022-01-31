@@ -1508,6 +1508,17 @@ void CSE_ALifeCreatureActor::UPDATE_Write	(NET_Packet	&tNetPacket)
 	};
 }
 
+bool CSE_ALifeCreatureActor::can_switch_online() const
+{
+	return true;
+};
+
+
+bool CSE_ALifeCreatureActor::can_switch_offline() const
+{
+	return false;
+};
+
 #ifndef XRGAME_EXPORTS
 void CSE_ALifeCreatureActor::FillProps		(LPCSTR pref, PropItemVec& items)
 {

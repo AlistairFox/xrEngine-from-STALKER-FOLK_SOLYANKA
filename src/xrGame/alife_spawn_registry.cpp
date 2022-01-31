@@ -70,6 +70,7 @@ void CALifeSpawnRegistry::load				(IReader &file_stream, LPCSTR game_name)
 	chunk->close				();
 
 	string_path					file_name;
+	
 	/*
 	if (g_pGamePersistent->GameType() == eGameIDSingle) {
 		bool						file_exists = !!FS.exist(file_name, "$game_spawn$", *m_spawn_name, ".spawn");

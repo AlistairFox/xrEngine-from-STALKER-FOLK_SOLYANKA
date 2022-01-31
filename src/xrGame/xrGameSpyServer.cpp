@@ -237,9 +237,16 @@ void xrGameSpyServer::Assign_ServerType( string512& res )
 	xr_strcpy( res, "# Server started without users list." );
 	Msg( res );
 }
+#include "profiler.h"
 
 void xrGameSpyServer::GetServerInfo( CServerInfo* si )
 {
+	if (psDeviceFlags.test(rsProfiler))
+	{
+		profiler().GetServerInfo(si);
+		return;
+	}
+
 	string32 tmp, tmp2;
 
 	si->AddItem( "Server name", HostName.c_str(), RGB(128,128,255) );

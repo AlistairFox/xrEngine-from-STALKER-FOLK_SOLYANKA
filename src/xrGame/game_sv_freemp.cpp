@@ -471,9 +471,7 @@ void game_sv_freemp::Update()
 			CSE_ALifeInventoryBox* box = smart_cast<CSE_ALifeInventoryBox*>(E);
 
 			if (box)
-			{
 				save_inventoryBox(box);
-			}
 		}
 		oldTimeInventoryBoxSave = Device.dwTimeGlobal;
 	}

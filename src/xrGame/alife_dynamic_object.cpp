@@ -115,7 +115,8 @@ bool CSE_ALifeDynamicObject::synchronize_location	()
 
 	return						(true);
 }
-
+#include "Level.h"
+#include "Actor.h"
 void CSE_ALifeDynamicObject::try_switch_online		()
 {
 	CSE_ALifeSchedulable						*schedulable = smart_cast<CSE_ALifeSchedulable*>(this);
@@ -139,29 +140,74 @@ void CSE_ALifeDynamicObject::try_switch_online		()
 		alife().switch_online	(this);
 		return;
 	}
-
-	if (alife().graph().actor()->o_Position.distance_to(o_Position) > alife().online_distance()) {
+ 
+	/*
+	if (alife().graph().actor()->o_Position.distance_to(o_Position) > alife().online_distance())
+	{
 		on_failed_switch_online();
 		return;
 	}
+    */
+
+	bool distance = false;
+
+	for (auto player : Level().game->players)
+	{
+		CObject* obj = Level().Objects.net_Find(player.second->GameID);
+		CActor* actor = smart_cast<CActor*>(obj);
+		if (actor)
+		if (actor->Position().distance_to(o_Position) < alife().online_distance())
+		{
+			distance = true;
+			break;
+		}
+	}
+ 
+	if (!distance)
+	{
+		on_failed_switch_online();
+		return;
+	}
+	
 
 	alife().switch_online		(this);
 }
+
 
 void CSE_ALifeDynamicObject::try_switch_offline		()
 {
 	if (!can_switch_offline())
 		return;
 	
-	if (!can_switch_online()) {
+	if (!can_switch_online())
+	{
 		alife().switch_offline	(this);
 		return;
 	}
 
+	/*
 	if (alife().graph().actor()->o_Position.distance_to(o_Position) <= alife().offline_distance())
 		return;
+  	*/
 
-	alife().switch_offline		(this);
+	bool distance = false;
+
+	for (auto player : Level().game->players)
+	{
+		CObject* obj = Level().Objects.net_Find(player.second->GameID);
+		CActor* actor = smart_cast<CActor*>(obj);
+		if (actor)
+		if (actor->Position().distance_to(o_Position) < alife().offline_distance())
+		{
+			distance = true;
+			break;
+		}
+	}
+
+	if (distance)
+		return;
+ 
+ 	alife().switch_offline		(this);
 }
 
 bool CSE_ALifeDynamicObject::redundant				() const
