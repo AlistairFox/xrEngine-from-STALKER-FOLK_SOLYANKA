@@ -91,9 +91,11 @@ void	CObjectList::o_sleep		( CObject*		O		)
 }
 #include "../xrServerEntities/clsid_game.h"
 
+extern int updateCL_Rate;
+
 void	CObjectList::SingleUpdate	(CObject* O)
 {
-	if ( Device.dwFrame == O->dwFrame_UpdateCL ) 
+	if ( Device.dwTimeGlobal - O->dwFrame_UpdateCL < 1000 / updateCL_Rate )
 	{
 #ifdef DEBUG
 //		if (O->getDestroy())
@@ -117,14 +119,11 @@ void	CObjectList::SingleUpdate	(CObject* O)
 		SingleUpdate			(O->H_Parent());
 
 	Device.Statistic->UpdateClient_updated	++;
-	O->dwFrame_UpdateCL			= Device.dwFrame;
+	O->dwFrame_UpdateCL			= Device.dwTimeGlobal;
 
 //	Msg							("[%d][0x%08x]IAmNotACrowAnyMore (CObjectList::SingleUpdate)", Device.dwFrame, dynamic_cast<void*>(O));
 
-  
 	O->UpdateCL();
- 
-
 
 	VERIFY3						(O->dbg_update_cl == Device.dwFrame, "Broken sequence of calls to 'UpdateCL'",*O->cName());
 #if 0//ndef DEBUG
@@ -191,8 +190,7 @@ void CObjectList::clear_crow_vec(Objects& o)
 	o.clear_not_free();
 }
 
-u32 time_update;
-u32 updateCL_time_ms;
+extern u32 updataCL_time_ms;
 
 void CObjectList::Update		(bool bForce)
 {
@@ -268,19 +266,8 @@ void CObjectList::Update		(bool bForce)
 			for (CObject** i = b; i != e; ++i)
 				SingleUpdate			(*i);
 
-			updateCL_time_ms += time.GetElapsed_ms();
+			updataCL_time_ms += time.GetElapsed_ms();
 			
-			//Msg("Time Update [%d]", time.GetElapsed_ms());
-
-			if (Device.dwTimeGlobal - time_update > 1000)
-			{
-				Msg("Time UpdateCL [%d]", updateCL_time_ms);
-				time_update = Device.dwTimeGlobal;
-				updateCL_time_ms = 0;
-			}
-
-
-
 			Device.Statistic->UpdateClient.End		();
 		}
 	}

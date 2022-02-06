@@ -246,27 +246,7 @@ void CBaseMonster::net_Import(NET_Packet& P)
 		u32 sound_delay = 0;
 
 		u16 u_motion_idx;
-		// u8 u_motion_slot;
-		
-		if (Level().CurrentControlEntity())
-		{
-			float dist_120 = 450 * 450;
-
-			float dist = Level().CurrentControlEntity()->Position().distance_to_sqr(this->Position());
-					 			  
-			if (dist < dist_120)
-			{
-				setVisible(TRUE);
-				setEnabled(TRUE);
-			}
-			else
-			{
-				setVisible(FALSE);
-				setEnabled(FALSE);
-			}
-		}
-		
-		
+ 
 		P.r_u8(flags.flags);
 
 		if (flags.test(sync_flags::fHasCustomSyncFlag))
@@ -287,8 +267,7 @@ void CBaseMonster::net_Import(NET_Packet& P)
 		}
 		
 		P.r_angle8(fv_direction.pitch);
-		//P.r_angle8(fv_direction.roll);
-		P.r_angle8(fv_direction.yaw);
+ 		P.r_angle8(fv_direction.yaw);
 
 		if (flags.test(sync_flags::fSndPlayNoDelay))
 		{
@@ -354,12 +333,12 @@ void CBaseMonster::net_Import(NET_Packet& P)
 		{
 			sound().play(sound_type, 0, 0, sound_delay);
 		}
-		
-		// apply animation
-		if (this->getVisible())
-			ApplyAnimation(u_motion_idx, 0, flags.test(sync_flags::fAnimNoLoop));
 
-		 
+		// apply animation
+ 		ApplyAnimation(u_motion_idx, 0, flags.test(sync_flags::fAnimNoLoop));
+
+		setVisible(TRUE);
+		setEnabled(TRUE);
 	}
 }
 

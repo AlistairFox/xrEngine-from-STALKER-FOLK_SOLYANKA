@@ -90,63 +90,21 @@ void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 
 	shared_str name;
 	P.r_stringZ(name);
+
+	shared_str name_prew;
+	P.r_stringZ(name_prew);
  
- 
-	if (OnClient() && g_pGamePersistent && Device.dwFrame % 60 == 0)
+	if (!Device.Paused() && OnClient() && g_pGamePersistent && name_prew.size() > 0 && name.size() > 0)
 	{
  		g_pGamePersistent->Environment().wfx_time = wfx_time;
 
-		if (wfx_time < 1)
+		if (wfx_time > 1)
 		{
-			if (old_time_env != EnvironmentTimeFactor || just_Connected)
-			{
-				GamePersistent().Environment().Invalidate();
-				GamePersistent().Environment().SetGameTime(GameEnvironmentTime, EnvironmentTimeFactor);
-				old_time_env = EnvironmentTimeFactor;
-				need_wait_update_name = true;
-				just_Connected = false;
-				dwTimeStart = Device.dwTimeGlobal;
-			}
-		}
-
-		if (!need_wait_update_name || wfx_time > 1)
-		{
-			if (xr_strcmp(GamePersistent().Environment().CurrentWeatherName, name))
-			{
-				if (wfx_time > 1)
-				{
-					Msg("Weather FX Set[%s] WFX_TIME [%f]", name.c_str(), wfx_time);
-					if (!GamePersistent().Environment().StartWeatherFXFromTime(name, wfx_time))
-					{
-						GamePersistent().Environment().SetWeatherFX(name);
-					}
-				}
-				else
-				{
-					Msg("Weather Set[%s]", name.c_str());
-					GamePersistent().Environment().SetWeather(name, false);
-				}
-			}
+			g_pGamePersistent->Environment().StartWeatherFXFromTime(name, wfx_time);
 		}
 		else
 		{
-			if (Device.dwTimeGlobal - dwTimeStart > 1000)
-			{
-				need_wait_update_name = false;
-				
-				if (xr_strcmp(GamePersistent().Environment().CurrentWeatherName, name))
-				{
-					
-					if (!GamePersistent().Environment().SetWeatherFX(name))
-					{
-						GamePersistent().Environment().SetWeather(name, true);
-					}
-					 
-					Msg("Weather [%s]", name.c_str());
-				}	
-
-				dwTimeStart = Device.dwTimeGlobal;
-			}
+			g_pGamePersistent->Environment().StartWeatherMP(name_prew, name);
 		}
  	}
 }

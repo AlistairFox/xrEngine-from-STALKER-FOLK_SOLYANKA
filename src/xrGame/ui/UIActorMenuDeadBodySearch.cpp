@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "UIActorMenu.h"
 #include "UIDragDropListEx.h"
 #include "UICharacterInfo.h"
@@ -25,7 +25,7 @@ void move_item_from_to (u16 from_id, u16 to_id, u16 what_id)
 	P.w_u16									(what_id);
 	CGameObject::u_EventSend				(P);
 
-	//������� ��������� - ����� ���� 
+	//другому инвентарю - взять вещь 
 	CGameObject::u_EventGen					(P, GE_TRADE_BUY, to_id);
 	P.w_u16									(what_id);
 	CGameObject::u_EventSend				(P);
@@ -45,6 +45,43 @@ bool move_item_check( PIItem itm, CInventoryOwner* from, CInventoryOwner* to, bo
 	}
 	move_item_from_to( from->object_id(), to->object_id(), itm->object_id() );
 	return true;
+}
+
+void move_item_from_to_INVBOX(u16 from_id, u16 to_id, u16 what_id)
+{
+	NET_Packet P;
+	CGameObject::u_EventGen(P, GE_TRADE_SELL, from_id);
+	P.w_u16(what_id);
+	CGameObject::u_EventSend(P);
+	//другому инвентарю - взять вещь 
+	CGameObject::u_EventGen(P, GE_TRADE_BUY, to_id);
+	P.w_u16(what_id);
+
+	bool find = false;
+	LPCSTR name;
+
+	for (auto pl : Level().game->players)
+	{
+		if (pl.second->GameID == from_id)
+		{
+			name = pl.second->getName();
+			find = true;
+			break;
+		}
+	}
+
+	if (find)
+	{
+		P.w_u8(1);
+		P.w_stringZ(name);
+		P.w_u16(from_id);
+	}
+	else
+	{
+		P.w_u8(0);
+	}
+
+	CGameObject::u_EventSend(P);
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -179,7 +216,8 @@ bool CUIActorMenu::ToDeadBodyBag(CUICellItem* itm, bool b_use_cursor_pos)
 	}
 	else // box
 	{
-		move_item_from_to				(m_pActorInvOwner->object_id(), m_pInvBox->ID(), iitem->object_id());
+		move_item_from_to_INVBOX		(m_pActorInvOwner->object_id(), m_pInvBox->ID(), iitem->object_id());
+		//move_item_from_to				(m_pActorInvOwner->object_id(), m_pInvBox->ID(), iitem->object_id());
 	}
 	
 	UpdateDeadBodyBag();
@@ -241,11 +279,17 @@ void CUIActorMenu::TakeAllFromInventoryBox()
 		for ( u32 j = 0; j < ci->ChildsCount(); ++j )
 		{
 			PIItem j_item = (PIItem)(ci->Child(j)->m_pData);
-			move_item_from_to( m_pInvBox->ID(), actor_id, j_item->object_id() );
+			//move_item_from_to( m_pInvBox->ID(), actor_id, j_item->object_id() );
+
+			move_item_from_to_INVBOX(m_pInvBox->ID(), actor_id, j_item->object_id());
 		}
 
 		PIItem item = (PIItem)(ci->m_pData);
-		move_item_from_to( m_pInvBox->ID(), actor_id, item->object_id() );
-	}//for i
+		
+		//move_item_from_to( m_pInvBox->ID(), actor_id, item->object_id() );
+		move_item_from_to_INVBOX(m_pInvBox->ID(), actor_id, item->object_id());
+	}
+	
+	 
 	m_pDeadBodyBagList->ClearAll( true ); // false
 }

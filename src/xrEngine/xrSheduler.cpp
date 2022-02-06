@@ -413,8 +413,8 @@ void CSheduler::Pop					()
 	Items.pop_back	();
 }
 
-u32 old_time;
-u32 save_time_ms;
+extern u32 shedule_time_ms;
+
 
 #include "../xrServerEntities/clsid_game.h"
 #include "IGame_Persistent.h"
@@ -451,6 +451,11 @@ void CSheduler::ProcessStep			()
 		float	scale				= T.Object->shedule_Scale	(); 
 		u32		dwUpdate			= dwMin+iFloor(float(dwMax-dwMin)*scale);
 		clamp	(dwUpdate,u32(_max(dwMin,u32(20))),dwMax);
+
+		if (scale > 1)
+		{
+			dwUpdate *= scale;
+		}
 	 
 		m_current_step_obj = T.Object;
  
@@ -469,6 +474,7 @@ void CSheduler::ProcessStep			()
 		TNext.dwTimeOfLastExecute	= dwTime;
 		TNext.Object				= T.Object;
 		TNext.scheduled_name		= T.Object->shedule_Name();
+
 		ItemsProcessed.push_back	(TNext);
  
 		if ((i % 3) != (3 - 1))
@@ -482,15 +488,7 @@ void CSheduler::ProcessStep			()
 		}
 	}
 
-	save_time_ms += eTimer.GetElapsed_ms();
-
-	if (Device.dwTimeGlobal - old_time > 1000)
-	{
-		//Msg("Shedule Time [%d] DeviceDwTime[%d]", save_time_ms, Device.dwTimeGlobal);
-		save_time_ms = 0;
-		old_time = Device.dwTimeGlobal;
-	}
-	 
+	shedule_time_ms += eTimer.GetElapsed_ms();
 
 	// Push "processed" back
 	while (ItemsProcessed.size())

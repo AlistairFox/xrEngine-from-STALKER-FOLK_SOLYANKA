@@ -8,6 +8,8 @@ class CInventoryBox :public CGameObject
 
 public:
 	xr_vector<u16>		m_items;
+	xr_map<u16, shared_str> m_safe_items;
+	bool personal_safe;
 
 protected:
 	bool	m_in_use;
@@ -37,5 +39,10 @@ public:
 
 protected:
 				void	SE_update_status				();
+
+public:
+				void SE_Read_items_safe(NET_Packet packet);
+
+				void SE_Write_items_safe(ClientID id);
 
 };

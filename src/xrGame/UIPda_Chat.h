@@ -18,11 +18,13 @@ class UIPdaChat : public CUIWindow, public CUIWndCallback
 {
 	typedef CUIWindow	inherited;
 
-	WINDOW_LIST player_chat;
 	CUIXml xml;
 	CActor* LocalActor;
 	CActor* SecondActor;
 
+	ClientID LocalActorCL;
+	ClientID SecondActorCL;
+ 
 	CUI3tButton* send_money_button;
 	CUI3tButton* send_msg_to_user;
 	CUIScrollView* chat_users;
@@ -44,19 +46,29 @@ class UIPdaChat : public CUIWindow, public CUIWndCallback
 	CUIEditBox* chat_editbox;
 	CUIEditBox* money_editbox;
 
+	//GLOBAL CHAT
+	CUITextWnd* CaptionMode;
+	CUI3tButton* switch_anonimous;
+
+
 	virtual bool	OnMouseAction(float x, float y, EUIMessages mouse_action);
 	void xr_stdcall     button_click_send_msg(CUIWindow* w, void* d);
 	void xr_stdcall     button_click_send_money(CUIWindow* w, void* d);
 	virtual void		SendMessage(CUIWindow* pWnd, s16 msg, void* pData);
-	void AddNewsData(GAME_NEWS_DATA data, u16 PlayerID);
+	void AddNewsData(GAME_NEWS_DATA data, ClientID PlayerID);
 	void SendPacket(GAME_NEWS_DATA data);
-	u32 old_size = 0;
+ 
 	u32 old_second_id = 0;
-	u32 old_time = 0;
+	u8 old_chat = 0;
+
+	bool Anonymous = false;
+	bool ModeGlobalChat = true;
 
 public:
 
-	xr_map<u16, xr_vector<GAME_NEWS_DATA>> news_data;
+	xr_map<ClientID, xr_vector<GAME_NEWS_DATA>> news_data;
+
+	xr_vector<GAME_NEWS_DATA> global_chat;
 
 	UIPdaChat();
 	virtual ~UIPdaChat();

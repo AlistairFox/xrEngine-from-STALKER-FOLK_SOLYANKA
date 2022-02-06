@@ -117,8 +117,7 @@ void UIPdaChat::Show(bool status)
 void UIPdaChat::Update()
 {
 	inherited::Update();
-
-	if (Device.dwFrame % 60 == 0 && CaptionOnline)
+	if (Device.dwFrame % 20 == 0)
 	{
 		string32 tmp;
 
@@ -126,86 +125,165 @@ void UIPdaChat::Update()
 		xr_strcat(online, "Онлайн: ");
 		xr_strcat(online, itoa(Game().players.size(), tmp, 10));
 		CaptionOnline->SetText(online);
+		CaptionMode->SetText(ModeGlobalChat ? "Общий чат" : "Приватный чат");
 
-		if (LocalActor)
+		chat_users->Clear();
+
+		bool f_Second = false;
+		bool f_Local = false;
+
+		for (auto player : Level().game->players)
 		{
+			if (SecondActor)
+			{
+				if (SecondActor->ID() == player.second->GameID)
+				{
+					SecondActorCL = player.first;
+					f_Second = true;
+				}
+			}
+
+			if (LocalActor)
+			{
+				if (LocalActor->ID() == player.second->GameID)
+				{
+					LocalActorCL = player.first;
+					f_Local = true;
+				}
+			}
+
+			if (player.first == Game().local_svdpnid)
+				continue;
+
+			CActor* actor = smart_cast<CActor*>(Level().Objects.net_Find(player.second->GameID));
+			if (actor)
+			{
+				CUICharacterInfo* info = xr_new<CUICharacterInfo>();
+				info->InitCharacterInfo(&xml, "character_info");
+				info->InitCharacterMP(actor->cast_inventory_owner());
+
+				chat_users->AddWindow(info, true);
+			}
+		}
+
+		if (!f_Second)
+		{
+			SecondActor = 0;
+			SecondActorCL = 0;
+		}
+
+		if (!f_Local)
+		{
+			LocalActor = 0;
+			LocalActorCL = 0;
+		}
+
+		CObject* obj = Level().Objects.net_Find(Game().local_player->GameID);
+		CActor* act = smart_cast<CActor*>(obj);
+
+		if (act)
+		{
+			LocalActor = act;
+			if (infoActor)
+				infoActor->InitCharacterMP(act);
+
+
 			string32 money1 = { 0 };
 			xr_strcat(money1, itoa(LocalActor->get_money(), tmp, 10));
 			xr_strcat(money1, " RU");
+			if (Anonymous)
+				xr_strcat(money1, " (Аноним)");
+
 			player_1_money->SetText(money1);
-
-			infoActor->InitCharacterMP(LocalActor);
 		}
 
-		if (SecondActor)
+		if (ModeGlobalChat == 0)
 		{
-			string32 money2 = { 0 };
-			xr_strcat(money2, itoa(SecondActor->get_money(), tmp, 10));
-			xr_strcat(money2, " RU");
-			//player_2_money->SetText(money2);
-			//player_2_money->Show(true);
+			Anonymous = false;
+			if (switch_anonimous->IsShown())
+				switch_anonimous->Show(false);
 
-			infoPartner->InitCharacterMP(SecondActor);
-		}
-
-		//if (Device.dwFrame % 30 == 0)
-		{
-			chat_users->Clear();
-
-			for (auto player : Level().game->players)
+			if (SecondActor)
 			{
-				if (player.first == Game().local_svdpnid)
-					continue;
-
-				CActor* actor = smart_cast<CActor*>(Level().Objects.net_Find(player.second->GameID));
-				if (actor)
+				if (old_chat != ModeGlobalChat || old_second_id != SecondActorCL.value())
 				{
-					CUICharacterInfo* info = xr_new<CUICharacterInfo>();
-					info->InitCharacterInfo(&xml, "character_info");
-					info->InitCharacterMP(actor->cast_inventory_owner());
-
-					chat_users->AddWindow(info, true);
-				}
-			}
-
-			//old_time = Device.dwTimeGlobal;
-		}
-
-		if (!SecondActor)
-		{
-			money_editbox->Show(false);
-			send_money_button->Show(false);
-		}
-		else
-		{
-			money_editbox->Show(true);
-			send_money_button->Show(true);
-		}
-
-		if (chat_text && SecondActor)
-		{
-			for (auto id : news_data)
-			{
-				if (id.first == SecondActor->ID() && old_size != id.second.size() ||
-					id.first == SecondActor->ID() && old_second_id != SecondActor->ID())
-				{
-					old_size = id.second.size();
-					old_second_id = SecondActor->ID();
+					old_chat = ModeGlobalChat;
+					old_second_id = SecondActorCL.value();
 					chat_text->Clear();
-					for (auto news : id.second)
-					{
-						CUINewsItemWnd* itm_res = xr_new<CUINewsItemWnd>();
-						itm_res->Init(xml, "news_item");
-						itm_res->Setup(news);
 
-						chat_text->AddWindow(itm_res, true);
+					for (auto id : news_data)
+					{
+						if (id.first == SecondActorCL)
+							for (auto news : id.second)
+							{
+								CUINewsItemWnd* itm_res = xr_new<CUINewsItemWnd>();
+								itm_res->Init(xml, "news_item");
+								itm_res->Setup(news);
+
+								chat_text->AddWindow(itm_res, true);
+							}
 					}
 				}
 			}
+			else
+			{
+				chat_text->Clear();
+			}
+
+
+			if (SecondActor)
+			{
+				string32 money2 = { 0 };
+				xr_strcat(money2, itoa(SecondActor->get_money(), tmp, 10));
+				xr_strcat(money2, " RU");
+				infoPartner->Show(true);
+				infoPartner->InitCharacterMP(SecondActor);
+			}
+
+			if (!SecondActor)
+			{
+				if (money_editbox->IsShown())
+					money_editbox->Show(false);
+				if (send_money_button->IsShown())
+					send_money_button->Show(false);
+			}
+			else
+			{
+				if (!money_editbox->IsShown())
+					money_editbox->Show(true);
+				if (!send_money_button->IsShown())
+					send_money_button->Show(true);
+			}
+		}
+		else
+		{
+			if (old_chat != ModeGlobalChat || chat_text->GetSize() == 0)
+			{
+				old_chat = ModeGlobalChat;
+				old_second_id = 0;
+				chat_text->Clear();
+
+				for (auto news : global_chat)
+				{
+					CUINewsItemWnd* itm_res = xr_new<CUINewsItemWnd>();
+					itm_res->Init(xml, "news_item");
+					itm_res->Setup(news);
+					chat_text->AddWindow(itm_res, true);
+				}
+			}
+
+			if (money_editbox->IsShown())
+				money_editbox->Show(false);
+			if (send_money_button->IsShown())
+				send_money_button->Show(false);
+			if (infoPartner->IsShown())
+				infoPartner->Show(false);
+			if (!switch_anonimous->IsShown())
+				switch_anonimous->Show(true);
+			if (SecondActor)
+				SecondActor = 0;
 		}
 	}
-
-
 }
 
 void UIPdaChat::ResetAll()
@@ -322,9 +400,12 @@ void xr_stdcall UIPdaChat::button_click_send_money(CUIWindow* w, void* d)
 
 }
 
-void UIPdaChat::AddNewsData(GAME_NEWS_DATA data, u16 PlayerID)
+void UIPdaChat::AddNewsData(GAME_NEWS_DATA data, ClientID PlayerID)
 {
-	news_data[PlayerID].push_back(data);
+	if (PlayerID.value() != 0)
+		news_data[PlayerID].push_back(data);
+	else
+		global_chat.push_back(data);
 
 	Msg("Игрок [%s] Отправил сообщение[%s] ", data.news_caption.c_str(), data.news_text.c_str());
 }
@@ -336,49 +417,105 @@ void UIPdaChat::RecivePacket(NET_Packet& P)
 {
 	Msg("Recive Packet");
 
-	GAME_NEWS_DATA data;
+	u8 Global;
+	P.r_u8(Global);
 
-	data.m_type = data.eNews;
-
-	u16 GameID;
-	P.r_u16(GameID);
-
-	shared_str news_caption;
-	P.r_stringZ(news_caption);
-	shared_str news_text;
-	P.r_stringZ(news_text);
-	shared_str texture_name;
-	P.r_stringZ(texture_name);
-
-
-	data.news_caption = news_caption;
-	data.news_text = news_text;
-	data.receive_time = Level().GetGameTime();
-	data.texture_name = texture_name;
-
-	AddNewsData(data, GameID);
-
-
+	if (Global == 1)
 	{
-		GAME_NEWS_DATA data_news;
+		GAME_NEWS_DATA data;
+		data.m_type = data.eNews;
 
-		data_news.news_caption = "Получено новое сообщение";
-		data_news.news_text = news_text;
-		data_news.texture_name = texture_name;
+		//		ClientID GameID;
+		//		P.r_clientID(GameID);
+		shared_str news_caption;
+		P.r_stringZ(news_caption);
+		shared_str news_text;
+		P.r_stringZ(news_text);
+		shared_str texture_name;
+		P.r_stringZ(texture_name);
 
-		if (CurrentGameUI())
+		data.news_caption = news_caption;
+		data.news_text = news_text;
+		data.receive_time = Level().GetGameTime();
+		data.texture_name = texture_name;
+
+		AddNewsData(data, 0);
+
+		if (old_chat == 1)
 		{
-			if (CurrentGameUI()->UIMainIngameWnd)
-			{
-				CurrentGameUI()->m_pMessagesWnd->AddIconedPdaMessage(&data_news);
-
-				//luabind::functor<void>		functor;
-				//R_ASSERT2(ai().script_engine().functor("news_manager.PlaySnd", functor), "Cant Find (news_manager.PlaySnd)");
-				//functor();
-			}
+			CUINewsItemWnd* itm_res = xr_new<CUINewsItemWnd>();
+			itm_res->Init(xml, "news_item");
+			itm_res->Setup(data);
+			chat_text->AddWindow(itm_res, true);
 		}
 
+		if (CurrentGameUI())
+			if (CurrentGameUI()->UIMainIngameWnd)
+				CurrentGameUI()->m_pMessagesWnd->AddIconedPdaMessage(&data);
+
 	}
+	else
+	{
+		GAME_NEWS_DATA data;
+		data.m_type = data.eNews;
+
+		ClientID SenderID;
+		P.r_clientID(SenderID);
+		ClientID GameID;
+		P.r_clientID(GameID);
+		shared_str news_caption;
+		P.r_stringZ(news_caption);
+		shared_str news_text;
+		P.r_stringZ(news_text);
+		shared_str texture_name;
+		P.r_stringZ(texture_name);
+
+
+		data.news_caption = news_caption;
+		data.news_text = news_text;
+		data.receive_time = Level().GetGameTime();
+		data.texture_name = texture_name;
+
+		if (GameID == LocalActorCL)
+			AddNewsData(data, SenderID);
+		else
+			AddNewsData(data, GameID);
+
+		if (old_chat == 0)
+		{
+			if (SecondActorCL == GameID)
+			{
+				CUINewsItemWnd* itm_res = xr_new<CUINewsItemWnd>();
+				itm_res->Init(xml, "news_item");
+				itm_res->Setup(data);
+				chat_text->AddWindow(itm_res, true);
+			}
+
+			if (LocalActorCL == GameID)
+			{
+				CUINewsItemWnd* itm_res = xr_new<CUINewsItemWnd>();
+				itm_res->Init(xml, "news_item");
+				itm_res->Setup(data);
+				chat_text->AddWindow(itm_res, true);
+			}
+
+
+		}
+
+		{
+			GAME_NEWS_DATA data_news;
+
+			data_news.news_caption = "Получено новое сообщение";
+			data_news.news_text = news_text;
+			data_news.texture_name = texture_name;
+
+			if (LocalActorCL != GameID)
+				if (CurrentGameUI())
+					if (CurrentGameUI()->UIMainIngameWnd)
+						CurrentGameUI()->m_pMessagesWnd->AddIconedPdaMessage(&data_news);
+		}
+	}
+
 }
 
 void UIPdaChat::SendPacket(GAME_NEWS_DATA data)
@@ -387,21 +524,13 @@ void UIPdaChat::SendPacket(GAME_NEWS_DATA data)
 
 	Game().u_EventGen(P, GAME_EVENT_PDA_CHAT, -1);
 
-	ClientID id;
-
-	for (auto pl : Game().players)
-	{
-		if (pl.second->GameID == SecondActor->ID())
-		{
-			id = pl.first;
-		}
-	}
-
 	P.w_u8(0);
+	P.w_u8(ModeGlobalChat);
 
-	P.w_clientID(id);
-	P.w_u16(LocalActor->ID());
+	if (ModeGlobalChat == 0)
+		P.w_clientID(SecondActorCL);
 
+	P.w_clientID(LocalActorCL);
 	shared_str news_caption = data.news_caption;
 	P.w_stringZ(news_caption);
 	shared_str news_text = data.news_text;
@@ -409,7 +538,7 @@ void UIPdaChat::SendPacket(GAME_NEWS_DATA data)
 	shared_str texture_name = data.texture_name;
 	P.w_stringZ(texture_name);
 
-	//Msg("---export caption[%s] / text [%s] / text [%s]", news_caption.c_str(), news_text.c_str(), texture_name.c_str());
+	//Msg("---export caption[%s] / text [%s] / texture [%s]", news_caption.c_str(), news_text.c_str(), texture_name.c_str());
 
 	Game().u_EventSend(P);
 }

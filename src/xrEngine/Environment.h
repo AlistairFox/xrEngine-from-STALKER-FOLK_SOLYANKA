@@ -270,6 +270,15 @@ public:
     
     EnvVec*					CurrentWeather;
     shared_str				CurrentWeatherName;
+
+	EnvVec*					PrewWeather;
+	shared_str				PrewWeatherName;
+
+	bool					StartWeatherMP(shared_str name1, shared_str name2);
+
+	void					SelectEnvsMP(EnvVec* envs0, EnvVec* envs1, CEnvDescriptor*& e0, CEnvDescriptor*& e1, float gt);
+
+
 	shared_str				CurrentCycleName;
 
 	EnvsMap					WeatherCycles;

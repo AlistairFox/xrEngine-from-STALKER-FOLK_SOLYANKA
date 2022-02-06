@@ -231,31 +231,8 @@ void CAI_Stalker::net_Import(NET_Packet& P)
 			//TODO: disable interpolation?
 		}
 		
-		// Pavel: create structure for animation?
-		
+		// Pavel: create structure for animation?	
 
-		//	Msg("Import[%d] [%.0f][%.0f][%.0f]", this->ID(), state.fv_position.x, state.fv_position.y, state.fv_position.z);
- 
-		if (Level().CurrentControlEntity())
-		{		  
-			float dist_120 = 450 * 450;
-
-			float dist = Level().CurrentControlEntity()->Position().distance_to_sqr(this->Position());
-
-			if (dist < dist_120)
-			{
-				//Msg("Distance %f", dist);
-				setVisible(TRUE);
-				setEnabled(TRUE);
-			}
-			else
-			{
-				setVisible(FALSE);
-				setEnabled(FALSE);
-			}
-		}
-	
-		if (this->getVisible())
 		if (g_Alive())
 		{
 			ApplyAnimation(
@@ -269,7 +246,8 @@ void CAI_Stalker::net_Import(NET_Packet& P)
 			//Msg("StateTime torso[%.3f] legs[%.3f] head[%.3f] script[%.3f]", state.u_time_torso, state.u_time_legs, state.u_time_head, state.u_time_script);
 		}
 
-		
+		setVisible(TRUE);
+		setEnabled(TRUE);
 		
 	}
 }

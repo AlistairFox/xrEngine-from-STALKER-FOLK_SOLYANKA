@@ -221,6 +221,15 @@ void CTextConsole::OnPaint()
 	EndPaint( m_hLogWnd, &ps );
 }
 
+extern u32 shedule_time_ms = 0;
+extern u32 updataCL_time_ms = 0;
+
+u32 time_update = 0;
+string128 updateCL;
+string128 updateSH;
+
+#include "IGame_Persistent.h"
+
 void CTextConsole::DrawLog( HDC hDC, RECT* pRect )
 {
 	TEXTMETRIC tm;
@@ -312,7 +321,52 @@ void CTextConsole::DrawLog( HDC hDC, RECT* pRect )
 
 			m_server_info.ResetData();
 			g_pGameLevel->GetLevelInfo(&m_server_info);
+
+			m_server_info.AddItem("updateCL", updateCL, RGB(0, 255, 255));
+			m_server_info.AddItem("updateSH", updateSH, RGB(0, 255, 255));
+
+			if (g_pGamePersistent && &g_pGamePersistent->Environment())
+			{
+				if (g_pGamePersistent->Environment().PrewWeatherName.size() > 0)
+				{
+					string128 weather;
+					xr_strcpy(weather, "[");
+					xr_strcat(weather, g_pGamePersistent->Environment().PrewWeatherName.c_str());
+					xr_strcat(weather, "]");
+
+					m_server_info.AddItem("weather1", weather, RGB(255, 0, 255));
+				}
+				if (g_pGamePersistent->Environment().CurrentWeatherName.size() > 0)
+				{
+					string128 weather2;
+					xr_strcpy(weather2, "[");
+					xr_strcat(weather2, g_pGamePersistent->Environment().CurrentWeatherName.c_str());
+					xr_strcat(weather2, "]");
+
+					m_server_info.AddItem("weather2", weather2, RGB(255, 0, 255));
+				}
+			}
 		}
+
+
+		if (g_pGameLevel && (Device.dwTimeGlobal - time_update > 1000))
+		{
+			string64 tmp = { 0 };
+			xr_strcpy(updateCL, "[");
+			xr_strcat(updateCL, itoa(updataCL_time_ms, tmp, 10));
+			xr_strcat(updateCL, "]");
+
+			xr_strcpy(updateSH, "[");
+			xr_strcat(updateSH, itoa(shedule_time_ms, tmp, 10));
+			xr_strcat(updateSH, "]");
+
+			time_update = Device.dwTimeGlobal;
+			updataCL_time_ms = 0;
+			shedule_time_ms = 0;
+		}
+		 
+
+
 
 		ypos = 5;
 		for (u32 i = 0; i < m_server_info.Size(); ++i)
@@ -337,6 +391,8 @@ void CTextConsole::DrawLog( HDC hDC, RECT* pRect )
 			
 			g_pGameLevel->GetLevelInfo(&m_server_info);
 		}
+
+
 		bool right = false;
 
 		ypos = 5;

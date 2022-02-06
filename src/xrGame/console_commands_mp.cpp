@@ -3393,27 +3393,6 @@ public:
 
 #include "actor_anim_defs.h"
 #include "cameralook.h"
-#include "game_cl_freemp.h"
-
-class CCC_SET_VOICE_GAIN : public IConsole_Command
-{
-public:
-	CCC_SET_VOICE_GAIN(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
-	
-	virtual void Execute(LPCSTR args)
-	{						
-		float gain;
-		sscanf(args, "%f", gain);
-
- 		game_cl_freemp* freemp = smart_cast<game_cl_freemp*>(Level().game);
-		if (freemp)
-		{
-			freemp->SetGain(gain);
-		}
-	}
-
-};
-
 
 class CCC_TeleportToPosition : public IConsole_Command
 {
@@ -3458,18 +3437,105 @@ public:
 	}
 };
 
+class CCC_TeleportPlayer : public IConsole_Command
+{
+public:
+	CCC_TeleportPlayer(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
+
+
+	virtual void Execute(LPCSTR args)
+	{
+		if (OnServer())
+		{
+
+			if (!g_pGameLevel || !Level().Server) return;
+			
+			u32 Client_ID, Second_ID;
+			Fvector pos;
+			ClientID id, sec_id;
+			
+			string128 tmp;
+			exclude_raid_from_args(args, tmp, sizeof(tmp));
+
+			sscanf(tmp, "%u %u", &Client_ID, &Second_ID);
+
+			id.set(Client_ID); 
+			sec_id.set(Second_ID);
+
+			game_sv_mp* sv_game = smart_cast<game_sv_mp*>(Level().Server->game);
+
+			if (!sv_game) return;
+
+			if (sv_game)
+			{
+				for (auto pl : Game().players)
+				{
+					if (pl.first == sec_id)
+					{
+						CObject* o = Level().Objects.net_Find(pl.second->GameID);
+						if (o)
+						{
+							sv_game->TeleportPlayerTo(id, pos);
+							pos.set(o->Position());
+						}
+						break;
+					}
+				}			
+			}
+		}
+		else
+		{
+			u32 client_ID;
+			sscanf(args, "%u", &client_ID);
+
+			NET_Packet		P;
+			P.w_begin(M_REMOTE_CONTROL_CMD);
+			string128 str;
+			xr_sprintf(str, "adm_teleport_player %u %u", Game().local_svdpnid, client_ID);
+			P.w_stringZ(str);
+			Level().Send(P, net_flags(TRUE, TRUE));
+		}
+
+	}
+};
+
+class CCC_TeleportToPlayer : public IConsole_Command
+{
+public:
+	CCC_TeleportToPlayer(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
+	virtual void Execute(LPCSTR args)
+	{
+		u32 client_ID;
+		sscanf(args, "%u", &client_ID);
+
+		NET_Packet		P;
+		P.w_begin(M_REMOTE_CONTROL_CMD);
+		string128 str;
+		xr_sprintf(str, "adm_teleport_player %u %u", client_ID, Game().local_svdpnid);
+		P.w_stringZ(str);
+		Level().Send(P, net_flags(TRUE, TRUE));
+	}
+
+};
+
 
 
 extern int PRINT_STACK;
-extern float Shedule_Scale_AI_Stalker;
 
+extern float Shedule_Scale_AI_Stalker = 0;
+extern int Shedule_Radius_Players	  = 0;
+extern float Shedule_Scale_Objects = 0;
 
 void register_mp_console_commands()
 {
+	CMD1(CCC_TeleportToPlayer, "adm_teleport_to_player");
+	CMD1(CCC_TeleportToPlayer, "adm_teleport_player");
 	CMD1(CCC_TeleportToPosition, "adm_teleport");
-	CMD4(CCC_Float, "ai_shedule", &Shedule_Scale_AI_Stalker, 0, 1);
 
-	CMD1(CCC_SET_VOICE_GAIN, "voice_gain");
+
+	CMD4(CCC_Float,   "ai_shedule", &Shedule_Scale_AI_Stalker, 0, 20);
+	CMD4(CCC_Integer, "ai_shedule_dist", &Shedule_Radius_Players, 0, 100);
+	CMD4(CCC_Float, "shedule_objects", &Shedule_Scale_Objects, 0, 20);
 
 	CMD4(CCC_Integer, "call_stack", &PRINT_STACK, 0, 1);
 	CMD1(ÑÑÑ_CheckOutfitCFS, "outfit_path_check");

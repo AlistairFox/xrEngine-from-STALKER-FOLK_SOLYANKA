@@ -455,6 +455,12 @@ void game_sv_freemp::save_inventoryBox(CSE_Abstract* ent)
 			if (item->cast_weapon_ammo())
 				table << "count" << Number(item->cast_weapon_ammo()->m_boxCurr);
 
+			if (box->personal_safe)
+			{
+				if (box->m_safe_items[item->object_id()].size() > 0)
+					table << "player" << String(box->m_safe_items[item->object_id()].c_str());
+			}
+
 			listInventory << table;
 		}
 
@@ -546,7 +552,8 @@ void game_sv_freemp::load_inventoryBox(CSE_Abstract* ent)
 	}
 	else
 		return;
-		
+	
+	if (box && box->Name())
 	for (int i = 0; i != listInventory.size(); i++)
 	{
 		Object table = listInventory.get<Object>(i);
@@ -556,25 +563,32 @@ void game_sv_freemp::load_inventoryBox(CSE_Abstract* ent)
 		if (table.has<String>("Section"))
 			sec = table.get<String>("Section").c_str();
 
-		if (sec == 0)
+		if (!sec)
 			return;
 
-		CSE_Abstract* abs = spawn_begin(sec);
-		abs->ID_Parent = boxs->ID;
-		abs->o_Position = boxs->position();
-		
+		CSE_Abstract* abs = spawn_begin(sec);		
 		if (!abs)
 			continue;
+
+		abs->ID_Parent = boxs->ID;
+		abs->o_Position = boxs->position();
 
 		CSE_ALifeInventoryItem* item = smart_cast<CSE_ALifeInventoryItem*>(abs);
 		CSE_ALifeItemWeapon* wpn = smart_cast<CSE_ALifeItemWeapon*>(abs);
 		CSE_ALifeItemAmmo* wpn_ammo = smart_cast<CSE_ALifeItemAmmo*>(abs);
+		
+		if (table.has<String>("upgrades"))
+		{
+			LPCSTR upgredes = table.get<String>("upgrades").c_str();
+			int counts = _GetItemCount(upgredes);
+			for (int i = 0; i != counts; i++)
+			{
+				string256 upgrede;
+				_GetItem(upgredes, i, upgrede, ',');
 
-		//string2048 updates;
-		//abs->get_upgrades_str(updates);
-	
-		//if (item->has_any_upgrades())
-		//	table << "upgrades" << String(updates);
+				item->add_upgrade(upgrede);
+			}
+		}
 		
 		if (table.has<Number>("condition"))
 			item->m_fCondition = table.get<Number>("condition");
@@ -606,8 +620,19 @@ void game_sv_freemp::load_inventoryBox(CSE_Abstract* ent)
 				wpn_ammo->a_elapsed = table.get<Number>("count");
 		}
 
+		CSE_Abstract* item_sapwn_end = spawn_end(abs, server().GetServerClient()->ID);
+
+		if (box->personal_safe)
+		{
+			if (table.has<String>("player"))
+			{
+				box->m_safe_items[item_sapwn_end->ID] = table.get<String>("player").c_str();
+			}
+
+		}
+
 		//Msg("SpawnInventoryBoxItem [%s] in box [%s]", sec, boxs->name_replace() );
-		spawn_end(abs, server().GetServerClient()->ID);
+
 	}
 	 
 }

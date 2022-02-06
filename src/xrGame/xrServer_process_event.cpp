@@ -10,6 +10,7 @@
 #include "xrServer_Objects_ALife_Items.h"
 #include "xrServer_Objects_ALife_Monsters.h"
 
+#include "InventoryBox.h"
 #include "Level.h"
 #include "game_sv_freemp.h"
  
@@ -491,6 +492,17 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
     case GAME_EVENT_PDA_CHAT:
 	{
 		Process_events_PDA(P, sender);
+	}break;
+
+	case GE_INV_BOX_PRIVATE_SAFE:
+	{
+		CObject* obj = Level().Objects.net_Find(destination);
+		CInventoryBox* box = smart_cast<CInventoryBox*>(obj);
+		if (box)
+		{
+			ClientID id; P.r_clientID(id);
+			box->SE_Write_items_safe(id);
+		}
 	}break;
 
 	default:

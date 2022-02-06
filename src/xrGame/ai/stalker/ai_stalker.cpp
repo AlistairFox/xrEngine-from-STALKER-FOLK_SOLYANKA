@@ -1314,42 +1314,38 @@ void CAI_Stalker::on_after_change_team			()
 	agent_manager().member().register_in_combat	(this);
 }
 
-extern float Shedule_Scale_AI_Stalker = 0.0f;
+extern float Shedule_Scale_AI_Stalker;
+extern int Shedule_Radius_Players;
 
 float CAI_Stalker::shedule_Scale				()
 {
-	//if (sniper_update_rate())
-	//	return				0.0f;
-
- 	/*
-	if (memory().enemy().selected())
-	{
-		return Position().distance_to(memory().enemy().selected()->Position()) / 50;
-	}
-	*/
 	if (Game().players.size() > 0)
 	{
 		bool finded = false;
-
+		u32 dist = 0;
 		for (auto pl : Game().players)
 		{
 			CObject* obj = Level().Objects.net_Find(pl.second->GameID);
 
 			if (smart_cast<CActorMP*>(obj))
 			{
-				if (obj->Position().distance_to(this->Position()) < 60)
+				u32 new_dist = obj->Position().distance_to(this->Position());
+				if (new_dist < Shedule_Radius_Players && dist > new_dist)
 				{
 					finded = true;
-					break;
+ 					//break;
+					dist = new_dist;
 				}
 			}
 		}
 
-		if (finded)
+		if (dist < 30)
 			return 0;
+		
+		if (finded)
+			return 0.25;
 	}
-
-
+ 
  	return Shedule_Scale_AI_Stalker;
 }
 

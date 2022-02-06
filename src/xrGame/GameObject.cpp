@@ -960,6 +960,13 @@ bool CGameObject::shedule_Needed( )
 	return						(!getDestroy());
 }
 
+extern float Shedule_Scale_Objects;
+
+float CGameObject::shedule_Scale()
+{
+	return Shedule_Scale_Objects;
+}
+
 void CGameObject::create_anim_mov_ctrl	( CBlend *b, Fmatrix *start_pose, bool local_animation )
 {
 	if( animation_movement_controlled( ) )

@@ -689,9 +689,14 @@ extern int simulate_netwark_ping_cl;
 extern int			g_ErrorLineCount;
 
 ENGINE_API int			ps_r__Supersample			= 1;
+
+extern int updateCL_Rate = 30;
+ 
+
 void CCC_Register()
 {
 	CMD4(CCC_Float, "r__viewport_near", &VIEWPORT_NEAR,0.05f, 1.0f);
+	CMD4(CCC_Integer, "shedule_updateCL", &updateCL_Rate, 1, 240);
 
 	// General
 	CMD1(CCC_Help,		"help"					);
