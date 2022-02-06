@@ -5,7 +5,6 @@
 
 XRSOUND_API xr_token*		snd_devices_token	= NULL;
 XRSOUND_API u32				snd_device_id		= u32(-1);
-
 void CSound_manager_interface::_create(int stage)
 {
 	if(stage==0)
@@ -25,7 +24,6 @@ void CSound_manager_interface::_create(int stage)
 
 	if(!SoundRender->bPresent) return;
 	Sound->_initialize	(stage);
- 	 
 }
 
 void CSound_manager_interface::_destroy	()

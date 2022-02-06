@@ -162,8 +162,6 @@ void	CSoundRender_TargetA::fill_parameters()
         A_CHK(alSourcef	(pSource, AL_PITCH,				_pitch));
     }
 	VERIFY2(m_pEmitter,SE->source()->file_name());
-
-	//Msg("load sound gain[%f] pitch[%f], min[%f], max[%f]", _gain, _pitch, m_pEmitter->p_source.min_distance, m_pEmitter->p_source.max_distance);
 }
 
 void	CSoundRender_TargetA::fill_block	(ALuint BufferID)
