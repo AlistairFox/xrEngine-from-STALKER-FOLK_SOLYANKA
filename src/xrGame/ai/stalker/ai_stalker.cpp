@@ -918,16 +918,6 @@ void CAI_Stalker::shedule_Update		( u32 DT )
 {
 	if (!IsGameTypeSingle() && OnClient())
 	{
-		/*
-		if (!on_first_update_recive)
-		{
-			on_first_update_recive = true;
-			NET_Packet packet;
-			Game().u_EventGen(packet, GE_ANIMATION_SCRIPT, this->ID());
-			Game().u_EventSend(packet);
-		}
-		*/
-
 		inherited::shedule_Update(DT);
 		return;
 	} 

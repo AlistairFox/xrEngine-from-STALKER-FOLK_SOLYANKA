@@ -58,8 +58,7 @@
 #include "../xrcdb/xrXRC.h"
 
 #include "../xrSound/sound.h"
-#include "../xrSound/voice.h"
-
+ 
 extern ENGINE_API CInifile *pGameIni;
 
 #pragma comment( lib, "xrCore.lib"	)

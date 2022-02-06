@@ -11,171 +11,19 @@ enum sync_flags
 {
 	animation_flag = (1 << 0),
 	animation_update = (1 << 1),
-
 };
  
 void CAI_Stalker::OnEventAnimations(bool update)
 {
-	MotionID torso, legs, head, script;
-	u16 torso_idx, legs_idx, head_idx, script_idx;
-	u8 torso_slot, legs_slot, head_slot, script_slot;
-
-	IKinematicsAnimated* m_skeleton_animated = smart_cast<IKinematicsAnimated*>(Visual());
-
-	torso = animation().torso().animation();
-	legs = animation().legs().animation();
-	head = animation().head().animation();
-	script = animation().script().animation();
-
-	torso_idx = torso.idx;
-	torso_slot = torso.slot;
-
-	legs_idx = legs.idx;
-	legs_slot = legs.slot;
-
-	head_idx = head.idx;
-	head_slot = head.slot;
-
-	script_idx = script.idx;
-	script_slot = script.slot;
-
-
-//	NET_Packet packet;
-//	Game().u_EventGen(packet, GE_ANIMATION_SCRIPT, this->ID());
-
-//		packet.w_u16(torso_idx);
-//		packet.w_u16(legs_idx);
-//		packet.w_u16(head_idx);
-//		packet.w_u16(script_idx);
-
-//		packet.w_u8(torso_slot);
-//		packet.w_u8(legs_slot);
-//		packet.w_u8(head_slot);
-//		packet.w_u8(script_slot);
-
-//	Game().u_EventSend(packet);
+	NET_Packet packet;
+	Game().u_EventGen(packet, GE_STALKER_ANIMS, this->ID());
+  	Game().u_EventSend(packet);
 }
 
-void CAI_Stalker::OnEventAnimations(NET_Packet packet)
-{
-	MotionID torso, legs, head, script;
-	u16 torso_idx, legs_idx, head_idx, script_idx;
-	u8 torso_slot, legs_slot, head_slot, script_slot;
-		 
- 
-/*
-	packet.r_u16(torso_idx);
-	packet.r_u16(legs_idx);
-	packet.r_u16(head_idx);
-
-	packet.r_u8(torso_slot);
-	packet.r_u8(legs_slot);
-	packet.r_u8(head_slot);
-
-	torso.set(torso_slot, torso_idx);
-	legs.set(legs_slot, legs_idx);
-	head.set(head_slot, head_idx);
-
-*/	
- 
-
-	packet.r_u16(script_idx);
-	packet.r_u8(script_slot);
-	script.set(script_slot, script_idx);
-
-
- 	
-	bool check = false;
-
-	if (check)
-	{
-		Msg("OnEventAnimation TORSO	 [%d][%d]", torso.idx, torso.slot);
-		Msg("OnEventAnimation LEGS	 [%d][%d]", legs.idx, legs.slot);
-		Msg("OnEventAnimation HEAD	 [%d][%d]", head.idx, head.slot);
-		Msg("OnEventAnimation SCRIPT [%d][%d]", script.idx, script.slot);
-	}
-
-	IKinematicsAnimated* m_skeleton_animated = smart_cast<IKinematicsAnimated*>(Visual());
-	if (!this->g_Alive() || !m_skeleton_animated)
-		return;
- 
-	/*
-	if (torso.valid())
-	{
-		if (u_last_torso_motion_idx != torso.idx)
-		{
-			m_skeleton_animated->LL_PlayCycle(
-				m_skeleton_animated->LL_PartID("torso"),
-				torso,
-				TRUE,
-				m_skeleton_animated->LL_GetMotionDef(torso)->Accrue(),
-				m_skeleton_animated->LL_GetMotionDef(torso)->Falloff(),
-				m_skeleton_animated->LL_GetMotionDef(torso)->Speed(),
-				FALSE, 0, 0, 0
-			);
-
-			u_last_torso_motion_idx = torso.idx;
-		}
-	}
-	 
-	if (legs.valid())
-	{
-		if (u_last_legs_motion_idx != legs.idx) 
-		{
-			CStepManager::on_animation_start(legs,
-				m_skeleton_animated->LL_PlayCycle(
-					m_skeleton_animated->LL_PartID("legs"),
-					legs,
-					TRUE,
-					m_skeleton_animated->LL_GetMotionDef(legs)->Accrue(),
-					m_skeleton_animated->LL_GetMotionDef(legs)->Falloff(),
-					m_skeleton_animated->LL_GetMotionDef(legs)->Speed(),
-					FALSE, 0, 0, 0
-				)
-			);
-
-			u_last_legs_motion_idx = legs.idx;
-		}
-	}
- 
- 
-	if (head.valid())
-	{
-		if (u_last_head_motion_idx != head.idx) 
-		{
-			m_skeleton_animated->LL_PlayCycle(
-				m_skeleton_animated->LL_PartID("head"),
-				head,
-				TRUE,
-				m_skeleton_animated->LL_GetMotionDef(head)->Accrue(),
-				m_skeleton_animated->LL_GetMotionDef(head)->Falloff(),
-				m_skeleton_animated->LL_GetMotionDef(head)->Speed(),
-				FALSE, 0, 0, 0
-			);
-
-			u_last_head_motion_idx = head.idx;
-		}
-	}
-	
-
- 
-	if (script.valid())
-	{
-		
-			m_skeleton_animated->LL_PlayCycle(
-				m_skeleton_animated->LL_GetMotionDef(script)->bone_or_part,
-				script,
-				TRUE,
-				m_skeleton_animated->LL_GetMotionDef(script)->Accrue(),
-				m_skeleton_animated->LL_GetMotionDef(script)->Falloff(),
-				m_skeleton_animated->LL_GetMotionDef(script)->Speed(),
-				m_skeleton_animated->LL_GetMotionDef(script)->StopAtEnd(),
-				0, 0, 0
-
-			);
-			
-			u_last_script_motion_idx = script.idx;
-		
-	}
-	*/
+void CAI_Stalker::OnEventAnimationsRecived()
+{	
+	u_last_script_motion_idx = u16(-1);
+	u_last_legs_motion_idx = u16(-1);
+	u_last_head_motion_idx = u16(-1);
+	u_last_torso_motion_idx = u16(-1);
 }

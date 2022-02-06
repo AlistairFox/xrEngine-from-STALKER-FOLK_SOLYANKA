@@ -402,7 +402,7 @@ public:
 
 	void OnEventAnimations(bool update);
  
-	void OnEventAnimations(NET_Packet packet);
+	void OnEventAnimationsRecived();
 
 private:
 	bool				m_can_kill_member;

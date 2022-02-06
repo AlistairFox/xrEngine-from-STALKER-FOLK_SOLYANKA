@@ -136,41 +136,10 @@ void _BCL CUIGameFMP::OnFrame()
 		m_stats->Enable(false);
 	}
  
-	if (Voice_Export->sizeCapture() > 1 && Voice_Export->getCaptureState())
-	{
-		voiceData captured;
-		captured = Voice_Export->CapturedVoice();
-
-		NET_Packet packet;
-		Game().u_EventGen(packet, GE_VOICE_CAPTURE, 0);
-		
-		packet.w_u32(captured.size);
- 		packet.w(captured.data, sizeof(captured.data));
-
- 		Game().u_EventSend(packet);		
-	}
-
 
 	 
 }
-
-
-void CUIGameFMP::reciveVoicePacket(NET_Packet& packet)
-{
-	Msg("Recive Packet");
-	Fvector3 pos;
-	u32 size;
-	voiceData captured;
-
-	packet.r_vec3(pos);
-	packet.r_u32(size);
-	packet.r(captured.data, sizeof(captured.data));
-
-	captured.size = size;	
-	captured.pos = pos;
-
-	Voice_Export->PlayCapture(captured);
-}
+ 
 
 
 
@@ -220,16 +189,7 @@ bool CUIGameFMP::IR_UIOnKeyboardPress(int dik)
 
 		case kVoice:
 		{
-			if (!Voice_Export->getCaptureState())
-			{
-				//Msg("Activate Voice");
-				//Voice_Export->createVoice();
-			}
-			else
-			{
-				//Msg("DeActivate Voice");
-				//Voice_Export->UpdateCapture(false);
-			}
+ 
 		}break;
 		
 		case kAnimMode:

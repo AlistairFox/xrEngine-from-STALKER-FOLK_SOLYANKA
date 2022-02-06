@@ -267,15 +267,6 @@ void game_cl_freemp::TranslateGameMessage(u32 msg, NET_Packet& P)
  			m_game_ui->PdaMenu().pUIContacts->EventRecive(P);
 		}break;
 
-		case (GE_VOICE_CAPTURE):
-		{
- 			if (g_dedicated_server)
-				return;
-
-			if (m_game_ui)
-				m_game_ui->reciveVoicePacket(P);
-		}break;
-
 		case (GAME_EVENT_PDA_CHAT):
 		{
 			m_game_ui->PdaMenu().pUIChatWnd->RecivePacket(P);
