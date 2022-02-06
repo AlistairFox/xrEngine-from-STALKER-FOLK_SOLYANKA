@@ -309,6 +309,8 @@ public:
 			void			verify_entity		(const CSE_Abstract *entity) const;
 #endif
 
+	void					OnVoiceMessage(NET_Packet& P, ClientID sender);
+
 
 	// scrip events
 private:

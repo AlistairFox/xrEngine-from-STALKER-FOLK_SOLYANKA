@@ -5,6 +5,9 @@
 #include "UIGameFMP.h"
 #include "actor_mp_client.h"
 
+#include "VoiceChat.h"
+#include "ui/UIMainIngameWnd.h"
+
 game_cl_freemp::game_cl_freemp()
 {
 	LPCSTR sec_name = "freemp_team_indicator";
@@ -25,10 +28,16 @@ game_cl_freemp::game_cl_freemp()
 	LPCSTR		ShaderTypeLeader = pSettings->r_string(sec_name, "leader_shader");
 	LPCSTR		ShaderTextureLeader = pSettings->r_string(sec_name, "leader_texture");
 	IndicatorShaderFreempLeader->create(ShaderTypeLeader, ShaderTextureLeader);
+
+	if (!g_dedicated_server)
+		m_pVoiceChat = xr_new<CVoiceChat>();
+	else
+		m_pVoiceChat = NULL;
 }
 
 game_cl_freemp::~game_cl_freemp()
 {
+	xr_delete(m_pVoiceChat);
 }
 
 bool connected_spawn = false;
@@ -52,6 +61,12 @@ void game_cl_freemp::SetGameUI(CUIGameCustom* uigame)
 	inherited::SetGameUI(uigame);
 	m_game_ui = smart_cast<CUIGameFMP*>(uigame);
 	R_ASSERT(m_game_ui);
+
+
+	if (m_pVoiceChat)
+	{
+		m_game_ui->UIMainIngameWnd->SetVoiceDistance(m_pVoiceChat->GetDistance());
+	}
 }
 
 
@@ -72,6 +87,19 @@ void game_cl_freemp::shedule_Update(u32 dt)
 
 	if (!local_player)
 		return;
+
+	if (!g_dedicated_server && m_pVoiceChat)
+	{
+		const bool started = m_pVoiceChat->IsStarted();
+		const bool is_dead = !local_player || local_player->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD);
+		const bool has_shown_dialogs = CurrentGameUI()->HasShownDialogs();
+		if (started && (is_dead || has_shown_dialogs))
+		{
+			m_pVoiceChat->Stop();
+			CurrentGameUI()->UIMainIngameWnd->SetActiveVoiceIcon(false);
+		}
+		m_pVoiceChat->Update();
+	}
 	
 	// синхронизация имени и денег игроков для InventoryOwner
 	for (auto cl : players)
@@ -162,40 +190,90 @@ void game_cl_freemp::shedule_Update(u32 dt)
 
 bool game_cl_freemp::OnKeyboardPress(int key)
 {
-	if (kJUMP == key)
+	switch (key)
 	{
-		bool b_need_to_send_ready = false;
+		case kVOICE_CHAT:
+		{
+			if (local_player && !local_player->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD))
+			{
+				if (!m_pVoiceChat->IsStarted())
+				{
+					m_pVoiceChat->Start();
+					CurrentGameUI()->UIMainIngameWnd->SetActiveVoiceIcon(true);
+				}
+			}
+			return true;
+		}break;
 
-		CObject* curr = Level().CurrentControlEntity();
-		if (!curr) return(false);
+		case kVOICE_DISTANCE:
+		{
+			if (local_player && !local_player->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD))
+			{
+				u8 distance = m_pVoiceChat->SwitchDistance();
+				CurrentGameUI()->UIMainIngameWnd->SetVoiceDistance(distance);
+			}
+			return true;
+		}break;
 
-		bool is_actor = !!smart_cast<CActor*>(curr);
-		bool is_spectator = !!smart_cast<CSpectator*>(curr);
+		case kJUMP:
+		{
+			bool b_need_to_send_ready = false;
 
-		game_PlayerState* ps = local_player;
+			CObject* curr = Level().CurrentControlEntity();
+			if (!curr) return(false);
+
+			bool is_actor = !!smart_cast<CActor*>(curr);
+			bool is_spectator = !!smart_cast<CSpectator*>(curr);
+
+			game_PlayerState* ps = local_player;
 				
-		if (is_spectator || (is_actor && ps && ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD)))
-		{
-			b_need_to_send_ready = true;
-		}
+			if (is_spectator || (is_actor && ps && ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD)))
+			{
+				b_need_to_send_ready = true;
+			}
 
-		if (b_need_to_send_ready)
-		{
-			CGameObject* GO = smart_cast<CGameObject*>(curr);
-			NET_Packet			P;
-			GO->u_EventGen(P, GE_GAME_EVENT, GO->ID());
-			P.w_u16(GAME_EVENT_PLAYER_READY);
-			GO->u_EventSend(P);
-			return				true;
-		}
-		else
-		{
-			return false;
-		}
-	};
+			if (b_need_to_send_ready)
+			{
+				CGameObject* GO = smart_cast<CGameObject*>(curr);
+				NET_Packet			P;
+				GO->u_EventGen(P, GE_GAME_EVENT, GO->ID());
+				P.w_u16(GAME_EVENT_PLAYER_READY);
+				GO->u_EventSend(P);
+				return				true;
+			}
+			else
+			{
+				return false;
+			}
+		}break;
+
+		default:
+			break;
+	}
 
 	return inherited::OnKeyboardPress(key);
+
 }
+ 
+
+bool game_cl_freemp::OnKeyboardRelease(int key)
+{
+	switch (key)
+	{
+	case kVOICE_CHAT:
+	{
+		m_pVoiceChat->Stop();
+		CurrentGameUI()->UIMainIngameWnd->SetActiveVoiceIcon(false);
+		return true;
+	}break;
+
+	default:
+		break;
+	}
+
+	return inherited::OnKeyboardRelease(key);
+}
+
 
 LPCSTR game_cl_freemp::GetGameScore(string32&	score_dest)
 {
@@ -220,7 +298,9 @@ void game_cl_freemp::OnConnected()
 	funct();
 
 	just_Connected = true;
-	
+
+	if (m_game_ui)
+		Game().OnScreenResolutionChanged();
 }
 
 bool game_cl_freemp::OnConnectedSpawnPlayer()
@@ -285,72 +365,81 @@ extern bool caps_lock = false;
 
 void game_cl_freemp::OnRender()
 {
+	inherited::OnRender();
+	
+	if (m_pVoiceChat)
+		m_pVoiceChat->OnRender();
+
 	Team teamPL = m_game_ui->PdaMenu().pUIContacts->squad_UI->team_players;
 
-		if (teamPL.cur_players > 0)
-		for (auto pl : teamPL.players)
-		{
-			if (pl == 0)
-				continue;
+	if (teamPL.cur_players > 0)
+	for (auto pl : teamPL.players)
+	{
+		if (pl == 0)
+			continue;
 
-			game_PlayerState* ps = GetPlayerByGameID(GetPlayerByClientID(pl));
+		game_PlayerState* ps = GetPlayerByGameID(GetPlayerByClientID(pl));
+
+		if (!ps)
+			continue;
+
+		if (ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD)) continue;
+		if (ps == local_player) continue;
+
+		CActor* pActor = smart_cast<CActor*>(Level().Objects.net_Find(ps->GameID));
+		if (!pActor) continue;
+
+		float pos = 0.0f;
+	
+		Fvector posH = IndicatorPosition;
+ 		pActor->RenderIndicatorNew(posH, Indicator_render1, Indicator_render2, IndicatorShaderFreemp);
+			
+	}
+
+
+	if (caps_lock && local_player->testFlag(GAME_PLAYER_HAS_ADMIN_RIGHTS))
+	{
+		for (auto pl : players)
+		{
+			game_PlayerState* ps = GetPlayerByGameID(pl.second->GameID);
 
 			if (!ps)
 				continue;
 
-			if (ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD)) continue;
+			//if (ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD)) continue;
 			if (ps == local_player) continue;
 
 			CActor* pActor = smart_cast<CActor*>(Level().Objects.net_Find(ps->GameID));
 			if (!pActor) continue;
+			if (!pActor->cast_actor_mp()) continue;
 
 			float pos = 0.0f;
-	
-			Fvector posH = IndicatorPosition;
- 			pActor->RenderIndicatorNew(posH, Indicator_render1, Indicator_render2, IndicatorShaderFreemp);
-			
+			Fvector posPOINT = IndicatorPositionText;
+			posPOINT.y -= 0.5f;
+
+			string256 str = { 0 };
+			xr_strcpy(str, pActor->Name());
+			xr_strcat(str, "(");
+			xr_strcat(str, ps->m_account.name_login().c_str());
+			xr_strcat(str, ")");
+
+			pActor->RenderText(str, posPOINT, &pos, color_rgba(255, 255, 0, 255));
 		}
 
-
-		if (caps_lock && local_player->testFlag(GAME_PLAYER_HAS_ADMIN_RIGHTS))
-		{
-			for (auto pl : players)
-			{
-				game_PlayerState* ps = GetPlayerByGameID(pl.second->GameID);
-
-				if (!ps)
-					continue;
-
-				//if (ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD)) continue;
-				if (ps == local_player) continue;
-
-				CActor* pActor = smart_cast<CActor*>(Level().Objects.net_Find(ps->GameID));
-				if (!pActor) continue;
-				if (!pActor->cast_actor_mp()) continue;
-
-				float pos = 0.0f;
-				Fvector posPOINT = IndicatorPositionText;
-				posPOINT.y -= 0.5f;
-
-				string256 str = { 0 };
-				xr_strcpy(str, pActor->Name());
-				xr_strcat(str, "(");
-				xr_strcat(str, ps->m_account.name_login().c_str());
-				xr_strcat(str, ")");
-
-				pActor->RenderText(str, posPOINT, &pos, color_rgba(255, 255, 0, 255));
-			}
-
-		}
-		else
-		{
-			//Msg("caps_lock %s", caps_lock? "true" : "false");
-			//Msg("admin %s", local_player->testFlag(GAME_PLAYER_HAS_ADMIN_RIGHTS) ? "true" : "false");
-		}
+	}
+ 
 }
 
-void game_cl_freemp::SetGain(float value)
+void game_cl_freemp::OnScreenResolutionChanged()
 {
-	Voice_Export->setGain(value);
+	if (m_game_ui && m_pVoiceChat)
+	{
+		m_game_ui->UIMainIngameWnd->SetVoiceDistance(m_pVoiceChat->GetDistance());
+	}
+}
+
+void game_cl_freemp::OnVoiceMessage(NET_Packet* P)
+{
+	m_pVoiceChat->ReceiveMessage(P);
 }
  

@@ -2539,6 +2539,9 @@
     <Filter Include="SaveINIFILE">
       <UniqueIdentifier>{1028b5a6-b51c-4c14-8f5d-e72d72982b58}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Server\Games\client\freemp\Voice">
+      <UniqueIdentifier>{bd359ad9-730f-4c26-b7ed-14d59f3269ee}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mt_config.h">
@@ -7476,6 +7479,12 @@
     <ClInclude Include="UIAnimMode.h">
       <Filter>UI\GameTypes\FreeMp</Filter>
     </ClInclude>
+    <ClInclude Include="VoiceSender.h">
+      <Filter>Core\Server\Games\client\freemp\Voice</Filter>
+    </ClInclude>
+    <ClInclude Include="VoiceChat.h">
+      <Filter>Core\Server\Games\client\freemp\Voice</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="damage_manager.cpp">
@@ -11200,6 +11209,12 @@
     </ClCompile>
     <ClCompile Include="ActorAnimation_Scripted.cpp">
       <Filter>Core\Client\Objects\actor\base</Filter>
+    </ClCompile>
+    <ClCompile Include="VoiceChat.cpp">
+      <Filter>Core\Server\Games\client\freemp\Voice</Filter>
+    </ClCompile>
+    <ClCompile Include="VoiceSender.cpp">
+      <Filter>Core\Server\Games\client\freemp\Voice</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -805,233 +805,240 @@ u32 xrServer::OnMessage	(NET_Packet& P, ClientID sender)			// Non-Zero means bro
 
 	switch (type)
 	{
-	case M_UPDATE:	
-		{
-			Process_update			(P,sender);						// No broadcast
-			VERIFY					(verify_entities());
-		}break;
-	case M_SPAWN:	
-		{
-			if (CL->flags.bLocal)
-				Process_spawn		(P,sender);	
-
-			VERIFY					(verify_entities());
-		}break;
-	case M_EVENT:	
-		{
-			Process_event			(P,sender);
-			VERIFY					(verify_entities());
-		}break;
-	case M_EVENT_PACK:
-		{
-			NET_Packet	tmpP;
-			while (!P.r_eof())
+		case M_UPDATE:	
 			{
-				tmpP.B.count		= P.r_u8();
-				P.r					(&tmpP.B.data, tmpP.B.count);
+				Process_update			(P,sender);						// No broadcast
+				VERIFY					(verify_entities());
+			}break;
+		case M_SPAWN:	
+			{
+				if (CL->flags.bLocal)
+					Process_spawn		(P,sender);	
 
-				OnMessage			(tmpP, sender);
-			};			
-		}break;
-	case M_CL_UPDATE:
-		{
-			xrClientData* CL		= ID_to_client	(sender);
-			if (!CL)				break;
-			CL->net_Ready			= TRUE;
+				VERIFY					(verify_entities());
+			}break;
+		case M_EVENT:	
+			{
+				Process_event			(P,sender);
+				VERIFY					(verify_entities());
+			}break;
+		case M_EVENT_PACK:
+			{
+				NET_Packet	tmpP;
+				while (!P.r_eof())
+				{
+					tmpP.B.count		= P.r_u8();
+					P.r					(&tmpP.B.data, tmpP.B.count);
 
-			if (!CL->net_PassUpdates)
-				break;
-			//-------------------------------------------------------------------
-			u32 ClientPing = CL->stats.getPing();
-			P.w_seek(P.r_tell()+2, &ClientPing, 4);
-			//-------------------------------------------------------------------
-			if (SV_Client) 
-				SendTo	(SV_Client->ID, P, net_flags(TRUE, TRUE));
-			VERIFY					(verify_entities());
-		}break;
-	case M_MOVE_PLAYERS_RESPOND:
-		{
-			xrClientData* CL		= ID_to_client	(sender);
-			if (!CL)				break;
-			CL->net_Ready			= TRUE;
-			CL->net_PassUpdates		= TRUE;
-		}break;
-	//-------------------------------------------------------------------
-	case M_CL_INPUT:
-		{
-			xrClientData* CL		= ID_to_client	(sender);
-			if (CL)	CL->net_Ready	= TRUE;
-			if (SV_Client) SendTo	(SV_Client->ID, P, net_flags(TRUE, TRUE));
-			VERIFY					(verify_entities());
-		}break;
-	case M_GAMEMESSAGE:
-		{
-			SendBroadcast			(BroadcastCID,P,net_flags(TRUE,TRUE));
-			VERIFY					(verify_entities());
-		}break;
-	case M_CLIENTREADY:
-		{
-			game->OnPlayerConnectFinished(sender);
-			//game->signal_Syncronize	();
-			VERIFY					(verify_entities());
-		}break;
-	case M_SWITCH_DISTANCE:
-		{
-			game->switch_distance	(P,sender);
-			VERIFY					(verify_entities());
-		}break;
-	case M_CHANGE_LEVEL:
-		{
-			game->AddDelayedEvent(P, M_CHANGE_LEVEL, 0, sender);
+					OnMessage			(tmpP, sender);
+				};			
+			}break;
+		case M_CL_UPDATE:
+			{
+				xrClientData* CL		= ID_to_client	(sender);
+				if (!CL)				break;
+				CL->net_Ready			= TRUE;
+
+				if (!CL->net_PassUpdates)
+					break;
+				//-------------------------------------------------------------------
+				u32 ClientPing = CL->stats.getPing();
+				P.w_seek(P.r_tell()+2, &ClientPing, 4);
+				//-------------------------------------------------------------------
+				if (SV_Client) 
+					SendTo	(SV_Client->ID, P, net_flags(TRUE, TRUE));
+				VERIFY					(verify_entities());
+			}break;
+		case M_MOVE_PLAYERS_RESPOND:
+			{
+				xrClientData* CL		= ID_to_client	(sender);
+				if (!CL)				break;
+				CL->net_Ready			= TRUE;
+				CL->net_PassUpdates		= TRUE;
+			}break;
+		//-------------------------------------------------------------------
+		case M_CL_INPUT:
+			{
+				xrClientData* CL		= ID_to_client	(sender);
+				if (CL)	CL->net_Ready	= TRUE;
+				if (SV_Client) SendTo	(SV_Client->ID, P, net_flags(TRUE, TRUE));
+				VERIFY					(verify_entities());
+			}break;
+		case M_GAMEMESSAGE:
+			{
+				SendBroadcast			(BroadcastCID,P,net_flags(TRUE,TRUE));
+				VERIFY					(verify_entities());
+			}break;
+		case M_CLIENTREADY:
+			{
+				game->OnPlayerConnectFinished(sender);
+				//game->signal_Syncronize	();
+				VERIFY					(verify_entities());
+			}break;
+		case M_SWITCH_DISTANCE:
+			{
+				game->switch_distance	(P,sender);
+				VERIFY					(verify_entities());
+			}break;
+		case M_CHANGE_LEVEL:
+			{
+				game->AddDelayedEvent(P, M_CHANGE_LEVEL, 0, sender);
 			
-			VERIFY					(verify_entities());
-		}break;
-	case M_SAVE_GAME:
-		{
-			game->save_game			(P,sender);
-			VERIFY					(verify_entities());
-		}break;
-	case M_LOAD_GAME:
-		{
-			game->load_game			(P,sender);
-			SendBroadcast			(BroadcastCID,P,net_flags(TRUE,TRUE));
-			VERIFY					(verify_entities());
-		}break;
-	case M_RELOAD_GAME:
-		{
-			SendBroadcast			(BroadcastCID,P,net_flags(TRUE,TRUE));
-			VERIFY					(verify_entities());
-		}break;
-	case M_SAVE_PACKET:
-		{
-			Process_save			(P,sender);
-			VERIFY					(verify_entities());
-		}break;
-	case M_CLIENT_REQUEST_CONNECTION_DATA:
-		{
-			AddDelayedPacket(P, sender);
-		}break;
-	case M_CHAT_MESSAGE:
-		{
-			xrClientData *l_pC			= ID_to_client(sender);
-			OnChatMessage				(&P, l_pC);
-		}break;
-	case M_SV_MAP_NAME:
-		{
-			xrClientData *l_pC			= ID_to_client(sender);
-			OnProcessClientMapData		(P, l_pC->ID);
-		}break;
-	case M_SV_DIGEST:
-		{
-			R_ASSERT(CL);
-			ProcessClientDigest			(CL, &P);
-		}break;
-	case M_CHANGE_LEVEL_GAME:
-		{
-			ClientID CID; CID.set		(0xffffffff);
-			SendBroadcast				(CID,P,net_flags(TRUE,TRUE));
-		}break;
-	case M_CL_AUTH:
-		{
-			game->AddDelayedEvent		(P,GAME_EVENT_PLAYER_AUTH, 0, sender);
-		}break;
-	case M_CREATE_PLAYER_STATE:
-		{
-			game->AddDelayedEvent		(P,GAME_EVENT_CREATE_PLAYER_STATE, 0, sender);
-		}break;
-	case M_STATISTIC_UPDATE:
-		{
-			SendBroadcast			(BroadcastCID,P,net_flags(TRUE,TRUE));
-		}break;
-	case M_STATISTIC_UPDATE_RESPOND:
-		{
-			//client method for collecting statistics are called from two places : 1 - this, 2 - game_sv_mp::WritePlayerStats
-			if (GameID() != eGameIDSingle)
+				VERIFY					(verify_entities());
+			}break;
+		case M_SAVE_GAME:
 			{
-				game_sv_mp* my_game = static_cast<game_sv_mp*>(game);
-				if (CL)
+				game->save_game			(P,sender);
+				VERIFY					(verify_entities());
+			}break;
+		case M_LOAD_GAME:
+			{
+				game->load_game			(P,sender);
+				SendBroadcast			(BroadcastCID,P,net_flags(TRUE,TRUE));
+				VERIFY					(verify_entities());
+			}break;
+		case M_RELOAD_GAME:
+			{
+				SendBroadcast			(BroadcastCID,P,net_flags(TRUE,TRUE));
+				VERIFY					(verify_entities());
+			}break;
+		case M_SAVE_PACKET:
+			{
+				Process_save			(P,sender);
+				VERIFY					(verify_entities());
+			}break;
+		case M_CLIENT_REQUEST_CONNECTION_DATA:
+			{
+				AddDelayedPacket(P, sender);
+			}break;
+		case M_CHAT_MESSAGE:
+			{
+				xrClientData *l_pC			= ID_to_client(sender);
+				OnChatMessage				(&P, l_pC);
+			}break;
+		case M_SV_MAP_NAME:
+			{
+				xrClientData *l_pC			= ID_to_client(sender);
+				OnProcessClientMapData		(P, l_pC->ID);
+			}break;
+		case M_SV_DIGEST:
+			{
+				R_ASSERT(CL);
+				ProcessClientDigest			(CL, &P);
+			}break;
+		case M_CHANGE_LEVEL_GAME:
+			{
+				ClientID CID; CID.set		(0xffffffff);
+				SendBroadcast				(CID,P,net_flags(TRUE,TRUE));
+			}break;
+		case M_CL_AUTH:
+			{
+				game->AddDelayedEvent		(P,GAME_EVENT_PLAYER_AUTH, 0, sender);
+			}break;
+		case M_CREATE_PLAYER_STATE:
+			{
+				game->AddDelayedEvent		(P,GAME_EVENT_CREATE_PLAYER_STATE, 0, sender);
+			}break;
+		case M_STATISTIC_UPDATE:
+			{
+				SendBroadcast			(BroadcastCID,P,net_flags(TRUE,TRUE));
+			}break;
+		case M_STATISTIC_UPDATE_RESPOND:
+			{
+				//client method for collecting statistics are called from two places : 1 - this, 2 - game_sv_mp::WritePlayerStats
+				if (GameID() != eGameIDSingle)
 				{
-					my_game->m_async_stats.set_responded(CL->ID);
-					if (static_cast<IClient*>(CL) != GetServerClient())
+					game_sv_mp* my_game = static_cast<game_sv_mp*>(game);
+					if (CL)
 					{
-						game_PlayerState* tmp_ps = CL->ps;
-						u32 tmp_pid = tmp_ps != NULL ? tmp_ps->m_account.profile_id() : 0;
-						Game().m_WeaponUsageStatistic->OnUpdateRespond(&P, CL->m_cdkey_digest, tmp_pid);
+						my_game->m_async_stats.set_responded(CL->ID);
+						if (static_cast<IClient*>(CL) != GetServerClient())
+						{
+							game_PlayerState* tmp_ps = CL->ps;
+							u32 tmp_pid = tmp_ps != NULL ? tmp_ps->m_account.profile_id() : 0;
+							Game().m_WeaponUsageStatistic->OnUpdateRespond(&P, CL->m_cdkey_digest, tmp_pid);
+						}
+					} else
+					{
+						Msg("! ERROR: SV: update respond received from unknown sender");
 					}
-				} else
-				{
-					Msg("! ERROR: SV: update respond received from unknown sender");
-				}
-			}			
-			//if (SV_Client) SendTo	(SV_Client->ID, P, net_flags(TRUE, TRUE));
-		}break;
-	case M_PLAYER_FIRE:
-		{
-			if (game)
-				game->OnPlayerFire(sender, P);
-		}break;
-	case M_REMOTE_CONTROL_AUTH:
-		{
-			string512				reason;
-			shared_str				user;
-			shared_str				pass;
-			P.r_stringZ				(user);
-			if(0==stricmp(user.c_str(),"logoff"))
+				}			
+				//if (SV_Client) SendTo	(SV_Client->ID, P, net_flags(TRUE, TRUE));
+			}break;
+		case M_PLAYER_FIRE:
 			{
-				CL->m_admin_rights.m_has_admin_rights	= FALSE;
-				if (CL->ps)
-				{
-					CL->ps->resetFlag(GAME_PLAYER_HAS_ADMIN_RIGHTS);
-					game->signal_Syncronize();
-				}
-				xr_strcpy				(reason,"logged off");
-				Msg("# Remote administrator logged off.");
-			}else
+				if (game)
+					game->OnPlayerFire(sender, P);
+			}break;
+		case M_REMOTE_CONTROL_AUTH:
 			{
-				P.r_stringZ				(pass);
-				bool res = CheckAdminRights(user, pass, reason);
-				if(res){
-					CL->m_admin_rights.m_has_admin_rights	= TRUE;
-					CL->m_admin_rights.m_dwLoginTime		= Device.dwTimeGlobal;
+				string512				reason;
+				shared_str				user;
+				shared_str				pass;
+				P.r_stringZ				(user);
+				if(0==stricmp(user.c_str(),"logoff"))
+				{
+					CL->m_admin_rights.m_has_admin_rights	= FALSE;
 					if (CL->ps)
 					{
-						CL->ps->setFlag(GAME_PLAYER_HAS_ADMIN_RIGHTS);
+						CL->ps->resetFlag(GAME_PLAYER_HAS_ADMIN_RIGHTS);
 						game->signal_Syncronize();
 					}
-					Msg("# User [%s] logged as remote administrator.", user.c_str());
+					xr_strcpy				(reason,"logged off");
+					Msg("# Remote administrator logged off.");
 				}else
-					Msg("# User [%s] tried to login as remote administrator. Access denied.", user.c_str());
+				{
+					P.r_stringZ				(pass);
+					bool res = CheckAdminRights(user, pass, reason);
+					if(res){
+						CL->m_admin_rights.m_has_admin_rights	= TRUE;
+						CL->m_admin_rights.m_dwLoginTime		= Device.dwTimeGlobal;
+						if (CL->ps)
+						{
+							CL->ps->setFlag(GAME_PLAYER_HAS_ADMIN_RIGHTS);
+							game->signal_Syncronize();
+						}
+						Msg("# User [%s] logged as remote administrator.", user.c_str());
+					}else
+						Msg("# User [%s] tried to login as remote administrator. Access denied.", user.c_str());
 
-			}
-			NET_Packet			P_answ;			
-			P_answ.w_begin		(M_REMOTE_CONTROL_AUTH);
-			P_answ.w_stringZ	(reason);
-			SendTo				(CL->ID,P_answ,net_flags(TRUE,TRUE));
+				}
+				NET_Packet			P_answ;			
+				P_answ.w_begin		(M_REMOTE_CONTROL_AUTH);
+				P_answ.w_stringZ	(reason);
+				SendTo				(CL->ID,P_answ,net_flags(TRUE,TRUE));
+			}break;
+
+		case M_REMOTE_CONTROL_CMD:
+			{
+				AddDelayedPacket(P, sender);
+			}break;
+		case M_BATTLEYE:
+			{
+			}break;
+		case M_FILE_TRANSFER:
+			{
+				AddDelayedPacket(P, sender);
+			}break;
+		case M_SECURE_KEY_SYNC:
+			{
+				PerformSecretKeysSyncAck(CL, P);
+			}break;
+		case M_SECURE_MESSAGE:
+			{
+				OnSecureMessage(P, CL);
+			}break;
+		case M_SCRIPT_EVENT:
+			{
+				OnScriptEvent(P, sender);
+			}break;
+		
+		case M_VOICE_MESSAGE:
+		{
+			OnVoiceMessage(P, sender);
 		}break;
 
-	case M_REMOTE_CONTROL_CMD:
-		{
-			AddDelayedPacket(P, sender);
-		}break;
-	case M_BATTLEYE:
-		{
-		}break;
-	case M_FILE_TRANSFER:
-		{
-			AddDelayedPacket(P, sender);
-		}break;
-	case M_SECURE_KEY_SYNC:
-		{
-			PerformSecretKeysSyncAck(CL, P);
-		}break;
-	case M_SECURE_MESSAGE:
-		{
-			OnSecureMessage(P, CL);
-		}break;
-	case M_SCRIPT_EVENT:
-		{
-			OnScriptEvent(P, sender);
-		}break;
+
 	}
 
 	VERIFY							(verify_entities());
@@ -1295,8 +1302,62 @@ void xrServer::verify_entity				(const CSE_Abstract *entity) const
 		VERIFY3							((*J).second->ID_Parent == entity->ID,"SERVER : Parent/Children relationship mismatch - Object has children, but children doesn't have parent",(*J).second->name_replace());
 	}
 }
-
 #endif // DEBUG
+
+void xrServer::OnVoiceMessage(NET_Packet& P, ClientID sender)
+{
+	xrClientData* pClient = (xrClientData*)ID_to_client(sender);
+
+	if (!pClient || !pClient->net_Ready) return;
+	game_PlayerState* ps = pClient->ps;
+	if (!ps) return;
+	if (!pClient->owner) return;
+
+	// Msg("VoiceMessage size: %u", P.B.count);
+
+	struct send_voice_message
+	{
+		xrServer* m_server;
+		NET_Packet* m_packet;
+		xrClientData* m_from;
+		float m_voiceDistanceSqr;
+
+		void operator()(IClient* client)
+		{
+			if (client == m_server->GetServerClient())
+				return;
+
+			xrClientData* CL = static_cast<xrClientData*>(client);
+			if (!CL || !CL->net_Ready || !CL->owner || !m_from->owner || !m_from->ps)
+				return;
+
+			if (CL->ID == m_from->ID)
+				return;
+
+			game_PlayerState* ps = CL->ps;
+			if (!ps || ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD))
+				return;
+
+			float distanceSqr = CL->owner->Position().distance_to_sqr(m_from->owner->Position());
+
+			if (distanceSqr <= m_voiceDistanceSqr)
+			{
+				m_server->SendTo(CL->ID, *m_packet, net_flags(FALSE, TRUE, TRUE, TRUE));
+			}
+		}
+	};
+
+	u8 distance = P.r_u8(); // distance byte
+	float voiceDistanceSqr = (float)distance * (float)distance;
+
+	send_voice_message tmp_functor;
+	tmp_functor.m_server = this;
+	tmp_functor.m_packet = &P;
+	tmp_functor.m_from = pClient;
+	tmp_functor.m_voiceDistanceSqr = voiceDistanceSqr;
+
+	ForEachClientDo(tmp_functor);
+};
 
 shared_str xrServer::level_name				(const shared_str &server_options) const
 {

@@ -37,7 +37,9 @@ enum	EGameActions
 
 	kSafeMode,	
 	kAnimMode,
-	kVoice,
+	kVOICE_CHAT,
+	kVOICE_DISTANCE,
+	 
 
 	kARTEFACT,
 	kWPN_NEXT,

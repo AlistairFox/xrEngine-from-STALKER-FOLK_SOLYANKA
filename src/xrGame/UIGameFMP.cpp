@@ -139,10 +139,6 @@ void _BCL CUIGameFMP::OnFrame()
 
 	 
 }
- 
-
-
-
 extern bool caps_lock;
 
 
@@ -186,12 +182,7 @@ bool CUIGameFMP::IR_UIOnKeyboardPress(int dik)
 			if (!pActor->inventory_disabled())
 				ShowActorMenu();			
 		} break;
-
-		case kVoice:
-		{
- 
-		}break;
-		
+  	
 		case kAnimMode:
 		{
 			if (!m_animation->IsShown())

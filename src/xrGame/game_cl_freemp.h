@@ -2,6 +2,7 @@
 #include "game_cl_mp.h"
 
 class CUIGameFMP;
+class CVoiceChat;
 
 class game_cl_freemp :public game_cl_mp
 {
@@ -34,6 +35,7 @@ public:
 	virtual void shedule_Update(u32 dt);
 
 	virtual	bool OnKeyboardPress(int key);
+	virtual	bool OnKeyboardRelease(int key);
 
 	virtual LPCSTR GetGameScore(string32&	score_dest);
 	virtual bool Is_Rewarding_Allowed()  const { return false; };
@@ -44,10 +46,14 @@ public:
 
 	virtual	void TranslateGameMessage(u32 msg, NET_Packet& P);
 
-	virtual void OnRender();
+	virtual void OnRender(); 
 
-	virtual void SetGain(float value);
- 
+
+	virtual void OnScreenResolutionChanged();
+private:
+	void OnVoiceMessage(NET_Packet* P);
+private:
+	CVoiceChat* m_pVoiceChat = nullptr;
 
 };
 

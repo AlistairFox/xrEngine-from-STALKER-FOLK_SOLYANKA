@@ -15,7 +15,7 @@ CInventoryBox::CInventoryBox()
 	m_in_use   = false;
 	m_can_take = true;
 	m_closed   = false;
-	personal_safe = true;
+	
 }
 
 CInventoryBox::~CInventoryBox()
@@ -134,12 +134,25 @@ BOOL CInventoryBox::net_Spawn(CSE_Abstract* DC)
 	set_tip_text			("inventory_box_use");
 	
 	CSE_ALifeInventoryBox*	pSE_box = smart_cast<CSE_ALifeInventoryBox*>(DC);
+
 	if ( /*IsGameTypeSingle() &&*/ pSE_box )
 	{
 		m_can_take = pSE_box->m_can_take;
 		m_closed   = pSE_box->m_closed;
 		set_tip_text( pSE_box->m_tip_text.c_str() );
+		
+		if (strstr(pSE_box->s_name.c_str(), "inventory_safe"))
+		{
+			personal_safe = true;
+		}
+		else
+		{
+			personal_safe = false;
+		}
+	
 	}
+
+	
 
 	if (OnClient())
 	{

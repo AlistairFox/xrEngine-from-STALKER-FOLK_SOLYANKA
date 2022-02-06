@@ -1443,7 +1443,8 @@ void CLocatorAPI::file_delete(LPCSTR path, LPCSTR nm)
     else				xr_strcpy(fname,sizeof(fname),nm);
 
     const files_it I	= file_find_it(fname);
-    if (I!=m_files.end()){
+    if (I!=m_files.end())
+	{
 	    // remove file
     	unlink			(I->name);
 		char* str		= LPSTR(I->name);

@@ -133,6 +133,10 @@ public:
 
 	virtual		void				OnSetCurrentControlEntity(CObject *O) {};
 
+	virtual		void				OnVoiceMessage(NET_Packet* P) {};
+	virtual		void				OnScreenResolutionChanged() {};
+
+
 	inventory::upgrade::Manager* m_upgrade_manager;
 
 

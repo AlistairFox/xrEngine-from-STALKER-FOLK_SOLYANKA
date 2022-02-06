@@ -394,11 +394,13 @@ public:
 			if (!tmpxrclient->m_admin_rights.m_has_admin_rights)
 			{
 				Level().Server->DisconnectClient( tmp_client, STRING_KICKED_BY_SERVER );
-			} else
+			}
+			else
 			{
 				Msg("! Can't disconnect client with admin rights");
 			}
-		} else
+		} 
+		else
 		{
 			Msg("! Can't disconnect player [%s]", PlayerName);
 		}
@@ -3003,7 +3005,6 @@ public:
 
 					}
 				}
-
 			 
 				std::ofstream outfile(path_xray);
 
@@ -3011,8 +3012,22 @@ public:
 				{
 					outfile.write(jsonObj.json().c_str(), jsonObj.json().size());
 				}
- 
+    
 				outfile.close();
+
+				for (auto pl : Game().players)
+				{
+					if (xr_strcmp(pl.second->m_account.name_login(), login) == 0)
+					{
+						xrClientData* tmpxrclient = static_cast<xrClientData*>(Level().Server->GetClientByID(pl.first));
+						Level().Server->DisconnectClient(tmpxrclient, STRING_KICKED_BY_SERVER);
+
+
+						string_path path;
+ 						FS.file_delete("$mp_saves_file$", login);
+						break;
+					}
+				}
 			}
 		}
 		else
@@ -3060,7 +3075,6 @@ public:
 	}
 };
 
-
 class CCC_WeatherSync : public IConsole_Command
 {
 public:
@@ -3071,7 +3085,6 @@ public:
 		g_pGamePersistent->Environment().Invalidate();
 	}
 };
-
 
 class ÑÑÑ_CheckOutfitCFS :  public IConsole_Command
 {
@@ -3528,6 +3541,9 @@ extern float Shedule_Scale_Objects = 0;
 
 void register_mp_console_commands()
 {
+
+
+
 	CMD1(CCC_TeleportToPlayer, "adm_teleport_to_player");
 	CMD1(CCC_TeleportToPlayer, "adm_teleport_player");
 	CMD1(CCC_TeleportToPosition, "adm_teleport");
@@ -3594,7 +3610,7 @@ void register_mp_console_commands()
 	CMD1(CCC_Net_CL_ClearStats,		"net_cl_clearstats" );
 	CMD1(CCC_Net_SV_ClearStats,		"net_sv_clearstats" );
 
-	CMD4(CCC_Integer, "draw_mp_statistic", &g_cl_draw_mp_statistic, 0, 1);
+	CMD4(CCC_Integer,				"draw_mp_statistic", &g_cl_draw_mp_statistic, 0, 1);
 
 
    
