@@ -317,6 +317,8 @@ void CCustomMonster::net_Import(NET_Packet& P)
 
 void CCustomMonster::shedule_Update	( u32 DT )
 {
+	START_PROFILE("CustomMonster/shedule_update")
+	 
 	if (!IsGameTypeSingle() && OnClient())
 	{
 		inherited::shedule_Update(DT);
@@ -327,6 +329,8 @@ void CCustomMonster::shedule_Update	( u32 DT )
 		m_dwCurrentTime = Device.dwTimeGlobal;
 		return;
 	}
+
+	START_PROFILE("CustomMonster/shedule(INHERTED)")
 
 	VERIFY				(!g_Alive() || processing_enabled());
 	// Queue shrink
@@ -355,6 +359,8 @@ void CCustomMonster::shedule_Update	( u32 DT )
 
 		memory().update						(dt);
 	}
+
+
 	inherited::shedule_Update	(DT);
 
 	// Queue setup
@@ -421,6 +427,11 @@ void CCustomMonster::shedule_Update	( u32 DT )
 			NET.push_back		(uNext);
 		}
 	}
+
+
+	STOP_PROFILE
+	STOP_PROFILE
+
 }
 
 void CCustomMonster::net_update::lerp(CCustomMonster::net_update& A, CCustomMonster::net_update& B, float f)
@@ -595,7 +606,7 @@ void CCustomMonster::UpdatePositionAnimation()
 
 	if (Device.dwTimeGlobal - oldTIME_GLOBAL > 1000)
 	{
-		Msg("TimeAnimsPos %d", anims_total);
+		//Msg("TimeAnimsPos %d", anims_total);
 		anims_total = 0;
 		oldTIME_GLOBAL = Device.dwTimeGlobal;
 	}
@@ -807,6 +818,7 @@ BOOL CCustomMonster::net_Spawn	(CSE_Abstract* DC)
 	// Sheduler
 	shedule.t_min				= 100;
 	shedule.t_max				= 1000;
+	shedule.fast_exit			= true;
 
 	// This equaltiy is broken by Dima :-( // 30 * NET_Latency / 4;
 
