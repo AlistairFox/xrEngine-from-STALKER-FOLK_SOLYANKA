@@ -65,7 +65,7 @@ PROTECT_API void CRenderDevice::Initialize			()
         RECT rc;
 
 		if (strstr(Core.Params, "-dedicated"))
-			SetRect			( &rc, 0, 0, 1280, 900 );
+			SetRect			( &rc, 0, 0, 640, 480 );
 		else 
 			SetRect(&rc, 0, 0, 640, 480);
 		

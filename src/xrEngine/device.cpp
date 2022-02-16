@@ -62,6 +62,7 @@ BOOL CRenderDevice::Begin	()
 	}
 	*/
 
+
 	switch (m_pRender->GetDeviceState())
 	{
 	case IRenderDeviceRender::dsOK:
@@ -104,7 +105,6 @@ void CRenderDevice::Clear	()
 }
 
 extern void CheckPrivilegySlowdown();
-
 
 void CRenderDevice::End		(void)
 {
@@ -319,7 +319,8 @@ void CRenderDevice::on_idle		()
 		g_pGamePersistent->Statistics(nullptr);
 
 
-	if (Device.fTimeDelta > EPS_S) {
+	if (Device.fTimeDelta > EPS_S) 
+	{
 		float fps = 1.f / Device.fTimeDelta;
 		//if (Engine.External.tune_enabled)	vtune.update	(fps);
 		float fOne = 0.3f;
