@@ -6,6 +6,7 @@
 class game_cl_freemp;
 class CUITextWnd;
 class CUIAMode;
+class CUIStatic;
 
 class CUIGameFMP : public UIGameMP
 {
@@ -16,6 +17,10 @@ private:
 protected:
 	CUITextWnd*			m_stats;
 	CUIAMode* m_animation;
+
+	
+	CUIStatic*  surge_background;
+	CUITextWnd* surge_cap;
 
 public:
 				CUIGameFMP();
@@ -30,5 +35,15 @@ public:
 	virtual void	_BCL OnFrame();
 
 	virtual bool IR_UIOnKeyboardPress(int dik);
+
+	u32 surge_time = 0;
+	u32 surge_time_end = 0;
+	bool surge_started = false;
+
+	void setSurgeTimer(u32 time, u32 timeGlobal, bool val) {
+		surge_time = time;
+		surge_started = val;
+		surge_time_end = timeGlobal;
+	};
 
  };

@@ -29,8 +29,7 @@
 
 u32 g_sv_traffic_optimization_level = eto_none;
 
-xrClientData::xrClientData	() :
-	IClient(Device.GetTimerGlobal())
+xrClientData::xrClientData	() : IClient(Device.GetTimerGlobal())
 {
 	ps = NULL;
 	Clear		();
@@ -1504,27 +1503,27 @@ void xrServer::GetServerInfo( CServerInfo* si )
 	tmp256[0] = NULL;
  
 	{
-		xr_strcat(tmp256, "stalker[");
+		xr_strcat(tmp256, "s[");
 		xr_strcat(tmp256, itoa(ai_stalker_cons, tmp, 10));
 		xr_strcat(tmp256, "]");
 
-		xr_strcat(tmp256, " monster[");
+		xr_strcat(tmp256, " m[");
 		xr_strcat(tmp256, itoa(ai_monster_cons, tmp, 10));
 		xr_strcat(tmp256, "]");
 
-		xr_strcat(tmp256, " item[");
+		xr_strcat(tmp256, " i[");
 		xr_strcat(tmp256, itoa(item_cons, tmp, 10));
 		xr_strcat(tmp256, "]");
 
-		xr_strcat(tmp256, " art[");
+		xr_strcat(tmp256, " a[");
 		xr_strcat(tmp256, itoa(arts_cons, tmp, 10));
 		xr_strcat(tmp256, "]");
 
-		xr_strcat(tmp256, " actor[");
+		xr_strcat(tmp256, " pl[");
 		xr_strcat(tmp256, itoa(actors_cons, tmp, 10));
 		xr_strcat(tmp256, "]");
 
-		xr_strcat(tmp256, " weap[");
+		xr_strcat(tmp256, " w[");
 		xr_strcat(tmp256, itoa(item_weapon_cons, tmp, 10));
 		xr_strcat(tmp256, "]");
 
@@ -1595,20 +1594,17 @@ void xrServer::GetServerInfo( CServerInfo* si )
 
 	}
 
-	string32 stalker = { 0 };
-	
+	string32 stalker = { 0 };	
  	xr_strcat(stalker, itoa(stalkers, tmp, 10));
 	xr_strcat(stalker, "/");
 	xr_strcat(stalker, itoa(stalkersAlive, tmp, 10));
-
 	si->AddItem("stalkers", stalker, RGB(0, 255, 0));
 
 	string64 monster_str = {0};
 	xr_strcat(monster_str, itoa(mosters, tmp, 10));
 	xr_strcat(monster_str, "/");
 	xr_strcat(monster_str, itoa(mostersAlive, tmp, 10));
-
-	si->AddItem("monster", monster_str, RGB(0, 255, 0));
+	si->AddItem("monsters", monster_str, RGB(0, 255, 0));
 
 	string32 items_str = { 0 };
 	xr_strcat(items_str, itoa(items, tmp, 10));

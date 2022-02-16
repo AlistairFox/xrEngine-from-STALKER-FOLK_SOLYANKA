@@ -822,6 +822,28 @@ u32 get_size_server_events()
 	return Level().Server->GetSizeServerScriptEvent();
 }
 
+
+#include "game_cl_freemp.h"
+#include "game_sv_freemp.h"
+#include "UIGameFMP.h"
+
+void set_surge_time(u32 time, u32 timeGlobal, bool started)
+{
+	if (OnClient())
+	{
+		game_cl_freemp* freemp = smart_cast<game_cl_freemp*>(Level().game);
+		freemp->m_game_ui->setSurgeTimer(time, timeGlobal, started);
+	}
+	else
+	{
+		game_sv_freemp* freemp = smart_cast<game_sv_freemp*>(Level().Server->game);
+		freemp->surge_started = started;
+	}
+
+//	Msg("Time[%d] / Started [%s]", time, started ? "true" : "false");
+}
+
+
 #pragma optimize("s",on)
 void CLevel::script_register(lua_State *L)
 {
@@ -832,100 +854,101 @@ void CLevel::script_register(lua_State *L)
 	class_<CEnvironment>("CEnvironment")
 		.def("current",							current_environment);
 
-	module(L,"level")
-	[
-		// obsolete\deprecated
-		def("object_by_id",						get_object_by_id),
+		module(L, "level")
+			[
+				// obsolete\deprecated
+				def("object_by_id", get_object_by_id),
 #ifdef DEBUG
-		def("debug_object",						get_object_by_name),
-		def("debug_actor",						tpfGetActor),
-		def("check_object",						check_object),
+				def("debug_object", get_object_by_name),
+				def("debug_actor", tpfGetActor),
+				def("check_object", check_object),
 #endif
-		
-		def("get_weather",						get_weather),
-		def("set_weather",						set_weather),
-		def("set_weather_fx",					set_weather_fx),
-		def("start_weather_fx_from_time",		start_weather_fx_from_time),
-		def("is_wfx_playing",					is_wfx_playing),
-		def("get_wfx_time",						get_wfx_time),
-		def("stop_weather_fx",					stop_weather_fx),
 
-		def("environment",						environment),
-		
-		def("set_time_factor",					set_time_factor),
-		def("get_time_factor",					get_time_factor),
+				def("get_weather", get_weather),
+				def("set_weather", set_weather),
+				def("set_weather_fx", set_weather_fx),
+				def("start_weather_fx_from_time", start_weather_fx_from_time),
+				def("is_wfx_playing", is_wfx_playing),
+				def("get_wfx_time", get_wfx_time),
+				def("stop_weather_fx", stop_weather_fx),
 
-		def("set_game_difficulty",				set_game_difficulty),
-		def("get_game_difficulty",				get_game_difficulty),
-		
-		def("get_time_days",					get_time_days),
-		def("get_time_hours",					get_time_hours),
-		def("get_time_minutes",					get_time_minutes),
-		def("change_game_time",					change_game_time),
+				def("environment", environment),
 
-		def("high_cover_in_direction",			high_cover_in_direction),
-		def("low_cover_in_direction",			low_cover_in_direction),
-		def("vertex_in_direction",				vertex_in_direction),
-		def("rain_factor",						rain_factor),
-		def("patrol_path_exists",				patrol_path_exists),
-		def("vertex_position",					vertex_position),
-		def("name",								get_name),
-		def("prefetch_sound",					prefetch_sound),
+				def("set_time_factor", set_time_factor),
+				def("get_time_factor", get_time_factor),
 
-		def("client_spawn_manager",				get_client_spawn_manager),
+				def("set_game_difficulty", set_game_difficulty),
+				def("get_game_difficulty", get_game_difficulty),
 
-		def("map_add_object_spot_ser",			map_add_object_spot_ser),
-		def("map_add_object_spot",				map_add_object_spot),
-//-		def("map_add_object_spot_complex",		map_add_object_spot_complex),
-		def("map_remove_object_spot",			map_remove_object_spot),
-		def("map_has_object_spot",				map_has_object_spot),
-		def("map_change_spot_hint",				map_change_spot_hint),
+				def("get_time_days", get_time_days),
+				def("get_time_hours", get_time_hours),
+				def("get_time_minutes", get_time_minutes),
+				def("change_game_time", change_game_time),
 
-		def("add_dialog_to_render",				add_dialog_to_render),
-		def("remove_dialog_to_render",			remove_dialog_to_render),
-		def("hide_indicators",					hide_indicators),
-		def("hide_indicators_safe",				hide_indicators_safe),
+				def("high_cover_in_direction", high_cover_in_direction),
+				def("low_cover_in_direction", low_cover_in_direction),
+				def("vertex_in_direction", vertex_in_direction),
+				def("rain_factor", rain_factor),
+				def("patrol_path_exists", patrol_path_exists),
+				def("vertex_position", vertex_position),
+				def("name", get_name),
+				def("prefetch_sound", prefetch_sound),
 
-		def("show_indicators",					show_indicators),
-		def("show_weapon",						show_weapon),
-		def("add_call",							((void (*) (const luabind::functor<bool> &,const luabind::functor<void> &)) &add_call)),
-		def("add_call",							((void (*) (const luabind::object &,const luabind::functor<bool> &,const luabind::functor<void> &)) &add_call)),
-		def("add_call",							((void (*) (const luabind::object &, LPCSTR, LPCSTR)) &add_call)),
-		def("remove_call",						((void (*) (const luabind::functor<bool> &,const luabind::functor<void> &)) &remove_call)),
-		def("remove_call",						((void (*) (const luabind::object &,const luabind::functor<bool> &,const luabind::functor<void> &)) &remove_call)),
-		def("remove_call",						((void (*) (const luabind::object &, LPCSTR, LPCSTR)) &remove_call)),
-		def("remove_calls_for_object",			remove_calls_for_object),
-		def("present",							is_level_present),
-		def("disable_input",					disable_input),
-		def("enable_input",						enable_input),
-		def("spawn_phantom",					spawn_phantom),
+				def("client_spawn_manager", get_client_spawn_manager),
 
-		def("get_bounding_volume",				get_bounding_volume),
+				def("map_add_object_spot_ser", map_add_object_spot_ser),
+				def("map_add_object_spot", map_add_object_spot),
+				//-		def("map_add_object_spot_complex",		map_add_object_spot_complex),
+				def("map_remove_object_spot", map_remove_object_spot),
+				def("map_has_object_spot", map_has_object_spot),
+				def("map_change_spot_hint", map_change_spot_hint),
 
-		def("iterate_sounds",					&iterate_sounds1),
-		def("iterate_sounds",					&iterate_sounds2),
-		def("physics_world",					&physics_world_scripted),
-		def("get_snd_volume",					&get_snd_volume),
-		def("set_snd_volume",					&set_snd_volume),
-		def("add_cam_effector",					&add_cam_effector),
-		def("add_cam_effector2",				&add_cam_effector2),
-		def("remove_cam_effector",				&remove_cam_effector),
-		def("add_pp_effector",					&add_pp_effector),
-		def("set_pp_effector_factor",			&set_pp_effector_factor),
-		def("set_pp_effector_factor",			&set_pp_effector_factor2),
-		def("remove_pp_effector",				&remove_pp_effector),
+				def("add_dialog_to_render", add_dialog_to_render),
+				def("remove_dialog_to_render", remove_dialog_to_render),
+				def("hide_indicators", hide_indicators),
+				def("hide_indicators_safe", hide_indicators_safe),
 
-		def("add_complex_effector",				&add_complex_effector),
-		def("remove_complex_effector",			&remove_complex_effector),
-		
-		def("vertex_id",						&vertex_id),
+				def("show_indicators", show_indicators),
+				def("show_weapon", show_weapon),
+				def("add_call", ((void (*) (const luabind::functor<bool> &, const luabind::functor<void> &)) & add_call)),
+				def("add_call", ((void (*) (const luabind::object&, const luabind::functor<bool> &, const luabind::functor<void> &)) & add_call)),
+				def("add_call", ((void (*) (const luabind::object&, LPCSTR, LPCSTR)) & add_call)),
+				def("remove_call", ((void (*) (const luabind::functor<bool> &, const luabind::functor<void> &)) & remove_call)),
+				def("remove_call", ((void (*) (const luabind::object&, const luabind::functor<bool> &, const luabind::functor<void> &)) & remove_call)),
+				def("remove_call", ((void (*) (const luabind::object&, LPCSTR, LPCSTR)) & remove_call)),
+				def("remove_calls_for_object", remove_calls_for_object),
+				def("present", is_level_present),
+				def("disable_input", disable_input),
+				def("enable_input", enable_input),
+				def("spawn_phantom", spawn_phantom),
 
-		def("game_id",							&GameID),
+				def("get_bounding_volume", get_bounding_volume),
 
-		// new for mp
-		def("get_object_by_client", &get_object_by_client),
-		def("get_local_player_id", &get_local_player_id),
-		def("get_g_actor_id", &get_g_actor_id)
+				def("iterate_sounds", &iterate_sounds1),
+				def("iterate_sounds", &iterate_sounds2),
+				def("physics_world", &physics_world_scripted),
+				def("get_snd_volume", &get_snd_volume),
+				def("set_snd_volume", &set_snd_volume),
+				def("add_cam_effector", &add_cam_effector),
+				def("add_cam_effector2", &add_cam_effector2),
+				def("remove_cam_effector", &remove_cam_effector),
+				def("add_pp_effector", &add_pp_effector),
+				def("set_pp_effector_factor", &set_pp_effector_factor),
+				def("set_pp_effector_factor", &set_pp_effector_factor2),
+				def("remove_pp_effector", &remove_pp_effector),
+
+				def("add_complex_effector", &add_complex_effector),
+				def("remove_complex_effector", &remove_complex_effector),
+
+				def("vertex_id", &vertex_id),
+
+				def("game_id", &GameID),
+
+				// new for mp
+				def("get_object_by_client", &get_object_by_client),
+				def("get_local_player_id", &get_local_player_id),
+				def("get_g_actor_id", &get_g_actor_id),
+				def("set_surge_time", &set_surge_time)
 	],
 
 	module(L, "mp")

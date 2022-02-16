@@ -8,9 +8,11 @@ class game_cl_freemp :public game_cl_mp
 {
 private:
 	typedef game_cl_mp inherited;
-	CUIGameFMP *m_game_ui;
+
 
 public:
+
+	CUIGameFMP* m_game_ui;
 
 	float		Indicator_render1;
 	float		Indicator_render2;
