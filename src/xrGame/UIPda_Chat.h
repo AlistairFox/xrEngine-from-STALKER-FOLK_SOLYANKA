@@ -49,11 +49,17 @@ class UIPdaChat : public CUIWindow, public CUIWndCallback
 	//GLOBAL CHAT
 	CUITextWnd* CaptionMode;
 	CUI3tButton* switch_anonimous;
+	CUI3tButton* switch_mode_button;
+
 
 
 	virtual bool	OnMouseAction(float x, float y, EUIMessages mouse_action);
+
 	void xr_stdcall     button_click_send_msg(CUIWindow* w, void* d);
 	void xr_stdcall     button_click_send_money(CUIWindow* w, void* d);
+	void xr_stdcall	    button_click_mode_switch(CUIWindow* w, void* d);
+	void xr_stdcall button_click_anonimous_mode_switch(CUIWindow* w, void* d);
+
 	virtual void		SendMessage(CUIWindow* pWnd, s16 msg, void* pData);
 	void AddNewsData(GAME_NEWS_DATA data, ClientID PlayerID);
 	void SendPacket(GAME_NEWS_DATA data);
@@ -74,6 +80,7 @@ public:
 	virtual ~UIPdaChat();
 
 	void			Init();
+
 	void			InitCallBacks();
 	virtual void 	Show(bool status);
 	virtual void	Update();
