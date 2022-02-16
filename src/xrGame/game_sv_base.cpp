@@ -279,7 +279,7 @@ struct player_exporter
 
 		game_PlayerState*	curr_ps = tmp_client->ps;
 		
-		u16 tmp_flags = curr_ps->flags__;
+		u32 tmp_flags = curr_ps->flags__;
 		if (to_ps == curr_ps)	
 			curr_ps->setFlag(GAME_PLAYER_FLAG_LOCAL);
 
@@ -327,7 +327,7 @@ void game_sv_GameState::net_Export_Update(NET_Packet& P, ClientID id_to, ClientI
 	game_PlayerState* A			= get_id(id);
 	if (A)
 	{
-		u16 bk_flags			= A->flags__;
+		u32 bk_flags			= A->flags__;
 		if (id==id_to)	
 		{
 			A->setFlag(GAME_PLAYER_FLAG_LOCAL);
@@ -350,13 +350,6 @@ void game_sv_GameState::net_Export_GameTime						(NET_Packet& P)
 	P.w_float(GetGameTimeFactor());
 	
 	//Syncronize EnvironmentGameTime 
-
-	if (old_time_env_sv != GetEnvironmentGameTimeFactor())
-	{
-		Msg("Export GameState Time[%u][%f]", GetEnvironmentGameTime(), GetEnvironmentGameTimeFactor());
-		old_time_env_sv = GetEnvironmentGameTimeFactor();
-	}
-
 	P.w_u64(GetEnvironmentGameTime());
 	P.w_float(GetEnvironmentGameTimeFactor());
 
@@ -364,6 +357,13 @@ void game_sv_GameState::net_Export_GameTime						(NET_Packet& P)
 	P.w_stringZ(g_pGamePersistent->Environment().CurrentWeatherName);
 	P.w_stringZ(g_pGamePersistent->Environment().PrewWeatherName);
 
+	if (g_pGamePersistent->Environment().Current[0])
+	{
+		P.w_u8(1);
+ 		P.w_stringZ(g_pGamePersistent->Environment().GetCurrentIdentifier());
+ 	}
+	else
+		P.w_u8(0);
 };
 
 
@@ -479,7 +479,6 @@ void game_sv_GameState::Create					(shared_str &options)
 					Msg("[NOTFINDER ANY SPAWN POINTS] RP ADD Team[%d]  x[%.0f]y[%.0f]z[%.0f]", i, single_actor->position().x, single_actor->position().y, single_actor->position().z);
 
 				}
-
 			}
 		}
 		FS.r_close	(F);

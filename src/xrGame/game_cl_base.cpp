@@ -72,19 +72,13 @@ void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 	float			EnvironmentTimeFactor;
 	P.r_float(EnvironmentTimeFactor);
 
-	u32 timefactor_old = Level().GetGameTimeFactor();
+ 	u64 OldTime = Level().GetEnvironmentGameTime();
 
 	Level().SetGameTimeFactor(GameTime, TimeFactor);
 	Level().SetEnvironmentGameTimeFactor(GameEnvironmentTime, EnvironmentTimeFactor);
 
-	if (OnServer() && g_pGamePersistent)
-	{
-		if (timefactor_old != TimeFactor)
-		{
-			GamePersistent().Environment().Invalidate();
-		}
-	}
-	
+	//Msg("TimeFactor %f", EnvironmentTimeFactor);
+
 	float wfx_time;
 	P.r_float(wfx_time);
 
@@ -93,21 +87,40 @@ void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 
 	shared_str name_prew;
 	P.r_stringZ(name_prew);
- 
-	if (!Device.Paused() && OnClient() && g_pGamePersistent && name_prew.size() > 0 && name.size() > 0)
-	{
- 		g_pGamePersistent->Environment().wfx_time = wfx_time;
 
-		if (wfx_time > 1)
+	u8 has_current = P.r_u8();
+ 
+	if (wfx_time <= 0 && OnServer())
+	if (OldTime != GameEnvironmentTime)
+	{
+		s64 time = OldTime - GameEnvironmentTime;
+
+		if (time > 3600 || time < -3600)
 		{
-			g_pGamePersistent->Environment().StartWeatherFXFromTime(name, wfx_time);
+			GamePersistent().Environment().Invalidate();
 		}
-		else
+	}
+ 
+	if (OnClient())
+	{
+ 		if (!Device.Paused() && g_pGamePersistent && name_prew.size() > 0 && name.size() > 0)
 		{
-			g_pGamePersistent->Environment().StartWeatherMP(name_prew, name);
+			g_pGamePersistent->Environment().wfx_time = wfx_time;
+
+			if (wfx_time > 1)
+			{
+				g_pGamePersistent->Environment().StartWeatherFXFromTime(name, wfx_time);
+			}
+			else
+			if (has_current)
+			{
+				shared_str identifier;
+				P.r_stringZ(identifier);
+				g_pGamePersistent->Environment().StartWeatherMP(name_prew, name, identifier);
+			}
 		}
- 	}
-}
+	}
+ }
 
 struct not_exsiting_clients_deleter
 {
@@ -182,7 +195,7 @@ void	game_cl_GameState::net_import_state	(NET_Packet& P)
 		{
 			IP = I->second;
 			//***********************************************
-			u16 OldFlags = IP->flags__;
+			u32 OldFlags = IP->flags__;
 			u8 OldVote = IP->m_bCurrentVoteAgreed;
 			//-----------------------------------------------
 			IP->net_Import(P);
@@ -345,14 +358,15 @@ game_PlayerState* game_cl_GameState::lookat_player()
 
 game_PlayerState* game_cl_GameState::GetPlayerByGameID(u32 GameID)
 {
-	PLAYERS_MAP_IT I=players.begin();
-	PLAYERS_MAP_IT E=players.end();
-
-	for (;I!=E;++I)
+	for (auto pl : players)
 	{
-		game_PlayerState* P = I->second;
-		if (P->GameID == GameID) return P;
+		game_PlayerState* P = pl.second;
+		if (P->GameID == GameID)
+		{
+			return P;
+		}
 	};
+
 	return NULL;
 };
 

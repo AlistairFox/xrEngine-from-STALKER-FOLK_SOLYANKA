@@ -6,7 +6,7 @@
 #include "xrMessages.h"
 
 u64		g_qwStartGameTime		= 12*60*60*1000;
-float	g_fTimeFactor			= pSettings->r_float("alife","time_factor");
+float	g_fTimeFactor			= pSettings->r_float("alife","time_factor_new");
 u64		g_qwEStartGameTime		= 12*60*60*1000;
 
 ENGINE_API	bool g_dedicated_server;
@@ -81,17 +81,17 @@ game_PlayerState::~game_PlayerState()
 	pSpawnPointsList.clear	();
 };
 
-bool game_PlayerState::testFlag	(u16 f) const
+bool game_PlayerState::testFlag	(u32 f) const
 {
 	return !!(flags__ & f);
 }
 
-void game_PlayerState::setFlag	(u16 f)
+void game_PlayerState::setFlag	(u32 f)
 {
 	flags__ |= f;
 }
 
-void game_PlayerState::resetFlag(u16 f)
+void game_PlayerState::resetFlag(u32 f)
 {
 	flags__ &= ~(f);
 }
@@ -108,7 +108,7 @@ void	game_PlayerState::net_Export(NET_Packet& P, BOOL Full)
 	P.w_s32			(	money_for_round	);
 	P.w_u8			(	rank		);
 	P.w_u8			(	af_count	);
-	P.w_u16			(	flags__	);
+	P.w_u32			(	flags__	);
 	P.w_u16			(	ping	);
 
 	P.w_u16			(	GameID	);
@@ -136,7 +136,7 @@ void	game_PlayerState::net_Import(NET_Packet& P)
 	P.r_s32			(	money_for_round	);
 	P.r_u8			(	rank		);
 	P.r_u8			(	af_count	);
-	P.r_u16			(	flags__	);
+	P.r_u32			(	flags__	);
 	P.r_u16			(	ping	);
 
 	P.r_u16			(	GameID	);
@@ -164,7 +164,7 @@ void	game_PlayerState::skip_Import(NET_Packet& P)
 	P.r_s32			();//	money_for_round	);
 	P.r_u8			();//	rank		);
 	P.r_u8			();//	af_count	);
-	P.r_u16			();//	flags__	);
+	P.r_u32			();//	flags__	);
 	P.r_u16			();//	ping	);
 
 	P.r_u16			();//	GameID	);
