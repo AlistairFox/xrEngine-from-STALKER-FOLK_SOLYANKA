@@ -1000,15 +1000,26 @@ void CActor::g_Physics			(Fvector& _accel, float jump, float dt)
 	if(m_hit_slowmo<0)			m_hit_slowmo = 0.f;
 
 	accel.mul					(1.f-m_hit_slowmo);
-
-	
-	
-
+ 
 	if(g_Alive())
 	{
 		if(mstate_real&mcClimb&&!cameras[eacFirstEye]->bClampYaw)
 				accel.set(0.f,0.f,0.f);
+		
+		Fvector prePos = Position();
 		character_physics_support()->movement()->Calculate			(accel,cameras[cam_active]->vDirection,0,jump,dt,false);
+
+		Fvector pos;
+		character_physics_support()->movement()->GetPosition(pos);
+		
+		if (OnClient())
+		if (prePos.distance_to_xz(pos) > 4.0f) 
+		{	
+			Msg("Pre Calc Pos [%f][%f][%f]", prePos.x, prePos.y, prePos.z);
+			Msg("Calc Pos [%f][%f][%f]", pos.x, pos.y, pos.z);
+			character_physics_support()->movement()->SetPosition(prePos);
+		}
+
 		bool new_border_state=character_physics_support()->movement()->isOutBorder();
 		if(m_bOutBorder!=new_border_state && Level().CurrentControlEntity() == this)
 		{
@@ -1380,17 +1391,21 @@ void CActor::shedule_Update	(u32 DT)
 
 			g_sv_Orientate				(mstate_real,dt			);
 			g_Orientate					(mstate_real,dt			);
-			g_Physics					(NET_SavedAccel,NET_Jump,dt	);			
+			g_Physics					(NET_SavedAccel,NET_Jump,dt	);		
+
 			if (!m_bInInterpolation)
 				g_cl_ValidateMState			(dt,mstate_wishful);
+
 			g_SetAnimation				(mstate_real);
 			
 			set_state_box(NET_Last.mstate);
 
 
 		}	
+
 		mstate_old = mstate_real;
 	}
+
 /*
 	if (this == Level().CurrentViewEntity())
 	{
@@ -2328,11 +2343,6 @@ void CActor::On_SetEntity()
 
 bool CActor::unlimited_ammo()
 {
-	if (!g_Alive())
-		return false;
-
 	game_PlayerState* ps = Game().GetPlayerByGameID(ID());
-
 	return (ps && ps->testFlag(GAME_PLAYER_MP_UNLIMATED_AMMO));
-  
 }

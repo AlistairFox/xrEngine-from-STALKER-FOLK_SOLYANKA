@@ -198,7 +198,7 @@ void CActorCondition::UpdateCondition()
 		}
 	}
 
-	if (GodMode() || object().MpGodMode())				return;
+	if (GodMode() || object().MpGodMode() || this->object().cast_actor() && !this->object().cast_actor_mp())	return;
 	if (!object().g_Alive())	return;
 	if (!object().Local() && m_object != Level().CurrentViewEntity())		return;	
 	
@@ -458,7 +458,7 @@ void CActorCondition::UpdateSatiety()
 
 CWound* CActorCondition::ConditionHit(SHit* pHDS)
 {
-	if (GodMode()|| object().MpGodMode()) return NULL;
+	if (GodMode()|| object().MpGodMode() || this->object().cast_actor() && !this->object().cast_actor_mp()) return NULL;
 	return inherited::ConditionHit(pHDS);
 }
 

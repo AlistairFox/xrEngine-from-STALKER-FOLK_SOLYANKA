@@ -912,7 +912,10 @@ void	CActor::OnChangeVisual()
 };
 
 void	CActor::ChangeVisual			( shared_str NewVisual )
-{
+{	
+	CanChange = true;
+
+	if (!g_Alive()) return;
 	if (!NewVisual.size()) return;
 	if (cNameVisual().size() )
 	{
@@ -920,8 +923,8 @@ void	CActor::ChangeVisual			( shared_str NewVisual )
 	}
 
 	cNameVisual_set(NewVisual);
-	CanChange = true;
 	g_SetAnimation(mstate_real);
+
 	Visual()->dcast_PKinematics()->CalculateBones_Invalidate();
 	Visual()->dcast_PKinematics()->CalculateBones(TRUE);
 };
@@ -948,12 +951,15 @@ void CActor::PH_B_CrPr		()	// actions & operations before physic correction-pred
 {
 	//just set last update data for now
 //	if (!m_bHasUpdate) return;	
+
+
 	if (CrPr_IsActivated()) return;
 	if (CrPr_GetActivationStep() > physics_world()->StepsNum()) return;
 
 	if (g_Alive())
 	{
-		CrPr_SetActivated(true);
+		CrPr_SetActivated(true);	
+
 		{		
 			///////////////////////////////////////////////
 			InterpData* pIStart = &IStart;			
@@ -975,10 +981,10 @@ void CActor::PH_B_CrPr		()	// actions & operations before physic correction-pred
 
 		//----------- for E3 -----------------------------
 		if (Local() && OnClient())
-			//------------------------------------------------
+		//------------------------------------------------
 		{
 			PHUnFreeze();
-
+ 
 			pSyncObj->set_State(NET_A.back().State);			
 		}
 		else
@@ -1067,7 +1073,7 @@ void CActor::PH_A_CrPr		()
 	pSyncObj->set_State(RecalculatedState);
 	////////////////////////////////////
 	if (!m_bInterpolate) return;
-
+ 
 	////////////////////////////////////
 	mstate_wishful = mstate_real = NET_Last.mstate;
 	CalculateInterpolationParams();
@@ -1315,9 +1321,13 @@ void CActor::make_Interpolation	()
 					R_ASSERT2(0, "Unknown interpolation curve type!");
 				}
 			}
-			character_physics_support()->movement()->SetPosition	(ResPosition);
-			character_physics_support()->movement()->SetVelocity	(SpeedVector);
-			cam_Active()->Set		(-unaffected_r_torso.yaw,unaffected_r_torso.pitch, 0);//, unaffected_r_torso.roll);
+
+			//if (  (ResPosition.x > 1  || ResPosition.x < -1)  && (ResPosition.z < -1 || ResPosition.z > 1) )
+			{
+				character_physics_support()->movement()->SetPosition(ResPosition);
+				character_physics_support()->movement()->SetVelocity(SpeedVector);
+				cam_Active()->Set(-unaffected_r_torso.yaw, unaffected_r_torso.pitch, 0);//, unaffected_r_torso.roll);
+			}
 		};
 	}
 	else

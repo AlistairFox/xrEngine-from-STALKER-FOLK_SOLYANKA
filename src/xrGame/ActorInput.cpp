@@ -454,8 +454,7 @@ void CActor::ActorUse()
 	{
 		if(m_pPersonWeLookingAt)
 		{
-			CEntityAlive* pEntityAliveWeLookingAt = 
-				smart_cast<CEntityAlive*>(m_pPersonWeLookingAt);
+			CEntityAlive* pEntityAliveWeLookingAt = smart_cast<CEntityAlive*>(m_pPersonWeLookingAt);
 
 			VERIFY(pEntityAliveWeLookingAt);
 
@@ -467,15 +466,15 @@ void CActor::ActorUse()
 			{
 				if (!m_pPersonWeLookingAt->deadbody_closed_status())
 				{
-					if (pEntityAliveWeLookingAt->AlreadyDie() &&
-						pEntityAliveWeLookingAt->GetLevelDeathTime() + 3000 < Device.dwTimeGlobal)
+					if (pEntityAliveWeLookingAt->AlreadyDie() && pEntityAliveWeLookingAt->GetLevelDeathTime() + 3000 < Device.dwTimeGlobal)
 						// 99.9% dead
 					{
 						if (!pEntityAliveWeLookingAt->cast_base_monster())
 						{
 							CurrentGameUI()->StartCarBody(this, m_pPersonWeLookingAt);
 						}
-						else if (CheckGameFlag(F_MUTANTS_DEADBODY_SEARCH_ENABLED))
+						else
+						if (CheckGameFlag(F_MUTANTS_DEADBODY_SEARCH_ENABLED))
 						{
 							CurrentGameUI()->StartCarBody(this, m_pPersonWeLookingAt);
 						}

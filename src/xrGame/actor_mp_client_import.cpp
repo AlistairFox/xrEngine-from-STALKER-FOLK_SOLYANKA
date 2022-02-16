@@ -100,9 +100,8 @@ void CActorMP::net_Import	( NET_Packet &P)
 	N_A.State.torque		= m_state_holder.state().physics_torque;
 	N_A.State.position		= m_state_holder.state().physics_position;
 	N_A.State.quaternion	= m_state_holder.state().physics_quaternion;
-
-
-	if (g_Alive() && (Remote() || OnServer()))
+    
+ 	if (g_Alive() && (Remote() || OnServer()))
 	{
 		Fvector currentPosition;
 		character_physics_support()->movement()->GetPosition(currentPosition);
@@ -111,6 +110,12 @@ void CActorMP::net_Import	( NET_Packet &P)
 		// Нужно для телепорта игрока.
 		if (currentPosition.distance_to_sqr(N_A.State.position) > 16.f) // distance > 4m
 		{
+			Msg("Set POS DISTANCE > 16.f POS [%f][%f][%f]", 
+				N_A.State.position.x, 
+				N_A.State.position.y, 
+				N_A.State.position.z
+			);
+
 			character_physics_support()->movement()->SetPosition(N_A.State.position);
 			character_physics_support()->movement()->SetVelocity(0, 0, 0);
 			character_physics_support()->movement()->GetPosition(Position());
