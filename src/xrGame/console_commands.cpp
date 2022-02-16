@@ -2163,7 +2163,7 @@ CMD4(CCC_FloatBlock,		"dbg_text_height_scale",	&dbg_text_height_scale	,			0.2f	,
 	
 #endif // MASTER_GOLD
 
-	CMD4(CCC_TimeFactorSingle, "time_factor_single", &g_fTimeFactor, 0.f, 1000.0f);
+	//CMD4(CCC_TimeFactorSingle, "time_factor_single", &g_fTimeFactor, 0.f, 1000.0f);
 
 	g_uCommonFlags.zero();
 	g_uCommonFlags.set(flAiUseTorchDynamicLights, TRUE);
