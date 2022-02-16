@@ -435,7 +435,7 @@ void CUIActorMenu::InitInventoryContents(CUIDragDropListEx* pBagList)
 	InitCellForSlot				(DETECTOR_SLOT);
 	InitCellForSlot				(GRENADE_SLOT);
 	InitCellForSlot				(HELMET_SLOT);
-	InitCellForSlot				(PDA_SLOT);
+	//InitCellForSlot				(PDA_SLOT);
 
 	curr_list					= m_pInventoryBeltList;
 	TIItemContainer::iterator itb = m_pActorInvOwner->inventory().m_belt.begin();
@@ -977,7 +977,7 @@ void CUIActorMenu::PropertiesBoxForWeapon( CUICellItem* cell_item, PIItem item, 
 		{
 		}
 	}
-	if ( smart_cast<CWeaponMagazined*>(pWeapon) && IsGameTypeSingle() )
+	if ( smart_cast<CWeaponMagazined*>(pWeapon) )
 	{
 		bool b = ( pWeapon->GetAmmoElapsed() !=0 );
 		if ( !b )
@@ -1249,21 +1249,52 @@ void CUIActorMenu::ProcessPropertiesBoxClicked( CUIWindow* w, void* d )
 		break;
 	case INVENTORY_UNLOAD_MAGAZINE:
 		{
-			CWeaponMagazined* weap_mag = smart_cast<CWeaponMagazined*>( (CWeapon*)cell_item->m_pData );
-			if ( !weap_mag )
+			if (IsGameTypeSingle())
 			{
-				break;
-			}
-			weap_mag->UnloadMagazine();
-			for ( u32 i = 0; i < cell_item->ChildsCount(); ++i )
-			{
-				CUICellItem*		child_itm		= cell_item->Child(i);
-				CWeaponMagazined*	child_weap_mag	= smart_cast<CWeaponMagazined*>( (CWeapon*)child_itm->m_pData );
-				if ( child_weap_mag )
+				CWeaponMagazined* weap_mag = smart_cast<CWeaponMagazined*>( (CWeapon*)cell_item->m_pData );
+				if ( !weap_mag )
 				{
-					child_weap_mag->UnloadMagazine();
+					break;
+				}
+
+				weap_mag->UnloadMagazine();
+
+				for ( u32 i = 0; i < cell_item->ChildsCount(); ++i )
+				{
+					CUICellItem*		child_itm		= cell_item->Child(i);
+					CWeaponMagazined*	child_weap_mag	= smart_cast<CWeaponMagazined*>( (CWeapon*)child_itm->m_pData );
+					if ( child_weap_mag )
+					{
+						child_weap_mag->UnloadMagazine();
+					}
 				}
 			}
+			else
+			{
+				CWeaponMagazined* weap_mag = smart_cast<CWeaponMagazined*>((CWeapon*)cell_item->m_pData);
+				if (!weap_mag)
+					break;
+				NET_Packet packet;
+				Game().u_EventGen(packet, GE_UNLOAD_AMMO, weap_mag->ID());
+				Game().u_EventSend(packet);
+
+
+				for (u32 i = 0; i < cell_item->ChildsCount(); ++i)
+				{
+					CUICellItem* child_itm = cell_item->Child(i);
+					CWeaponMagazined* child_weap_mag = smart_cast<CWeaponMagazined*>((CWeapon*)child_itm->m_pData);
+					
+					if (!child_weap_mag)
+						continue;
+
+					NET_Packet packet;
+					Game().u_EventGen(packet, GE_UNLOAD_AMMO, child_weap_mag->ID());
+					Game().u_EventSend(packet);
+				}
+
+			}
+
+
 			break;
 		}
 	case INVENTORY_REPAIR:
