@@ -152,28 +152,19 @@ const xr_vector<DetailPathManager::STravelPathPoint>	&CMovementManager::path	() 
 }
 
 void CMovementManager::update_path				()
-{ 
-	//Msg("Object[%s], wait[%d]", this->object().Name(), wait_for_distributed_computation());
-		
-	/*
-	if (level_path().failed() )
+{
+	if (level_path().failed())
+	{
+		Msg("Object[%s], wait[%d]", this->object().Name(), wait_for_distributed_computation());
 		m_wait_errors += 1;
-
-	if (m_wait_errors > 20 && !WaitTime)
-	{
-		WaitTime = Device.dwTimeGlobal;
-		return;
 	}
-	  
-	if (Device.dwTimeGlobal - WaitTime > 2000)
-	{
-		m_wait_errors = 0;
-		WaitTime = 0;
-	}
-	else
-		return;
-	*/
 
+	if (m_wait_errors > 20 /* && !WaitTime*/)
+	{
+		//WaitTime = Device.dwTimeGlobal;
+		//return;
+	}
+ 
 	if (!enabled() || wait_for_distributed_computation()) 
 		return;
  
