@@ -19,15 +19,22 @@ struct SpawnSect
 	xr_vector<xr_string> StartItems;
 };
 
-
+class xrServer;
+class CALifeSimulator;
 
 class game_sv_freemp : public game_sv_mp, private pure_relcase
 {
 	typedef game_sv_mp inherited;
 	SpawnSect spawned_items;
- 
+	bool loaded_inventory = false;
+
+protected:
+	CALifeSimulator* m_alife_simulator;
+
+
 public:
 	xr_map<ClientID, Team> teamPlayers;
+	bool surge_started;
 	
 	
 	game_sv_freemp();
@@ -60,6 +67,8 @@ public:
 
 	virtual		BOOL				OnTouch(u16 eid_who, u16 eid_what, BOOL bForced = FALSE);
 
+	bool		SpawnItemToPos(LPCSTR section, Fvector3 position);
+
 	virtual		void				on_death(CSE_Abstract* e_dest, CSE_Abstract* e_src);
 
 	virtual		void				OnPlayerTrade(NET_Packet &P, ClientID const & clientID);
@@ -68,7 +77,7 @@ public:
 	virtual		bool                LoadPlayer(game_PlayerState* id_who);
 	virtual		bool				LoadPlayerPosition(game_PlayerState* ps, Fvector& position, Fvector& angle);
 
-				bool				GetPosAngleFromActor(ClientID id, Fvector& Pos, Fvector& Angle);
+			//	bool				GetPosAngleFromActor(ClientID id, Fvector& Pos, Fvector& Angle);
 
 				void				assign_RP(CSE_Abstract* E, game_PlayerState* ps_who);
 
@@ -83,10 +92,26 @@ public:
 
 
 	void OnPlayerUIContacts(NET_Packet& P, ClientID const& clientID);
-	
 	void OnPlayerUIContactsRecvest(NET_Packet& P, ClientID const& clientID);
-
 	void OnPlayerUIContactsRecvestUpdate(ClientID Client, ClientID leader);
-
 	void OnPlayerUIContactsRemoveUser(ClientID Client, ClientID Leader);
+
+ 
+
+	virtual	bool change_level(NET_Packet& net_packet, ClientID sender);
+	void restart_simulator(LPCSTR saved_game_name);
+	void save_game(NET_Packet& net_packet, ClientID sender);
+	bool load_game(NET_Packet& net_packet, ClientID sender);
+ 
+	IC			xrServer& server() const
+	{
+		VERIFY(m_server);
+		return						(*m_server);
+	}
+
+	IC			CALifeSimulator& alife() const
+	{
+		VERIFY(m_alife_simulator);
+		return						(*m_alife_simulator);
+	}
 };

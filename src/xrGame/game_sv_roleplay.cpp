@@ -7,6 +7,8 @@ game_sv_roleplay::game_sv_roleplay()
 {
 	if (g_dedicated_server)
 		m_type = eGameIDRolePlay;
+	else
+		R_ASSERT("НЕ Возвможно запустить сервер с клиента");
 }
 
 game_sv_roleplay::~game_sv_roleplay()

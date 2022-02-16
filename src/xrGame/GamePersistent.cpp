@@ -692,7 +692,7 @@ void CGamePersistent::OnFrame	()
 #include "ui/UIMainIngameWnd.h"
 #include "ui/UIPdaWnd.h"
 #include "Level.h"
-#include "game_sv_mp.h"
+#include "game_sv_freemp.h"
 
 void CGamePersistent::OnEvent(EVENT E, u64 P1, u64 P2, u64 P3)
 {
@@ -720,7 +720,8 @@ void CGamePersistent::OnEvent(EVENT E, u64 P1, u64 P2, u64 P3)
 
 		Level().remove_objects	();
 		
-		if (IsGameTypeSingle()){
+		if (IsGameTypeSingle())
+		{
 			game_sv_Single			*game = smart_cast<game_sv_Single*>(Level().Server->game);
 			R_ASSERT				(game);
 			game->restart_simulator	(saved_name);
@@ -728,14 +729,15 @@ void CGamePersistent::OnEvent(EVENT E, u64 P1, u64 P2, u64 P3)
 		}
 		else
 		{
-			game_sv_mp* game = smart_cast<game_sv_mp*>(Level().Server->game);
+			game_sv_freemp* game = smart_cast<game_sv_freemp*>(Level().Server->game);
 			R_ASSERT(game);
 			game->restart_simulator(saved_name);
 			xr_free(saved_name);
 		}
 
 		return;
-	}else
+	}
+	else
 	if(E==eDemoStart)
 	{
 		string256			cmd;

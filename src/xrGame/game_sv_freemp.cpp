@@ -2,26 +2,32 @@
 #include "game_sv_freemp.h"
 #include "Level.h"
 #include "alife_simulator.h"
-bool loaded_inventory = false;
 
-game_sv_freemp::game_sv_freemp()
-	:pure_relcase(&game_sv_freemp::net_Relcase)
+
+game_sv_freemp::game_sv_freemp() : pure_relcase(&game_sv_freemp::net_Relcase)
 {
 	if (g_dedicated_server)
 	{
+		m_alife_simulator = NULL;
 		m_type = eGameIDFreeMp;
 		loaded_inventory = false;
 	}
+	else
+		R_ASSERT("НЕ Возвможно запустить сервер с клиента");
 }
 
 game_sv_freemp::~game_sv_freemp()
 {
 	Msg("[game_sv_freemp] Destroy Server");
 	loaded_inventory = false;
+	delete_data(m_alife_simulator);
 }
 
 void game_sv_freemp::Create(shared_str & options)
 {
+
+	m_alife_simulator = xr_new<CALifeSimulator>(&server(), &options);
+
 	inherited::Create(options);
 	R_ASSERT2(rpoints[0].size(), "rpoints for players not found");
 
@@ -225,31 +231,19 @@ void game_sv_freemp::OnPlayerReady(ClientID id_who)
 
 		RespawnPlayer(id_who, true);
 		
-		if (!flag)
-		{
-			if (Game().Type() == eGameIDFreeMp)
-			{
-				for (auto& item : spawned_items.StartItems)
-				{
-					SpawnItemToActor(ps->GameID, item.c_str());
-				}
-				// set start money
-				ps->money_for_round = spawned_items.StartMoney;
-			}
-		}
-		else
-			if (LoadPlayer(ps))
-				return;
+		if (flag)
+		if (LoadPlayer(ps))
+			return;
 
-			if (Game().Type() == eGameIDFreeMp)
+		if (Game().Type() == eGameIDFreeMp)
+		{
+			for (auto& item : spawned_items.StartItems)
 			{
-				for (auto& item : spawned_items.StartItems)
-				{
-					SpawnItemToActor(ps->GameID, item.c_str());
-				}
-				// set start money
-				ps->money_for_round = spawned_items.StartMoney;
+				SpawnItemToActor(ps->GameID, item.c_str());
 			}
+			// set start money
+			ps->money_for_round = spawned_items.StartMoney;
+		}
 
 	} break;
 
@@ -452,14 +446,13 @@ void game_sv_freemp::Update()
 			for (auto player : players.second.players)
 			{
 				OnPlayerUIContactsRecvestUpdate(player, players.second.ClientLeader);
-				Msg("Recvest Send %u / Leader %u", player, players.second.ClientLeader);
-				
+				//Msg("Recvest Send %u / Leader %u", player, players.second.ClientLeader);
 			}
 		}
 	}
 
 
-	if (Device.dwTimeGlobal - oldTimeInventoryBoxSave > 2000 && loaded_inventory)
+	if (Device.dwTimeGlobal - oldTimeInventoryBoxSave > 30000 && loaded_inventory)
 	{
 		xrS_entities* entitys = server().GetEntitys();
 		auto begin = entitys->begin();
@@ -473,6 +466,7 @@ void game_sv_freemp::Update()
 			if (box)
 				save_inventoryBox(box);
 		}
+
 		oldTimeInventoryBoxSave = Device.dwTimeGlobal;
 	}
 }
@@ -488,14 +482,4 @@ BOOL game_sv_freemp::OnTouch(u16 eid_who, u16 eid_what, BOOL bForced)
 		return FALSE;
 
 	return TRUE;
-}
-
-void game_sv_freemp::on_death(CSE_Abstract* e_dest, CSE_Abstract* e_src)
-{
-	inherited::on_death(e_dest, e_src);
-
-	if (!ai().get_alife())
-		return;
-
-	alife().on_death(e_dest, e_src);
 }
