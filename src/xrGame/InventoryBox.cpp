@@ -85,7 +85,8 @@ void CInventoryBox::OnEvent(NET_Packet& P, u16 type)
 		 
 			auto it = std::find(m_items.begin(), m_items.end(), id);
 			VERIFY(it != m_items.end());
-			m_items.erase(it);
+			if (it != m_items.end())
+				m_items.erase(it);
 			 
 			 
 			bool just_before_destroy		= !P.r_eof() && P.r_u8();

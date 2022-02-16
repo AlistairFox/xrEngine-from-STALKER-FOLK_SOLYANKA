@@ -245,44 +245,43 @@ bool game_sv_freemp::LoadPlayerPosition(game_PlayerState* ps, Fvector& position,
 	return false;
 }
 
+/*
 bool game_sv_freemp::GetPosAngleFromActor(ClientID id, Fvector& Pos, Fvector& Angle)
 {
 	xrClientData* xrData = server().ID_to_client(id);
-	if (!xrData)
-		return false;
 
-	if (!xrData->ps)
-		return false;
-	
+	if (xrData)
+	if (xrData->ps)	
+	if (!surge_started)
 	if (LoadPlayerPosition(xrData->ps, Pos, Angle) )
 	{
 		Msg("Position Set [%.0f][%.0f][%.0f]", Pos.x, Pos.y, Pos.z);
 		return true;
 	}
-	 
-		
+ 	
 	return inherited::GetPosAngleFromActor(id, Pos, Angle);
  
 }
+*/
 
 void game_sv_freemp::assign_RP(CSE_Abstract* E, game_PlayerState* ps_who)
 {
-	if (ps_who->testFlag(GAME_PLAYER_MP_ON_CONNECTED))
+	if (ps_who->testFlag(GAME_PLAYER_MP_ON_CONNECTED) && !surge_started)
 	{
 		Fvector Pos, Angle;
-		ps_who->resetFlag(GAME_PLAYER_MP_ON_CONNECTED);
+
 		if (LoadPlayerPosition(ps_who, Pos, Angle))
 		{
 			E->o_Position.set(Pos);
 			E->o_Angle.set(Angle);
-			return;
 		}
-
-
+		ps_who->resetFlag(GAME_PLAYER_MP_ON_CONNECTED);
+		return;
 	}
-	 
+
+	ps_who->resetFlag(GAME_PLAYER_MP_ON_CONNECTED);
+
 	inherited::assign_RP(E, ps_who);
- 
 }
 
 void game_sv_freemp::set_account_nickname(LPCSTR login, LPCSTR password, LPCSTR new_nickname, u32 team)
@@ -433,7 +432,7 @@ void game_sv_freemp::save_inventoryBox(CSE_Abstract* ent)
 			CWeaponAmmo* wpn_ammo = smart_cast<CWeaponAmmo*>(item);
 
 			string2048 updates;
-			item->get_upgrades_str(updates);
+			item->get_upgrades(updates);
 			
 			table << "Section" << String(item->m_section_id.c_str());
 

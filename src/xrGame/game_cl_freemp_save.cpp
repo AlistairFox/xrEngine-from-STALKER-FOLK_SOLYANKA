@@ -46,14 +46,9 @@ void game_cl_freemp::save_player(game_PlayerState* cl)
 
 		string2048 updates = {0};
 		
-		int prop_count = 0;
-		for (auto upgrade : item->upgardes() )
+		if (item->has_any_upgrades())
 		{
-			if (prop_count > 0)
-				xr_strcat(updates, sizeof(updates), ", ");
-
-			xr_strcat(updates, sizeof(updates), upgrade.c_str());
-			prop_count += 1;
+			item->get_upgrades(updates);
 		}
  
 		table << "Section" << String(item->m_section_id.c_str());

@@ -88,6 +88,30 @@ bool CInventoryItem::get_upgrades_str( string2048& res ) const
 	return false;
 }
 
+bool CInventoryItem::get_upgrades(string2048& res)
+{
+	int prop_count = 0;
+	res[0] = 0;
+ 
+	for (auto str : m_upgrades)
+	{
+		LPCSTR upgr_section = str.c_str();
+		if (prop_count > 0)
+		{
+			xr_strcat(res, sizeof(res), ", ");
+		}
+		xr_strcat(res, sizeof(res), upgr_section);
+		++prop_count;
+	}
+
+	if (prop_count > 0)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 bool CInventoryItem::equal_upgrades( Upgrades_type const& other_upgrades ) const
 {
 	if ( m_upgrades.size() != other_upgrades.size() )
