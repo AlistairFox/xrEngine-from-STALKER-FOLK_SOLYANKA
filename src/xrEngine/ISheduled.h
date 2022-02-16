@@ -9,6 +9,7 @@ public:
 		u32		t_max		:	14;		// maximal bound of update time (sample: 200ms)
 		u32		b_RT		:	1;
 		u32		b_locked	:	1;
+		bool	fast_exit	: 1;
 	}	shedule;
 
 #ifdef DEBUG

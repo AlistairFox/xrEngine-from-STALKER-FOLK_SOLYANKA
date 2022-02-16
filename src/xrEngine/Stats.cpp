@@ -328,13 +328,13 @@ void CStats::Show()
 		//////////////////////////////////////////////////////////////////////////
 		// Renderer specific
 		F.SetHeightI						(f_base_size);
-		F.OutSet						(200,0);
+		F.OutSet						(400,0);
 		Render->Statistics				(&F);
 
 		//////////////////////////////////////////////////////////////////////////
 		// Game specific
 		F.SetHeightI						(f_base_size);
-		F.OutSet						(400,0);
+		F.OutSet						(600,0);
 		g_pGamePersistent->Statistics	(&F);
 
 		//////////////////////////////////////////////////////////////////////////

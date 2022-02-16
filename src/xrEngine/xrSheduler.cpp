@@ -419,22 +419,54 @@ extern u32 shedule_time_ms;
 #include "../xrServerEntities/clsid_game.h"
 #include "IGame_Persistent.h"
 
+
+u32 oldTimeUpdate;
+
 void CSheduler::ProcessStep			()
 {
 	// Normal priority
 	u32		dwTime					= Device.dwTimeGlobal;
 	CTimer							eTimer;
+	
 	eTimer.Start();
+		
+	/*
+	if (Device.dwTimeGlobal - oldTimeUpdate > 1000)
+	{
+		for (auto Item : Items)
+		{
+			if (!Item.Object)
+				continue;
 
+			if (!Item.Object->shedule.fast_exit)
+				continue;
+
+			float scale = Item.Object->shedule_Scale();
+
+			if (scale < 1)
+			{
+				Item.dwTimeForExecute = Device.dwTimeGlobal;
+			}
+		}
+
+		oldTimeUpdate = Device.dwTimeGlobal;
+	} 
+	*/
+ 
 
 	for (int i=0;!Items.empty() && Top().dwTimeForExecute < dwTime; ++i)
 	{
-		u32		delta_ms			= dwTime - Top().dwTimeForExecute;
+		//u32		delta_ms			= dwTime - Top().dwTimeForExecute;
 
 		// Update
 		Item	T					= Top	();
 		u32		Elapsed				= dwTime-T.dwTimeOfLastExecute;
 		bool	condition					= (NULL==T.Object || !T.Object->shedule_Needed());
+		
+		
+
+		//if (Top().dwTimeForExecute > dwTime && scale > 1)
+		//	continue;
 
 		if (condition) 
 		{ 
@@ -448,18 +480,20 @@ void CSheduler::ProcessStep			()
 		// Calc next update interval
 		u32		dwMin				= _max(u32(30),T.Object->shedule.t_min);
 		u32		dwMax				= (1000+T.Object->shedule.t_max)/2;
-		float	scale				= T.Object->shedule_Scale	(); 
+		float	scale				= T.Object->shedule_Scale();
 		u32		dwUpdate			= dwMin+iFloor(float(dwMax-dwMin)*scale);
 		clamp	(dwUpdate,u32(_max(dwMin,u32(20))),dwMax);
 
 		if (scale > 1)
 		{
 			dwUpdate *= scale;
+			//Msg("DW [%s] TIME [%u]", T.Object->shedule_Name().c_str(), dwUpdate);
 		}
-	 
+
 		m_current_step_obj = T.Object;
  
 		T.Object->shedule_Update(clampr(Elapsed, u32(1), u32(_max(u32(T.Object->shedule.t_max), u32(1000)))));
+	 
 
 		if (!m_current_step_obj)
 		{
@@ -490,12 +524,16 @@ void CSheduler::ProcessStep			()
 
 	shedule_time_ms += eTimer.GetElapsed_ms();
 
+
+
 	// Push "processed" back
 	while (ItemsProcessed.size())
 	{
 		Push	(ItemsProcessed.back())	;
 		ItemsProcessed.pop_back		()	;
 	}
+
+
 
 	// always try to decrease target
 	psShedulerTarget	-= psShedulerReaction;

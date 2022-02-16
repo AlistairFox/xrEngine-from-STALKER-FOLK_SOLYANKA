@@ -324,7 +324,8 @@ void CProfiler::GetServerInfo(CServerInfo* si)
 		string32 temp;
 		si->AddItem(itoa(i, temp, 10), tmp, RGB(128, 255, 255));
 		
-		//Msg(tmp);
+	
+		Msg(tmp);
  
 	}
 

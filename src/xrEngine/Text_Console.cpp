@@ -367,17 +367,23 @@ void CTextConsole::DrawLog( HDC hDC, RECT* pRect )
 		 
 
 
-
+		bool right = false;
 		ypos = 5;
 		for (u32 i = 0; i < m_server_info.Size(); ++i)
 		{
 			SetTextColor(hDC, m_server_info[i].color);
-			TextOut(hDC, 10, ypos, m_server_info[i].name, xr_strlen(m_server_info[i].name));
+
+			if (!right)
+				TextOut(hDC, 10, ypos, m_server_info[i].name, xr_strlen(m_server_info[i].name));
+			else 
+				TextOut(hDC, 300, ypos, m_server_info[i].name, xr_strlen(m_server_info[i].name));
 
 			ypos += tm.tmHeight;
-			if (ypos > y_top_max)
+			if (ypos > y_top_max - 40)
 			{
-				break;
+				right = true;
+				ypos = 5;
+				//break;
 			}
 		}
 	}

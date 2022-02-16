@@ -690,13 +690,21 @@ extern int			g_ErrorLineCount;
 
 ENGINE_API int			ps_r__Supersample			= 1;
 
+#ifdef DEDICATED_SERVER
 extern int updateCL_Rate = 30;
+#endif // !DEDICATE
+
+
  
 
 void CCC_Register()
 {
-	CMD4(CCC_Float, "r__viewport_near", &VIEWPORT_NEAR,0.05f, 1.0f);
-	CMD4(CCC_Integer, "shedule_updateCL", &updateCL_Rate, 1, 240);
+	
+	CMD4(CCC_Float, "r__viewport_near", &VIEWPORT_NEAR, 0.05f, 1.0f);
+
+#ifdef DEDICATED_SERVER
+	CMD4(CCC_Integer, "shedule_updateCL", &updateCL_Rate, 1, 500);
+#endif
 
 	// General
 	CMD1(CCC_Help,		"help"					);
@@ -753,7 +761,7 @@ void CCC_Register()
 	CMD3(CCC_Mask,		"rs_fullscreen",		&psDeviceFlags,		rsFullscreen			);
 	CMD3(CCC_Mask,		"rs_refresh_60hz",		&psDeviceFlags,		rsRefresh60hz			);
 	CMD3(CCC_Mask,		"rs_stats",				&psDeviceFlags,		rsStatistic				);
-	CMD4(CCC_Float,		"rs_vis_distance",		&psVisDistance,		0.4f,	1.5f			);
+	CMD4(CCC_Float,		"rs_vis_distance",		&psVisDistance,		0.1f,	1.5f			);
 
 	CMD3(CCC_Mask,		"rs_cam_pos",			&psDeviceFlags,		rsCameraPos				);
 	CMD3(CCC_Mask,		"rs_debug_lua",			&psDeviceFlags,		rsDebug);

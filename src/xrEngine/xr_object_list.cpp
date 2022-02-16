@@ -95,23 +95,15 @@ extern int updateCL_Rate;
 
 void	CObjectList::SingleUpdate	(CObject* O)
 {
-	if ( Device.dwTimeGlobal - O->dwFrame_UpdateCL < 1000 / updateCL_Rate )
+ 
+	if (Device.dwFrame == O->dwFrame_UpdateCL)
 	{
-#ifdef DEBUG
-//		if (O->getDestroy())
-//			Msg					("- !!!processing_enabled ->destroy_queue.push_back %s[%d] frame [%d]",O->cName().c_str(), O->ID(), Device.dwFrame);
-#endif // #ifdef DEBUG
-
 		return;
 	}
+ 
 
 	if ( !O->processing_enabled() ) 
 	{
-#ifdef DEBUG
-//		if (O->getDestroy())
-//			Msg					("- !!!processing_enabled ->destroy_queue.push_back %s[%d] frame [%d]",O->cName().c_str(), O->ID(), Device.dwFrame);
-#endif // #ifdef DEBUG
-
 		return;
 	}
 
@@ -119,8 +111,9 @@ void	CObjectList::SingleUpdate	(CObject* O)
 		SingleUpdate			(O->H_Parent());
 
 	Device.Statistic->UpdateClient_updated	++;
-	O->dwFrame_UpdateCL			= Device.dwTimeGlobal;
-
+ 
+	O->dwFrame_UpdateCL = Device.dwFrame;
+ 
 //	Msg							("[%d][0x%08x]IAmNotACrowAnyMore (CObjectList::SingleUpdate)", Device.dwFrame, dynamic_cast<void*>(O));
 
 	O->UpdateCL();

@@ -8,7 +8,7 @@ struct Item
 	u32			dwTimeForExecute;
 	u32			dwTimeOfLastExecute;
 	shared_str	scheduled_name;
-	ISheduled* Object;
+	ISheduled*  Object;
 	u32			dwPadding;				// for align-issues
 	u32			dwLastTimeUpdateClient;
 

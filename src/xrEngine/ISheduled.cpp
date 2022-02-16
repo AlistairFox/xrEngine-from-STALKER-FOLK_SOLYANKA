@@ -7,6 +7,7 @@ ISheduled::ISheduled	()
 	shedule.t_min		= 20;
 	shedule.t_max		= 1000;
 	shedule.b_locked	= FALSE;
+	shedule.fast_exit	= FALSE;
 #ifdef DEBUG
 	dbg_startframe		= 1;
 	dbg_update_shedule	= 0;
