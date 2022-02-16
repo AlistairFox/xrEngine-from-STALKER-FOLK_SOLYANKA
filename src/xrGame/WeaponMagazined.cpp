@@ -246,6 +246,9 @@ void CWeaponMagazined::UnloadMagazine(bool spawn_ammo)
 {
 	xr_map<LPCSTR, u16> l_ammo;
 	
+	if (m_magazine.empty())
+		return;
+
 	while(!m_magazine.empty()) 
 	{
 		CCartridge &l_cartridge = m_magazine.back();
@@ -259,7 +262,9 @@ void CWeaponMagazined::UnloadMagazine(bool spawn_ammo)
 			}
 		}
 
-		if(l_it == l_ammo.end()) l_ammo[*l_cartridge.m_ammoSect] = 1;
+		if(l_it == l_ammo.end()) 
+			l_ammo[*l_cartridge.m_ammoSect] = 1;
+
 		m_magazine.pop_back(); 
 		--iAmmoElapsed;
 	}
@@ -268,21 +273,23 @@ void CWeaponMagazined::UnloadMagazine(bool spawn_ammo)
 	
 	if (!spawn_ammo)
 		return;
-
-	xr_map<LPCSTR, u16>::iterator l_it;
-	for(l_it = l_ammo.begin(); l_ammo.end() != l_it; ++l_it) 
+ 
+	for(auto ammo : l_ammo)
 	{
 		if(m_pInventory)
 		{
-			CWeaponAmmo *l_pA = smart_cast<CWeaponAmmo*>(m_pInventory->GetAny(l_it->first));
-			if(l_pA) 
+			CWeaponAmmo* ammo_box = smart_cast<CWeaponAmmo*>(m_pInventory->GetAny(ammo.first));
+
+			if(ammo_box) 
 			{
-				u16 l_free = l_pA->m_boxSize - l_pA->m_boxCurr;
-				l_pA->m_boxCurr = l_pA->m_boxCurr + (l_free < l_it->second ? l_free : l_it->second);
-				l_it->second = l_it->second - (l_free < l_it->second ? l_free : l_it->second);
+				u16 ammo_free = ammo_box->m_boxSize - ammo_box->m_boxCurr;
+				ammo_box->m_boxCurr = ammo_box->m_boxCurr + (ammo_free < ammo.second ? ammo_free : ammo.second);
+				ammo.second = ammo.second - (ammo_free < ammo.second ? ammo_free : ammo.second);
 			}
 		}
-		if(l_it->second && !unlimited_ammo()) SpawnAmmo(l_it->second, l_it->first);
+		Msg("Spawn Ammo [%s] , [%d]", ammo.first, ammo.second);
+		if(ammo.second && !unlimited_ammo()) 
+			SpawnAmmo(ammo.second, ammo.first);
 	}
 }
 
@@ -1469,4 +1476,19 @@ void CWeaponMagazined::FireBullet(	const Fvector& pos,
 		}
 	}
 	inherited::FireBullet(pos, shot_dir, fire_disp, cartridge, parent_id, weapon_id, send_hit);
+}
+
+void CWeaponMagazined::OnEvent(NET_Packet& P, u16 type)
+{
+	switch (type)
+	{
+		case GE_UNLOAD_AMMO:
+		{
+			UnloadMagazine(true);
+		}break;
+
+		default:
+			inherited::OnEvent(P, type);
+			break;
+	}
 }

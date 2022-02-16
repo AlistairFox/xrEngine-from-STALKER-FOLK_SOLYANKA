@@ -172,4 +172,6 @@ protected:
 										 u16 weapon_id,
 										 bool send_hit);
 
+	virtual void	OnEvent(NET_Packet& P, u16 type);
+
 };

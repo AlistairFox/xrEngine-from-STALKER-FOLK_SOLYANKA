@@ -128,12 +128,15 @@ add_to_type_list(CSE_ALifeItemTorch)
 SERVER_ENTITY_DECLARE_BEGIN(CSE_ALifeItemAmmo,CSE_ALifeItem)
 	u16								a_elapsed;
 	u16								m_boxSize;
+	u32								oldUpdateTime;
 
 									CSE_ALifeItemAmmo	(LPCSTR caSection);
 	virtual							~CSE_ALifeItemAmmo	();
 	virtual CSE_ALifeItemAmmo		*cast_item_ammo		()  {return this;};
 	virtual bool					can_switch_online	() const;
 	virtual bool					can_switch_offline	() const;
+	virtual BOOL					Net_Relevant();
+
 SERVER_ENTITY_DECLARE_END
 add_to_type_list(CSE_ALifeItemAmmo)
 #define script_type_list save_type_list(CSE_ALifeItemAmmo)

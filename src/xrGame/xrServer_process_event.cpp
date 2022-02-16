@@ -13,6 +13,7 @@
 #include "InventoryBox.h"
 #include "Level.h"
 #include "game_sv_freemp.h"
+#include "WeaponMagazined.h"
  
 void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 {
@@ -460,8 +461,7 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 	{
 		SendBroadcast(sender, P, net_flags(true, true));
 	}break;
-  
-
+ 
     case GAME_EVENT_PDA_CHAT:
 	{
 		Process_events_PDA(P, sender);
@@ -476,6 +476,13 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 			ClientID id; P.r_clientID(id);
 			box->SE_Write_items_safe(id);
 		}
+	}break;
+
+	case GE_UNLOAD_AMMO:
+	{
+		NET_Packet packet;
+		game->u_EventGen(packet, GE_UNLOAD_AMMO, destination);
+		SendTo(SV_Client->ID, P, net_flags(true, true));
 	}break;
 
 	default:

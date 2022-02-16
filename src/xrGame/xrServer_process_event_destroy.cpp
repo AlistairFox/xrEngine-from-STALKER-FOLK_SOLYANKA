@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "xrServer.h"
 #include "game_sv_single.h"
-#include "game_sv_mp.h"
+#include "game_sv_freemp.h"
 #include "alife_simulator.h"
 #include "xrserver_objects.h"
 #include "game_base.h"
@@ -99,7 +99,7 @@ void xrServer::Process_event_destroy	(NET_Packet& P, ClientID sender, u32 time, 
 	if (e_dest->m_bALifeControl && ai().get_alife() && sender == GetServerClient()->ID) {
 			game_sv_Single*				_gameS = smart_cast<game_sv_Single*>(game);
 
-			game_sv_mp*					_gameM = smart_cast<game_sv_mp*>(game);
+			game_sv_freemp*					_gameM = smart_cast<game_sv_freemp*>(game);
 		
 			if (ai().alife().objects().object(id_dest,true))
 			{

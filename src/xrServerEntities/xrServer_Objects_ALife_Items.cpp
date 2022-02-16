@@ -926,6 +926,19 @@ bool CSE_ALifeItemAmmo::can_switch_offline	() const
 	return ( inherited::can_switch_offline() && a_elapsed!=0 );
 }
 
+BOOL CSE_ALifeItemAmmo::Net_Relevant()
+{
+	if (Device.dwTimeGlobal - oldUpdateTime > 1000)
+	if (ID_Parent != u16(-1) && a_elapsed != m_boxSize)
+	{
+		oldUpdateTime = Device.dwTimeGlobal;
+		return true;
+	}
+
+ 
+	return inherited::Net_Relevant();
+}
+
 ////////////////////////////////////////////////////////////////////////////
 // CSE_ALifeItemDetector
 ////////////////////////////////////////////////////////////////////////////

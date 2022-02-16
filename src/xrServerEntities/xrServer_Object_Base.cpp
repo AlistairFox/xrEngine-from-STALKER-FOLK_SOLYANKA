@@ -211,6 +211,7 @@ void CSE_Abstract::Spawn_Write				(NET_Packet	&tNetPacket, BOOL bLocal)
 	tNetPacket.w_u16			(ID_Phantom		);
 
 	s_flags.set					(M_SPAWN_VERSION,TRUE);
+
 	if (bLocal)
 		tNetPacket.w_u16		(u16(s_flags.flags|M_SPAWN_OBJECT_LOCAL) );
 	else
@@ -227,7 +228,8 @@ void CSE_Abstract::Spawn_Write				(NET_Packet	&tNetPacket, BOOL bLocal)
 	u16 client_data_size		= (u16)client_data.size(); //не может быть больше 256 байт
 	tNetPacket.w_u16			(client_data_size);
 //	Msg							("SERVER:saving:save:%d bytes:%d:%s",client_data_size,ID,s_name_replace ? s_name_replace : "");
-	if (client_data_size > 0) {
+	if (client_data_size > 0)
+	{
 		tNetPacket.w			(&*client_data.begin(),client_data_size);
 	}
 
@@ -249,8 +251,7 @@ void CSE_Abstract::Spawn_Write				(NET_Packet	&tNetPacket, BOOL bLocal)
 	STATE_Write					(tNetPacket);
 	u16 size					= u16(tNetPacket.w_tell() - position);
 //#ifdef XRSE_FACTORY_EXPORTS
-	R_ASSERT3					((m_tClassID == CLSID_SPECTATOR) || (size > sizeof(size)),
-		"object isn't successfully saved, get your backup :(",name_replace());
+	R_ASSERT3					((m_tClassID == CLSID_SPECTATOR) || (size > sizeof(size)), "object isn't successfully saved, get your backup :(",name_replace());
 //#endif
 	tNetPacket.w_seek			(position,&size,sizeof(u16));
 }
