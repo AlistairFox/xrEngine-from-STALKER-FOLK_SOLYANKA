@@ -94,6 +94,7 @@ int cam_dik = DIK_LALT;
 
 Fvector CCameraLook2::m_cam_offset;
 Fvector CCameraLook2::m_cam_offset_rs;
+Fvector CCameraLook2::m_cam_offset_ANIMMODE;
 
 extern float camerapos_x = 0; 
 
@@ -129,11 +130,9 @@ void CCameraLook2::Update(Fvector& point, Fvector& noise_dangle)
 	{
 		if (actor->MpAnimationMode())
 		{
-			Fvector3 offset;
-			offset.set(0.0f, 0.0f, -1.0f);
-
-			a_xform.transform_tiny(offset);
-			UpdateDistance(offset);
+			dist = 1.0f;
+			a_xform.transform_tiny(m_cam_offset_ANIMMODE);
+			UpdateDistance(m_cam_offset_ANIMMODE);
 		}
 		else
 		{
@@ -150,9 +149,11 @@ void CCameraLook2::Update(Fvector& point, Fvector& noise_dangle)
 void CCameraLook2::Load(LPCSTR section)
 {
 	CCameraLook::Load		(section);
-	m_cam_offset = Fvector().set(0.34, 0.2, 0);
-	//	m_cam_offset			= pSettings->r_fvector3	(section,"offset");
-//	m_cam_offset_rs			= pSettings->r_fvector3(section, "offset_rs");
+	//m_cam_offset = Fvector().set(0.34, 0.2, 0);
+	
+	//m_cam_offset			= pSettings->r_fvector3	  (section, "offset");
+	//m_cam_offset_ANIMMODE   = pSettings->r_fvector3   (section, "offset_anim_mode");
+	//	m_cam_offset_rs			= pSettings->r_fvector3(section, "offset_rs");
 
 }
 
