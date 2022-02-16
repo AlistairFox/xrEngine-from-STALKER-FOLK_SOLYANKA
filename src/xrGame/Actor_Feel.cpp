@@ -118,7 +118,7 @@ BOOL CActor::CanPickItem(const CFrustum& frustum, const Fvector& from, CObject* 
 void CActor::PickupModeUpdate()
 {
 	if(!m_bPickupMode)				return; // kUSE key pressed
-	if(!IsGameTypeSingle())			return;
+	//if(!IsGameTypeSingle())			return;
 
 	//подбирание объекта
 	if(	m_pObjectWeLookingAt									&& 
@@ -316,10 +316,6 @@ void CActor::feel_sound_new(CObject* who, int type, CSound_UserDataPtr user_data
 
 void CActor::Feel_Grenade_Update( float rad )
 {
-	if ( !IsGameTypeSingle() )
-	{
-		return;
-	}
 	// Find all nearest objects
 	Fvector pos_actor;
 	Center( pos_actor );
