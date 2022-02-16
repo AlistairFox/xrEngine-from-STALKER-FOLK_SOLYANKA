@@ -10,6 +10,7 @@
 #include "ui/UIStatic.h"
 #include "ui/UIXmlInit.h"
 #include "UIAnimMode.h"
+#include "ui/UIHelper.h"
 
 BOOL g_cl_draw_mp_statistic = FALSE;
 
@@ -24,6 +25,8 @@ CUIGameFMP::~CUIGameFMP()
 	xr_delete(m_animation);
 }
 
+u32 oldTimer;
+
 void CUIGameFMP::Init(int stage)
 {
 	CUIXml uiXml;
@@ -35,10 +38,16 @@ void CUIGameFMP::Init(int stage)
 		m_stats = xr_new<CUITextWnd>();
 		m_stats->SetAutoDelete(true);
 
+		
+
 		inherited::Init(stage);
 
 		CUIXmlInit::InitWindow(uiXml, "global", 0, m_window);
 		CUIXmlInit::InitTextWnd(uiXml, "stats", 0, m_stats);
+
+		surge_background = UIHelper::CreateStatic(uiXml, "surge", 0);
+		surge_cap = UIHelper::CreateTextWnd(uiXml, "surge_cap", 0);
+
 	}
 	else if (stage == 1)
 	{
@@ -50,6 +59,9 @@ void CUIGameFMP::Init(int stage)
 		//after
 		inherited::Init(stage);
 		m_window->AttachChild(m_stats);
+		m_window->AttachChild(surge_background);
+		m_window->AttachChild(surge_cap);
+
 	}
 	m_animation = xr_new<CUIAMode>();
 	m_animation->Init();
@@ -67,6 +79,8 @@ void CUIGameFMP::HideShownDialogs()
 {
 	inherited::HideShownDialogs();
 }
+
+#include "ui/UIInventoryUtilities.h"
 
 void _BCL CUIGameFMP::OnFrame()
 {
@@ -130,15 +144,50 @@ void _BCL CUIGameFMP::OnFrame()
 		m_stats->SetTextST(outstr);
 		m_stats->Enable(true);
 	}
-	else if (m_stats->IsEnabled())
+	else 
+	if (m_stats->IsEnabled())
 	{
 		m_stats->SetTextST("");
 		m_stats->Enable(false);
 	}
  
 
+	if (Device.dwTimeGlobal - oldTimer > 1000)
+	{
+		oldTimer = Device.dwTimeGlobal;
+
+		//Msg("LuaSurge time(%d) started(%s)", surge_time, surge_started ? "true" : "false");
+		if (surge_time > 30 && surge_started)
+		{
+			surge_background->Show(true);
+			surge_cap->Show(true);
+			/*
+			string32 timer, tmp;
+			xr_strcpy(timer, itoa(surge_time,tmp, 10));	
+			xr_strcat(timer, "\\");
+			xr_strcat(timer, itoa(surge_time_end, tmp, 10));
+			*/							  
+			LPCSTR timer = InventoryUtilities::GetTimeAsString((surge_time_end - surge_time) * 1000 * 60, InventoryUtilities::etpTimeToMinutes).c_str();
+			
+			surge_cap->SetText(timer);
+		}
+		else
+		{
+			if (surge_background->IsShown())
+				surge_background->Show(false);
+			
+			if (surge_cap->IsShown())
+				surge_cap->Show(false);
+		}
+
+		
+		
+	}
+
 	 
 }
+
+
 extern bool caps_lock;
 
 

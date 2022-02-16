@@ -79,16 +79,44 @@ void UIPdaChat::Init()
 	player_1_money = UIHelper::CreateTextWnd(xml, "player_1_money", m_background_chat);
 	player_2_money = UIHelper::CreateTextWnd(xml, "player_2_money", m_background_chat);
 	player_2_money->Show(false);
+
+
+	//Global Chat
+	CaptionMode = UIHelper::CreateTextWnd(xml, "switch_mode_cap", m_background_players);
+	switch_anonimous = UIHelper::Create3tButton(xml, "switch_anonimous", m_background_chat);
+	switch_mode_button = UIHelper::Create3tButton(xml, "switch_mode", m_background_players);
+
 	InitCallBacks();
 
+}
+
+void xr_stdcall UIPdaChat::button_click_mode_switch(CUIWindow* w, void* d)
+{
+	if (ModeGlobalChat)
+		ModeGlobalChat = false;
+	else
+		ModeGlobalChat = true;
+}
+
+void xr_stdcall UIPdaChat::button_click_anonimous_mode_switch(CUIWindow* w, void* d)
+{
+	if (Anonymous)
+		Anonymous = false;
+	else
+		Anonymous = true;
 }
 
 void UIPdaChat::InitCallBacks()
 {
 	Register(send_msg_to_user);
 	Register(send_money_button);
+	Register(switch_mode_button);
+	Register(switch_anonimous);
+
 	AddCallback(send_msg_to_user, BUTTON_CLICKED, CUIWndCallback::void_function(this, &UIPdaChat::button_click_send_msg));
 	AddCallback(send_money_button, BUTTON_CLICKED, CUIWndCallback::void_function(this, &UIPdaChat::button_click_send_money));
+	AddCallback(switch_mode_button, BUTTON_CLICKED, CUIWndCallback::void_function(this, &UIPdaChat::button_click_mode_switch));
+	AddCallback(switch_anonimous, BUTTON_CLICKED, CUIWndCallback::void_function(this, &UIPdaChat::button_click_anonimous_mode_switch));
 
 }
 
