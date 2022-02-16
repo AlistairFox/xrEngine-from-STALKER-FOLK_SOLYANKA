@@ -756,8 +756,11 @@ u64 updateCL_PHYSIC = 0;
 
 u32 old_TIME_PRINT = 0;
 
+extern int Shedule_Radius_Players;
+
 void CAI_Stalker::UpdateCL()
 {
+	/*
 	bool need_update = false;
 
 	for (auto pl : Game().players)
@@ -767,16 +770,17 @@ void CAI_Stalker::UpdateCL()
 			CObject* obj = Level().Objects.net_Find(id);
 
 			if (smart_cast<CActorMP*>(obj))
-				if (obj->Position().distance_to(this->Position()) < 60)
-				{
-					need_update = true;
-					break;
-				}
+			if (obj->Position().distance_to(this->Position()) < Shedule_Radius_Players)
+			{
+				need_update = true;
+				break;
+			}
 		}
 	}
 
 	if (!need_update)
 		return;
+	*/
 
 	LastUpdate = Device.dwTimeGlobal;
 
@@ -916,6 +920,16 @@ CPHDestroyable*		CAI_Stalker::		ph_destroyable	()
 
 void CAI_Stalker::shedule_Update		( u32 DT )
 {
+	u8 players = 0;
+	for (auto pl : Game().players)
+	{
+		if (smart_cast<CActor*>(Level().Objects.net_Find(pl.second->GameID)))
+			players += 1;
+	}
+
+	if (players == 0)
+		return;
+
 	if (!IsGameTypeSingle() && OnClient())
 	{
 		inherited::shedule_Update(DT);
@@ -1305,35 +1319,34 @@ void CAI_Stalker::on_after_change_team			()
 }
 
 extern float Shedule_Scale_AI_Stalker;
-extern int Shedule_Radius_Players;
+
+#include "Spectator.h"
 
 float CAI_Stalker::shedule_Scale				()
 {
+	if (OnClient)
+		return 	0;
+ 
 	if (Game().players.size() > 0)
 	{
 		bool finded = false;
-		u32 dist = 0;
-		for (auto pl : Game().players)
+ 		for (auto pl : Game().players)
 		{
 			CObject* obj = Level().Objects.net_Find(pl.second->GameID);
 
-			if (smart_cast<CActorMP*>(obj))
+			if (smart_cast<CActorMP*>(obj) || smart_cast<CSpectator*>(obj) )
 			{
 				u32 new_dist = obj->Position().distance_to(this->Position());
-				if (new_dist < Shedule_Radius_Players && dist > new_dist)
+				if (new_dist < Shedule_Radius_Players)
 				{
 					finded = true;
- 					//break;
-					dist = new_dist;
-				}
+					break;
+ 				}
 			}
 		}
-
-		if (dist < 30)
-			return 0;
-		
+ 	
 		if (finded)
-			return 0.25;
+			return 0;
 	}
  
  	return Shedule_Scale_AI_Stalker;

@@ -411,6 +411,7 @@ u64 monster_timers = 0;
 u64 monster_update_groop = 0;
 u64 monster_update_control = 0;
 
+extern int Shedule_Radius_Players;
 
 #include "actor_mp_client.h"
 
@@ -428,6 +429,7 @@ void CBaseMonster::UpdateCL()
 	}
 #endif
 
+	/*
 	bool need_update = false;
 
  	for (auto pl : Game().players)
@@ -437,7 +439,7 @@ void CBaseMonster::UpdateCL()
 			CObject* obj = Level().Objects.net_Find(id);
 
 			if (smart_cast<CActorMP*>(obj))
-			if (obj->Position().distance_to(this->Position()) < 60)
+			if (obj->Position().distance_to(this->Position()) < Shedule_Radius_Players)
 			{
 				need_update = true;
 				break;
@@ -447,7 +449,9 @@ void CBaseMonster::UpdateCL()
 
 	if (!need_update)  
 		return;
- 
+ 	*/
+
+
 	CTimer time;
 	 
 	if ((IsGameTypeSingle() || OnServer()) && EatedCorpse && !CorpseMemory.is_valid_corpse(EatedCorpse) )
@@ -509,33 +513,34 @@ void CBaseMonster::UpdateCL()
 extern float Shedule_Scale_AI_Stalker;
 extern int Shedule_Radius_Players;
 
+#include "Spectator.h"
+
 float CBaseMonster::shedule_Scale()
 {
+	if (OnClient)
+		return 	0;
+
 	if (Game().players.size() > 0)
 	{
 		bool finded = false;
-		u32 dist = 0;
-		for (auto pl : Game().players)
+ 		for (auto pl : Game().players)
 		{
 			CObject* obj = Level().Objects.net_Find(pl.second->GameID);
 
-			if (smart_cast<CActorMP*>(obj))
+			if (smart_cast<CActorMP*>(obj) || smart_cast<CSpectator*>(obj) )
 			{
 				u32 new_dist = obj->Position().distance_to(this->Position());
-				if (new_dist < Shedule_Radius_Players && dist > new_dist)
+				if (new_dist < Shedule_Radius_Players)
 				{
-					finded = true;
-					//break;
-					dist = new_dist;
-				}
+					finded = true;		 
+					break;
+ 				}
 			}
 		}
 
-		if (dist < 30)
-			return 0;
-
 		if (finded)
-			return 0.25;
+			return 0;
+ 
 	}
 
 	return Shedule_Scale_AI_Stalker;
@@ -547,6 +552,16 @@ float CBaseMonster::shedule_Scale()
 
 void CBaseMonster::shedule_Update(u32 dt)
 {
+	u8 players = 0;
+	for (auto pl : Game().players)
+	{
+		if (smart_cast<CActor*>(Level().Objects.net_Find(pl.second->GameID)))
+			players += 1;
+	}
+
+	if (players == 0)
+		return;
+
 #ifdef DEBUG
 	if ( is_paused () )
 	{
@@ -554,30 +569,6 @@ void CBaseMonster::shedule_Update(u32 dt)
 		return;
 	}
 #endif
-	bool need_update = false;
-
- 	for (auto pl : Game().players)
-	{
-		if (u32 id = pl.second->GameID)
-		{
-			CObject* obj = Level().Objects.net_Find(id);
-
-			if (smart_cast<CActorMP*>(obj))
-			if (obj->Position().distance_to_sqr(this->Position()) < 60 * 60)
-			{
-				need_update = true;
-				break;
-			}
-		}
-	}
-
-	if (!need_update)
-		return;
-
-	if (!need_update && LastShedule + 2000 < Device.dwTimeGlobal)
-		return;
-
-	LastShedule = Device.dwTimeGlobal;
 
 	CTimer time;
 	time.Start();

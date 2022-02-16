@@ -23,7 +23,7 @@ void CAI_Stalker::OnEventAnimations(bool update)
 void CAI_Stalker::OnEventAnimationsRecived()
 {	
 	u_last_script_motion_idx = u16(-1);
-	u_last_legs_motion_idx = u16(-1);
-	u_last_head_motion_idx = u16(-1);
-	u_last_torso_motion_idx = u16(-1);
+	//u_last_legs_motion_idx = u16(-1);
+	//u_last_head_motion_idx = u16(-1);
+	//u_last_torso_motion_idx = u16(-1);
 }
