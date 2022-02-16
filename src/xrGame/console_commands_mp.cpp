@@ -29,6 +29,15 @@
 
 #include <locale.h>
 
+
+#include "Inventory.h"
+#include "Weapon.h"
+#include "game_sv_freemp.h"
+#include "SIniFileStream.h"
+#include "actor_anim_defs.h"
+#include "cameralook.h"
+
+
 EGameIDs	ParseStringToGameType	(LPCSTR str);
 LPCSTR		GameTypeToString		(EGameIDs gt, bool bShort);
 LPCSTR		AddHyphens				(LPCSTR c);
@@ -2120,7 +2129,7 @@ public:
 	{
 		if (!g_pGameLevel || !Level().Server) return;
 
-		game_sv_mp* srv = smart_cast<game_sv_mp*>(Level().Server->game);
+		game_sv_freemp* srv = smart_cast<game_sv_freemp*>(Level().Server->game);
 		if (!srv) return;
 
 		string256 section;
@@ -2146,8 +2155,7 @@ public:
 		}
 
 		if (pSettings->section_exist(section))
-		//for (u32 i = 0; i < counts; i++)
-			srv->SpawnItemToPos(section, vec);
+ 			srv->SpawnItemToPos(section, vec);
 
 	}
 	virtual void		Save(IWriter *F) {};
@@ -3022,7 +3030,6 @@ public:
 						xrClientData* tmpxrclient = static_cast<xrClientData*>(Level().Server->GetClientByID(pl.first));
 						Level().Server->DisconnectClient(tmpxrclient, STRING_KICKED_BY_SERVER);
 
-
 						string_path path;
  						FS.file_delete("$mp_saves_file$", login);
 						break;
@@ -3111,8 +3118,6 @@ public:
 
 };
 
-#include "Inventory.h"
-#include "Weapon.h"
 
 class CCC_WEAPON_POSITION : public IConsole_Command
 {
@@ -3291,7 +3296,7 @@ public:
 	}
 };
 
-#include "SIniFileStream.h"
+
 
 class CCC_SaveStalkers : public IConsole_Command
 {
@@ -3343,6 +3348,8 @@ public:
 };
 
 
+
+
 class CCC_UnlimatedAmmo : public IConsole_Command
 {
 public:
@@ -3352,21 +3359,18 @@ public:
 	{
 		if (OnServer())
 		{
-			string1024 buff;
-			exclude_raid_from_args(args, buff, sizeof(buff));
-
 			if (!g_pGameLevel || !Level().Server) return;
 
-			game_sv_mp* srv = smart_cast<game_sv_mp*>(Level().Server->game);
+			game_sv_freemp* srv = smart_cast<game_sv_freemp*>(Level().Server->game);
 			if (!srv) return;
 	  
 			u32 tmp_cl;
 			ClientID clientID;
 
-			sscanf(buff, "%u",  &tmp_cl);
+			sscanf(args, "%u",  &tmp_cl);
 			clientID.set(tmp_cl);
 	 
-			xrClientData* CL = static_cast<xrClientData*>(Level().Server->GetClientByID(clientID));
+			xrClientData* CL = (xrClientData*) Level().Server->GetClientByID(clientID);
 			
 			if (!CL)
 				return;
@@ -3374,19 +3378,12 @@ public:
 			if (CL && CL->ps && (CL != Level().Server->GetServerClient()))
 			{
 				if (CL->ps->testFlag(GAME_PLAYER_MP_UNLIMATED_AMMO))
-				{
-					Msg("reset unl ammo [%d]", tmp_cl);
 					CL->ps->resetFlag(GAME_PLAYER_MP_UNLIMATED_AMMO);
-				}
 				else
-				{
-					Msg("Set unl ammo [%d]", tmp_cl);
 					CL->ps->setFlag(GAME_PLAYER_MP_UNLIMATED_AMMO);
-				}
 
 				srv->signal_Syncronize();
 			}
-
 		}
 		else 
 		{
@@ -3403,9 +3400,6 @@ public:
 };
 
 
-
-#include "actor_anim_defs.h"
-#include "cameralook.h"
 
 class CCC_TeleportToPosition : public IConsole_Command
 {
@@ -3429,20 +3423,15 @@ public:
 			game_sv_mp* sv_game = smart_cast<game_sv_mp*>(Level().Server->game);
 			if (!sv_game) return;
 
-			if (sv_game)
-			{
-				sv_game->TeleportPlayerTo(id, pos);
-			}
+ 			sv_game->TeleportPlayerTo(id, pos);
+
 		}
 		else
 		{
-			Fvector pos;
-			sscanf(args, "%f %f %f", &pos.x, &pos.y, &pos.z);
-
 			NET_Packet		P;
 			P.w_begin(M_REMOTE_CONTROL_CMD);
 			string128 str;
-			xr_sprintf(str, "adm_teleport %u %f %f %f", Game().local_svdpnid, pos.x, pos.y, pos.z);
+			xr_sprintf(str, "adm_teleport %u %s", Game().local_svdpnid, args);
 			P.w_stringZ(str);
 			Level().Send(P, net_flags(TRUE, TRUE));
 		}
@@ -3467,10 +3456,10 @@ public:
 			Fvector pos;
 			ClientID id, sec_id;
 			
-			string128 tmp;
-			exclude_raid_from_args(args, tmp, sizeof(tmp));
+			//string128 tmp;
+			//exclude_raid_from_args(args, tmp, sizeof(tmp));
 
-			sscanf(tmp, "%u %u", &Client_ID, &Second_ID);
+			sscanf(args, "%u %u", &Client_ID, &Second_ID);
 
 			id.set(Client_ID); 
 			sec_id.set(Second_ID);
@@ -3518,36 +3507,164 @@ public:
 	CCC_TeleportToPlayer(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
 	virtual void Execute(LPCSTR args)
 	{
-		u32 client_ID;
-		sscanf(args, "%u", &client_ID);
-
 		NET_Packet		P;
 		P.w_begin(M_REMOTE_CONTROL_CMD);
 		string128 str;
-		xr_sprintf(str, "adm_teleport_player %u %u", client_ID, Game().local_svdpnid);
+		xr_sprintf(str, "adm_teleport_player %u %u", args, Game().local_svdpnid);
 		P.w_stringZ(str);
 		Level().Send(P, net_flags(TRUE, TRUE));
 	}
 
 };
 
+class CCC_ChangeTeamPlayer : public IConsole_Command
+{
+public:
+	CCC_ChangeTeamPlayer(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
 
+	virtual void Execute(LPCSTR args)
+	{
+		if (OnServer())
+		{
+			string128 tmp;
+			exclude_raid_from_args(args, tmp, sizeof(tmp));
+
+			int team;
+			u32 clid;
+
+			sscanf(tmp, "%u %u", &clid, &team);
+			ClientID id; id.set(clid);
+
+			xrClientData* data = (xrClientData*)Level().Server->GetClientByID(id);
+			if (data)
+			{
+				data->ps->team = team;
+				Level().Server->game->signal_Syncronize();
+			}
+		}
+		else
+		{
+			NET_Packet		P;
+			P.w_begin(M_REMOTE_CONTROL_CMD);
+			string128 str;
+			xr_sprintf(str, "adm_set_team %s", args);
+			P.w_stringZ(str);
+			Level().Send(P, net_flags(TRUE, TRUE));
+		}
+	}
+};
 
 extern int PRINT_STACK;
 
 extern float Shedule_Scale_AI_Stalker = 0;
-extern int Shedule_Radius_Players	  = 0;
+extern int   Shedule_Radius_Players	  = 0;
 extern float Shedule_Scale_Objects = 0;
 
-void register_mp_console_commands()
+class CCC_AdmSurgeStop : public IConsole_Command
 {
+public:
+	CCC_AdmSurgeStop(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
+
+	virtual void Execute(LPCSTR args)
+	{
+		if (OnServer())
+		{
+			NET_Packet		P;
+			P.w_begin(M_SCRIPT_EVENT);
+			P.w_u8(17);
+			P.w_u8(1);
+			Level().Send(P, net_flags(TRUE, TRUE));
+		}
+		else
+		{
+			NET_Packet		P;
+			P.w_begin(M_REMOTE_CONTROL_CMD);
+			string128 str;
+			xr_sprintf(str, "adm_stop_surge");
+			P.w_stringZ(str);
+			Level().Send(P, net_flags(TRUE, TRUE));
+		}
+	}
+
+};
+
+class CCC_AdmFalloutStop : public IConsole_Command
+{
+public:
+	CCC_AdmFalloutStop(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
+	virtual void Execute(LPCSTR args)
+	{
+		if (OnServer())
+		{
+			NET_Packet		P;
+			P.w_begin(M_SCRIPT_EVENT);
+			P.w_u8(17);
+			P.w_u8(2);
+			Level().Send(P, net_flags(TRUE, TRUE));
+		}
+		else
+		{
+			NET_Packet		P;
+			P.w_begin(M_REMOTE_CONTROL_CMD);
+			string128 str;
+			xr_sprintf(str, "adm_stop_fallout");
+			P.w_stringZ(str);
+			Level().Send(P, net_flags(TRUE, TRUE));
+		}
+	}
+
+};
+
+class CCC_AdmPsiStormStop : public IConsole_Command
+{
+public:
+	CCC_AdmPsiStormStop(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
+	virtual void Execute(LPCSTR args)
+	{
+		if (OnServer())
+		{
+			NET_Packet		P;
+			P.w_begin(M_SCRIPT_EVENT);
+			P.w_u8(17);
+			P.w_u8(3);
+			Level().Send(P, net_flags(TRUE, TRUE));
+		}
+		else
+		{
+			NET_Packet		P;
+			P.w_begin(M_REMOTE_CONTROL_CMD);
+			string128 str;
+			xr_sprintf(str, "adm_stop_psi");
+			P.w_stringZ(str);
+			Level().Send(P, net_flags(TRUE, TRUE));
+		}
+	}
+
+};
+
+void register_mp_console_commands()
+{	   
+
+	CMD1(CCC_AdmSurgeStart, "adm_surge");
+	CMD1(CCC_AdmPsiStormStart, "adm_psi_storm");
+	CMD1(CCC_AdmFalloutStart, "adm_fallout");
+
+	CMD1(CCC_AdmSurgeStop, "adm_stop_surge");
+	CMD1(CCC_AdmFalloutStop, "adm_stop_fallout");
+	CMD1(CCC_AdmPsiStormStop, "adm_stop_psi");
 
 
+	CMD4(CCC_Float, "snd_volume_players", &psSoundVPlayers, 0, 1);
+	CMD4(CCC_Float, "snd_volume_recorder", &psSoundVRecorder, 0, 1);
+	CMD4(CCC_Integer, "snd_recorder_mode", &psSoundRecorderMode, 0, 1);
+	CMD4(CCC_Integer, "snd_recorder_denoise", &psSoundRecorderDenoise, 0, 1);
 
-	CMD1(CCC_TeleportToPlayer, "adm_teleport_to_player");
+
+	CMD1(CCC_TeleportPlayer, "adm_teleport_to_player");
 	CMD1(CCC_TeleportToPlayer, "adm_teleport_player");
-	CMD1(CCC_TeleportToPosition, "adm_teleport");
 
+	CMD1(CCC_TeleportToPosition, "adm_teleport");
+	CMD1(CCC_ChangeTeamPlayer, "adm_set_team");
 
 	CMD4(CCC_Float,   "ai_shedule", &Shedule_Scale_AI_Stalker, 0, 20);
 	CMD4(CCC_Integer, "ai_shedule_dist", &Shedule_Radius_Players, 0, 100);
@@ -3811,9 +3928,7 @@ void register_mp_console_commands()
 	CMD4(CCC_Integer,						"sv_traffic_optimization_level",	(int*)&g_sv_traffic_optimization_level, 0, 7);
 
 
-	CMD1(CCC_AdmSurgeStart,    "adm_surge");
-	CMD1(CCC_AdmPsiStormStart, "adm_psi_storm");
-	CMD1(CCC_AdmFalloutStart,  "adm_fallout");
+
 
 
 	CMD1(CCC_AdmRegister, "reg");
