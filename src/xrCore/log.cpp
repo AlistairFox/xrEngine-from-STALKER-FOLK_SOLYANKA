@@ -25,23 +25,6 @@ IWriter* filelog = nullptr;
 #include <sstream>
 void FlushLog			()
 {
-	if (false)
-	if (!no_log)
-	{
-		logCS.Enter			();
-		
-        if (filelog) 
-		{
-			FS.w_close(filelog);
-			xr_free(filelog);
-			filelog = FS.w_open(logFName);
-		}
-
-		if (LogFile)
-			LogFile->clear_and_free();
-
-		logCS.Leave			();
-    }
 }
 
 void AddOne				(const char *split) 
