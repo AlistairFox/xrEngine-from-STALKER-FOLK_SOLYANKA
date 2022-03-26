@@ -163,7 +163,7 @@ void ai_stalker_net_state::state_write(NET_Packet& packet)
 	{
 		packet.w_u8(u_health > 0.00001f ? 1 : 0);
 		packet.w_u8(u_active_slot);
-
+		packet.w_u16(u_active_item);
 		packet.w_float(u_body_yaw);
 		packet.w_float(u_head_yaw);
 		packet.w_float(u_body_pitch);
@@ -235,6 +235,7 @@ void ai_stalker_net_state::state_read(NET_Packet& packet)
 	{	
 		u_health = packet.r_u8();
 		packet.r_u8(u_active_slot);  //8 bit
+		packet.r_u16(u_active_item);
 		packet.r_float(u_body_yaw); //8 bit
 		packet.r_float(u_head_yaw); //8 bit
 		packet.r_float(u_body_pitch);

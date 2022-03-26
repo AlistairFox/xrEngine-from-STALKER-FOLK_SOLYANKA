@@ -40,11 +40,9 @@ void CPHActorCharacter::Create(dVector3 sizes)
 {
 	if(b_exist) return;
 	inherited::Create(sizes);
-	//if(!b_single_game)
-	//{
-	//	ClearRestrictors();
-	//}
+ 
 	RESTRICTOR_I i=begin(m_restrictors),e=end(m_restrictors);
+
 	for(;e!=i;++i)
 	{
 		(*i)->Create(this,sizes);
@@ -87,7 +85,9 @@ void SPHCharacterRestrictor::Create(CPHCharacter* ch,dVector3 sizes)
 	dGeomSetBody(m_restrictor_transform,m_character->get_body());
 	dSpaceAdd(m_character->dSpace(),m_restrictor_transform);
 	dGeomUserDataSetPhObject(m_restrictor,(CPHObject*)m_character);
-	switch(m_type) {
+
+	switch(m_type) 
+	{
 		case rtStalker:static_cast<CPHActorCharacter::stalker_restrictor*>(this)->Create(ch,sizes);
 		break;
 		case rtStalkerSmall:static_cast<CPHActorCharacter::stalker_small_restrictor*>(this)->Create(ch,sizes);
@@ -308,105 +308,122 @@ static void BigVelSeparate(dContact* c,bool &do_collide)
 
 void CPHActorCharacter::InitContact(dContact* c,bool &do_collide,u16 material_idx_1,u16	material_idx_2 )
 {
-
 	bool b1;
 	SFindPredicate fp(c,&b1);
 	RESTRICTOR_I r=std::find_if(begin(m_restrictors),end(m_restrictors),fp);
 	bool b_restrictor=(r!=end(m_restrictors));
+
 	SGameMtl*	material_1=GMLibrary().GetMaterialByIdx(material_idx_1);
 	SGameMtl*	material_2=GMLibrary().GetMaterialByIdx(material_idx_2);
+
 	if((material_1&&material_1->Flags.test(SGameMtl::flActorObstacle))||(material_2&&material_2->Flags.test(SGameMtl::flActorObstacle)))
 		do_collide=true;
-
-	if(b_single_game)
+ 
+	if(b_restrictor)
 	{
-	
-		if(b_restrictor)
-		{
-			b_side_contact=true;
-			//MulSprDmp(c->surface.soft_cfm,c->surface.soft_erp,def_spring_rate,def_dumping_rate);
-			c->surface.mu		=0.00f;
-		}
-		else
-			inherited::InitContact(c,do_collide,material_idx_1,material_idx_2);
+ 		b_side_contact=true;
+ 		c->surface.mu		= 0.00f;
 
-		if(b_restrictor&&
-			do_collide&&
-			!(b1 ? static_cast<CPHCharacter*>(retrieveGeomUserData(c->geom.g2)->ph_object)->ActorMovable():static_cast<CPHCharacter*>(retrieveGeomUserData(c->geom.g1)->ph_object)->ActorMovable())
+		if (do_collide &&
+			!(b1 ? static_cast<CPHCharacter*>(retrieveGeomUserData(c->geom.g2)->ph_object)->ActorMovable() : static_cast<CPHCharacter*>(retrieveGeomUserData(c->geom.g1)->ph_object)->ActorMovable())
 			)
 		{
-			dJointID contact_joint	= dJointCreateContactSpecial(0, ContactGroup, c);
+			dJointID contact_joint = dJointCreateContactSpecial(0, ContactGroup, c);
 			Enable();
 			CPHObject::Island().DActiveIsland()->ConnectJoint(contact_joint);
-			if(b1)
-				dJointAttach			(contact_joint, dGeomGetBody(c->geom.g1), 0);
+			if (b1)
+				dJointAttach(contact_joint, dGeomGetBody(c->geom.g1), 0);
 			else
-				dJointAttach			(contact_joint, 0, dGeomGetBody(c->geom.g2));
-			do_collide=false;
-			m_friction_factor*=0.1f;
-			
+				dJointAttach(contact_joint, 0, dGeomGetBody(c->geom.g2));
+
+			do_collide = false;
+			m_friction_factor *= 0.1f;
+
 		}
-		//BigVelSeparate( c, do_collide );
 	}
 	else
 	{
-		
-		dxGeomUserData* D1=retrieveGeomUserData(c->geom.g1);
-		dxGeomUserData* D2=retrieveGeomUserData(c->geom.g2);
-		if(D1&&D2)
+ 		//Msg("Not Inside Restrictor");
+		dxGeomUserData* D1 = retrieveGeomUserData(c->geom.g1);
+		dxGeomUserData* D2 = retrieveGeomUserData(c->geom.g2);
+
+		if (D1 && D2)
 		{
-			IPhysicsShellHolder* A1=(D1->ph_ref_object);
-			IPhysicsShellHolder* A2=(D2->ph_ref_object);
-			if( A1 && A2 && A1->IsActor() && A2->IsActor() )
+			IPhysicsShellHolder* A1 = (D1->ph_ref_object);
+			IPhysicsShellHolder* A2 = (D2->ph_ref_object);
+
+			if (A1 && A2)
 			{
-				do_collide=do_collide&&!b_restrictor&&(A1->ObjectPPhysicsShell()==0)==(A2->ObjectPPhysicsShell()==0);
-				c->surface.mu=1.f;
+				if (A1->IsActor() && A2->IsActor())
+				{
+					do_collide = do_collide && !b_restrictor && (A1->ObjectPPhysicsShell() == 0) == (A2->ObjectPPhysicsShell() == 0);
+					c->surface.mu = 1.f;
+				}
+
+				if (A1->IsStalker() || A2->IsStalker())
+				{
+					do_collide = false;
+ 					//Msg("Collide IS Stalker");
+ 				}
 			}
 		}
 
 		BigVelSeparate(c, do_collide);
-		
-		if(do_collide)
-			inherited::InitContact(c,do_collide,material_idx_1,material_idx_2);
 
-		
+
+		if (do_collide)
+			inherited::InitContact(c, do_collide, material_idx_1, material_idx_2);
 
 	}
+
+
+ 
+
 }
 
 void CPHActorCharacter::ChooseRestrictionType	(ERestrictionType my_type,float my_depth,CPHCharacter *ch)
 {
-if (my_type!=rtStalker||(ch->RestrictionType()!=rtStalker&&ch->RestrictionType()!=rtStalkerSmall))return;
-float checkR=m_restrictors[rtStalkerSmall]->m_restrictor_radius;//1.5f;//+m_restrictors[rtStalker]->m_restrictor_radius)/2.f;
+	if (my_type!=rtStalker ||  (ch->RestrictionType()!=rtStalker && ch->RestrictionType()!=rtStalkerSmall)	  )
+		return;
 
-switch(ch->RestrictionType())
-{
-case rtStalkerSmall:
-	if( ch->ObjectRadius() > checkR )
+	float checkR=m_restrictors[rtStalkerSmall]->m_restrictor_radius;
+
+//	Msg("Restriction Radius %f", checkR);
+//	Msg("Restriction Obj %f", ch->ObjectRadius());
+
+	//ch->SetNewRestrictionType(rtNone);
+	//Msg("Restriction AFTER Obj %f", ch->ObjectRadius());
+	
+ 
+	switch(ch->RestrictionType())
 	{
-		//if(my_depth>0.05f)
-		ch->SetNewRestrictionType(rtStalker);
-		Enable();
-		//else ch->SetRestrictionType(rtStalker);
-#ifdef DEBUG
-		if(debug_output().ph_dbg_draw_mask1().test(ph_m1_DbgActorRestriction))
-				Msg("restriction ready to change small -> large");
-#endif
+		case rtStalkerSmall:
+			if( ch->ObjectRadius() > checkR )
+			{
+ 				ch->SetNewRestrictionType(rtStalker);
+				Enable();
+ 
+				#ifdef DEBUG
+						if(debug_output().ph_dbg_draw_mask1().test(ph_m1_DbgActorRestriction))
+								Msg("restriction ready to change small -> large");
+				#endif
+			}
+			break;
+
+		case rtStalker:
+			if( ch->ObjectRadius() < checkR )
+			{
+				#ifdef DEBUG
+						if(debug_output().ph_dbg_draw_mask1().test(ph_m1_DbgActorRestriction))
+										Msg("restriction  change large ->  small");
+				#endif
+				ch->SetRestrictionType(rtStalkerSmall);
+				Enable();
+			}
+			break;
+
+		default:NODEFAULT;
 	}
-	break;
-case rtStalker:
-	if( ch->ObjectRadius() < checkR )
-	{
-#ifdef DEBUG
-		if(debug_output().ph_dbg_draw_mask1().test(ph_m1_DbgActorRestriction))
-						Msg("restriction  change large ->  small");
-#endif
-		ch->SetRestrictionType(rtStalkerSmall);
-		Enable();
-	}
-	break;
-default:NODEFAULT;
-}
 
 }
 

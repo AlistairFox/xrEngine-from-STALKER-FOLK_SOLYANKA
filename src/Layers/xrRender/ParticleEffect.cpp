@@ -536,15 +536,16 @@ void CParticleEffect::Render(float )
     u32 			p_cnt;
     ParticleManager()->GetParticles(m_HandleEffect,particles,p_cnt);
 
-	if(p_cnt>0)
+	if (p_cnt>0)
 	{
-		if (m_Def&&m_Def->m_Flags.is(CPEDef::dfSprite)){
+		if (m_Def && m_Def->m_Flags.is(CPEDef::dfSprite))
+		{
 			FVF::LIT* pv_start	= (FVF::LIT*)RCache.Vertex.Lock(p_cnt*4*4,geom->vb_stride,dwOffset);
 			FVF::LIT* pv		= pv_start;
 
 			u32 nWorkers = ttapi_GetWorkersCount();
 
-			if ( p_cnt < nWorkers * 20 )
+			//if ( p_cnt < nWorkers * 20 )
 				nWorkers = 1;
 
 			PRS_PARAMS* prsParams = (PRS_PARAMS*) _alloca( sizeof(PRS_PARAMS) * nWorkers );
@@ -558,7 +559,8 @@ void CParticleEffect::Render(float )
 
 			//Msg( "Rnd: %u" , nStep );
 
-			for ( u32 i = 0 ; i < nWorkers ; ++i ) {
+			for ( u32 i = 0 ; i < nWorkers ; ++i ) 
+			{
 				prsParams[i].pv = pv + i*nStep*4;
 				prsParams[i].p_from = i * nStep;
 				prsParams[i].p_to = ( i == ( nWorkers - 1 ) ) ? p_cnt : ( prsParams[i].p_from + nStep );

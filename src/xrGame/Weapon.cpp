@@ -1853,12 +1853,13 @@ bool CWeapon::unlimited_ammo()
 	CActor* act = smart_cast<CActor*>(H_Parent());
 
 	if (act)
-	{
-		//Msg("UNL [%d]", act->unlimited_ammo());
 		return act->unlimited_ammo();
-	}
 
-	return inventory_owner().unlimited_ammo() && m_DefaultCartridge.m_flags.test(CCartridge::cfCanBeUnlimited);
+	if (smart_cast<CInventoryOwner*>(H_Parent()))
+		return inventory_owner().unlimited_ammo() && m_DefaultCartridge.m_flags.test(CCartridge::cfCanBeUnlimited);
+	else
+		return false;
+
 };
 
 float CWeapon::Weight() const

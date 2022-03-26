@@ -128,6 +128,7 @@ void CCustomDetector::ToggleDetector(bool bFastMode)
 						NET_Packet						P;
 						CGameObject::u_EventGen(P, GEG_PLAYER_ACTIVATE_SLOT, H_Parent()->ID());
 						P.w_u16(slot_to_activate);
+						P.w_u8(m_bWorking);
 						CGameObject::u_EventSend(P);
 					}
 				}
@@ -158,68 +159,109 @@ void CCustomDetector::SwitchState(u32 S)
 		SetNextState(S);
 		OnStateSwitch(u32(S));
 
-		switch (S)
+		if (Level().CurrentControlEntity() == H_Parent())
 		{
-		case eHidden:
-			if (hide_callback)
+			NET_Packet packet;
+			u_EventGen(packet, GE_DETECTOR_STATE, ID());
+			packet.w_u32(S);
+			u_EventSend(packet);
+
+			switch (S)
 			{
-				hide_callback();
+				case eHidden:
+					if (hide_callback)
+					{
+						hide_callback();
+					}
+					ClearCallback();
+					break;
+				case eShowing:
+				case eIdle:
+					ClearCallback();
+					break;
+				default:
+					break;
 			}
-			ClearCallback();
-			break;
-		case eShowing:
-		case eIdle:
-			ClearCallback();
-			break;
-		default:
-			break;
 		}
 	}
 }
 
+void CCustomDetector::OnEvent(NET_Packet& P, u16 type)
+{
+	if (type == GE_DETECTOR_STATE)
+	{
+		u32 state = P.r_u32();
+		//m_bWorking = P.r_u8();
+		if (GetState() != state)
+			SwitchState(state);
+	}
+	else
+	{
+		inherited::OnEvent(P, type);
+	}
+}
+
+void CCustomDetector::net_Export(NET_Packet& P)
+{
+	inherited::net_Export(P);
+	P.w_u32(GetState());
+	//P.w_u8(m_bWorking);
+}
+
+void CCustomDetector::net_Import(NET_Packet& P)
+{
+	inherited::net_Import(P);
+	u32 state = P.r_u32();
+	//m_bWorking = P.r_u8();
+	
+	if (GetState() != state && Level().CurrentControlEntity() != H_Parent())
+		SwitchState(state);
+}
 
 void CCustomDetector::OnStateSwitch(u32 S)
 {
 	inherited::OnStateSwitch(S);
 
+	if (Level().CurrentControlEntity() == H_Parent())
 	switch(S)
 	{
-	case eShowing:
-		{
-			g_player_hud->attach_item	(this);
-			m_sounds.PlaySound			("sndShow", Fvector().set(0,0,0), this, true, false);
-			PlayHUDMotion				(m_bFastAnimMode?"anm_show_fast":"anm_show", FALSE/*TRUE*/, this, GetState());
-			SetPending					(TRUE);
-		}break;
-	case eHiding:
-		{
-			m_sounds.PlaySound			("sndHide", Fvector().set(0,0,0), this, true, false);
-			PlayHUDMotion				(m_bFastAnimMode?"anm_hide_fast":"anm_hide", FALSE/*TRUE*/, this, GetState());
-			SetPending					(TRUE);
-		}break;
-	case eIdle:
-		{
-			PlayAnimIdle				();
-			SetPending					(FALSE);
-		}break;
+		case eShowing:
+			{
+				g_player_hud->attach_item	(this);
+				m_sounds.PlaySound			("sndShow", Fvector().set(0,0,0), this, true, false);
+				PlayHUDMotion				(m_bFastAnimMode?"anm_show_fast":"anm_show", FALSE/*TRUE*/, this, GetState());
+				SetPending					(TRUE);
+			}break;
+		case eHiding:
+			{
+				m_sounds.PlaySound			("sndHide", Fvector().set(0,0,0), this, true, false);
+				PlayHUDMotion				(m_bFastAnimMode?"anm_hide_fast":"anm_hide", FALSE/*TRUE*/, this, GetState());
+				SetPending					(TRUE);
+			}break;
+		case eIdle:
+			{
+				PlayAnimIdle				();
+				SetPending					(FALSE);
+			}break;
 }
 }
 
 void CCustomDetector::OnAnimationEnd(u32 state)
 {
 	inherited::OnAnimationEnd	(state);
+
 	switch(state)
 	{
-	case eShowing:
-		{
-			SwitchState					(eIdle);
-		} break;
-	case eHiding:
-		{
-			SwitchState					(eHidden);
-			TurnDetectorInternal		(false);
-			g_player_hud->detach_item	(this);
-		} break;
+		case eShowing:
+			{
+				SwitchState					(eIdle);
+			} break;
+		case eHiding:
+			{
+				SwitchState					(eHidden);
+				TurnDetectorInternal		(false);
+				g_player_hud->detach_item	(this);
+			} break;
 	}
 }
 
@@ -286,13 +328,15 @@ void CCustomDetector::shedule_Update(u32 dt)
 
 bool CCustomDetector::IsWorking()
 {
-	return m_bWorking && H_Parent() && H_Parent()==Level().CurrentViewEntity();
+	return GetState() == eIdle;
 }
 
 void CCustomDetector::UpfateWork()
 {
 	UpdateAf				();
-	m_ui->update			();
+	
+	if (Level().CurrentControlEntity() == H_Parent() && !g_dedicated_server)
+		m_ui->update			();
 }
 
 void CCustomDetector::UpdateVisibility()
@@ -368,10 +412,11 @@ void CCustomDetector::UpdateCL()
 {
 	inherited::UpdateCL();
 
-	if(H_Parent()!=Level().CurrentEntity() )			return;
+	if(H_Parent() ==Level().CurrentEntity() )	
+		UpdateVisibility		();
 
-	UpdateVisibility		();
 	if( !IsWorking() )		return;
+
 	UpfateWork				();
 }
 

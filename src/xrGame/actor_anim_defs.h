@@ -19,7 +19,8 @@ struct SAnimState
 	void		Create								(IKinematicsAnimated* K, LPCSTR base0, LPCSTR base1);
 };
 
-struct STorsoWpn{
+struct STorsoWpn
+{
 	enum eMovingState{eIdle, eWalk, eRun, eSprint, eIdleSafe, eWalkSafe, eRunSafe, eSprintSafe, eTotal};
 	MotionID	moving[eTotal];
 
@@ -40,8 +41,17 @@ struct STorsoWpn{
 	MotionID	all_attack_1;
 	MotionID	all_attack_2;
 
+	//For Detector DRAWS AND HOLSTER
+	MotionID	draw_all;
+ 	MotionID	draw_detector;
+
+	MotionID	holster_all;
+	MotionID	holster_detector;
+
 
 	void		Create								(IKinematicsAnimated* K, LPCSTR base0, LPCSTR base1);
+
+	void		CreateDetector						(IKinematicsAnimated* K, u8 slot);
 };
 
 #define _total_anim_slots_ 14
@@ -156,6 +166,11 @@ struct SActorMotions
 
 	SActorStateAnimation m_script;
 
-	void				Create(IKinematicsAnimated* K);
+	STorsoWpn			 m_detector;		 //0
+	STorsoWpn			 m_detector_knife;	 //1
+	STorsoWpn			 m_detector_pistol;	 //2-3 (WNP PISTOL)
+	STorsoWpn			 m_detector_bolt;    //6
 
+	void				Create(IKinematicsAnimated* K);
+ 
 };

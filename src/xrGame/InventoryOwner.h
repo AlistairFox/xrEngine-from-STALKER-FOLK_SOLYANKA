@@ -28,7 +28,11 @@ class CPurchaseList;
 class CWeapon;
 class CCustomOutfit;
 
-class CInventoryOwner : public CAttachmentOwner {							
+typedef xr_vector<LPCSTR> vec_INFO;
+typedef xr_map<u16, vec_INFO> CLIENT_INFO;
+
+class CInventoryOwner : public CAttachmentOwner 
+{							
 public:
 					CInventoryOwner				();
 	virtual			~CInventoryOwner			();
@@ -60,7 +64,9 @@ public:
 
 
 	// инвентарь
-	CInventory	*m_inventory;			
+	CInventory	*m_inventory;	
+	
+	vec_INFO *m_known_info_client;
 	
 	////////////////////////////////////
 	//торговля и общение с персонажем
@@ -133,11 +139,14 @@ public:
 	virtual bool				HasInfo		(shared_str info_id) const;
 //	virtual bool				GetInfo		(shared_str info_id, INFO_DATA&) const;
 
-	#ifdef DEBUG
-	void CInventoryOwner::DumpInfo() const;
-	#endif
-
+ 	void CInventoryOwner::DumpInfo() const;
+ 
 	CInfoPortionWrapper			*m_known_info_registry;
+
+	//typedef xr_map<u16, KNOWN_INFO_VECTOR > CInfo_portion_client;
+	
+
+ 
 
 	//////////////////////////////////////////////////////////////////////////
 	// инвентарь 

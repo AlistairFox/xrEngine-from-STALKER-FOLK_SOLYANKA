@@ -150,6 +150,10 @@ public:
 	virtual	void	UpdateXForm			();
 
 	virtual void	SwitchState			(u32 S);
+	virtual void	OnEvent(NET_Packet& P, u16 type);
+
+	virtual void	net_Export(NET_Packet& P);				// export to server
+	virtual void	net_Import(NET_Packet& P);				// import from server
 
 	void			ToggleDetector		(bool bFastMode);
 	void			HideDetector		(bool bFastMode);

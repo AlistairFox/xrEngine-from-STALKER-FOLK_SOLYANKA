@@ -485,6 +485,11 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 		SendTo(SV_Client->ID, P, net_flags(true, true));
 	}break;
 
+	case GE_DETECTOR_STATE:
+	{
+		SendBroadcast(sender, P, net_flags(true, true));
+	}break;
+
 	default:
 		R_ASSERT2	(0,"Game Event not implemented!!!");
 		break;

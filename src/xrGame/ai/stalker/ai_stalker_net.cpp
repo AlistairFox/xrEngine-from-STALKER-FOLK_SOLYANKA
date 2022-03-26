@@ -92,16 +92,20 @@ void CAI_Stalker::net_Export(NET_Packet& P)
 
 		torso_slot = torso.slot; legs_slot = legs.slot; head_slot = head.slot; script_slot = script.slot;
 
-		u16 u_active_slot;
+		u16 u_active_slot, u_active_item;
 		float health;
 
-		health = GetfHealth();
-		// inventory
+		health = GetfHealth();	
+				// inventory
 		CWeapon* weapon = smart_cast<CWeapon*>(inventory().ActiveItem());
 
 
 		if (weapon && !weapon->strapped_mode())
+		{
 			u_active_slot = inventory().ActiveItem()->CurrSlot();
+			PIItem item =  inventory().ItemFromSlot(u_active_slot);
+			u_active_item = item->object_id();
+		}
 		else
 			u_active_slot = NO_ACTIVE_SLOT;
 		 
@@ -131,6 +135,8 @@ void CAI_Stalker::net_Export(NET_Packet& P)
 		state.u_time_head = animation().head().blend()->timeCurrent;
 		if (animation().legs().blend())
 		state.u_time_legs = animation().legs().blend()->timeCurrent;
+
+		state.u_active_item = u_active_item;
 
 		state.state_write(P);
 		 
@@ -187,14 +193,46 @@ void CAI_Stalker::net_Import(NET_Packet& P)
 	}
 	else
 	{
-
-		
+  
 		ai_stalker_net_state state;
 
  		state.state_read(P);	
  
 		SetfHealth(state.u_health);
 		inventory().SetActiveSlot(state.u_active_slot);
+		PIItem item = inventory().ItemFromSlot(state.u_active_slot);
+		
+		if (!item)
+		{
+			//if (item->object_id() != state.u_active_item)
+			/*
+			{
+				CObject* obj = Level().Objects.net_Find(state.u_active_item);
+				CInventoryItem* itemINV = smart_cast<CInventoryItem*>(obj);
+				if (itemINV)
+				{
+					inventory().Slot(state.u_active_slot, itemINV);
+					
+					Msg("[DOT HAVE ITEM] Move Item To Slot [%d] , Item[%d], OLDITEM[%d], PAR[%d], this[%d]", state.u_active_slot, state.u_active_item, item->object_id(), item->parent_id(), this->ID());
+				
+				}
+			}
+			*/
+		}
+		else
+		{
+			if (item->object_id() != state.u_active_item)
+			{
+				CObject* obj = Level().Objects.net_Find(state.u_active_item);
+				CInventoryItem* itemINV = smart_cast<CInventoryItem*>(obj);
+				if (itemINV)
+				{
+					inventory().Slot(state.u_active_slot, itemINV, true, true);
+					Msg("Move Item To Slot [%d] , Item[%d], OLDITEM[%d], PAR[%d], this[%d]", state.u_active_slot, state.u_active_item, item->object_id(), item->parent_id(), this->ID());
+
+				}
+			}
+		}
 
 		SRotation Torso, Head;
 		Torso.yaw = state.u_body_yaw;
@@ -856,9 +894,12 @@ void CAI_Stalker::make_Interpolation()
 				break;
 			}
 			Position().set(ResPosition);
-			character_physics_support()->movement()->SetPosition(ResPosition); // we need it ?
+
+ 			character_physics_support()->movement()->SetPosition(ResPosition); // we need it ?
 			character_physics_support()->movement()->SetVelocity(SpeedVector);
-		};
+
+			character_physics_support()->movement()->CollisionEnable(false);
+ 		};
 	}
 	else
 	{

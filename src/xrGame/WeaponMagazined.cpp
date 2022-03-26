@@ -287,7 +287,9 @@ void CWeaponMagazined::UnloadMagazine(bool spawn_ammo)
 				ammo.second = ammo.second - (ammo_free < ammo.second ? ammo_free : ammo.second);
 			}
 		}
-		Msg("Spawn Ammo [%s] , [%d]", ammo.first, ammo.second);
+		
+		//Msg("Spawn Ammo [%s] , [%d]", ammo.first, ammo.second);
+		
 		if(ammo.second && !unlimited_ammo()) 
 			SpawnAmmo(ammo.second, ammo.first);
 	}

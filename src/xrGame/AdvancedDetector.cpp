@@ -4,7 +4,7 @@
 #include "../Include/xrRender/Kinematics.h"
 #include "player_hud.h"
 #include "game_object_space.h"
-
+#include "Level.h"
 
 CAdvancedDetector::CAdvancedDetector()
 {
@@ -60,6 +60,9 @@ void CAdvancedDetector::UpdateAf()
 				pAf->SwitchVisibility(true);
 		}
 	}
+
+	if (Level().CurrentControlEntity() != H_Parent())
+		return;
 		
 	ITEM_INFO& af_info		= it->second;
 	ITEM_TYPE* item_type	= af_info.curr_ref;
@@ -79,8 +82,7 @@ void CAdvancedDetector::UpdateAf()
 	float _diff				= angle_difference_signed(_ang_af, _ang_cam);
 
 	// sounds
-	af_info.cur_period = item_type->freq.x + 
-		(item_type->freq.y - item_type->freq.x) * (fRelPow*fRelPow);
+	af_info.cur_period = item_type->freq.x + (item_type->freq.y - item_type->freq.x) * (fRelPow*fRelPow);
 
 	float min_snd_freq		= 0.9f;
 	float max_snd_freq		= 1.4f;

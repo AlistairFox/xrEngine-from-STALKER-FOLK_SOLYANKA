@@ -23,6 +23,7 @@ struct ai_stalker_net_state
 		u8 old_head_slot;
 		u8 old_script_slot;
 
+		u16 u_active_item;
 		u8 u_active_slot;
 	
 		float u_health;

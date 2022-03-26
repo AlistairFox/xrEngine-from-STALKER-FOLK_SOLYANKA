@@ -2,7 +2,7 @@
 // inventory_owner_info.h:	для работы с сюжетной информацией
 //
 //////////////////////////////////////////////////////////////////////
-
+ 
 #include "pch_script.h"
 #include "InventoryOwner.h"
 #include "GameObject.h"
@@ -19,7 +19,7 @@
 #include "game_object_space.h"
 #include "xrServer_Objects_ALife_Monsters.h"
 #include "game_sv_freemp.h"
-
+ 
 void  CInventoryOwner::OnEvent (NET_Packet& P, u16 type)
 {
 	switch (type)
@@ -83,6 +83,8 @@ void  CInventoryOwner::OnEvent (NET_Packet& P, u16 type)
 			P.r_stringZ		(info_id);		//номер полученной информации
 			P.r_u8			(add_info);			//добавление или убирание информации
 
+			Msg("GE_INFO_TRANSFER");
+
 			if(add_info)
 				OnReceiveInfo	(info_id);
 			else
@@ -94,15 +96,31 @@ void  CInventoryOwner::OnEvent (NET_Packet& P, u16 type)
 
 
 
-
 bool CInventoryOwner::OnReceiveInfo(shared_str info_id) const
 {
 	VERIFY( info_id.size() );
 	//добавить запись в реестр
+	//if (OnClient())
+	{
+		for (auto info : *m_known_info_client)
+		{
+			if (xr_strcmp(info_id.c_str(), info) == 0)
+				return false;
+		}
+
+		u16 ID = this->object_id();
+	 
+		(*m_known_info_client).push_back(info_id.c_str());
+		Msg("[%s] Received Info [%s]", Name(), *info_id);
+
+		return true;
+	}
+	
+	/*
 	KNOWN_INFO_VECTOR& known_info = m_known_info_registry->registry().objects();
 	KNOWN_INFO_VECTOR_IT it = std::find_if(known_info.begin(), known_info.end(), CFindByIDPred(info_id));
 	if( known_info.end() == it)
-		known_info.push_back(/*INFO_DATA(*/info_id/*, Level().GetGameTime())*/);
+		known_info.push_back(info_id);
 	else
 		return false;
 
@@ -110,24 +128,38 @@ bool CInventoryOwner::OnReceiveInfo(shared_str info_id) const
 	if(psAI_Flags.test(aiInfoPortion))
 		Msg("[%s] Received Info [%s]", Name(), *info_id);
 #endif
+	*/
 
 	return true;
 }
-#ifdef DEBUG
+ 
 void CInventoryOwner::DumpInfo() const
 {
-	KNOWN_INFO_VECTOR& known_info = m_known_info_registry->registry().objects();
-
 	Msg("------------------------------------------");	
-	Msg("Start KnownInfo dump for [%s]",Name());	
-	KNOWN_INFO_VECTOR_IT it = known_info.begin();
-	for(int i=0;it!=known_info.end();++it,++i){
-		Msg("known info[%d]:%s",i,(*it).c_str());	
+	Msg("Start KnownInfo dump for [%s]", Name());	
+	
+	/*if (OnServer())
+	{
+		KNOWN_INFO_VECTOR& known_info = m_known_info_registry->registry().objects();
+		KNOWN_INFO_VECTOR_IT it = known_info.begin();
+
+		for (int i = 0; it != known_info.end(); ++it, ++i)
+		{
+			Msg("known info[%d]:%s", i, (*it).c_str());
+		}
 	}
+	else
+	{  */
+		for (auto info : *m_known_info_client)
+		{ 
+			Msg("known [%d] info: %s", object_id(), info);
+		}
+	//}
+
+
 	Msg("------------------------------------------");	
 
-}
-#endif
+}		  
 
 void CInventoryOwner::OnDisableInfo(shared_str info_id) const
 {
@@ -171,15 +203,43 @@ void CInventoryOwner::TransferInfo(shared_str info_id, bool add_info) const
 
 bool CInventoryOwner::HasInfo(shared_str info_id) const
 {
-	VERIFY( info_id.size() );
-	const KNOWN_INFO_VECTOR* known_info = m_known_info_registry->registry().objects_ptr ();
-	if(!known_info) return false;
+	VERIFY(info_id.size());
+	
+	/*
+	if (OnServer())
+	{
+		const KNOWN_INFO_VECTOR* known_info = m_known_info_registry->registry().objects_ptr();
+		if (!known_info) return false;
 
-	if(std::find_if(known_info->begin(), known_info->end(), CFindByIDPred(info_id)) == known_info->end())
+		if (std::find_if(known_info->begin(), known_info->end(), CFindByIDPred(info_id)) == known_info->end())
+			return false;
+	}
+	else
+	{
+		for (auto info : m_known_info_client)
+		{
+			if (this->object_id() == info.first)
+			for (auto info2 : info.second)
+			{
+				if (xr_strcmp(info_id.c_str(), info2) == 0)
+					return true;
+			}
+		}
+
 		return false;
+	}
+	*/
 
-	return true;
+	for (auto info : *m_known_info_client)
+	{
+		if (xr_strcmp(info_id.c_str(), info) == 0)
+			return true;
+	}
+
+	return false;
 }
+
+
 /*
 bool CInventoryOwner::GetInfo	(shared_str info_id, INFO_DATA& info_data) const
 {

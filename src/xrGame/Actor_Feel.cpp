@@ -124,11 +124,12 @@ void CActor::PickupModeUpdate()
 	if(	m_pObjectWeLookingAt									&& 
 		m_pObjectWeLookingAt->cast_inventory_item()				&& 
 		m_pObjectWeLookingAt->cast_inventory_item()->Useful()	&&
-		m_pUsableObject											&& 
-		!m_pUsableObject->nonscript_usable()					&&
+		m_pObjectWeLookingAt->cast_inventory_item()->CanTake()	&&
+		//m_pUsableObject											&& 
+		//!m_pUsableObject->nonscript_usable()					&&
 		!Level().m_feel_deny.is_object_denied(m_pObjectWeLookingAt) )
 	{
-		m_pUsableObject->use(this);
+		//m_pUsableObject->use(this);
 		Game().SendPickUpEvent(ID(), m_pObjectWeLookingAt->ID());
 	}
 
@@ -146,6 +147,7 @@ void CActor::PickupModeUpdate()
 
 #include "../xrEngine/CameraBase.h"
 BOOL	g_b_COD_PickUpMode = TRUE;
+
 void	CActor::PickupModeUpdate_COD	()
 {
 	if (Level().CurrentViewEntity() != this || !g_b_COD_PickUpMode) return;
@@ -205,11 +207,13 @@ void	CActor::PickupModeUpdate_COD	()
 		if (!CanPickItem(frustum, Device.vCameraPosition, &pNearestItem->object()))
 			pNearestItem = NULL;
 	}
+
 	if (pNearestItem && pNearestItem->cast_game_object())
 	{
 		if (Level().m_feel_deny.is_object_denied(pNearestItem->cast_game_object()))
 				pNearestItem = NULL;
 	}
+
 	if (pNearestItem && pNearestItem->cast_game_object())
 	{
 		if(!pNearestItem->cast_game_object()->getVisible())

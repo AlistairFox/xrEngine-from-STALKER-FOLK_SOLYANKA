@@ -256,10 +256,15 @@ add_to_type_list(CSE_ALifeItemWeaponAutoShotGun)
 
 SERVER_ENTITY_DECLARE_BEGIN(CSE_ALifeItemDetector,CSE_ALifeItem)
 	u32								m_ef_detector_type;
+	u32								detector_state;
+	u8								m_bWorking;
+
 									CSE_ALifeItemDetector(LPCSTR caSection);
 	virtual							~CSE_ALifeItemDetector();
 	virtual u32						ef_detector_type() const;
 	virtual CSE_ALifeItemDetector	*cast_item_detector		() {return this;}
+	virtual BOOL					Net_Relevant();
+	
 SERVER_ENTITY_DECLARE_END
 add_to_type_list(CSE_ALifeItemDetector)
 #define script_type_list save_type_list(CSE_ALifeItemDetector)

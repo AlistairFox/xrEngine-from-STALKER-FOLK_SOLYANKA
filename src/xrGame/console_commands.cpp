@@ -1795,10 +1795,41 @@ public:
 	}
 };
 
+
+class CCC_DumpInfos : public IConsole_Command {
+public:
+	CCC_DumpInfos(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
+	virtual void	Execute(LPCSTR args) 
+	{
+		//CActor* A = smart_cast<CActor*>(Level().CurrentControlEntity());
+		//if (A)
+			
+		for (int i = 0; i!= Level().Objects.o_count(); i++)
+		{
+			CObject * ent = Level().Objects.o_get_by_iterator(i);
+			if (CInventoryOwner* owner = smart_cast<CInventoryOwner*>(ent))
+			{
+				owner->DumpInfo();
+			}
+		}
+
+		/*
+			if (OnServer())
+			Actor()->DumpInfo();
+		*/
+	}
+	virtual void	Info(TInfo& I)
+	{
+		xr_strcpy(I, "dumps all infoportions that actor have");
+	}
+};
+
 void CCC_RegisterCommands()
 {
 	// options
 	g_OptConCom.Init();
+
+	CMD1(CCC_DumpInfos, "dump_info");
 
 	CMD1(CCC_MemStats,			"stat_memory"			);
 #ifdef DEBUG

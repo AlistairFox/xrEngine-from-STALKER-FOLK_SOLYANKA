@@ -3563,7 +3563,7 @@ extern float Shedule_Scale_Objects = 0;
 class CCC_AdmSurgeStop : public IConsole_Command
 {
 public:
-	CCC_AdmSurgeStop(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
+	CCC_AdmSurgeStop(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
 
 	virtual void Execute(LPCSTR args)
 	{
@@ -3580,7 +3580,7 @@ public:
 			NET_Packet		P;
 			P.w_begin(M_REMOTE_CONTROL_CMD);
 			string128 str;
-			xr_sprintf(str, "adm_stop_surge");
+			xr_sprintf(str, "adm_surge_stop");
 			P.w_stringZ(str);
 			Level().Send(P, net_flags(TRUE, TRUE));
 		}
@@ -3591,7 +3591,7 @@ public:
 class CCC_AdmFalloutStop : public IConsole_Command
 {
 public:
-	CCC_AdmFalloutStop(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
+	CCC_AdmFalloutStop(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
 	virtual void Execute(LPCSTR args)
 	{
 		if (OnServer())
@@ -3607,7 +3607,7 @@ public:
 			NET_Packet		P;
 			P.w_begin(M_REMOTE_CONTROL_CMD);
 			string128 str;
-			xr_sprintf(str, "adm_stop_fallout");
+			xr_sprintf(str, "adm_fallout_stop");
 			P.w_stringZ(str);
 			Level().Send(P, net_flags(TRUE, TRUE));
 		}
@@ -3618,7 +3618,7 @@ public:
 class CCC_AdmPsiStormStop : public IConsole_Command
 {
 public:
-	CCC_AdmPsiStormStop(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
+	CCC_AdmPsiStormStop(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
 	virtual void Execute(LPCSTR args)
 	{
 		if (OnServer())
@@ -3634,7 +3634,7 @@ public:
 			NET_Packet		P;
 			P.w_begin(M_REMOTE_CONTROL_CMD);
 			string128 str;
-			xr_sprintf(str, "adm_stop_psi");
+			xr_sprintf(str, "adm_psi_storm_stop");
 			P.w_stringZ(str);
 			Level().Send(P, net_flags(TRUE, TRUE));
 		}
@@ -3642,16 +3642,50 @@ public:
 
 };
 
+class CCC_GIVETASK : public IConsole_Command
+{
+public:
+	CCC_GIVETASK(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
+	virtual void Execute(LPCSTR args)
+	{
+		LPCSTR name;
+		sscanf(args, "%s", name);
+
+		luabind::functor<LPCSTR>			give_task;
+		R_ASSERT(ai().script_engine().functor<LPCSTR>("mp_give_task.give_task", give_task));
+		give_task(name);
+	}
+};
+
+class CCC_GIVEINFO : public IConsole_Command
+{
+public:
+	CCC_GIVEINFO(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
+	virtual void Execute(LPCSTR args)
+	{
+		LPCSTR name;
+		sscanf(args, "%s", name);
+
+		luabind::functor<LPCSTR>			give_info;
+		R_ASSERT(ai().script_engine().functor<LPCSTR>("mp_give_task.give_info", give_info));
+		give_info(name);
+	}
+};
+
+
+
 void register_mp_console_commands()
-{	   
+{	
+	CMD1(CCC_GIVETASK, "give_task");
+	CMD1(CCC_GIVEINFO, "give_info");
 
 	CMD1(CCC_AdmSurgeStart, "adm_surge");
 	CMD1(CCC_AdmPsiStormStart, "adm_psi_storm");
 	CMD1(CCC_AdmFalloutStart, "adm_fallout");
 
-	CMD1(CCC_AdmSurgeStop, "adm_stop_surge");
-	CMD1(CCC_AdmFalloutStop, "adm_stop_fallout");
-	CMD1(CCC_AdmPsiStormStop, "adm_stop_psi");
+	CMD1(CCC_AdmSurgeStop, "adm_surge_stop");
+	CMD1(CCC_AdmFalloutStop, "adm_fallout_stop");
+	CMD1(CCC_AdmPsiStormStop, "adm_psi_storm_stop");
 
 
 	CMD4(CCC_Float, "snd_volume_players", &psSoundVPlayers, 0, 1);

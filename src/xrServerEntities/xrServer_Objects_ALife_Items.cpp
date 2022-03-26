@@ -929,7 +929,7 @@ bool CSE_ALifeItemAmmo::can_switch_offline	() const
 BOOL CSE_ALifeItemAmmo::Net_Relevant()
 {
 	if (Device.dwTimeGlobal - oldUpdateTime > 1000)
-	if (ID_Parent != u16(-1) && a_elapsed != m_boxSize)
+	//if (ID_Parent != u16(-1) && a_elapsed != m_boxSize)
 	{
 		oldUpdateTime = Device.dwTimeGlobal;
 		return true;
@@ -970,11 +970,25 @@ void CSE_ALifeItemDetector::STATE_Write		(NET_Packet	&tNetPacket)
 void CSE_ALifeItemDetector::UPDATE_Read		(NET_Packet	&tNetPacket)
 {
 	inherited::UPDATE_Read		(tNetPacket);
+	tNetPacket.r_u32(detector_state);
+//	tNetPacket.r_u8(m_bWorking);
+
 }
 
 void CSE_ALifeItemDetector::UPDATE_Write	(NET_Packet	&tNetPacket)
 {
 	inherited::UPDATE_Write		(tNetPacket);
+	tNetPacket.w_u32(detector_state); 
+//	tNetPacket.w_u8(m_bWorking);
+
+}
+
+BOOL CSE_ALifeItemDetector::Net_Relevant()
+{
+	if (ID_Parent != u16(-1) && m_bWorking)
+		return true;
+	else
+		return inherited::Net_Relevant();
 }
 
 #ifndef XRGAME_EXPORTS

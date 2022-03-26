@@ -1888,7 +1888,10 @@ bool	CPHSimpleCharacter::	UpdateRestrictionType(CPHCharacter* ach)
 {
 	VERIFY(ph_world);
 	VERIFY(ph_world->Exist());
-	if(m_restriction_type==m_new_restriction_type)	return true;
+	
+	if(m_restriction_type==m_new_restriction_type)	
+		return true;
+	
 	ach->Enable();
 	Enable();
 	restrictor_depth=0.f;

@@ -244,9 +244,6 @@ void xrServer::OnBuildVersionRespond				( IClient* CL, NET_Packet& P )
 	shared_str login ; 
 	P.r_stringZ(login);
 
-	//shared_str player_name;
-	//P.r_stringZ(player_name);
-
 	shared_str password;
 	P.r_stringZ(password);
 
@@ -313,14 +310,10 @@ void xrServer::OnBuildVersionRespond				( IClient* CL, NET_Packet& P )
 			}
 		}
 	} 
-
-//	Msg("login: %s", login.c_str());
-//	Msg("password: %s", password.c_str());
-//	Msg("player_name: %s", player_name.c_str());
 	
 	if (CL->flags.bLocal && !g_dedicated_server)
 	{
-		SendConnectResult(CL, 0, ecr_data_verification_failed, "Нельзя запустить сервер с клиента (ИДИ НАХУЙ)");
+		SendConnectResult(CL, 0, ecr_data_verification_failed, "!!! Нельзя запустить сервер с клиента");
 		return;
 	}
 

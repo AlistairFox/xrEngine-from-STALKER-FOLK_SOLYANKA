@@ -217,7 +217,7 @@ void CMovementManager::update_path				()
 			}
 			case ePathTypePatrolPath : 
 			{
-				Msg				("[%6d][%s] actuality is false",Device.dwFrame,*object().cName());
+				//Msg				("[%6d][%s] actuality is false",Device.dwFrame,*object().cName());
 				m_path_state	= ePathStateSelectPatrolPoint;
 				break;
 			}

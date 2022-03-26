@@ -105,22 +105,14 @@ void CCameraLook2::OnActivate( CCameraBase* old_cam )
 
 void CCameraLook2::Update(Fvector& point, Fvector& noise_dangle)
 {
-	Fvector _off;
-	Fmatrix mR;
-
-	_off = m_cam_offset;
-
-	if (camerapos_x != 0)
-	{
-		_off.x = camerapos_x;
-	}
+ 	Fmatrix mR;
 
 	vPosition.set(point);
 	mR.setHPB(-yaw, -pitch, -roll);
 	vDirection.set(mR.k);
 	vNormal.set(mR.j);
 
-	Fmatrix							a_xform;
+	Fmatrix	a_xform;
 	a_xform.setXYZ(0, -yaw, 0);
 	a_xform.translate_over(point);
 
@@ -130,30 +122,30 @@ void CCameraLook2::Update(Fvector& point, Fvector& noise_dangle)
 	{
 		if (actor->MpAnimationMode())
 		{
-			dist = 1.0f;
-			a_xform.transform_tiny(m_cam_offset_ANIMMODE);
-			UpdateDistance(m_cam_offset_ANIMMODE);
+			dist = 1.2f;
+			Fvector offset = m_cam_offset_ANIMMODE;
+			a_xform.transform_tiny(offset);
+			UpdateDistance(offset);
 		}
 		else
 		{
 			dist = 1.2f;
-			a_xform.transform_tiny(_off);
-			UpdateDistance(_off);
+			Fvector offset = m_cam_offset;
+			a_xform.transform_tiny(offset);
+			UpdateDistance(offset);
 		}
 	}
-	
-
 
 }
    
 void CCameraLook2::Load(LPCSTR section)
 {
 	CCameraLook::Load		(section);
-	//m_cam_offset = Fvector().set(0.34, 0.2, 0);
-	
-	//m_cam_offset			= pSettings->r_fvector3	  (section, "offset");
-	//m_cam_offset_ANIMMODE   = pSettings->r_fvector3   (section, "offset_anim_mode");
-	//	m_cam_offset_rs			= pSettings->r_fvector3(section, "offset_rs");
+ 	
+	m_cam_offset			= pSettings->r_fvector3	  (section, "offset");
+	m_cam_offset_ANIMMODE   = pSettings->r_fvector3   (section, "offset_anim_mode");
+ 
+
 
 }
 

@@ -4,6 +4,7 @@
 #include "../Include/xrRender/Kinematics.h"
 #include "../xrEngine/LightAnimLibrary.h"
 #include "player_hud.h"
+#include "Level.h"
 
 CSimpleDetector::CSimpleDetector(void)
 {
@@ -54,6 +55,9 @@ void CSimpleDetector::UpdateAf()
 				pAf->SwitchVisibility(true);
 		}
 	}
+
+	if (Level().CurrentControlEntity() != H_Parent())
+		return;
 		
 	ITEM_INFO& af_info		= it->second;
 
@@ -65,8 +69,7 @@ void CSimpleDetector::UpdateAf()
 	clamp					(fRelPow, 0.f, 1.f);
 
 	//определить текущую частоту срабатывания сигнала
-	af_info.cur_period = item_type->freq.x + 
-		(item_type->freq.y - item_type->freq.x) * (fRelPow*fRelPow);
+	af_info.cur_period = item_type->freq.x + (item_type->freq.y - item_type->freq.x) * (fRelPow*fRelPow);
 
 	float min_snd_freq	= 0.9f;
 	float max_snd_freq	= 1.4f;

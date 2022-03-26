@@ -26,7 +26,10 @@ void CEliteDetector::CreateUI()
 }
 
 CUIArtefactDetectorElite&  CEliteDetector::ui()
-{
+{	
+	if (!m_ui)
+		CreateUI();
+
 	return *((CUIArtefactDetectorElite*)m_ui);
 }
 

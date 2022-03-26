@@ -50,6 +50,8 @@ CInventoryOwner::CInventoryOwner			()
 	m_deadbody_can_take				= true;
 	m_deadbody_closed				= false;
 	m_play_show_hide_reload_sounds	= true;
+
+	m_known_info_client			= xr_new<vec_INFO>();
 }
 
 DLL_Pure *CInventoryOwner::_construct		()
@@ -68,6 +70,7 @@ CInventoryOwner::~CInventoryOwner			()
 	xr_delete					(m_known_info_registry);
 	xr_delete					(m_trade_parameters);
 	xr_delete					(m_purchase_list);
+	xr_delete					(m_known_info_client);
 }
 
 void CInventoryOwner::Load					(LPCSTR section)

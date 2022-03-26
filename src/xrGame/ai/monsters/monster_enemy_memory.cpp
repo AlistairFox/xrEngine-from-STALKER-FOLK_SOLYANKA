@@ -55,6 +55,11 @@ void CMonsterEnemyMemory::update()
 				                        < 
 				 monster->get_feel_enemy_who_just_hit_max_distance() )
 			{
+				Msg("Add Monster [%s, %d], Enemy [%s][%d] ",
+					monster->cName().c_str(), monster->ID(),
+					enemy->cName().c_str(), enemy->ID()
+				);
+
 				add_enemy					(enemy);
 
 				bool const self_is_dog	=	!!smart_cast<const CAI_Dog*>(monster);
@@ -111,6 +116,7 @@ void CMonsterEnemyMemory::update()
 	}
 
 	float const feel_enemy_max_distance	=	monster->get_feel_enemy_max_distance();
+
 	if ( g_actor )
 	{
 		float const xz_dist	=	monster->Position().distance_to_xz(g_actor->Position());
@@ -155,6 +161,14 @@ void CMonsterEnemyMemory::update_mp()
 				<
 				monster->get_feel_enemy_who_just_hit_max_distance())
 			{
+
+				/*
+				Msg("HIT Add Monster [%s, %d], Enemy [%s][%d] ",
+					monster->cName().c_str(), monster->ID(),
+					enemy->cName().c_str(), enemy->ID()
+				);
+				*/
+
 				add_enemy(enemy);
 
 				bool const self_is_dog = !!smart_cast<const CAI_Dog*>(monster);
@@ -172,11 +186,13 @@ void CMonsterEnemyMemory::update_mp()
 		SoundElem sound;
 		bool dangerous;
 		monster->SoundMemory.GetSound(sound, dangerous);
+
 		if (dangerous && Device.dwTimeGlobal < sound.time + 2000)
 		{
 			if (CEntityAlive const* enemy = smart_cast<CEntityAlive const*>(sound.who))
 			{
-				if (CActor const* enemy_actor = smart_cast<CActor const*>(sound.who)) {
+				if (CActor const* enemy_actor = smart_cast<CActor const*>(sound.who)) 
+				{
 					float const xz_dist = monster->Position().distance_to_xz(enemy_actor->Position());
 					float const y_dist = _abs(monster->Position().y - enemy_actor->Position().y);
 
@@ -185,6 +201,14 @@ void CMonsterEnemyMemory::update_mp()
 						xz_dist < monster->get_feel_enemy_who_made_sound_max_distance() &&
 						enemy_actor->memory().visual().visible_now(monster))
 					{
+						/*
+						Msg("Sound Add Monster [%s, %d], Enemy [%s][%d] ",
+							monster->cName().c_str(), monster->ID(),
+							enemy->cName().c_str(), enemy->ID()
+						);
+
+						*/
+
 						add_enemy(enemy);
 
 						bool const self_is_dog = !!smart_cast<const CAI_Dog*>(monster);
@@ -206,7 +230,21 @@ void CMonsterEnemyMemory::update_mp()
 		const CEntityAlive* enemy = *I;
 		const bool feel_enemy = monster->Position().distance_to(enemy->Position()) < feel_enemy_max_distance;
 		if (feel_enemy || monster->memory().visual().visible_now(*I))
+		{
 			add_enemy(*I);
+			
+			/*
+			
+			Msg("Radius Add Monster [%s, %d], Enemy [%s][%d], Distance [%f] ",
+				monster->cName().c_str(), monster->ID(),
+				enemy->cName().c_str(), enemy->ID(), 
+				feel_enemy_max_distance
+			);
+			
+			*/
+
+		}
+
 	}
 
 	// удалить устаревших врагов
@@ -334,7 +372,8 @@ void CMonsterEnemyMemory::remove_links(CObject *O)
 		monster->EnemyMan.remove_links(O);
 	}
 
-	for (ENEMIES_MAP_IT	I = m_objects.begin();I!=m_objects.end();++I) {
+	for (ENEMIES_MAP_IT	I = m_objects.begin();I!=m_objects.end();++I)
+	{
 		if ((*I).first == O) {
 			m_objects.erase(I);
 			break;
