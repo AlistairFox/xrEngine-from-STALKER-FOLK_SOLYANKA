@@ -71,7 +71,10 @@ class CALifeSmartTerrainTask;
 	DEFINE_LUA_WRAPPER_METHOD_V0		(on_unregister)\
 	DEFINE_LUA_WRAPPER_CONST_METHOD_0	(keep_saved_data_anyway,bool)\
 	DEFINE_LUA_WRAPPER_METHOD_V0		(switch_online)\
-	DEFINE_LUA_WRAPPER_METHOD_V0		(switch_offline)
+	DEFINE_LUA_WRAPPER_METHOD_V0		(switch_offline)\
+	DEFINE_LUA_WRAPPER_METHOD_V0		(on_register_client)\
+	DEFINE_LUA_WRAPPER_METHOD_V0		(on_unregister_client)
+//SE7KILLS
 #else
 #	define INHERIT_DYNAMIC_ALIFE \
 		INHERIT_ALIFE

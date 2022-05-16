@@ -307,8 +307,14 @@ public:
 			void					vfCheckForPopulationChanges();
 	virtual	void					add_online				(const bool &update_registries);
 	virtual	void					add_offline				(const xr_vector<ALife::_OBJECT_ID> &saved_children, const bool &update_registries);
+	
+	
 	virtual void					on_register				();
 	virtual void					on_unregister			();
+	virtual void					on_register_client();
+	virtual void					on_unregister_client();
+
+
 	virtual Fvector					draw_level_position		() const;
 	virtual	bool					redundant				() const;
 	virtual void					on_location_change		() const;

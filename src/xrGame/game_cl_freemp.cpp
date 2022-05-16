@@ -519,7 +519,15 @@ void game_cl_freemp::ReadSpawnAlife(NET_Packet* packet)
 		if ((*alife_objects.find(id)).second != dynamic)
 		{
 			alife_objects[id] = dynamic;
-			//dynamic->on_register();
+			CSE_ALifeHumanStalker* stalker = smart_cast<CSE_ALifeHumanStalker*>(dynamic);
+			CSE_ALifeMonsterAbstract* monster = smart_cast<CSE_ALifeMonsterAbstract*>(dynamic);
+			CSE_ALifeLevelChanger* changer = smart_cast<CSE_ALifeLevelChanger*>(dynamic);
+
+			if (stalker || changer || monster)
+			{
+				//Msg("Name %s, spawn_name %s", dynamic->name_replace(), dynamic->s_name.c_str());
+				dynamic->on_register_client();
+			}
 		}
 		
 	}

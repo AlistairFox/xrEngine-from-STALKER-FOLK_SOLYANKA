@@ -38,6 +38,16 @@ void CSE_ALifeDynamicObject::on_register			()
 		clear_client_data();
 }
 
+void CSE_ALifeDynamicObject::on_register_client()
+{
+} 
+
+void CSE_ALifeDynamicObject::on_unregister_client()
+{
+}
+
+
+
 void CSE_ALifeDynamicObject::on_before_register		()
 {
 }

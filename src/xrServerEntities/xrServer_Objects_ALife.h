@@ -304,8 +304,12 @@ SERVER_ENTITY_DECLARE_BEGIN(CSE_ALifeDynamicObject,CSE_ALifeObject)
 #ifdef XRGAME_EXPORTS
 	virtual void					on_spawn				();
 	virtual void					on_before_register		();
+
 	virtual void					on_register				();
 	virtual void					on_unregister			();
+	virtual void					on_register_client		();
+	virtual void					on_unregister_client	();
+
 	virtual	bool					synchronize_location	();
 	virtual	void					try_switch_online		();
 	virtual	void					try_switch_offline		();
