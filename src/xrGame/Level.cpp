@@ -476,6 +476,8 @@ void CLevel::cl_Process_Event				(u16 dest, u16 type, NET_Packet& P)
 	}
 };
 
+#include "game_cl_freemp.h"
+
 void CLevel::ProcessGameEvents		()
 {
 	// Game events
@@ -538,6 +540,7 @@ void CLevel::ProcessGameEvents		()
 				{
 					Game().OnGameMessage(P);
 				}break;
+ 
 			default:
 				{
 					VERIFY(0);

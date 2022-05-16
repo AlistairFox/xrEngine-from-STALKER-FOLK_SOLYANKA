@@ -152,6 +152,7 @@ float get_wfx_time	()
 
 void stop_weather_fx()
 {
+	Msg("script stop wfx");
 	g_pGamePersistent->Environment().StopWFX();
 }
 
@@ -284,6 +285,12 @@ void map_remove_object_spot(u16 id, LPCSTR spot_type)
 {
 	Level().MapManager().RemoveMapLocation(spot_type, id);
 }
+
+void map_remove_object_spot_id(u16 id)
+{
+	Level().MapManager().RemoveMapLocationByObjectID(id);
+}
+
 
 u16 map_has_object_spot(u16 id, LPCSTR spot_type)
 {
@@ -900,6 +907,7 @@ void CLevel::script_register(lua_State *L)
 				def("map_add_object_spot", map_add_object_spot),
 				//-		def("map_add_object_spot_complex",		map_add_object_spot_complex),
 				def("map_remove_object_spot", map_remove_object_spot),
+				def("map_remove_object_spot_id", map_remove_object_spot_id),
 				def("map_has_object_spot", map_has_object_spot),
 				def("map_change_spot_hint", map_change_spot_hint),
 

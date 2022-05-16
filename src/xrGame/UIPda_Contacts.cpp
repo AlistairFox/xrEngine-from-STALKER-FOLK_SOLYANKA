@@ -271,7 +271,7 @@ void xr_stdcall CUIPda_Contacts::property_box_clicked(CUIWindow* w, void* d)
 			id.set(id_client);
 
 			NET_Packet packet;
-			Level().game->u_EventGen(packet, GE_UI_PDA, 0);
+			Level().game->u_EventGen(packet, GAME_EVENT_UI_PDA_SERVER, 0);
 			packet.w_u8(0);
 			packet.w_clientID(id);
  			packet.w_clientID(Game().local_svdpnid);
@@ -293,7 +293,7 @@ void xr_stdcall CUIPda_Contacts::button_yes(CUIWindow* w, void* d)
 		return;
 
 	NET_Packet packet;
-	Game().u_EventGen(packet, GE_UI_PDA, -1);
+	Game().u_EventGen(packet, GAME_EVENT_UI_PDA_SERVER, -1);
 	packet.w_u8(1);
 	packet.w_clientID(Game().local_svdpnid);
 	packet.w_clientID(ClientID(last_inviter));

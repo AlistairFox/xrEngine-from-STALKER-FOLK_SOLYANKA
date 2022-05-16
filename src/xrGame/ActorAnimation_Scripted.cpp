@@ -179,14 +179,15 @@ void CActor::ReciveActivateItem(NET_Packet& packet)
 void CActor::ReciveSoundPlay(NET_Packet packet)
 {
 	u32 snd_id, selectedID;
-	packet.r_u32(selectedID);
-	packet.r_u32(snd_id);
 	bool activate = packet.r_u8();
 
-	Msg("Recive SND Packet [%d] / act[%d]", snd_id, activate);
+//	Msg("Recive SND Packet [%d] / act[%d]", snd_id, activate);
 
 	if (activate)
 	{
+		packet.r_u32(selectedID);
+		packet.r_u32(snd_id);
+
 		if (selected._p)
 			if (!selected._feedback())
 			{
@@ -204,10 +205,10 @@ void CActor::ReciveSoundPlay(NET_Packet packet)
 	else
 	{
 		if (selected._p)
-			if (selected._feedback())
-			{
-				selected.stop();
-			}
+		if (selected._feedback())
+		{
+			selected.stop();
+		}
 	}
 
 }
@@ -215,7 +216,8 @@ void CActor::ReciveSoundPlay(NET_Packet packet)
 void CActor::SendAnimationToServer(MotionID motion)
 {
 	NET_Packet packet;
-	u_EventGen(packet, GE_ACTOR_ANIMATION_SCRIPT, this->ID());
+	u_EventGen(packet, GE_ACTOR_ANIMATIONS_EVENT, this->ID());
+	packet.w_u8(1);
 	packet.w(&motion, sizeof(motion));
 	u_EventSend(packet, net_flags(true, true));
 }
@@ -223,7 +225,8 @@ void CActor::SendAnimationToServer(MotionID motion)
 void CActor::SendActivateItem(u16 slot, bool activate)
 {
 	NET_Packet packet;
-	u_EventGen(packet, GE_ACTOR_ITEM_ACTIVATE, this->ID());
+	u_EventGen(packet, GE_ACTOR_ANIMATIONS_EVENT, this->ID());
+	packet.w_u8(2);
 	packet.w_u16(slot);
 	packet.w_u8(activate ? 1 : 0);
 	u_EventSend(packet, net_flags(true, true));
@@ -232,10 +235,17 @@ void CActor::SendActivateItem(u16 slot, bool activate)
 void CActor::SendSoundPlay(u32 ID, bool Activate)
 {
 	NET_Packet packet;
-	u_EventGen(packet, GE_ACTOR_SND_ACTIVATE, this->ID());
-	packet.w_u32(selectedID);
-	packet.w_u32(ID);
+	u_EventGen(packet, GE_ACTOR_ANIMATIONS_EVENT, this->ID());
+	packet.w_u8(3);
 	packet.w_u8(Activate);
+	
+	if (Activate)
+	{
+		packet.w_u32(selectedID);
+		packet.w_u32(ID);
+	}
+
+
 	u_EventSend(packet, net_flags(true, true));
 }
 
@@ -244,9 +254,7 @@ void CActor::soundPlay()
 	if (MidPlay || !InPlay || m_anims->m_script.m_rnd_snds[selectedID] == 0)
 		return;
 
-	u32 rnd = Random.randI(1, m_anims->m_script.m_rnd_snds[selectedID]);
-
-	sSndID = rnd;
+	sSndID = Random.randI(1, m_anims->m_script.m_rnd_snds[selectedID]);
 
 	if (!start_sel)
 	{
@@ -283,11 +291,7 @@ void CActor::SelectScriptAnimation()
 		}
 	}
 
-	u32 selectedAnimation = oldAnim;
-
-	selectedID = selectedAnimation;
-
-
+	u32 selectedAnimation = selectedID = oldAnim ;
 	u32 countIN = m_anims->m_script.in_anims.count[selectedAnimation];
 
 	MidPlay = false;
@@ -331,7 +335,8 @@ void CActor::SelectScriptAnimation()
 				{
 					weapon = true;
 					NET_Packet packet;
-					u_EventGen(packet, GE_ACTOR_HIDE_ALL_WEAPONS, this->ID());
+					u_EventGen(packet, GE_ACTOR_ANIMATIONS_EVENT, this->ID());
+					packet.w_u8(4);
 					packet.w_u16(slot);
 					u_EventSend(packet, net_flags(true, true));
 				}
@@ -341,7 +346,8 @@ void CActor::SelectScriptAnimation()
 		if (!weapon)
 		{
 			NET_Packet packet;
-			u_EventGen(packet, GE_ACTOR_HIDE_ALL_WEAPONS, this->ID());
+			u_EventGen(packet, GE_ACTOR_ANIMATIONS_EVENT, this->ID());
+			packet.w_u8(4);
 			packet.w_u16(0);
 			u_EventSend(packet, net_flags(true, true));
 		}
@@ -407,9 +413,13 @@ void CActor::SelectScriptAnimation()
 
 	if (OutPlay)
 	{
-		Msg("OutPlay");
+		//Msg("OutPlay");
 		if (selected._feedback())
+		{
 			selected.stop();
+			SendSoundPlay(0, false);
+		}
+
 		NEED_EXIT = false;
 
 		if (!m_anims->m_script.m_animation_loop)

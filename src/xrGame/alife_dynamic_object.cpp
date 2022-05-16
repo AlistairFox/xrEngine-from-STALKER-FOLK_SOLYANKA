@@ -27,7 +27,9 @@ void CSE_ALifeDynamicObject::on_spawn				()
 void CSE_ALifeDynamicObject::on_register			()
 {
 	CSE_ALifeObject		*object = this;
-	while (object->ID_Parent != ALife::_OBJECT_ID(-1)) {
+	
+	while (object->ID_Parent != ALife::_OBJECT_ID(-1))
+	{
 		object			= ai().alife().objects().object(object->ID_Parent);
 		VERIFY			(object);
 	}

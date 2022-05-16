@@ -469,12 +469,16 @@ void CInventoryOwner::SetCommunity	(CHARACTER_COMMUNITY_INDEX new_community)
 void CInventoryOwner::SetRank			(CHARACTER_RANK_VALUE rank)
 {
 	CEntityAlive* EA					= smart_cast<CEntityAlive*>(this); VERIFY(EA);
-	CSE_Abstract* e_entity				= ai().alife().objects().object(EA->ID(), false);
-	if(!e_entity) return;
-	CSE_ALifeTraderAbstract* trader		= smart_cast<CSE_ALifeTraderAbstract*>(e_entity);
-	if(!trader) return;
 
 	CharacterInfo().m_CurrentRank.set(rank);
+
+	CSE_Abstract* e_entity = ai().alife().objects().object(EA->ID(), false);
+ 
+	if(!e_entity) return;
+ 
+	CSE_ALifeTraderAbstract* trader		= smart_cast<CSE_ALifeTraderAbstract*>(e_entity);
+	if(!trader) return;
+ 
 	trader->m_rank  = rank;
 }
 
@@ -486,13 +490,16 @@ void CInventoryOwner::ChangeRank			(CHARACTER_RANK_VALUE delta)
 void CInventoryOwner::SetReputation		(CHARACTER_REPUTATION_VALUE reputation)
 {
 	CEntityAlive* EA					= smart_cast<CEntityAlive*>(this); VERIFY(EA);
+
+	CharacterInfo().m_CurrentReputation.set(reputation);
+
 	CSE_Abstract* e_entity				= ai().alife().objects().object(EA->ID(), false);
 	if(!e_entity) return;
 
 	CSE_ALifeTraderAbstract* trader		= smart_cast<CSE_ALifeTraderAbstract*>(e_entity);
 	if(!trader) return;
 
-	CharacterInfo().m_CurrentReputation.set(reputation);
+
 	trader->m_reputation  = reputation;
 }
 

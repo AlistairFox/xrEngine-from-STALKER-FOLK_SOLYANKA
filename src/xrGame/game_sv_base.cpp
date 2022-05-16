@@ -356,7 +356,9 @@ void game_sv_GameState::net_Export_GameTime						(NET_Packet& P)
 	P.w_float(g_pGamePersistent->Environment().wfx_time);
 	P.w_stringZ(g_pGamePersistent->Environment().CurrentWeatherName);
 	P.w_stringZ(g_pGamePersistent->Environment().PrewWeatherName);
-
+	
+	//Msg("WFX: %f", g_pGamePersistent->Environment().wfx_time);
+	/*
 	if (g_pGamePersistent->Environment().Current[0])
 	{
 		P.w_u8(1);
@@ -364,6 +366,7 @@ void game_sv_GameState::net_Export_GameTime						(NET_Packet& P)
  	}
 	else
 		P.w_u8(0);
+	*/
 };
 
 

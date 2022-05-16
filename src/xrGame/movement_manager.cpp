@@ -155,7 +155,7 @@ void CMovementManager::update_path				()
 {
 	if (level_path().failed())
 	{
-		Msg("Object[%s], wait[%d]", this->object().Name(), wait_for_distributed_computation());
+	//	Msg("Object[%s], wait[%d]", this->object().Name(), wait_for_distributed_computation());
 		m_wait_errors += 1;
 	}
 

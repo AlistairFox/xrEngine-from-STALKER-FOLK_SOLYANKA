@@ -415,6 +415,8 @@ extern int Shedule_Radius_Players;
 
 #include "actor_mp_client.h"
 
+extern u64 UpdateCLTime;
+
 void CBaseMonster::UpdateCL()
 {
 #ifdef DEBUG
@@ -451,17 +453,20 @@ void CBaseMonster::UpdateCL()
 		return;
  	*/
 
+	LastUpdate = Device.dwTimeGlobal;
 
 	CTimer time;
-	 
+	time.Start();
+
 	if ((IsGameTypeSingle() || OnServer()) && EatedCorpse && !CorpseMemory.is_valid_corpse(EatedCorpse) )
 	{
 		EatedCorpse = NULL;
 	}
 
-	time.Start();
+
 	inherited::UpdateCL();
-	monster_timers += time.GetElapsed_ticks();
+
+//	monster_timers += time.GetElapsed_ticks();
     
 	if (g_Alive() && Remote() && !IsGameTypeSingle())
 	{
@@ -470,24 +475,25 @@ void CBaseMonster::UpdateCL()
 
 	if ( g_Alive() ) 
 	{
-		time.Start();
-		//update_enemy_accessible_and_at_home_info();
+		//time.Start();
+		update_enemy_accessible_and_at_home_info();
 		
 		CStepManager::update(false);
  
-		//if (IsGameTypeSingle() || OnServer())
-		//	update_pos_by_grouping_behaviour();
+		if (IsGameTypeSingle() || OnServer())
+			update_pos_by_grouping_behaviour();
 
-		monster_update_groop += time.GetElapsed_ticks();
+		//monster_update_groop += time.GetElapsed_ticks();
 	}
 
-	time.Start();
+	//time.Start();
 	if(IsGameTypeSingle() || OnServer())
 		control().update_frame();
 
-	monster_update_control += time.GetElapsed_ticks();
+	//monster_update_control += time.GetElapsed_ticks();
 
- 	m_pPhysics_support->in_UpdateCL();
+	if (OnClient())
+ 		m_pPhysics_support->in_UpdateCL();
 
 	/*
 	if (Device.dwTimeGlobal - TimerGlobal > 1000 && OnServer())
@@ -507,6 +513,8 @@ void CBaseMonster::UpdateCL()
 		shedule_all = 0;
 	}
 	*/
+
+	UpdateCLTime += time.GetElapsed_ticks();
 	
 }
 
@@ -517,7 +525,7 @@ extern int Shedule_Radius_Players;
 
 float CBaseMonster::shedule_Scale()
 {
-	if (OnClient)
+	if (OnClient())
 		return 	0;
 
 	if (Game().players.size() > 0)
@@ -529,7 +537,7 @@ float CBaseMonster::shedule_Scale()
 
 			if (smart_cast<CActorMP*>(obj) || smart_cast<CSpectator*>(obj) )
 			{
-				u32 new_dist = obj->Position().distance_to(this->Position());
+				float new_dist = obj->Position().distance_to(this->Position());
 				if (new_dist < Shedule_Radius_Players)
 				{
 					finded = true;		 
@@ -552,15 +560,6 @@ float CBaseMonster::shedule_Scale()
 
 void CBaseMonster::shedule_Update(u32 dt)
 {
-	u8 players = 0;
-	for (auto pl : Game().players)
-	{
-		if (smart_cast<CActor*>(Level().Objects.net_Find(pl.second->GameID)))
-			players += 1;
-	}
-
-	if (players == 0)
-		return;
 
 #ifdef DEBUG
 	if ( is_paused () )

@@ -84,7 +84,7 @@ void CUIAMode::Init()
                     {
                         LPCSTR name_desc = file->r_string(name, "anim_descr");
                         text[count] = UIHelper::CreateTextWnd(uiXML_Anims, "caption_text", 0);
-                        text[count]->SetText(name_desc);
+                        text[count]->SetTextST(name_desc);
 
                         list_anims->AddWindow(text[count], true);
                     }

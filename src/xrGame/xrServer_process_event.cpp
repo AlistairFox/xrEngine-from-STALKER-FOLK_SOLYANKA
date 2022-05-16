@@ -398,38 +398,28 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 
 	case GE_MODE_SWITCH:
 	{
-		u8 type = P.r_u8();
-		
-		if (type == 0)
-		{
-			xrClientData* data = ID_to_client(sender);
+		xrClientData* data = ID_to_client(sender);
 
-			if (!data)
-				break;
+		if (!data)
+			break;
 
-			if (!data->ps)
-				break;
+		if (!data->ps)
+			break;
 
-			game_PlayerState* PS = data->ps;
+		game_PlayerState* PS = data->ps;
 
-			bool safe_mode = PS->testFlag(GAME_PLAYER_MP_SAFE_MODE);
+		bool safe_mode = PS->testFlag(GAME_PLAYER_MP_SAFE_MODE);
 
-			if (!safe_mode)
-			{
- 				PS->setFlag(GAME_PLAYER_MP_SAFE_MODE);
- 			}
-			else
-			{
- 				PS->resetFlag(GAME_PLAYER_MP_SAFE_MODE);
- 			}
-
-		}
+		if (!safe_mode)
+ 			PS->setFlag(GAME_PLAYER_MP_SAFE_MODE);
+		else
+ 			PS->resetFlag(GAME_PLAYER_MP_SAFE_MODE); 
 		  
 		game->signal_Syncronize();
 
 	}break;
 
-	case GE_UI_PDA:
+	case GAME_EVENT_UI_PDA_SERVER:
 	{
 		game_sv_freemp* freemp = smart_cast<game_sv_freemp*>(game);
 		u8 type;
@@ -454,15 +444,13 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 		 
 	}break;
 
-	case GE_ACTOR_HIDE_ALL_WEAPONS:
-	case GE_ACTOR_SND_ACTIVATE:
-	case GE_ACTOR_ANIMATION_SCRIPT:
-	case GE_ACTOR_ITEM_ACTIVATE:
+	case GE_DETECTOR_STATE:
+ 	case GE_ACTOR_ANIMATIONS_EVENT:
 	{
 		SendBroadcast(sender, P, net_flags(true, true));
 	}break;
  
-    case GAME_EVENT_PDA_CHAT:
+    case GAME_EVENT_PDA_CHAT_SERVER:
 	{
 		Process_events_PDA(P, sender);
 	}break;
@@ -484,12 +472,7 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 		game->u_EventGen(packet, GE_UNLOAD_AMMO, destination);
 		SendTo(SV_Client->ID, P, net_flags(true, true));
 	}break;
-
-	case GE_DETECTOR_STATE:
-	{
-		SendBroadcast(sender, P, net_flags(true, true));
-	}break;
-
+ 
 	default:
 		R_ASSERT2	(0,"Game Event not implemented!!!");
 		break;

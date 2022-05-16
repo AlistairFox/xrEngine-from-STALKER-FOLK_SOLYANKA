@@ -30,6 +30,8 @@
 #include "Inventory.h"
 //#include "CustomMonster.h"
 
+#include "game_cl_freemp.h"
+
 CMapLocation::CMapLocation(LPCSTR type, u16 object_id)
 {
 	m_flags.zero			();
@@ -51,7 +53,9 @@ CMapLocation::CMapLocation(LPCSTR type, u16 object_id)
 
 	m_objectID				= object_id;
 	m_actual_time			= 0;
-	m_owner_se_object		= (ai().get_alife()) ? ai().alife().objects().object(m_objectID,true) : NULL;
+
+	m_owner_se_object = (ai().get_alife()) ? ai().alife().objects().object(m_objectID, true) : NULL;
+    
 	m_flags.set				(eHintEnabled, TRUE);
 	LoadSpot				(type, false);
 	
@@ -61,7 +65,7 @@ CMapLocation::CMapLocation(LPCSTR type, u16 object_id)
 	m_cached.m_Position.set	(10000,10000);
 	m_cached.m_updatedFrame = u32(-1);
 	m_cached.m_graphID		= GameGraph::_GRAPH_ID(-1);
-	if(!IsGameTypeSingle())
+	//if(!IsGameTypeSingle())
 		m_cached.m_LevelName = Level().name();
 }
 
@@ -238,6 +242,7 @@ void CMapLocation::CalcPosition()
 	}
 
 	CObject* pObject =  Level().Objects.net_Find(m_objectID);
+	
 	if(!pObject)
 	{
 		if(m_owner_se_object)
@@ -246,7 +251,8 @@ void CMapLocation::CalcPosition()
 			m_cached.m_Position.set	(m_position_global.x, m_position_global.z);
 		}
 	
-	}else
+	}
+	else
 	{
 		m_position_global			= pObject->Position();
 		m_cached.m_Position.set		(m_position_global.x, m_position_global.z);
@@ -286,12 +292,18 @@ void CMapLocation::CalcLevelName()
 {
 	if(m_owner_se_object && ai().get_game_graph())
 	{
+
+		shared_str name = ai().game_graph().header().level(ai().game_graph().vertex(m_owner_se_object->m_tGraphID)->level_id()).name();
+		
+		//Msg("CalcLevelName: %s, id:%d, level_name: %s", m_owner_se_object->name(), m_owner_se_object->ID, name.c_str());
+
 		if(m_cached.m_graphID != m_owner_se_object->m_tGraphID)
 		{
-			m_cached.m_LevelName	= ai().game_graph().header().level(ai().game_graph().vertex(m_owner_se_object->m_tGraphID)->level_id()).name();
+			m_cached.m_LevelName	= name;
 			m_cached.m_graphID		= m_owner_se_object->m_tGraphID;
 		}
-	}else
+	}
+	else
 	{
 		m_cached.m_LevelName = Level().name();
 	}
@@ -314,15 +326,29 @@ bool CMapLocation::Update() //returns actual
 
 	CObject* pObject					= Level().Objects.net_Find(m_objectID);
 	
+	game_cl_freemp* freemp = smart_cast<game_cl_freemp*>(&Game());
+
+	if (freemp && freemp->alife_objects[m_objectID] && !m_owner_se_object)
+	{
+		Msg("SERVER OBJECT FIND [%s] [%d]", freemp->alife_objects[m_objectID]->name_replace(), m_owner_se_object ? 1 : 0);
+		m_owner_se_object = freemp->alife_objects[m_objectID];
+	}
+
 	if (m_owner_se_object || (!IsGameTypeSingle() && pObject) )
 	{
 		m_cached.m_Actuality			= true;
-		if(IsGameTypeSingle())
+		
+		//if(IsGameTypeSingle())
 			CalcLevelName				();
 
 		CalcPosition					();
-	}else
+	}
+	else
 		m_cached.m_Actuality			= false;
+
+
+
+	//Msg("MAP_SPOT %d, active %d", this->m_objectID, m_cached.m_Actuality);
 
 	m_cached.m_updatedFrame				= Device.dwFrame;
 	return								m_cached.m_Actuality;
@@ -339,6 +365,7 @@ void CMapLocation::UpdateSpot(CUICustomMap* map, CMapSpot* sp )
 
 		if ( b_alife && m_flags.test(eHideInOffline) && !m_owner_se_object->m_bOnline )
 		{
+			Msg("Object: %d, Name: %s", m_owner_se_object->ID, m_owner_se_object->name_replace());
 			return;
 		}
 
@@ -401,6 +428,7 @@ void CMapLocation::UpdateSpot(CUICustomMap* map, CMapSpot* sp )
 
 		if(b_pointer)
 			UpdateSpotPointer( map, GetSpotPointer(sp) );
+
 	}
 	else if ( Level().name() == map->MapName() && GetSpotPointer(sp) )
 	{
@@ -426,20 +454,26 @@ void CMapLocation::UpdateSpot(CUICustomMap* map, CMapSpot* sp )
 			xr_vector<u32>::reverse_iterator it_e = map_point_path.rend();
 
 			xr_vector<CLevelChanger*>::iterator lit = g_lchangers.begin();
-			//xr_vector<CLevelChanger*>::iterator lit_e = g_lchangers.end();
+ 
 			bool bDone						= false;
-			//for(; (it!=it_e)&&(!bDone) ;++it){
-			//	for(lit=g_lchangers.begin();lit!=lit_e; ++lit){
 
-			//		if((*it)==(*lit)->ai_location().game_vertex_id() )
-			//		{
-			//			bDone = true;
-			//			break;
-			//		}
+			/*
+			xr_vector<CLevelChanger*>::iterator lit_e = g_lchangers.end();
+			for(; (it!=it_e)&&(!bDone) ;++it){
+				for(lit=g_lchangers.begin();lit!=lit_e; ++lit){
 
-			//	}
-			//}
+					if((*it)==(*lit)->ai_location().game_vertex_id() )
+					{
+						bDone = true;
+						break;
+					}
+
+				}
+			}
+			*/
+
 			static bool bbb = false;
+
 			if(!bDone&&bbb)
 			{
 				Msg("! Error. Path from actor to selected map spot does not contain level changer :(");
@@ -450,6 +484,7 @@ void CMapLocation::UpdateSpot(CUICustomMap* map, CMapSpot* sp )
 					//					Msg("%d-%s",(*it),ai().game_graph().vertex(*it));
 					Msg("[%d] level[%s]",(*it),*ai().game_graph().header().level(ai().game_graph().vertex(*it)->level_id()).name());
 				}
+				
 				Msg("- Available LevelChangers:");
 				xr_vector<CLevelChanger*>::iterator lit,lit_e;
 				lit_e							= g_lchangers.end();
@@ -462,6 +497,7 @@ void CMapLocation::UpdateSpot(CUICustomMap* map, CMapSpot* sp )
 
 
 			};
+
 			if(bDone)
 			{
 				Fvector2 position;
@@ -481,6 +517,7 @@ void CMapLocation::UpdateSpot(CUICustomMap* map, CMapSpot* sp )
 				if(it!=it_e)
 				{
 					Fvector p = ai().game_graph().vertex(*it)->level_point();
+					
 					if(Actor()->Position().distance_to_sqr(p)>45.0f*45.0f)
 					{
 						Fvector2 position;
@@ -501,6 +538,7 @@ void CMapLocation::UpdateSpotPointer(CUICustomMap* map, CMapSpotPointer* sp )
 	if(sp->GetParent()) return ;// already is child
 	float		heading;
 	Fvector2	pointer_pos;
+
 	if( map->GetPointerTo(m_position_on_map, sp->GetWidth()/2, pointer_pos, heading) )
 	{
 		sp->SetWndPos(pointer_pos);
@@ -539,6 +577,7 @@ void CMapLocation::UpdateSpotPointer(CUICustomMap* map, CMapSpotPointer* sp )
 void CMapLocation::UpdateMiniMap(CUICustomMap* map)
 {
 	CMapSpot* sp = m_minimap_spot;
+	
 	if(!sp) return;
 	if(SpotEnabled())
 		UpdateSpot(map, sp);
@@ -714,7 +753,7 @@ bool CRelationMapLocation::Update()
 
 	m_last_relation = ALife::eRelationTypeFriend;
 
-	if(m_owner_se_object)
+	if(m_owner_se_object && ai().get_alife())
 	{
 		CSE_ALifeTraderAbstract*	pEnt = NULL;
 		CSE_ALifeTraderAbstract*	pAct = NULL;
@@ -727,7 +766,8 @@ bool CRelationMapLocation::Update()
 		CSE_ALifeCreatureAbstract*		pCreature = smart_cast<CSE_ALifeCreatureAbstract*>(m_owner_se_object);
 		if(pCreature) //maybe trader ?
 			bAlive = pCreature->g_Alive		();
-	}else
+	}
+	else
 	{
 		CInventoryOwner*			pEnt = NULL;
 		CInventoryOwner*			pAct = NULL;
@@ -742,6 +782,7 @@ bool CRelationMapLocation::Update()
 		if(pEntAlive)
 			bAlive = !!pEntAlive->g_Alive		();
 	}
+
 	shared_str sname;
 
 	if(bAlive==false)
@@ -755,14 +796,18 @@ bool CRelationMapLocation::Update()
 	}
 // update visibility
 	bool vis_res = true;
+
 	if(m_last_relation==ALife::eRelationTypeEnemy || m_last_relation==ALife::eRelationTypeWorstEnemy)
 	{
 		CObject* _object_ = Level().Objects.net_Find(m_objectID);
 		if(_object_)
 		{
 			CEntityAlive* ea = smart_cast<CEntityAlive*>(_object_);
-			if(ea&&!ea->g_Alive()) 
-				vis_res =  true;	
+			if (ea && !ea->g_Alive())
+			
+			{
+				vis_res = true;
+			}
 			else
 			{
 				const CGameObject* pObj = smart_cast<const CGameObject*>(_object_);

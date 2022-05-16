@@ -324,10 +324,15 @@ class_<CScriptGameObject> &script_register_game_object2(class_<CScriptGameObject
 		.def("aim_bone_id",					(LPCSTR (CScriptGameObject::*) () const)&CScriptGameObject::aim_bone_id)
 
 		.def("actor_look_at_point",			&CScriptGameObject::ActorLookAtPoint)
+
+		//LevelChanger
 		.def("enable_level_changer",		&CScriptGameObject::enable_level_changer)
 		.def("is_level_changer_enabled",	&CScriptGameObject::is_level_changer_enabled)
-
+		.def("is_level_changer_HasTravelLocation", &CScriptGameObject::Is_LevelCH_HasTravelLocation)
 		.def("set_level_changer_invitation",&CScriptGameObject::set_level_changer_invitation)
+		//END
+
+		//
 		.def("start_particles",				&CScriptGameObject::start_particles)
 		.def("stop_particles",				&CScriptGameObject::stop_particles)
 

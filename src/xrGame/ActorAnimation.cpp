@@ -473,7 +473,8 @@ void CActor::g_SetSprintAnimation( u32 mstate_rl,MotionID &head,MotionID &torso,
 				(mstate_rl&mcLanding2)	||
 				(mstate_rl&mcJump)		;
 
-	if (!MpSafeMode())
+
+	if (!MpSafeMode() )
 	{
 		if (mstate_rl & mcFwd)		legs = (!jump) ? sprint.legs_fwd : sprint.legs_jump_fwd;
 		else if (mstate_rl & mcLStrafe) legs = (!jump) ? sprint.legs_ls : sprint.legs_jump_ls;
@@ -1026,6 +1027,11 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 				}
 			}
 		}
+
+		if (!m_bAnimTorsoPlayed && !H && mstate_rl & mcSprint)	///Фикс тупого спринта с повернутой головой (когда нету Hud item)
+		{
+			M_torso = ST->m_torso[13].moving[state];
+		}
 	}
 	 
 	if (!M_legs)
@@ -1175,13 +1181,12 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 	
 	if (!(motion1->flags & esmSyncPart))
 		return;
-
-	float coef = m_current_torso_blend->timeTotal / m_current_legs_blend->timeTotal;
 	
 	//Msg("T_Current %f / T_total %f", m_current_torso_blend->timeCurrent, m_current_torso_blend->timeTotal);
 	//Msg("L_Current %f / L_total %f", m_current_legs_blend->timeCurrent, m_current_legs_blend->timeTotal);
 
 	if (m_current_torso_blend->timeTotal == m_current_legs_blend->timeTotal)
-		m_current_torso_blend->timeCurrent = m_current_legs_blend->timeCurrent;//m_current_torso_blend->timeCurrent * m_current_legs_blend->timeCurrent / m_current_torso_blend->timeTotal;
+		m_current_torso_blend->timeCurrent = m_current_legs_blend->timeCurrent;
+ 
  	
 }

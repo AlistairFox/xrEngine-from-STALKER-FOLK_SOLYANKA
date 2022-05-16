@@ -66,7 +66,8 @@ CUIMapList::CUIMapList(){
 CUIMapList::~CUIMapList()
 {}
 
-void CUIMapList::StartDedicatedServer(){
+void CUIMapList::StartDedicatedServer()
+{
 
 	string_path ModuleFileName;		
 	GetModuleFileName(NULL, ModuleFileName, sizeof(ModuleFileName));

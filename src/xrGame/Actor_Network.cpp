@@ -514,7 +514,8 @@ BOOL CActor::net_Spawn		(CSE_Abstract* DC)
 	//force actor to be local on server client
 	CSE_Abstract			*e	= (CSE_Abstract*)(DC);
 	CSE_ALifeCreatureActor	*E	= smart_cast<CSE_ALifeCreatureActor*>(e);
-	if (!IsGameTypeSingle()) {
+	if (!IsGameTypeSingle()) 
+	{
 		if (OnServer())
 		{
 			if (!smart_cast<CActorMP*>(this)) {
@@ -528,7 +529,8 @@ BOOL CActor::net_Spawn		(CSE_Abstract* DC)
 
 		if (OnClient() || (OnServer() && !g_dedicated_server))
 		{
-			if (smart_cast<CActorMP*>(this)) {
+			if (smart_cast<CActorMP*>(this)) 
+			{
 				if (TRUE == E->s_flags.test(M_SPAWN_OBJECT_LOCAL))
 				{
 					if (TRUE == E->s_flags.test(M_SPAWN_OBJECT_ASPLAYER))
@@ -912,9 +914,7 @@ void	CActor::OnChangeVisual()
 };
 
 void	CActor::ChangeVisual			( shared_str NewVisual )
-{	
-	CanChange = true;
-
+{
 	if (!g_Alive()) return;
 	if (!NewVisual.size()) return;
 	if (cNameVisual().size() )
@@ -922,6 +922,7 @@ void	CActor::ChangeVisual			( shared_str NewVisual )
 		if (cNameVisual() == NewVisual) return;
 	}
 
+	CanChange = true;
 	cNameVisual_set(NewVisual);
 	g_SetAnimation(mstate_real);
 

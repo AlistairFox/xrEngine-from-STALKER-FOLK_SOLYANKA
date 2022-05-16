@@ -33,6 +33,9 @@ game_cl_freemp::game_cl_freemp()
 		m_pVoiceChat = xr_new<CVoiceChat>();
 	else
 		m_pVoiceChat = NULL;
+
+	load_game_tasks = false;
+
 }
 
 game_cl_freemp::~game_cl_freemp()
@@ -81,6 +84,9 @@ void game_cl_freemp::net_import_update(NET_Packet & P)
 }
 u32 old_time = 0;
 
+#include "GametaskManager.h"
+#include "GameTask.h"
+
 void game_cl_freemp::shedule_Update(u32 dt)
 {
 	game_cl_GameState::shedule_Update(dt);
@@ -99,6 +105,38 @@ void game_cl_freemp::shedule_Update(u32 dt)
 			CurrentGameUI()->UIMainIngameWnd->SetActiveVoiceIcon(false);
 		}
 		m_pVoiceChat->Update();
+	}
+
+	if (OnClient() && Device.dwTimeGlobal - old_time > 5000 && load_game_tasks)
+	{
+		string_path filename;
+		FS.update_path(filename, "$mp_saves$", "task\\tasks.ltx");
+
+		CInifile* file = xr_new<CInifile>("filename", false, false, false);
+
+		for (auto task : Level().GameTaskManager().GetGameTasks())
+		{
+			task.save_ltx(*file, task.task_id);
+		}
+
+		file->save_as(filename);
+	}
+	else if (!load_game_tasks && Actor() && Device.dwTimeGlobal - old_time > 5000)
+	{
+		string_path filename;
+		FS.update_path(filename, "$mp_saves$", "task\\tasks.ltx");
+
+		CInifile* file = xr_new<CInifile>(filename, true, true);
+
+		for (auto sec : file->sections())
+		{
+			CGameTask* task = xr_new<CGameTask>();
+			task->load_task_ltx(*file, sec->Name);
+			task->m_ID = sec->Name.c_str();
+
+			Level().GameTaskManager().LoadGameTask(task);
+		}						  
+		load_game_tasks = true;
 	}
 	
 	// синхронизация имени и денег игроков для InventoryOwner
@@ -126,6 +164,8 @@ void game_cl_freemp::shedule_Update(u32 dt)
 			pActor->set_money((u32)ps->money_for_round, false);
 		}
 
+		//Msg("Rank %d, Current %d", ps->rank, pActor->Rank());
+
 		if (!connected_spawn && local_player->GameID == ps->GameID)
 		{
 			string_path filepath;
@@ -142,7 +182,7 @@ void game_cl_freemp::shedule_Update(u32 dt)
 				xr_strcpy(Slot3, file->r_string("QuickSlots", "Slot3"));
 				xr_strcpy(Slot4, file->r_string("QuickSlots", "Slot4"));
 
-				Msg("Slot[%s][%s][%s][%s]", Slot1, Slot2, Slot3, Slot4);
+			//	Msg("Slot[%s][%s][%s][%s]", Slot1, Slot2, Slot3, Slot4);
 
 				xr_strcpy(g_quick_use_slots[0], Slot1);
 				xr_strcpy(g_quick_use_slots[1], Slot2);
@@ -155,9 +195,7 @@ void game_cl_freemp::shedule_Update(u32 dt)
 	}
 
 	if (local_player->GameID)
-	
-
-	if (OnClient() && Device.dwTimeGlobal - old_time > 1000 && connected_spawn)
+	if (OnClient() && Device.dwTimeGlobal - old_time > 5000 && connected_spawn)
 	{
 		string_path filepath;
 
@@ -282,6 +320,7 @@ LPCSTR game_cl_freemp::GetGameScore(string32&	score_dest)
 	return score_dest;
 }
 
+
 void game_cl_freemp::OnConnected()
 {
 	inherited::OnConnected();
@@ -342,7 +381,7 @@ void game_cl_freemp::TranslateGameMessage(u32 msg, NET_Packet& P)
 {
 	switch (msg)
 	{
-		case (GE_UI_PDA):
+		case (GAME_EVENT_UI_PDA):
 		{
  			m_game_ui->PdaMenu().pUIContacts->EventRecive(P);
 		}break;
@@ -350,6 +389,16 @@ void game_cl_freemp::TranslateGameMessage(u32 msg, NET_Packet& P)
 		case (GAME_EVENT_PDA_CHAT):
 		{
 			m_game_ui->PdaMenu().pUIChatWnd->RecivePacket(P);
+		}break;
+
+		case (M_ALIFE_OBJECTS_SPAWN):
+		{
+			ReadSpawnAlife(&P);
+		}break;
+
+		case (M_ALIFE_OBJECTS_UPDATE):
+		{
+			ReadUpdateAlife(&P);
 		}break;
 
 		default:
@@ -428,6 +477,62 @@ void game_cl_freemp::OnRender()
 
 	}
  
+}
+
+void game_cl_freemp::ReadSpawnAlife(NET_Packet* packet)
+{
+	if (OnServer())
+		return;
+
+	shared_str name;
+	packet->r_stringZ(name);
+
+	//Msg("AlifeOBJECT: %s", name.c_str());
+
+	if (!pSettings->section_exist(name.c_str()))
+	{
+		Msg("Cant Find Sec(%s)", name.c_str());
+		return;
+	}
+	 
+	CSE_Abstract* entity = F_entity_Create(name.c_str());
+	entity->Spawn_ReadNoBeginPacket(*packet);
+	entity->UPDATE_Read(*packet);
+
+	u16 id = entity->ID;
+ 
+	CSE_ALifeDynamicObject* dynamic = smart_cast<CSE_ALifeDynamicObject*>(entity);
+
+	if (dynamic)
+	{
+		u32 level = 0;
+		shared_str name_level ;
+
+		if (&ai().game_graph())
+		{
+			level = ai().game_graph().vertex(dynamic->m_tGraphID)->level_id();
+			name_level = ai().game_graph().header().level(level).name();
+		}
+ 	
+		//Msg("Recived id[%d], level[%d][%s], alife_object[%s], name_replace (%s), POS[%.0f][%.0f][%.0f]", id, level, name_level, name.c_str(),  entity->name_replace(), entity->o_Position.x, entity->o_Position.y, entity->o_Position.z);
+
+		if ((*alife_objects.find(id)).second != dynamic)
+		{
+			alife_objects[id] = dynamic;
+			//dynamic->on_register();
+		}
+		
+	}
+	
+		
+}
+
+void game_cl_freemp::ReadUpdateAlife(NET_Packet* packet)
+{
+	u16 id = packet->r_u16();
+
+	if (alife_objects[id])
+		alife_objects[id]->UPDATE_Read(*packet);
 }
 
 void game_cl_freemp::OnScreenResolutionChanged()

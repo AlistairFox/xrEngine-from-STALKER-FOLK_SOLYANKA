@@ -155,7 +155,7 @@ BOOL CInventoryBox::net_Spawn(CSE_Abstract* DC)
 
 	
 
-	if (OnClient())
+	if (OnClient() && personal_safe)
 	{
 		NET_Packet P;
 		CGameObject::u_EventGen(P, GE_INV_BOX_PRIVATE_SAFE, ID());

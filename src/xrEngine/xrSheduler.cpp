@@ -487,8 +487,9 @@ void CSheduler::ProcessStep			()
 		if (scale > 1)
 		{
 			dwUpdate *= scale;
-			//Msg("DW [%s] TIME [%u]", T.Object->shedule_Name().c_str(), dwUpdate);
 		}
+
+		//Msg("DW [%s] TIME [%u] old[%u]", T.Object->shedule_Name().c_str(), dwUpdate, Elapsed);
 
 		m_current_step_obj = T.Object;
  

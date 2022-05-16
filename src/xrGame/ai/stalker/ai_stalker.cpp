@@ -758,6 +758,8 @@ u32 old_TIME_PRINT = 0;
 
 extern int Shedule_Radius_Players;
 
+extern u64 UpdateCLStalkerTime;
+
 void CAI_Stalker::UpdateCL()
 {
 	/*
@@ -781,7 +783,8 @@ void CAI_Stalker::UpdateCL()
 	if (!need_update)
 		return;
 	*/
-
+ 
+	//Msg("UpdateCL [%s], time[%u]", Name(), Device.dwTimeGlobal - LastUpdate);
 	LastUpdate = Device.dwTimeGlobal;
 
 	START_PROFILE("stalker")
@@ -835,24 +838,25 @@ void CAI_Stalker::UpdateCL()
 		}
 	}
 
-	updateCL += timer.GetElapsed_ticks();
+	//updateCL += timer.GetElapsed_ticks();
 
-	timer.Start();
+	//timer.Start();
 	START_PROFILE("stalker/client_update/inherited")
 	inherited::UpdateCL				();
 	STOP_PROFILE
 		
-	updateCL_CUSTOM_MONSTER += timer.GetElapsed_ticks();
+	//updateCL_CUSTOM_MONSTER += timer.GetElapsed_ticks();
 	
-	timer.Start();
+	//timer.Start();
 	START_PROFILE("stalker/client_update/physics")
  	if (OnClient())
 		m_pPhysics_support->in_UpdateCL();
 	STOP_PROFILE
 
-	updateCL_PHYSIC += timer.GetElapsed_ticks();
+	//updateCL_PHYSIC += timer.GetElapsed_ticks();
 
-	timer.Start();
+	//timer.Start();
+
 	if (g_Alive())
 	{
 		START_PROFILE("stalker/client_update/sight_manager")
@@ -879,8 +883,9 @@ void CAI_Stalker::UpdateCL()
 		STOP_PROFILE
 	}
 
-	updateCL += timer.GetElapsed_ticks();
+	//updateCL += timer.GetElapsed_ticks();
 
+	UpdateCLStalkerTime += timer.GetElapsed_ticks();
 
 #ifdef DEBUG
 	debug_text	();
@@ -902,6 +907,8 @@ void CAI_Stalker::UpdateCL()
 		updateCL_PHYSIC = 0;
 	} 
 	*/
+
+
 }
 
 void CAI_Stalker ::PHHit				(SHit &H )
@@ -920,21 +927,17 @@ CPHDestroyable*		CAI_Stalker::		ph_destroyable	()
 
 void CAI_Stalker::shedule_Update		( u32 DT )
 {
-	u8 players = 0;
-	for (auto pl : Game().players)
-	{
-		if (smart_cast<CActor*>(Level().Objects.net_Find(pl.second->GameID)))
-			players += 1;
-	}
-
-	if (players == 0)
-		return;
-
 	if (!IsGameTypeSingle() && OnClient())
 	{
 		inherited::shedule_Update(DT);
 		return;
 	} 
+
+	//Msg("Shedule[%s], Time[%u]", Name(), Device.dwTimeGlobal - LastShedule);
+ 
+	LastShedule = Device.dwTimeGlobal;
+
+
 	 
 	 
 	START_PROFILE("stalker")
@@ -1003,7 +1006,9 @@ void CAI_Stalker::shedule_Update		( u32 DT )
 	
 	if (Remote())	
 	{
-	} else {
+	}
+	else 
+	{
 		// here is monster AI call
 		VERIFY							(_valid(Position()));
 		m_fTimeUpdateDelta				= dt;
@@ -1322,11 +1327,14 @@ extern float Shedule_Scale_AI_Stalker;
 
 #include "Spectator.h"
 
+
 float CAI_Stalker::shedule_Scale				()
 {
-	if (OnClient)
+	if (OnClient())
 		return 	0;
  
+	 
+
 	if (Game().players.size() > 0)
 	{
 		bool finded = false;
@@ -1336,7 +1344,7 @@ float CAI_Stalker::shedule_Scale				()
 
 			if (smart_cast<CActorMP*>(obj) || smart_cast<CSpectator*>(obj) )
 			{
-				u32 new_dist = obj->Position().distance_to(this->Position());
+				float new_dist = obj->Position().distance_to(this->Position());
 				if (new_dist < Shedule_Radius_Players)
 				{
 					finded = true;

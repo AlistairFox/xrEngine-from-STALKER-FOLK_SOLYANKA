@@ -317,6 +317,7 @@
     <ClInclude Include="..\xrServerEntities\script_fvector.h" />
     <ClInclude Include="..\xrServerEntities\script_ini_file.h" />
     <ClInclude Include="..\xrServerEntities\script_ini_file_inline.h" />
+    <ClInclude Include="..\xrServerEntities\script_json_file.h" />
     <ClInclude Include="..\xrServerEntities\script_lua_helper.h" />
     <ClInclude Include="..\xrServerEntities\script_net_packet.h" />
     <ClInclude Include="..\xrServerEntities\script_process.h" />
@@ -2053,6 +2054,11 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">pch_script.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>
     </ClCompile>
+    <ClCompile Include="..\xrServerEntities\script_json_file.cpp" />
+    <ClCompile Include="..\xrServerEntities\script_json_file_script.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">pch_script.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>
+    </ClCompile>
     <ClCompile Include="..\xrServerEntities\script_lua_helper.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">pch_script.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>
@@ -3089,7 +3095,6 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">pch_script.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>
     </ClCompile>
-    <ClCompile Include="game_sv_mp_alife.cpp" />
     <ClCompile Include="SIniFileStream.cpp" />
     <ClCompile Include="UIAnimMode.cpp" />
     <ClCompile Include="UIGameFMP.cpp" />
@@ -5615,6 +5620,7 @@
     <ClCompile Include="xrServer_Connect.cpp" />
     <ClCompile Include="xrServer_Disconnect.cpp" />
     <ClCompile Include="xrServer_info.cpp" />
+    <ClCompile Include="xrServer_Object_Base_SpawnWrite_new.cpp" />
     <ClCompile Include="xrServer_perform_GameExport.cpp" />
     <ClCompile Include="xrServer_perform_migration.cpp" />
     <ClCompile Include="xrServer_perform_RPgen.cpp" />

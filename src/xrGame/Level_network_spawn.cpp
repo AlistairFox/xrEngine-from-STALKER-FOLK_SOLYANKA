@@ -169,9 +169,9 @@ void CLevel::g_sv_Spawn		(CSE_Abstract* E)
 	// Msg				("--spawn--CREATE: %f ms",1000.f*T.GetAsync());
 
 //	T.Start		();
-#ifdef DEBUG_MEMORY_MANAGER
-	mem_alloc_gather_stats		(false);
-#endif // DEBUG_MEMORY_MANAGER
+	#ifdef DEBUG_MEMORY_MANAGER
+		mem_alloc_gather_stats		(false);
+	#endif // DEBUG_MEMORY_MANAGER
 	if (0==O || (!O->net_Spawn	(E))) 
 	{
 		O->net_Destroy			( );
@@ -179,19 +179,22 @@ void CLevel::g_sv_Spawn		(CSE_Abstract* E)
 			client_spawn_manager().clear(O->ID());
 		Objects.Destroy			(O);
 		Msg						("! Failed to spawn entity '%s'",*E->s_name);
-#ifdef DEBUG_MEMORY_MANAGER
-		mem_alloc_gather_stats	(!!psAI_Flags.test(aiDebugOnFrameAllocs));
-#endif // DEBUG_MEMORY_MANAGER
-	} else {
-#ifdef DEBUG_MEMORY_MANAGER
-		mem_alloc_gather_stats	(!!psAI_Flags.test(aiDebugOnFrameAllocs));
-#endif // DEBUG_MEMORY_MANAGER
+		#ifdef DEBUG_MEMORY_MANAGER
+				mem_alloc_gather_stats	(!!psAI_Flags.test(aiDebugOnFrameAllocs));
+		#endif // DEBUG_MEMORY_MANAGER
+	} 
+	else 
+	{
+		#ifdef DEBUG_MEMORY_MANAGER
+				mem_alloc_gather_stats	(!!psAI_Flags.test(aiDebugOnFrameAllocs));
+		#endif // DEBUG_MEMORY_MANAGER
+		
 		if(!g_dedicated_server)
 			client_spawn_manager().callback(O);
+		
 		//Msg			("--spawn--SPAWN: %f ms",1000.f*T.GetAsync());
 		
-		if ((E->s_flags.is(M_SPAWN_OBJECT_LOCAL)) && 
-			(E->s_flags.is(M_SPAWN_OBJECT_ASPLAYER)) )	
+		if ((E->s_flags.is(M_SPAWN_OBJECT_LOCAL)) && (E->s_flags.is(M_SPAWN_OBJECT_ASPLAYER)) )	
 		{
 			if (IsDemoPlayStarted())
 			{

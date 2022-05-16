@@ -299,6 +299,13 @@ void CInventoryItem::OnEvent (NET_Packet& P, u16 type)
 				Game().inventory_upgrade_manager().upgrade_install(*this, upgrede, true);
 			}
 		}break;
+
+		case GE_ATTACHED_ITEM:
+		{
+			u8 enable = P.r_u8();
+			this->enable(enable);
+		}break;
+
 	}
 }
 

@@ -54,11 +54,13 @@ void CMonsterEnemyMemory::update()
 				 monster->Position().distance_to(enemy->Position()) 
 				                        < 
 				 monster->get_feel_enemy_who_just_hit_max_distance() )
-			{
+			{	 
+				/*
 				Msg("Add Monster [%s, %d], Enemy [%s][%d] ",
 					monster->cName().c_str(), monster->ID(),
 					enemy->cName().c_str(), enemy->ID()
 				);
+				*/
 
 				add_enemy					(enemy);
 
@@ -268,10 +270,14 @@ void CMonsterEnemyMemory::add_enemy(const CEntityAlive *enemy)
 	enemy_info.danger	= 0.f;
 
 	ENEMIES_MAP_IT it = m_objects.find(enemy);
-	if (it != m_objects.end()) {
+	
+	if (it != m_objects.end()) 
+	{
 		// обновить данные о враге
 		it->second = enemy_info;
-	} else {
+	} 
+	else 
+	{
 		// добавить врага в список объектов
 		m_objects.insert(mk_pair(enemy, enemy_info));
 	}

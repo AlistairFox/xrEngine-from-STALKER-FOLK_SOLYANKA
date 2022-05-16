@@ -962,8 +962,33 @@ bool CGameObject::shedule_Needed( )
 
 extern float Shedule_Scale_Objects;
 
+#include "actor_mp_client.h"
+#include "Spectator.h"
+
 float CGameObject::shedule_Scale()
 {
+	if (Game().players.size() > 0)
+	{
+		bool finded = false;
+		for (auto pl : Game().players)
+		{
+			CObject* obj = Level().Objects.net_Find(pl.second->GameID);
+
+			if (smart_cast<CActorMP*>(obj) || smart_cast<CSpectator*>(obj))
+			{
+				float new_dist = obj->Position().distance_to(this->Position());
+				if (new_dist < 60)
+				{
+					finded = true;
+					break;
+				}
+			}
+		}
+
+		if (finded)
+			return 0;
+	}
+
 	return Shedule_Scale_Objects;
 }
 

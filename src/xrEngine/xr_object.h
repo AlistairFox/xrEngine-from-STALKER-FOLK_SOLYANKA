@@ -81,6 +81,7 @@ public:
 	// if (object_is_visible)
 	// if (object_is_near)
 	// if (object_is_crow_always)
+
 #ifdef	DEBUG
 		void							DBGGetProps			(ObjectProperties &p ) const { p = Props; }
 #endif

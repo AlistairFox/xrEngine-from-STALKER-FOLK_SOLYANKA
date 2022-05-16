@@ -274,6 +274,8 @@ public:
 	EnvVec*					PrewWeather;
 	shared_str				PrewWeatherName;
 
+	shared_str				WFX_PrewWeather;
+
 	bool					StartWeatherMP(shared_str name1, shared_str name2, shared_str DESCRIPTOR_CUR);
 
 	void					SelectEnvsMP(EnvVec* envs0, EnvVec* envs1, CEnvDescriptor*& e0, CEnvDescriptor*& e1, float gt, shared_str DESCRIPTOR_CUR);

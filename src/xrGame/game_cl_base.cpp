@@ -106,17 +106,14 @@ void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
  		if (!Device.Paused() && g_pGamePersistent && name_prew.size() > 0 && name.size() > 0)
 		{
 			g_pGamePersistent->Environment().wfx_time = wfx_time;
-
+		//	Msg("WFX: %f", wfx_time);
 			if (wfx_time > 1)
 			{
 				g_pGamePersistent->Environment().StartWeatherFXFromTime(name, wfx_time);
 			}
 			else
-			if (has_current)
-			{
-				shared_str identifier;
-				P.r_stringZ(identifier);
-				g_pGamePersistent->Environment().StartWeatherMP(name_prew, name, identifier);
+ 			{
+				g_pGamePersistent->Environment().StartWeatherMP(name_prew, name, nullptr);
 			}
 		}
 	}

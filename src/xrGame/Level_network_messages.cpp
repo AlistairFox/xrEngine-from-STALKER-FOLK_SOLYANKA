@@ -17,6 +17,8 @@
 #include "message_filter.h"
 #include "../xrphysics/iphworld.h"
 
+#include "game_cl_freemp.h"
+
 extern LPCSTR map_ver_string;
 LPSTR remove_version_option(LPCSTR opt_str, LPSTR new_opt_str, u32 new_opt_str_size)
 {
@@ -483,6 +485,7 @@ void CLevel::ClientReceive()
 				if (!game) break;
 				Game().OnVoiceMessage(P);
 			}break;
+ 
 		}
 
 		net_msg_Release();

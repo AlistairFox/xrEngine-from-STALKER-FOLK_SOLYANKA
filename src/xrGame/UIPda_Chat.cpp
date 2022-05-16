@@ -417,7 +417,7 @@ void xr_stdcall UIPdaChat::button_click_send_money(CUIWindow* w, void* d)
 	if (owner)
 	{
 		NET_Packet packet;
-		Game().u_EventGen(packet, GAME_EVENT_PDA_CHAT, -1);
+		Game().u_EventGen(packet, GAME_EVENT_PDA_CHAT_SERVER, -1);
 		packet.w_u8(1);
 		packet.w_u16(LocalActor->ID());
 		packet.w_u16(SecondActor->ID());
@@ -550,7 +550,7 @@ void UIPdaChat::SendPacket(GAME_NEWS_DATA data)
 {
 	NET_Packet P;
 
-	Game().u_EventGen(P, GAME_EVENT_PDA_CHAT, -1);
+	Game().u_EventGen(P, GAME_EVENT_PDA_CHAT_SERVER, -1);
 
 	P.w_u8(0);
 	P.w_u8(ModeGlobalChat);

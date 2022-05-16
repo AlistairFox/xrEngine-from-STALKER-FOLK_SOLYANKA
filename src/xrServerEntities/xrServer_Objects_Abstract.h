@@ -119,6 +119,11 @@ public:
 public:
 	virtual void		__stdcall	Spawn_Write				(NET_Packet &tNetPacket, BOOL bLocal) = 0;
 	virtual BOOL		__stdcall	Spawn_Read				(NET_Packet &tNetPacket) = 0;
+
+	virtual void		__stdcall	Spawn_WriteNoBeginPacket(NET_Packet& tNetPacket, BOOL bLocal) = 0;
+	virtual BOOL		__stdcall	Spawn_ReadNoBeginPacket(NET_Packet& tNetPacket) = 0;
+
+
 #ifndef XRGAME_EXPORTS
 	virtual void		__stdcall	FillProp				(LPCSTR pref, PropItemVec &items) = 0;
 	virtual void 		__stdcall	on_render				(CDUInterface* du, ISE_AbstractLEOwner* owner, bool bSelected, const Fmatrix& parent,int priority, bool strictB2F) = 0;

@@ -3,9 +3,12 @@
 #include "Level.h"
 
 #include "alife_simulator.h"
-#include "alife_object_registry.h"
 #include "alife_graph_registry.h"
 #include "alife_time_manager.h"
+
+
+#include "alife_object_registry.h"
+#include "alife_spawn_registry.h"
 
 #include "ai_space.h"
 #include "level_graph.h"	   
@@ -141,4 +144,133 @@ void game_sv_freemp::on_death(CSE_Abstract* e_dest, CSE_Abstract* e_src)
 		return;
 
 	alife().on_death(e_dest, e_src);
+}
+
+
+
+ALife::_TIME_ID game_sv_freemp::GetStartGameTime()
+{
+	if (ai().get_alife() && ai().alife().initialized())
+		return(ai().alife().time_manager().start_game_time());
+	else
+		return(inherited::GetStartGameTime());
+}
+
+ALife::_TIME_ID game_sv_freemp::GetGameTime()
+{
+ 
+	if (ai().get_alife() && ai().alife().initialized())
+		return(ai().alife().time_manager().game_time());
+	else
+		return(inherited::GetGameTime());
+}
+
+float game_sv_freemp::GetGameTimeFactor()
+{
+	if (ai().get_alife() && ai().alife().initialized())
+		return(ai().alife().time_manager().time_factor());
+	else
+		return(inherited::GetGameTimeFactor());
+}
+
+void game_sv_freemp::SetGameTimeFactor(const float fTimeFactor)
+{
+	if (ai().get_alife() && ai().alife().initialized())
+		return(alife().time_manager().set_time_factor(fTimeFactor));
+	else
+		return(inherited::SetGameTimeFactor(fTimeFactor));
+}
+
+void game_sv_freemp::ChangeGameTime(u32 day, u32 hour, u32 minute)
+{
+	if (ai().get_alife())
+	{
+		u32 value = day * 86400 + hour * 3600 + minute * 60;
+		float fValue = static_cast<float> (value);
+		value *= 1000;//msec		
+		g_pGamePersistent->Environment().ChangeGameTime(fValue);
+		alife().time_manager().change_game_time(value);
+	}
+}
+
+void game_sv_freemp::ChangeGameTime(u32 value)
+{
+	if (ai().get_alife())
+	{
+		float fValue = static_cast<float> (value);
+		g_pGamePersistent->Environment().ChangeGameTime(fValue);
+		alife().time_manager().change_game_time(value);
+	}
+}
+ 
+
+ALife::_TIME_ID game_sv_freemp::GetEnvironmentGameTime()
+{
+	if (ai().get_alife() && ai().alife().initialized())
+		return(alife().time_manager().game_time());
+	else
+		return(inherited::GetGameTime());
+}
+
+float game_sv_freemp::GetEnvironmentGameTimeFactor()
+{
+	return(inherited::GetGameTimeFactor());
+}
+
+void game_sv_freemp::SetEnvironmentGameTimeFactor(const float fTimeFactor)
+{
+	return(inherited::SetGameTimeFactor(fTimeFactor));
+}
+
+void game_sv_freemp::WriteAlifeObjectsToClient()
+{
+	auto objects = &ai().alife().objects().objects();
+ 
+	u32 size_spawn = 0, size_updates = 0;
+
+	for (auto object : *objects)
+	{
+		NET_Packet packet;
+	//	Game().u_EventGen(packet, M_ALIFE_OBJECTS_SPAWN, -1);
+		
+		packet.w_begin(M_GAMEMESSAGE);
+		packet.w_u32(M_ALIFE_OBJECTS_SPAWN);
+
+		packet.w_stringZ(object.second->s_name.c_str());
+ 	
+		u32 packet_size = packet.w_tell();
+		object.second->Spawn_WriteNoBeginPacket(packet, false);
+		u32 position_spawn_end = packet.w_tell() - packet_size;
+		object.second->UPDATE_Write(packet);
+		u32 position_update_end = packet.w_tell() - position_spawn_end;
+
+		//u8 level_id = ai().game_graph().vertex(object.second->m_tGraphID)->level_id();
+		//shared_str name = ai().game_graph().header().level(level_id).name();
+
+		//Msg("Object (%s) id (%d), level(%s), p_s(%u), p_u(%u)", object.second->name(), object.first, name.c_str(), position_spawn_end, position_update_end);
+		
+		//size_spawn += position_spawn_end;
+		//size_updates += position_update_end;
+		server().SendBroadcast(server().GetServerClient()->ID, packet, net_flags(true));
+	}
+
+	//Msg("Size_spawns (%u), updates (%u)", size_spawn, size_updates);
+	
+ 
+}
+
+void game_sv_freemp::UpdateAlifeObjects()
+{
+	auto objects = &ai().alife().objects().objects();
+	u32 size_spawn = 0, size_updates = 0;
+
+	for (auto object : *objects)
+	{
+		NET_Packet packet; 
+		packet.w_begin(M_ALIFE_OBJECTS_UPDATE);
+		packet.w_u16(object.first);
+		object.second->UPDATE_Write(packet);
+
+		server().SendBroadcast(server().GetServerClient()->ID, packet, net_flags(false));
+	}
 }

@@ -27,6 +27,7 @@ class game_sv_freemp : public game_sv_mp, private pure_relcase
 	typedef game_sv_mp inherited;
 	SpawnSect spawned_items;
 	bool loaded_inventory = false;
+	bool loaded_gametime = false;
 
 protected:
 	CALifeSimulator* m_alife_simulator;
@@ -102,6 +103,21 @@ public:
 	void restart_simulator(LPCSTR saved_game_name);
 	void save_game(NET_Packet& net_packet, ClientID sender);
 	bool load_game(NET_Packet& net_packet, ClientID sender);
+
+	virtual		ALife::_TIME_ID		GetStartGameTime();
+	virtual		ALife::_TIME_ID		GetGameTime();
+	virtual		float				GetGameTimeFactor();
+	virtual		void				SetGameTimeFactor(const float fTimeFactor);
+
+	virtual		void				ChangeGameTime(u32 day, u32 hour, u32 minute);
+	virtual		void				ChangeGameTime(u32 value);
+
+	virtual		ALife::_TIME_ID		GetEnvironmentGameTime();
+	virtual		float				GetEnvironmentGameTimeFactor();
+	virtual		void				SetEnvironmentGameTimeFactor(const float fTimeFactor);
+
+	virtual		void				WriteAlifeObjectsToClient();
+	virtual		void				UpdateAlifeObjects();
  
 	IC			xrServer& server() const
 	{

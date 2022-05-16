@@ -192,8 +192,13 @@ void CUIMapWnd::Init(LPCSTR xml_name, LPCSTR start_from)
 
 void CUIMapWnd::Show(bool status)
 {
+
+
 	inherited::Show(status);
-	Activated();
+
+	if (Level().CurrentEntity())
+		Activated();
+
 	if ( GlobalMap() )
 	{
 		m_GlobalMap->DetachAll();

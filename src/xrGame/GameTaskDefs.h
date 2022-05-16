@@ -31,6 +31,10 @@ struct SGameTaskKey : public IPureSerializeObject<IReader,IWriter>,public IPureD
 
 	virtual void 	save								(IWriter &stream);
 	virtual void 	load								(IReader &stream);
+
+	virtual void	save_ltx							(CInifile& file, shared_str section);
+	virtual void	load_ltx							(CInifile& file, shared_str section);
+
 	virtual void 	destroy								();
 };
 

@@ -198,7 +198,9 @@ CInifile &CSE_Abstract::spawn_ini			()
 void CSE_Abstract::Spawn_Write				(NET_Packet	&tNetPacket, BOOL bLocal)
 {
 	// generic
-	tNetPacket.w_begin			(M_SPAWN);
+ 
+	tNetPacket.w_begin(M_SPAWN);
+ 
 	tNetPacket.w_stringZ		(s_name			);
 	tNetPacket.w_stringZ		(s_name_replace ?	s_name_replace : "");
 	tNetPacket.w_u8				(0);
@@ -273,10 +275,13 @@ enum EGameTypes {
 
 BOOL CSE_Abstract::Spawn_Read				(NET_Packet	&tNetPacket)
 {
+ 
 	u16							dummy16;
 	// generic
-	tNetPacket.r_begin			(dummy16);	
-	R_ASSERT					(M_SPAWN==dummy16);
+	tNetPacket.r_begin(dummy16);
+	R_ASSERT(M_SPAWN == dummy16);
+ 
+ 
 	tNetPacket.r_stringZ		(s_name			);
 	
 	string256					temp;

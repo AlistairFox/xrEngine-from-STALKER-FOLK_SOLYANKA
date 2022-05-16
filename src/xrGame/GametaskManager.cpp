@@ -105,14 +105,6 @@ CGameTask*	CGameTaskManager::GiveGameTaskToActor(CGameTask* t, u32 timeToComplet
 	std::stable_sort				(GetGameTasks().begin(), GetGameTasks().end(), task_prio_pred);
 
 	t->OnArrived					();
-
-	//CGameTask* active_task			= ActiveTask();
-
-	//if ( (active_task == NULL) || (active_task->m_priority < t->m_priority) )
-	//{
-	//	SetActiveTask( t );
-	//}
-
 	SetActiveTask( t );
 
 	//установить флажок необходимости прочтения тасков в PDA
@@ -122,6 +114,25 @@ CGameTask*	CGameTaskManager::GiveGameTaskToActor(CGameTask* t, u32 timeToComplet
 	t->ChangeStateCallback();
 
 	return t;
+}
+
+void CGameTaskManager::LoadGameTask(CGameTask* t)
+{
+	t->CommitScriptHelperContents();
+	m_flags.set(eChanged, TRUE);
+
+	GetGameTasks().push_back(SGameTaskKey(t->m_ID));
+	GetGameTasks().back().game_task = t;
+	std::stable_sort(GetGameTasks().begin(), GetGameTasks().end(), task_prio_pred);
+	t->OnArrived();
+	SetActiveTask(t);
+	
+
+	//установить флажок необходимости прочтения тасков в PDA
+	if (CurrentGameUI())
+		CurrentGameUI()->UpdatePda();
+
+	//t->ChangeStateCallback();
 }
 
 void CGameTaskManager::SetTaskState(CGameTask* t, ETaskState state)

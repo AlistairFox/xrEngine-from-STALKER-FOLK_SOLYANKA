@@ -135,6 +135,7 @@ void CGameTask::ChangeMapLocation( LPCSTR new_map_location, u16 new_map_object_i
 
 void CGameTask::ChangeStateCallback()
 {
+	if (Actor())
 	Actor()->callback(GameObject::eTaskStateChange)(this, GetTaskState() );
 }
 
@@ -247,6 +248,79 @@ void CGameTask::load_task(IReader &stream)
 	CreateMapLocation		(true);
 }
 
+void CGameTask::save_task_ltx(CInifile& file, shared_str section)
+{
+	file.w_u8(section.c_str(), "m_task_state", m_task_state);
+	file.w_u8(section.c_str(), "m_task_type", m_task_type);
+	file.w_u64(section.c_str(), "m_ReceiveTime", m_ReceiveTime);
+	file.w_u64(section.c_str(), "m_FinishTime", m_FinishTime);
+	file.w_u64(section.c_str(), "m_TimeToComplete", m_TimeToComplete);
+	file.w_u64(section.c_str(), "m_timer_finish", m_timer_finish);
+	
+	string256 temp;
+	xr_strcpy(temp, m_Title.c_str());
+	file.w_string(section.c_str(), "m_Title", temp);
+	xr_strcpy(temp, m_Description.c_str());
+	file.w_string(section.c_str(), "m_Description", temp);
+	xr_strcpy(temp, m_icon_texture_name.c_str());
+	file.w_string(section.c_str(), "m_icon_texture_name", temp);
+	xr_strcpy(temp, m_map_hint.c_str());
+	file.w_string(section.c_str(), "m_map_hint", temp);
+	xr_strcpy(temp, m_map_location.c_str());
+	file.w_string(section.c_str(), "m_map_location", temp);
+	
+	file.w_u16(section.c_str(), "m_map_object_id", m_map_object_id);
+	file.w_u32(section.c_str(), "m_priority", m_priority);
+
+	//save_data(m_pScriptHelper, stream)
+
+	string512 res;
+	
+	m_pScriptHelper.convert_to_string(m_pScriptHelper.m_s_complete_lua_functions, res);
+	file.w_string(section.c_str(), "complete_lua_functions", res);
+
+	m_pScriptHelper.convert_to_string(m_pScriptHelper.m_s_fail_lua_functions, res);
+	file.w_string(section.c_str(), "fail_lua_functions", res);
+
+	m_pScriptHelper.convert_to_string(m_pScriptHelper.m_s_lua_functions_on_complete, res);
+	file.w_string(section.c_str(), "lua_functions_on_complete", res);
+
+	m_pScriptHelper.convert_to_string(m_pScriptHelper.m_s_lua_functions_on_fail, res);
+	file.w_string(section.c_str(), "lua_functions_on_fail", res);
+
+}
+
+void CGameTask::load_task_ltx(CInifile& file, shared_str section)
+{
+	u8 task_state = file.r_u8(section.c_str(), "m_task_state");
+	m_task_state = ETaskState(task_state);
+
+	u8 task_type = file.r_u8(section.c_str(), "m_task_type");
+	m_task_type = ETaskType(task_type);
+
+	m_ReceiveTime	 = file.r_u64(section.c_str(), "m_ReceiveTime");
+	m_FinishTime	 = file.r_u64(section.c_str(), "m_FinishTime");
+	m_TimeToComplete = file.r_u64(section.c_str(), "m_TimeToComplete");
+	m_timer_finish   = file.r_u64(section.c_str(), "m_timer_finish");
+
+	m_Title._set( file.r_string(section.c_str(), "m_Title") );
+	m_Description._set(file.r_string(section.c_str(), "m_Description"));
+	m_icon_texture_name._set(file.r_string(section.c_str(), "m_icon_texture_name"));
+	m_map_hint._set(file.r_string(section.c_str(), "m_map_hint"));
+	m_map_location._set(file.r_string(section.c_str(), "m_map_location"));
+
+	m_map_object_id = file.r_u16(section.c_str(), "m_map_object_id");
+	m_priority = file.r_u32(section.c_str(), "m_priority");
+
+	m_pScriptHelper.m_s_complete_lua_functions = m_pScriptHelper.convert_to_vector(file.r_string(section.c_str(), "complete_lua_functions"));
+	m_pScriptHelper.m_s_fail_lua_functions = m_pScriptHelper.convert_to_vector(file.r_string(section.c_str(), "fail_lua_functions"));
+	m_pScriptHelper.m_s_lua_functions_on_complete = m_pScriptHelper.convert_to_vector(file.r_string(section.c_str(), "lua_functions_on_complete"));
+	m_pScriptHelper.m_s_lua_functions_on_fail = m_pScriptHelper.convert_to_vector(file.r_string(section.c_str(), "lua_functions_on_fail"));
+
+	CommitScriptHelperContents();
+	CreateMapLocation(true);
+}
+
 void CGameTask::CommitScriptHelperContents()
 {
 	m_pScriptHelper.init_functors	(m_pScriptHelper.m_s_complete_lua_functions,	m_complete_lua_functions);
@@ -314,6 +388,39 @@ void SScriptTaskHelper::load(IReader &stream)
 		load_data(m_s_lua_functions_on_fail,		stream);
 }
 
+void SScriptTaskHelper::convert_to_string(xr_vector<shared_str> functor, string512& res)
+{
+	int prop_count = 0;
+	res[0] = 0;
+	for (auto item : functor)
+	{
+		LPCSTR upgr_section = item.c_str();
+		if (prop_count > 0)
+		{
+			xr_strcat(res, sizeof(res), ", ");
+		}
+		xr_strcat(res, sizeof(res), upgr_section);
+		++prop_count;
+	}
+}
+
+xr_vector<shared_str> SScriptTaskHelper::convert_to_vector(shared_str save_str)
+{
+	xr_vector<shared_str> vec;
+
+	int count = _GetItemCount(save_str.c_str(), ',');
+
+	for (int i=0; i != count; i++)
+	{
+		string256 name_functor;
+		_GetItem(save_str.c_str(), i, name_functor, ',');
+		vec.push_back(name_functor);
+	}
+
+	return vec;
+}
+
+ 
 void SScriptTaskHelper::save(IWriter &stream)
 {
 		save_data(m_s_complete_lua_functions,		stream);
@@ -335,6 +442,20 @@ void SGameTaskKey::load(IReader &stream)
 	game_task->m_ID				= task_id;
 	game_task->load_task		(stream);
 
+}
+ 
+void SGameTaskKey::save_ltx(CInifile& file, shared_str section)
+{
+	file.w_string(section.c_str(), "task_id", task_id.c_str());
+ 	game_task->save_task_ltx(file, section);
+}
+
+void SGameTaskKey::load_ltx(CInifile& file, shared_str section)
+{
+	game_task = xr_new<CGameTask>();
+	task_id = file.r_string(section, "task_id");
+	game_task->m_ID = task_id;
+	game_task->load_task_ltx(file, section);
 }
 
 void SGameTaskKey::destroy()

@@ -43,6 +43,9 @@ public:
 	void				EnableLevelChanger	(bool b)				{m_b_enabled=b;}
 	bool				IsLevelChangerEnabled() const				{return m_b_enabled;}
 	void				SetLEvelChangerInvitationStr(LPCSTR str)	{m_invite_str = str;}
+
+	bool				IsHasTravelLocation() { return m_game_vertex_id != 65535; }
+
 	//serialization
 	virtual BOOL	net_SaveRelevant		();
 	virtual void	save					(NET_Packet &output_packet);

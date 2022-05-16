@@ -72,7 +72,7 @@ void CUIActorMenu::RepairEffect_CurItem()
 	CUICellItem* itm = CurrentItem();
 
 	item->SetCondition(1.0f);
-	Log("Condition = ", item->GetCondition());
+	//Log("Condition = ", item->GetCondition());
 	NET_Packet packet;
 
 	Game().u_EventGen(packet, GE_PLAYER_REPAIR, item->object_id());

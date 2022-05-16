@@ -52,7 +52,7 @@ void game_sv_freemp::OnPlayerUIContactsRecvest(NET_Packet& P, ClientID const& cl
 
 	NET_Packet packet;
 	GenerateGameMessage(packet);
-	packet.w_u32(GE_UI_PDA);
+	packet.w_u32(GAME_EVENT_UI_PDA);
 	packet.w_u8(0);
 	packet.w_clientID(who);
  
@@ -63,7 +63,7 @@ void game_sv_freemp::OnPlayerUIContactsRecvestUpdate(ClientID Client, ClientID l
 {
 	NET_Packet packet;
 	GenerateGameMessage(packet);
-	packet.w_u32(GE_UI_PDA);
+	packet.w_u32(GAME_EVENT_UI_PDA);
 	packet.w_u8(1);
 	packet.w(&teamPlayers[leader] , sizeof(Team));
 	server().SendTo(Client, packet, net_flags(true, true));

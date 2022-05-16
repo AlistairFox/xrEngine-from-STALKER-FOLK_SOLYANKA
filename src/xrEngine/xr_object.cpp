@@ -206,7 +206,8 @@ void CObject::Load				(LPCSTR section )
 	cNameSect_set				(section);
 	
 	// Visual and light-track
-	if (pSettings->line_exist(section,"visual")){
+	if (pSettings->line_exist(section,"visual"))
+	{
 		string_path					tmp;
 		xr_strcpy					(tmp, pSettings->r_string(section,"visual"));
 		if(strext(tmp)) 
@@ -215,6 +216,9 @@ void CObject::Load				(LPCSTR section )
 
 		cNameVisual_set				(tmp);
 	}
+
+
+
 	setVisible					(false);
 }
 

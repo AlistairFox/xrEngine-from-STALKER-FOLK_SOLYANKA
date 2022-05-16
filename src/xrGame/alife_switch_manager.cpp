@@ -164,7 +164,8 @@ void CALifeSwitchManager::try_switch_online	(CSE_ALifeDynamicObject	*I)
 	START_PROFILE("ALife/switch/try_switch_online")
 	// so, the object is offline
 	// checking if the object is not attached
-	if (0xffff != I->ID_Parent) {
+	if (0xffff != I->ID_Parent) 
+	{
 		// so, object is attached
 		// checking if parent is offline too
 #ifdef DEBUG
@@ -233,10 +234,10 @@ void CALifeSwitchManager::switch_object	(CSE_ALifeDynamicObject	*I)
 		return;
 	}
 
-	if (!I->m_bOnline)
-		try_switch_online(I);
+	//if (!I->m_bOnline)
+	//	try_switch_online(I);
 
-	/*
+	 
 	if (!synchronize_location(I))
 		return;
 
@@ -244,7 +245,7 @@ void CALifeSwitchManager::switch_object	(CSE_ALifeDynamicObject	*I)
 		try_switch_offline	(I);
 	else
 		try_switch_online	(I);
-	*/
+	 
 
 	if (I->redundant())
 		release				(I);

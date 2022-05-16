@@ -240,9 +240,9 @@ void CCustomZone::Load(LPCSTR section)
 
 		if((s32)m_dwBlowoutWindTimeEnd < m_StateTime[eZoneStateBlowout]){
 			m_dwBlowoutWindTimeEnd =u32( m_StateTime[eZoneStateBlowout]-1);
-#ifndef MASTER_GOLD
-			Msg("! ERROR: invalid 'blowout_wind_time_end' in '%s'",section);
-#endif // #ifndef MASTER_GOLD
+			#ifndef MASTER_GOLD
+				Msg("! ERROR: invalid 'blowout_wind_time_end' in '%s'",section);
+			#endif // #ifndef MASTER_GOLD
 		}
 
 		
@@ -251,7 +251,9 @@ void CCustomZone::Load(LPCSTR section)
 
 	//загрузить параметры световой вспышки от взрыва
 	m_zone_flags.set(eBlowoutLight, pSettings->r_bool (section, "blowout_light"));
-	if(m_zone_flags.test(eBlowoutLight) ){
+	
+	if(m_zone_flags.test(eBlowoutLight) )
+	{
 		sscanf(pSettings->r_string(section,"light_color"), "%f,%f,%f", &m_LightColor.r, &m_LightColor.g, &m_LightColor.b);
 		m_fLightRange			= pSettings->r_float(section,"light_range");
 		m_fLightTime			= pSettings->r_float(section,"light_time");

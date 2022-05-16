@@ -1464,10 +1464,15 @@ extern	BOOL	g_bCollectStatisticData;
 //xr_token game_types[];
 LPCSTR GameTypeToString(EGameIDs gt, bool bShort);
 
-//u32 stalkers;
-//u32 stalkersALive;
-//u32 oldTimeConsole;
- 
+extern u64 UpdateCLStalkerTime = 0;
+extern u64 UpdateCLTime = 0;
+
+u64 UpdateCLMonster_temp = 0;
+u64 UpdateCLStalker_temp = 0;
+
+
+u32 clearTime = 0;
+
 void xrServer::GetServerInfo( CServerInfo* si )
 {
 	string32  tmp;
@@ -1616,6 +1621,19 @@ void xrServer::GetServerInfo( CServerInfo* si )
 
 	si->AddItem("ClientObjects", itoa(Level().Objects.o_count(), tmp, 10), RGB(255,0,0));
 	si->AddItem("ServerObjects", itoa(entities.size(), tmp, 10), RGB(255, 0, 0));
+
+	if (clearTime + 1000 < Device.dwTimeGlobal)
+	{
+		UpdateCLMonster_temp = UpdateCLTime;
+		UpdateCLStalker_temp = UpdateCLStalkerTime;
+
+		UpdateCLTime = 0;
+		UpdateCLStalkerTime = 0;
+		clearTime = Device.dwTimeGlobal;
+	}
+
+	si->AddItem("UpdateCL_Monsters", itoa(UpdateCLMonster_temp * 1000 / CPU::qpc_freq, tmp, 10), RGB(0, 255, 0));
+	si->AddItem("UpdateCL_Stalkers", itoa(UpdateCLStalker_temp * 1000 / CPU::qpc_freq, tmp, 10), RGB(0, 255, 0));
 
 	/*
 	if ( g_sv_dm_dwTimeLimit > 0 )

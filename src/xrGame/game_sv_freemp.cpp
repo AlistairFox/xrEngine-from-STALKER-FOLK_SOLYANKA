@@ -2,6 +2,8 @@
 #include "game_sv_freemp.h"
 #include "Level.h"
 #include "alife_simulator.h"
+#include "xr_time.h"
+
 
 
 game_sv_freemp::game_sv_freemp() : pure_relcase(&game_sv_freemp::net_Relcase)
@@ -11,6 +13,7 @@ game_sv_freemp::game_sv_freemp() : pure_relcase(&game_sv_freemp::net_Relcase)
 		m_alife_simulator = NULL;
 		m_type = eGameIDFreeMp;
 		loaded_inventory = false;
+		loaded_gametime = false;
 	}
 	else
 		R_ASSERT("НЕ Возвможно запустить сервер с клиента");
@@ -20,6 +23,7 @@ game_sv_freemp::~game_sv_freemp()
 {
 	Msg("[game_sv_freemp] Destroy Server");
 	loaded_inventory = false;
+	loaded_gametime = false;
 	delete_data(m_alife_simulator);
 }
 
@@ -380,6 +384,8 @@ void game_sv_freemp::OnEvent(NET_Packet &P, u16 type, u32 time, ClientID sender)
 			
 		}break;
 
+
+
 		default:
 			inherited::OnEvent(P, type, time, sender);
 	};
@@ -438,7 +444,7 @@ void game_sv_freemp::Update()
 		oldTime_saveServer = Device.dwTimeGlobal;
 	}
 
-	if (Device.dwTimeGlobal % 500 == 0)
+	if (Device.dwTimeGlobal % 500 == 0 && Phase() == GAME_PHASE_INPROGRESS)
 	{
  
 		for (auto players : teamPlayers)
@@ -449,6 +455,42 @@ void game_sv_freemp::Update()
 				//Msg("Recvest Send %u / Leader %u", player, players.second.ClientLeader);
 			}
 		}
+
+		if (loaded_gametime)
+		{
+			u64 time = GetGameTime() - GetStartGameTime();
+			float factor = GetGameTimeFactor();
+
+			string_path filename;
+			FS.update_path(filename, "$mp_saves$", "alife.ltx");
+			CInifile* file = xr_new<CInifile>(filename, false, false);
+			file->w_u64("alife", "current_time", time);
+			file->w_float("alife", "time_factor", factor);
+			file->save_as(filename);
+		}
+		else
+		{
+			u64 time;
+			float factor;
+ 
+			string_path filename;
+			FS.update_path(filename, "$mp_saves$", "alife.ltx");
+			CInifile* file = xr_new<CInifile>(filename, true, true);
+			
+			if (file->section_exist("alife"))
+			{
+				time = file->r_u64("alife", "current_time");
+				factor = file->r_float("alife", "time_factor");
+
+				if (Game().Type() == eGameIDRolePlay)
+					ChangeGameTime(time);
+			}
+
+			loaded_gametime = true;
+		}
+
+ 
+		
 	}
 
 

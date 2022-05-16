@@ -132,7 +132,7 @@ void CALifeStorageManager::load	(void *buffer, const u32 &buffer_size, LPCSTR fi
 		if (smart_cast<CInventoryBox*>(obj))
 			continue;
 
-		Msg("Load ID_OBJ [%d] Name [%s] Spawn[%s]", I->second->ID,I->second->name_replace(), I->second->s_name.c_str());
+		Msg("Load ID_OBJ [%d] Name [%s] Spawn[%s]", I->second->ID, I->second->name_replace(), I->second->s_name.c_str());
 
 		(*I).second->ID			= server().PerformIDgen(id);
 		VERIFY					(id == (*I).second->ID);

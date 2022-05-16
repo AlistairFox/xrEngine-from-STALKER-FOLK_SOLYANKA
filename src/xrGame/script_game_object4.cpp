@@ -307,6 +307,8 @@ void CScriptGameObject::enable_level_changer(bool b)
 	if(lch)
 		lch->EnableLevelChanger(b);
 }
+ 
+
 bool CScriptGameObject::is_level_changer_enabled()
 {
 	CLevelChanger* lch = smart_cast<CLevelChanger*>(&object());
@@ -320,6 +322,16 @@ void CScriptGameObject::set_level_changer_invitation(LPCSTR str)
 	CLevelChanger* lch = smart_cast<CLevelChanger*>(&object());
 	if(lch)
 		lch->SetLEvelChangerInvitationStr(str);
+}
+
+bool CScriptGameObject::Is_LevelCH_HasTravelLocation()
+{
+	CLevelChanger* lch = smart_cast<CLevelChanger*>(&object());
+
+	if (lch)
+		return lch->IsHasTravelLocation();
+
+	return false;
 }
 
 void CScriptGameObject::start_particles(LPCSTR pname, LPCSTR bone)

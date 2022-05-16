@@ -1708,15 +1708,30 @@ public:
 };
 extern bool need_update = false;
 
+#include "xr_time.h"
+
 class CCC_StartTimeEnvironment: public IConsole_Command {
 public:
 					CCC_StartTimeEnvironment	(LPCSTR N) : IConsole_Command(N) {};
 	virtual void	Execute						(LPCSTR args)
 	{
 		u32 hours = 0, mins = 0;
-		
-		sscanf				(args,"%d:%d", &hours, &mins);
-		u64 NewTime			= generate_time	(1,1,1,hours,mins,0,0);
+		sscanf(args,"%d %d", &hours, &mins);
+
+		game_sv_freemp* freemp = smart_cast<game_sv_freemp*>(Level().Server->game);
+
+		if (freemp)
+		{
+			freemp->ChangeGameTime(0, hours, mins);
+			need_update = true;
+		}
+
+
+		/*
+		u32 y, mo, d, h, m, s, ms = 0;
+		xrTime().get(y,mo,d,h,m, s, ms);
+
+		u64 NewTime			= generate_time	(y,mo,d,hours,mins,s,ms);
 
 		if (!g_pGameLevel)
 			return;
@@ -1728,18 +1743,12 @@ public:
 			return;
 
 		float eFactor = Level().Server->game->GetEnvironmentGameTimeFactor();
-
-		/*
-		if (eFactor == 10)
-			eFactor = 11;
-		else
-			eFactor = 10;
-		*/
-		
+  
 		need_update = true;
 
 		Level().Server->game->SetEnvironmentGameTimeFactor(NewTime,eFactor);
 		Level().Server->game->SetGameTimeFactor(NewTime,g_fTimeFactor);
+		*/
 	}
 };
 class CCC_SetWeather : public IConsole_Command {
@@ -3571,7 +3580,7 @@ public:
 		{
 			NET_Packet		P;
 			P.w_begin(M_SCRIPT_EVENT);
-			P.w_u8(17);
+			P.w_u8(9);
 			P.w_u8(1);
 			Level().Send(P, net_flags(TRUE, TRUE));
 		}
@@ -3598,7 +3607,7 @@ public:
 		{
 			NET_Packet		P;
 			P.w_begin(M_SCRIPT_EVENT);
-			P.w_u8(17);
+			P.w_u8(9);
 			P.w_u8(2);
 			Level().Send(P, net_flags(TRUE, TRUE));
 		}
@@ -3625,7 +3634,7 @@ public:
 		{
 			NET_Packet		P;
 			P.w_begin(M_SCRIPT_EVENT);
-			P.w_u8(17);
+			P.w_u8(9);
 			P.w_u8(3);
 			Level().Send(P, net_flags(TRUE, TRUE));
 		}
@@ -3672,12 +3681,64 @@ public:
 	}
 };
 
+class CCC_STOP_WFX : public IConsole_Command
+{
+public:
+	CCC_STOP_WFX(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
+	virtual void Execute(LPCSTR args)
+	{
+		GamePersistent().Environment().StopWFX();
+	}
+};
+
+class CCC_START_WFX : public IConsole_Command
+{
+public:
+	CCC_START_WFX(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
+	virtual void Execute(LPCSTR args)
+	{
+		LPCSTR name;
+		sscanf(args, "%s", name);
+
+		GamePersistent().Environment().SetWeatherFX(name);
+	}
+};
+
+
+
+class CCC_EXPORT_OBJECTS_TO_CLIENT : public IConsole_Command
+{
+public:
+	CCC_EXPORT_OBJECTS_TO_CLIENT(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
+
+	virtual void Execute(LPCSTR args)
+	{
+		if (OnClient())
+			return;
+
+		game_sv_freemp* freemp = smart_cast<game_sv_freemp*>(Level().Server->game);
+		if (freemp)
+		{
+			freemp->WriteAlifeObjectsToClient();
+		}
+	};
+};
+
+
+
+
+extern int ALIFE_ALL_LOCATION = 0;
 
 
 void register_mp_console_commands()
 {	
 	CMD1(CCC_GIVETASK, "give_task");
 	CMD1(CCC_GIVEINFO, "give_info");
+	CMD1(CCC_STOP_WFX, "fx_effect_stop");
+	CMD1(CCC_START_WFX, "fx_effect_start");
+	CMD1(CCC_EXPORT_OBJECTS_TO_CLIENT, "alife_objects");
+
+	CMD4(CCC_Integer, "mp_alife_simulation_location", &ALIFE_ALL_LOCATION, 0, 1);
 
 	CMD1(CCC_AdmSurgeStart, "adm_surge");
 	CMD1(CCC_AdmPsiStormStart, "adm_psi_storm");

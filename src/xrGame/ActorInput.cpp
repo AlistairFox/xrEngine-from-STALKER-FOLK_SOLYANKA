@@ -69,8 +69,7 @@ void CActor::IR_OnKeyboardPress(int cmd)
 			{
 				NET_Packet packet;
 				Game().u_EventGen(packet, GE_MODE_SWITCH, this->ID());
-				packet.w_u8(0);
-				Game().u_EventSend(packet);
+ 				Game().u_EventSend(packet);
 			}break;
 			
 

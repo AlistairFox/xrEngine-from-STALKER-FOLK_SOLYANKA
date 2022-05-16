@@ -929,8 +929,7 @@ bool CSE_ALifeItemAmmo::can_switch_offline	() const
 BOOL CSE_ALifeItemAmmo::Net_Relevant()
 {
 	if (Device.dwTimeGlobal - oldUpdateTime > 1000)
-	//if (ID_Parent != u16(-1) && a_elapsed != m_boxSize)
-	{
+ 	{
 		oldUpdateTime = Device.dwTimeGlobal;
 		return true;
 	}

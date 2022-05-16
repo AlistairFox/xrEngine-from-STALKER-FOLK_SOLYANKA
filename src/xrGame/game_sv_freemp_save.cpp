@@ -48,14 +48,32 @@ bool game_sv_freemp::LoadPlayer(game_PlayerState* id_who)
 	Array jsonAmmo;
 	Array jsonOutfit;
 	Object jsonOthers;
-	
+
+	bool invis = json.has<Boolean>("invis");
+	bool noclip = json.has<Boolean>("noclip");
+	bool god = json.has<Boolean>("god");
+	bool unlim_ammo = json.has<Boolean>("unlim_ammo");
+
+	if (invis && json.get<Boolean>("invis"))
+		ps->setFlag(GAME_PLAYER_MP_INVIS);
+	if (noclip && json.get<Boolean>("noclip"))
+		ps->setFlag(GAME_PLAYER_MP_NO_CLIP);
+	if (god && json.get<Boolean>("god"))
+		ps->setFlag(GAME_PLAYER_MP_GOD_MODE);
+	if (unlim_ammo && json.get<Boolean>("unlim_ammo"))
+		ps->setFlag(GAME_PLAYER_MP_UNLIMATED_AMMO);
+
 	if (json.has<Number>("money"))
 	{
 		int money = json.get<Number>("money");
-
 		ps->money_for_round = money;
-		signal_Syncronize();
 	}
+
+	signal_Syncronize();
+
+
+
+
 
 	if (json.has<Object>("Inventory"))
 	{
@@ -270,13 +288,13 @@ void game_sv_freemp::assign_RP(CSE_Abstract* E, game_PlayerState* ps_who)
 	{
 		Fvector Pos, Angle;
 
-		if (LoadPlayerPosition(ps_who, Pos, Angle))
+		if (LoadPlayerPosition(ps_who, Pos, Angle) )
 		{
 			E->o_Position.set(Pos);
 			E->o_Angle.set(Angle);
+			ps_who->resetFlag(GAME_PLAYER_MP_ON_CONNECTED);
+			return;
 		}
-		ps_who->resetFlag(GAME_PLAYER_MP_ON_CONNECTED);
-		return;
 	}
 
 	ps_who->resetFlag(GAME_PLAYER_MP_ON_CONNECTED);

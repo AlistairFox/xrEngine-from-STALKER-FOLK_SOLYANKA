@@ -73,7 +73,7 @@ void  CScriptGameObject::AddIconedTalkMessage(LPCSTR caption, LPCSTR text, LPCST
 
 void _AddIconedTalkMessage(LPCSTR caption, LPCSTR text, LPCSTR texture_name, LPCSTR templ_name)
 {
-	CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(CurrentGameUI());
+	CUIGameCustom* pGameSP = smart_cast<CUIGameCustom*>(CurrentGameUI());
 	if(!pGameSP) return;
 
 	if(pGameSP->TalkMenu->IsShown())
@@ -715,13 +715,9 @@ void  CScriptGameObject::SwitchToUpgrade		()
 {
 	CActor* pActor = smart_cast<CActor*>(&object());	if(!pActor) return;
 
-	//только если находимся в режиме single
-	CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(CurrentGameUI());
-	if(!pGameSP) return;
-
-	if(pGameSP->TalkMenu->IsShown())
+	if(CurrentGameUI()->TalkMenu->IsShown())
 	{
-		pGameSP->TalkMenu->SwitchToUpgrade();
+		CurrentGameUI()->TalkMenu->SwitchToUpgrade();
 	}
 }
 
@@ -889,10 +885,21 @@ u32	 CScriptGameObject::accessible_nearest	(const Fvector &position, Fvector &re
 void CScriptGameObject::enable_attachable_item	(bool value)
 {
 	CAttachableItem							*attachable_item = smart_cast<CAttachableItem*>(&object());
-	if (!attachable_item) {
+
+	if (!attachable_item) 
+	{
 		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,"CAttachableItem : cannot access class member enable_attachable_item!");
 		return;
 	}
+
+	if (OnServer()) 
+	{
+		NET_Packet packet;
+		Level().Server->game->u_EventGen(packet, GE_ATTACHED_ITEM, attachable_item->item().object_id());
+		packet.w_u8(value);
+		Level().Server->SendBroadcast(Level().Server->GetServerClient()->ID, packet, net_flags(true, true));
+	}
+
 	attachable_item->enable					(value);
 }
 

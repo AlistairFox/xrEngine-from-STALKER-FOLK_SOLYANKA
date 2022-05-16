@@ -229,6 +229,7 @@ CEnvironment::~CEnvironment	()
 
 void CEnvironment::Invalidate()
 {
+	Msg("Invalidate CEnviroment");
 	bWFX					= false;
 	wfx_time				= 0;
 
@@ -239,8 +240,10 @@ void CEnvironment::Invalidate()
 
 float CEnvironment::TimeDiff(float prev, float cur)
 {
-	if (prev>cur)	return	(DAY_LENGTH-prev)+cur;
-	else			return	cur-prev;
+	if (prev > cur && prev > DAY_LENGTH)
+		return	(DAY_LENGTH - prev) + cur;
+	else 
+		return	cur-prev;
 }
 
 float CEnvironment::TimeWeight(float val, float min_t, float max_t)
@@ -272,8 +275,23 @@ void CEnvironment::SetGameTime(float game_time, float time_factor)
 		return;
 	}
 #endif
-	if (bWFX)
-		wfx_time			-= TimeDiff(fGameTime,game_time);
+ 
+	
+	float time_diff = TimeDiff(fGameTime, game_time);;
+	
+	if (time_diff > 100 || time_diff < -100)
+	{
+		Msg("wfx_time:%f, Diff:%f", wfx_time, time_diff);
+		Msg("game_time: %f, fGameTime: %f", fGameTime, game_time);
+	}
+
+
+	if (bWFX && time_diff > 0)
+		wfx_time -= time_diff;
+	else if (bWFX)
+		wfx_time += time_diff;
+
+	
 
 	fGameTime				= game_time;  
 	fTimeFactor				= time_factor;	
@@ -294,6 +312,9 @@ float CEnvironment::NormalizeTime(float tm)
 
 void CEnvironment::SetWeather(shared_str name, bool forced)
 {
+	if (bWFX)
+		return;
+
 	if (name.size())	
 	{
         EnvsMapIt it		= WeatherCycles.find(name);
@@ -356,7 +377,11 @@ bool CEnvironment::SetWeatherFX(shared_str name)
 		}
 
 		R_ASSERT3			(it!=WeatherFXs.end(),"Invalid weather effect name.",*name);
-		EnvVec* PrevWeather = CurrentWeather; VERIFY(PrevWeather);
+		EnvVec* PrevWeather = CurrentWeather;
+		VERIFY(PrevWeather);
+
+		WFX_PrewWeather = CurrentWeatherName;
+
 		CurrentWeather		= &it->second;
 		CurrentWeatherName	= it->first;
 
@@ -468,7 +493,7 @@ void CEnvironment::StopWFX	()
 	VERIFY					(PrewWeatherName.size());
 	bWFX					= false;
 
-	wfx_time = -12;
+	wfx_time = 0;
 	 
 /*	if (PrewWeatherName.size() > 0)
 	{
@@ -483,6 +508,8 @@ void CEnvironment::StopWFX	()
 	Current[0]				= WFX_end_desc[0];
 	Current[1]				= WFX_end_desc[1];
 
+	CurrentWeatherName		= WFX_PrewWeather;
+
 #ifdef WEATHER_LOGGING
 	Msg						("WFX - end. Weather: '%s' Desc: '%s'/'%s' GameTime: %3.2f",CurrentWeatherName.c_str(),Current[0]->m_identifier.c_str(),Current[1]->m_identifier.c_str(),fGameTime);
 #endif
@@ -491,6 +518,14 @@ void CEnvironment::StopWFX	()
 IC bool lb_env_pred(const CEnvDescriptor* x, float val)
 {
 	return x->exec_time < val;	
+}
+
+IC bool lb_env_pred_one_hour(const CEnvDescriptor* x, float val)
+{
+	if (x->exec_time > val - 3600 && x->exec_time < val)
+		return true;
+	else
+		return false;
 }
 
 void CEnvironment::SelectEnv(EnvVec* envs, CEnvDescriptor*& e, float gt)
@@ -532,7 +567,19 @@ bool CEnvironment::StartWeatherMP(shared_str name1, shared_str name2, shared_str
 		if (Weather2 == WeatherCycles.end())
 			return false;
 	  
- 		SelectEnvsMP(&Weather1->second, &Weather2->second, Current[0], Current[1], fGameTime, 0);
+		CEnvDescriptor* temp;
+
+		if (PrewWeatherName.size() > 0 && xr_strcmp(PrewWeatherName, name1) == 0)
+		{
+			//Msg("PrewWeather совпадает");
+			SelectEnvsMP(&Weather1->second, &Weather2->second, temp, Current[1], fGameTime, 0);
+		}
+		else
+		{
+			Msg("PrewWeather не совпадает (%s), (%s)", PrewWeatherName.c_str(), name1.c_str());
+			SelectEnvsMP(&Weather1->second, &Weather2->second, Current[0], Current[1], fGameTime, 0);
+		}
+
 
 		PrewWeather = &Weather1->second;
 		PrewWeatherName = Weather1->first;
@@ -553,15 +600,17 @@ void CEnvironment::SelectEnvsMP(EnvVec* envs0, EnvVec* envs1, CEnvDescriptor*& e
 	EnvIt env2 = std::lower_bound(envs1->begin(), envs1->end(), fGameTime, lb_env_pred);
  
 	if (env == envs0->end())
-		Current[0] = envs0->front();
+		e0 = envs0->front();
 	else
-		Current[0] = *env;
-	 
+		e0 = *env;
 
 	if (env2 == envs1->end())
-		Current[1] = envs1->front();
+		e1 = envs1->front();
 	else
-		Current[1] = *env2;
+		e1 = *env2;
+
+	//Msg("Identifier1: %s", e0->m_identifier.c_str());
+	//Msg("Identifier2: %s", e1->m_identifier.c_str());
 }
 
 void CEnvironment::SelectEnvsMPSync(float gt)
@@ -622,6 +671,7 @@ void CEnvironment::SelectEnvs(float gt)
 		if (bSelect)
 		{
 			Current[0]	= Current[1];
+			
 			if (bWFX || g_dedicated_server)
 				SelectEnv	(CurrentWeather,Current[1],gt);
 
@@ -646,9 +696,13 @@ int get_ref_count(IUnknown* ii)
 
 void CEnvironment::lerp		(float& current_weight)
 {
-	if (bWFX&&(wfx_time<=-10.f))
+	if (bWFX && (wfx_time <= 0.f))
+	{
+		Msg("Stop WFX From CEnvironment::lerp");
+		Msg("bWFX(%d) / WFX_TIME(%f)", bWFX ? 1 : 0, wfx_time);
 		StopWFX();
-	
+	}
+
 	if (!Current[0] || !Current[1])
 	{
 		SelectEnvs(fGameTime);

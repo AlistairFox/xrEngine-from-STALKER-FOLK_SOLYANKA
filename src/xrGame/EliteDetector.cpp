@@ -249,6 +249,10 @@ void  CScientificDetector::Load(LPCSTR section)
 
 void CScientificDetector::UpfateWork()
 {
+	if (g_dedicated_server)
+		return;		  
+
+
 	ui().Clear							();
 
 	CAfList::ItemsMapIt ait_b	= m_artefacts.m_ItemInfos.begin();
@@ -281,7 +285,8 @@ void CScientificDetector::UpfateWork()
 		ui().RegisterItemToDraw		(pZone->Position(),pZone->cNameSect());
 	}
 
-	m_ui->update			();
+	if (m_ui)
+		m_ui->update			();
 }
 
 void CScientificDetector::shedule_Update(u32 dt) 

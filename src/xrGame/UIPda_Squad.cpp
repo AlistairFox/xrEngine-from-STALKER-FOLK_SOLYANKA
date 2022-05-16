@@ -189,7 +189,7 @@ void xr_stdcall CUIPda_Squad::property_box_squad_clicked(CUIWindow* w, void* d)
 
 			NET_Packet packet;
 
-			Game().u_EventGen(packet, GE_UI_PDA, -1);
+			Game().u_EventGen(packet, GAME_EVENT_UI_PDA_SERVER, -1);
 			packet.w_u8(2);
 			packet.w_clientID(selected_user);
  			packet.w_clientID(team_players.ClientLeader);
@@ -202,7 +202,7 @@ void xr_stdcall CUIPda_Squad::property_box_squad_clicked(CUIWindow* w, void* d)
 			Msg("Выйти из отряда");
 
 			NET_Packet packet;
-			Game().u_EventGen(packet, GE_UI_PDA, -1);
+			Game().u_EventGen(packet, GAME_EVENT_UI_PDA_SERVER, -1);
 			packet.w_u8(2);
 			packet.w_clientID(selected_user);
 			packet.w_clientID(team_players.ClientLeader);

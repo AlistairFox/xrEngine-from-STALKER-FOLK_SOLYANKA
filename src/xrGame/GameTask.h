@@ -27,6 +27,9 @@ public:
 
 	virtual void			save			(IWriter &stream);
 	virtual void			load			(IReader &stream);
+	
+	void convert_to_string(xr_vector<shared_str> functor, string512& res);
+	xr_vector<shared_str>	convert_to_vector(shared_str save_str);
 			
 			void			init_functors	(xr_vector<shared_str>& v_src, task_state_functors& v_dest);
 };
@@ -75,6 +78,8 @@ public:
 	void 					save_task		(IWriter &stream);
 	void 					load_task		(IReader &stream);
 
+	void					save_task_ltx   (CInifile& file, shared_str section);
+	void					load_task_ltx	(CInifile& file, shared_str section);
 
 	shared_str				m_ID;
 	shared_str				m_Title;

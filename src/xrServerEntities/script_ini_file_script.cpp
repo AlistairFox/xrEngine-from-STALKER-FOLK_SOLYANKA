@@ -8,8 +8,12 @@
 
 #include "pch_script.h"
 #include "script_ini_file.h"
+#include "script_json_file.h"
+
+#include "..\jsonxx\jsonxx.h"
 
 using namespace luabind;
+using namespace jsonxx;
 
 CScriptIniFile *get_system_ini()
 {
@@ -76,6 +80,8 @@ void CScriptIniFile::script_register(lua_State *L)
 	[
 		class_<CScriptIniFile>("ini_file")
 			.def(					constructor<LPCSTR>())
+
+
 			.def("section_exist",	&CScriptIniFile::section_exist	)
 			.def("line_exist",		&CScriptIniFile::line_exist		)
 			
@@ -108,5 +114,53 @@ void CScriptIniFile::script_register(lua_State *L)
 		def("read_ini", &read_ini),
 #endif // XRGAME_EXPORTS
 		def("create_ini_file",		&create_ini_file,	adopt(result))
+	];
+
+	module(L)
+	[
+
+		class_<CJsonFile>("json")
+			.def(constructor<>())
+
+			.def("has_boolean", &CJsonFile::has_boolean)
+			.def("has_number", &CJsonFile::has_number)
+			.def("has_string", &CJsonFile::has_string)
+			.def("has_object", &CJsonFile::has_object)
+			.def("has_array", &CJsonFile::has_array)
+
+			.def("get_boolean", &CJsonFile::get_boolean)
+			.def("get_number", &CJsonFile::get_number)
+			.def("get_string", &CJsonFile::get_string)
+			.def("get_object", &CJsonFile::get_object)
+			.def("get_array", &CJsonFile::get_array)
+
+			.def("set_boolean", &CJsonFile::set_boolean)
+			.def("set_number", &CJsonFile::set_number)
+			.def("set_string", &CJsonFile::set_string)
+
+			.def("set_object", &CJsonFile::set_object)
+			.def("set_array", &CJsonFile::set_array)
+			
+		
+			.def("set_object_array", &CJsonFile::set_object_array)
+			.def("get_object_from_array", &CJsonFile::get_object_from_array)
+			.def("array_size", &CJsonFile::array_size)
+
+			.def("load_json", &CJsonFile::LoadJSON)
+			.def("save_json", &CJsonFile::SaveJSON)
+	];
+
+	module(L)
+	[
+		class_<Object>("create_object")
+			.def( constructor<>() )
+
+
+	];
+
+	module(L)
+	[
+		class_<Array>("create_array")
+			.def(constructor<>())
 	];
 }

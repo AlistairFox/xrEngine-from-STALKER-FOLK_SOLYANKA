@@ -12,6 +12,8 @@ private:
 
 public:
 
+	xr_map<u16, CSE_ALifeDynamicObject*> alife_objects;
+
 	CUIGameFMP* m_game_ui;
 
 	float		Indicator_render1;
@@ -20,6 +22,8 @@ public:
 	Fvector     IndicatorPositionText;
 	ui_shader	IndicatorShaderFreemp;
 	ui_shader	IndicatorShaderFreempLeader;
+
+	bool load_game_tasks;
 
 			game_cl_freemp();
 	virtual	~game_cl_freemp();
@@ -49,6 +53,9 @@ public:
 	virtual	void TranslateGameMessage(u32 msg, NET_Packet& P);
 
 	virtual void OnRender(); 
+
+	virtual void ReadSpawnAlife(NET_Packet *packet);
+	virtual void ReadUpdateAlife(NET_Packet *packet);
 
 
 	virtual void OnScreenResolutionChanged();

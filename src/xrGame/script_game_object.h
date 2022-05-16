@@ -639,6 +639,8 @@ public:
 			void				enable_level_changer				(bool b);
 			bool				is_level_changer_enabled			();
 			void				set_level_changer_invitation		(LPCSTR str);
+			bool				Is_LevelCH_HasTravelLocation();
+
 #ifdef DEBUG
 			void				debug_planner						(const script_planner *planner);
 #endif

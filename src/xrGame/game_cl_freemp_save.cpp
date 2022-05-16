@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "game_cl_freemp.h"
+
 #include "../jsonxx/jsonxx.h"
-using namespace jsonxx;
 #include <fstream>;
 #include <istream>;
 
@@ -12,6 +12,8 @@ using namespace jsonxx;
 #include "ActorHelmet.h"
 #include "CustomOutfit.h"
 #include "CustomDetector.h"
+
+using namespace jsonxx;
 
 void game_cl_freemp::save_player(game_PlayerState* cl)
 {
@@ -129,16 +131,17 @@ void game_cl_freemp::save_player(game_PlayerState* cl)
 	bool noclip = ps->testFlag(GAME_PLAYER_MP_NO_CLIP);
 	bool invis = ps->testFlag(GAME_PLAYER_MP_INVIS);
 	bool godmode = ps->testFlag(GAME_PLAYER_MP_GOD_MODE);
-	bool safemode = ps->testFlag(GAME_PLAYER_MP_SAFE_MODE);
+	//bool safemode = ps->testFlag(GAME_PLAYER_MP_SAFE_MODE);
+	bool unlim_ammo = ps->testFlag(GAME_PLAYER_MP_UNLIMATED_AMMO);
 
-	json << "noclip" << Value(noclip);
-	json << "invis" << Value(invis);
-	json << "god" << Value(godmode);
-	json << "safemode" << Value(safemode);
+	json << "noclip" << Boolean(noclip);
+	json << "invis" << Boolean(invis);
+	json << "god" << Boolean(godmode);
+	//json << "safemode" << Boolean(safemode);
+	json << "unlim_ammo" << Boolean(unlim_ammo);
 
 	if (ps->m_account.name_save().size() != 0)
 	{
-
 		string_path name;
 
 		if (FS.path_exist("$mp_saves_file$"))
