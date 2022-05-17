@@ -62,15 +62,16 @@ BOOL CLevelChanger::net_Spawn	(CSE_Abstract* DC)
 	m_position					= l_tpALifeLevelChanger->m_tNextPosition;
 	m_angles					= l_tpALifeLevelChanger->m_tAngles;
 
-	Msg("Name[%s]", l_tpALifeLevelChanger->name_replace());
-	Msg("game_id[%d], vertex_id[%d]", m_game_vertex_id, m_level_vertex_id);
-	Msg("Pos[%.0f][%.0f][%.0f]", m_position.x, m_position.y, m_position.z);
+	//Msg("Name[%s]", l_tpALifeLevelChanger->name_replace());
+	//Msg("game_id[%d], vertex_id[%d]", m_game_vertex_id, m_level_vertex_id);
+	//Msg("Pos[%.0f][%.0f][%.0f]", m_position.x, m_position.y, m_position.z);
 
 	Fvector pos =  this->Position();
-	Msg("RealPos[%.0f][%.0f][%.0f]", pos.x, pos.y, pos.z);
+	//Msg("RealPos[%.0f][%.0f][%.0f]", pos.x, pos.y, pos.z);
 
 	m_bSilentMode				= !!l_tpALifeLevelChanger->m_bSilentMode;
-	if (ai().get_level_graph()) {
+	if (ai().get_level_graph())
+	{
 		//. this information should be computed in xrAI
 		ai_location().level_vertex	(ai().level_graph().vertex(u32(-1),Position()));
 		ai_location().game_vertex	(ai().cross_table().vertex(ai_location().level_vertex_id()).game_vertex_id());
