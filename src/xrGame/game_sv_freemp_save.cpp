@@ -526,7 +526,7 @@ void game_sv_freemp::load_inventoryBox(CSE_Abstract* ent)
 	CObject* obj = Level().Objects.net_Find(boxs->ID);
 	CInventoryBox* box = smart_cast<CInventoryBox*>(obj);
 
-	Msg("InitLoad inv_box [%s] id [%d]", boxs->name_replace(), boxs->ID);
+	//Msg("InitLoad inv_box [%s] id [%d]", boxs->name_replace(), boxs->ID);
 
 	Object Main;
 	Array listInventory;
@@ -557,7 +557,7 @@ void game_sv_freemp::load_inventoryBox(CSE_Abstract* ent)
 
 			Main.parse(str);
 
-			Msg("LoadFile Name %s", Level_path);
+			//Msg("LoadFile Name %s", Level_path);
 		}
 
 		InputFile.close();
