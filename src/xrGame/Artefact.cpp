@@ -79,7 +79,7 @@ void CArtefact::Load(LPCSTR section)
 
 BOOL CArtefact::net_Spawn(CSE_Abstract* DC) 
 {
-	Msg("net_spawn: %s", DC->s_name.c_str());
+	//Msg("net_spawn: %s", DC->s_name.c_str());
 
 	if(pSettings->r_bool(cNameSect(),"can_be_controlled") )
 		m_detectorObj				= xr_new<SArtefactDetectorsSupport>(this);
