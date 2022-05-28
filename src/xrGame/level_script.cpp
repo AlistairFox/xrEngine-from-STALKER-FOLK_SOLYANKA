@@ -654,22 +654,81 @@ void g_set_community_relation( LPCSTR comm_from, LPCSTR comm_to, int value )
 	RELATION_REGISTRY().SetCommunityRelation( community_from.index(), community_to.index(), value );
 }
 
+#include "game_cl_freemp.h"
+
 int g_get_general_goodwill_between ( u16 from, u16 to)
 {
-	CHARACTER_GOODWILL presonal_goodwill		= RELATION_REGISTRY().GetGoodwill(from, to); VERIFY(presonal_goodwill != NO_GOODWILL);
+ 
+	CHARACTER_GOODWILL presonal_goodwill		= RELATION_REGISTRY().GetGoodwill(from, to); 
+	VERIFY(presonal_goodwill != NO_GOODWILL);
 
-	CSE_ALifeTraderAbstract* from_obj	= smart_cast<CSE_ALifeTraderAbstract*>(ai().alife().objects().object(from));
-	CSE_ALifeTraderAbstract* to_obj		= smart_cast<CSE_ALifeTraderAbstract*>(ai().alife().objects().object(to));
+	CSE_ALifeTraderAbstract* from_obj;
+	CSE_ALifeTraderAbstract* to_obj;
 
-	if (!from_obj||!to_obj){
-		ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,"RELATION_REGISTRY::get_general_goodwill_between  : cannot convert obj to CSE_ALifeTraderAbstract!");
+	game_cl_freemp* freemp = smart_cast<game_cl_freemp*>(&Game());
+
+	if (OnServer())
+	{
+		from_obj = smart_cast<CSE_ALifeTraderAbstract*>(ai().alife().objects().object(from));
+		to_obj = smart_cast<CSE_ALifeTraderAbstract*>(ai().alife().objects().object(to));
+	}
+	else
+	if (freemp)
+	{
+		from_obj = smart_cast<CSE_ALifeTraderAbstract*>(freemp->alife_objects[from]);		
+		to_obj = smart_cast<CSE_ALifeTraderAbstract*>(freemp->alife_objects[to]);
+	}
+	
+	if (!from_obj || !to_obj)
+	{	 
+		//ai().script_engine().script_log		(ScriptStorage::eLuaMessageTypeError,"RELATION_REGISTRY::get_general_goodwill_between  : cannot convert obj to CSE_ALifeTraderAbstract!");
 		return (0);
 	}	
-	CHARACTER_GOODWILL community_to_obj_goodwill		= RELATION_REGISTRY().GetCommunityGoodwill	(from_obj->Community(), to					);
-	CHARACTER_GOODWILL community_to_community_goodwill	= RELATION_REGISTRY().GetCommunityRelation	(from_obj->Community(), to_obj->Community()	);
-	
+
+	CHARACTER_GOODWILL community_to_obj_goodwill		= RELATION_REGISTRY().GetCommunityGoodwill	(from_obj->Community(), to				);
+	CHARACTER_GOODWILL community_to_community_goodwill	= RELATION_REGISTRY().GetCommunityRelation	(from_obj->Community(), to_obj->Community());
 	return presonal_goodwill + community_to_obj_goodwill + community_to_community_goodwill;
 }
+
+int g_get_general_goodwill_between_MP(u16 to)
+{
+	if (!Game().local_player)
+		return 0;
+
+	CHARACTER_GOODWILL presonal_goodwill = RELATION_REGISTRY().GetGoodwill(Game().local_player->GameID, to);
+	VERIFY(presonal_goodwill != NO_GOODWILL);
+
+	CSE_ALifeMonsterAbstract* to_obj;
+	CSE_ALifeTraderAbstract* trader_obj;
+
+	game_cl_freemp* freemp = smart_cast<game_cl_freemp*>(&Game());
+
+	if (OnServer())
+	{
+ 		to_obj = smart_cast<CSE_ALifeMonsterAbstract*>(ai().alife().objects().object(to));
+	}
+	else
+	if (freemp)
+	{
+ 		to_obj = smart_cast<CSE_ALifeMonsterAbstract*>(freemp->alife_objects[to]);
+		trader_obj = smart_cast<CSE_ALifeTraderAbstract*>(freemp->alife_objects[to]);
+	}
+
+	if (!to_obj && !trader_obj)
+	{
+		//Msg("[LUA] !!!Error not find (%d)", to);
+		return 0;
+	}
+
+	if (to_obj && !trader_obj)
+		return -10000;
+
+	CHARACTER_GOODWILL community_to_obj_goodwill = RELATION_REGISTRY().GetCommunityGoodwill(Game().local_player->team, to);	
+	CHARACTER_GOODWILL community_to_community_goodwill = RELATION_REGISTRY().GetCommunityRelation(Game().local_player->team, trader_obj->Community());
+
+	return presonal_goodwill + community_to_obj_goodwill + community_to_community_goodwill;
+}
+
 
 u32 vertex_id	(Fvector position)
 {
@@ -686,7 +745,8 @@ CUISequencer* g_tutorial2 = NULL;
 
 void start_tutorial(LPCSTR name)
 {
-	if(g_tutorial){
+	if(g_tutorial)
+	{
 		VERIFY				(!g_tutorial2);
 		g_tutorial2			= g_tutorial;
 	};
@@ -759,6 +819,18 @@ int get_g_actor_id()
 		return -1;
 
 	return Actor()->ID();
+}
+
+int get_g_actor_team()
+{
+	game_PlayerState* ps = Level().game->local_player;
+	
+	if (ps)
+	{
+		return ps->team;
+	}
+	else
+		return 0;
 }
 
 void sv_teleport_player(u32 clientID, const Fvector3 pos)
@@ -850,6 +922,144 @@ void set_surge_time(u32 time, u32 timeGlobal, bool started)
 //	Msg("Time[%d] / Started [%s]", time, started ? "true" : "false");
 }
 
+void give_money_to_actor(u16 gameid, s32 money)
+{
+	if (!OnServer())
+		return;
+
+ 	game_sv_freemp* freemp = smart_cast<game_sv_freemp*>(Level().Server->game);
+
+ 	if (freemp)
+	{
+		game_PlayerState* ps = freemp->get_eid(gameid);
+		if (ps)
+			freemp->AddMoneyToPlayer(ps, money);
+
+		xrClientData* data = (xrClientData*)freemp->get_client(gameid);
+		if (data)
+		{
+			string32 tmp = { 0 };
+
+			NET_Packet packet;
+			freemp->GenerateGameMessage(packet);
+			packet.w_u32(GAME_EVENT_NEWS_MESSAGE);
+			shared_str news_name = *CStringTable().translate("general_in_money");
+			packet.w_stringZ(news_name);
+			packet.w_stringZ(itoa(money, tmp, 10));
+			packet.w_stringZ("ui_inGame2_Dengi_polucheni");
+ 			freemp->server().SendTo(data->ID, packet, net_flags(true));
+		}
+		
+	}
+};
+
+void remove_money_to_actor(u16 gameid, s32 money)
+{
+	if (!OnServer())
+		return;
+
+	game_sv_freemp* freemp = smart_cast<game_sv_freemp*>(Level().Server->game);
+
+	if (freemp)
+	{
+		game_PlayerState* ps = freemp->get_eid(gameid);
+		xrClientData* data = (xrClientData*)freemp->get_client(gameid);
+		if (ps)
+			freemp->AddMoneyToPlayer(ps, -money);
+
+		if (data)
+		{
+			string32 tmp = { 0 };
+
+			NET_Packet packet;
+			freemp->GenerateGameMessage(packet);
+			packet.w_u32(GAME_EVENT_NEWS_MESSAGE);
+			shared_str news_name = *CStringTable().translate("general_out_money");
+			packet.w_stringZ(news_name);
+			packet.w_stringZ(itoa(money, tmp, 10));
+			packet.w_stringZ("ui_inGame2_Dengi_otdani");
+			freemp->server().SendTo(data->ID, packet, net_flags(true));
+		}
+	}
+};
+
+#include "actor_mp_client.h"
+
+void object_give_to_actor(u16 gameid, LPCSTR name, u16 count)
+{
+	if (!OnServer())
+		return;
+
+	game_sv_freemp* freemp = smart_cast<game_sv_freemp*>(Level().Server->game);
+	
+	if (freemp)
+	for (int i= 0; i != count; i ++)
+		freemp->SpawnItemToActor(gameid, name);
+
+	if (freemp)
+ 	{
+		xrClientData* data = (xrClientData*)freemp->get_client(gameid);
+		if (data)
+		{
+			string32 tmp = { 0 };
+
+			NET_Packet packet;
+			freemp->GenerateGameMessage(packet);
+			packet.w_u32(GAME_EVENT_NEWS_MESSAGE);
+			shared_str news_name = *CStringTable().translate("general_in_item");
+			packet.w_stringZ(news_name);
+			packet.w_stringZ(itoa(count, tmp, 10));
+			packet.w_stringZ("ui_inGame2_Predmet_poluchen");
+			freemp->server().SendTo(data->ID, packet, net_flags(true));
+		}
+	}
+}
+
+void object_destroy(CScriptGameObject* object)
+{
+	if (!OnServer() || !object)
+		return;
+
+	NET_Packet P;
+	P.w_begin(M_EVENT);
+	P.w_u32(Device.dwTimeGlobal - 2 * NET_Latency);
+	P.w_u16(GE_DESTROY);
+	P.w_u16(object->ID());
+	Level().Send(P, net_flags(TRUE, TRUE));
+}
+
+void send_news_item_drop(u16 gameid, LPCSTR name, int count)
+{
+	if (!OnServer())
+		return;
+
+	game_sv_freemp* freemp = smart_cast<game_sv_freemp*>(Level().Server->game);
+
+	if (freemp)
+ 	{
+		xrClientData* data = (xrClientData*)freemp->get_client(gameid);
+		if (data)
+		{
+			string32 tmp = { 0 };
+
+			NET_Packet packet;
+			freemp->GenerateGameMessage(packet);
+			packet.w_u32(GAME_EVENT_NEWS_MESSAGE);
+			shared_str news_name = *CStringTable().translate("general_out_item");
+			packet.w_stringZ(news_name);
+
+			string128 news_text;
+ 			itoa(1, tmp, 10);
+			xr_strcpy(news_text, name);
+			xr_strcat(news_text, " кол-во:");
+			xr_strcat(news_text, tmp);
+    
+			packet.w_stringZ(news_text);
+			packet.w_stringZ("ui_inGame2_Predmet_otdan");
+			freemp->server().SendTo(data->ID, packet, net_flags(true));
+		}
+	}
+}
 
 #pragma optimize("s",on)
 void CLevel::script_register(lua_State *L)
@@ -962,7 +1172,14 @@ void CLevel::script_register(lua_State *L)
 	module(L, "mp")
 	[
 		def("sv_teleport_player", &sv_teleport_player),
-		def("sv_teleport_player2", &sv_teleport_player2)
+		def("sv_teleport_player2", &sv_teleport_player2),
+		def("g_actor_team", &get_g_actor_team),
+		
+		def("give_money", &give_money_to_actor),
+		def("remove_money", &remove_money_to_actor),
+		def("object_destroy", object_destroy),
+		def("object_give_to_actor", object_give_to_actor),
+		def("send_news_item_drop", send_news_item_drop)
 	],
 	
 
@@ -1011,7 +1228,8 @@ void CLevel::script_register(lua_State *L)
 		
 		def("community_relation",				&g_get_community_relation),
 		def("set_community_relation",			&g_set_community_relation),
-		def("get_general_goodwill_between",		&g_get_general_goodwill_between)
+		def("get_general_goodwill_between",		&g_get_general_goodwill_between),
+		def("get_general_goodwill_between_MP",  &g_get_general_goodwill_between_MP)
 	];
 	module(L,"game")
 	[
