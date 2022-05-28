@@ -2542,6 +2542,9 @@
     <Filter Include="AI\AScript\ScriptClasses\ScriptIniFile\ScriptJSON">
       <UniqueIdentifier>{892176ce-4b8e-467b-9b32-a2f446f75368}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Common\xr_INI_Ext">
+      <UniqueIdentifier>{e31a400c-96b7-46e3-9f03-dba82cb6c53a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mt_config.h">
@@ -7488,6 +7491,9 @@
     <ClInclude Include="..\xrServerEntities\script_json_file.h">
       <Filter>AI\AScript\ScriptClasses\ScriptIniFile\ScriptJSON</Filter>
     </ClInclude>
+    <ClInclude Include="xr_ini_ext.h">
+      <Filter>Core\Common\xr_INI_Ext</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="damage_manager.cpp">
@@ -11183,9 +11189,6 @@
     <ClCompile Include="Weapon_State_Network.cpp">
       <Filter>Core\Client\Objects\items &amp; weapons\Weapons\Custom Weapon\Common\Weapon Generic</Filter>
     </ClCompile>
-    <ClCompile Include="game_cl_freemp_save.cpp">
-      <Filter>Core\Server\Games\client\freemp</Filter>
-    </ClCompile>
     <ClCompile Include="UIPda_Contacts.cpp">
       <Filter>UI\Common\PDA\CONTACTS</Filter>
     </ClCompile>
@@ -11227,6 +11230,12 @@
     </ClCompile>
     <ClCompile Include="xrServer_Object_Base_SpawnWrite_new.cpp">
       <Filter>Core\Server\ServerEntities\objects</Filter>
+    </ClCompile>
+    <ClCompile Include="game_cl_freemp_alife.cpp">
+      <Filter>Core\Server\Games\client\freemp</Filter>
+    </ClCompile>
+    <ClCompile Include="xr_ini_ext.cpp">
+      <Filter>Core\Common\xr_INI_Ext</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

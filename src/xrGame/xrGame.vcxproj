@@ -1906,6 +1906,7 @@
     <ClInclude Include="xrServer_updates_compressor.h" />
     <ClInclude Include="xr_dsa_signer.h" />
     <ClInclude Include="xr_dsa_verifyer.h" />
+    <ClInclude Include="xr_ini_ext.h" />
     <ClInclude Include="xr_level_controller.h" />
     <ClInclude Include="xr_time.h" />
     <ClInclude Include="ZoneCampfire.h" />
@@ -3076,7 +3077,7 @@
     </ClCompile>
     <ClCompile Include="cta_game_artefact.cpp" />
     <ClCompile Include="cta_game_artefact_activation.cpp" />
-    <ClCompile Include="game_cl_freemp_save.cpp" />
+    <ClCompile Include="game_cl_freemp_alife.cpp" />
     <ClCompile Include="game_cl_roleplay.cpp" />
     <ClCompile Include="game_sv_freemp_alife.cpp" />
     <ClCompile Include="game_sv_freemp_PDA.cpp" />
@@ -5642,6 +5643,7 @@
     <ClCompile Include="xrServer_updates_compressor.cpp" />
     <ClCompile Include="xr_dsa_signer.cpp" />
     <ClCompile Include="xr_dsa_verifyer.cpp" />
+    <ClCompile Include="xr_ini_ext.cpp" />
     <ClCompile Include="xr_level_controller.cpp" />
     <ClCompile Include="xr_time.cpp" />
     <ClCompile Include="ZoneCampfire.cpp" />

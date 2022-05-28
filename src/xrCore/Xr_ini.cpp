@@ -45,7 +45,8 @@ XRCORE_API BOOL _parse(LPSTR dest, LPCSTR src)
 					++src;
 				}
 				continue;
-			} else if (*src=='"') 
+			}
+			else if (*src=='"') 
 			{
 				bInsideSTR = !bInsideSTR;
 			}
@@ -266,7 +267,7 @@ void	CInifile::Load(IReader* F, LPCSTR path
 				}
             }
         } 
-		else if (str[0] && (str[0]=='[')) //new section ?
+		else if ( str[0] && (str[0]=='[') ) //new section ?
 		{
 			// insert previous filled section
 			if (Current)
@@ -289,7 +290,9 @@ void	CInifile::Load(IReader* F, LPCSTR path
 				u32 cnt				= _GetItemCount(inherited_names);
 				u32 total_count		= 0;
                 u32 k               = 0;
-				for (k=0; k<cnt; ++k) {
+				
+				for (k=0; k<cnt; ++k)
+				{
 					string512	tmp;
 					_GetItem	(inherited_names,k,tmp);
 					Sect& inherited_section = r_section(tmp);
@@ -348,7 +351,8 @@ void	CInifile::Load(IReader* F, LPCSTR path
                             }
 						}
 					}
-				} else 
+				} 
+				else 
 				{
 					_Trim	(name);
 					str2[0]	= 0;
@@ -492,7 +496,7 @@ CInifile::Sect& CInifile::r_section( LPCSTR S )const
 	RootCIt I = std::lower_bound(DATA.begin(),DATA.end(),section,sect_pred);
 	if (!(I!=DATA.end() && xr_strcmp(*(*I)->Name,section)==0))
 	{
-
+	  /*
 		//g_pStringContainer->verify();
 
 		//string_path			ini_dump_fn, path;
@@ -504,7 +508,7 @@ CInifile::Sect& CInifile::r_section( LPCSTR S )const
 		//F->w_string			("shared strings:");
 		//g_pStringContainer->dump(F);
 		//FS.w_close			(F);
-
+	  */
 		Debug.fatal			(DEBUG_INFO,"Can't open section '%s'. Please attach [*.ini_log] file to your bug report",S);
 	}
 	return	**I;
