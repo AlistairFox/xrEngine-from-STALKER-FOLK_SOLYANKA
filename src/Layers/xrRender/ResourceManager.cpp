@@ -358,7 +358,7 @@ void TextureLoading(u16 thread_num)
 
 void CResourceManager::DeferredUpload()
 {
-	/*
+ 
 	if (!RDEVICE.b_is_Ready) return;
 	CTimer timer;
 	timer.Start();
@@ -368,7 +368,9 @@ void CResourceManager::DeferredUpload()
 		t->second->Load();
 	}
 	Msg("Loading End [%d] ", timer.GetElapsed_ms());
-	*/
+ 
+
+	/*
 	if (!RDEVICE.b_is_Ready) return;
 	tex_to_load.clear();
 
@@ -401,6 +403,8 @@ void CResourceManager::DeferredUpload()
 	}
 
 	Msg("texture loading time: %d", timer.GetElapsed_ms());
+
+	*/
 }
  
 void	CResourceManager::DeferredUnload	()
