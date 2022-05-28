@@ -82,10 +82,10 @@ extern void load_attack_goodwill();
 extern bool IsGameTypeSingle	();
 CRelationRegistryWrapper& RELATION_REGISTRY::relation_registry()
 {
-	if(!m_relation_registry){
-		//VERIFY(IsGameTypeSingle());
-
-		m_relation_registry = xr_new<CRelationRegistryWrapper>();
+	//Msg("relation_registry()");
+	if(!m_relation_registry)
+	{
+  		m_relation_registry = xr_new<CRelationRegistryWrapper>();
 		load_attack_goodwill();
 	}
 
@@ -148,6 +148,8 @@ CHARACTER_GOODWILL	 RELATION_REGISTRY::GetGoodwill			(u16 from, u16 to) const
 
 void RELATION_REGISTRY::SetGoodwill 	(u16 from, u16 to, CHARACTER_GOODWILL goodwill)
 {
+	Msg("SetGoodwill from[%d] to[%d] goodwill[%d]", from, to, goodwill);
+
 	RELATION_DATA& relation_data = relation_registry().registry().objects(from);
 
 	static Ivector2 gw_limits		= pSettings->r_ivector2(ACTIONS_POINTS_SECT, "personal_goodwill_limits");
@@ -158,6 +160,7 @@ void RELATION_REGISTRY::SetGoodwill 	(u16 from, u16 to, CHARACTER_GOODWILL goodw
 
 void RELATION_REGISTRY::ForceSetGoodwill 	(u16 from, u16 to, CHARACTER_GOODWILL goodwill)
 {
+	Msg("ForceSetGoodwill from[%d] to[%d] goodwill[%d]", from, to, goodwill);
 	RELATION_DATA& relation_data = relation_registry().registry().objects(from);
 
 	CSE_ALifeTraderAbstract* from_obj	= smart_cast<CSE_ALifeTraderAbstract*>(ai().alife().objects().object(from));
@@ -200,6 +203,7 @@ CHARACTER_GOODWILL	 RELATION_REGISTRY::GetCommunityGoodwill (CHARACTER_COMMUNITY
 
 void RELATION_REGISTRY::SetCommunityGoodwill 	(CHARACTER_COMMUNITY_INDEX from_community, u16 to_character, CHARACTER_GOODWILL goodwill)
 {
+	Msg("SetCommunityGoodwill from_community[%d] to[%d] goodwill[%d]", from_community, to_character, goodwill);
 	static Ivector2 gw_limits		= pSettings->r_ivector2(ACTIONS_POINTS_SECT, "community_goodwill_limits");
 	clamp							(goodwill, gw_limits.x, gw_limits.y);
 	RELATION_DATA& relation_data	= relation_registry().registry().objects(to_character);
@@ -239,5 +243,6 @@ CHARACTER_GOODWILL	 RELATION_REGISTRY::GetReputationRelation		(CHARACTER_REPUTAT
 
 void RELATION_REGISTRY::SetCommunityRelation( CHARACTER_COMMUNITY_INDEX index1, CHARACTER_COMMUNITY_INDEX index2, CHARACTER_GOODWILL goodwill )
 {
+	Msg("SetCommunityRelation comm1[%d] comm2[%d] goodwill[%d]", index1, index2, goodwill);
 	CHARACTER_COMMUNITY::set_relation( index1, index2, goodwill );
 }

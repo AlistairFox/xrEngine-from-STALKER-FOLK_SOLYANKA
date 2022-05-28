@@ -12,7 +12,7 @@ class CUITextWnd;
 class CUI3tButton;
 class CUIEditBox;
 class CUICharacterInfo;
-class GAME_NEWS_DATA;
+struct GAME_NEWS_DATA;
 
 class UIPdaChat : public CUIWindow, public CUIWndCallback
 {

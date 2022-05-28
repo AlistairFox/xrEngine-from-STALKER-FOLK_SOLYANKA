@@ -37,16 +37,14 @@ void CUIGameFMP::Init(int stage)
 		//shared
 		m_stats = xr_new<CUITextWnd>();
 		m_stats->SetAutoDelete(true);
-
-		
-
+ 
 		inherited::Init(stage);
 
 		CUIXmlInit::InitWindow(uiXml, "global", 0, m_window);
 		CUIXmlInit::InitTextWnd(uiXml, "stats", 0, m_stats);
 
-		surge_background = UIHelper::CreateStatic(uiXml, "surge", 0);
-		surge_cap = UIHelper::CreateTextWnd(uiXml, "surge_cap", 0);
+		//surge_background = UIHelper::CreateStatic(uiXml, "surge", 0);
+		//surge_cap = UIHelper::CreateTextWnd(uiXml, "surge_cap", 0);
 
 	}
 	else if (stage == 1)
@@ -59,8 +57,8 @@ void CUIGameFMP::Init(int stage)
 		//after
 		inherited::Init(stage);
 		m_window->AttachChild(m_stats);
-		m_window->AttachChild(surge_background);
-		m_window->AttachChild(surge_cap);
+		//m_window->AttachChild(surge_background);
+		//m_window->AttachChild(surge_cap);
 
 	}
 	m_animation = xr_new<CUIAMode>();
@@ -152,6 +150,7 @@ void _BCL CUIGameFMP::OnFrame()
 	}
  
 
+	/*
 	if (Device.dwTimeGlobal - oldTimer > 1000)
 	{
 		oldTimer = Device.dwTimeGlobal;
@@ -161,12 +160,12 @@ void _BCL CUIGameFMP::OnFrame()
 		{
 			surge_background->Show(true);
 			surge_cap->Show(true);
-			/*
-			string32 timer, tmp;
-			xr_strcpy(timer, itoa(surge_time,tmp, 10));	
-			xr_strcat(timer, "\\");
-			xr_strcat(timer, itoa(surge_time_end, tmp, 10));
-			*/							  
+			 
+			//string32 timer, tmp;
+			//xr_strcpy(timer, itoa(surge_time,tmp, 10));	
+			//xr_strcat(timer, "\\");
+			//xr_strcat(timer, itoa(surge_time_end, tmp, 10));
+			 							  
 			LPCSTR timer = InventoryUtilities::GetTimeAsString((surge_time_end - surge_time) * 1000 * 60, InventoryUtilities::etpTimeToMinutes).c_str();
 			
 			surge_cap->SetText(timer);
@@ -179,10 +178,8 @@ void _BCL CUIGameFMP::OnFrame()
 			if (surge_cap->IsShown())
 				surge_cap->Show(false);
 		}
-
-		
-		
-	}
+	}	
+	*/
 
 	 
 }

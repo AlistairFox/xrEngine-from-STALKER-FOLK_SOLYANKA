@@ -2373,11 +2373,15 @@ void CSE_ALifeOnlineOfflineGroup::STATE_Read				(NET_Packet &tNetPacket, u16 siz
 void CSE_ALifeOnlineOfflineGroup::UPDATE_Write				(NET_Packet &tNetPacket)
 {
 	inherited1::UPDATE_Write	(tNetPacket);
+	tNetPacket.w_vec3(o_Position);
+	tNetPacket.w_u16(this->commander_id());
 }
 
 void CSE_ALifeOnlineOfflineGroup::UPDATE_Read				(NET_Packet &tNetPacket)
 {
 	inherited1::UPDATE_Read		(tNetPacket);
+	tNetPacket.r_vec3(o_Position);
+	tNetPacket.r_u16(commander);
 }
 
 #ifndef XRGAME_EXPORTS

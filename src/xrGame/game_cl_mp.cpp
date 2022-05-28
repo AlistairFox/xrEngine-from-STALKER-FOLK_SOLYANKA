@@ -354,7 +354,8 @@ void game_cl_mp::TranslateGameMessage	(u32 msg, NET_Packet& P)
 			string1024 mess;
 			P.r_stringZ(mess);
 			xr_sprintf( Text, "%s%s", Color_Red, *st.translate(mess) );
-			if(CurrentGameUI()) CurrentGameUI()->CommonMessageOut(Text);
+			if(CurrentGameUI()) 
+				CurrentGameUI()->CommonMessageOut(Text);
 		}break;
 	case GAME_EVENT_SERVER_DIALOG_MESSAGE:
 		{
@@ -472,16 +473,17 @@ void game_cl_mp::OnChatMessage(NET_Packet* P)
 	P->r_stringZ(ChatMsg);
 	P->r_s16(team);
 
-///#ifdef DEBUG
+ 
 	CStringTable st;
 	switch (team)
 	{
-	case 0: Msg("%s: %s : %s",		*st.translate("mp_chat"), PlayerName.c_str(), ChatMsg.c_str()); break;
-	case 1: Msg("- %s: %s : %s",	*st.translate("mp_chat"), PlayerName.c_str(), ChatMsg.c_str()); break;
-	case 2: Msg("@ %s: %s : %s",	*st.translate("mp_chat"), PlayerName.c_str(), ChatMsg.c_str()); break;
+		case 0: Msg("%s: %s : %s",		*st.translate("mp_chat"), PlayerName.c_str(), ChatMsg.c_str()); break;
+		case 1: Msg("- %s: %s : %s",	*st.translate("mp_chat"), PlayerName.c_str(), ChatMsg.c_str()); break;
+		case 2: Msg("@ %s: %s : %s",	*st.translate("mp_chat"), PlayerName.c_str(), ChatMsg.c_str()); break;
+		
+		default:  Msg("%s: %s : %s", *st.translate("mp_chat"), PlayerName.c_str(), ChatMsg.c_str()); break;
 	}
-	
-//#endif
+ 
 	if(g_dedicated_server)	return;
 
 	// if ( team < 0 || 2 < team )	{ team = 0; }

@@ -639,6 +639,10 @@ public:
 	virtual	CSE_ALifeDynamicObject const&	get_object		() const	{ return *this; }
 	virtual	CSE_ALifeDynamicObject&			get_object		()			{ return *this; }
 			ALife::_OBJECT_ID		commander_id			();	
+
+			ALife::_OBJECT_ID		commander;
+			ALife::_OBJECT_ID		commander_id_client() { return commander; };
+
 			MEMBERS const&			squad_members			() const;
 			u32						npc_count				() const;
 			void					clear_location_types	();
