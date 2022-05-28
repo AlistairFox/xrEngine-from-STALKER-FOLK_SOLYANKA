@@ -302,8 +302,9 @@ void CUIGameCustom::OnConnected()
 
 void CUIGameCustom::CommonMessageOut(LPCSTR text)
 {
-	m_pMessagesWnd->AddLogMessage(text);
+	//m_pMessagesWnd->AddLogMessage(text);
 }
+
 void CUIGameCustom::UpdatePda()
 {
 	PdaMenu().UpdatePda();
