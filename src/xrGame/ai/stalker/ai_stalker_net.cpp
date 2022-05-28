@@ -228,7 +228,7 @@ void CAI_Stalker::net_Import(NET_Packet& P)
 				if (itemINV)
 				{
 					inventory().Slot(state.u_active_slot, itemINV, true, true);
-					Msg("Move Item To Slot [%d] , Item[%d], OLDITEM[%d], PAR[%d], this[%d]", state.u_active_slot, state.u_active_item, item->object_id(), item->parent_id(), this->ID());
+					//Msg("Move Item To Slot [%d] , Item[%d], OLDITEM[%d], PAR[%d], this[%d]", state.u_active_slot, state.u_active_item, item->object_id(), item->parent_id(), this->ID());
 
 				}
 			}
@@ -897,8 +897,6 @@ void CAI_Stalker::make_Interpolation()
 
  			character_physics_support()->movement()->SetPosition(ResPosition); // we need it ?
 			character_physics_support()->movement()->SetVelocity(SpeedVector);
-
-			character_physics_support()->movement()->CollisionEnable(false);
  		};
 	}
 	else

@@ -522,6 +522,7 @@ void CAI_Stalker::Load				(LPCSTR section)
 	m_pPhysics_support->in_Load		(section);
 
 	m_can_select_items				= !!pSettings->r_bool(section,"can_select_items");
+
 }
 
 BOOL CAI_Stalker::net_Spawn			(CSE_Abstract* DC)
@@ -849,8 +850,11 @@ void CAI_Stalker::UpdateCL()
 	
 	//timer.Start();
 	START_PROFILE("stalker/client_update/physics")
- 	if (OnClient())
+	if (OnClient())
+	{
 		m_pPhysics_support->in_UpdateCL();
+		//character_physics_support()->movement()->CollisionEnable(false);
+	}
 	STOP_PROFILE
 
 	//updateCL_PHYSIC += timer.GetElapsed_ticks();

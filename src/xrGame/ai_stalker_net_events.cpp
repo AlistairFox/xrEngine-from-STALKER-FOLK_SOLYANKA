@@ -6,6 +6,7 @@
 #include "../xrCore/_flags.h"
 
 #include "ai_stalker_net_state.h"
+#include "Actor.h"
 
 enum sync_flags
 {
@@ -23,7 +24,80 @@ void CAI_Stalker::OnEventAnimations(bool update)
 void CAI_Stalker::OnEventAnimationsRecived()
 {	
 	u_last_script_motion_idx = u16(-1);
-	//u_last_legs_motion_idx = u16(-1);
-	//u_last_head_motion_idx = u16(-1);
-	//u_last_torso_motion_idx = u16(-1);
+}
+
+extern    int        g_iCorpseRemove;
+ 
+
+bool CAI_Stalker::NeedToDestroyObject() const
+{
+	if (IsGameTypeSingle() || OnClient())
+	{
+		return false;
+	}
+	else
+	{
+		if (g_Alive() || g_iCorpseRemove == -1 || TimePassedAfterDeath() < m_dwBodyRemoveTime)
+		{
+			return false;
+		}
+
+		if (Level().timeServer() - m_last_player_detection_time < 5000)
+		{
+			return false;
+		}
+
+		if (HavePlayersNearby(50.f))
+		{
+			// добавляем время на продление "жизни трупа", если был игрок рядом
+			m_last_player_detection_time = Level().timeServer();
+			return false;
+		}
+
+		return true;
+	}
+}
+
+ALife::_TIME_ID CAI_Stalker::TimePassedAfterDeath()  const
+{
+	if (!g_Alive())
+		return Level().timeServer() - GetLevelDeathTime();
+	else
+		return 0;
+}
+
+bool CAI_Stalker::HavePlayersNearby(float distance) const
+{
+	bool have = false;
+	float distance_sqr = distance * distance;
+
+	auto i = Game().players.begin();
+	auto ie = Game().players.end();
+
+	for (; i != ie; ++i)
+	{
+		game_PlayerState* ps = i->second;
+		if (!ps) continue;
+
+		u16 id = ps->GameID;
+
+		CObject* pObject = Level().Objects.net_Find(id);
+		CActor* actor = smart_cast<CActor*>(pObject);
+
+		if (!pObject) continue;
+		if (!actor) continue;
+
+		if (id == Actor()->ID())
+			continue;
+
+		//Msg("ID [%d], DistPos[%.0f], Distance[%.0f]", id,this->Position().distance_to_sqr(pObject->Position()), distance_sqr);
+
+		if (this->Position().distance_to_sqr(pObject->Position()) < distance_sqr)
+		{
+			have = true;
+			break;
+		}
+	}
+
+	return have;
 }

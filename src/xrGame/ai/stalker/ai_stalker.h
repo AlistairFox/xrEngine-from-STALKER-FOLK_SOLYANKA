@@ -404,6 +404,16 @@ public:
  
 	void OnEventAnimationsRecived();
 
+	//float							m_near_players_distance = 0;
+	mutable u32						m_last_player_detection_time = 0;
+	//u32								m_near_players_delay_time = 0;
+
+	bool NeedToDestroyObject() const;
+
+	ALife::_TIME_ID TimePassedAfterDeath() const;
+
+	bool HavePlayersNearby(float distance) const;
+
 private:
 	bool				m_can_kill_member;
 	bool				m_can_kill_enemy;
