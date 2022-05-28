@@ -97,6 +97,7 @@ CMapManager::~CMapManager()
 {
 	delete_data		(m_deffered_destroy_queue); //from prev frame
 	delete_data		(m_locations_wrapper);
+	//xr_delete(m_locations);
 }
 
 CMapLocation* CMapManager::AddMapLocation(const shared_str& spot_type, u16 id)

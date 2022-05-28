@@ -96,6 +96,8 @@ public:
 	void					ChangeMapLocation		(LPCSTR new_map_location, u16 new_map_object_id);
 
 	void					ChangeStateCallback		();
+	void					LoadStateCallback		();
+
 	void					SetTaskState			(ETaskState state);
 	ETaskState				GetTaskState			() const					{return m_task_state;};
 	ETaskType				GetTaskType				() const					{return m_task_type;}
@@ -113,12 +115,16 @@ public:
 	LPCSTR					GetID_script			()							{return m_ID.c_str();}
 	void					SetID_script			(LPCSTR _id)				{m_ID = _id;}
 	void					SetDescription_script	(LPCSTR _desc)				{m_Description = _desc;}
+	LPCSTR					GetDescription_script() { return m_Description.c_str(); }
+
 	void					SetIconName_script		(LPCSTR _tex)				{m_icon_texture_name = _tex;}
 	LPCSTR					GetIconName_script		()							{return m_icon_texture_name.c_str();}
 	void					SetMapHint_script		(LPCSTR _hint)				{m_map_hint = _hint;}
 
 	void					SetMapLocation_script	(LPCSTR _mls)				{m_map_location = _mls;}
 	void					SetMapObjectID_script	(int _id)					{m_map_object_id = (u16)_id;}
+	u16						GetMapObjectID_script() { return m_map_object_id; }
+	u32						Get_ReceiveTime_script() { return u32(m_ReceiveTime); }
 
 	void 					AddCompleteInfo_script	(LPCSTR _str);
 	void 					AddFailInfo_script		(LPCSTR _str);

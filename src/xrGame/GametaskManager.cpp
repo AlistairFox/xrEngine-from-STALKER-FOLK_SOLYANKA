@@ -133,6 +133,7 @@ void CGameTaskManager::LoadGameTask(CGameTask* t)
 		CurrentGameUI()->UpdatePda();
 
 	//t->ChangeStateCallback();
+	t->LoadStateCallback();
 }
 
 void CGameTaskManager::SetTaskState(CGameTask* t, ETaskState state)
@@ -181,7 +182,8 @@ void CGameTaskManager::UpdateTasks						()
 
 		Tasks::const_iterator	I = tasks.begin();
 		Tasks::const_iterator	E = tasks.end();
-		for ( ; I != E; ++I) {
+		for ( ; I != E; ++I) 
+		{
 			CGameTask* const	t = (*I).game_task;
 			if (t->GetTaskState()!=eTaskStateInProgress)
 				continue;

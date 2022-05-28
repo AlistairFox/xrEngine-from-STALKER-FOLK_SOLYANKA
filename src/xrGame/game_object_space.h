@@ -52,6 +52,8 @@ namespace GameObject {
 		eInvBoxItemTake,
 		eWeaponNoAmmoAvailable,
 
+		eTaskLoadState,
+
 		eDummy = u32(-1),
 	};
 };

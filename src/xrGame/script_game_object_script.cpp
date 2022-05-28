@@ -92,7 +92,9 @@ void CScriptGameObject::script_register(lua_State *L)
 				value("take_item_from_box",			int(GameObject::eInvBoxItemTake)),
 				value("weapon_no_ammo",				int(GameObject::eWeaponNoAmmoAvailable)),
 				
-				value("map_location_added",			int(GameObject::eMapLocationAdded))
+				value("map_location_added",			int(GameObject::eMapLocationAdded)),
+				value("task_load_state",			int(GameObject::eTaskLoadState))	
+
 			],
 
 		def("buy_condition",				(void (*)(CScriptIniFile*,LPCSTR))(&::buy_condition)),

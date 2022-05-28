@@ -54,8 +54,13 @@ CMapLocation::CMapLocation(LPCSTR type, u16 object_id)
 	m_objectID				= object_id;
 	m_actual_time			= 0;
 
-	m_owner_se_object = (ai().get_alife()) ? ai().alife().objects().object(m_objectID, true) : NULL;
-    
+	game_cl_freemp* freemp = smart_cast<game_cl_freemp*>(&Game());
+	
+	if (!freemp)
+		m_owner_se_object = (ai().get_alife()) ? ai().alife().objects().object(m_objectID, true) : NULL;
+	else
+		m_owner_se_object = freemp->alife_objects[m_objectID];
+
 	m_flags.set				(eHintEnabled, TRUE);
 	LoadSpot				(type, false);
 	
@@ -292,15 +297,25 @@ void CMapLocation::CalcLevelName()
 {
 	if(m_owner_se_object && ai().get_game_graph())
 	{
+		if (!ai().game_graph().valid_vertex_id(m_owner_se_object->m_tGraphID))
+			return;
 
-		shared_str name = ai().game_graph().header().level(ai().game_graph().vertex(m_owner_se_object->m_tGraphID)->level_id()).name();
+		u8 level_id = ai().game_graph().vertex(m_owner_se_object->m_tGraphID)->level_id();
+		int level_name_size = ai().game_graph().header().level(level_id).name().size();
 		
-		//Msg("CalcLevelName: %s, id:%d, level_name: %s", m_owner_se_object->name(), m_owner_se_object->ID, name.c_str());
-
-		if(m_cached.m_graphID != m_owner_se_object->m_tGraphID)
+		if (level_name_size > 0)
 		{
-			m_cached.m_LevelName	= name;
-			m_cached.m_graphID		= m_owner_se_object->m_tGraphID;
+			LPCSTR lpc = ai().game_graph().header().level(level_id).name().c_str();
+			shared_str name;
+			name._set(lpc);
+
+			//Msg("CalcLevelName: %s, id:%d, level_name: %s", m_owner_se_object->name(), m_owner_se_object->ID, name.c_str());
+
+			if (m_cached.m_graphID != m_owner_se_object->m_tGraphID)
+			{
+				m_cached.m_LevelName = name;
+				m_cached.m_graphID = m_owner_se_object->m_tGraphID;
+			}
 		}
 	}
 	else
@@ -330,7 +345,7 @@ bool CMapLocation::Update() //returns actual
 
 	if (freemp && freemp->alife_objects[m_objectID] && !m_owner_se_object)
 	{
-		Msg("SERVER OBJECT FIND [%s] [%d]", freemp->alife_objects[m_objectID]->name_replace(), m_owner_se_object ? 1 : 0);
+		//Msg("SERVER OBJECT FIND [%s] [%d]", freemp->alife_objects[m_objectID]->name_replace(), m_owner_se_object ? 1 : 0);
 		m_owner_se_object = freemp->alife_objects[m_objectID];
 	}
 

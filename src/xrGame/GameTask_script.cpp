@@ -35,11 +35,18 @@ void CGameTask::script_register(lua_State *L)
 //				.def("get_type",							&CGameTask::GetType_script						)
 				.def("set_icon_name",						&CGameTask::SetIconName_script					)
 				.def("get_icon_name",						&CGameTask::GetIconName_script					)
+
 				.def("set_description",						&CGameTask::SetDescription_script				)
-				
+				.def("get_description",						&CGameTask::GetDescription_script)
+
+				.def("get_recive_time",						&CGameTask::Get_ReceiveTime_script)
+				.def("get_task_state",						&CGameTask::GetTaskState)
+				.def("set_task_state",						&CGameTask::SetTaskState)
+
 				.def("set_map_hint",						&CGameTask::SetMapHint_script					)
 				.def("set_map_location",					&CGameTask::SetMapLocation_script				)
 				.def("set_map_object_id",					&CGameTask::SetMapObjectID_script				)
+				.def("get_map_object_id",					&CGameTask::GetMapObjectID_script				)			
 
 				.def("add_complete_info",					&CGameTask::AddCompleteInfo_script		)
 				.def("add_fail_info",						&CGameTask::AddFailInfo_script			)

@@ -245,7 +245,8 @@ u32	CTrade::GetItemPrice(PIItem pItem, bool b_buying)
 	// use some script discounts
 
 	float discount_coeff = 1.f;
-	if (IsGameTypeSingle())
+	
+	//if (IsGameTypeSingle())
 	{
 		luabind::functor<float>	func;
 		if (b_buying)
@@ -254,6 +255,8 @@ u32	CTrade::GetItemPrice(PIItem pItem, bool b_buying)
 			R_ASSERT(ai().script_engine().functor("trade_manager.get_sell_discount", func));
 		discount_coeff = func(smart_cast<const CGameObject*>(pThis.inv_owner)->ID());
 	}
+
+	//Msg("Discont %s: %f", b_buying ? "buy" : "sell", discount_coeff);
 
 	result = iFloor(result * discount_coeff);
 	//if(result>500)

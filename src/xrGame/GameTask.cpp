@@ -66,7 +66,7 @@ void CGameTask::OnArrived()
 
 void CGameTask::CreateMapLocation( bool on_load )
 {
-	if ( m_map_object_id == u16(-1) || m_map_location.size() == 0 )
+	if ( m_map_object_id == u16(-1) || m_map_location.size() == 0 || !Level().Objects.net_Find(m_map_object_id))
 	{
 		return;
 	}
@@ -136,7 +136,13 @@ void CGameTask::ChangeMapLocation( LPCSTR new_map_location, u16 new_map_object_i
 void CGameTask::ChangeStateCallback()
 {
 	if (Actor())
-	Actor()->callback(GameObject::eTaskStateChange)(this, GetTaskState() );
+		Actor()->callback(GameObject::eTaskStateChange)(this, GetTaskState() );
+}
+
+void CGameTask::LoadStateCallback()
+{
+	if (Actor())
+		Actor()->callback(GameObject::eTaskLoadState) (this, m_ID.c_str());
 }
 
 ETaskState CGameTask::UpdateState()
@@ -272,8 +278,6 @@ void CGameTask::save_task_ltx(CInifile& file, shared_str section)
 	file.w_u16(section.c_str(), "m_map_object_id", m_map_object_id);
 	file.w_u32(section.c_str(), "m_priority", m_priority);
 
-	//save_data(m_pScriptHelper, stream)
-
 	string512 res;
 	
 	m_pScriptHelper.convert_to_string(m_pScriptHelper.m_s_complete_lua_functions, res);
@@ -306,10 +310,13 @@ void CGameTask::load_task_ltx(CInifile& file, shared_str section)
 	m_Title._set( file.r_string(section.c_str(), "m_Title") );
 	m_Description._set(file.r_string(section.c_str(), "m_Description"));
 	m_icon_texture_name._set(file.r_string(section.c_str(), "m_icon_texture_name"));
+	
+
 	m_map_hint._set(file.r_string(section.c_str(), "m_map_hint"));
 	m_map_location._set(file.r_string(section.c_str(), "m_map_location"));
-
 	m_map_object_id = file.r_u16(section.c_str(), "m_map_object_id");
+
+
 	m_priority = file.r_u32(section.c_str(), "m_priority");
 
 	m_pScriptHelper.m_s_complete_lua_functions = m_pScriptHelper.convert_to_vector(file.r_string(section.c_str(), "complete_lua_functions"));
@@ -319,6 +326,7 @@ void CGameTask::load_task_ltx(CInifile& file, shared_str section)
 
 	CommitScriptHelperContents();
 	CreateMapLocation(true);
+
 }
 
 void CGameTask::CommitScriptHelperContents()
@@ -423,10 +431,10 @@ xr_vector<shared_str> SScriptTaskHelper::convert_to_vector(shared_str save_str)
  
 void SScriptTaskHelper::save(IWriter &stream)
 {
-		save_data(m_s_complete_lua_functions,		stream);
-		save_data(m_s_fail_lua_functions,			stream);
-		save_data(m_s_lua_functions_on_complete,	stream);
-		save_data(m_s_lua_functions_on_fail,		stream);
+	save_data(m_s_complete_lua_functions,		stream);
+	save_data(m_s_fail_lua_functions,			stream);
+	save_data(m_s_lua_functions_on_complete,	stream);
+	save_data(m_s_lua_functions_on_fail,		stream);
 }
 
 void SGameTaskKey::save(IWriter &stream)
