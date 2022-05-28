@@ -315,9 +315,6 @@ void SActorState::CreateClimb(IKinematicsAnimated* K)
 	m_torso[11].Create(K,base,"_12");
 	m_torso[12].Create(K,base,"_13");
 
-	
-
-
 	m_head_idle.invalidate();///K->ID_Cycle("head_idle_0");
 	jump_begin		= K->ID_Cycle(strconcat(sizeof(buf),buf,base,"_jump_begin"));
 	jump_idle		= K->ID_Cycle(strconcat(sizeof(buf),buf,base,"_jump_idle"));
@@ -357,6 +354,13 @@ void SActorState::Create(IKinematicsAnimated* K, LPCSTR base)
 	m_torso[11].Create(K,base,"_12");
 	m_torso[12].Create(K,base,"_13");
 	m_torso[13].Create(K, base, "_0");
+
+	m_torso[14].Create(K, base, "_ar");
+	m_torso[15].Create(K, base, "_bullpup");
+	m_torso[16].Create(K, base, "_p90");
+	m_torso[17].Create(K, base, "_bizon");
+	m_torso[18].Create(K, base, "_groza");
+
 //	m_torso[13].Create(K, base, "_14");
 
 	

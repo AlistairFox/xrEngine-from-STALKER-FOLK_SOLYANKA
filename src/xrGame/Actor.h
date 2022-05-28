@@ -117,6 +117,8 @@ public:
 	//SE7Kills
 	bool						MpSafeMode					() const;
 	bool						MpAnimationMode				() const;
+
+	bool						Setuped_callbacks();
  
 	bool CanChange = true;
  

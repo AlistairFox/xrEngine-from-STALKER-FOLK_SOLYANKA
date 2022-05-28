@@ -23,6 +23,15 @@ bool CActor::MpAnimationMode() const
 		return !CanChange;
 }
 
+bool CActor::Setuped_callbacks()
+{
+	luabind::functor<bool>	funct;
+	R_ASSERT(ai().script_engine().functor("mp_bind_actor.callback_setuped", funct));
+	bool ret = funct();
+
+	return ret;
+}
+
 void SActorStateAnimation::CreateAnimationsScripted(IKinematicsAnimated* K)
 {
 	string_path filepath;

@@ -54,7 +54,7 @@ struct STorsoWpn
 	void		CreateDetector						(IKinematicsAnimated* K, u8 slot);
 };
 
-#define _total_anim_slots_ 14
+#define _total_anim_slots_ 32
 
 struct SActorState
 {
