@@ -9,8 +9,9 @@ class game_cl_freemp :public game_cl_mp
 private:
 	typedef game_cl_mp inherited;
 
-
 public:
+	bool alife_objects_synchronized;
+	bool alife_objects_registered;
 
 	xr_map<u16, CSE_ALifeDynamicObject*> alife_objects;
 
@@ -48,7 +49,6 @@ public:
 
 	virtual void OnConnected();
 	virtual bool OnConnectedSpawnPlayer();
-	virtual void save_player(game_PlayerState* cl);
 
 	virtual	void TranslateGameMessage(u32 msg, NET_Packet& P);
 
@@ -56,12 +56,15 @@ public:
 
 	virtual void ReadSpawnAlife(NET_Packet *packet);
 	virtual void ReadUpdateAlife(NET_Packet *packet);
-
+	virtual void RegisterObjectsAfterSpawn();
 
 	virtual void OnScreenResolutionChanged();
+
+	virtual CSE_ALifeDynamicObject* GetAlifeObject(u16 id) { return alife_objects[id]; };
+
+
 private:
 	void OnVoiceMessage(NET_Packet* P);
-private:
 	CVoiceChat* m_pVoiceChat = nullptr;
 
 };

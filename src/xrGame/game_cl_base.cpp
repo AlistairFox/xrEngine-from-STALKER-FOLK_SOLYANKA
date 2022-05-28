@@ -50,14 +50,6 @@ game_cl_GameState::~game_cl_GameState()
 	xr_delete(m_upgrade_manager);
 }
 
-float old_time_env = 0;
- 
-extern bool just_Connected = false;
-bool drawTime = false;
-bool need_wait_update_name = false;
-
-u32 dwTimeStart = 0;
-
 void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 {
 	u64				GameTime;

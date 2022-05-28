@@ -17,6 +17,10 @@
 #include "game_graph.h"
 #include "xrServer.h"
 
+#include "Level.h"
+#include "map_manager.h"
+#include "Actor.h"
+
 void CSE_ALifeDynamicObject::on_spawn				()
 {
 #ifdef DEBUG
@@ -28,13 +32,18 @@ void CSE_ALifeDynamicObject::on_register			()
 {
 	CSE_ALifeObject		*object = this;
 	
+	//if (object->ID)
+	//	Msg("Object:ID %d, alife():%s, al():level: %s", object->ID, &alife() ? "true" : "false", &alife().graph().level() ? "true" : "false");
+
 	while (object->ID_Parent != ALife::_OBJECT_ID(-1))
 	{
 		object			= ai().alife().objects().object(object->ID_Parent);
 		VERIFY			(object);
 	}
 
-	if (!alife().graph().level().object(object->ID,true))
+	//Msg("ID: %d, Name: %s", object->ID, object->name_replace());;
+
+	if ( !alife().graph().level().object(object->ID,true) ) 
 		clear_client_data();
 }
 
@@ -44,6 +53,7 @@ void CSE_ALifeDynamicObject::on_register_client()
 
 void CSE_ALifeDynamicObject::on_unregister_client()
 {
+	Level().MapManager().OnObjectDestroyNotify(ID);
 }
 
 
@@ -52,8 +62,6 @@ void CSE_ALifeDynamicObject::on_before_register		()
 {
 }
 
-#include "level.h"
-#include "map_manager.h"
 
 void CSE_ALifeDynamicObject::on_unregister()
 {
@@ -127,8 +135,7 @@ bool CSE_ALifeDynamicObject::synchronize_location	()
 
 	return						(true);
 }
-#include "Level.h"
-#include "Actor.h"
+
 void CSE_ALifeDynamicObject::try_switch_online		()
 {
 	CSE_ALifeSchedulable						*schedulable = smart_cast<CSE_ALifeSchedulable*>(this);

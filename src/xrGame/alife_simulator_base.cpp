@@ -264,6 +264,8 @@ void CALifeSimulatorBase::create	(CSE_ALifeObject *object)
 		register_object				(dynamic_object,true);
 }
 
+#include "actor_mp_server.h"
+
 void CALifeSimulatorBase::release(CSE_Abstract* abstract, bool alife_query)
 {
 	if (psDeviceFlags.test(rsDebug))
@@ -271,6 +273,13 @@ void CALifeSimulatorBase::release(CSE_Abstract* abstract, bool alife_query)
 
 	CSE_ALifeDynamicObject* object = objects().object(abstract->ID);
 	VERIFY(object);
+
+	CSE_ActorMP* mp_actor = smart_cast<CSE_ActorMP*>(object);
+	if (mp_actor)
+	{
+		unregister_in_objects(object);
+		return;
+	}
 
 	if (!object)
 		return;

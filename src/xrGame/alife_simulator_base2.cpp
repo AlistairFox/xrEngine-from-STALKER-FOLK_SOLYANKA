@@ -18,6 +18,9 @@
 #include "alife_smart_terrain_registry.h"
 #include "alife_group_registry.h"
 
+#include "game_sv_freemp.h"
+#include "xrServer.h"
+
 using namespace ALife;
 
 void CALifeSimulatorBase::register_object	(CSE_ALifeDynamicObject *object, bool add_object)
@@ -56,6 +59,11 @@ void CALifeSimulatorBase::register_object	(CSE_ALifeDynamicObject *object, bool 
 
 	if (can_register_objects())
 		object->on_register				();
+
+	game_sv_freemp* freemp = smart_cast<game_sv_freemp*>(server().game);
+	if (freemp)
+		freemp->RegisterUpdateAlife(object, true);
+		
 }
 
 void CALifeSimulatorBase::unregister_object	(CSE_ALifeDynamicObject *object, bool alife_query)
@@ -79,11 +87,15 @@ void CALifeSimulatorBase::unregister_object	(CSE_ALifeDynamicObject *object, boo
 		scheduled().remove				(object);
  	}
 	else
-		if (object->ID_Parent == 0xffff)
-		{
+	if (object->ID_Parent == 0xffff)
+	{
 //			if (object->used_ai_locations())
- 				graph().level().remove	(object,!object->used_ai_locations());
-		}
+ 			graph().level().remove	(object,!object->used_ai_locations());
+	}
+
+	game_sv_freemp* freemp = smart_cast<game_sv_freemp*>(server().game);
+	if (freemp)
+		freemp->RegisterUpdateAlife(object, false);
 }
 
 void CALifeSimulatorBase::on_death			(CSE_Abstract *killed, CSE_Abstract *killer)
@@ -103,3 +115,15 @@ void CALifeSimulatorBase::on_death			(CSE_Abstract *killed, CSE_Abstract *killer
 
 	groups().object(member->m_group_id).notify_on_member_death	(member);
 }
+
+void CALifeSimulatorBase::register_in_objects(CSE_ALifeDynamicObject* object)
+{
+	objects().add(object);
+}
+
+void CALifeSimulatorBase::unregister_in_objects(CSE_ALifeDynamicObject* object)
+{
+	objects().remove(object->ID);
+}
+
+

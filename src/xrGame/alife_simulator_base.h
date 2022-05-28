@@ -119,6 +119,9 @@ public:
 			shared_str							level_name					() const;
 			void								on_death					(CSE_Abstract *killed, CSE_Abstract *killer);
 
+			void								register_in_objects(CSE_ALifeDynamicObject* object);
+			void								unregister_in_objects(CSE_ALifeDynamicObject* object);
+
 public:
 	ALife::ITEM_P_VECTOR						m_temp_item_vector;
 };

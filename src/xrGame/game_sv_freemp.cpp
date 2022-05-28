@@ -3,9 +3,8 @@
 #include "Level.h"
 #include "alife_simulator.h"
 #include "xr_time.h"
-
-
-
+#include "alife_object_registry.h"
+ 
 game_sv_freemp::game_sv_freemp() : pure_relcase(&game_sv_freemp::net_Relcase)
 {
 	if (g_dedicated_server)
@@ -69,6 +68,9 @@ void game_sv_freemp::OnPlayerConnect(ClientID id_who)
 		ps_who->setFlag(GAME_PLAYER_FLAG_SKIP);
 		return;
 	}
+
+	if (id_who != server().GetServerClient()->ID)
+		map_alife_sended[id_who] = Device.dwTimeGlobal;
 }
 
 // player connect #2
@@ -105,7 +107,10 @@ void game_sv_freemp::OnPlayerConnectFinished(ClientID id_who)
 		u_EventSend(P);
 		xrCData->net_Ready = TRUE;
 	};
-	 
+
+//	
+//		WriteAlifeObjectsToClient(id_who);
+
 	//RespawnPlayer(id_who, true);
 }
 
@@ -113,7 +118,7 @@ void game_sv_freemp::AddMoneyToPlayer(game_PlayerState * ps, s32 amount)
 {
 	if (!ps) return;
 
-	Msg("- Add money to player: [%u]%s, %d amount", ps->GameID, ps->getName(), amount);
+	Msg("--- Add money to player: [%u] [%s], %d amount", ps->GameID, ps->getName(), amount);
 
 	s64 total_money = ps->money_for_round;
 	total_money += amount;
@@ -128,6 +133,25 @@ void game_sv_freemp::AddMoneyToPlayer(game_PlayerState * ps, s32 amount)
 	}
 
 	ps->money_for_round = s32(total_money);
+	signal_Syncronize();
+}
+
+void game_sv_freemp::SetMoneyToPlayer(game_PlayerState* ps, s32 amount)
+{
+	if (!ps) return;
+
+	Msg("--- Set money to player: [%u] [%s], %d money", ps->GameID, ps->getName(), amount);
+
+	if (amount < 0)
+		amount = 0;
+
+	if (amount > std::numeric_limits<s32>().max())
+	{
+		Msg("! The limit of the maximum amount of money has been exceeded.");
+		amount = std::numeric_limits<s32>().max() - 1;
+	}
+
+	ps->money_for_round = amount;
 	signal_Syncronize();
 }
 
@@ -220,36 +244,46 @@ void game_sv_freemp::OnPlayerReady(ClientID id_who)
 {
 	switch (Phase())
 	{
-	case GAME_PHASE_INPROGRESS:
-	{
-		xrClientData*	xrCData = (xrClientData*)m_server->ID_to_client(id_who);
-		game_PlayerState*	ps = get_id(id_who);
-
-		if (ps->IsSkip())
-			break;
-
-		if (!(ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD)))
-			break;
-
-		bool flag = ps->testFlag(GAME_PLAYER_MP_ON_CONNECTED);
-
-		RespawnPlayer(id_who, true);
-		
-		if (flag)
-		if (LoadPlayer(ps))
-			return;
-
-		if (Game().Type() == eGameIDFreeMp)
+		case GAME_PHASE_INPROGRESS:
 		{
-			for (auto& item : spawned_items.StartItems)
-			{
-				SpawnItemToActor(ps->GameID, item.c_str());
-			}
-			// set start money
-			ps->money_for_round = spawned_items.StartMoney;
-		}
+			xrClientData*	xrCData = (xrClientData*)m_server->ID_to_client(id_who);
+			game_PlayerState*	ps = get_id(id_who);
 
-	} break;
+			if (ps->IsSkip())
+				break;
+
+			if (!(ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD)))
+				break;
+
+			bool flag = ps->testFlag(GAME_PLAYER_MP_ON_CONNECTED);
+
+			RespawnPlayer(id_who, true);
+		
+
+			CSE_ALifeDynamicObject* player = smart_cast<CSE_ALifeDynamicObject*>(server().ID_to_entity(ps->GameID));
+			if (player)
+			{
+				Msg("Register Object in alife():objects(%d), GRAPH (%d) FOR SHOW ONLY (crashed if alife():register(ent) ) ", player->ID, player->m_tGraphID);
+				alife().register_in_objects(player);
+			}
+
+			if (flag)
+			if (LoadPlayer(ps))
+				return;
+
+			if (Game().Type() == eGameIDFreeMp)
+			{
+				for (auto& item : spawned_items.StartItems)
+				{
+					SpawnItemToActor(ps->GameID, item.c_str());
+				}
+				// set start money
+				ps->money_for_round = spawned_items.StartMoney;
+			}
+
+
+
+		} break;
 
 	default:
 		break;
@@ -391,8 +425,7 @@ void game_sv_freemp::OnEvent(NET_Packet &P, u16 type, u32 time, ClientID sender)
 	};
 }
 
-u32 oldTime_saveServer = 0;
-u32 oldTimeInventoryBoxSave = 0;
+u32 old_update_alife = 0;
 
 void game_sv_freemp::Update()
 {
@@ -401,10 +434,13 @@ void game_sv_freemp::Update()
 	if (Phase() != GAME_PHASE_INPROGRESS)
 	{
 		OnRoundStart();
-		oldTime_saveServer = Device.dwTimeGlobal;
+		return;
 	}
 
-	if (!loaded_inventory && Phase() == GAME_PHASE_INPROGRESS)
+	if (!Level().game)
+		return;
+ 
+	if (!loaded_inventory)
 	{
 		xrS_entities* entitys = server().GetEntitys();
 		auto begin = entitys->begin();
@@ -423,38 +459,43 @@ void game_sv_freemp::Update()
 			}
 		}
 	}		
-  
- 	if (false)
-	if (Device.dwTimeGlobal - oldTime_saveServer > 1000 * 60)
+	
+	if (Device.dwTimeGlobal - old_update_alife > 1000)
 	{
- 
-		if (ai().get_alife())
-		{
-			string_path	S;
-			S[0] = 0;
-			strconcat(sizeof(S), S, "dima", "", "");
-			NET_Packet			net_packet;
-			net_packet.w_begin(M_SAVE_GAME);
-			net_packet.w_stringZ(S);
-			net_packet.w_u8(0);
-			Level().Send(net_packet, net_flags(TRUE));
+		old_update_alife = Device.dwTimeGlobal;
 
-		}
-		
-		oldTime_saveServer = Device.dwTimeGlobal;
-	}
-
-	if (Device.dwTimeGlobal % 500 == 0 && Phase() == GAME_PHASE_INPROGRESS)
-	{
+		if (map_alife_sended.empty())
+			UpdateAlifeObjects();
+ 		
+		for (auto cl : Game().players)
+			SavePlayer(cl.second);
  
-		for (auto players : teamPlayers)
+		if (loaded_inventory)
 		{
-			for (auto player : players.second.players)
+			xrS_entities* entitys = server().GetEntitys();
+			auto begin = entitys->begin();
+			auto end = entitys->end();
+
+			for (auto iter = begin; iter != end; iter++)
 			{
-				OnPlayerUIContactsRecvestUpdate(player, players.second.ClientLeader);
-				//Msg("Recvest Send %u / Leader %u", player, players.second.ClientLeader);
+				CSE_Abstract* E = server().ID_to_entity((*iter).first);
+				CSE_ALifeInventoryBox* box = smart_cast<CSE_ALifeInventoryBox*>(E);
+
+				if (box)
+					save_inventoryBox(box);
 			}
+ 		}
+
+
+		for (auto cl : map_alife_sended)
+		{
+			WriteAlifeObjectsToClient(cl.first);
+			map_alife_sended.erase(cl.first);
 		}
+    
+		for (auto players : teamPlayers)
+		for (auto player : players.second.players)
+			OnPlayerUIContactsRecvestUpdate(player, players.second.ClientLeader);
 
 		if (loaded_gametime)
 		{
@@ -487,30 +528,8 @@ void game_sv_freemp::Update()
 			}
 
 			loaded_gametime = true;
-		}
-
- 
-		
-	}
-
-
-	if (Device.dwTimeGlobal - oldTimeInventoryBoxSave > 30000 && loaded_inventory)
-	{
-		xrS_entities* entitys = server().GetEntitys();
-		auto begin = entitys->begin();
-		auto end = entitys->end();
-
-		for (auto iter = begin; iter != end; iter++)
-		{
-			CSE_Abstract* E = server().ID_to_entity((*iter).first);
-			CSE_ALifeInventoryBox* box = smart_cast<CSE_ALifeInventoryBox*>(E);
-
-			if (box)
-				save_inventoryBox(box);
-		}
-
-		oldTimeInventoryBoxSave = Device.dwTimeGlobal;
-	}
+		}	
+	} 
 }
 
 BOOL game_sv_freemp::OnTouch(u16 eid_who, u16 eid_what, BOOL bForced)

@@ -12,6 +12,8 @@
 
 #include "InventoryBox.h"
 #include "Level.h"
+#include "actor_mp_server.h"
+#include "actor_mp_client.h"
 
 CALifeObjectRegistry::CALifeObjectRegistry	(LPCSTR section)
 {
@@ -86,6 +88,9 @@ void CALifeObjectRegistry::save				(IWriter &memory_stream)
 		if (smart_cast<CInventoryBox*>(Level().Objects.net_Find(parrent)))
 			continue;
 
+		if (smart_cast<CSE_ActorMP*>((*I).second) || smart_cast<CSE_ActorMP*> ( object(parrent) ) )
+			continue;
+
 		//if (smart_cast<CInventoryBox*>((*I).second))
 		//	continue;
 
@@ -136,8 +141,6 @@ CSE_ALifeDynamicObject *CALifeObjectRegistry::get_object		(IReader &file_stream)
 	return					(tpALifeDynamicObject);
 }
 
-#include "actor_mp_server.h";
-
 void CALifeObjectRegistry::load				(IReader &file_stream)
 { 
 	Msg							("* Loading objects...");
@@ -155,8 +158,11 @@ void CALifeObjectRegistry::load				(IReader &file_stream)
 		
 	//	Msg("ObjectNameLoad(%s)", *(*I)->s_name.c_str());
 
-	//	if (smart_cast<CSE_ActorMP*>(*I) )
-	//		continue;
+		if (smart_cast<CSE_ActorMP*>(*I) )
+			continue;
+
+		if (smart_cast<CActorMP*> (Level().Objects.net_Find((*I)->ID_Parent))) 
+			continue;
 
 		add						(*I);
 	}

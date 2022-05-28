@@ -70,7 +70,8 @@ void CSE_ALifeOnlineOfflineGroup::update	()
 
 	MEMBERS::iterator			I = m_members.begin();
 	MEMBERS::iterator			E = m_members.end();
-	for ( ; I != E; ++I){
+	for ( ; I != E; ++I)
+	{
 		((*I).second)->o_Position				= o_Position;
 		((*I).second)->m_tNodeID				= m_tNodeID;
 		((*I).second)->m_tGraphID				= m_tGraphID;
@@ -105,7 +106,8 @@ void CSE_ALifeOnlineOfflineGroup::register_member						(ALife::_OBJECT_ID member
 			alife().scheduled().remove		(object);
 		}			
 	}
-	else {
+	else 
+	{
 		if (!m_bOnline) {
 			switch_online();
 		}
@@ -142,7 +144,8 @@ void CSE_ALifeOnlineOfflineGroup::unregister_member						(ALife::_OBJECT_ID memb
 	alife().scheduled().add		((*I).second);
 	m_members.erase				(I);
 	
-	if (m_members.empty()) {
+	if (m_members.empty()) 
+	{
 		m_flags.set				(flUsedAI_Locations,FALSE);
 	}
 }
@@ -150,7 +153,8 @@ void CSE_ALifeOnlineOfflineGroup::unregister_member						(ALife::_OBJECT_ID memb
 CSE_ALifeOnlineOfflineGroup::MEMBER *CSE_ALifeOnlineOfflineGroup::member(ALife::_OBJECT_ID member_id, bool no_assert)
 {
 	MEMBERS::iterator			I = m_members.find(member_id);
-	if (I == m_members.end()) {
+	if (I == m_members.end()) 
+	{
 		if (!no_assert)
 			Msg					("! There is no member with id %d in the OnlineOfflineGroup id %d",member_id,ID);
 		VERIFY					(no_assert);
@@ -280,7 +284,8 @@ void CSE_ALifeOnlineOfflineGroup::switch_online			()
 
 	MEMBERS::iterator			I = m_members.begin();
 	MEMBERS::iterator			E = m_members.end();
-	for ( ; I != E; ++I){
+	for ( ; I != E; ++I)
+	{
 		alife().add_online		((*I).second, false);
 	}
 
@@ -293,7 +298,8 @@ void CSE_ALifeOnlineOfflineGroup::switch_offline		()
 	R_ASSERT					(m_bOnline);
 	m_bOnline					= false;
 
-	if (!m_members.empty()) {
+	if (!m_members.empty())
+	{
 		MEMBER					*member = (*m_members.begin()).second;
 		
 		member->synchronize_location();
@@ -306,7 +312,8 @@ void CSE_ALifeOnlineOfflineGroup::switch_offline		()
 
 	MEMBERS::iterator			I = m_members.begin();
 	MEMBERS::iterator			E = m_members.end();
-	for ( ; I != E; ++I){
+	for ( ; I != E; ++I)
+	{
 		(*I).second->clear_client_data();
 		alife().remove_online		((*I).second, false);
 	}

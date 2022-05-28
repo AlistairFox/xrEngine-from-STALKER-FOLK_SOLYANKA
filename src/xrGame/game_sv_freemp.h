@@ -19,6 +19,7 @@ struct SpawnSect
 	xr_vector<xr_string> StartItems;
 };
 
+ 
 class xrServer;
 class CALifeSimulator;
 
@@ -28,6 +29,9 @@ class game_sv_freemp : public game_sv_mp, private pure_relcase
 	SpawnSect spawned_items;
 	bool loaded_inventory = false;
 	bool loaded_gametime = false;
+
+
+	xr_map<ClientID, u32> map_alife_sended;
 
 protected:
 	CALifeSimulator* m_alife_simulator;
@@ -51,6 +55,7 @@ public:
 
 	// helper functions
 	void									AddMoneyToPlayer(game_PlayerState* ps, s32 amount);
+	void									SetMoneyToPlayer(game_PlayerState* ps, s32 amount);
 	void									SpawnItemToActor(u16 actorId, LPCSTR name);
 
 	CSE_Abstract*							SpawnItemToActorReturn(u16 actorId, LPCSTR name);
@@ -75,6 +80,7 @@ public:
 	virtual		void				OnPlayerTrade(NET_Packet &P, ClientID const & clientID);
 	virtual		void				OnTransferMoney(NET_Packet &P, ClientID const & clientID);
 
+	virtual		void				SavePlayer(game_PlayerState* cl);
 	virtual		bool                LoadPlayer(game_PlayerState* id_who);
 	virtual		bool				LoadPlayerPosition(game_PlayerState* ps, Fvector& position, Fvector& angle);
 
@@ -116,8 +122,10 @@ public:
 	virtual		float				GetEnvironmentGameTimeFactor();
 	virtual		void				SetEnvironmentGameTimeFactor(const float fTimeFactor);
 
-	virtual		void				WriteAlifeObjectsToClient();
+	virtual		void				WriteAlifeObjectsToClient(ClientID id);
 	virtual		void				UpdateAlifeObjects();
+
+	virtual		void				RegisterUpdateAlife(CSE_ALifeDynamicObject* object, bool reg);
  
 	IC			xrServer& server() const
 	{

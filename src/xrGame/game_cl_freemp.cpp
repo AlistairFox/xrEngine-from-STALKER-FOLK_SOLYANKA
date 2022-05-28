@@ -8,6 +8,19 @@
 #include "VoiceChat.h"
 #include "ui/UIMainIngameWnd.h"
 
+#include "GametaskManager.h"
+#include "GameTask.h"
+
+#include "ui/UIPdaWnd.h"
+#include "UIPda_Contacts.h"
+#include "UIPda_Chat.h"	  
+#include "UIPda_Squad.h";		//#include "game_sv_freemp.h" (здесь тоже используется)
+	
+//NEWS
+#include "game_news.h"
+#include "ui/UIMessagesWindow.h"
+#include "ui/UITalkWnd.h"
+
 game_cl_freemp::game_cl_freemp()
 {
 	LPCSTR sec_name = "freemp_team_indicator";
@@ -36,15 +49,23 @@ game_cl_freemp::game_cl_freemp()
 
 	load_game_tasks = false;
 
+	alife_objects_synchronized = false;
+	alife_objects_registered = false;
+
 }
 
 game_cl_freemp::~game_cl_freemp()
 {
 	xr_delete(m_pVoiceChat);
+	alife_objects_synchronized = false;		 
+	alife_objects_registered = false;
+	
+	for (auto obj : alife_objects)
+	{
+		//delete(alife_objects[obj.first]);
+		alife_objects[obj.first] = 0;
+	}
 }
-
-bool connected_spawn = false;
-extern bool just_Connected;
 
 CUIGameCustom* game_cl_freemp::createGameUI()
 {
@@ -82,10 +103,8 @@ void game_cl_freemp::net_import_update(NET_Packet & P)
 {
 	inherited::net_import_update(P);
 }
-u32 old_time = 0;
 
-#include "GametaskManager.h"
-#include "GameTask.h"
+//u32 old_time = 0;
 
 void game_cl_freemp::shedule_Update(u32 dt)
 {
@@ -93,6 +112,9 @@ void game_cl_freemp::shedule_Update(u32 dt)
 
 	if (!local_player)
 		return;
+
+	if (!alife_objects_registered && alife_objects_synchronized)
+		RegisterObjectsAfterSpawn();
 
 	if (!g_dedicated_server && m_pVoiceChat)
 	{
@@ -107,6 +129,7 @@ void game_cl_freemp::shedule_Update(u32 dt)
 		m_pVoiceChat->Update();
 	}
 
+	/*
 	if (OnClient() && Device.dwTimeGlobal - old_time > 5000 && load_game_tasks)
 	{
 		string_path filename;
@@ -121,7 +144,7 @@ void game_cl_freemp::shedule_Update(u32 dt)
 
 		file->save_as(filename);
 	}
-	else if (!load_game_tasks && Actor() && Device.dwTimeGlobal - old_time > 5000)
+	else if (!load_game_tasks && Actor() && Actor()->Setuped_callbacks() && Device.dwTimeGlobal - old_time > 5000)
 	{
 		string_path filename;
 		FS.update_path(filename, "$mp_saves$", "task\\tasks.ltx");
@@ -135,9 +158,12 @@ void game_cl_freemp::shedule_Update(u32 dt)
 			task->m_ID = sec->Name.c_str();
 
 			Level().GameTaskManager().LoadGameTask(task);
-		}						  
+			Msg("LoadTask: %s", task->m_ID.c_str());
+		}
+
+
 		load_game_tasks = true;
-	}
+	}	*/
 	
 	// синхронизация имени и денег игроков для InventoryOwner
 	for (auto cl : players)
@@ -165,65 +191,7 @@ void game_cl_freemp::shedule_Update(u32 dt)
 		}
 
 		//Msg("Rank %d, Current %d", ps->rank, pActor->Rank());
-
-		if (!connected_spawn && local_player->GameID == ps->GameID)
-		{
-			string_path filepath;
-
-			FS.update_path(filepath, "$mp_saves$", "actor.ltx");
-
-			CInifile* file = xr_new<CInifile>(filepath, true);
-
-			if (file && file->section_exist("QuickSlots"))
-			{
-				string64 Slot1, Slot2, Slot3, Slot4;
-				xr_strcpy(Slot1, file->r_string("QuickSlots", "Slot1"));
-				xr_strcpy(Slot2, file->r_string("QuickSlots", "Slot2"));
-				xr_strcpy(Slot3, file->r_string("QuickSlots", "Slot3"));
-				xr_strcpy(Slot4, file->r_string("QuickSlots", "Slot4"));
-
-			//	Msg("Slot[%s][%s][%s][%s]", Slot1, Slot2, Slot3, Slot4);
-
-				xr_strcpy(g_quick_use_slots[0], Slot1);
-				xr_strcpy(g_quick_use_slots[1], Slot2);
-				xr_strcpy(g_quick_use_slots[2], Slot3);
-				xr_strcpy(g_quick_use_slots[3], Slot4);
-
-				connected_spawn = true;
-			}
-		}
-	}
-
-	if (local_player->GameID)
-	if (OnClient() && Device.dwTimeGlobal - old_time > 5000 && connected_spawn)
-	{
-		string_path filepath;
-
-		FS.update_path(filepath, "$mp_saves$", "actor.ltx");
-
-		CInifile* file = xr_new<CInifile>(filepath, false);
-
-		if (file)
-		{
-			file->w_string("QuickSlots", "Slot1", g_quick_use_slots[0]);
-			file->w_string("QuickSlots", "Slot2", g_quick_use_slots[1]);
-			file->w_string("QuickSlots", "Slot3", g_quick_use_slots[2]);
-			file->w_string("QuickSlots", "Slot4", g_quick_use_slots[3]);
-		}
-
-		file->save_as(filepath);
-
-		old_time = Device.dwTimeGlobal;
-	}
-
-	if (OnServer() && Device.dwTimeGlobal - old_time > 1000)
-	{
-		for (auto cl : players)
-			save_player(cl.second);
-
-		old_time = Device.dwTimeGlobal;
-	}
-
+	}	
 }
 
 bool game_cl_freemp::OnKeyboardPress(int key)
@@ -336,8 +304,6 @@ void game_cl_freemp::OnConnected()
 	R_ASSERT(ai().script_engine().functor("mp_game_cl.on_connected", funct));
 	funct();
 
-	just_Connected = true;
-
 	if (m_game_ui)
 		Game().OnScreenResolutionChanged();
 }
@@ -373,9 +339,7 @@ bool game_cl_freemp::OnConnectedSpawnPlayer()
  	}
 }
 
-#include "ui/UIPdaWnd.h"
-#include "UIPda_Contacts.h"
-#include "UIPda_Chat.h"
+
 
 void game_cl_freemp::TranslateGameMessage(u32 msg, NET_Packet& P)
 {
@@ -401,6 +365,34 @@ void game_cl_freemp::TranslateGameMessage(u32 msg, NET_Packet& P)
 			ReadUpdateAlife(&P);
 		}break;
 
+		case (GAME_EVENT_NEWS_MESSAGE):
+		{
+			shared_str name, text, icon;
+			P.r_stringZ(name);
+			P.r_stringZ(text);
+			P.r_stringZ(icon);
+			GAME_NEWS_DATA data;
+			data.m_type = data.eNews;
+			data.news_caption = name;
+			data.news_text = text;
+			data.texture_name = icon;
+			data.receive_time = Level().GetGameTime();
+	
+			if (CurrentGameUI())
+			{
+				bool talk = CurrentGameUI()->TalkMenu && CurrentGameUI()->TalkMenu->IsShown();
+					
+				if (CurrentGameUI()->UIMainIngameWnd && !talk)
+					CurrentGameUI()->m_pMessagesWnd->AddIconedPdaMessage(&data);
+				else 
+					if (talk)
+						CurrentGameUI()->TalkMenu->AddIconedMessage(name.c_str(), text.c_str(), icon.c_str(), "iconed_answer_item");
+			}
+			
+		}break;
+
+	 
+
 		default:
 			inherited::TranslateGameMessage(msg, P);
 			break;
@@ -408,7 +400,6 @@ void game_cl_freemp::TranslateGameMessage(u32 msg, NET_Packet& P)
 
 }
 
-#include "UIPda_Squad.h";
 
 extern bool caps_lock = false;
 
@@ -477,70 +468,6 @@ void game_cl_freemp::OnRender()
 
 	}
  
-}
-
-void game_cl_freemp::ReadSpawnAlife(NET_Packet* packet)
-{
-	if (OnServer())
-		return;
-
-	shared_str name;
-	packet->r_stringZ(name);
-
-	//Msg("AlifeOBJECT: %s", name.c_str());
-
-	if (!pSettings->section_exist(name.c_str()))
-	{
-		Msg("Cant Find Sec(%s)", name.c_str());
-		return;
-	}
-	 
-	CSE_Abstract* entity = F_entity_Create(name.c_str());
-	entity->Spawn_ReadNoBeginPacket(*packet);
-	entity->UPDATE_Read(*packet);
-
-	u16 id = entity->ID;
- 
-	CSE_ALifeDynamicObject* dynamic = smart_cast<CSE_ALifeDynamicObject*>(entity);
-
-	if (dynamic)
-	{
-		u32 level = 0;
-		shared_str name_level ;
-
-		if (&ai().game_graph())
-		{
-			level = ai().game_graph().vertex(dynamic->m_tGraphID)->level_id();
-			name_level = ai().game_graph().header().level(level).name();
-		}
- 	
-		//Msg("Recived id[%d], level[%d][%s], alife_object[%s], name_replace (%s), POS[%.0f][%.0f][%.0f]", id, level, name_level, name.c_str(),  entity->name_replace(), entity->o_Position.x, entity->o_Position.y, entity->o_Position.z);
-
-		if ((*alife_objects.find(id)).second != dynamic)
-		{
-			alife_objects[id] = dynamic;
-			CSE_ALifeHumanStalker* stalker = smart_cast<CSE_ALifeHumanStalker*>(dynamic);
-			CSE_ALifeMonsterAbstract* monster = smart_cast<CSE_ALifeMonsterAbstract*>(dynamic);
-			CSE_ALifeLevelChanger* changer = smart_cast<CSE_ALifeLevelChanger*>(dynamic);
-
-			if (stalker || changer || monster)
-			{
-				//Msg("Name %s, spawn_name %s", dynamic->name_replace(), dynamic->s_name.c_str());
-				dynamic->on_register_client();
-			}
-		}
-		
-	}
-	
-		
-}
-
-void game_cl_freemp::ReadUpdateAlife(NET_Packet* packet)
-{
-	u16 id = packet->r_u16();
-
-	if (alife_objects[id])
-		alife_objects[id]->UPDATE_Read(*packet);
 }
 
 void game_cl_freemp::OnScreenResolutionChanged()
