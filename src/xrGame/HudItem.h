@@ -168,6 +168,8 @@ public:
 	IC CInventoryItem&			item					() const		{ VERIFY(m_item); return(*m_item);}
 	IC		u32					animation_slot			()				{ return m_animation_slot;}
 
+	void set_animation_slot(u32 slot) { m_animation_slot = slot; };
+
 	virtual void				on_renderable_Render	() = 0;
 	virtual void				debug_draw_firedeps		() {};
 

@@ -1801,9 +1801,7 @@ public:
 	CCC_DumpInfos(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
 	virtual void	Execute(LPCSTR args) 
 	{
-		//CActor* A = smart_cast<CActor*>(Level().CurrentControlEntity());
-		//if (A)
-			
+		/*
 		for (int i = 0; i!= Level().Objects.o_count(); i++)
 		{
 			CObject * ent = Level().Objects.o_get_by_iterator(i);
@@ -1812,11 +1810,10 @@ public:
 				owner->DumpInfo();
 			}
 		}
-
-		/*
-			if (OnServer())
-			Actor()->DumpInfo();
 		*/
+
+		if (Actor())
+		Actor()->DumpInfo();
 	}
 	virtual void	Info(TInfo& I)
 	{

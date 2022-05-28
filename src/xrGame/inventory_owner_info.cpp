@@ -100,6 +100,7 @@ bool CInventoryOwner::OnReceiveInfo(shared_str info_id) const
 {
 	VERIFY( info_id.size() );
 	//добавить запись в реестр
+	
 	//if (OnClient())
 	{
 		for (auto info : *m_known_info_client)
@@ -111,7 +112,8 @@ bool CInventoryOwner::OnReceiveInfo(shared_str info_id) const
 		u16 ID = this->object_id();
 	 
 		(*m_known_info_client).push_back(info_id.c_str());
-		Msg("[%s] Received Info [%s]", Name(), *info_id);
+		
+ 		Msg("[%s] Received Info [%s]", Name(), (*info_id) );
 
 		return true;
 	}
@@ -130,7 +132,7 @@ bool CInventoryOwner::OnReceiveInfo(shared_str info_id) const
 #endif
 	*/
 
-	return true;
+	return false;
 }
  
 void CInventoryOwner::DumpInfo() const
@@ -170,12 +172,26 @@ void CInventoryOwner::OnDisableInfo(shared_str info_id) const
 	if(psAI_Flags.test(aiInfoPortion))
 		Msg("[%s] Disabled Info [%s]", Name(), info_id.c_str());
 #endif
-
+	
+	/*
 	KNOWN_INFO_VECTOR& known_info = m_known_info_registry->registry().objects();
 
 	KNOWN_INFO_VECTOR_IT it = std::find_if(known_info.begin(), known_info.end(), CFindByIDPred(info_id));
 	if( known_info.end() == it)	return;
 	known_info.erase(it);
+	*/
+
+	auto info_cl = m_known_info_client;
+	auto begin = info_cl->begin();
+	auto end = info_cl->end();
+	//Msg("[%s] Disabled Info [%s]", Name(), info_id.c_str());
+	for (auto start = begin; start != end; start++)
+	{
+		if (xr_strcmp( (*start), info_id.c_str()) == 0)
+		{
+ 			m_known_info_client->erase(start);
+		}
+	}
 }
 
 void CInventoryOwner::TransferInfo(shared_str info_id, bool add_info) const

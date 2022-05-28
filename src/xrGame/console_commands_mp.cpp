@@ -2494,17 +2494,52 @@ public:
 	}
 };
 
-class CCC_ADD_Money_to_client_self : public IConsole_Command {
+class CCC_Set_Money_to_client : public IConsole_Command {
 public:
-	CCC_ADD_Money_to_client_self(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
+	CCC_Set_Money_to_client(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
 	virtual void		Execute(LPCSTR args)
 	{
+		string256 args_new;
+		exclude_raid_from_args(args, args_new, sizeof(args_new));
+		u32 read_id = 0;
+		u32 money = 0;
+		u32 count = sscanf(args_new, "%u, %u", &read_id, &money);
+
+		if (count == 1 && OnClient())
+		{
+			sscanf(args_new, "%u", &money);
+			NET_Packet		P;
+			P.w_begin(M_REMOTE_CONTROL_CMD);
+
+			string128 str;
+			xr_sprintf(str, "sv_set_money %u %u", Level().GetClientID(), money);
+
+			P.w_stringZ(str);
+
+			Level().Send(P, net_flags(TRUE, TRUE));
+			return;
+		}
+
+		if (OnServer())
+		{
+			game_sv_freemp* freemp = smart_cast<game_sv_freemp*>(Level().Server->game);
+			if (freemp)
+			{
+				ClientID id;
+				id.set(read_id);
+
+				game_PlayerState* ps = freemp->get_id(id);
+				if (ps)
+					freemp->SetMoneyToPlayer(ps, money);
+			}
+		}
+		else 
 		{
 			NET_Packet		P;
 			P.w_begin(M_REMOTE_CONTROL_CMD);
 
 			string128 str;
-			xr_sprintf(str, "sv_give_money %u %s", Level().GetClientID(), args);
+			xr_sprintf(str, "sv_set_money %u %u", read_id, money);
 
 			P.w_stringZ(str);
 
@@ -2513,6 +2548,26 @@ public:
 	}
 	virtual void Save(IWriter* F) {};
 };
+
+class CCC_ADD_Money_to_client_self : public IConsole_Command {
+public:
+	CCC_ADD_Money_to_client_self(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
+	virtual void		Execute(LPCSTR args)
+	{
+		NET_Packet		P;
+		P.w_begin(M_REMOTE_CONTROL_CMD);
+
+		string128 str;
+		xr_sprintf(str, "sv_give_money %u %s", Level().GetClientID(), args);
+
+		P.w_stringZ(str);
+
+		Level().Send(P, net_flags(TRUE, TRUE));
+	}
+	virtual void Save(IWriter* F) {};
+};
+
+
 
 /**
 	
@@ -3066,20 +3121,6 @@ public:
 	}
 };
 
-class CCC_AdmKillStalkers : public IConsole_Command
-{
-public:
-	CCC_AdmKillStalkers(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
-
-	virtual void Execute(LPCSTR args)
-	{
-		if (OnServer())
-			Level().Server->KillStalkers();
-		else
-			Msg("Please Run From Server");
-	}
-};
-
 class CCC_WeatherCurr : public IConsole_Command
 {
 public:
@@ -3127,149 +3168,6 @@ public:
 
 };
 
-
-class CCC_WEAPON_POSITION : public IConsole_Command
-{
-public:
-	CCC_WEAPON_POSITION(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
-
-	virtual void Execute(LPCSTR args)
-	{	  
-		Fvector pos; //ypr;
-
-		sscanf(args, "%f,%f,%f", &pos.x, &pos.y, &pos.z);
-
- 		if (CActor* act = smart_cast<CActor*>(Level().CurrentControlEntity()))
-		{
-			PIItem item = act->inventory().ActiveItem();
-
-			if (CWeapon* w = smart_cast<CWeapon*>(item))
-			{
-				Msg("Pos [%f][%f][%f]", pos.x, pos.y, pos.z);
-				//Msg("Angle [%f][%f][%f]", ypr.x, ypr.y, ypr.z);
-
-				Fvector position = pos;
-				//Fvector orientation = ypr;
-				string_path path;
-				FS.update_path(path, "$mp_saves$", "weapon.ltx");
-				CInifile* file = xr_new<CInifile>(path, false, true);
-
-				if (!file)
-					file->save_as(path);
-
-				Fvector ypr;
-
-				if (file->section_exist(w->m_section_id) && file->line_exist(w->m_section_id, "orientation"))
-				{
-					ypr = file->r_fvector3(w->m_section_id, "orientation");
-				}
-				else
-				{
-					ypr = pSettings->r_fvector3(w->m_section_id, "orientation");
-				}
-
-				w->m_Offset.setHPB(ypr.x, ypr.y, ypr.z);
-				ypr.mul(PI / 180.f);
-				w->m_Offset.translate_over(pos);
-	 
-				if (file)
-				{
-					if (file->section_exist(w->m_section_id.c_str()))
-						file->remove_line(w->m_section_id.c_str(), "position");
-
-					file->w_fvector3(w->m_section_id.c_str(), "position", position);
-				}
-
-				file->save_as(path);	
-			}
-		}
-	}
-};	
-
-class CCC_WEAPON_ROTATION : public IConsole_Command
-{
-public:
-	CCC_WEAPON_ROTATION(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
-
-	virtual void Execute(LPCSTR args)
-	{
- 
-		Fvector ypr;
-
-		sscanf(args, "%f,%f,%f", &ypr.x, &ypr.y, &ypr.z);
-
-		if (CActor* act = smart_cast<CActor*>(Level().CurrentControlEntity()))
-		{
-			PIItem item = act->inventory().ActiveItem();
-
-			if (CWeapon* w = smart_cast<CWeapon*>(item))
-			{
-				//Msg("Pos [%f][%f][%f]", pos.x, pos.y, pos.z);
-				Msg("Angle [%f][%f][%f]", ypr.x, ypr.y, ypr.z);
-				Fvector orientation = ypr;
-				string_path path;
-				FS.update_path(path, "$mp_saves$", "weapon.ltx");
-
-				CInifile* file = xr_new<CInifile>(path, false, true);
-				Fvector pos;
-
-				if (!file)
-					file->save_as(path);
- 
-
-				if (file->section_exist(w->m_section_id) && file->line_exist(w->m_section_id, "position"))
-					pos = file->r_fvector3(w->m_section_id, "position");
-				else
-					pos = pSettings->r_fvector3(w->m_section_id, "position");
-
-				w->m_Offset.setHPB(ypr.x, ypr.y, ypr.z);
-				ypr.mul(PI / 180.f);
-				w->m_Offset.translate_over(pos);
-
-	
-
-				if (file)
-				{
-					if (file->section_exist(w->m_section_id.c_str()))
-						file->remove_line(w->m_section_id.c_str(), "orientation");
-					
-					file->w_fvector3(w->m_section_id.c_str(), "orientation", orientation);
-				}
-
-				file->save_as(path);
-			}
-		}
-		 
-	}
-};
-
-class CCC_WEAPON_CURRENT_POS : public IConsole_Command
-{
-public:
-	CCC_WEAPON_CURRENT_POS(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
-
-	virtual void Execute(LPCSTR args)
-	{
-		if (CActor* act = smart_cast<CActor*>(Level().CurrentControlEntity()))
-		{
-			PIItem item = act->inventory().ActiveItem();
-
-			if (CWeapon* w = smart_cast<CWeapon*>(item))
-			{
-				Fvector pos, ypr;
-
-				pos = pSettings->r_fvector3(w->m_section_id, "position");
-				ypr = pSettings->r_fvector3(w->m_section_id, "orientation");
-
-			 
-
-				Msg("Pos [%f][%f][%f]", pos.x, pos.y, pos.z);
-				Msg("Angle [%f][%f][%f]", ypr.x, ypr.y, ypr.z);
-			}
-		}
-	}
-};
-
 class CCC_SPAWN_SLOT_ITEMS : public IConsole_Command
 {
 public:
@@ -3292,12 +3190,12 @@ public:
 				
 				CLASS_ID clsid = pSettings->r_clsid("outfit_base", "class");
 				CLASS_ID clsid_check = pSettings->r_clsid(section->Name.c_str(), "class");		
-				Msg("clsid %d == clsid", clsid == clsid_check);
+				//Msg("clsid %d == clsid", clsid == clsid_check);
 
 				if (clsid == clsid_check)
 				{
 					srv->SpawnItem(section->Name.c_str(), raid);
-					Msg("Spawn Item [%s]", section->Name.c_str());
+					//Msg("Spawn Item [%s]", section->Name.c_str());
 				}
 				 
 			}
@@ -3669,17 +3567,34 @@ public:
 class CCC_GIVEINFO : public IConsole_Command
 {
 public:
-	CCC_GIVEINFO(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
+	CCC_GIVEINFO(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
+	virtual void Execute(LPCSTR args)
+	{
+		LPCSTR name;
+		sscanf(args, "%s", name);	    
+		luabind::functor<LPCSTR>			give_info;
+		R_ASSERT(ai().script_engine().functor<LPCSTR>("mp_give_task.give_info", give_info));
+		give_info(name);
+	 
+	}
+};
+
+class CCC_DEL_INFO : public IConsole_Command
+{
+public:
+	CCC_DEL_INFO (LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
 	virtual void Execute(LPCSTR args)
 	{
 		LPCSTR name;
 		sscanf(args, "%s", name);
-
-		luabind::functor<LPCSTR>			give_info;
-		R_ASSERT(ai().script_engine().functor<LPCSTR>("mp_give_task.give_info", give_info));
-		give_info(name);
+		luabind::functor<LPCSTR>			del_info;
+		R_ASSERT(ai().script_engine().functor<LPCSTR>("mp_give_task.del_info", del_info));
+		del_info(name);
 	}
 };
+
+
+
 
 class CCC_STOP_WFX : public IConsole_Command
 {
@@ -3706,6 +3621,7 @@ public:
 
 
 
+/*
 class CCC_EXPORT_OBJECTS_TO_CLIENT : public IConsole_Command
 {
 public:
@@ -3723,20 +3639,200 @@ public:
 		}
 	};
 };
+*/
 
 
-
+#include "xr_ini_ext.h"
 
 extern int ALIFE_ALL_LOCATION = 0;
+
+struct WeaponTAB {
+	Fvector3 pos;
+	Fvector3 ypr;
+	bool set = false;
+};
+
+xr_map<u16, WeaponTAB> weapon_seted;
+  
+class CCC_weapon_set: public IConsole_Command
+{
+public:
+	CCC_weapon_set(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
+
+	virtual void Execute(LPCSTR args)
+	{
+		int type;
+		float x, y, z;	
+
+		string128 value;
+		int anim_slot = 0;
+
+		sscanf(args, "%d %s", &type, &value);
+
+		if (type == 3)
+		{
+			sscanf(value, "%d", &anim_slot);
+		}
+		else
+		{
+			sscanf(value, "%f,%f,%f", &x, &y, &z);
+		}
+
+		Fvector3 vec;
+		vec.set(x,y,z);
+
+		Msg("type[%d] anim_slot[%d] value[%f][%f][%f]", type, anim_slot, x,y,z);
+ 
+		CWeapon* w = 0;
+		if (CActor* act = smart_cast<CActor*>(Level().CurrentControlEntity()))
+		{
+			PIItem item = act->inventory().ActiveItem();
+			w = smart_cast<CWeapon*>(item);
+
+			if (w && pSettings)
+			{
+				bool sect_exist = pSettings->section_exist(w->cNameSect_str());
+				if (sect_exist)
+				{
+					Fvector3 pos;
+ 					Fvector3 ypr;
+
+					if (weapon_seted[w->ID()].set)
+					{
+						pos = weapon_seted[w->ID()].pos;
+						ypr = weapon_seted[w->ID()].ypr;
+					}
+					else
+					{
+						if (pSettings->line_exist(w->cNameSect_str(), "position"))
+							pos = pSettings->r_fvector3(w->cNameSect_str(), "position");
+
+						if (pSettings->line_exist(w->cNameSect_str(), "orientation"))
+							ypr = pSettings->r_fvector3(w->cNameSect_str(), "orientation");
+
+						weapon_seted[w->ID()].pos = pos;
+						weapon_seted[w->ID()].ypr = ypr;
+						weapon_seted[w->ID()].set = true;
+					}
+ 
+					int anim = w->animation_slot();
+  
+					if (type == 1)
+					{
+						pos = vec;
+						weapon_seted[w->ID()].pos = pos;
+					}
+					else if (type == 2)
+					{
+						ypr = vec;
+						weapon_seted[w->ID()].ypr = ypr;
+					}
+					else if (type == 3)
+						anim = anim_slot+1;
+					 
+					{
+						Msg("Pos[%f][%f][%f]", pos.x, pos.y, pos.z); 
+						Msg("Orient[%f][%f][%f]", ypr.x, ypr.y, ypr.z);
+						Msg("Anim[%d]", anim);
+					}
+ 
+					ypr.mul(PI / 180.f);
+					w->m_Offset.setHPB(ypr.x, ypr.y, ypr.z);
+					w->m_Offset.translate_over(pos);
+ 
+					if (anim && type == 3)
+					{
+						w->set_animation_slot(anim);
+					}
+
+				}
+			}
+		}
+
+		typedef xr_vector<LPSTR> vec_files;
+		vec_files* files = FS.file_list_open("$game_weapons$", "");
+
+		if (files && w && type < 3 && type > 0)
+		{
+			string256 value;
+			xr_sprintf(value, "%f, %f, %f", x, y, z);
+
+			CInifileExt* file_ext = new CInifileExt();
+    
+ 			bool backup = true;
+			for (auto st_file = files->begin(); st_file != files->end(); st_file++)	
+ 				file_ext->ModyfyLine("$game_weapons$", (*st_file), backup, w->cNameSect_str(), type == 1 ? "position" : "orientation", value);	
+		}
+
+		FS.file_list_close(files);		
+	};
+};
+ 
+class CCC_INIFILE_PARSER : public IConsole_Command
+{
+public:
+	CCC_INIFILE_PARSER(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
+
+	virtual void Execute(LPCSTR args)
+	{
+		string_path path;
+		FS.update_path(path, "$game_config$", "weapons\\wpn\\wpn_assults\\");
+		typedef xr_vector<LPSTR> vec_files;
+		vec_files* files = FS.file_list_open(path);
+		if (files)
+		{	
+			xr_vector<LPCSTR> sections_weapon;
+
+			CInifileExt* file_ext = new CInifileExt();
+			for (auto s = files->begin(); s != files->end(); s++)
+			{
+				file_ext->LoadIniFile("weapons\\wpn\\wpn_assults\\", *s );
+
+				CInifileExt::vec_ini sects = file_ext->get_sections();
+
+				for (auto sec : sects)
+				{
+					for (auto line : sec->item)
+					{
+						if (xr_strcmp(line.first, "parent_section") == 0)
+						{
+							sections_weapon.push_back( sec->name.c_str() );
+						}
+					}
+				}
+				
+				file_ext->clear_tables();
+			}
+
+ 			for (auto sec : sections_weapon)
+			{
+				NET_Packet		P;
+				P.w_begin(M_REMOTE_CONTROL_CMD);
+				string128 str;
+				xr_sprintf(str, "sv_spawn_to_player_inv %u %s %u", Game().local_svdpnid.value(), sec, 1);
+				P.w_stringZ(str);
+				Level().Send(P, net_flags(TRUE, TRUE));
+			}
+		}
+		FS.file_list_close(files);
+	};
+};
 
 
 void register_mp_console_commands()
 {	
+	CMD1(CCC_weapon_set, "weapon_test");
+	CMD1(CCC_INIFILE_PARSER, "weapon_parser");
+
+
 	CMD1(CCC_GIVETASK, "give_task");
 	CMD1(CCC_GIVEINFO, "give_info");
+	CMD1(CCC_DEL_INFO, "del_info");
+
+
 	CMD1(CCC_STOP_WFX, "fx_effect_stop");
 	CMD1(CCC_START_WFX, "fx_effect_start");
-	CMD1(CCC_EXPORT_OBJECTS_TO_CLIENT, "alife_objects");
+//	CMD1(CCC_EXPORT_OBJECTS_TO_CLIENT, "alife_objects");
 
 	CMD4(CCC_Integer, "mp_alife_simulation_location", &ALIFE_ALL_LOCATION, 0, 1);
 
@@ -3771,10 +3867,6 @@ void register_mp_console_commands()
 	CMD1(CCC_SPAWN_SLOT_ITEMS, "spawn_slot_items");
 	CMD1(CCC_SaveStalkers, "save_stalkers");
 
-	CMD1(CCC_WEAPON_POSITION, "weapon_pos");
-	CMD1(CCC_WEAPON_ROTATION, "weapon_rot");
-	CMD1(CCC_WEAPON_CURRENT_POS, "weapon_offset_current");
- 
 	CMD1(CCC_SpawnToInventory,		"sv_spawn_to_player_inv");
 	CMD1(CCC_SpawnToObjWithId,		"sv_spawn_to_obj_with_id");
 	CMD1(CCC_SpawnOnPosition,		"sv_spawn_on_position"	);
@@ -3792,10 +3884,7 @@ void register_mp_console_commands()
 	CMD1(CCC_UnlimatedAmmo,			"adm_unlimited_ammo");
 
 	CMD1(CCC_ADD_Money_to_client_self, "g_money");
-
-
-
-	CMD1(CCC_AdmKillStalkers, "g_kill_all_stalker");
+	CMD1(CCC_Set_Money_to_client, "sv_set_money");
 
 	CMD4(CCC_Vector3, "cam_2_offset", &CCameraLook2::m_cam_offset, Fvector().set(-1000, -1000, -1000), Fvector().set(1000, 1000, 1000));
  	CMD4(CCC_Integer, "net_sv_simulate_lag", &simulate_netwark_ping, 0, 100);
@@ -3878,11 +3967,11 @@ void register_mp_console_commands()
 	CMD4(CCC_Integer,					"sv_saveconfigs",		&g_sv_mp_save_proxy_configs, 0, 1);
 	
 
-	CMD1(CCC_UnBanPlayerByIP,	"sv_unbanplayer_ip"			);
-	CMD1(CCC_UnBanPlayerByIndex,"sv_unbanplayer"			);
+	CMD1(CCC_UnBanPlayerByIP,			"sv_unbanplayer_ip"			);
+	CMD1(CCC_UnBanPlayerByIndex,		"sv_unbanplayer"			);
 
-	CMD1(CCC_ListPlayers,			"sv_listplayers"			);		
-	CMD1(CCC_ListPlayers_Banned,	"sv_listplayers_banned"		);		
+	CMD1(CCC_ListPlayers,				"sv_listplayers"			);		
+	CMD1(CCC_ListPlayers_Banned,		"sv_listplayers_banned"		);		
 	
 	CMD1(CCC_ChangeGameType,		"sv_changegametype"			);
 	CMD1(CCC_ChangeLevel,			"sv_changelevel"			);
