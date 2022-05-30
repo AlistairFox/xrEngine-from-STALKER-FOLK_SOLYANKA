@@ -1049,9 +1049,9 @@ void send_news_item_drop(u16 gameid, LPCSTR name, int count)
 			packet.w_stringZ(news_name);
 
 			string128 news_text;
- 			itoa(1, tmp, 10);
+ 			itoa(count, tmp, 10);
 			xr_strcpy(news_text, name);
-			xr_strcat(news_text, " кол-во:");
+			xr_strcat(news_text, " кол-во: ");
 			xr_strcat(news_text, tmp);
     
 			packet.w_stringZ(news_text);

@@ -35,6 +35,9 @@ bool CItemManager::is_useful		(const CGameObject *object) const
 
 bool CItemManager::useful			(const CGameObject *object) const
 {
+	if (!object)
+		return false;
+		
 	if (!inherited::is_useful(object))
 		return				(false);
 

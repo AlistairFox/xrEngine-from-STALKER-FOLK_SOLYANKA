@@ -66,21 +66,19 @@ void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 
  	u64 OldTime = Level().GetEnvironmentGameTime();
 
-	Level().SetGameTimeFactor(GameTime, TimeFactor);
-	Level().SetEnvironmentGameTimeFactor(GameEnvironmentTime, EnvironmentTimeFactor);
-
-	//Msg("TimeFactor %f", EnvironmentTimeFactor);
-
 	float wfx_time;
 	P.r_float(wfx_time);
 
-	shared_str name;
-	P.r_stringZ(name);
+	shared_str cfg1, cfg2;
+	P.r_stringZ(cfg1); P.r_stringZ(cfg2);
+	shared_str descr1, descr2;
+	P.r_stringZ(descr1); P.r_stringZ(descr2);
 
-	shared_str name_prew;
-	P.r_stringZ(name_prew);
-
-	u8 has_current = P.r_u8();
+	float ex_1, ex_2, ex_g1, ex_g2;
+	P.r_float(ex_1);
+	P.r_float(ex_2);
+	P.r_float(ex_g1);
+	P.r_float(ex_g2);
  
 	if (wfx_time <= 0 && OnServer())
 	if (OldTime != GameEnvironmentTime)
@@ -89,26 +87,29 @@ void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 
 		if (time > 3600 || time < -3600)
 		{
-			GamePersistent().Environment().Invalidate();
+			//GamePersistent().Environment().Invalidate();
 		}
 	}
  
 	if (OnClient())
 	{
- 		if (!Device.Paused() && g_pGamePersistent && name_prew.size() > 0 && name.size() > 0)
+ 		if (!Device.Paused() && g_pGamePersistent && cfg1.size() > 0 && cfg2.size() > 0)
 		{
 			g_pGamePersistent->Environment().wfx_time = wfx_time;
-		//	Msg("WFX: %f", wfx_time);
+ 			/*
 			if (wfx_time > 1)
 			{
-				g_pGamePersistent->Environment().StartWeatherFXFromTime(name, wfx_time);
+				g_pGamePersistent->Environment().StartWeatherFXFromTime(cfg2, wfx_time);
 			}
-			else
+			else*/
  			{
-				g_pGamePersistent->Environment().StartWeatherMP(name_prew, name, nullptr);
+				g_pGamePersistent->Environment().StartWeatherMP(cfg1, cfg2, descr1, descr2, ex_1, ex_2, ex_g1, ex_g2);
 			}
 		}
 	}
+
+	Level().SetGameTimeFactor(GameTime, TimeFactor);
+	Level().SetEnvironmentGameTimeFactor(GameEnvironmentTime, EnvironmentTimeFactor);
  }
 
 struct not_exsiting_clients_deleter

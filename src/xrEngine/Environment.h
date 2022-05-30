@@ -173,7 +173,7 @@ public:
 
 						CEnvDescriptor	(shared_str const& identifier);
 
-	void				load			(CEnvironment& environment, CInifile& config);
+	void				load			(CEnvironment& environment, CInifile& config, LPCSTR identifier);
 	void				copy			(const CEnvDescriptor& src)
 	{
 		float tm0		= exec_time;
@@ -187,6 +187,7 @@ public:
 	void				on_device_destroy	();
 
 	shared_str			m_identifier;
+	shared_str			m_cfg_file;
 };
 
 class ENGINE_API		CEnvDescriptorMixer: public CEnvDescriptor{
@@ -260,6 +261,7 @@ public:
 	BENCH_SEC_SCRAMBLEMEMBER2
 	CEnvDescriptorMixer*	CurrentEnv;
 	CEnvDescriptor*			Current[2];
+	CEnvDescriptor*			PrewCurrent[2];
 
 	bool					bWFX;
 	
@@ -276,9 +278,9 @@ public:
 
 	shared_str				WFX_PrewWeather;
 
-	bool					StartWeatherMP(shared_str name1, shared_str name2, shared_str DESCRIPTOR_CUR);
+	bool					StartWeatherMP(shared_str name1, shared_str name2, shared_str descr1, shared_str descr2, float ex1, float ex2, float exG1, float exG2);
 
-	void					SelectEnvsMP(EnvVec* envs0, EnvVec* envs1, CEnvDescriptor*& e0, CEnvDescriptor*& e1, float gt, shared_str DESCRIPTOR_CUR);
+	void					SelectEnvsMP(EnvVec* envs0, EnvVec* envs1, CEnvDescriptor*& e0, CEnvDescriptor*& e1, shared_str descr1, shared_str descr2, float ex1, float ex2, float exG1, float exG2);
 
 	void					SelectEnvsMPSync(float gt);
 
@@ -365,7 +367,7 @@ public:
 	CInifile*				m_thunderbolts_config;
 
 protected:
-	INGAME_EDITOR_VIRTUAL	CEnvDescriptor* create_descriptor	(shared_str const& identifier, CInifile* config);
+	INGAME_EDITOR_VIRTUAL	CEnvDescriptor* create_descriptor	(shared_str const& identifier, CInifile* config, LPCSTR weather_name);
 	INGAME_EDITOR_VIRTUAL	void load_weathers					();
 	INGAME_EDITOR_VIRTUAL	void load_weather_effects			();
 	INGAME_EDITOR_VIRTUAL	void create_mixer					();

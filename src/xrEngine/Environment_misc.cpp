@@ -242,8 +242,10 @@ CEnvDescriptor::CEnvDescriptor	(shared_str const& identifier) :
 }
 
 #define	C_CHECK(C)	if (C.x<0 || C.x>2 || C.y<0 || C.y>2 || C.z<0 || C.z>2)	{ Msg("! Invalid '%s' in env-section '%s'",#C,m_identifier.c_str());}
-void CEnvDescriptor::load	(CEnvironment& environment, CInifile& config)
+void CEnvDescriptor::load	(CEnvironment& environment, CInifile& config, LPCSTR weather_name)
 {
+	m_cfg_file._set(weather_name);
+
 	Ivector3 tm				={0,0,0};
 	sscanf					(m_identifier.c_str(),"%d:%d:%d",&tm.x,&tm.y,&tm.z);
 	R_ASSERT3				((tm.x>=0)&&(tm.x<24)&&(tm.y>=0)&&(tm.y<60)&&(tm.z>=0)&&(tm.z<60),"Incorrect weather time",m_identifier.c_str());
@@ -573,11 +575,11 @@ void    CEnvironment::load_level_specific_ambients ()
 	SECUROM_MARKER_PERFORMANCE_OFF(13)
 }
 
-CEnvDescriptor* CEnvironment::create_descriptor	(shared_str const& identifier, CInifile* config)
+CEnvDescriptor* CEnvironment::create_descriptor	(shared_str const& identifier, CInifile* config, LPCSTR weather_name)
 {
 	CEnvDescriptor*	result = xr_new<CEnvDescriptor>(identifier);
 	if (config)
-		result->load(*this, *config);
+		result->load(*this, *config, weather_name);
 	return			(result);
 }
 
@@ -603,8 +605,11 @@ void CEnvironment::load_weathers		()
 		LPSTR						identifier = (LPSTR)_alloca((new_length + 1)*sizeof(char));
 		Memory.mem_copy				(identifier, *i, new_length*sizeof(char));
 		identifier[new_length]		= 0;
-		EnvVec& env					= WeatherCycles[identifier];
+		LPCSTR weather_name = identifier;
 
+
+		EnvVec& env					= WeatherCycles[identifier];
+		
 		string_path					file_name;
 		FS.update_path				(file_name, "$game_weathers$", identifier);
 		xr_strcat					(file_name, ".ltx");
@@ -617,8 +622,9 @@ void CEnvironment::load_weathers		()
 
 		sections_type::const_iterator	i = sections.begin();
 		sections_type::const_iterator	e = sections.end();
+
 		for ( ; i != e; ++i) {
-			CEnvDescriptor*			object = create_descriptor((*i)->Name, config);
+			CEnvDescriptor*			object = create_descriptor((*i)->Name, config, weather_name);
 			env.push_back			(object);
 		}
 
@@ -660,10 +666,13 @@ void CEnvironment::load_weather_effects	()
 		LPSTR						identifier = (LPSTR)_alloca((new_length + 1)*sizeof(char));
 		Memory.mem_copy				(identifier, *i, new_length*sizeof(char));
 		identifier[new_length]		= 0;
+		LPCSTR weather_name_FX = identifier;
+		
 		EnvVec& env					= WeatherFXs[identifier];
 
+
 		string_path					file_name;
-		FS.update_path				(file_name, "$game_weather_effects$", identifier);
+		FS.update_path				(file_name, "$game_weather_effects$", weather_name_FX);
 		xr_strcat					(file_name, ".ltx");
 		CInifile*					config = CInifile::Create(file_name);
 
@@ -671,18 +680,18 @@ void CEnvironment::load_weather_effects	()
 		sections_type&				sections = config->sections();
 
 		env.reserve					(sections.size() + 2);
-		env.push_back				(create_descriptor("00:00:00", false));
+		env.push_back				(create_descriptor("00:00:00", false, weather_name_FX));
 
 		sections_type::const_iterator	i = sections.begin();
 		sections_type::const_iterator	e = sections.end();
 		for ( ; i != e; ++i) {
-			CEnvDescriptor*			object = create_descriptor((*i)->Name, config);
+			CEnvDescriptor*			object = create_descriptor((*i)->Name, config, weather_name_FX);
 			env.push_back			(object);
 		}
 
 		CInifile::Destroy			(config);
 
-		env.push_back				(create_descriptor("24:00:00", false));
+		env.push_back				(create_descriptor("24:00:00", false, weather_name_FX));
 		env.back()->exec_time_loaded = DAY_LENGTH;
 
 	}

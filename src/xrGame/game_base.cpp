@@ -6,7 +6,7 @@
 #include "xrMessages.h"
 
 u64		g_qwStartGameTime		= 12*60*60*1000;
-float	g_fTimeFactor			= pSettings->r_float("alife","time_factor_new");
+float	g_fTimeFactor			= pSettings->r_float("alife","time_factor");
 u64		g_qwEStartGameTime		= 12*60*60*1000;
 
 ENGINE_API	bool g_dedicated_server;
