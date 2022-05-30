@@ -47,12 +47,24 @@ void game_cl_freemp::ReadSpawnAlife(NET_Packet* packet)
 		Msg("Recived id[%d], level[%d][%s], alife_object[%s], name_replace (%s), POS[%.0f][%.0f][%.0f]", id, level, name_level.c_str(), name.c_str(),  entity->name_replace(), entity->o_Position.x, entity->o_Position.y, entity->o_Position.z);
 		*/
 		alife_objects[id] = dynamic;
+	  
+		CSE_ALifeHumanStalker* stalker = smart_cast<CSE_ALifeHumanStalker*>(dynamic);
+		CSE_ALifeMonsterAbstract* monster = smart_cast<CSE_ALifeMonsterAbstract*>(dynamic);
+		CSE_ALifeLevelChanger* changer = smart_cast<CSE_ALifeLevelChanger*>(dynamic);
+		CSE_ALifeOnlineOfflineGroup* group = smart_cast<CSE_ALifeOnlineOfflineGroup*>(dynamic);
+		CSE_ALifeSmartZone* zone = smart_cast<CSE_ALifeSmartZone*>(dynamic);
+
+		if (stalker || changer || monster || group || zone)
+		{
+			//Msg("Name %s, spawn_name %s", dynamic->name_replace(), dynamic->s_name.c_str());
+			dynamic->on_register_client();
+		}
 	}
 }
 
 void game_cl_freemp::ReadUpdateAlife(NET_Packet* packet)
 {
-	if (!alife_objects_synchronized || !alife_objects_registered)
+	if (!alife_objects_synchronized)
 		return;
 
 	u8 type = packet->r_u8();
@@ -113,8 +125,8 @@ void game_cl_freemp::ReadUpdateAlife(NET_Packet* packet)
 			if (stalker || changer || monster || group || zone)
 				dynamic->on_unregister_client();
 
-			//Msg("---UNREGISTER Alife Object Client ID: %d, Name %s", id, dynamic->name_replace());
-			alife_objects[id] = 0;
+			Msg("---UNREGISTER Alife Object Client ID: %d, Name %s", id, dynamic->name_replace());
+			alife_objects.erase(id);
 		}
 
 	}
@@ -123,6 +135,7 @@ void game_cl_freemp::ReadUpdateAlife(NET_Packet* packet)
 		u16 id = packet->r_u16();
 		shared_str name_spawn;
 		packet->r_stringZ(name_spawn);
+		u16 graph = packet->r_u16();
 
 		/*
 		if (alife_objects[id])
@@ -131,30 +144,28 @@ void game_cl_freemp::ReadUpdateAlife(NET_Packet* packet)
 			Msg("UpdateObject not Find [%d] [%s]", id, name_spawn.c_str());
 		*/
 
-		if (alife_objects[id] && xr_strcmp(alife_objects[id]->s_name, name_spawn) == 0)
-			alife_objects[id]->UPDATE_Read(*packet);
+		CSE_ALifeDynamicObject* object = GetAlifeObject(id);
 
-	}
-}
-
-void game_cl_freemp::RegisterObjectsAfterSpawn()
-{
-	for (auto alife_object : alife_objects)
-	{
-		CSE_ALifeDynamicObject* dynamic = alife_object.second;
-
-		CSE_ALifeHumanStalker* stalker = smart_cast<CSE_ALifeHumanStalker*>(dynamic);
-		CSE_ALifeMonsterAbstract* monster = smart_cast<CSE_ALifeMonsterAbstract*>(dynamic);
-		CSE_ALifeLevelChanger* changer = smart_cast<CSE_ALifeLevelChanger*>(dynamic);
-		CSE_ALifeOnlineOfflineGroup* group = smart_cast<CSE_ALifeOnlineOfflineGroup*>(dynamic);
-		CSE_ALifeSmartZone* zone = smart_cast<CSE_ALifeSmartZone*>(dynamic);
-
-		if (stalker || changer || monster || group || zone)
+		if (object)
 		{
-			//Msg("Name %s, spawn_name %s", dynamic->name_replace(), dynamic->s_name.c_str());
-			dynamic->on_register_client();
+			object->UPDATE_Read(*packet);
+			if (object->m_tGraphID == -1)
+				Msg("ERROR Graph %d", object->m_tGraphID);
 		}
-	}
 
-	alife_objects_registered = true;
+		/*
+		for (auto obj : alife_objects)
+		{
+			if (obj.first == id && obj.second)
+			{
+				obj.second->UPDATE_Read(*packet);
+				//if (obj.second->m_tGraphID == -1)
+				//	Msg("Error Graph id = %d", obj.second->m_tGraphID);
+				break;
+			}
+		}
+		*/
+
+	}
 }
+ 

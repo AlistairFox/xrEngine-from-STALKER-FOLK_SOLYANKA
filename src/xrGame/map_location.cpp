@@ -248,6 +248,14 @@ void CMapLocation::CalcPosition()
 
 	CObject* pObject =  Level().Objects.net_Find(m_objectID);
 	
+	if (pObject && m_owner_se_object && xr_strcmp(m_owner_se_object->s_name.c_str(), pObject->cNameSect().c_str()) != 0)
+	{
+		//Msg("Object [%d] / name[%s], Server [%d] / name[%s] ", pObject->ID(), pObject->cNameSect().c_str(), m_owner_se_object->ID, m_owner_se_object->s_name.c_str());
+		m_position_global = m_owner_se_object->draw_level_position();
+		m_cached.m_Position.set(m_position_global.x, m_position_global.z);
+		return;
+	}
+
 	if(!pObject)
 	{
 		if(m_owner_se_object)
@@ -298,7 +306,12 @@ void CMapLocation::CalcLevelName()
 	if(m_owner_se_object && ai().get_game_graph())
 	{
 		if (!ai().game_graph().valid_vertex_id(m_owner_se_object->m_tGraphID))
+		{
+			
+			//Msg("NOT VALID VERTEX_ID Server Owner ID [%d] name[%s]", m_owner_se_object->ID, m_owner_se_object->name_replace());
+			//Msg("graph[%d], node[%d]", m_owner_se_object->m_tGraphID, m_owner_se_object->m_tNodeID);
 			return;
+		}
 
 		u8 level_id = ai().game_graph().vertex(m_owner_se_object->m_tGraphID)->level_id();
 		int level_name_size = ai().game_graph().header().level(level_id).name().size();
@@ -345,8 +358,8 @@ bool CMapLocation::Update() //returns actual
 
 	if (freemp && freemp->alife_objects[m_objectID] && !m_owner_se_object)
 	{
-		//Msg("SERVER OBJECT FIND [%s] [%d]", freemp->alife_objects[m_objectID]->name_replace(), m_owner_se_object ? 1 : 0);
 		m_owner_se_object = freemp->alife_objects[m_objectID];
+		//Msg("SERVER OBJECT FIND [%s] id[%d] graph[%d] ", m_owner_se_object->name_replace(), m_owner_se_object->ID, m_owner_se_object->m_tGraphID);
 	}
 
 	if (m_owner_se_object || (!IsGameTypeSingle() && pObject) )
@@ -354,7 +367,7 @@ bool CMapLocation::Update() //returns actual
 		m_cached.m_Actuality			= true;
 		
 		//if(IsGameTypeSingle())
-			CalcLevelName				();
+		CalcLevelName				();
 
 		CalcPosition					();
 	}

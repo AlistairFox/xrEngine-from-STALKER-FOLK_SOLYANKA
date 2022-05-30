@@ -50,18 +50,16 @@ game_cl_freemp::game_cl_freemp()
 	load_game_tasks = false;
 
 	alife_objects_synchronized = false;
-	alife_objects_registered = false;
-
 }
 
 game_cl_freemp::~game_cl_freemp()
 {
 	xr_delete(m_pVoiceChat);
 	alife_objects_synchronized = false;		 
-	alife_objects_registered = false;
-	
+ 	
 	for (auto obj : alife_objects)
 	{
+		Msg("Remove OBJ ALIFE [%d]", obj.first);
 		//delete(alife_objects[obj.first]);
 		alife_objects[obj.first] = 0;
 	}
@@ -112,9 +110,6 @@ void game_cl_freemp::shedule_Update(u32 dt)
 
 	if (!local_player)
 		return;
-
-	if (!alife_objects_registered && alife_objects_synchronized)
-		RegisterObjectsAfterSpawn();
 
 	if (!g_dedicated_server && m_pVoiceChat)
 	{

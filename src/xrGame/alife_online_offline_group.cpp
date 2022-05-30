@@ -55,29 +55,32 @@ bool CSE_ALifeOnlineOfflineGroup::need_update		(CSE_ALifeDynamicObject *object)
 
 void CSE_ALifeOnlineOfflineGroup::update	()
 {	
-	if (m_bOnline)
+	if (OnServer())
 	{
-		MEMBER* commander			= (*m_members.begin()).second;
-		o_Position					= commander->o_Position;
-		m_tNodeID					= commander->m_tNodeID;
-		m_tGraphID					= commander->m_tGraphID;
-	}
+		if (m_bOnline)
+		{
+			MEMBER* commander			= (*m_members.begin()).second;
+			o_Position					= commander->o_Position;
+			m_tNodeID					= commander->m_tNodeID;
+			m_tGraphID					= commander->m_tGraphID;
+		}
 
-	if (!bfActive())
+		if (!bfActive())
+			return;
+
+		brain().update					();
+
+		MEMBERS::iterator			I = m_members.begin();
+		MEMBERS::iterator			E = m_members.end();
+		for ( ; I != E; ++I)
+		{
+			((*I).second)->o_Position				= o_Position;
+			((*I).second)->m_tNodeID				= m_tNodeID;
+			((*I).second)->m_tGraphID				= m_tGraphID;
+			((*I).second)->m_fDistance				= m_fDistance;
+		}		
 		return;
-
-	brain().update					();
-
-	MEMBERS::iterator			I = m_members.begin();
-	MEMBERS::iterator			E = m_members.end();
-	for ( ; I != E; ++I)
-	{
-		((*I).second)->o_Position				= o_Position;
-		((*I).second)->m_tNodeID				= m_tNodeID;
-		((*I).second)->m_tGraphID				= m_tGraphID;
-		((*I).second)->m_fDistance				= m_fDistance;
-	}		
-	return;
+	}
 }
 
 void CSE_ALifeOnlineOfflineGroup::on_location_change			() const
@@ -165,7 +168,8 @@ CSE_ALifeOnlineOfflineGroup::MEMBER *CSE_ALifeOnlineOfflineGroup::member(ALife::
 
 bool CSE_ALifeOnlineOfflineGroup::synchronize_location	()
 {	
-	if (m_bOnline){
+	if (m_bOnline && OnServer() )
+	{
 		MEMBER					*member = (*m_members.begin()).second;
 		o_Position				= member->o_Position;
 		m_tNodeID				= member->m_tNodeID;
@@ -279,6 +283,7 @@ void CSE_ALifeOnlineOfflineGroup::try_switch_offline	()
 
 void CSE_ALifeOnlineOfflineGroup::switch_online			()
 {
+	Msg("Section %s, name %s, ID %d, switch_online", s_name.c_str(), name(), ID);
 	R_ASSERT					(!m_bOnline);
 	m_bOnline					= true;
 
@@ -295,10 +300,11 @@ void CSE_ALifeOnlineOfflineGroup::switch_online			()
 
 void CSE_ALifeOnlineOfflineGroup::switch_offline		()
 {
+	Msg("Section %s, name %s, ID %d, SWITCH OFFLINE", s_name.c_str(), name(), ID);
 	R_ASSERT					(m_bOnline);
 	m_bOnline					= false;
 
-	if (!m_members.empty())
+	if (!m_members.empty() && OnServer() )
 	{
 		MEMBER					*member = (*m_members.begin()).second;
 		

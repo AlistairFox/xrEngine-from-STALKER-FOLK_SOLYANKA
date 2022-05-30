@@ -280,7 +280,7 @@ void game_sv_freemp::UpdateAlifeObjects()
 			!smart_cast<CSE_ALifeOnlineOfflineGroup*> (object.second) &&
 			!smart_cast<CSE_ALifeSmartZone*> (object.second)
 		)
-			continue;
+		continue;
 
 		NET_Packet packet; 
 		packet.w_begin(M_GAMEMESSAGE);
@@ -288,7 +288,12 @@ void game_sv_freemp::UpdateAlifeObjects()
 		packet.w_u8(3);
 		packet.w_u16(object.first);
 		packet.w_stringZ(object.second->s_name);
+		packet.w_u16(object.second->m_tGraphID);
 		object.second->UPDATE_Write(packet);
+		
+		//if (object.second->m_tGraphID == -1)
+		//	Msg("graph [%s] [%d]", object.second->s_name.c_str(), object.second->m_tGraphID);
+
 		server().SendBroadcast(server().GetServerClient()->ID, packet, net_flags(false));
 	}
 

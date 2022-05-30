@@ -11,9 +11,8 @@ private:
 
 public:
 	bool alife_objects_synchronized;
-	bool alife_objects_registered;
-
-	xr_map<u16, CSE_ALifeDynamicObject*> alife_objects;
+ 
+	xr_hash_map<u16, CSE_ALifeDynamicObject*> alife_objects;
 
 	CUIGameFMP* m_game_ui;
 
@@ -56,11 +55,18 @@ public:
 
 	virtual void ReadSpawnAlife(NET_Packet *packet);
 	virtual void ReadUpdateAlife(NET_Packet *packet);
-	virtual void RegisterObjectsAfterSpawn();
-
+ 
 	virtual void OnScreenResolutionChanged();
 
-	virtual CSE_ALifeDynamicObject* GetAlifeObject(u16 id) { return alife_objects[id]; };
+	virtual CSE_ALifeDynamicObject* GetAlifeObject(u16 id)
+	{
+		auto object = alife_objects.find(id);
+	
+		if (object == alife_objects.end())
+			return 0;
+
+		return	(*object).second;
+	};
 
 
 private:

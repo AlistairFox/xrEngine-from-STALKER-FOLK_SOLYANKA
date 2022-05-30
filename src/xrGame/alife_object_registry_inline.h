@@ -34,7 +34,8 @@ IC	CSE_ALifeDynamicObject *CALifeObjectRegistry::object	(const ALife::_OBJECT_ID
 	START_PROFILE("ALife/objects::object")
 	OBJECT_REGISTRY::const_iterator	I = objects().find(id);
 
-	if (objects().end() == I) {
+	if (objects().end() == I) 
+	{
 #ifdef DEBUG
 		if (!no_assert)
 			Msg					("There is no object with id %d!",id);
