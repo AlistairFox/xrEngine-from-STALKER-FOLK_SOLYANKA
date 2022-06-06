@@ -818,13 +818,13 @@ void CLevel::OnFrame	()
 
 	if (timer_old < Device.dwTimeGlobal)
 	{
-		//Msg("TicksALL: %u", ticks);
-		//Msg("Ticks2: %u", ticks2);
-		//Msg("Ticks3: %u", ticks3);
+		Msg("TicksALL: %u", ticks);
+		Msg("Ticks2: %u", ticks2);
+		Msg("Ticks3: %u", ticks3);
 		//Msg("Ticks4: %u", ticks4);
-		//Msg("Ticks5: %u", ticks5);
+		Msg("Ticks5: %u", ticks5);
 
-		//Msg("Updates: %u", update_ticks);
+		Msg("Updates: %u", update_ticks);
 		ticks = 0; 
 		ticks2 = 0;
 		ticks3 = 0;
@@ -832,14 +832,15 @@ void CLevel::OnFrame	()
 
 		update_ticks = 0;
 		timer_old = Device.dwTimeGlobal + 1000;
-	}
+	} 
 }
 
 int		psLUA_GCSTEP					= 10			;
 void	CLevel::script_gc				()
 {
-	lua_gc	(ai().script_engine().lua(), LUA_GCSTEP, psLUA_GCSTEP);
+	lua_gc(ai().script_engine().lua(), LUA_GCSTEP, psLUA_GCSTEP);
 }
+
 
 #ifdef DEBUG_PRECISE_PATH
 void test_precise_path	();

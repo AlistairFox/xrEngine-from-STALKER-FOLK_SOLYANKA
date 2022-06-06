@@ -145,9 +145,10 @@ void CLevel::g_sv_Spawn		(CSE_Abstract* E)
 		
 		if (Timer.GetElapsed_ms() > 0)
 		Msg("--spawn--SPAWN: %d ms, name %s", Timer.GetElapsed_ms(), E->name_replace());
-
-		Msg("lua script %d", (ai().script_engine().lua()) );
  
+
+		//Msg("lua script calls %d", ai().script_engine().lua()->ci->tailcalls );
+		
 		
 		if ((E->s_flags.is(M_SPAWN_OBJECT_LOCAL)) && (E->s_flags.is(M_SPAWN_OBJECT_ASPLAYER)) )	
 		{

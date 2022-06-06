@@ -242,7 +242,7 @@ void CRenderDevice::on_idle		()
 #ifdef DEDICATED_SERVER
 	u32 FrameStartTime = TimerGlobal.GetElapsed_ms();
 #endif
-	if (psDeviceFlags.test(rsCameraPos) || psDeviceFlags.test(rsStatistic) || psDeviceFlags.test(rsProfiler))
+	if (psDeviceFlags.test(rsStatistic))
 		g_bEnableStatGather	= TRUE;
 	else									
 		g_bEnableStatGather	= FALSE;

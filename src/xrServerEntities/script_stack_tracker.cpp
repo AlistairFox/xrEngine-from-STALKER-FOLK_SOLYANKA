@@ -69,7 +69,8 @@ void CScriptStackTracker::print_stack	(lua_State *L)
 {
 	VERIFY					(L);// && (m_virtual_machine == L));
 
-	for (int j=m_current_stack_level - 1, k=0; j>=0; --j, ++k) {
+	for (int j=m_current_stack_level - 1, k=0; j>=0; --j, ++k) 
+	{
 		lua_Debug			l_tDebugInfo = *m_stack[j];
 		if (!l_tDebugInfo.name)
 			ai().script_engine().script_log	(ScriptStorage::eLuaMessageTypeError,"%2d : [%s] %s(%d) : %s",k,l_tDebugInfo.what,l_tDebugInfo.short_src,l_tDebugInfo.currentline,"");
