@@ -6,9 +6,10 @@
 //	Description : library linkage file
 ////////////////////////////////////////////////////////////////////////////
 
-#ifndef LUA_LIBRARY_LINKAGE_H_INCLUDED
-#define LUA_LIBRARY_LINKAGE_H_INCLUDED
+#pragma once
 
-#pragma comment(lib, "lua.JIT.1.1.4.lib" )
-
-#endif // #ifndef LUA_LIBRARY_LINKAGE_H_INCLUDED
+#ifndef LUAJIT_2
+	#pragma comment(lib, "lua.JIT.1.1.4.lib" )
+#else
+	#pragma comment (lib, "lua51.lib")
+#endif
