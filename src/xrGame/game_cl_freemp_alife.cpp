@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "game_cl_freemp.h"
-
 #include "game_sv_freemp.h" 
 
 
@@ -135,22 +134,14 @@ void game_cl_freemp::ReadUpdateAlife(NET_Packet* packet)
 		u16 id = packet->r_u16();
 		shared_str name_spawn;
 		packet->r_stringZ(name_spawn);
-		u16 graph = packet->r_u16();
-
-		/*
-		if (alife_objects[id])
-			Msg("UpdateObject [%d]->[%s]==[%s]", id, alife_objects[id]->s_name.c_str(), name_spawn.c_str());
-		else
-			Msg("UpdateObject not Find [%d] [%s]", id, name_spawn.c_str());
-		*/
-
 		CSE_ALifeDynamicObject* object = GetAlifeObject(id);
 
 		if (object)
 		{
 			object->UPDATE_Read(*packet);
-			if (object->m_tGraphID == -1)
-				Msg("ERROR Graph %d", object->m_tGraphID);
+			object->UPDATE_ReadScript(*packet);		  // Для вызова нужна функция в скрипте иле вылет 
+			//if (object->m_tGraphID == -1)
+			//	Msg("ERROR Graph %d", object->m_tGraphID);
 		}
 
 		/*
@@ -166,6 +157,16 @@ void game_cl_freemp::ReadUpdateAlife(NET_Packet* packet)
 		}
 		*/
 
+	}
+	else if (type == 4)
+	{
+		u16 id = packet->r_u16();
+		if (CSE_ALifeDynamicObject* obj = GetAlifeObject(id))
+		{
+			obj->o_Position = packet->r_vec3();
+			obj->m_tGraphID = packet->r_u16();
+			obj->m_tNodeID = packet->r_u16();
+		}
 	}
 }
  

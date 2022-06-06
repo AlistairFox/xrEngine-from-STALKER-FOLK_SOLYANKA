@@ -908,6 +908,7 @@
     <ClInclude Include="cta_game_artefact_activation.h" />
     <ClInclude Include="game_cl_roleplay.h" />
     <ClInclude Include="game_sv_roleplay.h" />
+    <ClInclude Include="level_events.h" />
     <ClInclude Include="net_physics_state.h" />
     <ClInclude Include="script_event.h" />
     <ClInclude Include="SIniFileStream.h" />
@@ -3080,11 +3081,13 @@
     <ClCompile Include="game_cl_freemp_alife.cpp" />
     <ClCompile Include="game_cl_roleplay.cpp" />
     <ClCompile Include="game_sv_freemp_alife.cpp" />
+    <ClCompile Include="game_sv_freemp_alife_cl_sync.cpp" />
     <ClCompile Include="game_sv_freemp_PDA.cpp" />
     <ClCompile Include="game_sv_freemp_save.cpp" />
     <ClCompile Include="game_sv_freemp_trade.cpp" />
     <ClCompile Include="game_sv_roleplay.cpp" />
     <ClCompile Include="game_sv_roleplay_drop_items.cpp" />
+    <ClCompile Include="level_events.cpp" />
     <ClCompile Include="net_physics_state.cpp" />
     <ClCompile Include="script_event.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">pch_script.h</PrecompiledHeaderFile>

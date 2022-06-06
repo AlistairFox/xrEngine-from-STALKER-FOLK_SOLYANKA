@@ -56,7 +56,7 @@ protected:
 	//for scripting enhancement
 	virtual		void				TranslateGameMessage	(u32 msg, NET_Packet& P);
 
-
+	virtual		shared_str			shedule_clsid			()				{ return "game_cl_GameState"; };
 	virtual		shared_str			shedule_Name			() const		{ return shared_str("game_cl_GameState"); };
 	virtual		float				shedule_Scale			()				{ return 1.0f;};
 	virtual		bool				shedule_Needed			()				{return true;};

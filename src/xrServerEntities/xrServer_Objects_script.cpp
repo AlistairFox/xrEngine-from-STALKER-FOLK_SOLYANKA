@@ -75,7 +75,27 @@ struct CWrapperBase : public T, public luabind::wrap_base {
 			//Log("Attempt to call pure virtual method UPDATE_Write in CSE_Abstract");
 			//ptr->self_type::inherited::UPDATE_Write(*p1);
 		}
+		/*
+		virtual void UPDATE_ReadScript(NET_Packet& packet)
+		{
+			call<void>("UPDATE_ReadScript", &packet);
+		}
 
+		static void UPDATE_ReadScript_static(inherited* ptr, NET_Packet* packet)
+		{
+			ptr->self_type::inherited::UPDATE_ReadScript(*packet);
+		}
+
+		virtual void UPDATE_WriteScript(NET_Packet& packet)
+		{
+			call<void>("UPDATE_WriteScript", &packet);
+		}
+
+		static void UPDATE_WriteScript_static(inherited* ptr, NET_Packet* packet)
+		{
+			ptr->self_type::inherited::UPDATE_WriteScript(*packet);
+		}
+		 */
 };
 
 #pragma optimize("s",on)
@@ -115,6 +135,10 @@ void CSE_Abstract::script_register(lua_State *L)
 			.def			("STATE_Write",		&BaseType::STATE_Write, &WrapType::STATE_Write_static)
 			.def			("UPDATE_Read",		&BaseType::UPDATE_Read, &WrapType::UPDATE_Read_static)
 			.def			("UPDATE_Write",	&BaseType::UPDATE_Write, &WrapType::UPDATE_Write_static)
+
+			//.def			("UPDATE_ReadScript", &BaseType::UPDATE_ReadScript, &WrapType::UPDATE_ReadScript_static)
+			//.def			("UPDATE_WriteScript", &BaseType::UPDATE_WriteScript, &WrapType::UPDATE_WriteScript_static)
+
 //			.def(		constructor<LPCSTR>())
 	];
 }

@@ -116,7 +116,8 @@ CScriptThread::~CScriptThread()
 #ifdef DEBUG
 	Msg						("* Destroying script thread %s",*m_script_name);
 #endif
-	try {
+	try 
+	{
 #if defined(USE_DEBUGGER) && defined(USE_LUA_STUDIO)
 		if (ai().script_engine().debugger())
 			ai().script_engine().debugger()->remove	( m_virtual_machine );
@@ -125,7 +126,9 @@ CScriptThread::~CScriptThread()
 		luaL_unref			(ai().script_engine().lua(),LUA_REGISTRYINDEX,m_thread_reference);
 #endif
 	}
-	catch(...) {
+	catch(...)
+	{
+
 	}
 }
 
@@ -134,23 +137,28 @@ bool CScriptThread::update()
 	if (!m_active)
 		R_ASSERT2		(false,"Cannot resume dead Lua thread!");
 
-	try {
+	try
+	{
 		ai().script_engine().current_thread	(this);
 		
 		int					l_iErrorCode = lua_resume(lua(),0);
 		
-		if (l_iErrorCode && (l_iErrorCode != LUA_YIELD)) {
+		if (l_iErrorCode && (l_iErrorCode != LUA_YIELD)) 
+		{
 			ai().script_engine().print_output	(lua(),*script_name(),l_iErrorCode);
 			ai().script_engine().on_error		(ai().script_engine().lua());
-#ifdef DEBUG
+ 
 			print_stack		(lua());
-#endif
+ 
 			m_active		= false;
 		}
-		else {
-			if (l_iErrorCode != LUA_YIELD) {
+		else
+		{
+			if (l_iErrorCode != LUA_YIELD) 
+			{
 #ifdef DEBUG
-				if (m_current_stack_level) {
+				if (m_current_stack_level)
+				{
 					ai().script_engine().print_output	(lua(),*script_name(),l_iErrorCode);
 					ai().script_engine().on_error		(ai().script_engine().lua());
 //					print_stack		(lua());
@@ -161,7 +169,8 @@ bool CScriptThread::update()
 				ai().script_engine().script_log	(ScriptStorage::eLuaMessageTypeInfo,"Script %s is finished!",*m_script_name);
 #endif // DEBUG
 			}
-			else {
+			else
+			{
 				VERIFY2		(!lua_gettop(lua()),"Do not pass any value to coroutine.yield()!");
 			}
 		}

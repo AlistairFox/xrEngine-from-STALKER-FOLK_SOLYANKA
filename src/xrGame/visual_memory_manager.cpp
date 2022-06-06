@@ -35,7 +35,8 @@
 
 void SetActorVisibility(u16 who, float value);
 
-struct SRemoveOfflinePredicate {
+struct SRemoveOfflinePredicate 
+{
 	bool		operator()						(const CVisibleObject &object) const
 	{
 		VERIFY	(object.m_object);
@@ -44,8 +45,15 @@ struct SRemoveOfflinePredicate {
 	
 	bool		operator()						(const CNotYetVisibleObject &object) const
 	{
-		VERIFY	(object.m_object);
-		return	(!!object.m_object->getDestroy() || object.m_object->H_Parent());
+		try
+		{
+			return	(!!object.m_object->getDestroy() || object.m_object->H_Parent());
+		}
+		catch(...)
+		{
+			Msg("Object FOR REMOVE NOT FIND [%s]", object.m_object ? "true" : "false");
+			return true;
+		}
 	}
 };
 
@@ -59,7 +67,17 @@ struct CVisibleObjectPredicate {
 	bool		operator()						(const CObject *object) const
 	{
 		VERIFY	(object);
-		return	(object->ID() == m_id);
+	
+		try 
+		{
+			return	(object->ID() == m_id);
+		}
+		catch (...)
+		{
+			Msg("Object NOT FIND [%s]", object ? "true" : "false");
+			return false;
+		}
+		
 	}
 };
 
@@ -71,9 +89,16 @@ struct CNotYetVisibleObjectPredicate{
 		m_game_object	= game_object;
 	}
 
-	IC		bool	operator()	(const CNotYetVisibleObject &object) const
+	IC		bool	operator()	(const CNotYetVisibleObject& object) const
 	{
-		return		(object.m_object->ID() == m_game_object->ID());
+		try {
+			return		(object.m_object->ID() == m_game_object->ID());
+		}
+		catch (...)
+		{
+			Msg("Object NOT YET VISIBLE FIND [%s]", object.m_object ? "true" : "false");
+			return true;
+		}
 	}
 };
 

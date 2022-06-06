@@ -20,6 +20,8 @@ public:
 	virtual void						shedule_Update		(u32 dt);
 	virtual	shared_str					shedule_Name		() const	{ return shared_str("screenshot_manager"); };
 	virtual bool						shedule_Needed		()			{ return true; };
+	virtual	shared_str					shedule_clsid()    { return shared_str("screenshot_manager"); };
+
 			void						make_screenshot		(complete_callback_t cb);
 			void						set_draw_downloads	(bool draw);
 			void	__stdcall			jpeg_compress_cb	(long progress);

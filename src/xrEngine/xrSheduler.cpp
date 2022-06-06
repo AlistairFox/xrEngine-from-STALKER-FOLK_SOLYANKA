@@ -90,7 +90,7 @@ void mtShedulerWorker(void* pSheduler, vec_items& items)
   
 	mt_shedule_end = true;
 }
-
+   /*
 #include <thread>
 
 void mtShedulerThread(void* pSheduler)
@@ -123,12 +123,12 @@ void mtShedulerThread(void* pSheduler)
 			items_to_thread.clear();
 		}
 	}
-	*/
+	*
  
 
 
 }
-
+*/
 
 //-------------------------------------------------------------------------------------
 void CSheduler::Initialize		()
@@ -422,6 +422,32 @@ extern u32 shedule_time_ms;
 
 u32 oldTimeUpdate;
 
+struct time_data
+{
+	shared_str object_name;
+	u64 ticks;
+};
+
+typedef time_data TDATA;
+
+IC bool time_sort(TDATA E1, TDATA E2)
+{
+	return E1.ticks > E2.ticks;
+};
+
+
+IC bool time_find(TDATA E1, LPCSTR name)
+{
+	return E1.object_name == name;
+};
+
+
+xr_vector <TDATA> timer_data;
+xr_map<shared_str, u64> timer_table;
+xr_map<shared_str, u64> timer_rt;
+
+bool enabled_print_shedule = true;
+
 void CSheduler::ProcessStep			()
 {
 	// Normal priority
@@ -429,10 +455,12 @@ void CSheduler::ProcessStep			()
 	CTimer							eTimer;
 	
 	eTimer.Start();
-		
-	/*
-	if (Device.dwTimeGlobal - oldTimeUpdate > 1000)
+	
+
+	 
+	if (Device.dwTimeGlobal - oldTimeUpdate > 1000 && enabled_print_shedule)
 	{
+		/*
 		for (auto Item : Items)
 		{
 			if (!Item.Object)
@@ -448,11 +476,49 @@ void CSheduler::ProcessStep			()
 				Item.dwTimeForExecute = Device.dwTimeGlobal;
 			}
 		}
+		*/
+		/*
+		for (auto timer : timer_table)
+		{
+			TDATA data;
+			data.object_name = timer.first;
+			data.ticks = timer.second;
+			timer_data.push_back(data);
+		}
+
+		std::sort(timer_data.begin(), timer_data.end(), time_sort);
+ 
+	 	
+		Msg("SHEDULE OBJECTS START");
+		for (auto item : timer_data)
+		{
+			u16 time_count = u16( item.ticks * u64(1000) / CPU::qpc_freq ) ;
+			u64 time_ticks = item.ticks;
+
+			string32 time_t = {0}, time_c = { 0 };
+			itoa(time_ticks, time_t, 10);
+			itoa(time_count, time_c, 10);
+
+
+			Msg("Sheduled %s, time_ticks: %s, time_ms: %s", item.object_name.c_str(), time_t, time_c);
+ 		}
+		Msg("SHEDULE OBJECTS END");
+ 		
+	
+		for (auto t : timer_rt)
+		{
+			Msg("TOTAL [%s], time [%d]", t.first.c_str(), t.second);
+		}
+		*/
+
+		timer_table.clear();
+		timer_data.clear_and_free();
+		timer_rt.clear();
 
 		oldTimeUpdate = Device.dwTimeGlobal;
 	} 
-	*/
- 
+	 
+
 
 	for (int i=0;!Items.empty() && Top().dwTimeForExecute < dwTime; ++i)
 	{
@@ -492,9 +558,16 @@ void CSheduler::ProcessStep			()
 		//Msg("DW [%s] TIME [%u] old[%u]", T.Object->shedule_Name().c_str(), dwUpdate, Elapsed);
 
 		m_current_step_obj = T.Object;
- 
+		
+		//CTimer time2; time2.Start();
+
 		T.Object->shedule_Update(clampr(Elapsed, u32(1), u32(_max(u32(T.Object->shedule.t_max), u32(1000)))));
-	 
+
+		//Msg("Shedule %s, time %d", T.Object->shedule_Name().c_str(), time2.GetElapsed_ticks());
+
+		// timer_table[T.Object->shedule_Name()] += time2.GetElapsed_ticks();
+		 
+
 
 		if (!m_current_step_obj)
 		{
@@ -524,8 +597,7 @@ void CSheduler::ProcessStep			()
 	}
 
 	shedule_time_ms += eTimer.GetElapsed_ms();
-
-
+  
 
 	// Push "processed" back
 	while (ItemsProcessed.size())
@@ -555,7 +627,7 @@ void CSheduler::Update				()
 {
 	R_ASSERT						(Device.Statistic);
 	// Initialize
-	Device.Statistic->Sheduler.Begin();
+	
 	cycles_start					= CPU::QPC			();
 	cycles_limit					= CPU::qpc_freq * u64 (iCeil(psShedulerCurrent)) / 1000i64 + cycles_start;
 	internal_Registration			();
@@ -567,6 +639,7 @@ void CSheduler::Update				()
 	// Realtime priority
 	m_processing_now				= true;
 	u32	dwTime						= Device.dwTimeGlobal;
+	Device.Statistic->Sheduler.Begin();
 	for (u32 it=0; it<ItemsRT.size(); it++)
 	{
 		Item&	T					= ItemsRT[it];
@@ -588,14 +661,18 @@ void CSheduler::Update				()
 		VERIFY						(T.Object->dbg_startframe != Device.dwFrame);
 		T.Object->dbg_startframe	= Device.dwFrame;
 #endif
+		//CTimer time; time.Start();
 		T.Object->shedule_Update	(Elapsed);
+		//Msg("Name[%s], CLSID[%s] time[%d]", T.Object->shedule_Name().c_str(), T.Object->shedule_clsid().c_str(), time.GetElapsed_ticks() );
+		//timer_rt[T.Object->shedule_Name()] += time.GetElapsed_ticks();
 		T.dwTimeOfLastExecute		= dwTime;
 	}
-
+	Device.Statistic->Sheduler.End();
 	// Normal (sheduled)
 	
- 
+	Device.Statistic->ShedulerProcessStep.Begin();
 	ProcessStep						();
+	Device.Statistic->ShedulerProcessStep.End();
  
 
 
@@ -612,5 +689,5 @@ void CSheduler::Update				()
 	// Finalize
 	g_bSheduleInProgress			= FALSE;
 	internal_Registration			();
-	Device.Statistic->Sheduler.End	();
+
 }

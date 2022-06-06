@@ -100,8 +100,10 @@ void _give_news	(LPCSTR caption, LPCSTR text, LPCSTR texture_name, int delay, in
 	news_data.m_type			= (GAME_NEWS_DATA::eNewsType)type;
 	news_data.news_caption		= caption;
 	news_data.news_text			= text;
-	if(show_time!=0)
-		news_data.show_time		= show_time;// override default
+	if (show_time != 0)
+		news_data.show_time = show_time;// override default
+	else
+		news_data.show_time = 5000;
 
 	VERIFY(xr_strlen(texture_name)>0);
 

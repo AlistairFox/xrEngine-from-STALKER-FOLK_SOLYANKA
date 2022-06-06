@@ -20,9 +20,12 @@
 #include "game_news.h"
 #include "ui/UIMessagesWindow.h"
 #include "ui/UITalkWnd.h"
-
+ 
 game_cl_freemp::game_cl_freemp()
 {
+	l_events = xr_new<level_events>();
+
+
 	LPCSTR sec_name = "freemp_team_indicator";
 	Indicator_render1 = pSettings->r_float(sec_name, "indicator_1");
 	Indicator_render2 = pSettings->r_float(sec_name, "indicator_2");
@@ -54,15 +57,16 @@ game_cl_freemp::game_cl_freemp()
 
 game_cl_freemp::~game_cl_freemp()
 {
+	xr_delete(l_events);
 	xr_delete(m_pVoiceChat);
 	alife_objects_synchronized = false;		 
  	
 	for (auto obj : alife_objects)
 	{
-		Msg("Remove OBJ ALIFE [%d]", obj.first);
-		//delete(alife_objects[obj.first]);
-		alife_objects[obj.first] = 0;
+ 		alife_objects[obj.first] = 0;
 	}
+
+	Level().event_functors.clear_and_free();
 }
 
 CUIGameCustom* game_cl_freemp::createGameUI()
@@ -110,7 +114,7 @@ void game_cl_freemp::shedule_Update(u32 dt)
 
 	if (!local_player)
 		return;
-
+	
 	if (!g_dedicated_server && m_pVoiceChat)
 	{
 		const bool started = m_pVoiceChat->IsStarted();
@@ -187,6 +191,11 @@ void game_cl_freemp::shedule_Update(u32 dt)
 
 		//Msg("Rank %d, Current %d", ps->rank, pActor->Rank());
 	}	
+}
+
+float game_cl_freemp::shedule_Scale()
+{
+	return 1.0f;
 }
 
 bool game_cl_freemp::OnKeyboardPress(int key)
@@ -302,40 +311,7 @@ void game_cl_freemp::OnConnected()
 	if (m_game_ui)
 		Game().OnScreenResolutionChanged();
 }
-
-bool game_cl_freemp::OnConnectedSpawnPlayer()
-{
-	bool b_need_to_send_ready = false;
-
-	CObject* curr = Level().CurrentControlEntity();
-
-	if (!curr) 
-		return false;
-
-	bool is_actor = !!smart_cast<CActor*>(curr);
-	bool is_spectator = !!smart_cast<CSpectator*>(curr);
-
-	game_PlayerState* ps = local_player;
-
-	if (is_spectator || (is_actor && ps && ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD)))
-	{
-		b_need_to_send_ready = true;
-	}
-
-	if (b_need_to_send_ready)
-	{
-		CGameObject* GO = smart_cast<CGameObject*>(curr);
-		NET_Packet			P;
-		GO->u_EventGen(P, GE_GAME_EVENT, GO->ID());
-		P.w_u16(GAME_EVENT_PLAYER_READY);
-		GO->u_EventSend(P);
-
-		return true;
- 	}
-}
-
-
-
+	
 void game_cl_freemp::TranslateGameMessage(u32 msg, NET_Packet& P)
 {
 	switch (msg)

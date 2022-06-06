@@ -625,8 +625,11 @@ BOOL CActor::net_Spawn		(CSE_Abstract* DC)
 	NET_WasInterpolating	= TRUE;
 
 	setEnabled				(E->s_flags.is(M_SPAWN_OBJECT_LOCAL));
-
-	Engine.Sheduler.Register	(this,TRUE);
+	
+	if (Local())
+		Engine.Sheduler.Register(this, TRUE);
+	else 
+		Engine.Sheduler.Register(this, FALSE);
 
 	if (!IsGameTypeSingle())
 	{

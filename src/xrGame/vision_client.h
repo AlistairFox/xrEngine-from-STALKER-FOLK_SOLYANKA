@@ -47,6 +47,7 @@ public:
 	virtual void					shedule_Update			(u32 dt);
 	virtual	shared_str				shedule_Name			() const;
 	virtual bool					shedule_Needed			();
+	virtual shared_str				shedule_clsid() { return "vision_client"; };
 
 public:
 	virtual	float					feel_vision_mtl_transp	(CObject *object, u32 element);

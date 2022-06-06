@@ -27,7 +27,8 @@ public:
 	virtual void						shedule_Update		(u32 dt);
 	virtual	shared_str					shedule_Name		() const	{ return shared_str("unknown"); };
 	virtual bool						shedule_Needed		()			= 0;
-
-};
+	virtual shared_str					shedule_Sec			() const	{ return shared_str("unknown sec"); }
+	virtual shared_str					shedule_clsid()		 = 0;
+ };
 
 #endif // #ifndef XRENGINE_ISHEDULED_H_INCLUDED

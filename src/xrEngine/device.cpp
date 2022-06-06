@@ -242,10 +242,10 @@ void CRenderDevice::on_idle		()
 #ifdef DEDICATED_SERVER
 	u32 FrameStartTime = TimerGlobal.GetElapsed_ms();
 #endif
-	//if (psDeviceFlags.test(rsStatistic))
+	if (psDeviceFlags.test(rsCameraPos) || psDeviceFlags.test(rsStatistic) || psDeviceFlags.test(rsProfiler))
 		g_bEnableStatGather	= TRUE;
-	//else									
-	//	g_bEnableStatGather	= FALSE;
+	else									
+		g_bEnableStatGather	= FALSE;
 
 
 	if(g_loading_events.size())
@@ -301,8 +301,7 @@ void CRenderDevice::on_idle		()
 		if (Begin())				{
 
 			seqRender.Process						(rp_Render);
-			if (psDeviceFlags.test(rsCameraPos) || psDeviceFlags.test(rsStatistic)
-				|| Statistic->errors.size() || psDeviceFlags.test(rsProfiler))	
+			if (psDeviceFlags.test(rsCameraPos) || psDeviceFlags.test(rsStatistic) || psDeviceFlags.test(rsProfiler) || Statistic->errors.size())
 				Statistic->Show						();
 			//	TEST!!!
 			//Statistic->RenderTOTAL_Real.End			();

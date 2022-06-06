@@ -81,11 +81,13 @@ public:
 	{
 		in_process = true;
     	if (R.empty()) return;
-		if (R[0].Prio==REG_PRIORITY_CAPTURE)	f(R[0].Object);
-		else {
+		if (R[0].Prio==REG_PRIORITY_CAPTURE)	
+			f(R[0].Object);
+		else
+		{
 			for (u32 i=0; i<R.size(); i++)
-				if(R[i].Prio!=REG_PRIORITY_INVALID)
-					f(R[i].Object);
+			if(R[i].Prio!=REG_PRIORITY_INVALID)
+				f(R[i].Object);
 
 		}
 		if(changed)	Resort();

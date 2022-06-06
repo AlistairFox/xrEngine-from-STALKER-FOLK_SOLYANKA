@@ -199,40 +199,20 @@ void CAI_Stalker::net_Import(NET_Packet& P)
  		state.state_read(P);	
  
 		SetfHealth(state.u_health);
-		inventory().SetActiveSlot(state.u_active_slot);
-		PIItem item = inventory().ItemFromSlot(state.u_active_slot);
 		
-		if (!item)
+		PIItem item = inventory().ItemFromSlot(state.u_active_slot);
+		 
+		if ( item && item->object_id() != state.u_active_item || !item)
 		{
-			//if (item->object_id() != state.u_active_item)
-			/*
+			CObject* obj = Level().Objects.net_Find(state.u_active_item);
+			CInventoryItem* itemINV = smart_cast<CInventoryItem*>(obj);
+			if (itemINV && itemINV->parent_id() == this->ID())
 			{
-				CObject* obj = Level().Objects.net_Find(state.u_active_item);
-				CInventoryItem* itemINV = smart_cast<CInventoryItem*>(obj);
-				if (itemINV)
-				{
-					inventory().Slot(state.u_active_slot, itemINV);
-					
-					Msg("[DOT HAVE ITEM] Move Item To Slot [%d] , Item[%d], OLDITEM[%d], PAR[%d], this[%d]", state.u_active_slot, state.u_active_item, item->object_id(), item->parent_id(), this->ID());
-				
-				}
-			}
-			*/
-		}
-		else
-		{
-			if (item->object_id() != state.u_active_item)
-			{
-				CObject* obj = Level().Objects.net_Find(state.u_active_item);
-				CInventoryItem* itemINV = smart_cast<CInventoryItem*>(obj);
-				if (itemINV)
-				{
-					inventory().Slot(state.u_active_slot, itemINV, true, true);
-					//Msg("Move Item To Slot [%d] , Item[%d], OLDITEM[%d], PAR[%d], this[%d]", state.u_active_slot, state.u_active_item, item->object_id(), item->parent_id(), this->ID());
-
-				}
+				inventory().Slot(state.u_active_slot, itemINV, true, true);
 			}
 		}
+		
+		inventory().SetActiveSlot(state.u_active_slot);
 
 		SRotation Torso, Head;
 		Torso.yaw = state.u_body_yaw;

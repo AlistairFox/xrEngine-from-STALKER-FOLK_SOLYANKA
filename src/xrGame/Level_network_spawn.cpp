@@ -38,60 +38,6 @@ void CLevel::cl_Process_Spawn(NET_Packet& P)
 //-------------------------------------------------
 	//force object to be local for server client
 
-  /*
-	if (!writerCFGs)
-	{	
-		string_path file_path;
-		if (FS.path_exist("$dump_mp_spawn_ini$"))
-			FS.update_path(file_path, "$dump_mp_spawn_ini$", "sections.ltx");
-
-		writerCFGs = FS.w_open(file_path);
-	}
-  */
-	
-	string_path file_path;
-	if (FS.path_exist("$dump_mp_spawn_ini$"))
-		FS.update_path(file_path, "$dump_mp_spawn_ini$", "sections.ltx");
-
-	if (!fileIni)
-	{
-		fileIni = xr_new<CInifile>(file_path, false, false);
-	}
-
-	if (fileIni)
-	{  
-		//Msg("write to file %s", writerCFGs->fName.c_str());
-		for (auto sec : E->spawn_ini().sections())
-		{
-			for (auto line : sec->Data)
-			{
-				if (!xr_strcmp(line.first, "cfg"))
-				{
-					fileIni->w_string(E->s_name.c_str(), E->name_replace(), line.second.c_str());
-				}
-			}
-		}
-	}
-
-	if (fileIni)
-		fileIni->save_as(file_path);
-
-/*
-	string_path file_path;
-	if (FS.path_exist("$dump_mp_spawn_ini$"))
-		FS.update_path(file_path, "$dump_mp_spawn_ini$", E->name_replace());
- 
-	for (auto sec : E->spawn_ini().sections())
-	{
-		for (auto line : sec->Data)
-		{
-			if (!xr_strcmp(line.first, "cfg"))
-			{
-  				E->spawn_ini().save_as(file_path);
- 			}
-		}
-	}
-*/
 	if (OnServer())		
 	{
 		E->s_flags.set(M_SPAWN_OBJECT_LOCAL, TRUE);
@@ -101,9 +47,10 @@ void CLevel::cl_Process_Spawn(NET_Packet& P)
 	game_spawn_queue.push_back(E);
 	if (g_bDebugEvents)		ProcessGameSpawns();
 	*/
-
+	//CTimer timer; timer.Start();
 	g_sv_Spawn					(E);
-
+	//Msg("Elapsed Spawn [%d]", timer.GetElapsed_ticks());
+	//Msg("Name[%s]", s_name.c_str());
 	F_entity_Destroy			(E);
 
 };
@@ -153,7 +100,7 @@ void CLevel::g_sv_Spawn		(CSE_Abstract* E)
 	}
 #endif // DEBUG_MEMORY_MANAGER
 	//-----------------------------------------------------------------
-//	CTimer		T(false);
+	CTimer		Timer;
 
 #ifdef DEBUG
 //	Msg					("* CLIENT: Spawn: %s, ID=%d", *E->s_name, E->ID);
@@ -163,12 +110,16 @@ void CLevel::g_sv_Spawn		(CSE_Abstract* E)
 	if	(GameID()	== eGameIDSingle)		psNET_Flags.set	(NETFLAG_MINIMIZEUPDATES,TRUE);
 	else								psNET_Flags.set	(NETFLAG_MINIMIZEUPDATES,FALSE);
 
+	u64 CPU_QPS = (CPU::qpc_freq / 1000);
+	
 	// Client spawn
-//	T.Start		();
+	Timer.Start		();
 	CObject*	O		= Objects.Create	(*E->s_name);
-	// Msg				("--spawn--CREATE: %f ms",1000.f*T.GetAsync());
+	
+	if (Timer.GetElapsed_ms() > 0)
+	Msg				("--spawn--CREATE: %d ms, name %s", Timer.GetElapsed_ms(), E->name_replace());
 
-//	T.Start		();
+ 	Timer.Start();
 	#ifdef DEBUG_MEMORY_MANAGER
 		mem_alloc_gather_stats		(false);
 	#endif // DEBUG_MEMORY_MANAGER
@@ -192,7 +143,11 @@ void CLevel::g_sv_Spawn		(CSE_Abstract* E)
 		if(!g_dedicated_server)
 			client_spawn_manager().callback(O);
 		
-		//Msg			("--spawn--SPAWN: %f ms",1000.f*T.GetAsync());
+		if (Timer.GetElapsed_ms() > 0)
+		Msg("--spawn--SPAWN: %d ms, name %s", Timer.GetElapsed_ms(), E->name_replace());
+
+		Msg("lua script %d", (ai().script_engine().lua()) );
+ 
 		
 		if ((E->s_flags.is(M_SPAWN_OBJECT_LOCAL)) && (E->s_flags.is(M_SPAWN_OBJECT_ASPLAYER)) )	
 		{
@@ -253,9 +208,10 @@ void CLevel::g_sv_Spawn		(CSE_Abstract* E)
 	Game().OnSpawn				(O);
 	//---------------------------------------------------------
 #ifdef DEBUG_MEMORY_MANAGER
-	if (g_bMEMO) {
-		lua_gc					(ai().script_engine().lua(),LUA_GCCOLLECT,0);
-		lua_gc					(ai().script_engine().lua(),LUA_GCCOLLECT,0);
+	if (g_bMEMO)
+	{
+		lua_gc					(ai().script_engine().lua(), LUA_GCCOLLECT, 0);
+		lua_gc					(ai().script_engine().lua(), LUA_GCCOLLECT, 0);
 		Msg						("* %20s : %d bytes, %d ops", *E->s_name,Memory.mem_usage()-E_mem, Memory.stat_calls );
 	}
 #endif // DEBUG_MEMORY_MANAGER

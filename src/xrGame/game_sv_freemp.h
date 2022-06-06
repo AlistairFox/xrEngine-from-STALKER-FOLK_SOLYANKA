@@ -29,7 +29,8 @@ class game_sv_freemp : public game_sv_mp, private pure_relcase
 	SpawnSect spawned_items;
 	bool loaded_inventory = false;
 	bool loaded_gametime = false;
-
+	u32 last_alife_update_time = 0;
+	u32 last_alife_update_time_pos = 0;
 
 	xr_map<ClientID, u32> map_alife_sended;
 
@@ -122,8 +123,17 @@ public:
 	virtual		float				GetEnvironmentGameTimeFactor();
 	virtual		void				SetEnvironmentGameTimeFactor(const float fTimeFactor);
 
+	struct update_data 
+	{
+		Fvector3 pos; 
+		u32 time;
+	};
+
+	xr_map<u16, update_data> old_export_pos;
+
 	virtual		void				WriteAlifeObjectsToClient(ClientID id);
 	virtual		void				UpdateAlifeObjects();
+	virtual		void				UpdateAlifeObjectsPOS();
 
 	virtual		void				RegisterUpdateAlife(CSE_ALifeDynamicObject* object, bool reg);
  

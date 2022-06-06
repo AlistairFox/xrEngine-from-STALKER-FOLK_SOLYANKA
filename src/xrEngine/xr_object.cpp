@@ -322,7 +322,7 @@ void	CObject::spatial_update		(float eps_P, float eps_R)
 // Updates
 void CObject::UpdateCL			()
 {
-	// consistency check
+ 	// consistency check
 #ifdef DEBUG
 	VERIFY2								(_valid(renderable.xform),*cName());
 

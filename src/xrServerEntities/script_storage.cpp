@@ -405,17 +405,11 @@ int CScriptStorage::vscript_log		(ScriptStorage::ELuaMessageType tLuaMessageType
 #endif // #ifdef PRINT_CALL_STACK
 }
 
-extern int PRINT_STACK = 0;
-
 #ifdef PRINT_CALL_STACK
 void CScriptStorage::print_stack		()
 {
- 
 	if (!m_stack_is_ready)
 		return;
-
-	if (!PRINT_STACK)
-		return;	
 
 	Msg("Print Stack:");
 
@@ -455,6 +449,9 @@ void CScriptStorage::static_print_stack(lua_State *state)
 
 	lua_State* L = state;
 	lua_Debug				l_tDebugInfo;
+	
+	if (!state)
+		Msg("Lua State NULL");
 
 	for (int i = 0; lua_getstack(L, i, &l_tDebugInfo); ++i)
 	{
@@ -610,7 +607,8 @@ bool CScriptStorage::do_file	(LPCSTR caScriptName, LPCSTR caNameSpaceName)
 	int				start = lua_gettop(lua());
 	string_path		l_caLuaFileName;
 	IReader			*l_tpFileReader = FS.r_open(caScriptName);
-	if (!l_tpFileReader) {
+	if (!l_tpFileReader) 
+	{
 		script_log	(ScriptStorage::eLuaMessageTypeError,"Cannot open file \"%s\"",caScriptName);
 		return		(false);
 	}
@@ -633,6 +631,7 @@ bool CScriptStorage::do_file	(LPCSTR caScriptName, LPCSTR caNameSpaceName)
 			errFuncId = ai().script_engine().debugger()->PrepareLua(lua());
 #	endif // #ifndef USE_LUA_STUDIO
 #endif // #ifdef USE_DEBUGGER
+	
 	if (0)	//.
 	{
 	    for (int i=0; lua_type(lua(), -i-1); i++)
@@ -812,7 +811,7 @@ bool CScriptStorage::print_output(lua_State *L, LPCSTR caScriptFileName, int iEr
 
 	LPCSTR				S = "see call_stack for details!";
 	
-	Msg("See call_stack for details!");
+	Msg("See call_stack for details! file[%s]", caScriptFileName);
 
 	//static_print_stack(L);
 

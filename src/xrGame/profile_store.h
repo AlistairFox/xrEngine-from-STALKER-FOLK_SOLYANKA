@@ -36,6 +36,7 @@ public:
 
 	virtual void			shedule_Update	(u32 dt);
 	virtual	shared_str		shedule_Name	() const	{ return shared_str("gamespy_sake_updator"); };
+	virtual	shared_str		shedule_clsid() { return shared_str("gamespy_sake_updator"); };
 	virtual bool			shedule_Needed	()			{ return true; };
 	virtual float			shedule_Scale	()			{ return 1.0f; };
 	

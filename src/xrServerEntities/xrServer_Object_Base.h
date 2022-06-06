@@ -123,6 +123,10 @@ public:
 	virtual void		__stdcall	Spawn_Write				(NET_Packet &tNetPacket, BOOL bLocal);
 	virtual BOOL		__stdcall	Spawn_Read				(NET_Packet &tNetPacket);
 
+	virtual void		UPDATE_WriteScript(NET_Packet &packet) {};
+	virtual void		UPDATE_ReadScript(NET_Packet &packet) {};
+	virtual void		update_CL() {};
+
 	virtual void		__stdcall	Spawn_WriteNoBeginPacket(NET_Packet& tNetPacket, BOOL bLocal);
 	virtual BOOL		__stdcall	Spawn_ReadNoBeginPacket(NET_Packet& tNetPacket);
 

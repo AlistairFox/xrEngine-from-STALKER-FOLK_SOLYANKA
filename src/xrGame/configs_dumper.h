@@ -35,6 +35,7 @@ public:
 	virtual void			shedule_Update		(u32 dt);
 	virtual	shared_str		shedule_Name		() const	{ return shared_str("configs_dumper"); };
 	virtual bool			shedule_Needed		()			{ return true; };
+	virtual	shared_str		shedule_clsid()  { return shared_str("configs_dumper"); };
 
 	void					dump_config			(complete_callback_t complete_cb);
 private:

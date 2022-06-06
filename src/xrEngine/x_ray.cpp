@@ -369,10 +369,10 @@ void Startup()
 	}
 
 	// Initialize APP
-//#ifndef DEDICATED_SERVER
+ 
 	ShowWindow( Device.m_hWnd , SW_SHOWNORMAL );
 	Device.Create				( );
-//#endif
+ 
 	LALib.OnCreate				( );
 	pApp						= xr_new<CApplication>	();
 	g_pGamePersistent			= (IGame_Persistent*)	NEW_INSTANCE (CLSID_GAME_PERSISTANT);

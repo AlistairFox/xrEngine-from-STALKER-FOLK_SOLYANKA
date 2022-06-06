@@ -166,18 +166,20 @@ void CScriptEngine::unload				()
 }
 
 int CScriptEngine::lua_panic			(lua_State *L)
-{
+{  
+	Msg("lua_panic");
 	print_output	(L,"PANIC",LUA_ERRRUN);
 	return			(0);
 }
 
 void CScriptEngine::lua_error			(lua_State *L)
 {
+	Msg("lua_error");
 	print_output			(L,"",LUA_ERRRUN);
 	ai().script_engine().on_error	(L);
 
 #if !XRAY_EXCEPTIONS
-	Debug.fatal				(DEBUG_INFO,"LUA error: %s",lua_tostring(L,-1));
+	Debug.fatal				(DEBUG_INFO,"LUA error: %s", lua_tostring(L,-1));
 #else
 	throw					lua_tostring(L,-1);
 #endif
@@ -185,11 +187,12 @@ void CScriptEngine::lua_error			(lua_State *L)
 
 int  CScriptEngine::lua_pcall_failed	(lua_State *L)
 {
+	Msg("lua_pcall_failed");
 	print_output			(L,"",LUA_ERRRUN);
 	ai().script_engine().on_error	(L);
 
 #if !XRAY_EXCEPTIONS
-	Debug.fatal				(DEBUG_INFO,"LUA error: %s",lua_isstring(L,-1) ? lua_tostring(L,-1) : "");
+	Debug.fatal				(DEBUG_INFO,"LUA error: %s", lua_isstring(L,-1) ? lua_tostring(L,-1) : "");
 #endif
 	if (lua_isstring(L,-1))
 		lua_pop				(L,1);
@@ -198,6 +201,7 @@ int  CScriptEngine::lua_pcall_failed	(lua_State *L)
 
 void lua_cast_failed					(lua_State *L, LUABIND_TYPE_INFO info)
 {
+	Msg("lua_cast_failed");
 	CScriptEngine::print_output	(L,"",LUA_ERRRUN);
 
 	Debug.fatal				(DEBUG_INFO,"LUA error: cannot cast lua value to %s",info->name());
@@ -301,17 +305,9 @@ void CScriptEngine::init				()
  
 	m_stack_is_ready					= true;
  
-#ifndef USE_LUA_STUDIO
-#	ifdef DEBUG
-#		if defined(USE_DEBUGGER) && !defined(USE_LUA_STUDIO)
-			if( !debugger() || !debugger()->Active()  )
-#		endif // #if defined(USE_DEBUGGER) && !defined(USE_LUA_STUDIO)
-				lua_sethook					(lua(),lua_hook_call,	LUA_MASKLINE|LUA_MASKCALL|LUA_MASKRET,	0);
-#	endif // #ifdef DEBUG
-#endif // #ifndef USE_LUA_STUDIO
-
-	lua_sethook							(lua(), lua_hook_call,	LUA_MASKLINE|LUA_MASKCALL|LUA_MASKRET,	0);
-
+	if( !debugger() || !debugger()->Active()  )
+ 		lua_sethook					(lua(),lua_hook_call,	LUA_MASKLINE|LUA_MASKCALL|LUA_MASKRET,	0);
+  
 	bool								save = m_reload_modules;
 	m_reload_modules					= true;
 	process_file_if_exists				("_G",false);

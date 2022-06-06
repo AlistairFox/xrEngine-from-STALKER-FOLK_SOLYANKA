@@ -1723,7 +1723,9 @@ public:
 		if (freemp)
 		{
 			freemp->ChangeGameTime(0, hours, mins);
+			GamePersistent().Environment().Invalidate();
 			need_update = true;
+
 		}
 
 
@@ -3128,7 +3130,7 @@ public:
 
 	virtual void Execute(LPCSTR args)
 	{
-		Msg("Weather[%s] W0[%s] W1[%s]", g_pGamePersistent->Environment().CurrentWeatherName.c_str(), g_pGamePersistent->Environment().Current[0]->m_identifier.c_str(), g_pGamePersistent->Environment().Current[1]->m_identifier.c_str());
+		Msg("Weather[%s] wfx[%5.0f] W0[%s] W1[%s]", g_pGamePersistent->Environment().CurrentWeatherName.c_str(), g_pGamePersistent->Environment().wfx_time, g_pGamePersistent->Environment().Current[0]->m_identifier.c_str(), g_pGamePersistent->Environment().Current[1]->m_identifier.c_str());
 	}
 };
 
@@ -3460,8 +3462,6 @@ public:
 		}
 	}
 };
-
-extern int PRINT_STACK;
 
 extern float Shedule_Scale_AI_Stalker = 0;
 extern int   Shedule_Radius_Players	  = 0;
@@ -3818,12 +3818,13 @@ public:
 	};
 };
 
+extern int enabled_particles;
 
 void register_mp_console_commands()
 {	
 	CMD1(CCC_weapon_set, "weapon_test");
 	CMD1(CCC_INIFILE_PARSER, "weapon_parser");
-
+	CMD4(CCC_Integer, "particle_sheduler", &enabled_particles, 0, 1);
 
 	CMD1(CCC_GIVETASK, "give_task");
 	CMD1(CCC_GIVEINFO, "give_info");
@@ -3861,8 +3862,7 @@ void register_mp_console_commands()
 	CMD4(CCC_Integer, "ai_shedule_dist", &Shedule_Radius_Players, 0, 100);
 	CMD4(CCC_Float, "shedule_objects", &Shedule_Scale_Objects, 0, 20);
 
-	CMD4(CCC_Integer, "call_stack", &PRINT_STACK, 0, 1);
-	CMD1(ÑÑÑ_CheckOutfitCFS, "outfit_path_check");
+ 	CMD1(ÑÑÑ_CheckOutfitCFS, "outfit_path_check");
 
 	CMD1(CCC_SPAWN_SLOT_ITEMS, "spawn_slot_items");
 	CMD1(CCC_SaveStalkers, "save_stalkers");

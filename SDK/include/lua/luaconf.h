@@ -475,7 +475,7 @@
 @* syntactical nested non-terminals in a program.
 */
 
-#define LUAI_MAXCCALLS		2000 //200
+#define LUAI_MAXCCALLS		8000 //200
 
 
 /*

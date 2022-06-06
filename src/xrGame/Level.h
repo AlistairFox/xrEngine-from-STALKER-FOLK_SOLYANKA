@@ -74,7 +74,7 @@ private:
 #endif
 protected:
 	typedef IGame_Level			inherited;
-	
+
 	CLevelSoundManager			*m_level_sound_manager;
 
 	// movement restriction manager
@@ -116,6 +116,9 @@ public:
 	// level debugger
 	CLevelDebug					*m_level_debug;
 #endif
+
+	//Se7kills Events UPDATE
+	xr_vector<shared_str>		event_functors;
 
 public:
 	////////////// network ////////////////////////

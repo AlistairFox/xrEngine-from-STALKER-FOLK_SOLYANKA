@@ -1524,9 +1524,9 @@ void xrServer::GetServerInfo( CServerInfo* si )
 		xr_strcat(tmp256, itoa(arts_cons, tmp, 10));
 		xr_strcat(tmp256, "]");
 
-		xr_strcat(tmp256, " pl[");
-		xr_strcat(tmp256, itoa(actors_cons, tmp, 10));
-		xr_strcat(tmp256, "]");
+		//xr_strcat(tmp256, " pl[");
+		//xr_strcat(tmp256, itoa(actors_cons, tmp, 10));
+		//xr_strcat(tmp256, "]");
 
 		xr_strcat(tmp256, " w[");
 		xr_strcat(tmp256, itoa(item_weapon_cons, tmp, 10));

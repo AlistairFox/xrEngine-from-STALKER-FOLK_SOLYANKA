@@ -698,35 +698,53 @@ int g_get_general_goodwill_between_MP(u16 to)
 	CHARACTER_GOODWILL presonal_goodwill = RELATION_REGISTRY().GetGoodwill(Game().local_player->GameID, to);
 	VERIFY(presonal_goodwill != NO_GOODWILL);
 
-	CSE_ALifeMonsterAbstract* to_obj;
-	CSE_ALifeTraderAbstract* trader_obj;
+ 	CSE_ALifeTraderAbstract* trader_obj;
 
 	game_cl_freemp* freemp = smart_cast<game_cl_freemp*>(&Game());
-
-	if (OnServer())
-	{
- 		to_obj = smart_cast<CSE_ALifeMonsterAbstract*>(ai().alife().objects().object(to));
-	}
-	else
+ 
 	if (freemp)
 	{
- 		to_obj = smart_cast<CSE_ALifeMonsterAbstract*>(freemp->alife_objects[to]);
-		trader_obj = smart_cast<CSE_ALifeTraderAbstract*>(freemp->alife_objects[to]);
+ 		trader_obj = smart_cast<CSE_ALifeTraderAbstract*>(freemp->alife_objects[to]);
 	}
 
-	if (!to_obj && !trader_obj)
+	if (!trader_obj)
 	{
 		//Msg("[LUA] !!!Error not find (%d)", to);
 		return 0;
 	}
-
-	if (to_obj && !trader_obj)
-		return -10000;
-
+ 
 	CHARACTER_GOODWILL community_to_obj_goodwill = RELATION_REGISTRY().GetCommunityGoodwill(Game().local_player->team, to);	
 	CHARACTER_GOODWILL community_to_community_goodwill = RELATION_REGISTRY().GetCommunityRelation(Game().local_player->team, trader_obj->Community());
 
 	return presonal_goodwill + community_to_obj_goodwill + community_to_community_goodwill;
+}
+
+int g_get_goodwil_community_MP(u8 team, u16 to)
+{
+	return RELATION_REGISTRY().GetCommunityGoodwill(team, to);
+}
+
+int g_get_goodwil_com_to_com_MP(u8 team1, u8 team2)
+{
+	return RELATION_REGISTRY().GetCommunityRelation(team1, team2);
+}
+
+int g_get_team_from_alife(u16 id)
+{
+	game_cl_freemp* freemp = smart_cast<game_cl_freemp*>(Level().game);
+
+	if (freemp)
+	{
+		CSE_ALifeHumanStalker* obj = smart_cast<CSE_ALifeHumanStalker*> (freemp->GetAlifeObject(id));
+		if (obj)
+			return obj->Community();
+	}
+	else
+	{
+		return -1;
+	}
+
+	 
 }
 
 
@@ -782,6 +800,12 @@ bool is_dedicated()
 void print_msg(LPCSTR str)
 {
 	Msg("[lua] %s", str);
+}
+
+
+void print_msg_clear(LPCSTR str)
+{
+	Msg("%s", str);
 }
 
 void print_msg_debug(LPCSTR str)
@@ -1061,6 +1085,82 @@ void send_news_item_drop(u16 gameid, LPCSTR name, int count)
 	}
 }
 
+LPCSTR get_level_name(u8 id)
+{	
+	return	ai().game_graph().header().level(id).name().c_str();
+}
+
+LPCSTR get_object_level(u16 obj_id)
+{
+	game_cl_freemp* freemp = smart_cast<game_cl_freemp*>(Level().game);
+
+	if (freemp)
+	{
+		CSE_ALifeDynamicObject* obj = freemp->GetAlifeObject(obj_id);
+		if (obj)
+		{
+
+			u8 id = ai().game_graph().vertex(obj->m_tGraphID)->level_id();
+ 			return ai().game_graph().header().level(id).name().c_str();
+		}
+		else
+			return "not find object";
+	}
+	else
+		return "only freemp gametype";
+}
+
+void register_event_update(LPCSTR name_functor)
+{
+  
+	bool find = false;
+
+	for (auto funct : Level().event_functors)
+	{
+		if (xr_strcmp(funct.c_str(), name_functor) == 0)
+		{
+			find = true;
+			break;
+		}
+	}
+
+	if (!find)
+	{
+		Msg("Register level_update [%s]", name_functor);
+		Level().event_functors.push_back(shared_str(name_functor));
+	}
+	else
+		Msg("--- Register Twice [%s] level_update", name_functor);
+	 
+}
+
+void register_event_update_server(LPCSTR name_functor)
+{
+ 	if (OnServer())
+	{
+		bool find = false;
+
+		for (auto funct : Level().event_functors)
+		{
+			if (xr_strcmp(funct.c_str(), name_functor) == 0)
+			{
+				find = true;
+				break;
+			}
+		}
+
+		if (!find)
+		{
+			Msg("Register level_update [%s]", name_functor);
+			Level().event_functors.push_back(shared_str(name_functor));
+		}
+		else
+			Msg("--- Register Twice [%s] level_update", name_functor);
+	}
+}
+
+
+
 #pragma optimize("s",on)
 void CLevel::script_register(lua_State *L)
 {
@@ -1071,10 +1171,15 @@ void CLevel::script_register(lua_State *L)
 	class_<CEnvironment>("CEnvironment")
 		.def("current",							current_environment);
 
-		module(L, "level")
-			[
+	module(L, "level")
+		[
+				//Custom Event For UPDATE 
+				def("event_update", &register_event_update),
+				
 				// obsolete\deprecated
 				def("object_by_id", get_object_by_id),
+				def("level_name", get_level_name),
+				def("get_object_level", get_object_level),
 #ifdef DEBUG
 				def("debug_object", get_object_by_name),
 				def("debug_actor", tpfGetActor),
@@ -1174,6 +1279,7 @@ void CLevel::script_register(lua_State *L)
 		def("sv_teleport_player", &sv_teleport_player),
 		def("sv_teleport_player2", &sv_teleport_player2),
 		def("g_actor_team", &get_g_actor_team),
+		def("alife_object_team", &g_get_team_from_alife),
 		
 		def("give_money", &give_money_to_actor),
 		def("remove_money", &remove_money_to_actor),
@@ -1182,6 +1288,10 @@ void CLevel::script_register(lua_State *L)
 		def("send_news_item_drop", send_news_item_drop)
 	],
 	
+	module(L, "server")
+	[
+		def("event_update", &register_event_update_server)
+	],
 
 	module(L, "script_events")
 	[
@@ -1214,6 +1324,7 @@ void CLevel::script_register(lua_State *L)
 		def("IsImportantSave",					&IsImportantSave),
 		def("print_msg",						&print_msg),
 		def("print_msg_debug",					&print_msg_debug),
+		def("print_msg_clear",					&print_msg_clear),
 		def("IsDedicated",						&is_dedicated),
 		def("OnClient",							&OnClient),
 		def("OnServer",							&OnServer),
@@ -1229,7 +1340,10 @@ void CLevel::script_register(lua_State *L)
 		def("community_relation",				&g_get_community_relation),
 		def("set_community_relation",			&g_set_community_relation),
 		def("get_general_goodwill_between",		&g_get_general_goodwill_between),
-		def("get_general_goodwill_between_MP",  &g_get_general_goodwill_between_MP)
+		//MP
+		def("get_general_goodwill_between_MP",  &g_get_general_goodwill_between_MP),
+		def("get_goodwil_community_MP",			&g_get_goodwil_community_MP),
+		def("get_goodwil_com_to_com_MP",		&g_get_goodwil_com_to_com_MP)
 	];
 	module(L,"game")
 	[

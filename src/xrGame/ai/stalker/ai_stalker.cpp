@@ -1335,9 +1335,13 @@ extern float Shedule_Scale_AI_Stalker;
 float CAI_Stalker::shedule_Scale				()
 {
 	if (OnClient())
-		return 	0;
- 
-	 
+	{
+		if (Level().CurrentControlEntity())
+			return 	Level().CurrentControlEntity()->Position().distance_to_xz(this->Position()) / 200;
+		else
+			return 5.0f;
+	}
+
 
 	if (Game().players.size() > 0)
 	{

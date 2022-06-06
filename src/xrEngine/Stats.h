@@ -36,7 +36,9 @@ public:
 
 	CStatTimer	EngineTOTAL;			// 
 	CStatTimer	Sheduler;				// 
-	CStatTimer	UpdateClient;			// 
+	CStatTimer	UpdateClient;			//
+	CStatTimer  ShedulerProcessStep;
+
 	u32			UpdateClient_updated;	//
 	u32			UpdateClient_crows;		//
 	u32			UpdateClient_active;	//

@@ -77,6 +77,8 @@ void CStats::Show()
 {
 	// Stop timers
 	{
+		ShedulerProcessStep.FrameEnd();
+
 		EngineTOTAL.FrameEnd		();	
 		Sheduler.FrameEnd			();	
 		UpdateClient.FrameEnd		();	
@@ -240,6 +242,7 @@ void CStats::Show()
 		F.OutNext	("Memory:      %2.2fa",fMem_calls);
 		F.OutNext	("uClients:    %2.2fms, %2.1f%%, crow(%d)/active(%d)/total(%d)",UpdateClient.result,PPP(UpdateClient.result),UpdateClient_crows,UpdateClient_active,UpdateClient_total);
 		F.OutNext	("uSheduler:   %2.2fms, %2.1f%%",Sheduler.result,		PPP(Sheduler.result));
+		F.OutNext	("uShedulerStep: %2.2fms, %2.1f%%", ShedulerProcessStep.result, PPP(ShedulerProcessStep.result));
 		F.OutNext	("uSheduler_L: %2.2fms",fShedulerLoad);
 		F.OutNext	("uParticles:  Qstart[%d] Qactive[%d] Qdestroy[%d]",	Particles_starting,Particles_active,Particles_destroy);
 		F.OutNext	("spInsert:    o[%.2fms, %2.1f%%], p[%.2fms, %2.1f%%]",	g_SpatialSpace->stat_insert.result, PPP(g_SpatialSpace->stat_insert.result),	g_SpatialSpacePhysic->stat_insert.result, PPP(g_SpatialSpacePhysic->stat_insert.result));
@@ -395,6 +398,8 @@ void CStats::Show()
 #endif
 
 	{
+		ShedulerProcessStep.FrameStart();
+
 		EngineTOTAL.FrameStart		();	
 		Sheduler.FrameStart			();	
 		UpdateClient.FrameStart		();	

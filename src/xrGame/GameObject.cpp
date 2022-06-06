@@ -992,6 +992,45 @@ float CGameObject::shedule_Scale()
 	return Shedule_Scale_Objects;
 }
 
+#include "smart_zone.h"
+#include "ai/stalker/ai_stalker.h"
+#include "ai/monsters/basemonster/base_monster.h"
+#include "Weapon.h"
+#include "PHDestroyable.h"
+#include "eatable_item.h"
+
+shared_str CGameObject::shedule_clsid()
+{	  
+	string64 text = {0};
+	if (smart_cast<CActor*>(this))
+		xr_strcat(text, "actor");
+	else if (smart_cast<CAI_Stalker*>(this))
+		xr_strcat(text, "stalker");
+	else if (smart_cast<CBaseMonster*>(this))
+		xr_strcat(text, "monster");
+	else if (smart_cast<CSmartZone*>(this))
+		xr_strcat(text, "smart_terrain");
+	else if (smart_cast<CWeapon*>(this))
+		xr_strcat(text, "weapon");
+	else if (smart_cast<CWeaponAmmo*>(this))
+		xr_strcat(text, "weapon_ammo");
+	else if (smart_cast<CInventoryItem*>(this))
+		xr_strcat(text, "inv_item");
+	else if (smart_cast<CPHDestroyable*>(this))
+		xr_strcat(text, "destr_physic_object");
+	else if (smart_cast<CEatableItem*>(this))
+		xr_strcat(text, "eated item");
+	else
+	{
+		itoa(clsid(), text, 10);
+		xr_strcat(text, " _name: ");
+		xr_strcat(text, cNameSect().c_str());
+	}
+
+	return shared_str(text);
+
+}
+
 void CGameObject::create_anim_mov_ctrl	( CBlend *b, Fmatrix *start_pose, bool local_animation )
 {
 	if( animation_movement_controlled( ) )

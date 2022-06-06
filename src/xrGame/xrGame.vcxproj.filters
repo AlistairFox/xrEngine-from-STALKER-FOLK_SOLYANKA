@@ -1342,9 +1342,6 @@
     <Filter Include="AI\AScript\ScriptClasses\ScriptFvector">
       <UniqueIdentifier>{60bc4f72-3628-4cdb-9df1-015b20fee137}</UniqueIdentifier>
     </Filter>
-    <Filter Include="AI\AScript\ScriptClasses\ScriptGameObject">
-      <UniqueIdentifier>{46dd80f4-1e5e-4d92-8c78-3ad8fbacb81a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="AI\AScript\ScriptClasses\ScriptHit">
       <UniqueIdentifier>{b33aa91c-e25f-48ba-ab7c-4a1d51e28383}</UniqueIdentifier>
     </Filter>
@@ -2544,6 +2541,15 @@
     </Filter>
     <Filter Include="Core\Common\xr_INI_Ext">
       <UniqueIdentifier>{e31a400c-96b7-46e3-9f03-dba82cb6c53a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Server\Games\client\freemp\events">
+      <UniqueIdentifier>{4c229dbb-43af-46a4-8e29-a367a2646480}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Server\Games\server\freemp\alife">
+      <UniqueIdentifier>{18675211-7ba7-442d-97b5-d5e37e054238}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AI\AScript\ScriptClasses\ScriptGameObject">
+      <UniqueIdentifier>{46dd80f4-1e5e-4d92-8c78-3ad8fbacb81a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -7494,6 +7500,9 @@
     <ClInclude Include="xr_ini_ext.h">
       <Filter>Core\Common\xr_INI_Ext</Filter>
     </ClInclude>
+    <ClInclude Include="level_events.h">
+      <Filter>Core\Server\Games\client\freemp\events</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="damage_manager.cpp">
@@ -11219,9 +11228,6 @@
     <ClCompile Include="VoiceSender.cpp">
       <Filter>Core\Server\Games\client\freemp\Voice</Filter>
     </ClCompile>
-    <ClCompile Include="game_sv_freemp_alife.cpp">
-      <Filter>Core\Server\Games\server\freemp</Filter>
-    </ClCompile>
     <ClCompile Include="..\xrServerEntities\script_json_file_script.cpp">
       <Filter>AI\AScript\ScriptClasses\ScriptIniFile\ScriptJSON</Filter>
     </ClCompile>
@@ -11236,6 +11242,15 @@
     </ClCompile>
     <ClCompile Include="xr_ini_ext.cpp">
       <Filter>Core\Common\xr_INI_Ext</Filter>
+    </ClCompile>
+    <ClCompile Include="level_events.cpp">
+      <Filter>Core\Server\Games\client\freemp\events</Filter>
+    </ClCompile>
+    <ClCompile Include="game_sv_freemp_alife.cpp">
+      <Filter>Core\Server\Games\server\freemp\alife</Filter>
+    </ClCompile>
+    <ClCompile Include="game_sv_freemp_alife_cl_sync.cpp">
+      <Filter>Core\Server\Games\server\freemp\alife</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

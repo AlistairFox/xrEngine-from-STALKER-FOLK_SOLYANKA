@@ -148,7 +148,10 @@ virtual	const IObjectPhysicsCollision	*physics_collision	()					{ return  0; }
 	ICF shared_str						cNameVisual			()			const	{ return NameVisual;				}
 	void								cNameVisual_set		(shared_str N);
 	virtual	shared_str					shedule_Name		() const			{ return cName(); };
-	
+	virtual shared_str					shedule_Sec()					const { return NameSection; }
+	//virtual shared_str					shedule_clsid()		{ return shared_str("xr_object.cpp"); }
+	virtual shared_str					shedule_clsid()		{ return "xr_object.cpp"; }
+ 
 	// Properties
 	void								processing_activate		();				// request	to enable	UpdateCL
 	void								processing_deactivate	();				// request	to disable	UpdateCL

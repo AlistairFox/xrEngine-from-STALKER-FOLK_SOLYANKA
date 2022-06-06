@@ -426,8 +426,7 @@ void game_sv_freemp::OnEvent(NET_Packet &P, u16 type, u32 time, ClientID sender)
 }
 
 u32 old_update_alife = 0;
-u32 old_updates_send = 0;
-
+ 
 void game_sv_freemp::Update()
 {
 	inherited::Update();
@@ -461,31 +460,23 @@ void game_sv_freemp::Update()
 		}
 	}	
 
-	if (Device.dwTimeGlobal - old_updates_send > 10 * 1000)
+	if (map_alife_sended.empty())
 	{
-		if (map_alife_sended.empty())
-		{
-			UpdateAlifeObjects();
-
-			luabind::functor<void>	funct;
-			R_ASSERT(ai().script_engine().functor("mp_events.send_alife_object_updates", funct));
-
-			try
-			{
-				funct();
-			}
-			catch (...)
-			{
-				Msg("mp_events.send_alife_object_updates CRUSHED ON TRY UPDATE");
-			}
-		}
-		old_updates_send = Device.dwTimeGlobal;
+		UpdateAlifeObjects();
+		UpdateAlifeObjectsPOS();
 	}
+	else  
+	for (auto cl : map_alife_sended)
+	{
+		WriteAlifeObjectsToClient(cl.first);
+		map_alife_sended.erase(cl.first);
+	}
+ 
 	
 	if (Device.dwTimeGlobal - old_update_alife > 1000)
 	{
 		old_update_alife = Device.dwTimeGlobal;
- 
+
 		for (auto cl : Game().players)
 			SavePlayer(cl.second);
  
@@ -504,14 +495,7 @@ void game_sv_freemp::Update()
 					save_inventoryBox(box);
 			}
  		}
-
-
-		for (auto cl : map_alife_sended)
-		{
-			WriteAlifeObjectsToClient(cl.first);
-			map_alife_sended.erase(cl.first);
-		}
-    
+   
 		for (auto players : teamPlayers)
 		for (auto player : players.second.players)
 			OnPlayerUIContactsRecvestUpdate(player, players.second.ClientLeader);

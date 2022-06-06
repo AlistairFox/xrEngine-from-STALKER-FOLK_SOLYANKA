@@ -44,7 +44,8 @@ public:
 	virtual	shared_str		shedule_Name			() const	{ return shared_str("gamespy_atlas_updator"); };
 	virtual bool			shedule_Needed			()			{ return true; };
 	virtual float			shedule_Scale			()			{ return 1.0f; };
-	
+	virtual shared_str		shedule_clsid() { return "stats_submitter"; }
+
 	static u8 const p_number[crypto::xr_dsa::public_key_length];
 	static u8 const q_number[crypto::xr_dsa::private_key_length];
 	static u8 const g_number[crypto::xr_dsa::public_key_length];

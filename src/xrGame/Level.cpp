@@ -331,6 +331,7 @@ CLevel::~CLevel()
 	}
 	deinit_compression();
 	xr_delete					(m_game_graph);
+
 	m_chunk->close				();
 	FS.r_close					(spawn);
 }
@@ -595,8 +596,15 @@ void CLevel::MakeReconnect()
 	}
 }
 
+u32 timer_old = 0;
+u64 ticks = 0, update_ticks = 0;;
+u64 ticks2, ticks3, ticks5 = 0;
+
 void CLevel::OnFrame	()
 {
+	CTimer timer, timer2, timer3, timer4, timer5;
+	timer.Start();
+
 #ifdef DEBUG_MEMORY_MANAGER
 	debug_memory_guard					__guard__;
 #endif // DEBUG_MEMORY_MANAGER
@@ -604,7 +612,7 @@ void CLevel::OnFrame	()
 #ifdef DEBUG
 	 DBG_RenderUpdate( );
 #endif // #ifdef DEBUG
-
+	 timer2.Start();
 	Fvector	temp_vector;
 	m_feel_deny.feel_touch_update		(temp_vector, 0.f);
 
@@ -616,7 +624,12 @@ void CLevel::OnFrame	()
 	BulletManager().CommitEvents		();
 	Device.Statistic->TEST0.End			();
 
+	ticks2 += timer2.GetElapsed_ticks();
+
 	// Client receive
+
+	timer3.Start();
+
 	if (net_isDisconnected())	
 	{
 		if (OnClient() && GameID() != eGameIDSingle)
@@ -641,7 +654,11 @@ void CLevel::OnFrame	()
 	ProcessGameEvents	();
 
 
+	ticks3 += timer3.GetElapsed_ticks();
+
 	if (m_bNeed_CrPr)					make_NetCorrectionPrediction();
+
+	timer4.Start();
 
 	if(!g_dedicated_server )
 	{
@@ -658,8 +675,11 @@ void CLevel::OnFrame	()
 				GameTaskManager().UpdateTasks();
 		}
 	}
+
+
 	// Inherited update
 	inherited::OnFrame		();
+	update_ticks += timer4.GetElapsed_ticks();
 
 	// Draw client/server stats
 	if ( !g_dedicated_server && psDeviceFlags.test(rsStatistic))
@@ -748,17 +768,23 @@ void CLevel::OnFrame	()
 #ifdef DEBUG
 	g_pGamePersistent->Environment().m_paused		= m_bEnvPaused;
 #endif
+
 	if (OnServer())
 		g_pGamePersistent->Environment().SetGameTime	(GetEnvironmentGameDayTimeSec(),game->GetEnvironmentGameTimeFactor());
 	else
 		g_pGamePersistent->Environment().SetGameTimeWFX (GetEnvironmentGameDayTimeSec(), game->GetEnvironmentGameTimeFactor());
 
+	timer5.Start();
+
 	//Device.Statistic->cripting.Begin	();
 	ai().script_engine().script_process	(ScriptEngine::eScriptProcessorLevel)->update();
 	//Device.Statistic->Scripting.End	();
+ 
 	m_ph_commander->update				();
 	m_ph_commander_scripts->update		();
 //	autosave_manager().update			();
+
+	ticks5 += timer5.GetElapsed_ticks();
 
 	//  
 	Device.Statistic->TEST0.Begin		();
@@ -787,6 +813,26 @@ void CLevel::OnFrame	()
 		pStatGraphR->AppendItem(float(m_dwRPC)*fRPC_Mult, 0xffff0000, 1);
 		pStatGraphR->AppendItem(float(m_dwRPS)*fRPS_Mult, 0xff00ff00, 0);
 	};
+
+	ticks += timer.GetElapsed_ticks();
+
+	if (timer_old < Device.dwTimeGlobal)
+	{
+		//Msg("TicksALL: %u", ticks);
+		//Msg("Ticks2: %u", ticks2);
+		//Msg("Ticks3: %u", ticks3);
+		//Msg("Ticks4: %u", ticks4);
+		//Msg("Ticks5: %u", ticks5);
+
+		//Msg("Updates: %u", update_ticks);
+		ticks = 0; 
+		ticks2 = 0;
+		ticks3 = 0;
+		ticks5 = 0;
+
+		update_ticks = 0;
+		timer_old = Device.dwTimeGlobal + 1000;
+	}
 }
 
 int		psLUA_GCSTEP					= 10			;

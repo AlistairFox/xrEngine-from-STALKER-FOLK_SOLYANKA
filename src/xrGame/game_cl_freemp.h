@@ -1,5 +1,6 @@
 #pragma once
 #include "game_cl_mp.h"
+#include "level_events.h"
 
 class CUIGameFMP;
 class CVoiceChat;
@@ -15,7 +16,8 @@ public:
 	xr_hash_map<u16, CSE_ALifeDynamicObject*> alife_objects;
 
 	CUIGameFMP* m_game_ui;
-
+	level_events* l_events;
+	
 	float		Indicator_render1;
 	float		Indicator_render2;
 	Fvector		IndicatorPosition;
@@ -39,6 +41,8 @@ public:
 	virtual	void net_import_update(NET_Packet& P);
 	
 	virtual void shedule_Update(u32 dt);
+	virtual float shedule_Scale();
+
 
 	virtual	bool OnKeyboardPress(int key);
 	virtual	bool OnKeyboardRelease(int key);
@@ -47,8 +51,7 @@ public:
 	virtual bool Is_Rewarding_Allowed()  const { return false; };
 
 	virtual void OnConnected();
-	virtual bool OnConnectedSpawnPlayer();
-
+ 
 	virtual	void TranslateGameMessage(u32 msg, NET_Packet& P);
 
 	virtual void OnRender(); 
