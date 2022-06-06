@@ -563,6 +563,9 @@ extern int ALIFE_ALL_LOCATION;
 
 bool CSE_ALifeObject::can_switch_online		() const
 {
+	if (ALIFE_ALL_LOCATION == 2)
+		return false;
+
 	if (g_pGamePersistent->GameType() == eGameIDSingle || !ALIFE_ALL_LOCATION)
 		return						(match_configuration() && !!m_flags.is(flSwitchOnline));
 	else
@@ -571,6 +574,9 @@ bool CSE_ALifeObject::can_switch_online		() const
 
 bool CSE_ALifeObject::can_switch_offline	() const
 {
+	if (ALIFE_ALL_LOCATION == 2)
+		return true;
+
 	if (g_pGamePersistent->GameType() == eGameIDSingle || !ALIFE_ALL_LOCATION)
 		return						(!match_configuration() || !!m_flags.is(flSwitchOffline));
 	else

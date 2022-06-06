@@ -3835,7 +3835,7 @@ void register_mp_console_commands()
 	CMD1(CCC_START_WFX, "fx_effect_start");
 //	CMD1(CCC_EXPORT_OBJECTS_TO_CLIENT, "alife_objects");
 
-	CMD4(CCC_Integer, "mp_alife_simulation_location", &ALIFE_ALL_LOCATION, 0, 1);
+	CMD4(CCC_Integer, "mp_alife_simulation_location", &ALIFE_ALL_LOCATION, 0, 2);
 
 	CMD1(CCC_AdmSurgeStart, "adm_surge");
 	CMD1(CCC_AdmPsiStormStart, "adm_psi_storm");

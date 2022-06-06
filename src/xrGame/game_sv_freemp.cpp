@@ -460,6 +460,7 @@ void game_sv_freemp::Update()
 		}
 	}	
 
+	 
 	if (map_alife_sended.empty())
 	{
 		UpdateAlifeObjects();
@@ -471,6 +472,7 @@ void game_sv_freemp::Update()
 		WriteAlifeObjectsToClient(cl.first);
 		map_alife_sended.erase(cl.first);
 	}
+	 
  
 	
 	if (Device.dwTimeGlobal - old_update_alife > 1000)

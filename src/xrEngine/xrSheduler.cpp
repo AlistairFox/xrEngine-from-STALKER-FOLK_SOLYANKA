@@ -447,7 +447,7 @@ xr_map<shared_str, u64> timer_table;
 xr_map<shared_str, u64> timer_rt;
 
 bool enabled_print_shedule = true;
-
+ 
 void CSheduler::ProcessStep			()
 {
 	// Normal priority
@@ -623,8 +623,18 @@ void CSheduler::Switch				()
 }
 */
 
+u64 global_timer1 = 0;
+u32 old_time_global = 0;
+extern int stop_sheduler;
+
 void CSheduler::Update				()
 {
+	if (stop_sheduler)
+		return;
+
+
+	CTimer timer1; timer1.Start();
+
 	R_ASSERT						(Device.Statistic);
 	// Initialize
 	
@@ -690,4 +700,14 @@ void CSheduler::Update				()
 	g_bSheduleInProgress			= FALSE;
 	internal_Registration			();
 
+
+	global_timer1 += timer1.GetElapsed_ticks();
+
+	if (Device.dwTimeGlobal > old_time_global)
+	{
+		Msg("Global Timer [%u]", global_timer1);
+		global_timer1 = 0;
+
+		old_time_global = Device.dwTimeGlobal + 1000;
+	}
 }

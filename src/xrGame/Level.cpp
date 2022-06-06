@@ -818,13 +818,16 @@ void CLevel::OnFrame	()
 
 	if (timer_old < Device.dwTimeGlobal)
 	{
+		/*
 		Msg("TicksALL: %u", ticks);
 		Msg("Ticks2: %u", ticks2);
 		Msg("Ticks3: %u", ticks3);
 		//Msg("Ticks4: %u", ticks4);
 		Msg("Ticks5: %u", ticks5);
 
-		Msg("Updates: %u", update_ticks);
+		Msg("Updates: %u", update_ticks);	
+		*/
+
 		ticks = 0; 
 		ticks2 = 0;
 		ticks3 = 0;

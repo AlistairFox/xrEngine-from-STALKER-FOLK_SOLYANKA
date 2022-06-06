@@ -694,12 +694,12 @@ ENGINE_API int			ps_r__Supersample			= 1;
 extern int updateCL_Rate = 30;
 #endif // !DEDICATE
 
-
+extern int stop_sheduler = 0;
  
 
 void CCC_Register()
 {
-	
+	CMD4(CCC_Integer, "stop_shedule", &stop_sheduler, 0, 1);
 	CMD4(CCC_Float, "r__viewport_near", &VIEWPORT_NEAR, 0.05f, 1.0f);
 
 #ifdef DEDICATED_SERVER
