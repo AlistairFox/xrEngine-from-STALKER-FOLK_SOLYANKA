@@ -155,14 +155,18 @@ XRCORE_API full_memory_stats_callback_type g_full_memory_stats_callback;
 static void full_memory_stats	( )
 {
 	Memory.mem_compact		();
+
 	u32		_crt_heap		= mem_usage_impl((HANDLE)_get_heap_handle(),0,0);
 	u32		_process_heap	= mem_usage_impl(GetProcessHeap(),0,0);
+
 #ifdef SEVERAL_ALLOCATORS
 	u32		_game_lua		= game_lua_memory_usage();
 	u32		_render			= ::Render->memory_usage();
 #endif // SEVERAL_ALLOCATORS
+
 	int		_eco_strings	= (int)g_pStringContainer->stat_economy			();
 	int		_eco_smem		= (int)g_pSharedMemoryContainer->stat_economy	();
+
 	u32		m_base=0,c_base=0,m_lmaps=0,c_lmaps=0;
 
 	if (Device.m_pRender) Device.m_pRender->ResourcesGetMemoryUsage(m_base,c_base,m_lmaps,c_lmaps);
@@ -209,24 +213,29 @@ public:
 };
 
 #endif // #ifdef DEBUG
+
 // console commands
-class CCC_GameDifficulty : public CCC_Token {
-public:
+class CCC_GameDifficulty : public CCC_Token 
+{
+	public:
 	CCC_GameDifficulty(LPCSTR N) : CCC_Token(N,(u32*)&g_SingleGameDifficulty,difficulty_type_token)  {};
-	virtual void Execute(LPCSTR args) {
+	virtual void Execute(LPCSTR args)
+	{
 		CCC_Token::Execute(args);
-		if (g_pGameLevel && Level().game){
-//#ifndef	DEBUG
-			if (GameID() != eGameIDSingle){
+
+		if (g_pGameLevel && Level().game)
+		{
+ 			if (GameID() != eGameIDSingle)
+			{
 				Msg("For this game type difficulty level is disabled.");
 				return;
 			};
-//#endif
-
+ 
 			game_cl_Single* game		= smart_cast<game_cl_Single*>(Level().game); VERIFY(game);
 			game->OnDifficultyChanged	();
 		}
 	}
+
 	virtual void	Info	(TInfo& I)		
 	{
 		xr_strcpy(I,"game difficulty"); 

@@ -524,8 +524,13 @@ void ParticleRenderStream( LPVOID lpvParams )
 			}
 }
 
+extern int particles_disable;
+
 void CParticleEffect::Render(float )
 {
+	if (particles_disable)
+		return;
+
 	#ifdef _GPA_ENABLED	
 		TAL_SCOPED_TASK_NAMED( "CParticleEffect::Render()" );
 	#endif // _GPA_ENABLED

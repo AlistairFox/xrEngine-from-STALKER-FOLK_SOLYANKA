@@ -254,10 +254,7 @@ void CSE_ALifeInventoryBox::add_online	(const bool &update_registries)
 		CSE_Abstract			*l_tpAbstract = smart_cast<CSE_Abstract*>(l_tpALifeInventoryItem);
 		object->alife().server().entity_Destroy(l_tpAbstract);
 
-#ifdef DEBUG
-//		if (psAI_Flags.test(aiALife))
-//			Msg					("[LSS] Spawning item [%s][%s][%d]",l_tpALifeInventoryItem->base()->name_replace(),*l_tpALifeInventoryItem->base()->s_name,l_tpALifeDynamicObject->ID);
-		Msg						(
+ 		Msg						(
 			"[LSS][%d] Going online [%d][%s][%d] with parent [%d][%s] on '%s'",
 			Device.dwFrame,
 			Device.dwTimeGlobal,
@@ -267,7 +264,7 @@ void CSE_ALifeInventoryBox::add_online	(const bool &update_registries)
 			name_replace(),
 			"*SERVER*"
 		);
-#endif
+ 
 
 		l_tpALifeDynamicObject->o_Position		= object->o_Position;
 		l_tpALifeDynamicObject->m_tNodeID		= object->m_tNodeID;
@@ -283,16 +280,15 @@ void CSE_ALifeInventoryBox::add_offline	(const xr_vector<ALife::_OBJECT_ID> &sav
 {
 	CSE_ALifeDynamicObjectVisual		*object = (this);
 
-	for (u32 i=0, n=saved_children.size(); i<n; ++i) {
+	for (u32 i=0, n=saved_children.size(); i<n; ++i)
+	{
 		CSE_ALifeDynamicObject	*child = smart_cast<CSE_ALifeDynamicObject*>(ai().alife().objects().object(saved_children[i],true));
 		R_ASSERT				(child);
 		child->m_bOnline		= false;
 
 		CSE_ALifeInventoryItem	*inventory_item = smart_cast<CSE_ALifeInventoryItem*>(child);
 		VERIFY2					(inventory_item,"Non inventory item object has parent?!");
-#ifdef DEBUG
-//		if (psAI_Flags.test(aiALife))
-//			Msg					("[LSS] Destroying item [%s][%s][%d]",inventory_item->base()->name_replace(),*inventory_item->base()->s_name,inventory_item->base()->ID);
+ 
 		Msg						(
 			"[LSS][%d] Going offline [%d][%s][%d] with parent [%d][%s] on '%s'",
 			Device.dwFrame,
@@ -303,17 +299,19 @@ void CSE_ALifeInventoryBox::add_offline	(const xr_vector<ALife::_OBJECT_ID> &sav
 			name_replace(),
 			"*SERVER*"
 		);
-#endif
+ 
 		
 		ALife::_OBJECT_ID				item_id = inventory_item->base()->ID;
 		inventory_item->base()->ID		= object->alife().server().PerformIDgen(item_id);
 
-		if (!child->can_save()) {
+		if (!child->can_save()) 
+		{
 			object->alife().release		(child);
 			--i;
 			--n;
 			continue;
 		}
+
 		child->clear_client_data();
 		object->alife().graph().add		(child,child->m_tGraphID,false);
 //		object->alife().graph().attach	(*object,inventory_item,child->m_tGraphID,true);

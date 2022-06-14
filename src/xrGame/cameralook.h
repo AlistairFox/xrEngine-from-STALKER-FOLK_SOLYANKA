@@ -31,13 +31,21 @@ public:
 	static Fvector	m_cam_offset;
 	static Fvector	m_cam_offset_rs;
 	static Fvector  m_cam_offset_ANIMMODE;
+private: 
+	float prev_x;
+	float prev_z;
+	float prev_y;
+
+	bool need_update_position = false;
+	u32 count = 0;
 
 public:
 					CCameraLook2	( CObject* p, u32 flags=0):CCameraLook(p, flags){};
 	virtual			~CCameraLook2	(){}
 	virtual	void	OnActivate		( CCameraBase* old_cam );
 	virtual void	Update			( Fvector& point, Fvector& noise_dangle );
-	virtual void	Load			(LPCSTR section);
+	void			UpdateDistance	(Fvector& point, Fmatrix matr);
+ 	virtual void	Load			(LPCSTR section);
 	virtual void    Move			(int cmd, float val=0, float factor = 1.0f);
 };
 

@@ -102,22 +102,21 @@ void CLevel::g_sv_Spawn		(CSE_Abstract* E)
 	//-----------------------------------------------------------------
 	CTimer		Timer;
 
-#ifdef DEBUG
-//	Msg					("* CLIENT: Spawn: %s, ID=%d", *E->s_name, E->ID);
-#endif
+//	Msg					("* CLIENT: Spawn: %s, ID=%d, name = %s", E->s_name.c_str(), E->ID, E->name_replace());
+
 
 	// Optimization for single-player only	- minimize traffic between client and server
 	if	(GameID()	== eGameIDSingle)		psNET_Flags.set	(NETFLAG_MINIMIZEUPDATES,TRUE);
 	else								psNET_Flags.set	(NETFLAG_MINIMIZEUPDATES,FALSE);
 
 	u64 CPU_QPS = (CPU::qpc_freq / 1000);
-	
+ 
 	// Client spawn
 	Timer.Start		();
 	CObject*	O		= Objects.Create	(*E->s_name);
 	
 	if (Timer.GetElapsed_ms() > 0)
-	Msg				("--spawn--CREATE: %d ms, name %s", Timer.GetElapsed_ms(), E->name_replace());
+	Msg				("--spawn--CREATE: %d ms, name %s, cl_sect %s", Timer.GetElapsed_ms(), E->name_replace());
 
  	Timer.Start();
 	#ifdef DEBUG_MEMORY_MANAGER

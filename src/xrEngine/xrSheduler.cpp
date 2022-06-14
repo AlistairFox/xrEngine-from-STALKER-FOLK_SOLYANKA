@@ -452,12 +452,7 @@ void CSheduler::ProcessStep			()
 {
 	// Normal priority
 	u32		dwTime					= Device.dwTimeGlobal;
-	CTimer							eTimer;
-	
-	eTimer.Start();
-	
-
-	 
+  
 	if (Device.dwTimeGlobal - oldTimeUpdate > 1000 && enabled_print_shedule)
 	{
 		/*
@@ -476,8 +471,7 @@ void CSheduler::ProcessStep			()
 				Item.dwTimeForExecute = Device.dwTimeGlobal;
 			}
 		}
-		*/
-		/*
+ 
 		for (auto timer : timer_table)
 		{
 			TDATA data;
@@ -517,9 +511,7 @@ void CSheduler::ProcessStep			()
 
 		oldTimeUpdate = Device.dwTimeGlobal;
 	} 
-	 
-
-
+ 
 	for (int i=0;!Items.empty() && Top().dwTimeForExecute < dwTime; ++i)
 	{
 		//u32		delta_ms			= dwTime - Top().dwTimeForExecute;
@@ -528,12 +520,7 @@ void CSheduler::ProcessStep			()
 		Item	T					= Top	();
 		u32		Elapsed				= dwTime-T.dwTimeOfLastExecute;
 		bool	condition					= (NULL==T.Object || !T.Object->shedule_Needed());
-		
-		
-
-		//if (Top().dwTimeForExecute > dwTime && scale > 1)
-		//	continue;
-
+	
 		if (condition) 
 		{ 
 			Pop						();
@@ -555,19 +542,9 @@ void CSheduler::ProcessStep			()
 			dwUpdate *= scale;
 		}
 
-		//Msg("DW [%s] TIME [%u] old[%u]", T.Object->shedule_Name().c_str(), dwUpdate, Elapsed);
-
 		m_current_step_obj = T.Object;
-		
-		//CTimer time2; time2.Start();
-
+ 
 		T.Object->shedule_Update(clampr(Elapsed, u32(1), u32(_max(u32(T.Object->shedule.t_max), u32(1000)))));
-
-		//Msg("Shedule %s, time %d", T.Object->shedule_Name().c_str(), time2.GetElapsed_ticks());
-
-		// timer_table[T.Object->shedule_Name()] += time2.GetElapsed_ticks();
-		 
-
 
 		if (!m_current_step_obj)
 		{
@@ -595,18 +572,13 @@ void CSheduler::ProcessStep			()
 			break;
 		}
 	}
-
-	shedule_time_ms += eTimer.GetElapsed_ms();
-  
-
+ 
 	// Push "processed" back
 	while (ItemsProcessed.size())
 	{
 		Push	(ItemsProcessed.back())	;
 		ItemsProcessed.pop_back		()	;
 	}
-
-
 
 	// always try to decrease target
 	psShedulerTarget	-= psShedulerReaction;
@@ -627,12 +599,60 @@ u64 global_timer1 = 0;
 u32 old_time_global = 0;
 extern int stop_sheduler;
 
+void mt_Update(void* sheduler)
+{
+	CSheduler* SH = (CSheduler*)sheduler;
+
+	SH->cycles_start = CPU::QPC();
+	SH->cycles_limit = CPU::qpc_freq * u64(iCeil(psShedulerCurrent)) / 1000i64 + SH->cycles_start;
+	SH->internal_Registration();
+
+	g_bSheduleInProgress = TRUE;
+
+	bool m_processing_now = true;
+
+	u32	dwTime = Device.dwTimeGlobal;
+ 
+	for (u32 it = 0; it < SH->ItemsRT.size(); it++)
+	{
+		Item& T = SH->ItemsRT[it];
+
+		if (!T.Object->shedule_Needed())
+		{
+			T.dwTimeOfLastExecute = dwTime;
+			continue;
+		}
+
+		u32	Elapsed = dwTime - T.dwTimeOfLastExecute;
+
+		T.Object->shedule_Update(Elapsed);
+		//Msg("Name[%s], CLSID[%s] time[%d]", T.Object->shedule_Name().c_str(), T.Object->shedule_clsid().c_str(), time.GetElapsed_ticks() );
+		//timer_rt[T.Object->shedule_Name()] += time.GetElapsed_ticks();
+		T.dwTimeOfLastExecute = dwTime;
+	}
+ 
+	// Normal (sheduled)
+	SH->ProcessStep();
+
+	m_processing_now = false;
+
+	clamp(psShedulerTarget, 3.f, 66.f);
+	psShedulerCurrent = 0.9f * psShedulerCurrent + 0.1f * psShedulerTarget;
+ 
+	// Finalize
+	g_bSheduleInProgress = FALSE;
+	SH->internal_Registration();
+}
+
+
 void CSheduler::Update				()
 {
-	if (stop_sheduler)
-		return;
+	//if (stop_sheduler)
+	//	return;
 
-
+	//thread_spawn(mt_Update, "sheduler_th", 0, this);
+	//return;
+			 
 	CTimer timer1; timer1.Start();
 
 	R_ASSERT						(Device.Statistic);
@@ -643,9 +663,9 @@ void CSheduler::Update				()
 	internal_Registration			();
 	g_bSheduleInProgress			= TRUE;
 
-#ifdef DEBUG_SCHEDULER
-	Msg								("SCHEDULER: PROCESS STEP %d",Device.dwFrame);
-#endif // DEBUG_SCHEDULER
+//#ifdef DEBUG_SCHEDULER
+//	Msg								("SCHEDULER: PROCESS STEP %d",Device.dwFrame);
+//#endif // DEBUG_SCHEDULER
 	// Realtime priority
 	m_processing_now				= true;
 	u32	dwTime						= Device.dwTimeGlobal;
@@ -688,9 +708,9 @@ void CSheduler::Update				()
 
 	m_processing_now				= false;
 
-#ifdef DEBUG_SCHEDULER
-	Msg								("SCHEDULER: PROCESS STEP FINISHED %d",Device.dwFrame);
-#endif // DEBUG_SCHEDULER
+//#ifdef DEBUG_SCHEDULER
+//	Msg								("SCHEDULER: PROCESS STEP FINISHED %d",Device.dwFrame);
+//#endif // DEBUG_SCHEDULER
 
 	clamp							(psShedulerTarget,3.f,66.f);
 	psShedulerCurrent				= 0.9f*psShedulerCurrent + 0.1f*psShedulerTarget;
@@ -705,9 +725,13 @@ void CSheduler::Update				()
 
 	if (Device.dwTimeGlobal > old_time_global)
 	{
-		Msg("Global Timer [%u]", global_timer1);
+		//	Msg("Global Timer [%u]", global_timer1);
 		global_timer1 = 0;
 
 		old_time_global = Device.dwTimeGlobal + 1000;
 	}
 }
+
+
+
+

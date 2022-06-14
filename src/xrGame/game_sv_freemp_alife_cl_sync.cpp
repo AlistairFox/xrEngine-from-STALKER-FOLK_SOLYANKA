@@ -57,7 +57,7 @@ void game_sv_freemp::UpdateAlifeObjects()
 		{
 			if (!smart_cast<CSE_ALifeHumanStalker*>(object.second) &&
 				!smart_cast<CSE_ALifeMonsterAbstract*>(object.second) &&
-				!smart_cast<CSE_ALifeCreatureActor*>(object.second) &&
+			//	!smart_cast<CSE_ALifeCreatureActor*>(object.second) &&
 				!smart_cast<CSE_ALifeOnlineOfflineGroup*> (object.second) &&
 				!smart_cast<CSE_ALifeSmartZone*> (object.second)
 				)
@@ -76,7 +76,7 @@ void game_sv_freemp::UpdateAlifeObjects()
 			
 				update_data data;
 				data.pos = object.second->position();
-				data.time = Device.dwTimeGlobal + Random.randI(25000, 30000);
+				data.time = Device.dwTimeGlobal + Random.randI(2000, 5000);
 
 				old_export_pos[object.first] = data;
 	 

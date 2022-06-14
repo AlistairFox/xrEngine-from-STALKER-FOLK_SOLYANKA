@@ -22,6 +22,10 @@ CInventoryBox::~CInventoryBox()
 {
 }
 
+#include "alife_simulator.h"
+#include "alife_object_registry.h"
+#include "game_sv_freemp.h"
+
 void CInventoryBox::OnEvent(NET_Packet& P, u16 type)
 {
 	inherited::OnEvent	(P, type);
@@ -67,6 +71,24 @@ void CInventoryBox::OnEvent(NET_Packet& P, u16 type)
 							CurrentGameUI()->OnInventoryAction(pIItem, GE_OWNERSHIP_TAKE);
 				}
 			};
+
+			if (OnServer())
+			{
+				game_sv_freemp* freemp_sv = smart_cast<game_sv_freemp*>(Level().Server->game);
+
+				if (freemp_sv)
+				{
+					CSE_Abstract* ent = freemp_sv->server().ID_to_entity(itm->ID());
+					CSE_ALifeDynamicObject* dynamic = smart_cast<CSE_ALifeDynamicObject*>(ent);
+					if (dynamic)
+					{
+						freemp_sv->alife().register_in_objects(dynamic);
+						Msg("Reg Item in Objects [%d][%s]", itm->ID(), itm->cNameSect().c_str());
+					}
+				}
+			}
+
+
 		}break;
 
 	case GE_TRADE_SELL:
@@ -108,6 +130,27 @@ void CInventoryBox::OnEvent(NET_Packet& P, u16 type)
 				CGameObject* GO		= smart_cast<CGameObject*>(itm);
 				Actor()->callback(GameObject::eInvBoxItemTake)( this->lua_game_object(), GO->lua_game_object() );
 			}
+
+			if (OnServer())
+			{
+				game_sv_freemp* freemp_sv = smart_cast<game_sv_freemp*>(Level().Server->game);
+
+				if (freemp_sv)
+				{
+					CSE_Abstract* ent = freemp_sv->server().ID_to_entity(itm->ID());
+					CSE_ALifeDynamicObject* dynamic = smart_cast<CSE_ALifeDynamicObject*>(ent);
+					if (dynamic)
+					{
+						freemp_sv->alife().unregister_in_objects(dynamic);
+						Msg("UNReg Item in Objects [%d][%s]", itm->ID(), itm->cNameSect().c_str());
+					}
+
+				}
+
+			}
+
+
+
 		}break;
 
 		case GE_INV_BOX_PRIVATE_SAFE:

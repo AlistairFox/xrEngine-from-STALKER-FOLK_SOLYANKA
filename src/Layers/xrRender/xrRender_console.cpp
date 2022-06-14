@@ -646,10 +646,15 @@ public:
 };
 #endif	//	DEBUG
 #endif	//	(RENDER == R_R3) || (RENDER == R_R4)
+		 
+extern int particles_disable = 0;
 
 //-----------------------------------------------------------------------
 void		xrRender_initconsole	()
 {
+
+	CMD4(CCC_Integer, "particles_disabled", &particles_disable, 0, 1);
+
 	CMD3(CCC_Preset,	"_preset",				&ps_Preset,	qpreset_token	);
 
 	CMD4(CCC_Integer,	"rs_skeleton_update",	&psSkeletonUpdate,	2,		128	);

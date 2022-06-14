@@ -386,8 +386,9 @@ void CActor::cam_Update(float dt, float fFOV)
 	
 	if (Level().CurrentEntity() == this)
 	{
-		collide_camera( *cameras[eacFirstEye], _viewport_near, this );
+		collide_camera( *cameras[cam_active], _viewport_near, this );
 	}
+	 
 
 	/*
 	if( psActorFlags.test(AF_PSP) )

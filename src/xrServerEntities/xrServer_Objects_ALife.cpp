@@ -2319,6 +2319,17 @@ void CSE_ALifeInventoryBox::UPDATE_Write( NET_Packet &tNetPacket )
 	inherited::UPDATE_Write( tNetPacket );
 }
 
+
+bool CSE_ALifeInventoryBox::can_switch_online() const
+{
+	return inherited::can_switch_online();
+}
+
+bool CSE_ALifeInventoryBox::can_switch_offline() const
+{
+	return  inherited::can_switch_offline();
+}
+
 #ifndef XRGAME_EXPORTS
 void CSE_ALifeInventoryBox::FillProps( LPCSTR pref, PropItemVec& values )
 {

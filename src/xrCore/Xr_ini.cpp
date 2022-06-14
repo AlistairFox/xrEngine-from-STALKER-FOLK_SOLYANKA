@@ -454,6 +454,7 @@ bool CInifile::save_as	(LPCSTR new_fname)
 
 BOOL	CInifile::section_exist( LPCSTR S )const
 {
+	//Msg("Section %s", S);
 	RootCIt I = std::lower_bound(DATA.begin(), DATA.end(), S, sect_pred);
 	return (I!=DATA.end() && xr_strcmp(*(*I)->Name,S)==0);
 }

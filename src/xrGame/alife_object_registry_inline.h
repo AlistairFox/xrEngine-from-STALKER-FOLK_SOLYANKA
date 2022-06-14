@@ -10,9 +10,13 @@
 
 IC	void CALifeObjectRegistry::add		(CSE_ALifeDynamicObject *object)
 {
-	if (objects().find(object->ID) != objects().end()) {
-		THROW2					((*(objects().find(object->ID))).second == object,"The specified object is already presented in the Object Registry!");
-		THROW2					((*(objects().find(object->ID))).second != object,"Object with the specified ID is already presented in the Object Registry!");
+	if (objects().find(object->ID) != objects().end()) 
+	{
+		//THROW2					((*(objects().find(object->ID))).second == object,"The specified object is already presented in the Object Registry!");
+		//THROW2					((*(objects().find(object->ID))).second != object,"Object with the specified ID is already presented in the Object Registry!");
+
+		Msg("Already in Objects REG Object[%d][%s]", object->ID, object->s_name.c_str());
+		return;
 	}
 
 	m_objects.insert			(std::make_pair(object->ID,object));
@@ -21,8 +25,10 @@ IC	void CALifeObjectRegistry::add		(CSE_ALifeDynamicObject *object)
 IC	void CALifeObjectRegistry::remove	(const ALife::_OBJECT_ID &id, bool no_assert)
 {
 	OBJECT_REGISTRY::iterator	I = m_objects.find(id);
-	if (I == m_objects.end()) {
-		THROW2					(no_assert,"The specified object hasn't been found in the Object Registry!");
+	if (I == m_objects.end())
+	{
+		Msg("NOT FIND in Objects REG Object[%d]", id);
+		//THROW2					(no_assert,"The specified object hasn't been found in the Object Registry!");
 		return;
 	}
 
