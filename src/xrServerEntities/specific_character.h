@@ -45,6 +45,7 @@ struct SSpecificCharacterData : CSharedResource
 	float		m_fHitProbabilityFactor;
 	int			m_crouch_type;
 	bool		m_upgrade_mechanic;
+	bool		m_artefact_mode;
 
 	xr_string	m_critical_wound_weights;
 #endif
@@ -144,6 +145,9 @@ public:
 	float						hit_probability_factor	() const ;
 	int							crouch_type				() const ;
 	bool						upgrade_mechanic		() const ;
+	bool						artefact_mode() const; 
+
+
 	LPCSTR						critical_wound_weights	() const ;
 
 	const shared_str&			IconName				() const	{return data()->m_icon_name;};

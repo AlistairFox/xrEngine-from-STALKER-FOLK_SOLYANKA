@@ -441,7 +441,8 @@ void CCustomZone::UpdateWorkload	(u32 dt)
 	m_iPreviousStateTime	= m_iStateTime;
 	m_iStateTime			+= (int)dt;
 
-	if (!IsEnabled())		{
+	if (!IsEnabled())		
+	{
 		if (m_actor_effector)
 			m_actor_effector->Stop();
 		return;
@@ -494,6 +495,10 @@ void CCustomZone::UpdateWorkload	(u32 dt)
 void CCustomZone::UpdateCL		() 
 {
 	inherited::UpdateCL			();
+	
+	if (xr_strcmp(Level().get_net_DescriptionData().spawn_name, "alife_off") == 0)
+		return;
+
 	if (m_zone_flags.test(eFastMode))				
 		UpdateWorkload	(Device.dwTimeDelta);	
 }
@@ -501,6 +506,9 @@ void CCustomZone::UpdateCL		()
 // called as usual
 void CCustomZone::shedule_Update(u32 dt)
 {
+	if (xr_strcmp(Level().get_net_DescriptionData().spawn_name, "alife_off") == 0)
+		return;
+
 	m_zone_flags.set(eZoneIsActive, FALSE);
 
 	if (IsEnabled())
@@ -575,6 +583,8 @@ void CCustomZone::CheckForAwaking()
 		SwitchZoneState(eZoneStateAwaking);
 }
 
+#include "Level.h"
+
 void CCustomZone::feel_touch_new	(CObject* O) 
 {
 //	if(smart_cast<CActor*>(O) && O == Level().CurrentEntity())
@@ -603,9 +613,13 @@ void CCustomZone::feel_touch_new	(CObject* O)
 		object_info.zone_ignore = true;
 	else
 		object_info.zone_ignore = false;
-	enter_Zone(object_info);
-	m_ObjectInfoMap.push_back(object_info);
 	
+	
+	enter_Zone(object_info);
+
+	m_ObjectInfoMap.push_back(object_info);
+	 
+
 	if (IsEnabled())
 	{
 		PlayEntranceParticles(pGameObject);
@@ -658,7 +672,7 @@ float CCustomZone::RelativePower(float dist, float nearest_shape_radius)
 
 float CCustomZone::effective_radius(float nearest_shape_radius)
 {
-	return /*Radius()*/nearest_shape_radius*m_fEffectiveRadius;
+ 	return /*Radius()*/nearest_shape_radius*m_fEffectiveRadius;
 }
 
 float CCustomZone::Power(float dist, float nearest_shape_radius) 
@@ -1158,8 +1172,7 @@ bool CCustomZone::Enable()
 
 	o_switch_2_fast();
 
-	for(OBJECT_INFO_VEC_IT it = m_ObjectInfoMap.begin(); 
-		m_ObjectInfoMap.end() != it; ++it) 
+	for(OBJECT_INFO_VEC_IT it = m_ObjectInfoMap.begin();  m_ObjectInfoMap.end() != it; ++it) 
 	{
 		CGameObject* pObject = (*it).object;
 		if (!pObject) continue;
@@ -1173,7 +1186,7 @@ bool CCustomZone::Enable()
 bool CCustomZone::Disable()
 {
 	if (!IsEnabled()) return false;
-	o_switch_2_slow();
+		o_switch_2_slow();
 
 	for(OBJECT_INFO_VEC_IT it = m_ObjectInfoMap.begin(); m_ObjectInfoMap.end()!=it; ++it) 
 	{
@@ -1478,6 +1491,12 @@ void CCustomZone::CalcDistanceTo(const Fvector& P, float& dist, float& radius)
 	R_ASSERT(nearest_s);
 	
 	dist	= nearest;
+
+	if (!nearest_s)
+	{
+		
+		return;
+	}
 
 	if(nearest_s->type==0)
 		radius	= nearest_s->data.sphere.R;

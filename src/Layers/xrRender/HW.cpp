@@ -539,6 +539,9 @@ void	CHW::updateWindowProps	(HWND m_hWnd)
 //#endif
 
 	BOOL	bWindowed				= TRUE;
+
+	BOOL	bShow					= !strstr(Core.Params, "-hide");
+
 #ifndef _EDITOR
 	if (!g_dedicated_server)
 		bWindowed			= !psDeviceFlags.is(rsFullscreen);
@@ -546,8 +549,11 @@ void	CHW::updateWindowProps	(HWND m_hWnd)
 
 	u32		dwWindowStyle			= 0;
 	// Set window properties depending on what mode were in.
-	if (bWindowed)		{
-		if (m_move_window) {
+ 	
+	if (bWindowed)	
+	{
+		if (m_move_window)
+		{
 			if (strstr(Core.Params,"-no_dialog_header"))
 				SetWindowLong	( m_hWnd, GWL_STYLE, dwWindowStyle=(WS_BORDER|WS_VISIBLE) );
 			else
@@ -584,14 +590,14 @@ void	CHW::updateWindowProps	(HWND m_hWnd)
 									(DesktopRect.bottom+DevPP.BackBufferHeight)/2			);
 			}
 			else
-				if (bRight)
-				{
-					SetRect(&m_rcWindowBounds,
-						1024,
-						0,
-						DevPP.BackBufferWidth + 1024,
-						DevPP.BackBufferHeight);
-				}
+			if (bRight)
+			{
+				SetRect(&m_rcWindowBounds,
+					1024,
+					0,
+					DevPP.BackBufferWidth + 1024,
+					DevPP.BackBufferHeight);
+			}
 			else
 			{
 				SetRect(			&m_rcWindowBounds,
@@ -601,15 +607,23 @@ void	CHW::updateWindowProps	(HWND m_hWnd)
 									DevPP.BackBufferHeight );
 			};
 
-			AdjustWindowRect		(	&m_rcWindowBounds, dwWindowStyle, FALSE );
+ 			AdjustWindowRect		(	&m_rcWindowBounds, dwWindowStyle, FALSE );
+			
+			UINT flags;
 
-			SetWindowPos			(	m_hWnd, 
+			if (bShow || !g_dedicated_server)
+				flags = SWP_SHOWWINDOW | SWP_NOCOPYBITS | SWP_DRAWFRAME;
+			else
+				flags = SWP_HIDEWINDOW | SWP_NOCOPYBITS | SWP_DRAWFRAME;
+
+ 			SetWindowPos			(	m_hWnd, 
 										HWND_NOTOPMOST,	
 										m_rcWindowBounds.left, 
 										m_rcWindowBounds.top,
 										( m_rcWindowBounds.right - m_rcWindowBounds.left ),
 										( m_rcWindowBounds.bottom - m_rcWindowBounds.top ),
-										SWP_SHOWWINDOW|SWP_NOCOPYBITS|SWP_DRAWFRAME );
+										flags);
+			 
 		}
 	}
 	else
@@ -623,7 +637,7 @@ void	CHW::updateWindowProps	(HWND m_hWnd)
 	{
 		ShowCursor	(FALSE);
 		SetForegroundWindow( m_hWnd );
-	}
+ 	}
 #endif
 }
 

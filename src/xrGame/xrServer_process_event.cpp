@@ -392,7 +392,6 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 
 	case GE_STALKER_ANIMS:
 	{
-	//	Msg("SEND BROADCOST");
 		SendBroadcast(SV_Client->ID, P, net_flags(TRUE, TRUE));
 	}break;
 
@@ -470,6 +469,54 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 	{
 		NET_Packet packet;
 		game->u_EventGen(packet, GE_UNLOAD_AMMO, destination);
+		SendTo(SV_Client->ID, P, net_flags(true, true));
+	}break;
+
+	case GE_ACTOR_SLOTS_SYNC:	
+	{
+		ClientID id;
+		P.r_clientID(id);
+		string32 slot[4];
+		P.r_stringZ(slot[0]);
+		P.r_stringZ(slot[1]);
+		P.r_stringZ(slot[2]);
+		P.r_stringZ(slot[3]);
+		
+		game_sv_freemp* freemp = smart_cast<game_sv_freemp*>(game);
+
+		if (freemp)
+		{
+			bool finded = false;
+			for (auto cl_slots : freemp->cl_slots)
+			{
+				if (cl_slots.cl_id == id)
+				{
+					finded = true;
+					xr_strcpy(cl_slots.slots[0], slot[0]);
+					xr_strcpy(cl_slots.slots[1], slot[1]);
+					xr_strcpy(cl_slots.slots[2], slot[2]);
+					xr_strcpy(cl_slots.slots[3], slot[3]);
+					break;
+				}
+			}
+
+			if (!finded)
+			{
+				ActorSlots c;
+				auto slots = c.slots;
+				xr_strcpy(slots[0], slot[0]);
+				xr_strcpy(slots[1], slot[1]);
+				xr_strcpy(slots[2], slot[2]);
+				xr_strcpy(slots[3], slot[3]);
+				c.cl_id = id;
+				freemp->cl_slots.push_back(c);
+			}
+
+		}
+	}break;
+
+	case GE_RAYCAST:
+	{
 		SendTo(SV_Client->ID, P, net_flags(true, true));
 	}break;
  

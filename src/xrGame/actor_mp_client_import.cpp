@@ -106,15 +106,17 @@ void CActorMP::net_Import	( NET_Packet &P)
 		Fvector currentPosition;
 		character_physics_support()->movement()->GetPosition(currentPosition);
 
-		// Pavel: Если новая позиция дальше текущей на 4 метра, то телепортируем игрока, в обход интерполяции.
+		// Pavel: Если новая позиция дальше текущей на 16 метров, то телепортируем игрока, в обход интерполяции.
 		// Нужно для телепорта игрока.
-		if (currentPosition.distance_to_sqr(N_A.State.position) > 16.f) // distance > 4m
+		if (currentPosition.distance_to(N_A.State.position) > 16.f) // distance > 4m
 		{
+			/*
 			Msg("Set POS DISTANCE > 16.f POS [%f][%f][%f]", 
 				N_A.State.position.x, 
 				N_A.State.position.y, 
 				N_A.State.position.z
 			);
+			*/
 
 			character_physics_support()->movement()->SetPosition(N_A.State.position);
 			character_physics_support()->movement()->SetVelocity(0, 0, 0);
@@ -191,7 +193,8 @@ void CActorMP::process_packet		(net_update &N)
 	if (!NET.empty() && (N.dwTimeStamp < NET.back().dwTimeStamp))
 		return;
 
-	if (g_Alive()) {
+	if (g_Alive()) 
+	{
 		if (!MpInvisibility())
 			setVisible		((BOOL)!HUDview	());
 		setEnabled		(TRUE);

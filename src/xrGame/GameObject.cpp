@@ -60,6 +60,8 @@ CGameObject::CGameObject		()
 
 	m_callbacks					= xr_new<CALLBACK_MAP>();
 	m_anim_mov_ctrl				= 0;
+
+	currentPlayerRaycast = false;
 }
 
 CGameObject::~CGameObject		()
@@ -71,6 +73,8 @@ CGameObject::~CGameObject		()
 	xr_delete					(m_ai_location);
 	xr_delete					(m_callbacks);
 	xr_delete					(m_ai_obstacle);
+
+	currentPlayerRaycast = false;
 }
 
 void CGameObject::init			()
@@ -244,6 +248,13 @@ void CGameObject::OnEvent		(NET_Packet& P, u16 type)
 //			MakeMeCrow		();
 		}
 		break;
+
+		case GE_RAYCAST:
+		{
+		//	Msg("Recive Raycast Packet");
+
+			setMPPlayerRaycast(P.r_u8());
+		}break;
 	}
 }
 
@@ -536,7 +547,7 @@ void CGameObject::spawn_supplies()
 
 		for (u32 i = 0; i < j; ++i)
 		{
-			if (ai().get_level_graph()->valid_vertex_id(ai_location().level_vertex_id()))
+			if (ai().get_alife() && ai().get_level_graph()->valid_vertex_id(ai_location().level_vertex_id()))
 			{
 				if (::Random.randF(1.f) < p) 
 				{
@@ -622,21 +633,30 @@ u32 CGameObject::new_level_vertex_id			() const
 
 void CGameObject::update_ai_locations			(bool decrement_reference)
 {
-	u32								l_dwNewLevelVertexID = new_level_vertex_id();
+	//SE7Kills 
 
-	VERIFY							(ai().level_graph().valid_vertex_id(l_dwNewLevelVertexID));
+ 	u32								l_dwNewLevelVertexID = new_level_vertex_id();
+ 	//VERIFY							(ai().level_graph().valid_vertex_id(l_dwNewLevelVertexID));
 
 	if (decrement_reference && (ai_location().level_vertex_id() == l_dwNewLevelVertexID))
 		return;
 
-	ai_location().level_vertex		(l_dwNewLevelVertexID);
 
+
+	ai_location().level_vertex		(l_dwNewLevelVertexID);
+	
 	if (!ai().get_game_graph() && ai().get_cross_table())
 		return;
 
 	ai_location().game_vertex		(ai().cross_table().vertex(ai_location().level_vertex_id()).game_vertex_id());
-	VERIFY							(ai().game_graph().valid_vertex_id(ai_location().game_vertex_id()));
+ 
+	//VERIFY							(ai().game_graph().valid_vertex_id(ai_location().game_vertex_id()));
 }
+
+#include "ai/stalker/ai_stalker.h"
+#include "ai/monsters/basemonster/base_monster.h"
+
+xr_map<u16, bool> obj_skip_ms;
 
 void CGameObject::validate_ai_locations			(bool decrement_reference)
 {
@@ -645,8 +665,42 @@ void CGameObject::validate_ai_locations			(bool decrement_reference)
 
 	if (!UsedAI_Locations())
 		return;
+ 
 
-	update_ai_locations				(decrement_reference);
+	if (OnClient())
+		return;
+
+	CTimer timer; timer.Start();
+	if (!obj_skip_ms[ID()] )
+	if (!H_Parent() || H_Parent() && !obj_skip_ms[H_Parent()->ID()])
+		update_ai_locations				(decrement_reference); 
+	   
+	
+	if (timer.GetElapsed_ms() > 10)
+	{
+		if (this->H_Parent())
+		{
+			obj_skip_ms[this->H_Parent()->ID()] = true;
+					
+			Msg("---ADD PARRENT TO SKIP UPDATE_AI_LOCATION TOO LONG ms[%d], PARRENT[%d]",
+				timer.GetElapsed_ms(),
+				H_Parent() ? H_Parent()->ID() : 65535
+			);
+		}
+		else
+		{
+ 			Msg("---ADD OBJECT TO SKIP UPDATE_AI_LOCATION TOO LONG ID: [%d], section: [%s], name: [%s], ms[%d]",
+				this->ID(), this->cNameSect().c_str(), this->cName().c_str(), timer.GetElapsed_ms()
+			);
+			obj_skip_ms[this->ID()] = true;
+		}
+		
+
+		
+	}
+	
+
+
 }
 
 void CGameObject::spatial_move	()
@@ -719,6 +773,21 @@ CObject::SavedPosition CGameObject::ps_Element(u32 ID) const
 	SP.dwTime					+=	Level().timeServer_Delta();
 	return SP;
 }
+
+void CGameObject::setMPPlayerRaycast(bool value)
+{
+	if (OnClient())
+	{
+		NET_Packet packet;
+		u_EventGen(packet, GE_RAYCAST, this->ID());
+		packet.w_u8(value);
+		u_EventSend(packet);
+	//	Msg("Send Raycast Packet");
+	}
+
+	currentPlayerRaycast = value;
+}
+
 
 void CGameObject::u_EventGen(NET_Packet& P, u32 type, u32 dest)
 {
@@ -821,7 +890,6 @@ bool CGameObject::NeedToDestroyObject()	const
 
 void CGameObject::DestroyObject()			
 {
-	
 	if(m_bObjectRemoved)	return;
 	m_bObjectRemoved		= true;
 	if (getDestroy())		return;
@@ -830,6 +898,7 @@ void CGameObject::DestroyObject()
 	{	
 		NET_Packet		P;
 		u_EventGen		(P,GE_DESTROY,ID());
+		obj_skip_ms[ID()] = false;
 		u_EventSend		(P);
 	}
 }

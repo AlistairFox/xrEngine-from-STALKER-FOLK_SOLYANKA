@@ -84,6 +84,8 @@ public:
 #endif
 
 	IC		int							script_clsid					(const CLASS_ID &clsid) const;
+	IC		void						print_clsids() const;
+	IC		LPCSTR						get_clsid_name(u16 id) const;
 			void						register_script					() const;
 			void						register_script_class			(LPCSTR client_class, LPCSTR server_class, LPCSTR clsid, LPCSTR script_clsid);
 			void						register_script_class			(LPCSTR unknown_class, LPCSTR clsid, LPCSTR script_clsid);

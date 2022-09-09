@@ -97,12 +97,18 @@ bool CMapSpot::OnMouseDown( int mouse_btn )
 			return true;
 		}
 		return false;
+	} 
+	else if (mouse_btn == MOUSE_2)
+	{
+ 		GetMessageTarget()->SendMessage(this, MAP_SELECT_SPOT_2);
 	}
 	else
 	{
 		return false;
 	}
 }
+
+ 
 
 
 void CMapSpot::OnFocusLost()
@@ -306,7 +312,8 @@ void CComplexMapSpot::SetTimerFinish(ALife::_TIME_ID time) // ms
 		m_timer_finish		= 0;
 		m_infinity_time		= true;
 		m_timer->Show		(false);
-	}else
+	}
+	else
 	{
 		m_timer_finish		= time;
 		m_infinity_time		= false;

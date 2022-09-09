@@ -7,6 +7,7 @@
 
 #define CFS_CompressMark	(1ul << 31ul)
 #define CFS_HeaderChunkID	(666)
+#define CFS_SE7_HeaderChunkID (2610)
 
 XRCORE_API void VerifyPath	(LPCSTR path);
 

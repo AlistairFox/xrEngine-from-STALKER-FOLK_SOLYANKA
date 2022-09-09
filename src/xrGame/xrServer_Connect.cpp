@@ -19,9 +19,12 @@
 
 LPCSTR xrServer::get_map_download_url(LPCSTR level_name, LPCSTR level_version)
 {
+	return "";
+
 	R_ASSERT(level_name && level_version);
 	LPCSTR ret_url = "";
 	CInifile* level_ini = pApp->GetArchiveHeader(level_name, level_version);
+
 	if (!level_ini)
 	{
 		if(!IsGameTypeSingle())
@@ -84,14 +87,19 @@ xrServer::EConnect xrServer::Connect(shared_str &session_name, GameDescriptionDa
 
 	game->Create			(session_name);
 
-	xr_strcpy(game_descr.map_name, Level().name().c_str()); // game->level_name(session_name.c_str()).c_str()
+	bool alife_off = strstr(Core.Params, "-alife_off");
+
+	xr_strcpy(game_descr.map_name, alife_off ? game->level_name(session_name.c_str()).c_str() : Level().name().c_str());   
 	xr_strcpy(game_descr.map_version, game_sv_GameState::parse_level_version(session_name.c_str()).c_str());
 	xr_strcpy(game_descr.download_url, get_map_download_url(game_descr.map_name, game_descr.map_version));
 
 	typedef IGame_Persistent::params params;
 	params& p = g_pGamePersistent->m_game_params;
 
-	xr_strcpy(game_descr.spawn_name, p.m_game_or_spawn);
+	if (alife_off)
+		xr_strcpy(game_descr.spawn_name, "alife_off");
+	else
+		xr_strcpy(game_descr.spawn_name, p.m_game_or_spawn);
 
 	return inherited::Connect(*session_name, game_descr);
 }

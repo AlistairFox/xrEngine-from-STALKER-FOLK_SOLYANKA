@@ -1,5 +1,6 @@
 #include "pch_script.h"
 #include "UIPropertiesBox.h"
+#include "UIListBoxItem.h"
 
 using namespace luabind;
 
@@ -19,5 +20,9 @@ void CUIPropertiesBox::script_register(lua_State *L)
 		.def("AutoUpdateSize",		&CUIPropertiesBox::AutoUpdateSize)
 		.def("AddItem",				&CUIPropertiesBox::AddItem_script)
 //		.def("",					&CUIPropertiesBox::)
+		
+		//NEW
+		.def("GetSelectedItem", &CUIPropertiesBox::GetClickedItem)
+		.def("InitPropertyBox", &CUIPropertiesBox::InitPropertiesBox)
 	];
 }

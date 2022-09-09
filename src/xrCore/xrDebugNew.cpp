@@ -353,9 +353,11 @@ void CALLBACK PreErrorHandler	(INT_PTR)
 
 	string_path				log_folder;
 
-	__try {
+	__try 
+	{
 		FS.update_path		(log_folder,"$logs$","");
-		if ((log_folder[0] != '\\') && (log_folder[1] != ':')) {
+		if ((log_folder[0] != '\\') && (log_folder[1] != ':')) 
+		{
 			string256		current_folder;
 			_getcwd			(current_folder,sizeof(current_folder));
 			
@@ -364,7 +366,8 @@ void CALLBACK PreErrorHandler	(INT_PTR)
 			strconcat		(sizeof(log_folder),log_folder,current_folder,"\\",relative_path);
 		}
 	}
-	__except(EXCEPTION_EXECUTE_HANDLER) {
+	__except(EXCEPTION_EXECUTE_HANDLER) 
+	{
 		xr_strcpy				(log_folder,sizeof(log_folder),"logs");
 	}
 
@@ -384,9 +387,9 @@ void SetupExceptionHandler	(const bool &dedicated)
 {
 	BT_InstallSehFilter		();
 #if 1//ndef USE_OWN_ERROR_MESSAGE_WINDOW
-	if (!dedicated && !strstr(GetCommandLine(),"-silent_error_mode"))
-		BT_SetActivityType	(BTA_SHOWUI);
-	else
+//	if (!dedicated && !strstr(GetCommandLine(),"-silent_error_mode"))
+//		BT_SetActivityType	(BTA_SHOWUI);
+//	else
 		BT_SetActivityType	(BTA_SAVEREPORT);
 #else // USE_OWN_ERROR_MESSAGE_WINDOW
 	BT_SetActivityType		(BTA_SAVEREPORT);

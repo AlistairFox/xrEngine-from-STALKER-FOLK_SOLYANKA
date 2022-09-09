@@ -2,7 +2,7 @@
 #include "net_physics_state.h"
 #include "Level.h"
 
-//#define HALF_FLOAT;
+//#define HALF_FLOAT false;
 
 typedef unsigned short ushort;
 typedef unsigned int uint;
@@ -77,8 +77,6 @@ void net_physics_state::read(NET_Packet &packet)
  
 #ifdef	HALF_FLOAT 
 	{
-
-	
 		u16 x,y,z;
 		packet.r_u16(x);
 		packet.r_u16(y);

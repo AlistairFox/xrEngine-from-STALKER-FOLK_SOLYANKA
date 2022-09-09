@@ -2,6 +2,7 @@
 #include "game_cl_mp.h"
 #include "level_events.h"
 
+
 class CUIGameFMP;
 class CVoiceChat;
 
@@ -71,10 +72,14 @@ public:
 		return	(*object).second;
 	};
 
+	CParticlesObject* pobjec;
+
+	void CreateParticle(LPCSTR name, Fvector3 pos);
+
 
 private:
 	void OnVoiceMessage(NET_Packet* P);
 	CVoiceChat* m_pVoiceChat = nullptr;
-
 };
+ 
 

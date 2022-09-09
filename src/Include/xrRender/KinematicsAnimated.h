@@ -82,7 +82,7 @@ public:
 	// Main functionality
 	virtual void						UpdateTracks	()												= 0;								// Update motions
 	virtual void						LL_UpdateTracks	( float dt, bool b_force, bool leave_blends )	= 0;								// Update motions
-	//void						DestroyCycle	(CBlend &B);
+	void								DestroyCycle(CBlend& B) {};
 
 	// cycles
 	virtual MotionID					ID_Cycle		(LPCSTR  N) = 0;

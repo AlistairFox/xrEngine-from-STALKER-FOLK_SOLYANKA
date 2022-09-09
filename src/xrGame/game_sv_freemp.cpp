@@ -28,8 +28,8 @@ game_sv_freemp::~game_sv_freemp()
 
 void game_sv_freemp::Create(shared_str & options)
 {
-
-	m_alife_simulator = xr_new<CALifeSimulator>(&server(), &options);
+	if (!strstr(Core.Params, "-alife_off"))
+		m_alife_simulator = xr_new<CALifeSimulator>(&server(), &options);
 
 	inherited::Create(options);
 	R_ASSERT2(rpoints[0].size(), "rpoints for players not found");
@@ -261,7 +261,7 @@ void game_sv_freemp::OnPlayerReady(ClientID id_who)
 		
 
 			CSE_ALifeDynamicObject* player = smart_cast<CSE_ALifeDynamicObject*>(server().ID_to_entity(ps->GameID));
-			if (player)
+			if (player && ai().get_alife())
 			{
 				Msg("Register Object in alife():objects(%d), GRAPH (%d) FOR SHOW ONLY (crashed if alife():register(ent) ) ", player->ID, player->m_tGraphID);
 				alife().register_in_objects(player);

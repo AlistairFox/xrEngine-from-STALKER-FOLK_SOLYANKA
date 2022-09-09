@@ -146,7 +146,8 @@ void stalker_movement_manager_obstacles::build_level_path					()
 
 		if (level_path().failed())
 		{
-			if ( !pure_search_tried ) {
+			if ( !pure_search_tried ) 
+			{
 				pure_search_tried	= true;
 
 				m_static_obstacles.clear();
@@ -161,9 +162,9 @@ void stalker_movement_manager_obstacles::build_level_path					()
 			
 			if (!pure_search_result) 
 			{
- 
-				Msg					("! level_path().failed() during navigation");
- 
+				
+				Msg					("! level_path().failed() during navigation [%s] sleep 2s", object().cName().c_str());
+				old_timeLOCK = Device.dwTimeGlobal + 2000;
 				break;
 			}
 		}

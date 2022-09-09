@@ -325,6 +325,8 @@ void CUIActorMenu::Construct()
 	DeInitTradeMode					();
 	DeInitUpgradeMode				();
 	DeInitDeadBodySearchMode		();
+	//Se7Kills Mode 
+	DeInitArtUpgradeMode();
 }
 
 void CUIActorMenu::BindDragDropListEvents(CUIDragDropListEx* lst)

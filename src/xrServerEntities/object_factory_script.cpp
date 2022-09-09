@@ -88,15 +88,36 @@ void CObjectFactory::register_script	() const
 	luabind::module				(ai().script_engine().lua())[instance];
 }
 
+void printf_clsids()
+{
+	object_factory().print_clsids();
+};
+
+LPCSTR clsid_name(u16 id)
+{	
+	return object_factory().get_clsid_name(id);
+};
+ 
+
+
 #pragma optimize("s",on)
 void CObjectFactory::script_register(lua_State *L)
 {
+	module(L, "object_factory_cls")
+	[
+		def("printf_clsids", &printf_clsids),
+		def("clsid_name", &clsid_name)
+	];
+
 	module(L)
 	[
 		class_<CObjectFactory>("object_factory")
 			.def("register",	(void (CObjectFactory::*)(LPCSTR,LPCSTR,LPCSTR,LPCSTR))(&CObjectFactory::register_script_class))
 			.def("register",	(void (CObjectFactory::*)(LPCSTR,LPCSTR,LPCSTR))(&CObjectFactory::register_script_class))
 	];
+
+
+  
 }
 
 #endif // #ifndef DEDICATED_SERVER_ONLY

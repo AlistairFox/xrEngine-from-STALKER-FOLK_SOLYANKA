@@ -408,13 +408,15 @@ void CScriptGameObject::set_dest_level_vertex_id(u32 level_vertex_id)
 #endif
 			return;
 		}
-		if (!stalker->movement().restrictions().accessible(level_vertex_id)) {
+		
+		if (!stalker->movement().restrictions().accessible(level_vertex_id)) 
+		{
 			ai().script_engine().script_log			(
 				ScriptStorage::eLuaMessageTypeError,
 				"! you are trying to setup destination for the stalker %s, which is not accessible by its restrictors in[%s] out[%s]",
 				stalker->cName().c_str(),
-				Level().space_restriction_manager().in_restrictions (stalker->ID()).c_str(),
-				Level().space_restriction_manager().out_restrictions(stalker->ID()).c_str()
+				Level().space_restriction_manager().in_restrictions  (stalker->ID()).c_str(),
+				Level().space_restriction_manager().out_restrictions (stalker->ID()).c_str()
 			);
 			return;
 		}

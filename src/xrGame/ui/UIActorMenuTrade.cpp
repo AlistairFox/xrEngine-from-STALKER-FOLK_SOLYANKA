@@ -148,6 +148,7 @@ void CUIActorMenu::DeInitTradeMode()
 
 	if(!CurrentGameUI())
 		return; 
+
 	// только если находимся в режиме single
 	// Pavel: уже нет :)
 	// CUIGameSP* pGameSP = smart_cast<CUIGameSP*>(CurrentGameUI());
@@ -206,7 +207,8 @@ bool CUIActorMenu::ToActorTrade(CUICellItem* itm, bool b_use_cursor_pos)
 }
 
 bool CUIActorMenu::ToPartnerTrade(CUICellItem* itm, bool b_use_cursor_pos)
-{ // Перенос в список для покупки
+{ 
+	// Перенос в список для покупки
 	PIItem iitem						= (PIItem)itm->m_pData;
 	SInvItemPlace	pl;
 	pl.type		= eItemPlaceRuck;

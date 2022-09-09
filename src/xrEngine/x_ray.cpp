@@ -249,6 +249,9 @@ PROTECT_API void InitSettings	()
 	pGameIni					= xr_new<CInifile>	(fname,TRUE);
 	CHECK_OR_EXIT				(0!=pGameIni->section_count(), make_string("Cannot find file %s.\nReinstalling application may fix this problem.",fname));
 }
+
+
+
 PROTECT_API void InitConsole	()
 {
 	SECUROM_MARKER_SECURITY_ON(5)
@@ -704,7 +707,8 @@ int APIENTRY WinMain_impl(HINSTANCE hInstance,
 	Debug._initialize			(false);
 #endif // DEDICATED_SERVER
 
-	if (!IsDebuggerPresent()) {
+	if (!IsDebuggerPresent())
+	{
 
 		HMODULE const kernel32	= LoadLibrary("kernel32.dll");
 		R_ASSERT				(kernel32);
@@ -765,26 +769,36 @@ int APIENTRY WinMain_impl(HINSTANCE hInstance,
 	// SetThreadAffinityMask		(GetCurrentThread(),1);
 
 	// Title window
-	logoWindow					= CreateDialog(GetModuleHandle(NULL),	MAKEINTRESOURCE(IDD_STARTUP), 0, logDlgProc );
 	
-	HWND logoPicture			= GetDlgItem(logoWindow, IDC_STATIC_LOGO);
-	RECT logoRect;
-	GetWindowRect(logoPicture, &logoRect);
+ 
+	{
+		logoWindow = CreateDialog(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_STARTUP), 0, logDlgProc);
 
-	SetWindowPos				(
-		logoWindow,
-#ifndef DEBUG
-		HWND_TOPMOST,
-#else
-		HWND_NOTOPMOST,
-#endif // NDEBUG
-		0,
-		0,
-		logoRect.right - logoRect.left,
-		logoRect.bottom - logoRect.top,
-		SWP_NOMOVE | SWP_SHOWWINDOW// | SWP_NOSIZE
-	);
-	UpdateWindow(logoWindow);
+		HWND logoPicture = GetDlgItem(logoWindow, IDC_STATIC_LOGO);
+		RECT logoRect;
+		GetWindowRect(logoPicture, &logoRect);
+
+		bool Show = !strstr(Core.Params, "-hide") && g_dedicated_server;
+
+		UINT flags;
+		if (Show)
+			flags = SWP_NOMOVE | SWP_SHOWWINDOW;
+		else
+			flags = SWP_NOMOVE | SWP_HIDEWINDOW;
+
+ 		SetWindowPos(
+			logoWindow,
+			HWND_TOPMOST,
+			0,
+			0,
+			logoRect.right - logoRect.left,
+			logoRect.bottom - logoRect.top,
+			flags // | SWP_NOSIZE
+		);
+		
+		UpdateWindow(logoWindow);
+	}
+    
 
 	// AVI
 	g_bIntroFinished			= TRUE;
@@ -1251,7 +1265,7 @@ void CApplication::LoadStage()
 	load_stage++;
 	VERIFY						(ll_dwReference);
 	Msg							("*stage [%d] phase time: %d ms", load_stage, phase_timer.GetElapsed_ms());	phase_timer.Start();
-	Msg							("*stage [%d] phase cmem: %d K",  load_stage,Memory.mem_usage()/1024);
+	Msg							("*stage [%d] phase cmem: %d K",  load_stage, Memory.mem_usage()/1024);
 	
 	if (g_pGamePersistent->GameType()==1 && strstr(Core.Params,"alife"))
 		max_load_stage			= 17;

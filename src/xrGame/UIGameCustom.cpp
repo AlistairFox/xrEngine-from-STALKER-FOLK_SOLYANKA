@@ -577,3 +577,14 @@ void  CUIGameCustom::StartUpgrade(CInventoryOwner* pActorInv, CInventoryOwner* p
 	m_ActorMenu->SetMenuMode(mmUpgrade);
 	m_ActorMenu->ShowDialog(true);
 }
+
+void  CUIGameCustom::StartArtUpgrade(CInventoryOwner* pActorInv, CInventoryOwner* pArtUpgrader)
+{
+	m_ActorMenu->SetActor(pActorInv);
+	m_ActorMenu->SetPartner(pArtUpgrader);
+
+	m_ActorMenu->SetMenuMode(mmArtUpgrade);
+	m_ActorMenu->ShowDialog(true);
+
+}
+ 			

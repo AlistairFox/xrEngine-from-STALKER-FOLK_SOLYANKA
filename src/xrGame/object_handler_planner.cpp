@@ -281,7 +281,14 @@ void CObjectHandlerPlanner::setup	(CAI_Stalker *object)
 void CObjectHandlerPlanner::add_item			(CInventoryItem *inventory_item)
 {
 	CWeapon						*weapon		= smart_cast<CWeapon*>		(inventory_item);
-	if (weapon) {
+		
+	
+	
+	if (weapon) 
+	{		
+		if (OnServer())
+			weapon->SetAmmoElapsed(weapon->GetAmmoMagSize());
+
 		add_evaluators			(weapon);
 		add_operators			(weapon);
 		return;

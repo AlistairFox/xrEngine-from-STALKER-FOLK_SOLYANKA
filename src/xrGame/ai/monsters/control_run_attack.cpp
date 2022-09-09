@@ -77,10 +77,21 @@ bool CControlRunAttack::check_start_conditions()
 
 void CControlRunAttack::on_event(ControlCom::EEventType type, ControlCom::IEventData *dat)
 {
-	switch (type) {
+	switch (type) 
+	{
 	case ControlCom::eventAnimationEnd:
+		#pragma todo "!!! ERROR CRUSHED бшкер он 0 min_delay Х max_delay 0"
 			Msg("m_DEL [%d]/ max_DEL[%d]", m_min_delay, m_max_delay);
-			m_time_next_attack					= time() + Random.randI(m_min_delay,m_max_delay);
+			
+			if (m_max_delay == 0 || m_min_delay >= m_max_delay)
+			{
+				m_time_next_attack = time();
+			}
+			else
+			{
+				m_time_next_attack = time() + Random.randI(m_min_delay, m_max_delay);
+			}
+
 			m_man->notify						(ControlCom::eventRunAttackEnd, 0);
 			break;
 	case ControlCom::eventAnimationStart: // handle blend params
@@ -90,7 +101,9 @@ void CControlRunAttack::on_event(ControlCom::EEventType type, ControlCom::IEvent
 			VERIFY					(ctrl_data_anim);
 
 			CBlend					*blend = m_man->animation().current_blend();
-			VERIFY					(blend);
+			VERIFY					(blend);   
+			if (!blend)
+				return;
 
 			// animation time
 			float					anim_time = blend->timeTotal / blend->speed;

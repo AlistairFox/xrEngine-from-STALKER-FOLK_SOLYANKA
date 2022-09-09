@@ -72,18 +72,18 @@ void CInventoryBox::OnEvent(NET_Packet& P, u16 type)
 				}
 			};
 
-			if (OnServer())
+			if (OnServer() )
 			{
 				game_sv_freemp* freemp_sv = smart_cast<game_sv_freemp*>(Level().Server->game);
 
-				if (freemp_sv)
+				if (freemp_sv && ai().get_alife())
 				{
 					CSE_Abstract* ent = freemp_sv->server().ID_to_entity(itm->ID());
 					CSE_ALifeDynamicObject* dynamic = smart_cast<CSE_ALifeDynamicObject*>(ent);
 					if (dynamic)
 					{
 						freemp_sv->alife().register_in_objects(dynamic);
-						Msg("Reg Item in Objects [%d][%s]", itm->ID(), itm->cNameSect().c_str());
+						//Msg("Reg Item in Objects [%d][%s]", itm->ID(), itm->cNameSect().c_str());
 					}
 				}
 			}
@@ -135,14 +135,14 @@ void CInventoryBox::OnEvent(NET_Packet& P, u16 type)
 			{
 				game_sv_freemp* freemp_sv = smart_cast<game_sv_freemp*>(Level().Server->game);
 
-				if (freemp_sv)
+				if (freemp_sv && ai().get_alife())
 				{
 					CSE_Abstract* ent = freemp_sv->server().ID_to_entity(itm->ID());
 					CSE_ALifeDynamicObject* dynamic = smart_cast<CSE_ALifeDynamicObject*>(ent);
 					if (dynamic)
 					{
 						freemp_sv->alife().unregister_in_objects(dynamic);
-						Msg("UNReg Item in Objects [%d][%s]", itm->ID(), itm->cNameSect().c_str());
+						//Msg("UNReg Item in Objects [%d][%s]", itm->ID(), itm->cNameSect().c_str());
 					}
 
 				}

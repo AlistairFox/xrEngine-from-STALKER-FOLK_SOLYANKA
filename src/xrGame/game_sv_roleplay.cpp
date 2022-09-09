@@ -162,3 +162,9 @@ void game_sv_roleplay::OnDetach(u16 eid_who, u16 eid_what)
 	//	OnDetachPlayersBag(e_who, e_entity);
 	}
 }
+
+void game_sv_roleplay::MemoryUsageGameObjects()
+{
+	
+}
+

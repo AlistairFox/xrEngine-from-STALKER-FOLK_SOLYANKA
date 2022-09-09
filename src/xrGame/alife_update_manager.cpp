@@ -433,6 +433,7 @@ void CALifeUpdateManager::teleport_object	(ALife::_OBJECT_ID id, GameGraph::_GRA
 
 	if (object->m_bOnline)
 		switch_offline						(object);
+
 	graph().change							(object,object->m_tGraphID,game_vertex_id);
 	object->m_tNodeID						= level_vertex_id;
 	object->o_Position						= position;

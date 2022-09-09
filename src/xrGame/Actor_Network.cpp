@@ -1326,8 +1326,7 @@ void CActor::make_Interpolation	()
 				}
 			}
 
-			//if (  (ResPosition.x > 1  || ResPosition.x < -1)  && (ResPosition.z < -1 || ResPosition.z > 1) )
-			{
+ 			{
 				character_physics_support()->movement()->SetPosition(ResPosition);
 				character_physics_support()->movement()->SetVelocity(SpeedVector);
 				cam_Active()->Set(-unaffected_r_torso.yaw, unaffected_r_torso.pitch, 0);//, unaffected_r_torso.roll);
@@ -1399,7 +1398,7 @@ void CActor::save(NET_Packet &output_packet)
 	CInventoryOwner::save(output_packet);
 	output_packet.w_u8(u8(m_bOutBorder));
 	
-	if (!g_dedicated_server) 
+	if (IsGameTypeSingle()) 
 	{
 		CUITaskWnd* task_wnd = HUD().GetGameUI()->PdaMenu().pUITaskWnd;
 
@@ -1422,7 +1421,7 @@ void CActor::load(IReader &input_packet)
 
 	m_bOutBorder=!!(input_packet.r_u8());
 
-	if (!g_dedicated_server) 
+	if ( IsGameTypeSingle() )
 	{
 
 		CUITaskWnd* task_wnd = HUD().GetGameUI()->PdaMenu().pUITaskWnd;

@@ -105,8 +105,8 @@ void game_cl_freemp::net_import_update(NET_Packet & P)
 {
 	inherited::net_import_update(P);
 }
-
-//u32 old_time = 0;
+//sync slots
+string32 slots[4];
 
 void game_cl_freemp::shedule_Update(u32 dt)
 {
@@ -188,9 +188,32 @@ void game_cl_freemp::shedule_Update(u32 dt)
 		{
 			pActor->set_money((u32)ps->money_for_round, false);
 		}
-
 		//Msg("Rank %d, Current %d", ps->rank, pActor->Rank());
 	}	
+
+	if (slots[0] != g_quick_use_slots[0] ||
+		slots[1] != g_quick_use_slots[1] ||
+		slots[2] != g_quick_use_slots[2] ||
+		slots[3] != g_quick_use_slots[3]   )
+	{
+		xr_strcpy(slots[0], g_quick_use_slots[0]);
+		xr_strcpy(slots[1], g_quick_use_slots[1]);	
+		xr_strcpy(slots[2], g_quick_use_slots[2]);
+		xr_strcpy(slots[3], g_quick_use_slots[3]);
+
+		NET_Packet packet;
+		Game().u_EventGen(packet, GE_ACTOR_SLOTS_SYNC, -1);
+		packet.w_clientID(Level().game->local_svdpnid);
+		packet.w_stringZ(slots[0]);
+		packet.w_stringZ(slots[1]);
+		packet.w_stringZ(slots[2]);
+		packet.w_stringZ(slots[3]);
+		Game().u_EventSend(packet);
+
+	}
+
+
+	
 }
 
 float game_cl_freemp::shedule_Scale()
@@ -310,6 +333,8 @@ void game_cl_freemp::OnConnected()
 
 	if (m_game_ui)
 		Game().OnScreenResolutionChanged();
+
+
 }
 	
 void game_cl_freemp::TranslateGameMessage(u32 msg, NET_Packet& P)
@@ -447,6 +472,12 @@ void game_cl_freemp::OnScreenResolutionChanged()
 	{
 		m_game_ui->UIMainIngameWnd->SetVoiceDistance(m_pVoiceChat->GetDistance());
 	}
+}
+
+void game_cl_freemp::CreateParticle(LPCSTR name, Fvector3 pos)
+{
+	pobjec = CParticlesObject::Create(name);
+	pobjec->play_at_pos(pos);
 }
 
 void game_cl_freemp::OnVoiceMessage(NET_Packet* P)

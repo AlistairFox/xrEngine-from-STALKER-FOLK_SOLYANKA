@@ -341,8 +341,7 @@ void CActor::Load	(LPCSTR section )
 
 	// m_PhysicMovementControl: General
 	//m_PhysicMovementControl->SetParent		(this);
-
-
+   
 	/*
 	Fbox	bb;Fvector	vBOX_center,vBOX_size;
 	// m_PhysicMovementControl: BOX
@@ -363,13 +362,7 @@ void CActor::Load	(LPCSTR section )
 	bb.set	(vBOX_center,vBOX_center); bb.grow(vBOX_size);
 	character_physics_support()->movement()->SetBox		(0,bb);
 	*/
-	
-
-
-	
-	
-	
-	
+ 
 	//// m_PhysicMovementControl: Foots
 	//Fvector	vFOOT_center= pSettings->r_fvector3	(section,"ph_foot_center"	);
 	//Fvector	vFOOT_size	= pSettings->r_fvector3	(section,"ph_foot_size"		);

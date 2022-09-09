@@ -19,6 +19,12 @@ struct SpawnSect
 	xr_vector<xr_string> StartItems;
 };
 
+struct ActorSlots 
+{
+	string32 slots[4];
+	ClientID cl_id;
+};
+
  
 class xrServer;
 class CALifeSimulator;
@@ -34,11 +40,13 @@ class game_sv_freemp : public game_sv_mp, private pure_relcase
 
 	xr_map<ClientID, u32> map_alife_sended;
 
+
 protected:
 	CALifeSimulator* m_alife_simulator;
 
 
 public:
+	xr_vector<ActorSlots> cl_slots;
 	xr_map<ClientID, Team> teamPlayers;
 	bool surge_started;
 	

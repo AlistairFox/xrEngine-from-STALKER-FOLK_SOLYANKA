@@ -133,8 +133,13 @@ void CUITalkDialogWnd::OnExitClicked(CUIWindow* w, void*)
 }
 
 void CUITalkDialogWnd::OnTradeClicked(CUIWindow* w, void*)
-{
-	if ( mechanic_mode )
+{	
+	if (artefacts_mode)
+	{
+		GetTop()->SendMessage(this, TALK_DIALOG_ART_UPGRADE_BUTTON_CLICKED);
+	}
+	else
+	if ( mechanic_mode ) 
 	{
 		GetTop()->SendMessage(this, TALK_DIALOG_UPGRADE_BUTTON_CLICKED);
 	}
@@ -248,7 +253,13 @@ void CUITalkDialogWnd::SetOsoznanieMode(bool b)
 //	UIDialogFrameTop.Show (!b);
 
 	UIToTradeButton.Show(!b);
-	if ( mechanic_mode )
+
+	if ( artefacts_mode ) 
+	{
+		UIToTradeButton.m_hint_text = "ui_st_art_upgrade_hint";
+		UIToTradeButton.TextItemControl()->SetTextST("ui_st_art_upgrade");
+	}
+	else if ( mechanic_mode )
 	{
 		UIToTradeButton.m_hint_text = "ui_st_upgrade_hint";
 		UIToTradeButton.TextItemControl()->SetTextST( "ui_st_upgrade" );

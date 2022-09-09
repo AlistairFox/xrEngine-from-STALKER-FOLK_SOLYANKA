@@ -73,7 +73,8 @@ MotionID CStalkerAnimationManager::no_object_animation(const EBodyState &body_st
 	const stalker_movement_manager_smart_cover	&movement = stalker.movement();
 	const xr_vector<CAniVector>		&animation = m_data_storage->m_part_animations.A[body_state].m_torso.A[0].A;
 
-	if (eMentalStateFree == movement.mental_state()) {
+	if (eMentalStateFree == movement.mental_state()) 
+	{
 		VERIFY3						(
 			eBodyStateStand == movement.body_state(),
 			"Cannot run FREE animations, when body state is not stand!",
@@ -109,7 +110,8 @@ MotionID CStalkerAnimationManager::unknown_object_animation(u32 slot, const EBod
 	const stalker_movement_manager_smart_cover	&movement = stalker.movement();
 	u32								id = stalker.CObjectHandler::planner().current_action_state_id();
 
-	switch (id) {
+	switch (id) 
+	{
 		case ObjectHandlerSpace::eWorldOperatorFire1:
 		case ObjectHandlerSpace::eWorldOperatorFire2:
 		case ObjectHandlerSpace::eWorldOperatorAim1:
@@ -145,7 +147,8 @@ MotionID CStalkerAnimationManager::unknown_object_animation(u32 slot, const EBod
 			return					(animation_stand[12].A[1]);
 	}
 
-	if (eMentalStateFree == movement.mental_state()) {
+	if (eMentalStateFree == movement.mental_state())
+	{
 		VERIFY3								(
 			eBodyStateStand == movement.body_state(),
 			"Cannot run FREE animation when body state is not stand!",
@@ -176,7 +179,8 @@ MotionID CStalkerAnimationManager::weapon_animation	(u32 slot, const EBodyState 
 {
 	const xr_vector<CAniVector>		&animation = m_data_storage->m_part_animations.A[body_state].m_torso.A[slot].A;
 
-	switch (m_weapon->GetState()) {
+	switch (m_weapon->GetState()) 
+	{
 		case CWeapon::eReload : {
 			switch (m_weapon->GetReloadState()){
 				case CWeapon::eSubstateReloadBegin:
@@ -344,7 +348,8 @@ MotionID CStalkerAnimationManager::assign_torso_animation	()
 
 	fill_object_info				();
 
-	if (m_weapon) {
+	if (m_weapon) 
+	{
 		if (!strapped())
 			return					(weapon_animation(object_slot(),body_state));
 

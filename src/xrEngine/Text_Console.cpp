@@ -153,17 +153,19 @@ void	CTextConsole::CreateLogWnd()
 void CTextConsole::Initialize()
 {
 	inherited::Initialize();
+	if (!strstr(Core.Params, "-hide"))
+	{
+		m_pMainWnd         = &Device.m_hWnd;
+		m_dwLastUpdateTime = Device.dwTimeGlobal;
+		m_last_time        = Device.dwTimeGlobal;
+
 	
-	m_pMainWnd         = &Device.m_hWnd;
-	m_dwLastUpdateTime = Device.dwTimeGlobal;
-	m_last_time        = Device.dwTimeGlobal;
-
-	CreateConsoleWnd();
-	CreateLogWnd();
-
-	ShowWindow( m_hConsoleWnd, SW_SHOW );
-	UpdateWindow( m_hConsoleWnd );	
-
+		CreateConsoleWnd();
+		CreateLogWnd();
+		ShowWindow(m_hConsoleWnd, SW_SHOW);
+		UpdateWindow(m_hConsoleWnd);
+	}
+ 
 	m_server_info.ResetData();
 }
 
@@ -190,7 +192,10 @@ void CTextConsole::Destroy()
 void CTextConsole::OnRender() {} //disable ÑConsole::OnRender()
 
 void CTextConsole::OnPaint()
-{
+{		 
+	if (strstr(Core.Params, "-hide"))
+		return;
+
 	RECT wRC;
 	PAINTSTRUCT ps;
 	BeginPaint( m_hLogWnd, &ps );
@@ -223,10 +228,12 @@ void CTextConsole::OnPaint()
 
 extern u32 shedule_time_ms = 0;
 extern u32 updataCL_time_ms = 0;
+extern u32 shedule_count = 0;
 
 u32 time_update = 0;
 string128 updateCL;
 string128 updateSH;
+string128 updateSH_count;
 
 #include "IGame_Persistent.h"
 
@@ -324,6 +331,7 @@ void CTextConsole::DrawLog( HDC hDC, RECT* pRect )
 
 			m_server_info.AddItem("updateCL", updateCL, RGB(0, 255, 255));
 			m_server_info.AddItem("updateSH", updateSH, RGB(0, 255, 255));
+			m_server_info.AddItem("updateSH_count", updateSH_count, RGB(0, 255, 255));
 
 			if (g_pGamePersistent && &g_pGamePersistent->Environment())
 			{
@@ -360,9 +368,14 @@ void CTextConsole::DrawLog( HDC hDC, RECT* pRect )
 			xr_strcat(updateSH, itoa(shedule_time_ms, tmp, 10));
 			xr_strcat(updateSH, "]");
 
+			xr_strcpy(updateSH_count, "[");
+			xr_strcat(updateSH_count, itoa(shedule_count, tmp, 10));
+			xr_strcat(updateSH_count, "]");
+
 			time_update = Device.dwTimeGlobal;
 			updataCL_time_ms = 0;
 			shedule_time_ms = 0;
+			shedule_count = 0;
 		}
 		 
 
@@ -434,6 +447,9 @@ void CTextConsole::IR_OnKeyboardPress( int dik ) !!!!!!!!!!!!!!!!!!!!!
 */
 void CTextConsole::OnFrame()
 {
+	if (strstr(Core.Params, "-hide"))
+		return;
+
 	inherited::OnFrame();
 /*	if ( !m_bNeedUpdate && m_dwLastUpdateTime + 1000/g_svTextConsoleUpdateRate > Device.dwTimeGlobal )
 	{

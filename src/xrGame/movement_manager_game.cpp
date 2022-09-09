@@ -23,6 +23,8 @@
 #include "detail_path_builder.h"
 #include "mt_config.h"
 
+#include "HUDManager.h"
+
 void CMovementManager::show_game_path_info	()
 {
 	Msg							("! Cannot build GAME path! (object %s) id %d",*object().cName(), object().ID());
@@ -50,6 +52,8 @@ void CMovementManager::show_game_path_info	()
 	for ( ; I != E; ++I)
 		Msg						("!   [%d][%d][%d][%d]",(*I).tMask[0],(*I).tMask[1],(*I).tMask[2],(*I).tMask[3]);
 }
+
+extern int MAX_DISTANCE_FIND_GRAPH = 150;
 
 void CMovementManager::process_game_path()
 {
@@ -81,7 +85,6 @@ void CMovementManager::process_game_path()
 
 			if (game_selector().failed())
 			{
-
 				break;
 			}
 
@@ -90,6 +93,25 @@ void CMovementManager::process_game_path()
 
 		case ePathStateBuildGamePath : 
 		{
+			u32 vertex = ai().game_graph().vertex(
+				game_path().m_dest_vertex_id
+			)->level_vertex_id();
+
+			float distance_to_graph = ai().level_graph().vertex_position(vertex).distance_to_xz(object().Position());
+			//Fvector distance_pos = ai().level_graph().vertex_position(ai().level_graph().vertex(vertex));
+
+			if (distance_to_graph > MAX_DISTANCE_FIND_GRAPH)
+			{
+				/*
+				Msg("Distance check %f, pos[%f][%f][%f], obj pos [%f][%f][%f]", 
+					distance_to_graph, distance_pos.x, distance_pos.y, distance_pos.z,
+					object().Position().x, object().Position().y, object().Position().z
+				);
+				*/
+				m_path_state = ePathStateSelectGameVertex;
+				break;
+			}
+
 			game_path().build_path(
 				object().ai_location().game_vertex_id(),
 				game_dest_vertex_id()
@@ -133,7 +155,9 @@ void CMovementManager::process_game_path()
 					game_path().intermediate_vertex_id()
 			)->level_vertex_id();
 
-			if (!accessible(dest_level_vertex_id)) {
+
+			if (!accessible(dest_level_vertex_id)) 
+			{
 				Fvector					dest_pos;
 				dest_level_vertex_id	= restrictions().accessible_nearest(
 					ai().level_graph().vertex_position(dest_level_vertex_id),

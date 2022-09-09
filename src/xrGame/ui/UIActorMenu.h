@@ -4,6 +4,7 @@
 #include "UIWndCallback.h"
 #include "../../xrServerEntities/inventory_space.h"
 #include "UIHint.h"
+#include "../UIArtefactUpgradeWnd.h"
 
 class CUICharacterInfo;
 class CUIDragDropListEx;
@@ -50,6 +51,7 @@ enum EMenuMode{
 		mmTrade,
 		mmUpgrade,
 		mmDeadBodySearch,
+		mmArtUpgrade,
 };
 
 class CUIActorMenu :	public CUIDialogWnd, 
@@ -120,6 +122,7 @@ protected:
 	//END
 
 	CUIInventoryUpgradeWnd*		m_pUpgradeWnd;
+	CUIArtefactUpgradeWnd*		m_artUpgradeWnd;
 	
 	CUIStatic*					m_LeftBackground;
 
@@ -236,14 +239,22 @@ protected:
 	bool						OnItemDropped				(PIItem itm, CUIDragDropListEx* new_owner, CUIDragDropListEx* old_owner);
 
 	void						ResetMode					();
+
 	void						InitInventoryMode			();
 	void						DeInitInventoryMode			();
+//Trader
 	void						InitTradeMode				();
 	void						DeInitTradeMode				();
+//Mechanic
 	void						InitUpgradeMode				();
 	void						DeInitUpgradeMode			();
+//DeadBody
 	void						InitDeadBodySearchMode		();
 	void						DeInitDeadBodySearchMode	();
+//Artefact Upgrade	
+	void						DeInitArtUpgradeMode		();
+	void						InitArtUpgradeMode();
+
 
 	void						CurModeToScript				();
 	void						RepairEffect_CurItem		();

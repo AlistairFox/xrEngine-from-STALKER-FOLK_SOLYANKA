@@ -51,15 +51,10 @@ void CUIActorMenu::DeInitUpgradeMode()
 
 	if(!CurrentGameUI())
 		return;
-
-	//только если находимся в режиме Custom
-	CUIGameCustom* pGameSP = smart_cast<CUIGameCustom*>(CurrentGameUI());
-	
-	if(!pGameSP) return;
-
-	if(pGameSP->TalkMenu->IsShown())
+ 
+	if(CurrentGameUI()->TalkMenu->IsShown())
 	{
-		pGameSP->TalkMenu->NeedUpdateQuestions();
+		CurrentGameUI()->TalkMenu->NeedUpdateQuestions();
 	}
 }
 

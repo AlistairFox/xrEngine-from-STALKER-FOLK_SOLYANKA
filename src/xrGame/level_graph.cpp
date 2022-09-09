@@ -15,30 +15,44 @@ LPCSTR LEVEL_GRAPH_NAME = "level.ai";
 #ifdef AI_COMPILER
 CLevelGraph::CLevelGraph		(LPCSTR filename)
 #else
-CLevelGraph::CLevelGraph		()
+CLevelGraph::CLevelGraph()
 #endif
 {
 #ifndef AI_COMPILER
 #ifdef DEBUG
-	sh_debug->create				("debug\\ai_nodes","$null");
+	sh_debug->create("debug\\ai_nodes", "$null");
 #endif
 	string_path					file_name;
-	FS.update_path				(file_name,"$level$",LEVEL_GRAPH_NAME);
+	FS.update_path(file_name, "$level$", LEVEL_GRAPH_NAME);
 #else
 	string256					file_name;
-	strconcat					(sizeof(file_name), file_name, filename, LEVEL_GRAPH_NAME);
+	strconcat(sizeof(file_name), file_name, filename, LEVEL_GRAPH_NAME);
 #endif
-	m_reader					= FS.r_open	(file_name);
+	m_reader = FS.r_open(file_name);
 
 	// m_header & data
-	m_header					= (CHeader*)m_reader->pointer();
-	R_ASSERT					(header().version() == XRAI_CURRENT_VERSION);
-	m_reader->advance			(sizeof(CHeader));
-	m_nodes						= (CVertex*)m_reader->pointer();
-	m_row_length				= iFloor((header().box().max.z - header().box().min.z)/header().cell_size() + EPS_L + 1.5f);
-	m_column_length				= iFloor((header().box().max.x - header().box().min.x)/header().cell_size() + EPS_L + 1.5f);
-	m_access_mask.assign		(header().vertex_count(),true);
-	unpack_xz					(vertex_position(header().box().max),m_max_x,m_max_z);
+	m_header = (CHeader*)m_reader->pointer();
+	Msg("aimap HEADER VERSION %d == current_game ai_map version %d", header().version(), XRAI_CURRENT_VERSION);
+	R_ASSERT(header().version() == XRAI_CURRENT_VERSION);
+
+	m_reader->advance(sizeof(CHeader));
+	m_nodes = (CVertex*)m_reader->pointer();
+	m_row_length = iFloor((header().box().max.z - header().box().min.z) / header().cell_size() + EPS_L + 1.5f);
+	m_column_length = iFloor((header().box().max.x - header().box().min.x) / header().cell_size() + EPS_L + 1.5f);
+	m_access_mask.assign(header().vertex_count(), true);
+	unpack_xz(vertex_position(header().box().max), m_max_x, m_max_z);
+
+	Msg("!!! AI BOX [%f][%f] -> [%f][%f]", header().box().x1, header().box().x2, header().box().z1, header().box().z2);
+	Msg("!!! AI MAP SIZE NODES [%d]", header().vertex_count());
+
+	for (int i = 0; i < header().vertex_count(); i++)
+	{
+		Fvector pos = vertex_position(m_nodes[i].position());
+		if (!valid_vertex_position(pos))
+		{
+			//Msg("Vertex [%d] -> [%f][%f][%f] not valid", i, pos.x, pos.y, pos.z);
+		}
+	}
 
 #ifdef DEBUG
 #	ifndef AI_COMPILER
@@ -86,7 +100,8 @@ u32 CLevelGraph::vertex		(u32 current_node_id, const Fvector& position) const
 	if (valid_vertex_position(position)) 
 	{
 		// so, our position is inside the level graph bounding box
-		if (valid_vertex_id(current_node_id) && inside(vertex(current_node_id),position)) {
+		if (valid_vertex_id(current_node_id) && inside(vertex(current_node_id),position)) 
+		{
 			// so, our node corresponds to the position
 #ifndef AI_COMPILER
 			Device.Statistic->AI_Node.End();
@@ -158,7 +173,8 @@ u32 CLevelGraph::vertex		(u32 current_node_id, const Fvector& position) const
 		}
 	}
 
-	if (!valid_vertex_id(current_node_id)) {
+	if (!valid_vertex_id(current_node_id))
+	{
 		// so, we do not have a correct current node
 		// performing very slow full search
 		id					= vertex(position);

@@ -20,6 +20,8 @@ class CMapSpot;
 class CGameTask;
 class CUIXml;
 class UIHint;
+class CUIPropertiesBox;
+ 
 
 DEFINE_MAP(shared_str,CUICustomMap*,GameMaps,GameMapsPairIt);
 
@@ -46,6 +48,7 @@ private:
 	CMapActionPlanner*			m_ActionPlanner;
 //	CUIFrameLineWnd*			UIMainMapHeader;
 	CUIMapLocationHint*			m_map_location_hint;
+
 
 #ifdef DEBUG
 //	CUIStatic*					m_dbg_text_hint;
@@ -106,10 +109,14 @@ public:
 	Fvector2					m_tgtCenter;
 	UIHint*						hint_wnd;
 
+	void						ActivatePropertiesBox(CUIWindow* wnd);
+
 protected:
 	void						init_xml_nav			(CUIXml& xml);
 	void						ShowHint				(bool extra = false);
 	void						Activated				();
+
+	CUIPropertiesBox*			property_box;
 
 public:
 								CUIMapWnd				();

@@ -40,16 +40,6 @@ CSE_ALifeDynamicObject *alife_object		(const CALifeSimulator *self, ALife::_OBJE
 	return			(self->objects().object(object_id,true));
 }
 
-#include "game_cl_freemp.h"
-
-CSE_ALifeDynamicObject* alife_object_cl(ALife::_OBJECT_ID obj_id)
-{
-	game_cl_freemp* freemp = smart_cast<game_cl_freemp*>(&Game());
-	if (freemp)
-		return freemp->GetAlifeObject(obj_id);
-	return 0;
-}
-
 bool valid_object_id						(const CALifeSimulator *self, ALife::_OBJECT_ID object_id)
 {
 	VERIFY			(self);
@@ -374,12 +364,6 @@ void CALifeSimulator::script_register			(lua_State *L)
 
 		,def("alife",						&alife)
 	];
-
-	module(L, "alife_cl")
-	[
-		def("object", &alife_object_cl)
-	];
-	
 
 	{
 		if (story_ids.empty())

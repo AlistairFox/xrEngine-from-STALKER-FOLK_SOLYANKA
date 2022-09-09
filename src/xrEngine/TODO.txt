@@ -105,7 +105,8 @@
 		*	wallmark на персонажах
 		*	кровь, следы от машин
 
-		*	xrLC - optimize cform 				( )
+		*	xrLC - optimize cform 				( )				
+		se7kills(ЕБНУТЫЙ РАСЧЕТ CFORM и RCAST с проверкой всех полигонов в списке модели) пример 8млн для каждой грани CDB смотреть
 		*	hierrarchical profiler
 		*	R2 - shaders			(ATI rm/ nvCG FX)
 		*	R2 - light materials	(3D tex)

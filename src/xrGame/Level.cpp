@@ -600,6 +600,8 @@ u32 timer_old = 0;
 u64 ticks = 0, update_ticks = 0;;
 u64 ticks2, ticks3, ticks5 = 0;
 
+CGameObject* old_select_obj;
+
 void CLevel::OnFrame	()
 {
 	CTimer timer, timer2, timer3, timer4, timer5;
@@ -836,6 +838,29 @@ void CLevel::OnFrame	()
 		update_ticks = 0;
 		timer_old = Device.dwTimeGlobal + 1000;
 	} 
+
+ 
+	collide::rq_result res = HUD().GetCurrentRayQuery();
+	CGameObject* obj = smart_cast<CGameObject*> (res.O);
+
+	if (OnClient() && obj && !obj->raycastNOW())
+	{
+		if (old_select_obj != 0)
+		{
+			old_select_obj->setMPPlayerRaycast(false);
+			old_select_obj = 0;
+		}
+		old_select_obj = obj;
+		obj->setMPPlayerRaycast(true);
+	}
+	else
+	if (!obj && old_select_obj)
+	{
+		old_select_obj->setMPPlayerRaycast(false);
+		old_select_obj = 0;
+	}
+	 
+
 }
 
 int		psLUA_GCSTEP					= 10			;
@@ -955,7 +980,8 @@ void CLevel::OnRender()
 #endif
 
 #ifdef DEBUG
-	if (bDebug) {
+	if (bDebug)
+	{
 		DBG().draw_object_info				();
 		DBG().draw_text						();
 		DBG().draw_level_info				();

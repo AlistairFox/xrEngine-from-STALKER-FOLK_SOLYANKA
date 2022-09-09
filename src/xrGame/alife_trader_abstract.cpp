@@ -162,7 +162,8 @@ void add_online_impl						(CSE_ALifeDynamicObject *object, const bool &update_re
 
 	ALife::OBJECT_IT			I = object->children.begin();
 	ALife::OBJECT_IT			E = object->children.end();
-	for ( ; I != E; ++I) {
+	for ( ; I != E; ++I) 
+	{
 //	this was for the car only
 //		if (*I == ai().alife().graph().actor()->ID)
 //			continue;
@@ -214,7 +215,8 @@ void CSE_ALifeTraderAbstract::add_online	(const bool &update_registries)
 
 void add_offline_impl						(CSE_ALifeDynamicObject *object, const xr_vector<ALife::_OBJECT_ID> &saved_children, const bool &update_registries)
 {
-	for (u32 i=0, n=saved_children.size(); i<n; ++i) {
+	for (u32 i=0, n=saved_children.size(); i<n; ++i) 
+	{
 		CSE_ALifeDynamicObject	*child = smart_cast<CSE_ALifeDynamicObject*>(ai().alife().objects().object(saved_children[i],true));
 		R_ASSERT				(child);
 		child->m_bOnline		= false;
@@ -239,7 +241,8 @@ void add_offline_impl						(CSE_ALifeDynamicObject *object, const xr_vector<ALif
 		ALife::_OBJECT_ID				item_id = inventory_item->base()->ID;
 		inventory_item->base()->ID		= object->alife().server().PerformIDgen(item_id);
 
-		if (!child->can_save()) {
+		if (!child->can_save())
+		{
 			object->alife().release		(child);
 			--i;
 			--n;

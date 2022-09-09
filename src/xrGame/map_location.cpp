@@ -256,16 +256,20 @@ void CMapLocation::CalcPosition()
 		m_cached.m_Position.set(m_position_global.x, m_position_global.z);
 		return;
 	}  	
-	*/
+
 
 	if (m_owner_se_object && ai().get_game_graph())
 	{
 
 		//Msg("Graph: %d", m_owner_se_object->m_tGraphID);
-
+		 
 		int level = ai().game_graph().vertex(m_owner_se_object->m_tGraphID)->level_id();
 		shared_str name = ai().game_graph().header().level(level).name();
 
+		if (Level().name().size() == 0 || name.size() == 0)
+		{
+			return;
+		}
 
 		if (xr_strcmp(Level().name(), name) != 0)
 		{
@@ -274,17 +278,17 @@ void CMapLocation::CalcPosition()
 			return;
 		}
 
+		 
 	}
-	
+	*/
 
 	if(!pObject)
 	{
-		if(m_owner_se_object)
+		if(m_owner_se_object && ai().get_game_graph())
 		{
 			m_position_global		= m_owner_se_object->draw_level_position();
 			m_cached.m_Position.set	(m_position_global.x, m_position_global.z);
 		}
-	
 	}
 	else
 	{

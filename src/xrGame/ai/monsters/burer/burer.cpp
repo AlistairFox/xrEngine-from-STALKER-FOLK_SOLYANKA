@@ -497,7 +497,7 @@ void CBurer::StopGraviPrepare()
 		const CEntityAlive *enemy = m_gravi_object.enemy;
 		if (!enemy) return;
 
-		CActor *pA = const_cast<CActor *>(smart_cast<const CActor*>(enemy));
+		const CActor *pA = smart_cast<const CActor *>(enemy);
 		if (!pA) return;
 
 		NET_Packet	tmp_packet;

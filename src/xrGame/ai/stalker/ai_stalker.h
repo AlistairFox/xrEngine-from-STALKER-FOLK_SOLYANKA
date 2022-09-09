@@ -243,45 +243,10 @@ public:
 	virtual void						net_Relcase							(CObject*	 O);
 
 	//For MP sync
-	u16				u_last_torso_motion_idx;
-	u16				u_last_legs_motion_idx;
-	u16				u_last_head_motion_idx;
-	u16				u_last_script_motion_idx;
-
-	bool TorsoAnimPlay = true;
-	bool LegsAnimPlay  = true;
-	bool HeadAnimPlay  = true;
-	bool ScriptAnimPlay = true;
-
-	bool loop_torso = true;
-	bool loop_legs = true;
-	bool loop_head = true;
-	bool loop_script = true;
-
-
-	CBlend* m_current_legs_blend;
-	CBlend* m_current_torso_blend;
-	CBlend* m_current_head_blend;
-	CBlend* m_current_script_blend;
-
-	MotionID	m_current_legs;
-	MotionID	m_current_torso;
-	MotionID	m_current_head;
-	MotionID    m_current_script;
-
-	u32 time_Torso;
-	u32 time_Legs;
-	u32 time_Head;
-	u32 time_Script;
-
-
-	bool last_looped_script = false;
-	bool last_looped_legs = false;
-	bool last_looped_torso = false;
-	bool last_looped_head = false;
-
 	u32 LastShedule = 0;
 	u32 LastUpdate = 0;
+
+	bool sync_send = false;
 
 	//save/load server serialization
 	virtual void						save								(NET_Packet &output_packet);
@@ -395,14 +360,34 @@ private:
 			virtual void				make_Interpolation();
 
 
-public:
-//	void OnEventAnimationScript(LPCSTR name, bool hand_usage, bool use_movement_controller);
-
-//	void OnEventAnimationScript(MotionID idx, bool hand_usage, bool use_movement_controller);
-
-	void OnEventAnimations(bool update);
+public:											   
+	void OnEventUpdate(MotionID motion, CBlend* blend, bool mix_anims, float pos);
  
-	void OnEventAnimationsRecived();
+	void OnEventAnimationsRecived(NET_Packet packet);
+
+
+	u8 torso_anim_id;
+	u8 legs_anim_id;
+	u8 head_anim_id;
+
+	MotionID motion_torso;
+	MotionID motion_legs;
+	MotionID motion_head;
+
+	bool torso_loop;
+	bool legs_loop;
+	bool head_loop;
+
+	float pos_torso;
+	float pos_head;
+	float pos_legs;
+
+	void anim_sync(IKinematicsAnimated* skeleton_animated, CBlend* blend_1, CBlend* blend_2);
+
+	CBlend* blend_torso;
+	CBlend* blend_legs;
+	
+
 
 	//float							m_near_players_distance = 0;
 	mutable u32						m_last_player_detection_time = 0;
@@ -967,24 +952,7 @@ public:
 
 private:
 	ignored_touched_objects_type		m_ignored_touched_objects;
-
-
-private: 
-//MP SYNC BLEND
-
-	CBlend* blend_torso;
-	CBlend* blend_legs;
-	CBlend* blend_head;
-	CBlend* blend_script;
-	
-	u32 blend_script_start_time;
-	u32 blend_script_end_time;
-	bool blend_script_stop_end;
-
-	MotionID old_torso, old_head, old_legs, old_script;
-
-	bool on_first_update_recive = false;
-	u32 ai_stalker_oldTime = 0;
+ 
 
 
 public:

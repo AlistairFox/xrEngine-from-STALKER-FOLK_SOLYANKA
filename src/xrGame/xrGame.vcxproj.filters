@@ -2551,6 +2551,18 @@
     <Filter Include="AI\AScript\ScriptClasses\ScriptGameObject">
       <UniqueIdentifier>{46dd80f4-1e5e-4d92-8c78-3ad8fbacb81a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UI\Common\Inventory\MENUS">
+      <UniqueIdentifier>{88138664-a224-4d13-8063-a62db778f7ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Common\InventoryWnd\ArtefactUpgrade">
+      <UniqueIdentifier>{4361620c-5e34-4430-bafd-0dee23dc05c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Server\Games\client\freemp\alife">
+      <UniqueIdentifier>{69350e1a-60e6-4a1d-b1d0-62027fc7c4ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Server\MasterServer">
+      <UniqueIdentifier>{e32e2975-e3f0-46e2-a66b-07ad5576864d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mt_config.h">
@@ -7503,6 +7515,10 @@
     <ClInclude Include="level_events.h">
       <Filter>Core\Server\Games\client\freemp\events</Filter>
     </ClInclude>
+    <ClInclude Include="UIArtefactUpgradeWnd.h" />
+    <ClInclude Include="MasterServerEvents.h">
+      <Filter>Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="damage_manager.cpp">
@@ -10574,19 +10590,7 @@
     <ClCompile Include="ui\UIActorMenu_script.cpp">
       <Filter>UI\Common\Inventory</Filter>
     </ClCompile>
-    <ClCompile Include="ui\UIActorMenuDeadBodySearch.cpp">
-      <Filter>UI\Common\Inventory</Filter>
-    </ClCompile>
     <ClCompile Include="ui\UIActorMenuInitialize.cpp">
-      <Filter>UI\Common\Inventory</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\UIActorMenuInventory.cpp">
-      <Filter>UI\Common\Inventory</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\UIActorMenuTrade.cpp">
-      <Filter>UI\Common\Inventory</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\UIActorMenuUpgrade.cpp">
       <Filter>UI\Common\Inventory</Filter>
     </ClCompile>
     <ClCompile Include="ui\UIActorStateInfo.cpp">
@@ -11237,9 +11241,6 @@
     <ClCompile Include="xrServer_Object_Base_SpawnWrite_new.cpp">
       <Filter>Core\Server\ServerEntities\objects</Filter>
     </ClCompile>
-    <ClCompile Include="game_cl_freemp_alife.cpp">
-      <Filter>Core\Server\Games\client\freemp</Filter>
-    </ClCompile>
     <ClCompile Include="xr_ini_ext.cpp">
       <Filter>Core\Common\xr_INI_Ext</Filter>
     </ClCompile>
@@ -11251,6 +11252,31 @@
     </ClCompile>
     <ClCompile Include="game_sv_freemp_alife_cl_sync.cpp">
       <Filter>Core\Server\Games\server\freemp\alife</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\UIActorMenuTrade.cpp">
+      <Filter>UI\Common\Inventory\MENUS</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\UIActorMenuUpgrade.cpp">
+      <Filter>UI\Common\Inventory\MENUS</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\UIActorMenuInventory.cpp">
+      <Filter>UI\Common\Inventory\MENUS</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\UIActorMenuDeadBodySearch.cpp">
+      <Filter>UI\Common\Inventory\MENUS</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\UIActorMenuArtUpgrade.cpp">
+      <Filter>UI\Common\Inventory\MENUS</Filter>
+    </ClCompile>
+    <ClCompile Include="UIArtefactUpgradeWnd.cpp" />
+    <ClCompile Include="game_cl_freemp_alife.cpp">
+      <Filter>Core\Server\Games\client\freemp\alife</Filter>
+    </ClCompile>
+    <ClCompile Include="xrMasterServer.cpp">
+      <Filter>Core\Server\MasterServer</Filter>
+    </ClCompile>
+    <ClCompile Include="xrMasterClient.cpp">
+      <Filter>Core\Server\MasterServer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

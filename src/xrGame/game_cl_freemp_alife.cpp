@@ -104,6 +104,7 @@ void game_cl_freemp::ReadUpdateAlife(NET_Packet* packet)
 					//Msg("ID: %d, Name %s, spawn_name %s", dynamic->ID, dynamic->name_replace(), dynamic->s_name.c_str());
 					dynamic->on_register_client();
 				}
+
 			}
 		}
 	}
@@ -124,7 +125,7 @@ void game_cl_freemp::ReadUpdateAlife(NET_Packet* packet)
 			if (stalker || changer || monster || group || zone)
 				dynamic->on_unregister_client();
 
-			Msg("---UNREGISTER Alife Object Client ID: %d, Name %s", id, dynamic->name_replace());
+			//Msg("---UNREGISTER Alife Object Client ID: %d, Name %s", id, dynamic->name_replace());
 			alife_objects.erase(id);
 		}
 

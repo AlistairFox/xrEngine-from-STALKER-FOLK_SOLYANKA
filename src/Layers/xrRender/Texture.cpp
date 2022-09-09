@@ -319,6 +319,18 @@ ID3DBaseTexture*	CRender::texture_load(LPCSTR fRName, u32& ret_msize)
 #else
 
 	Msg("! Can't find texture '%s'",fname);
+	
+	if (FS.exist(fn, "$game_copy_textures$", fname, ".dds"))
+	{
+		Msg("! Find Texture in copy_tex folder");
+		string_path dir;
+		FS.exist(dir, "$game_textures$", fname, ".dds");
+		
+		FS.file_copy(fn, dir);
+	}
+
+
+
 	R_ASSERT(FS.exist(fn,"$game_textures$",	"ed\\ed_not_existing_texture",".dds"));
 	goto _DDS;
 

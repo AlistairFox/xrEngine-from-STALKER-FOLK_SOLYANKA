@@ -581,6 +581,7 @@ SERVER_ENTITY_DECLARE_BEGIN2(CSE_ALifeHumanStalker,CSE_ALifeHumanAbstract,CSE_PH
 	virtual	void					load					(NET_Packet &tNetPacket);
 	virtual CSE_Abstract			*cast_abstract			() {return this;}
 
+
 	virtual BOOL					Net_Relevant();
 
 SERVER_ENTITY_DECLARE_END

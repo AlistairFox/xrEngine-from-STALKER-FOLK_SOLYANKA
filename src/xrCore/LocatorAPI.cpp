@@ -293,7 +293,7 @@ IReader* open_chunk(void* ptr, u32 ID)
 	}
 	return 0;
 };
-
+#define CFS_ARCHIVE_SE7	2610
 
 void CLocatorAPI::LoadArchive(archive& A, LPCSTR entrypoint)
 {
@@ -315,7 +315,8 @@ void CLocatorAPI::LoadArchive(archive& A, LPCSTR entrypoint)
 				xr_strcpy				(fs_entry_point, sizeof(fs_entry_point), root->m_Path);
 			}
 			xr_strcat					(fs_entry_point,"gamedata\\");
-		}else
+		}
+		else
 		{
 			string256			alias_name;
 			alias_name[0]		= 0;
@@ -335,13 +336,15 @@ void CLocatorAPI::LoadArchive(archive& A, LPCSTR entrypoint)
 			xr_strcat			(fs_entry_point, sizeof(fs_entry_point), read_path.c_str()+xr_strlen(alias_name)+1);
 		}
 
-	}else
+	}
+	else
 	{
 		R_ASSERT2				(0, "unsupported");
 		xr_strcpy				(fs_entry_point, sizeof(fs_entry_point), A.path.c_str());
 		if(strext(fs_entry_point))
 			*strext(fs_entry_point) = 0;
 	}
+
 	if(entrypoint)
 		xr_strcpy				(fs_entry_point, sizeof(fs_entry_point), entrypoint);
 
@@ -356,7 +359,12 @@ void CLocatorAPI::LoadArchive(archive& A, LPCSTR entrypoint)
 
 	// Read FileSystem
 	A.open				();
-	IReader* hdr		= open_chunk(A.hSrcFile,1); 
+	IReader* hdr		= open_chunk(A.hSrcFile,1);
+
+	if (!hdr)
+		hdr = open_chunk(A.hSrcFile, CFS_ARCHIVE_SE7);
+
+
 	R_ASSERT			(hdr);
 	RStringVec			fv;
 	while (!hdr->eof())
@@ -441,16 +449,21 @@ void CLocatorAPI::ProcessArchive(LPCSTR _path)
 //	g_temporary_stuff_subst					= g_temporary_stuff;
 //	g_temporary_stuff						= NULL;
 
+
+
 	IReader* hdr				= open_chunk(A.hSrcFile, CFS_HeaderChunkID); 
+ 
 	if(hdr)
 	{
 		A.header				= xr_new<CInifile>(hdr,"archive_header");
 		hdr->close				();
 		bProcessArchiveLoading	= A.header->r_bool("header","auto_load");
 	}
+ 
+
 //	g_temporary_stuff			= g_temporary_stuff_subst;
 	
-	if(bProcessArchiveLoading || strstr(Core.Params, "-auto_load_arch"))
+	if(bProcessArchiveLoading)					  //|| strstr(Core.Params, "-auto_load_arch")
 		LoadArchive				(A);
 	else
 		A.close					();

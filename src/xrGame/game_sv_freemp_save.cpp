@@ -19,10 +19,9 @@
 
 using namespace jsonxx;
 
-void game_sv_freemp::SavePlayer(game_PlayerState* cl)
+void game_sv_freemp::SavePlayer(game_PlayerState* ps)
 {
-	game_PlayerState* ps = cl;
-	if (!ps || ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD)) return;
+ 	if (!ps || ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD)) return;
 
 	CActor* pActor = smart_cast<CActor*>(Level().Objects.net_Find(ps->GameID));
 	if (!pActor || !pActor->g_Alive()) return;
@@ -143,6 +142,24 @@ void game_sv_freemp::SavePlayer(game_PlayerState* cl)
 	json << "god" << Boolean(godmode);
 	//json << "safemode" << Boolean(safemode);
 	json << "unlim_ammo" << Boolean(unlim_ammo);
+
+	
+	xrClientData* data = (xrClientData*) get_client(ps->GameID);
+
+	Array tab;
+	for (auto cl_AS : cl_slots)
+	{
+		if (cl_AS.cl_id == data->ID)
+		{
+			Object new_tab;
+			new_tab << "slot_1" << String(cl_AS.slots[0]);
+			new_tab << "slot_2" << String(cl_AS.slots[1]);
+			new_tab << "slot_3" << String(cl_AS.slots[2]);
+			new_tab << "slot_4" << String(cl_AS.slots[3]);
+			tab << new_tab;
+		}
+	}
+	json << "player_quick_slots" << tab;
 
 	if (ps->m_account.name_save().size() != 0)
 	{

@@ -195,7 +195,8 @@ void CActor::IR_OnKeyboardPress(int cmd)
 						if (IsGameTypeSingle())
 						{
 							inventory().Eat				(itm);
-						} else
+						} 
+						else
 						{
 							inventory().ClientEat		(itm);
 						}

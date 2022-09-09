@@ -374,7 +374,8 @@ void CROS_impl::calc_sun_value(Fvector& position, CObject* _object)
 #else
 	light*	sun		=		(light*)RImplementation.Lights.sun_adapted._get()	;
 #endif
-	if	(MODE & IRender_ObjectSpecific::TRACE_SUN)	{
+	if	(MODE & IRender_ObjectSpecific::TRACE_SUN)
+	{
 		if  (--result_sun	< 0)	{
 			result_sun		+=		::Random.randI(lt_hemisamples/4,lt_hemisamples/2)	;
 			Fvector	direction;	direction.set	(sun->direction).invert().normalize	();
@@ -394,7 +395,8 @@ void CROS_impl::calc_sky_hemi_value(Fvector& position, CObject* _object)
 		sky_rays_uptodate	= _min(sky_rays_uptodate, lt_hemisamples);
 #endif	//	RENDER!=R_R1
 
-		for (u32 it=0; it<(u32)ps_r2_dhemi_count;	it++)		{	// five samples per one frame
+		for (u32 it=0; it<(u32)ps_r2_dhemi_count;	it++)		
+		{	// five samples per one frame
 			u32	sample		=	0				;
 			if	(result_count<lt_hemisamples)	{ sample=result_count; result_count++;							}
 			else								{ sample=(result_iterator%lt_hemisamples); result_iterator++;	}

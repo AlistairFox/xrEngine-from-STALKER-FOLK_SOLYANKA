@@ -48,7 +48,7 @@ ICF	u32	CLevelGraph::vertex	(const CVertex &vertex_r) const
 
 IC	void CLevelGraph::unpack_xz(const CLevelGraph::CPosition &vertex_position, u32 &x, u32 &z) const
 {
-	//VERIFY				(vertex_position.xz() < (1 << MAX_NODE_BIT_COUNT) - 1);
+	//VERIFY				(vertex_position.xz() < (1 << MAX_NODE_BIT_COUNT) - 1);	
 	x					= vertex_position.xz() / m_row_length;
 	z					= vertex_position.xz() % m_row_length;
 }
@@ -296,7 +296,7 @@ ICF u16	CLevelGraph::CVertex::plane() const
 
 ICF const CLevelGraph::CPosition &CLevelGraph::CVertex::position() const
 {
-	return				(p);
+ 	return				(p);
 }
 
 ICF bool CLevelGraph::CVertex::operator<	(const CLevelGraph::CVertex &vertex) const

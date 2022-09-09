@@ -543,7 +543,7 @@ BOOL CAI_Stalker::net_Spawn			(CSE_Abstract* DC)
 	//	tpHuman->o_Position.z		-= 3.f;
 	//	first_time					= false;
 	//}
-
+	Msg("Net_spawn %s, special_ch %s", DC->name_replace(), tpHuman->m_SpecificCharacter.c_str());
 	m_group_behaviour				= !!tpHuman->m_flags.test(CSE_ALifeObject::flGroupBehaviour);
 
 	if (!CObjectHandler::net_Spawn(DC) || !inherited::net_Spawn(DC))
@@ -756,8 +756,6 @@ u64 updateCL_CUSTOM_MONSTER = 0;
 u64 updateCL_PHYSIC = 0;
 
 u32 old_TIME_PRINT = 0;
-
-extern int Shedule_Radius_Players;
 
 extern u64 UpdateCLStalkerTime;
 
@@ -1162,10 +1160,12 @@ void CAI_Stalker::Think			()
 	STOP_PROFILE
 }
 
-void CAI_Stalker::SelectAnimation(const Fvector &view, const Fvector &move, float speed)
+void CAI_Stalker::SelectAnimation(const Fvector& view, const Fvector& move, float speed)
 {
 	if (!Device.Paused())
+	{
 		animation().update();
+	}
 }
 
 const SRotation CAI_Stalker::Orientation	() const
@@ -1341,27 +1341,24 @@ float CAI_Stalker::shedule_Scale				()
 		else
 			return 5.0f;
 	}
-
-
+ 
 	if (Game().players.size() > 0)
 	{
-		bool finded = false;
- 		for (auto pl : Game().players)
+		float old_dist = 1000;
+		for (auto pl : Game().players)
 		{
 			CObject* obj = Level().Objects.net_Find(pl.second->GameID);
 
-			if (smart_cast<CActorMP*>(obj) || smart_cast<CSpectator*>(obj) )
+			if (smart_cast<CActorMP*>(obj) || smart_cast<CSpectator*>(obj))
 			{
 				float new_dist = obj->Position().distance_to(this->Position());
-				if (new_dist < Shedule_Radius_Players)
-				{
-					finded = true;
-					break;
- 				}
+				if (new_dist < 80 && old_dist > new_dist)
+					old_dist = new_dist;
 			}
 		}
- 	
-		if (finded)
+
+		if (old_dist < 80)
+			//	return old_dist / 200;
 			return 0;
 	}
  

@@ -163,3 +163,4 @@ void game_sv_roleplay::OnDetachPlayersBag(CSE_ActorMP *actor, CSE_Abstract *item
 	for (const auto& el : to_reject)
 		RejectGameItem(el);
 }
+

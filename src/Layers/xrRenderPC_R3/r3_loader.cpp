@@ -217,6 +217,7 @@ void CRender::LoadBuffers		(CStreamReader *base_fs,	BOOL _alternative)
 		CStreamReader			*fs	= base_fs->open_chunk(fsL_VB);
 		R_ASSERT2				(fs,"Could not load geometry. File 'level.geom?' corrupted.");
 		u32 count				= fs->r_u32();
+		u32 TOTAL_COUNT = 0;
 		_DC.resize				(count);
 		_VB.resize				(count);
 		for (u32 i=0; i<count; i++)
@@ -236,7 +237,7 @@ void CRender::LoadBuffers		(CStreamReader *base_fs,	BOOL _alternative)
 			u32 vCount			= fs->r_u32	();
 			u32 vSize			= D3DXGetDeclVertexSize	(dcl,0);
 			Msg	("* [Loading VB] %d verts, %d Kb",vCount,(vCount*vSize)/1024);
-
+			TOTAL_COUNT += (vCount * vSize) / 1024;
 			// Create and fill
 			//BYTE*	pData		= 0;
 			//R_CHK				(HW.pDevice->CreateVertexBuffer(vCount*vSize,dwUsage,0,D3DPOOL_MANAGED,&_VB[i],0));
@@ -254,6 +255,7 @@ void CRender::LoadBuffers		(CStreamReader *base_fs,	BOOL _alternative)
 
 //			fs->advance			(vCount*vSize);
 		}
+		Msg("* [Loading VB] TOTAL VERTS: %d kb", TOTAL_COUNT);
 		fs->close				();
 	}
 
@@ -261,11 +263,13 @@ void CRender::LoadBuffers		(CStreamReader *base_fs,	BOOL _alternative)
 	{
 		CStreamReader			*fs	= base_fs->open_chunk(fsL_IB);
 		u32 count				= fs->r_u32();
+		u32 TOTAL_INDEXS = 0;
 		_IB.resize				(count);
 		for (u32 i=0; i<count; i++)
 		{
 			u32 iCount			= fs->r_u32	();
 			Msg("* [Loading IB] %d indices, %d Kb",iCount,(iCount*2)/1024);
+			TOTAL_INDEXS += (iCount * 2) / 1024;
 
 			// Create and fill
 			//BYTE*	pData		= 0;
@@ -285,6 +289,7 @@ void CRender::LoadBuffers		(CStreamReader *base_fs,	BOOL _alternative)
 
 //			fs().advance		(iCount*2);
 		}
+		Msg("[Loading IB] TOTAL indices %d kb", TOTAL_INDEXS);
 		fs->close				();
 	}
 }

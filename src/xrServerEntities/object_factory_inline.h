@@ -1,3 +1,4 @@
+#include "object_factory.h"
 ////////////////////////////////////////////////////////////////////////////
 //	Module 		: object_factory_inline.h
 //	Created 	: 27.05.2004
@@ -133,3 +134,36 @@ IC	void CObjectFactory::actualize										() const
 }
 
 #endif
+
+IC void CObjectFactory::print_clsids() const
+{
+	for (auto cls : clsids())
+	{
+		string16 clsid = { 0 };
+		CLSID2TEXT(cls->clsid(), clsid);
+		Msg("game_ID [%s] = %d", clsid, script_clsid(cls->clsid()) );
+	}
+
+	for (auto cls : clsids())
+	{
+		string16 clsid = { 0 };
+		CLSID2TEXT(cls->clsid(), clsid);
+		Msg("clsid.%s = %d", cls->script_clsid().c_str(), script_clsid(cls->clsid()));
+	}
+}
+
+IC LPCSTR CObjectFactory::get_clsid_name(u16 id) const
+{
+	LPCSTR name = {0};
+
+	for (auto cls : clsids())
+	{
+		if (script_clsid(cls->clsid()) == id)
+		{
+			name = cls->script_clsid().c_str();
+			break;
+		}
+	}
+
+	return name;
+}

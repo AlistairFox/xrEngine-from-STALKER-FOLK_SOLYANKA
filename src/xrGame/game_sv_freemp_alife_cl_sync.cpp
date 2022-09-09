@@ -7,6 +7,9 @@
 
 void game_sv_freemp::WriteAlifeObjectsToClient(ClientID client_id)
 {
+	if (!ai().get_alife())
+		return;
+
 	auto objects = &ai().alife().objects().objects();
 
 	u32 size_spawn = 0, size_updates = 0;
@@ -34,8 +37,8 @@ void game_sv_freemp::WriteAlifeObjectsToClient(ClientID client_id)
 		object.second->UPDATE_Write(packet);
 		u32 position_update_end = packet.w_tell() - position_spawn_end;
 
-		u8 level_id = ai().game_graph().vertex(object.second->m_tGraphID)->level_id();
-		shared_str name = ai().game_graph().header().level(level_id).name();
+		//u8 level_id = ai().game_graph().vertex(object.second->m_tGraphID)->level_id();
+		//shared_str name = ai().game_graph().header().level(level_id).name();
 
 		//Msg("Object (%s) id (%d), level(%s), p_s(%u), p_u(%u)", object.second->name(), object.first, name.c_str(), position_spawn_end, position_update_end);
 
@@ -46,6 +49,9 @@ void game_sv_freemp::WriteAlifeObjectsToClient(ClientID client_id)
 
 void game_sv_freemp::UpdateAlifeObjects()
 {
+	if (!ai().get_alife())
+		return;
+
 	u32 packet_size = 0;
 	if (Device.dwTimeGlobal - last_alife_update_time > 1 * 1000)
 	{
@@ -76,7 +82,7 @@ void game_sv_freemp::UpdateAlifeObjects()
 			
 				update_data data;
 				data.pos = object.second->position();
-				data.time = Device.dwTimeGlobal + Random.randI(2000, 5000);
+				data.time = Device.dwTimeGlobal + Random.randI(3000, 6400);  
 
 				old_export_pos[object.first] = data;
 	 
@@ -85,8 +91,8 @@ void game_sv_freemp::UpdateAlifeObjects()
 			}
 		}
 		//DEBUG INFO 
-		/* 
-		Msg("Update Size [%d]", packet_size);
+	 	/*
+	//	Msg("Update Size [%d]", packet_size);
 
 		NET_Packet packet;
 		GenerateGameMessage(packet);
@@ -99,7 +105,7 @@ void game_sv_freemp::UpdateAlifeObjects()
 		packet.w_stringZ(buf);
 		packet.w_stringZ("ui_inGame2_Predmet_otdan");
 		server().SendBroadcast(server().GetServerClient()->ID, packet, net_flags(true));
-		*/
+		 */
 	}
 
 
@@ -107,6 +113,9 @@ void game_sv_freemp::UpdateAlifeObjects()
 
 void game_sv_freemp::UpdateAlifeObjectsPOS()
 {
+	if (!ai().get_alife())
+		return;
+
 	u32 packet_size = 0;
 
 	/*
@@ -147,7 +156,9 @@ void game_sv_freemp::RegisterUpdateAlife(CSE_ALifeDynamicObject* object, bool re
 {
 	if (Phase() != GAME_PHASE_INPROGRESS)
 		return;
-
+	if (!ai().get_alife())
+		return;
+ 
 
 	if (reg)
 	{

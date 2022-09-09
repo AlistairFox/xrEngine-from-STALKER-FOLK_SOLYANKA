@@ -194,7 +194,7 @@ void CScriptBinder::net_Destroy		()
 
 void CScriptBinder::set_object		(CScriptBinderObject *object)
 {
-	if (/*OnServer()*/ true) 
+	if (/*OnServer()*/ xr_strcmp(Level().get_net_DescriptionData().spawn_name, "alife_off") != 0) // 
 	{
 		R_ASSERT2				(!m_object,"Cannot bind to the object twice!");
 #ifdef _DEBUG
@@ -225,8 +225,10 @@ void CScriptBinder::shedule_Update	(u32 time_delta)
 
 void CScriptBinder::save			(NET_Packet &output_packet)
 {
-	if (m_object) {
-		try {
+	if (m_object)
+	{
+		try 
+		{
 			m_object->save	(&output_packet);
 		}
 		catch(...)

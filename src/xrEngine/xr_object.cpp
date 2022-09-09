@@ -333,7 +333,7 @@ void CObject::UpdateCL			()
 
 	if ((0==collidable.model)&&(spatial.type&STYPE_COLLIDEABLE))	Debug.fatal	(DEBUG_INFO,"Object %s registered as 'collidable' but has no collidable model",*cName());
 #endif
-
+ 
 	spatial_update				(base_spu_epsP*5,base_spu_epsR*5);
 
 	// crow

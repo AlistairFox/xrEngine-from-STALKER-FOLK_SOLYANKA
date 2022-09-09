@@ -31,7 +31,11 @@ void CALifeSurgeManager::spawn_new_spawns			()
 {
 	xr_vector<ALife::_SPAWN_ID>::const_iterator	I = m_temp_spawns.begin();
 	xr_vector<ALife::_SPAWN_ID>::const_iterator	E = m_temp_spawns.end();
-	for ( ; I != E; ++I) {
+	for ( ; I != E; ++I) 
+	{
+		//Msg("I: %d, level %d", *I, ai().get_game_graph()->vertex(*I)->level_id() );
+
+
 		CSE_ALifeDynamicObject	*object, *spawn = smart_cast<CSE_ALifeDynamicObject*>(&spawns().spawns().vertex(*I)->data()->object());
 		VERIFY3					(spawn,spawns().spawns().vertex(*I)->data()->object().name(),spawns().spawns().vertex(*I)->data()->object().name_replace());
 

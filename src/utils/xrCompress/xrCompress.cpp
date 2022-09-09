@@ -97,9 +97,10 @@ bool xrCompressor::testVFS(LPCSTR path)
 	if (bStoreFiles)
 		return			(true);
 
-	string256			p_ext;
-	_splitpath			(path,0,0,0,p_ext);
 
+	string256			p_ext;
+	_splitpath(path, 0, 0, 0, p_ext);
+ 
 	if (!stricmp(p_ext,".xml"))
 		return			(false);
 
@@ -108,7 +109,31 @@ bool xrCompressor::testVFS(LPCSTR path)
 
 	if (!stricmp(p_ext,".script"))
 		return			(FALSE);
+	//new SE7  TEXTURES
+	if (!stricmp(p_ext, ".dds"))
+		return			(FALSE);
 
+	//LEVELS
+	//if (!stricmp(p_ext, ".geom"))
+	//	return (FALSE);
+
+	//if (!stricmp(p_ext, ".geomx"))
+	//	return (FALSE);
+
+	if (!stricmp(p_ext, ".cform"))
+		return (FALSE);
+
+	//OGF
+	if (!stricmp(p_ext, ".ogf"))
+		return (FALSE);
+
+	if (!stricmp(p_ext, ".omf"))
+		return (FALSE);
+
+	//SOUND
+	if (!stricmp(p_ext, ".ogg"))
+		return (FALSE);
+ 
 	return				(TRUE);
 }
 
@@ -224,7 +249,8 @@ void xrCompressor::CompressOne(LPCSTR path)
 		c_ptr				= A->c_ptr;
 		c_size_real			= A->c_size_real;
 		c_size_compressed	= A->c_size_compressed;
-	} else 
+	}
+	else 
 	{
 		if (testVFS(path))	
 		{
@@ -237,7 +263,8 @@ void xrCompressor::CompressOne(LPCSTR path)
 			fs_pack_writer->w	(src->pointer(),c_size_real);
 			printf				("VFS");
 			Msg					("%-80s   - VFS",path);
-		} else 
+		} 
+		else 
 		{ //if(testVFS(path))
 			// Compress into BaseFS
 			c_ptr				=	fs_pack_writer->tell();
@@ -268,7 +295,8 @@ void xrCompressor::CompressOne(LPCSTR path)
 					fs_pack_writer->w	(src->pointer(),c_size_real);
 					printf				("VFS (R)");
 					Msg					("%-80s   - VFS (R)",path);
-				} else 
+				}
+				else 
 				{
 					// Compressed OK - optimize
 					if (!bFast)
@@ -363,10 +391,11 @@ void xrCompressor::OpenPack(LPCSTR tgt_folder, int num)
 		IReader	R(W.pointer(), W.size());
 
 		printf						("...Writing pack header\n");
-		fs_pack_writer->open_chunk	(CFS_HeaderChunkID);
+		fs_pack_writer->open_chunk	(CFS_HeaderChunkID);					//CFS_HeaderChunkID
 		fs_pack_writer->w			(R.pointer(), R.length());
 		fs_pack_writer->close_chunk	();
-	}else
+	}
+	else
 	if(pPackHeader)
 	{
 		printf						("...Writing pack header\n");
@@ -386,6 +415,8 @@ void xrCompressor::SetPackHeaderName(LPCSTR n)
 	pPackHeader		= FS.r_open	(n);
 	R_ASSERT2		(pPackHeader, n);
 }
+   
+#define CFS_ARCHIVE_SE7	2610
 
 void xrCompressor::ClosePack()
 {
@@ -394,7 +425,7 @@ void xrCompressor::ClosePack()
 	bytesDST		= fs_pack_writer->tell	();
 	Msg				("...Writing pack desc");
 
-	fs_pack_writer->w_chunk		(1|CFS_CompressMark, fs_desc.pointer(),fs_desc.size());
+	fs_pack_writer->w_chunk		(CFS_ARCHIVE_SE7 /*1*/ | CFS_CompressMark, fs_desc.pointer(), fs_desc.size());
 
 
 	Msg				("Data size: %d. Desc size: %d.",bytesDST,fs_desc.size());
@@ -447,6 +478,7 @@ void xrCompressor::PerformWork()
 			}
 			CompressOne			((*files_list)[it]);
 		}
+
 		ClosePack				();
 
 		if(!bStoreFiles)
@@ -544,6 +576,7 @@ void xrCompressor::ProcessLTX(CInifile& ltx)
 
 			Msg					("");
 			Msg					("Processing folder: '%s'",path);
+
 			BOOL efRecurse;
 			BOOL val			= IsFolderAccepted(ltx,path,efRecurse);
 			if (val || (!val&&!efRecurse))
@@ -582,7 +615,8 @@ void xrCompressor::ProcessLTX(CInifile& ltx)
 				Msg					("-F: %s",path);
 			}
 		}
-	}//if(ltx.section_exist("include_folders"))
+	}
+
 	
 	if(ltx.section_exist("include_files"))
 	{

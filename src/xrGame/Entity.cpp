@@ -61,8 +61,10 @@ void CEntity::OnEvent		(NET_Packet& P, u16 type)
 			CObject			*who = Level().Objects.net_Find	(id);
 			if (who && !IsGameTypeSingle())
 			{
-				if (this!=who)	/*if(bDebug) */ Msg( "%s killed by %s ...", cName().c_str(), who->cName().c_str() );
-				else			/*if(bDebug) */ Msg( "%s dies himself ...", cName().c_str() );
+				if (this!=who)
+					/*if(bDebug) */ Msg( "%s killed by %s ...", cName().c_str(), who->cName().c_str() );
+				else			
+					/*if(bDebug) */ Msg( "%s dies himself ...", cName().c_str() );
 			}
 			Die				(who);
 		}

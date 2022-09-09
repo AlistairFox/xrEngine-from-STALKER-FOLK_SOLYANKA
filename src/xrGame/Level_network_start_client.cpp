@@ -82,7 +82,7 @@ bool	CLevel::net_start_client3				()
 		LPCSTR					level_ver = NULL;
 		LPCSTR					download_url = NULL;
 
-		if (OnServer() && Server->game->Type() == eGameIDFreeMp)	//single //psNET_direct_connect
+		if (OnServer() && ai().get_alife() )	//single //psNET_direct_connect
 		{
 			shared_str const & server_options = Server->GetConnectOptions();
 			level_name	= name().c_str();//Server->level_name		(server_options).c_str();

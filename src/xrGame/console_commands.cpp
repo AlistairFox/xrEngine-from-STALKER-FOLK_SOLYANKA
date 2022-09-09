@@ -181,7 +181,7 @@ static void full_memory_stats	( )
 	Msg		("* [x-ray]: crt heap[%d K], process heap[%d K], game lua[%d K], render[%d K]",_crt_heap/1024,_process_heap/1024,_game_lua/1024,_render/1024);
 #endif // SEVERAL_ALLOCATORS
 
-	Msg		("* [x-ray]: economy: strings[%d K], smem[%d K]",_eco_strings/1024,_eco_smem);
+	Msg		("* [x-ray]: economy: strings[%d K], smem[%d K]",_eco_strings/1024, _eco_smem);
 
 #ifdef FS_DEBUG
 	Msg		("* [x-ray]: file mapping: memory[%d K], count[%d]",g_file_mapped_memory/1024,g_file_mapped_count);
@@ -1133,7 +1133,7 @@ public:
 	  {
 		  float				step_count = (float)atof(args);
 #ifndef		DEBUG
-		  clamp				(step_count,50.f,200.f);
+		  clamp				(step_count, 0.f, 200.f);
 #endif
 		  //IPHWorld::SetStep(1.f/step_count);
 		  ph_console::ph_step_time = 1.f/step_count;

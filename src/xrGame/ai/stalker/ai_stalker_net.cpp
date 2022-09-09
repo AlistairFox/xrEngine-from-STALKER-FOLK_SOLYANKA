@@ -19,10 +19,52 @@
 #include "../xrphysics/phvalide.h"
 
 #include "ai_stalker_net_state.h"
+#include "Actor.h"
+#include "HUDManager.h"
+
+#include "movement_manager.h"
+
+#include "../../movement_manager_space.h"
+#include "../../patrol_path_manager.h"
+#include "../../level_path_manager.h"
+#include "../../game_path_manager.h"
+#include "../../detail_path_manager.h"
 
 
-extern int g_cl_InterpolationType;
+void MsgMatrix(LPCSTR prefix, Fmatrix matr)
+{
+	Msg("XFORM: %s", prefix);
+	Msg("[%f, %f, %f, %f]", matr._11, matr._12, matr._13, matr._14);
+	Msg("[%f, %f, %f, %f]", matr._21, matr._22, matr._23, matr._24);
+	Msg("[%f, %f, %f, %f]", matr._31, matr._32, matr._33, matr._34);
+	Msg("[%f, %f, %f, %f]", matr._41, matr._42, matr._33, matr._44);
+}
 
+#include "..\xrEngine\motion.h"
+ 
+void CAI_Stalker::anim_sync(IKinematicsAnimated* skeleton_animated, CBlend* blend_1, CBlend* blend_2)
+{
+	if(!blend_1 || !blend_1->motionID.valid())
+		return;
+
+	CMotionDef* motion0 = skeleton_animated->LL_GetMotionDef(blend_1->motionID);
+	 
+	if (!(motion0->flags & esmSyncPart))
+		return;
+
+	if (!blend_2 || blend_2->motionID.valid())
+		return;
+
+	CMotionDef* motion1 = skeleton_animated->LL_GetMotionDef(blend_2->motionID);
+	
+	if (!(motion1->flags & esmSyncPart))
+		return;
+
+	blend_1->timeCurrent = blend_2->timeCurrent;
+}
+
+extern int g_cl_InterpolationType; 
+ 
 void CAI_Stalker::net_Save(NET_Packet& P)
 {
 	inherited::net_Save(P);
@@ -79,70 +121,112 @@ void CAI_Stalker::net_Export(NET_Packet& P)
 		P.w_stringZ(m_sStartDialog);
 	}
 	else
-	{	
-		MotionID torso = m_animation_manager->torso().animation();
-		MotionID legs = m_animation_manager->legs().animation();
-		MotionID head = m_animation_manager->head().animation();
-		MotionID script = m_animation_manager->script().animation();
-
-		u16 torso_idx, legs_idx, head_idx, script_idx;
-		u8 torso_slot, legs_slot, head_slot, script_slot;
-
-		torso_idx = torso.idx; legs_idx = legs.idx;	head_idx = head.idx; script_idx = script.idx;
-
-		torso_slot = torso.slot; legs_slot = legs.slot; head_slot = head.slot; script_slot = script.slot;
-
+	{
 		u16 u_active_slot, u_active_item;
 		float health;
 
-		health = GetfHealth();	
-				// inventory
+		health = GetfHealth();
+		// inventory
 		CWeapon* weapon = smart_cast<CWeapon*>(inventory().ActiveItem());
 
 
 		if (weapon && !weapon->strapped_mode())
 		{
 			u_active_slot = inventory().ActiveItem()->CurrSlot();
-			PIItem item =  inventory().ItemFromSlot(u_active_slot);
+			PIItem item = inventory().ItemFromSlot(u_active_slot);
 			u_active_item = item->object_id();
 		}
 		else
 			u_active_slot = NO_ACTIVE_SLOT;
-		 
+
 		ai_stalker_net_state state;
-		
-		//Position
+
+		//Position Interpolation
 		CPHSynchronize* sync = PHGetSyncItem(0);
 		state.fill_position(sync);
  
-		//Animation //HP //ActiveSlot
-		state.fill_state(torso_idx, legs_idx, head_idx, script_idx,
-					     torso_slot, legs_slot, head_slot, script_slot,
-						 health, u_active_slot, Position()
-		);
-
-
-		
 		//Body Rotation
-		state.u_body_yaw = movement().m_body.current.yaw;
-		state.u_head_yaw = movement().m_head.current.yaw;
-		state.u_body_pitch = movement().m_body.current.pitch;
-		state.u_head_pitch = movement().m_head.current.pitch;
+		state.torso_yaw = movement().m_body.current.yaw;
+		state.head_yaw = movement().m_head.current.yaw;
 
-		if (animation().torso().blend())
-		state.u_time_torso = animation().torso().blend()->timeCurrent;
-		if (animation().head().blend())
-		state.u_time_head = animation().head().blend()->timeCurrent;
-		if (animation().legs().blend())
-		state.u_time_legs = animation().legs().blend()->timeCurrent;
-
+		state.torso_pitch = movement().m_body.current.pitch;
+		state.head_pitch = movement().m_head.current.pitch;
+		
+		if (animation().script().animation().valid())
+			state.script_animation = true;
+		else
+			state.script_animation = false;
+ 
+		//GLOBAL PARAMS
 		state.u_active_item = u_active_item;
+		state.u_health = health;
+		state.u_active_slot = u_active_slot;
+		state.fv_position = Position();
+   
+		IKinematicsAnimated* ka = Visual()->dcast_PKinematicsAnimated();
 
+		if (ka)
+		{
+						
+			//Msg("torso[%d], head[%d], legs[%d]", torso_anim_id, head_anim_id, legs_anim_id);
+			//Msg("torsoID[%d], headID[%d], legsID[%d]", motion_torso.idx, motion_head.idx, motion_legs.idx);
+
+			state.torso_anim.id = motion_torso;
+			state.torso_anim.num = torso_anim_id;
+			state.torso_anim.loop = torso_loop;
+			state.torso_anim.pos = pos_torso;
+
+			state.head_anim.id = motion_head;
+			state.head_anim.num = head_anim_id;
+			state.head_anim.loop = head_loop;
+			state.head_anim.pos = pos_head;
+
+			state.legs_anim.id = motion_legs;
+			state.legs_anim.num = legs_anim_id;
+			state.legs_anim.loop = legs_loop;
+			state.legs_anim.pos = pos_legs;
+ 		}
+
+
+ 
 		state.state_write(P);
+	}	 	
+ 
+	char* enum_to_str[4] = {"ePathTypeGamePath", "ePathTypeLevelPath", "ePathTypePatrolPath", "ePathTypeNoPath"};
+
+
+	if (Device.dwFrame % 30 == 0 && this->raycastNOW() && false)
+	{
+		Msg("PathType: %s", enum_to_str[movement().path_type()]);
+		if (movement().path_type() == 1 && !movement().level_path().path().empty())
+		{
+			Msg("PathSize: %d", movement().level_path().path().size());
+			
+			Msg("PathDEST %d", movement().level_path().dest_vertex_id());
+
+			u32 vert = movement().level_path().dest_vertex_id();
+			Fvector vec = ai().level_graph().vertex_position(vert);
+			Msg("DEST POS [%f][%f][%f]", vec.x, vec.y, vec.z);
+			//Msg("PathBack: %d", movement().level_path().path().back());
+			//Msg("PathFront: %d", movement().level_path().path().front());
+			
+			int i = 0;
+			for (auto vertex : movement().level_path().path())
+			{
+				i++;
+				Msg("ID[%d], vertex[%d]", i, vertex);
 		 
-		 
+				Fvector pos = ai().level_graph().vertex_position(vertex);
+				Msg("POS [%f][%f][%f]", pos.x, pos.y, pos.z);
+			}
+		
+		}
+
 	}
+	
 }
+
+extern float ai_stop_update_dir;
 
 void CAI_Stalker::net_Import(NET_Packet& P)
 {
@@ -193,7 +277,6 @@ void CAI_Stalker::net_Import(NET_Packet& P)
 	}
 	else
 	{
-  
 		ai_stalker_net_state state;
 
  		state.state_read(P);	
@@ -213,16 +296,6 @@ void CAI_Stalker::net_Import(NET_Packet& P)
 		}
 		
 		inventory().SetActiveSlot(state.u_active_slot);
-
-		SRotation Torso, Head;
-		Torso.yaw = state.u_body_yaw;
-		Torso.pitch = state.u_body_pitch;
-
-		Head.yaw = state.u_head_yaw;
-		Head.pitch = state.u_head_pitch;
-
-		//Msg("Torso Yaw %f Pitch %f", Torso.yaw, Torso.pitch);
-		//Msg("Head Yaw %f Pitch %f", Head.yaw, Head.pitch);
 	    
 		if (state.phSyncFlag)
 		{
@@ -230,6 +303,12 @@ void CAI_Stalker::net_Import(NET_Packet& P)
 			N_A.State.enabled = state.physics_state.physics_state_enabled;
 			N_A.State.linear_vel = state.physics_state.physics_linear_velocity;
 			N_A.State.position = state.physics_state.physics_position;
+
+			SRotation Torso, Head;
+			Torso.yaw = state.torso_yaw;
+			Torso.pitch = state.torso_pitch;
+			Head.yaw = state.head_yaw;
+			Head.pitch = state.head_pitch;
 			
 			N_A.o_torso = Torso;
 			N_A.head = Head;
@@ -241,29 +320,73 @@ void CAI_Stalker::net_Import(NET_Packet& P)
 		}
 		else
 		{
- 			movement().m_body.current = Torso;
-			movement().m_head.current = Head;
 			Position().set(state.fv_position);
 
 			NET_A.clear();
 			//TODO: disable interpolation?
 		}
-		
-		// Pavel: create structure for animation?	
+ 		  
+		//if (!state.script_animation || !ai_stop_update_dir)
+		if (false)
+		{		 
+			movement().m_body.current.yaw = angle_lerp(movement().m_body.current.yaw, state.torso_yaw, ai_stop_update_dir);
+			movement().m_head.current.yaw = angle_lerp(movement().m_head.current.yaw, state.head_yaw, ai_stop_update_dir);
 
+			movement().m_body.current.pitch = angle_lerp(movement().m_body.current.pitch, state.torso_pitch, ai_stop_update_dir);
+			if (state.script_animation)
+				state.head_pitch = 0;
+			movement().m_head.current.pitch = angle_lerp(movement().m_head.current.pitch, state.head_pitch, ai_stop_update_dir); 
+		}
+ 
+		// Pavel: create structure for animation?
 		if (g_Alive())
 		{
-			ApplyAnimation(
-				state.old_torso_idx, state.old_torso_slot,
-				state.old_legs_idx, state.old_legs_slot,
-				state.old_head_idx, state.old_head_slot,
-				state.old_script_idx, state.old_script_slot,
-				state.u_time_torso, state.u_time_legs, state.u_time_head, state.u_time_script
-			);
+			IKinematicsAnimated* ka = Visual()->dcast_PKinematicsAnimated();
 
-			//Msg("StateTime torso[%.3f] legs[%.3f] head[%.3f] script[%.3f]", state.u_time_torso, state.u_time_legs, state.u_time_head, state.u_time_script);
+			if (state.torso_anim.num != torso_anim_id)
+			{
+				MotionID id = state.torso_anim.id;
+
+				blend_torso = ka->LL_PlayCycle(ka->LL_GetMotionDef(id)->bone_or_part, state.torso_anim.id, state.torso_anim.loop, 0,0,0);
+				torso_anim_id = state.torso_anim.num;
+				
+				if (blend_torso)
+					blend_torso->timeCurrent *= blend_torso->timeTotal * state.torso_anim.pos;
+ 			}
+
+			if (state.head_anim.num != head_anim_id)
+			{
+				MotionID id = state.head_anim.id;
+
+				ka->LL_PlayCycle(ka->LL_GetMotionDef(id)->bone_or_part, state.head_anim.id, state.head_anim.loop, 0, 0, 0);
+				head_anim_id = state.head_anim.num;
+ 			}
+
+			if (state.legs_anim.num != legs_anim_id)
+			{
+				MotionID id = state.legs_anim.id;
+
+				blend_legs = ka->LL_PlayCycle(ka->LL_GetMotionDef(id)->bone_or_part, state.legs_anim.id, state.legs_anim.loop, 0, 0, 0);
+				legs_anim_id = state.legs_anim.num;
+
+				if (blend_legs)
+					blend_legs->timeCurrent *= blend_legs->timeTotal * state.legs_anim.pos;
+ 			}
+
+			//if (blend_torso && blend_legs)
+			//	anim_sync(ka, blend_torso, blend_legs);
 		}
 
+		if (Level().CurrentControlEntity())
+		{
+			collide::rq_result rs = HUD().GetCurrentRayQuery();
+			if (rs.O == this)
+			{	
+				Msg("Head Angle: pitch[%f], rool[%f], yaw[%f] ", movement().m_head.current.pitch, movement().m_head.current.roll, movement().m_head.current.yaw);
+				Msg("Body Angle: pitch[%f], rool[%f], yaw[%f] ", movement().m_body.current.pitch, movement().m_body.current.roll, movement().m_body.current.yaw);
+			}
+		}
+   
 		setVisible(TRUE);
 		setEnabled(TRUE);
 		
@@ -272,7 +395,6 @@ void CAI_Stalker::net_Import(NET_Packet& P)
 
 void CAI_Stalker::postprocess_packet(stalker_interpolation::net_update_A &N_A)
 {
-
 	if (!NET_A.empty())
 		N_A.dwTimeStamp = NET_A.back().dwTimeStamp;
 	else
@@ -285,6 +407,7 @@ void CAI_Stalker::postprocess_packet(stalker_interpolation::net_update_A &N_A)
 		return;
 
 	if (!NET_A.empty() && N_A.dwTimeStamp < NET_A.back().dwTimeStamp) return;
+
 	if (!NET_A.empty() && N_A.dwTimeStamp == NET_A.back().dwTimeStamp)
 	{
 		NET_A.back() = N_A;
@@ -415,38 +538,7 @@ void CAI_Stalker::PH_A_CrPr()
 
 	CalculateInterpolationParams();
 }
- 
-void TorsoAnimPlayed(CBlend* blend)
-{
-	CAI_Stalker* stalker = (CAI_Stalker*)blend->CallbackParam;
-
-	if (stalker)
-		stalker->TorsoAnimPlay = true;
-}
-
-void HeadAnimPlayed(CBlend* blend)
-{
-	CAI_Stalker* stalker = (CAI_Stalker*)blend->CallbackParam;
-
-	if (stalker)
-		stalker->HeadAnimPlay = true;
-}
-
-void LegsAnimPlayed(CBlend* blend)
-{
-	CAI_Stalker* stalker = (CAI_Stalker*)blend->CallbackParam;
-
-	if (stalker)
-		stalker->LegsAnimPlay = true;
-}
-
-void ScriptAnimPlayed(CBlend* blend)
-{
-	CAI_Stalker* stalker = (CAI_Stalker*)blend->CallbackParam;
-
-	if (stalker)
-		stalker->ScriptAnimPlay = true;
-}
+	  
 
 void CAI_Stalker::ApplyAnimation(
 	u16 u_torso_motion_idx, u8 u_torso_motion_slot,
@@ -456,9 +548,29 @@ void CAI_Stalker::ApplyAnimation(
 	float u_time_torso, float u_time_legs, float u_time_head, float u_time_script
 )
 {
-
 	IKinematicsAnimated* ik_anim_obj = smart_cast<IKinematicsAnimated*>(Visual());
 	MotionID motion;
+ 
+	/*
+	if (u_last_script_motion_idx != u_script_motion_idx)
+	{
+		motion.idx = u_script_motion_idx;
+		motion.slot = u_script_motion_slot;
+
+		if (motion.valid())
+		{
+			 
+			m_current_script_blend = ik_anim_obj->LL_PlayCycle(ik_anim_obj->LL_GetMotionDef(motion)->bone_or_part, motion, TRUE,
+				ik_anim_obj->LL_GetMotionDef(motion)->Accrue(),
+				ik_anim_obj->LL_GetMotionDef(motion)->Falloff(),
+				ik_anim_obj->LL_GetMotionDef(motion)->Speed(),
+				ik_anim_obj->LL_GetMotionDef(motion)->StopAtEnd(),
+				StopScriptCall, this, 0);
+			 
+		} 
+		u_last_script_motion_idx = u_script_motion_idx;
+	}
+	
 
 	if (u_last_torso_motion_idx != u_torso_motion_idx)
 	{
@@ -467,205 +579,114 @@ void CAI_Stalker::ApplyAnimation(
 		motion.slot = u_torso_motion_slot;
 		if (motion.valid())
 		{
-			ik_anim_obj->LL_PlayCycle(ik_anim_obj->LL_PartID("torso"),
+			m_current_torso_blend = ik_anim_obj->LL_PlayCycle(ik_anim_obj->LL_PartID("torso"),
 				motion, TRUE,
 				ik_anim_obj->LL_GetMotionDef(motion)->Accrue(), 
 				ik_anim_obj->LL_GetMotionDef(motion)->Falloff(),
 				ik_anim_obj->LL_GetMotionDef(motion)->Speed(),
-				FALSE, 0, 0, 0);
+				FALSE, StopTorsoCall, this, 0);
 		}
 	}
+
 	if (u_last_legs_motion_idx != u_legs_motion_idx)
 	{
-		u_last_legs_motion_idx = u_legs_motion_idx;
 		motion.idx = u_legs_motion_idx;
 		motion.slot = u_legs_motion_slot;
 		if (motion.valid())
 		{
-			CStepManager::on_animation_start(motion, 
-				ik_anim_obj->LL_PlayCycle(ik_anim_obj->LL_PartID("legs"),
-				motion,	TRUE, 
+			m_current_legs_blend = ik_anim_obj->LL_PlayCycle(ik_anim_obj->LL_PartID("legs"),
+				motion, TRUE,
 				ik_anim_obj->LL_GetMotionDef(motion)->Accrue(),
 				ik_anim_obj->LL_GetMotionDef(motion)->Falloff(),
 				ik_anim_obj->LL_GetMotionDef(motion)->Speed(),
-				FALSE, 0, 0, 0));
+				FALSE, StopLegsCall, this, 0);
+
+			CStepManager::on_animation_start(motion, m_current_legs_blend);
 		}
+
+		u_last_legs_motion_idx = u_legs_motion_idx;
 	}
+
 	if (u_last_head_motion_idx != u_head_motion_idx)
 	{
-		u_last_head_motion_idx = u_head_motion_idx;
 		motion.idx = u_head_motion_idx;
 		motion.slot = u_head_motion_slot;
+
 		if (motion.valid())
 		{
-			ik_anim_obj->LL_PlayCycle(ik_anim_obj->LL_PartID("head"),
+			m_current_head_blend = ik_anim_obj->LL_PlayCycle(ik_anim_obj->LL_PartID("head"),
 				motion, TRUE,
-				ik_anim_obj->LL_GetMotionDef(motion)->Accrue(), 
+				ik_anim_obj->LL_GetMotionDef(motion)->Accrue(),
 				ik_anim_obj->LL_GetMotionDef(motion)->Falloff(),
-				ik_anim_obj->LL_GetMotionDef(motion)->Speed(), 
-				FALSE, 0, 0, 0);
+				ik_anim_obj->LL_GetMotionDef(motion)->Speed(),
+				FALSE, StopHeadCall, this, 0);
 		}
-	}
-
-	if (u_last_script_motion_idx != u_script_motion_idx) {
-		motion.idx = u_script_motion_idx;
-		motion.slot = u_script_motion_slot;
-		u_last_script_motion_idx = u_script_motion_idx;
-		if (motion.valid())
-		{
-			ik_anim_obj->LL_PlayCycle(ik_anim_obj->LL_GetMotionDef(motion)->bone_or_part, motion, TRUE,
-			ik_anim_obj->LL_GetMotionDef(motion)->Accrue(),
-			ik_anim_obj->LL_GetMotionDef(motion)->Falloff(),
-			ik_anim_obj->LL_GetMotionDef(motion)->Speed(),
-			ik_anim_obj->LL_GetMotionDef(motion)->StopAtEnd(),
-			0, 0, 0);
-		}
-	}
-
-
-	/*
-	if (TorsoAnimPlay)
-	{
-		MotionID motion;
-		motion.idx = u_torso_motion_idx;
-		motion.slot = u_torso_motion_slot;
 		
-		if (motion.valid())
+		u_last_head_motion_idx = u_head_motion_idx;
+	}  
+	
+
+	collide::rq_result res = HUD().GetCurrentRayQuery();
+
+	if (res.O == this)
+	{			
+		if (m_current_torso_blend)
 		{
-			CMotionDef* def = ik_anim_obj->LL_GetMotionDef(motion);
-			if (def->StopAtEnd() && false)
+			CBlend blend_current = (CBlend)*m_current_torso_blend;
+				
+			float cur_time = blend_current.timeCurrent;
+			float total_time = blend_current.timeTotal;
+			u16 idx = blend_current.motionID.idx;
+			CAI_Stalker* stalker = (CAI_Stalker*) blend_current.CallbackParam;
+				
+			if (stalker)
 			{
-				Msg("torso set callback anim");
-				m_current_torso_blend = ik_anim_obj->PlayCycle(motion, TRUE, TorsoAnimPlayed, this, 0);
-				TorsoAnimPlay = false;
- 			}
-			else
-			{
-				if (u_last_torso_motion_idx != u_torso_motion_idx)
-				{
-					u_last_torso_motion_idx = u_torso_motion_idx;
-					m_current_torso_blend = ik_anim_obj->LL_PlayCycle(
-						ik_anim_obj->LL_PartID("torso"), 
-						motion, TRUE,
-						ik_anim_obj->LL_GetMotionDef(motion)->Accrue(),
-						ik_anim_obj->LL_GetMotionDef(motion)->Falloff(),
-						ik_anim_obj->LL_GetMotionDef(motion)->Speed(),
-						FALSE,
-						0, 0, 0
-					);
-				}
- 			}
-			 
-			
+ 				Msg("blend [%d] torso [%f] / [%f] == server[%d] [%f] [%f]",
+					idx, cur_time, total_time,
+					u_torso_motion_idx, u_time_torso, total_time
+				);
+			}
 		}
+														   			
+		if (m_current_head_blend)
+		{
+			CBlend blend_current = (CBlend)*m_current_head_blend;
+			float cur_time = blend_current.timeCurrent;
+			float total_time = blend_current.timeTotal;
+			u16 idx = blend_current.motionID.idx;
+			CAI_Stalker* stalker = (CAI_Stalker*)blend_current.CallbackParam;
+
+			if (stalker)
+			{
+ 				Msg("blend [%d] head [%f] / [%f]  == server[%d] [%f] [%f]", 
+					idx, cur_time, total_time,
+					u_head_motion_idx, u_time_head, total_time
+				);
+			}
+		}
+
+		if (m_current_legs_blend)
+		{
+			CBlend blend_current = (CBlend)*m_current_legs_blend;
+			float cur_time = blend_current.timeCurrent;
+			float total_time = blend_current.timeTotal;
+			u16 idx = blend_current.motionID.idx;
+
+			CAI_Stalker* stalker = (CAI_Stalker*)blend_current.CallbackParam;
+
+			if (stalker)
+			{
+ 				Msg("blend [%d] legs [%f] / [%f] == server[%d] [%f] [%f]",
+					idx, cur_time, total_time,
+					u_legs_motion_idx, u_time_legs, total_time
+				);
+			}
+		}
+ 
+		//Msg("Current server torso[%d]legs[%d]head[%d]script[%d]", u_last_torso_motion_idx, u_last_legs_motion_idx, u_last_head_motion_idx, u_last_script_motion_idx);
 	}
-   
-	if (LegsAnimPlay)
-	{
-		MotionID motion;
-		motion.idx = u_legs_motion_idx;
-		motion.slot = u_legs_motion_slot;
-		
-		if (motion.valid())
-		{
-			CMotionDef* def = ik_anim_obj->LL_GetMotionDef(motion);
-			
-			if (def->StopAtEnd() && false)
-			{
-				Msg("legs set callback anim");
-				m_current_legs_blend = ik_anim_obj->PlayCycle(motion, TRUE, LegsAnimPlayed, this, 0);
-				LegsAnimPlay = false;
- 			}
-			else
-			{
-				if (u_last_legs_motion_idx != u_legs_motion_idx)
-				{
-					u_last_legs_motion_idx = u_legs_motion_idx;
-					m_current_legs_blend = ik_anim_obj->LL_PlayCycle(
-						ik_anim_obj->LL_PartID("legs"),
-						motion, TRUE,
-						ik_anim_obj->LL_GetMotionDef(motion)->Accrue(),
-						ik_anim_obj->LL_GetMotionDef(motion)->Falloff(),
-						ik_anim_obj->LL_GetMotionDef(motion)->Speed(),
-						FALSE,
-						0, 0, 0
-					);
-				}
-			}
-			
-			if (&m_current_legs_blend)
-				CStepManager::on_animation_start(motion, m_current_legs_blend);
-		}
-	}
+	*/
 
-	if (HeadAnimPlay)
-	{
-		MotionID motion;
-		motion.idx = u_head_motion_idx;
-		motion.slot = u_head_motion_slot;
-
-		if (motion.valid())
-		{
-			CMotionDef* def = ik_anim_obj->LL_GetMotionDef(motion);
-			if (def->StopAtEnd() && false)
-			{
-				Msg("head set callback anim");
-				m_current_head_blend = ik_anim_obj->PlayCycle(motion, TRUE, HeadAnimPlayed, this, 0);
-				HeadAnimPlay = false;
-			}
-			else
-			{
-				if (u_last_head_motion_idx != u_head_motion_idx)
-				{
-					m_current_head_blend = ik_anim_obj->LL_PlayCycle(
-						ik_anim_obj->LL_PartID("head"),
-						motion, TRUE,
-						ik_anim_obj->LL_GetMotionDef(motion)->Accrue(),
-						ik_anim_obj->LL_GetMotionDef(motion)->Falloff(),
-						ik_anim_obj->LL_GetMotionDef(motion)->Speed(),
-						FALSE,
-						0, 0, 0
-					);
-					u_last_head_motion_idx = u_head_motion_idx;
-				}
-			}
-
-		}
-	}
-
-	if (ScriptAnimPlay)
-	{
-		MotionID motion;
-		motion.idx = u_script_motion_idx;
-		motion.slot = u_script_motion_slot;
-
-		if (motion.valid())
-		{
-			CMotionDef* def = ik_anim_obj->LL_GetMotionDef(motion);
-
-			if (def->StopAtEnd() && false)
-			{
-				Msg("script set callback anim");
-				m_current_script_blend = ik_anim_obj->PlayCycle(motion, TRUE, ScriptAnimPlayed, this, 0);
-				ScriptAnimPlay = false;
-			}
-			else
-			{
-				if (u_last_script_motion_idx != u_script_motion_idx)
-				{
-					m_current_script_blend = ik_anim_obj->LL_PlayCycle(
-						ik_anim_obj->LL_GetMotionDef(motion)->bone_or_part, motion, TRUE,
-						ik_anim_obj->LL_GetMotionDef(motion)->Accrue(),
-						ik_anim_obj->LL_GetMotionDef(motion)->Falloff(),
-						ik_anim_obj->LL_GetMotionDef(motion)->Speed(),
-						TRUE,
-						0, 0, 0
-					);
-					u_last_script_motion_idx = u_script_motion_idx;
-				}
-			}
-		}
-	}  */
 }
 
 void CAI_Stalker::CalculateInterpolationParams()
@@ -831,12 +852,17 @@ void CAI_Stalker::make_Interpolation()
 
 			VERIFY2(_valid(renderable.xform), *cName());
 			
-			movement().m_body.current.pitch = angle_lerp(IStart.o_torso.pitch, IEnd.o_torso.pitch, factor);
-			//movement().m_body.current.roll = angle_lerp(IStart.o_torso.roll, IEnd.o_torso.roll, factor);
-			movement().m_body.current.yaw = angle_lerp(IStart.o_torso.yaw, IEnd.o_torso.yaw, factor);
+			//if (false)
+			{
+				movement().m_body.current.pitch = angle_lerp(IStart.o_torso.pitch, IEnd.o_torso.pitch, factor);
+ 				movement().m_body.current.yaw = angle_lerp(IStart.o_torso.yaw, IEnd.o_torso.yaw, factor);
 
-			movement().m_head.current.pitch = angle_lerp(IStart.head.pitch, IEnd.head.pitch, factor);
-			movement().m_head.current.yaw = angle_lerp(IStart.head.yaw, IEnd.head.yaw, factor);
+				movement().m_head.current.pitch = angle_lerp(IStart.head.pitch, IEnd.head.pitch, factor);
+ 				movement().m_head.current.yaw = angle_lerp(IStart.head.yaw, IEnd.head.yaw, factor);
+			}
+
+			 
+
 
 
 			for (u32 k = 0; k < 3; k++)

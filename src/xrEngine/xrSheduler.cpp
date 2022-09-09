@@ -413,8 +413,6 @@ void CSheduler::Pop					()
 	Items.pop_back	();
 }
 
-extern u32 shedule_time_ms;
-
 
 #include "../xrServerEntities/clsid_game.h"
 #include "IGame_Persistent.h"
@@ -445,17 +443,15 @@ IC bool time_find(TDATA E1, LPCSTR name)
 xr_vector <TDATA> timer_data;
 xr_map<shared_str, u64> timer_table;
 xr_map<shared_str, u64> timer_rt;
-
-bool enabled_print_shedule = true;
  
 void CSheduler::ProcessStep			()
 {
 	// Normal priority
 	u32		dwTime					= Device.dwTimeGlobal;
-  
-	if (Device.dwTimeGlobal - oldTimeUpdate > 1000 && enabled_print_shedule)
+	/*
+	if (Device.dwTimeGlobal - oldTimeUpdate > 1000)
 	{
-		/*
+		
 		for (auto Item : Items)
 		{
 			if (!Item.Object)
@@ -503,7 +499,7 @@ void CSheduler::ProcessStep			()
 		{
 			Msg("TOTAL [%s], time [%d]", t.first.c_str(), t.second);
 		}
-		*/
+		
 
 		timer_table.clear();
 		timer_data.clear_and_free();
@@ -511,7 +507,8 @@ void CSheduler::ProcessStep			()
 
 		oldTimeUpdate = Device.dwTimeGlobal;
 	} 
- 
+ 	*/
+
 	for (int i=0;!Items.empty() && Top().dwTimeForExecute < dwTime; ++i)
 	{
 		//u32		delta_ms			= dwTime - Top().dwTimeForExecute;
@@ -595,65 +592,17 @@ void CSheduler::Switch				()
 }
 */
 
-u64 global_timer1 = 0;
-u32 old_time_global = 0;
 extern int stop_sheduler;
-
-void mt_Update(void* sheduler)
-{
-	CSheduler* SH = (CSheduler*)sheduler;
-
-	SH->cycles_start = CPU::QPC();
-	SH->cycles_limit = CPU::qpc_freq * u64(iCeil(psShedulerCurrent)) / 1000i64 + SH->cycles_start;
-	SH->internal_Registration();
-
-	g_bSheduleInProgress = TRUE;
-
-	bool m_processing_now = true;
-
-	u32	dwTime = Device.dwTimeGlobal;
- 
-	for (u32 it = 0; it < SH->ItemsRT.size(); it++)
-	{
-		Item& T = SH->ItemsRT[it];
-
-		if (!T.Object->shedule_Needed())
-		{
-			T.dwTimeOfLastExecute = dwTime;
-			continue;
-		}
-
-		u32	Elapsed = dwTime - T.dwTimeOfLastExecute;
-
-		T.Object->shedule_Update(Elapsed);
-		//Msg("Name[%s], CLSID[%s] time[%d]", T.Object->shedule_Name().c_str(), T.Object->shedule_clsid().c_str(), time.GetElapsed_ticks() );
-		//timer_rt[T.Object->shedule_Name()] += time.GetElapsed_ticks();
-		T.dwTimeOfLastExecute = dwTime;
-	}
- 
-	// Normal (sheduled)
-	SH->ProcessStep();
-
-	m_processing_now = false;
-
-	clamp(psShedulerTarget, 3.f, 66.f);
-	psShedulerCurrent = 0.9f * psShedulerCurrent + 0.1f * psShedulerTarget;
- 
-	// Finalize
-	g_bSheduleInProgress = FALSE;
-	SH->internal_Registration();
-}
-
+extern u32 shedule_time_ms;
+extern u32 shedule_count; 
 
 void CSheduler::Update				()
 {
 	//if (stop_sheduler)
 	//	return;
-
-	//thread_spawn(mt_Update, "sheduler_th", 0, this);
-	//return;
 			 
-	CTimer timer1; timer1.Start();
+	CTimer timer1; 
+	timer1.Start();
 
 	R_ASSERT						(Device.Statistic);
 	// Initialize
@@ -721,15 +670,9 @@ void CSheduler::Update				()
 	internal_Registration			();
 
 
-	global_timer1 += timer1.GetElapsed_ticks();
-
-	if (Device.dwTimeGlobal > old_time_global)
-	{
-		//	Msg("Global Timer [%u]", global_timer1);
-		global_timer1 = 0;
-
-		old_time_global = Device.dwTimeGlobal + 1000;
-	}
+	shedule_time_ms += timer1.GetElapsed_ms();
+	shedule_count += 1;
+ 
 }
 
 

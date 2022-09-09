@@ -1160,6 +1160,15 @@ void register_event_update_server(LPCSTR name_functor)
 }
 
 
+CSE_ALifeDynamicObject* alife_object_cl(u16 obj_id)
+{
+	game_cl_freemp* freemp = smart_cast<game_cl_freemp*>(&Game());
+	if (freemp)
+		return freemp->GetAlifeObject(obj_id);
+
+	return 0;
+}
+
 
 #pragma optimize("s",on)
 void CLevel::script_register(lua_State *L)
@@ -1170,6 +1179,14 @@ void CLevel::script_register(lua_State *L)
 
 	class_<CEnvironment>("CEnvironment")
 		.def("current",							current_environment);
+
+	module(L, "alife_level")
+		[
+			def("get_object", &alife_object_cl)
+		
+		
+		];
+
 
 	module(L, "level")
 		[

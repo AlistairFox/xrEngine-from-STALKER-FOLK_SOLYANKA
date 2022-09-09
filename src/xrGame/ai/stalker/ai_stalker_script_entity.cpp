@@ -165,7 +165,8 @@ bool CAI_Stalker::bfAssignObject(CScriptEntityAction *tpEntityAction)
 //			if (!l_tpWeapon)
 //				return	((l_tObjectAction.m_bCompleted = true) == false);
 			if (inventory().ActiveItem() && l_tpWeapon) {
-				if (l_tpWeapon->GetAmmoElapsed()) {
+				if (l_tpWeapon->GetAmmoElapsed()) 
+				{
 //					if (l_tpWeapon->GetAmmoMagSize() > 1)
 //						l_tpWeaponMagazined->SetQueueSize(l_tObjectAction.m_dwQueueSize);
 //					else

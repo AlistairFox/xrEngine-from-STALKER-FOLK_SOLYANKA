@@ -181,12 +181,45 @@ void InitLog()
 void CreateLog			(BOOL nl)
 {
     no_log				= nl;
-	strconcat			(sizeof(log_file_name),log_file_name,Core.ApplicationName,"_",Core.UserName,".log");
-	if (FS.path_exist("$logs$"))
-		FS.update_path	(logFName,"$logs$",log_file_name);
-	if (!no_log){
+	
+	strconcat			(sizeof(log_file_name), log_file_name, Core.ApplicationName,"_", Core.UserName, ".log");
+
+
+ 
+	if (strstr(Core.Params, "server(") )
+	{
+
+		string128 name;
+		const char* s = strstr(Core.Params, "server(") + 7;
+			strncpy_s(name, s, strchr(Core.Params, '/') - s);
+			xr_strcat(name, ".log");
+			if (FS.path_exist("$logs$"))
+				FS.update_path(logFName, "$logs$", name);	   //
+	}
+	else
+	{
+		if (FS.path_exist("$logs$"))
+			FS.update_path(logFName, "$logs$", log_file_name);	   //
+	}
+	 
+
+	/*
+	if (strstr(Core.Params, "-log("))
+	{
+		string128 name;
+		const char* s = strstr(Core.Params, "-log(") + 5;
+		strncpy_s(name, s, strchr(s, ')') - s);
+		if (FS.path_exist("$logs$"))
+			FS.update_path(logFName, "$logs$", name);
+	}
+	*/
+	
+
+	if (!no_log)
+	{
         IWriter *f		= FS.w_open	(logFName);
-        if (f==NULL){
+        if (f==NULL)
+		{
         	MessageBox	(NULL,"Can't create log file.","Error",MB_ICONERROR);
         	abort();
         }

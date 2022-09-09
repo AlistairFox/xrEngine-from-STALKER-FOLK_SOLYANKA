@@ -76,6 +76,7 @@ void CMovementManager::Load			(LPCSTR section)
 	extrapolate_path				(false);
 
 	m_wait_for_distributed_computation = false;
+	old_timeLOCK = 0;
 
 	locations().Load		  	(section);
 }
@@ -168,6 +169,8 @@ void CMovementManager::update_path				()
 	if (!enabled() || wait_for_distributed_computation()) 
 		return;
  
+	if (Device.dwTimeGlobal < old_timeLOCK)
+		return;
 
 	START_PROFILE("Build Path::update")
 

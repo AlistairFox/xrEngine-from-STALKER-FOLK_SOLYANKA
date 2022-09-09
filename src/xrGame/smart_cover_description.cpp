@@ -120,8 +120,12 @@ void description::load_loopholes	(shared_str const &table_id)
 		);
 	VERIFY2						(result, make_string("bad or missing loopholes table in smart_cover [%s]", table_id.c_str()));
 
+	if (!result)
+		Msg("Loophole %s missing", table_id);
+
 	luabind::object::iterator	I = loopholes.begin();
 	luabind::object::iterator	E = loopholes.end();
+
 	for ( ; I != E; ++I ) {
 		luabind::object	table = *I;
 		if (table.type() != LUA_TTABLE) {
@@ -174,6 +178,22 @@ void description::process_loopholes()
 		)
 	);
 
+	if (std::find_if(  m_loopholes.begin(), m_loopholes.end(), enterable_predicate()) != m_loopholes.end())
+	{
+		Msg("smart_cover [%s] doesn't have enterable loopholes", m_table_id.c_str());
+	}
+
+
+
+	if (std::find_if(
+		m_loopholes.begin(),
+		m_loopholes.end(),
+		exitable_predicate()
+	) != m_loopholes.end())
+	{
+		Msg("smart_cover [%s] doesn't have exitable loopholes", m_table_id.c_str());
+	}
+
 	VERIFY2						(
 		std::find_if(
 			m_loopholes.begin(),
@@ -195,17 +215,20 @@ void description::load_transitions	(shared_str const &table_id)
 	xr_strcat					(temp, ".transitions");
 
 	luabind::object				transitions;
+	
 	bool						result = 
 		ai().script_engine().function_object(
 			temp,
 			transitions,
 			LUA_TTABLE
 		);
+
 	VERIFY						(result);
 	
 	luabind::object::iterator	I = transitions.begin();
 	luabind::object::iterator	E = transitions.end();
-	for ( ; I !=E; ++I ) {
+	for ( ; I !=E; ++I )
+	{
 		luabind::object			table = *I;
 		if (table.type() != LUA_TTABLE) {
 			VERIFY	(table.type() != LUA_TNIL);

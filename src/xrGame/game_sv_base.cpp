@@ -489,21 +489,36 @@ void game_sv_GameState::Create					(shared_str &options)
 		}
 		else
 		{
-			CSE_ALifeCreatureActor* single_actor = ai().get_alife()->graph().actor();
-
-			if (single_actor)
+			if (ai().get_alife())
 			{
-				RPoint R;
-				R.P = single_actor->position();
-				R.A = single_actor->o_Angle;
 
+
+				CSE_ALifeCreatureActor* single_actor = ai().get_alife()->graph().actor();
+
+				if (single_actor)
+				{
+					RPoint R;
+					R.P = single_actor->position();
+					R.A = single_actor->o_Angle;
+
+					for (int i = 0; i < 32; i++)
+					{
+						rpoints[i].push_back(R);
+
+						Msg("[NOTFINDER ANY SPAWN POINTS] RP ADD Team[%d]  x[%.0f]y[%.0f]z[%.0f]", i, single_actor->position().x, single_actor->position().y, single_actor->position().z);
+
+					}
+				}
+			} 
+			else
+			{
 				for (int i = 0; i < 32; i++)
 				{
+					RPoint R;
+					R.P.set(0,0,0);
+					R.P.set(0,0,0);
 					rpoints[i].push_back(R);
-
-					Msg("[NOTFINDER ANY SPAWN POINTS] RP ADD Team[%d]  x[%.0f]y[%.0f]z[%.0f]", i, single_actor->position().x, single_actor->position().y, single_actor->position().z);
-
-				}
+				}					
 			}
 		}
 		FS.r_close	(F);

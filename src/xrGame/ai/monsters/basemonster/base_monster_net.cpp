@@ -663,8 +663,8 @@ void CBaseMonster::make_Interpolation()
 
 			VERIFY2(_valid(renderable.xform), *cName());
 
-			float& yaw = movement().m_body.current.yaw;
-			float& pitch = movement().m_body.current.pitch;
+			//float& yaw = movement().m_body.current.yaw;
+			//float& pitch = movement().m_body.current.pitch;
 
 			float f_yaw = angle_lerp(IStart.o_torso.yaw, IEnd.o_torso.yaw, factor);
 			float f_pitch = angle_lerp(IStart.o_torso.pitch, IEnd.o_torso.pitch, factor);

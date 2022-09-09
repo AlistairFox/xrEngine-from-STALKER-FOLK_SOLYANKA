@@ -5,7 +5,7 @@
 
 #include "../actor.h"
 #include "../trade.h"
-#include "../UIGameSP.h"
+
 #include "../PDA.h"
 #include "../../xrServerEntities/character_info.h"
 #include "../level.h"
@@ -19,6 +19,8 @@
 #include "../../xrEngine/cameraBase.h"
 #include "UIXmlInit.h"
 #include "UI3tButton.h"
+
+#include "UIGameCustom.h"
 
 CUITalkWnd::CUITalkWnd()
 {
@@ -85,6 +87,7 @@ void CUITalkWnd::InitTalkDialog()
 	NeedUpdateQuestions						();
 	Update									();
 
+	UITalkDialogWnd->artefacts_mode			= m_pOthersInvOwner->SpecificCharacter().artefact_mode();
 	UITalkDialogWnd->mechanic_mode			= m_pOthersInvOwner->SpecificCharacter().upgrade_mechanic();
 	UITalkDialogWnd->SetOsoznanieMode		(m_pOthersInvOwner->NeedOsoznanieMode());
 	UITalkDialogWnd->Show					();
@@ -176,6 +179,10 @@ void CUITalkWnd::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
 	else if(pWnd == UITalkDialogWnd && msg == TALK_DIALOG_QUESTION_CLICKED)
 	{
 		AskQuestion();
+	}
+	else if (pWnd == UITalkDialogWnd && msg == TALK_DIALOG_ART_UPGRADE_BUTTON_CLICKED)
+	{
+		SwitchToArtefactUpgrade();
 	}
 	inherited::SendMessage(pWnd, msg, pData);
 }
@@ -345,18 +352,16 @@ void CUITalkWnd::SwitchToTrade()
 
 void CUITalkWnd::SwitchToUpgrade()
 {
-	//if ( m_pOurInvOwner->IsInvUpgradeEnabled() && m_pOthersInvOwner->IsInvUpgradeEnabled() )
+	//if (m_pOurInvOwner->IsInvUpgradeEnabled() && m_pOurInvOwner->IsInvUpgradeEnabled())
 	{
-		CUIGameCustom* pGameSP = smart_cast<CUIGameCustom*>(CurrentGameUI());
-		if ( pGameSP )
-		{
-/*			if ( pGameSP->MainInputReceiver() )
-			{
-				pGameSP->MainInputReceiver()->HideDialog();
-			}*/
-			pGameSP->StartUpgrade(m_pOurInvOwner, m_pOthersInvOwner);
-		}
+		CurrentGameUI()->StartUpgrade(m_pOurInvOwner, m_pOthersInvOwner);
 	}
+}
+
+void CUITalkWnd::SwitchToArtefactUpgrade()
+{
+	Msg("Switch To Artefact ");
+	CurrentGameUI()->StartArtUpgrade(m_pOurInvOwner, m_pOthersInvOwner);
 }
 
 bool CUITalkWnd::OnKeyboardAction(int dik, EUIMessages keyboard_action)
@@ -374,7 +379,9 @@ bool CUITalkWnd::OnKeyboardAction(int dik, EUIMessages keyboard_action)
 		}
 		else if(is_binded(kSPRINT_TOGGLE, dik))
 		{
-			if(UITalkDialogWnd->mechanic_mode)
+			if (UITalkDialogWnd->artefacts_mode)
+				SwitchToArtefactUpgrade();
+			else if(UITalkDialogWnd->mechanic_mode)
 				SwitchToUpgrade();
 			else
 				SwitchToTrade();

@@ -98,18 +98,23 @@ debug::text_tree&   CLevelDebug::get_text_tree ()
 CLevelDebug::CObjectInfo &CLevelDebug::object_info(CObject *obj, LPCSTR class_name)
 {
 	OBJECT_INFO_MAP_IT	obj_it = m_objects_info.find(obj);
-	if (obj_it != m_objects_info.end()) {
-
+	if (obj_it != m_objects_info.end()) 
+	{
 		CLASS_INFO_MAP_IT	class_it = 	obj_it->second.find(class_name);
 
-		if (class_it != obj_it->second.end()) {
+		if (class_it != obj_it->second.end())
+		{
 			return (*(class_it->second));
-		} else {
+		} 
+		else
+		{
 			CObjectInfo *new_info = xr_new<CObjectInfo>();
 			obj_it->second.insert(mk_pair(class_name, new_info));
 			return (*(new_info));
 		}
-	} else {
+	}
+	else
+	{
 		CLASS_INFO_MAP	temp_map;
 
 		CObjectInfo *new_info = xr_new<CObjectInfo>();

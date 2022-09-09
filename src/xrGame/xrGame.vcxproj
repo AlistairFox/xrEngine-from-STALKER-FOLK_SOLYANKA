@@ -1001,10 +1001,12 @@
     <ClInclude Include="game_cl_roleplay.h" />
     <ClInclude Include="game_sv_roleplay.h" />
     <ClInclude Include="level_events.h" />
+    <ClInclude Include="MasterServerEvents.h" />
     <ClInclude Include="net_physics_state.h" />
     <ClInclude Include="script_event.h" />
     <ClInclude Include="SIniFileStream.h" />
     <ClInclude Include="UIAnimMode.h" />
+    <ClInclude Include="UIArtefactUpgradeWnd.h" />
     <ClInclude Include="UIGameFMP.h" />
     <ClInclude Include="CustomDetector.h" />
     <ClInclude Include="CustomMonster.h" />
@@ -3422,6 +3424,7 @@
     </ClCompile>
     <ClCompile Include="SIniFileStream.cpp" />
     <ClCompile Include="UIAnimMode.cpp" />
+    <ClCompile Include="UIArtefactUpgradeWnd.cpp" />
     <ClCompile Include="UIGameFMP.cpp" />
     <ClCompile Include="CustomDetector.cpp" />
     <ClCompile Include="CustomMonster.cpp">
@@ -5646,6 +5649,7 @@
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='LUAJIT_2|Win32'">$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <ClCompile Include="ui\UIActorMenu.cpp" />
+    <ClCompile Include="ui\UIActorMenuArtUpgrade.cpp" />
     <ClCompile Include="ui\UIActorMenuDeadBodySearch.cpp" />
     <ClCompile Include="ui\UIActorMenuInitialize.cpp" />
     <ClCompile Include="ui\UIActorMenuInventory.cpp" />
@@ -6412,6 +6416,8 @@
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='LUAJIT_2|Win32'">$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>
     </ClCompile>
+    <ClCompile Include="xrMasterServer.cpp" />
+    <ClCompile Include="xrMasterClient.cpp" />
     <ClCompile Include="xrServer.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">pch_script.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>

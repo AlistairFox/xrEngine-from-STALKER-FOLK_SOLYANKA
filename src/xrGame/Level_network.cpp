@@ -305,7 +305,8 @@ void CLevel::Send		(NET_Packet& P, u32 dwFlags, u32 dwTimeout)
 {
 	if (IsDemoPlayStarted() || IsDemoPlayFinished()) return;
 	// optimize the case when server located in our memory
-	if(psNET_direct_connect){
+	if(psNET_direct_connect)
+	{
 		ClientID	_clid;
 		_clid.set	(1);
 		Server->OnMessage		(P,	_clid );
@@ -383,10 +384,11 @@ BOOL			CLevel::Connect2Server				(LPCSTR options)
 	else
 	{
 		u32 EndTime = GetTickCount() + ConnectionTimeOut;
+ 
 		while (!HasSessionName())
 		{
 			Sleep(5);
-			u32 CurTime = GetTickCount();
+ 			u32 CurTime = GetTickCount();
 			if (CurTime > EndTime || net_isFails_Connect())
 			{
 				OnConnectRejected();

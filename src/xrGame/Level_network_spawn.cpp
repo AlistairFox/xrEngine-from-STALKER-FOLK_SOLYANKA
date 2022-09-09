@@ -115,8 +115,8 @@ void CLevel::g_sv_Spawn		(CSE_Abstract* E)
 	Timer.Start		();
 	CObject*	O		= Objects.Create	(*E->s_name);
 	
-	if (Timer.GetElapsed_ms() > 0)
-	Msg				("--spawn--CREATE: %d ms, name %s, cl_sect %s", Timer.GetElapsed_ms(), E->name_replace());
+	//if (Timer.GetElapsed_ms() > 0)
+	//	Msg				("--spawn--CREATE: %d ms, name %s", Timer.GetElapsed_ms(), E->name_replace());
 
  	Timer.Start();
 	#ifdef DEBUG_MEMORY_MANAGER
@@ -142,8 +142,8 @@ void CLevel::g_sv_Spawn		(CSE_Abstract* E)
 		if(!g_dedicated_server)
 			client_spawn_manager().callback(O);
 		
-		if (Timer.GetElapsed_ms() > 0)
-		Msg("--spawn--SPAWN: %d ms, name %s", Timer.GetElapsed_ms(), E->name_replace());
+		//if (Timer.GetElapsed_ms() > 0)
+		//Msg("--spawn--SPAWN: %d ms, name %s", Timer.GetElapsed_ms(), E->name_replace());
  
 
 		//Msg("lua script calls %d", ai().script_engine().lua()->ci->tailcalls );

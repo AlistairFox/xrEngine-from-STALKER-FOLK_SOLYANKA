@@ -152,7 +152,8 @@ SVS*	CResourceManager::_CreateVS		(LPCSTR _name)
 		SVS*	_vs					= xr_new<SVS>	();
 		_vs->dwFlags				|= xr_resource_flagged::RF_REGISTERED;
 		m_vs.insert					(mk_pair(_vs->set_name(name),_vs));
-		if (0==stricmp(_name,"null"))	{
+		if (0==stricmp(_name,"null"))
+		{
 			_vs->vs				= NULL;
 			return _vs;
 		}
@@ -172,7 +173,18 @@ SVS*	CResourceManager::_CreateVS		(LPCSTR _name)
 		else 							c_target="vs_1_1";
 
 		// duplicate and zero-terminate
+		//Msg("name: %s", cname);
+
+		Msg("compiling shader %s", name);
+
 		IReader* file			= FS.r_open(cname);
+
+		if (!file)
+		{
+			_vs->vs = NULL;
+			return _vs;
+		}
+
 		R_ASSERT2				( file, cname );
 		u32	const size			= file->length();
 		char* const data		= (LPSTR)_alloca(size + 1);
@@ -183,7 +195,7 @@ SVS*	CResourceManager::_CreateVS		(LPCSTR _name)
 		if (strstr(data, "main_vs_1_1"))	{ c_target = "vs_1_1"; c_entry = "main_vs_1_1";	}
 		if (strstr(data, "main_vs_2_0"))	{ c_target = "vs_2_0"; c_entry = "main_vs_2_0";	}
 
-		Msg						( "compiling shader %s", name );
+
 		HRESULT const _hr		= ::Render->shader_compile( name, (DWORD const*)data, size, c_entry, c_target, D3DXSHADER_DEBUG | D3DXSHADER_PACKMATRIX_ROWMAJOR, (void*&)_vs);
 
 		if ( FAILED(_hr) )

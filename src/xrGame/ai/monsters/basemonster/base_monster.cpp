@@ -411,8 +411,7 @@ u64 monster_timers = 0;
 u64 monster_update_groop = 0;
 u64 monster_update_control = 0;
 
-extern int Shedule_Radius_Players;
-
+ 
 #include "actor_mp_client.h"
 
 extern u64 UpdateCLTime;
@@ -521,9 +520,9 @@ void CBaseMonster::UpdateCL()
 
 
 extern float Shedule_Scale_AI_Stalker;
-extern int Shedule_Radius_Players;
-
+ 
 #include "Spectator.h"
+#include "enemy_manager.h"
 
 float CBaseMonster::shedule_Scale()
 {
@@ -537,7 +536,7 @@ float CBaseMonster::shedule_Scale()
 
 	if (Game().players.size() > 0)
 	{
-		bool finded = false;
+ 		float old_dist = 1000;
  		for (auto pl : Game().players)
 		{
 			CObject* obj = Level().Objects.net_Find(pl.second->GameID);
@@ -545,16 +544,17 @@ float CBaseMonster::shedule_Scale()
 			if (smart_cast<CActorMP*>(obj) || smart_cast<CSpectator*>(obj) )
 			{
 				float new_dist = obj->Position().distance_to(this->Position());
-				if (new_dist < Shedule_Radius_Players)
-				{
-					finded = true;		 
-					break;
- 				}
+				if (new_dist < 80 && old_dist > new_dist)
+					old_dist = new_dist;
 			}
 		}
 
-		if (finded)
+		if (old_dist < 80)
+			//return old_dist / 50;
 			return 0;
+
+		//if (memory().enemy().selected())
+		//	return memory().enemy().selected()->Position().distance_to(this->Position()) / 50;
  
 	}
 

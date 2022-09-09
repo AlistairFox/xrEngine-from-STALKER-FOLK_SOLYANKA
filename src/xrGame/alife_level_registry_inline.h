@@ -61,7 +61,8 @@ IC	void CALifeLevelRegistry::update			(const _update_predicate &predicate, bool 
 IC	CSE_ALifeDynamicObject *CALifeLevelRegistry::object	(const ALife::_OBJECT_ID &id, bool no_assert) const
 {
 	_REGISTRY::const_iterator	I = objects().find(id);
-	if (I == objects().end()) {
+	if (I == objects().end()) 
+	{
 		THROW2			(no_assert,"The spesified object hasn't been found in the current level!");
 		return			(0);
 	}

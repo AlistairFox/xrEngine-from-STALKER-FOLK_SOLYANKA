@@ -33,6 +33,8 @@ public:
 	virtual		void		SetWndPos						(const Fvector2& pos);
 	virtual		void		Update							();
 	virtual		bool		OnMouseDown						(int mouse_btn);
+	//virtual bool			OnMouseAction(float x, float y, EUIMessages mouse_action);
+
 	virtual		void		OnFocusLost						();
 
 				void		show_static_border				(bool status);

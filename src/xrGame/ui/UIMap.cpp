@@ -37,7 +37,8 @@ void CUICustomMap::Initialize(shared_str name, LPCSTR sh_name)
 	if(levelIni->section_exist("level_map"))
 	{
 		Init_internal	(name, *levelIni, "level_map", sh_name);
-	}else
+	}
+	else
 	{
 		Msg("! default LevelMap used for level[%s]",name.c_str());
 		Init_internal	(name, *pGameIni, "def_map", sh_name);
@@ -45,6 +46,20 @@ void CUICustomMap::Initialize(shared_str name, LPCSTR sh_name)
 	}
 	if(levelIni != g_pGameLevel->pLevel)
 		xr_delete(levelIni);
+}
+
+void CUICustomMap::Reload()
+{
+//	string_path					fname;
+//	pGameIni = 0;
+//	FS.update_path(fname, "$game_config$", "game.ltx");
+//	pGameIni = xr_new<CInifile>(fname, TRUE);
+
+	if (m_name.size() != 0 && m_texture.size() != 0 && m_shader_name.size() != 0)
+	{
+		Msg("Name %s, SH %s", m_name.c_str(), m_shader_name.c_str());
+		Initialize(m_name, m_shader_name.c_str());
+	}
 }
 
 CUICustomMap::~CUICustomMap()
@@ -299,7 +314,8 @@ void CUIGlobalMap::Init_internal(const shared_str& name, CInifile& pLtx, const s
 
 void CUIGlobalMap::Update()
 {
-	for(WINDOW_LIST_it it = m_ChildWndList.begin(); m_ChildWndList.end()!=it; ++it){
+	for(WINDOW_LIST_it it = m_ChildWndList.begin(); m_ChildWndList.end()!=it; ++it)
+	{
 		CUICustomMap* m = smart_cast<CUICustomMap*>(*it);
 		if (!m)					continue;
 		m->DetachAll			();
@@ -544,9 +560,16 @@ void CUILevelMap::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
 	if(msg==MAP_HIDE_HINT)
 	{
 		MapWnd()->HideHint	(pWnd);
-	}else
+	}
+	else
 	if(msg==MAP_SELECT_SPOT)
 		MapWnd()->SpotSelected	(pWnd);
+	else
+	if (msg == MAP_SELECT_SPOT_2)
+	{
+		MapWnd()->ActivatePropertiesBox(pWnd);
+	}
+		
 }
 
 void CUILevelMap::OnFocusLost()

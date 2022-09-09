@@ -34,6 +34,7 @@ namespace LevelGraph {
 		ICF	u16				low_cover				(u8 index) const;
 		ICF	u16				plane					() const;
 		ICF	const CPosition &position				() const;
+ 
 		ICF	bool			operator<				(const LevelGraph::CVertex &vertex) const;
 		ICF	bool			operator>				(const LevelGraph::CVertex &vertex) const;
 		ICF	bool			operator==				(const LevelGraph::CVertex &vertex) const;

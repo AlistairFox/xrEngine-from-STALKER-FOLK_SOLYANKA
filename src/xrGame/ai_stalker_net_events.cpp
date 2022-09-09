@@ -7,23 +7,72 @@
 
 #include "ai_stalker_net_state.h"
 #include "Actor.h"
-
+ 
 enum sync_flags
 {
 	animation_flag = (1 << 0),
 	animation_update = (1 << 1),
 };
- 
-void CAI_Stalker::OnEventAnimations(bool update)
+
+void CAI_Stalker::OnEventUpdate(MotionID motion, CBlend* blend, bool mix_anims, float pos)
 {
-	NET_Packet packet;
-	Game().u_EventGen(packet, GE_STALKER_ANIMS, this->ID());
-  	Game().u_EventSend(packet);
+	//Msg("OnEventUpdate [%d], part[%d]", motion.idx, blend->bone_or_part);
+ 
+
+	if (blend->bone_or_part == 1)
+	{
+		if (torso_anim_id > 254)
+			torso_anim_id = 0;
+
+		torso_anim_id += 1;
+		motion_torso = motion;
+		torso_loop = mix_anims;
+		pos_torso = pos;
+	}
+
+	if (blend->bone_or_part == 0)
+	{
+		if (legs_anim_id > 254)
+			legs_anim_id = 0;
+
+		legs_anim_id += 1;
+		motion_legs = motion;
+		legs_loop = mix_anims;
+		pos_legs = pos;
+	}
+
+	if (blend->bone_or_part == 2)
+	{
+		if (head_anim_id > 254)
+			head_anim_id = 0;
+
+		head_anim_id += 1;
+		motion_head = motion;
+		head_loop = mix_anims;
+		pos_head = pos;
+	}	
 }
 
-void CAI_Stalker::OnEventAnimationsRecived()
-{	
-	u_last_script_motion_idx = u16(-1);
+void CAI_Stalker::OnEventAnimationsRecived(NET_Packet packet)
+{ 		  
+	MotionID id;
+	u16 slot;
+	float amount;
+	packet.r(&id, sizeof(id));
+	packet.r_u16(slot);
+ 
+	IKinematicsAnimated* ka = Visual()->dcast_PKinematicsAnimated();
+
+	if (!ka)
+		return;
+
+	bool has_slot_for_anim = false;
+
+	if (ka->LL_PartBlendsCount(0) < 6 && ka->LL_PartBlendsCount(1) < 6 &&  ka->LL_PartBlendsCount(2) < 6)
+			has_slot_for_anim = true;
+
+	if (has_slot_for_anim)
+		ka->LL_PlayCycle(slot, id, true, 0, 0, 0);
 }
 
 extern    int        g_iCorpseRemove;

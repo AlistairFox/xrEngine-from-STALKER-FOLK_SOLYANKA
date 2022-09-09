@@ -124,6 +124,7 @@ IClient*	xrServer::client_Find_Get	(ClientID ID)
 
 	IClient* newCL = client_Create();
 	newCL->ID = ID;
+	
 	if(!psNET_direct_connect)
 	{
 		newCL->m_cAddress	= tmp_ip_address;	
@@ -1133,18 +1134,13 @@ CSE_Abstract*	xrServer::entity_Create		(LPCSTR name)
 
 void			xrServer::entity_Destroy	(CSE_Abstract *&P)
 {
-#ifdef DEBUG
-if( dbg_net_Draw_Flags.test( dbg_destroy ) )
-		Msg	("xrServer::entity_Destroy : [%d][%s][%s]",P->ID,P->name(),P->name_replace());
-#endif
-
-//	Msg("xrServer::entity_Destroy : [%d][%s][%s]", P->ID, P->name(), P->name_replace());
+	//Msg("xrServer::entity_Destroy : [%d][%s][%s]", P->ID, P->name(), P->name_replace());
 	
  	R_ASSERT					(P);
 
 	entities.erase				(P->ID);
 
-	m_tID_Generator.vfFreeID	(P->ID,Device.TimerAsync());
+	m_tID_Generator.vfFreeID	(P->ID, Device.TimerAsync());
 
 	if(P->owner && P->owner->owner==P)
 		P->owner->owner		= NULL;
@@ -1156,7 +1152,7 @@ if( dbg_net_Draw_Flags.test( dbg_destroy ) )
 	{
 		F_entity_Destroy		(P);
 	}
-
+ 
 }
 
 //--------------------------------------------------------------------
@@ -1551,6 +1547,16 @@ void xrServer::GetServerInfo( CServerInfo* si )
 			si->AddItem("Server FPS", FPS_str, RGB(0, 255, 0));
 		else 
 			si->AddItem("Server FPS", FPS_str, RGB(255, 0, 0));
+
+
+		u32		_crt_heap = mem_usage_impl((HANDLE)_get_heap_handle(), 0, 0);
+		u32		_process_heap = mem_usage_impl(GetProcessHeap(), 0, 0);
+
+
+
+ 		si->AddItem("Mem", itoa(_crt_heap/1024 / 1024, tmp_fps, 10), RGB(128, 128, 0));
+		si->AddItem("MemP", itoa(_process_heap/1024 / 1024, tmp_fps, 10), RGB(128, 128, 0));
+
 	}
 
 	u32 stalkers = 0;

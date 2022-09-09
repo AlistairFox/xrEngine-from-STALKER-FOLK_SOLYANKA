@@ -22,6 +22,9 @@
 
 #include "../../xrEngine/xr_input.h"		//remove me !!!
 
+#include "UIPropertiesBox.h"
+#include "UIListBoxItem.h"
+
 CUIMapWnd* g_map_wnd = NULL; // quick temporary solution -(
 CUIMapWnd* GetMapWnd()
 {
@@ -64,8 +67,49 @@ CUIMapWnd::~CUIMapWnd()
 }
 
 
+void CUIMapWnd::ActivatePropertiesBox(CUIWindow* wnd)
+{
+	property_box->RemoveAll();
+	luabind::functor<void> funct;
+	
+	if (ai().script_engine().functor("pda.property_box_add_properties", funct))
+	{
+		CMapSpot* sp = smart_cast<CMapSpot*>(wnd);
+		if (sp)
+			funct(property_box, sp->MapLocation()->ObjectID(), (LPCSTR)sp->MapLocation()->GetLevelName().c_str(), (LPCSTR)sp->MapLocation()->GetHint());
+	}
+
+	if (property_box->GetItemsCount() > 0)
+	{
+		property_box->AutoUpdateSize();
+
+		Fvector2 cursor_pos;
+		Frect vis_rect;
+
+		GetAbsoluteRect(vis_rect);
+		cursor_pos = GetUICursor().GetCursorPosition();
+		cursor_pos.sub(vis_rect.lt);
+		property_box->Show(vis_rect, cursor_pos);
+	}
+}
+
+void CUIMapWnd::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
+{
+	//	inherited::SendMessage( pWnd, msg, pData);
+	CUIWndCallback::OnEvent(pWnd, msg, pData);
+
+	if (pWnd == property_box && msg == PROPERTY_CLICKED && property_box->GetClickedItem())
+	{
+		luabind::functor<void> funct;
+		if (ai().script_engine().functor("pda.property_box_clicked", funct))
+			funct(property_box);
+	}
+}
+
+
 void CUIMapWnd::Init(LPCSTR xml_name, LPCSTR start_from)
 {
+	//Msg("MAP WND INIT");
 	CUIXml uiXml;
 	uiXml.Load						(CONFIG_PATH, UI_PATH, xml_name);
 
@@ -188,6 +232,15 @@ void CUIMapWnd::Init(LPCSTR xml_name, LPCSTR start_from)
 	m_ActionPlanner			= xr_new<CMapActionPlanner>();
 	m_ActionPlanner->setup	(this);
 	m_view_actor			= true;
+
+	property_box = xr_new<CUIPropertiesBox>();
+	property_box->SetAutoDelete(true);
+	property_box->InitPropertiesBox(Fvector2().set(0, 0), Fvector2().set(300, 300));
+	AttachChild(property_box);
+	property_box->Hide();
+	property_box->SetWindowName("property_box");
+
+
 }
 
 void CUIMapWnd::Show(bool status)
@@ -404,13 +457,98 @@ bool CUIMapWnd::OnKeyboardAction				(int dik, EUIMessages keyboard_action)
 				//ResetActionPlanner();
 				return true;
 			}break;
+			
+		/*
+		case DIK_CAPSLOCK:
+		{
+			
+			string_path					fname;
+			pGameIni = 0;
+			FS.update_path(fname, "$game_config$", "game.ltx");
+			pGameIni = xr_new<CInifile>(fname, TRUE);
+
+
+			delete_data(m_GameMaps);
+
+			xr_string sect_name;
+			if (IsGameTypeSingle())
+				sect_name = "level_maps_single";
+			else
+				sect_name = "level_maps_mp";
+
+			if (pGameIni->section_exist(sect_name.c_str()))
+			{
+				CInifile::Sect& S = pGameIni->r_section(sect_name.c_str());
+				CInifile::SectCIt	it = S.Data.begin(), end = S.Data.end();
+				for (; it != end; it++)
+				{
+ 					shared_str map_name = it->first;
+
+					if (!pGameIni->line_exist(map_name, "global_rect"))
+						continue;
+
+					xr_strlwr(map_name);
+
+					CUICustomMap*& l = m_GameMaps[map_name];
+					l = xr_new<CUILevelMap>(this);
+ 					l->Initialize(map_name, "hud\\default");
+					l->OptimalFit(m_UILevelFrame->GetWndRect());
+				}
+			}
+			
+		}break;
+		*/
 	}
 	
 	return inherited::OnKeyboardAction	(dik, keyboard_action);
 }
 
+#include "game_cl_freemp.h"
+#include "..\..\xrServerEntities\xrServer_Objects_ALife_Monsters.h"
+
 bool CUIMapWnd::OnMouseAction(float x, float y, EUIMessages mouse_action)
 {
+	if (mouse_action == WINDOW_RBUTTON_UP)
+	{
+		Msg("OnMouseAction ");
+
+		for (auto item : this->GetChildWndList())
+		{
+			CMapSpot* sp = smart_cast<CMapSpot*>(item);
+				
+			if (sp && sp->MapLocation())
+			{
+				Msg("Rect: [%d,%d] [%d, %d]", item->GetWndRect().x1, item->GetWndRect().x2, item->GetWndRect().y1, item->GetWndRect().y2);
+				Msg("POS: [%d] [%d]", item->GetWndPos().x, item->GetWndPos().y);
+				Frect abs;
+				item->GetAbsoluteRect(abs);
+				Msg("AbsRect[%d,%d][%d,%d]", abs.x1, abs.x2, abs.y1, abs.y2);
+				//Msg("SpotName: %s", sp->MapLocation()->GetHint());
+
+				//CAI_Stalker* stalker = (CAI_Stalker*) Level().Objects.net_Find( sp->MapLocation()->ObjectID() );
+				
+				game_cl_freemp* freemp = smart_cast<game_cl_freemp*>(Level().game);
+
+				if (freemp)
+				{
+					Msg("ObjID: %d", sp->MapLocation()->ObjectID());
+
+					CSE_ALifeDynamicObject* offline = freemp->GetAlifeObject(sp->MapLocation()->ObjectID());
+					CSE_ALifeOnlineOfflineGroup* online_offline_group = smart_cast<CSE_ALifeOnlineOfflineGroup*>(offline);
+
+					if (online_offline_group)
+					{
+						Msg("ObjectSpot: %d, %s", online_offline_group->ID, online_offline_group->name());
+					}
+				}
+
+
+			
+			}
+		}
+	}
+
+
 	if ( inherited::OnMouseAction(x,y,mouse_action) /*|| m_btn_nav_parent->OnMouseAction(x,y,mouse_action)*/ )
 	{
 		return true;
@@ -422,6 +560,14 @@ bool CUIMapWnd::OnMouseAction(float x, float y, EUIMessages mouse_action)
 	{
 		switch ( mouse_action )
 		{
+		case WINDOW_RBUTTON_UP:
+		{
+
+
+			ActivatePropertiesBox(NULL);
+
+		}
+
 		case WINDOW_MOUSE_MOVE:
 			if( pInput->iGetAsyncBtnState(0) )
 			{
@@ -442,8 +588,8 @@ bool CUIMapWnd::OnMouseAction(float x, float y, EUIMessages mouse_action)
 		break;
 
 		}//switch	
-	};
-
+	}
+ 
 	return false;
 }
 
@@ -480,12 +626,6 @@ bool CUIMapWnd::UpdateZoom( bool b_zoom_in )
 		return false;
 	}
 	return true;
-}
-
-void CUIMapWnd::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
-{
-//	inherited::SendMessage( pWnd, msg, pData);
-	CUIWndCallback::OnEvent(pWnd, msg, pData);
 }
 
 CUICustomMap* CUIMapWnd::GetMapByIdx(u16 idx)

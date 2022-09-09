@@ -53,6 +53,13 @@ int __cdecl main	(int argc, char* argv[])
 
 		C.SetFastMode	(NULL!=strstr(params,"-fast"));
 		C.SetTargetName	(argv[1]);
+		
+
+		u16 size = 0;
+		LPCSTR size_archive = strstr(params, "-max_size ") + 10;
+		sscanf(size_archive, "%d", &size);
+		C.SetMaxVolumeSize(1024 * 1024 * size);
+
 
 		LPCSTR p		= strstr(params,"-ltx");
 
@@ -64,13 +71,17 @@ int __cdecl main	(int argc, char* argv[])
 			CInifile ini			(ltx_name);
 			printf					("Processing LTX...\n");
 			C.ProcessLTX			(ini);
-		}else{
+		}
+		else
+		{
 			string64				header_name;
-			sscanf					(strstr(params,"-header ")+8,"%[^ ] ", header_name);
+			sscanf					(strstr(params,"-header ")+8, "%[^ ] ", header_name);
 			C.SetPackHeaderName		(header_name);
 			C.ProcessTargetFolder	();
 		}
 	}
+
+	
 
 	Core._destroy		();
 	return 0;

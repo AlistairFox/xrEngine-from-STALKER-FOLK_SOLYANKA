@@ -179,6 +179,7 @@ void CRender::LoadBuffers	(CStreamReader *base_fs)
 		// Use DX9-style declarators
 		CStreamReader			*fs	= base_fs->open_chunk(fsL_VB);
 		u32 count				= fs->r_u32();
+		u32 TOTAL_VERTS = 0;
 		DCL.resize				(count);
 		VB.resize				(count);
 		for (u32 i=0; i<count; i++)
@@ -201,7 +202,7 @@ void CRender::LoadBuffers	(CStreamReader *base_fs)
 			u32 vCount			= fs->r_u32	();
 			u32 vSize			= D3DXGetDeclVertexSize	(dcl,0);
 			Msg	("* [Loading VB] %d verts, %d Kb",vCount,(vCount*vSize)/1024);
-
+			TOTAL_VERTS += (vCount * vSize) / 1024;
 			// Create and fill
 			BYTE*	pData		= 0;
 			R_CHK				(HW.pDevice->CreateVertexBuffer(vCount*vSize,dwUsage,0,D3DPOOL_MANAGED,&VB[i],0));
@@ -214,6 +215,7 @@ void CRender::LoadBuffers	(CStreamReader *base_fs)
 //			fs->advance			(vCount*vSize);
 		}
 		fs->close				();
+		Msg("* [Loading VB] TOTAL VERTS: %d kb", TOTAL_VERTS);
 	} else {
 		FATAL					("DX7-style FVFs unsupported");
 	}
@@ -223,12 +225,13 @@ void CRender::LoadBuffers	(CStreamReader *base_fs)
 	{
 		CStreamReader			*fs	= base_fs->open_chunk(fsL_IB);
 		u32 count				= fs->r_u32();
+		u32 TOTAL_INDEXS		= 0;
 		IB.resize				(count);
 		for (u32 i=0; i<count; i++)
 		{
 			u32 iCount		= fs->r_u32	();
 			Msg("* [Loading IB] %d indices, %d Kb",iCount,(iCount*2)/1024);
-
+			TOTAL_INDEXS += (iCount * 2) / 1024;
 			// Create and fill
 			BYTE*	pData		= 0;
 			R_CHK				(HW.pDevice->CreateIndexBuffer(iCount*2,dwUsage,D3DFMT_INDEX16,D3DPOOL_MANAGED,&IB[i],0));
@@ -239,7 +242,8 @@ void CRender::LoadBuffers	(CStreamReader *base_fs)
 			IB[i]->Unlock		();
 
 //			fs->advance			(iCount*2);
-		}
+		}  
+		Msg("[Loading IB] TOTAL indices %d kb", TOTAL_INDEXS);
 		fs->close				();
 	}
 }

@@ -1016,7 +1016,7 @@ void CSE_ALifeCreatureAbstract::STATE_Read	(NET_Packet &tNetPacket, u16 size)
 	if (m_wVersion < 32)
 		visual_read				(tNetPacket,m_wVersion);
 	o_model						= o_torso.yaw;
-
+	//Msg("Name: %s, replace: %s", name(), name_replace());
 	if (m_wVersion > 87) {
 		load_data				(m_dynamic_out_restrictions,tNetPacket);
 		load_data				(m_dynamic_in_restrictions,tNetPacket);
@@ -2242,7 +2242,7 @@ void CSE_ALifeHumanStalker::UPDATE_Read		(NET_Packet &tNetPacket)
 		stalker_state.state_read(tNetPacket);
 
 		set_health(stalker_state.u_health);
-		o_model = stalker_state.u_body_yaw;
+		o_model = stalker_state.torso_yaw;
 	
 		if (stalker_state.fv_position.x == 0 &&
 			stalker_state.fv_position.y == 0 &&

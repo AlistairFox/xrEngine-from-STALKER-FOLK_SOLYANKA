@@ -34,7 +34,8 @@ void CParticlesObject::Init	(LPCSTR p_name, IRender_Sector* S, BOOL bAutoRemove)
 		VERIFY					(renderable.visual);
 		IParticleCustom* V		= smart_cast<IParticleCustom*>(renderable.visual);  VERIFY(V);
 		time_limit				= V->GetTimeLimit();
-	}else
+	}
+	else
 	{
 		time_limit					= 1.0f;
 	}

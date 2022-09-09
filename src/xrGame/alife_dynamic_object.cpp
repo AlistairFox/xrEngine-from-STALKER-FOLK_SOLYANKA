@@ -41,7 +41,7 @@ void CSE_ALifeDynamicObject::on_register			()
 		VERIFY			(object);
 	}
 
-	//Msg("ID: %d, Name: %s", object->ID, object->name_replace());;
+	//Msg("ID: %d, Name: %s, Graph: = %d", object->ID, object->name_replace(), object->m_tGraphID);;
 
 	if ( !alife().graph().level().object(object->ID,true) ) 
 		clear_client_data();

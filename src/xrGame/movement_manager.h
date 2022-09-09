@@ -168,6 +168,8 @@ private:
 	int                     m_errors;
 	u32						m_wait_errors;
 	u32						WaitTime;
+public :
+	u32 old_timeLOCK;
 
 public:
 	CGameVertexParams		*m_base_game_selector;

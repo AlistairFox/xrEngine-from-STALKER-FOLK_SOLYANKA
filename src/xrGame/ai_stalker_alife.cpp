@@ -191,9 +191,10 @@ void CAI_Stalker::choose_weapon					(ALife::EWeaponPriorityType weapon_priority_
 			best_weapon = &*I;
 		}
 	}
-	if (best_weapon) {
+	if (best_weapon) 
+	{
 		buy_item_virtual			(*best_weapon);
-		attach_available_ammo		(smart_cast<CWeapon*>(best_weapon->m_item));
+		attach_available_ammo		(smart_cast<CWeapon*>(best_weapon->m_item)); 
 	}
 }
 
@@ -311,7 +312,8 @@ bool CAI_Stalker::enough_ammo						(const CWeapon *new_weapon) const
 
 	TIItemContainer::const_iterator	I = inventory().m_all.begin();
 	TIItemContainer::const_iterator	E = inventory().m_all.end();
-	for ( ; I != E; ++I) {
+	for ( ; I != E; ++I) 
+	{
 		if (std::find(new_weapon->m_ammoTypes.begin(),new_weapon->m_ammoTypes.end(),(*I)->object().cNameSect()) == new_weapon->m_ammoTypes.end())
 			continue;
 

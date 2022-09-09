@@ -63,6 +63,7 @@ class CGameObject :
 protected:
 	//время удаления объекта
 	bool					m_bObjectRemoved;
+	bool					currentPlayerRaycast = false;
 public:
 	CGameObject();
 	virtual ~CGameObject();
@@ -74,7 +75,7 @@ public:
 	virtual CEntity*					cast_entity					()						{return NULL;}
 	virtual CEntityAlive*				cast_entity_alive			()						{return NULL;}
 	virtual CActor*						cast_actor					()						{return NULL;}
-	virtual CActorMP*						cast_actor_mp() { return NULL; }
+	virtual CActorMP*					cast_actor_mp() { return NULL; }
 	virtual CGameObject*				cast_game_object			()						{return this;}
 	virtual CCustomZone*				cast_custom_zone			()						{return NULL;}
 	virtual CPhysicsShellHolder*		cast_physics_shell_holder	()						{return NULL;}
@@ -91,9 +92,15 @@ public:
 	virtual CHolderCustom*				cast_holder_custom			()						{return NULL;}
 	virtual CBaseMonster*				cast_base_monster			()						{return NULL;}
 
+	 
+
 public:
 	virtual BOOL						feel_touch_on_contact	(CObject *)					{return TRUE;}
 	virtual bool						use						(CGameObject* who_use)		{return CUsableScriptObject::use(who_use);};
+
+	virtual bool raycastNOW() { return currentPlayerRaycast; };
+	void setMPPlayerRaycast(bool value);
+	
 
 public:
 	CInifile				*m_ini_file;

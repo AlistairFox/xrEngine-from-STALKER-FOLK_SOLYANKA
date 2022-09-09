@@ -135,6 +135,10 @@ void CUIActorMenu::SetMenuMode(EMenuMode mode)
 		case mmDeadBodySearch:
 			DeInitDeadBodySearchMode();
 			break;
+		case mmArtUpgrade:
+			DeInitArtUpgradeMode();
+			break;
+
 		default:
 			R_ASSERT(0);
 			break;
@@ -175,6 +179,10 @@ void CUIActorMenu::SetMenuMode(EMenuMode mode)
 			Msg("* now is DeadBodySearch mode");
 #endif // #ifdef DEBUG
 			break;
+		case mmArtUpgrade:
+			InitArtUpgradeMode();
+		break;
+
 		default:
 			R_ASSERT(0);
 			break;
@@ -298,8 +306,7 @@ void CUIActorMenu::CheckDistance()
 
 	if ( pPartnerGO )
 	{
-		if ( ( pActorGO->Position().distance_to( pPartnerGO->Position() ) > 3.0f ) &&
-			!m_pPartnerInvOwner->NeedOsoznanieMode() )
+		if ( ( pActorGO->Position().distance_to( pPartnerGO->Position() ) > 3.0f ) && !m_pPartnerInvOwner->NeedOsoznanieMode() )
 		{
 			g_btnHint->Discard();
 			HideDialog();
@@ -946,6 +953,7 @@ bool CUIActorMenu::CanSetItemToList(PIItem item, CUIDragDropListEx* l, u16& ret_
 
 	return false;
 }
+
 void CUIActorMenu::UpdateConditionProgressBars()
 {
 	PIItem itm = m_pActorInvOwner->inventory().ItemFromSlot(INV_SLOT_2);

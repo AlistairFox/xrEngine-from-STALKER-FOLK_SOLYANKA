@@ -38,6 +38,7 @@ public:
 	u32			GetOurReplicsColor()	{ return m_uOurReplicsColor; }
 
 	bool				mechanic_mode; // for inventory upgrades
+	bool				artefacts_mode;
 	
 	//номер выбранного вопроса
 	shared_str			m_ClickedQuestionID;

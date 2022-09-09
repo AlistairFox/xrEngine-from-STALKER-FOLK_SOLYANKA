@@ -40,5 +40,7 @@ public:
 	virtual		void				FillDeathActorRejectItems(CSE_ActorMP *actor, xr_vector<CSE_Abstract*> & to_reject);
 						BOOL				OnTouchPlayersBag(CSE_ActorMP *actor, CSE_Abstract *item);
 						void				OnDetachPlayersBag(CSE_ActorMP *actor, CSE_Abstract *item);
+
+						void MemoryUsageGameObjects();
 };
 

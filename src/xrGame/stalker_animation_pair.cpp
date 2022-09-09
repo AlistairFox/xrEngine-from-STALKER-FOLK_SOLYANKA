@@ -120,6 +120,8 @@ void CStalkerAnimationPair::play			(IKinematicsAnimated *skeleton_animated, Play
 	m_just_started			= true;
 #endif // DEBUG
 
+	float				pos = 0.f;
+
 	if (!global_animation()) 
 	{
 		// here we should know if it is a head
@@ -128,7 +130,7 @@ void CStalkerAnimationPair::play			(IKinematicsAnimated *skeleton_animated, Play
 		if (m_step_dependence && m_object->animation_movement())
 			m_object->animation_movement()->stop();
 
-		float				pos = 0.f;
+		
 		if (m_step_dependence && continue_interrupted_animation)
 		{
 			VERIFY			(!m_blend || !fis_zero(m_blend->timeTotal));
@@ -160,7 +162,7 @@ void CStalkerAnimationPair::play			(IKinematicsAnimated *skeleton_animated, Play
 		m_object->CStepManager::on_animation_start(animation(),blend());
 
 
-	this->m_object->OnEventAnimations(true);
+ 	m_object->OnEventUpdate(animation(), blend(), mix_animations, pos);
 
 
 #ifdef DEBUG
@@ -216,7 +218,8 @@ std::pair<LPCSTR,LPCSTR> *CStalkerAnimationPair::blend_id	(IKinematicsAnimated *
 
 void CStalkerAnimationPair::select_animation(const ANIM_VECTOR &array, const ANIMATION_WEIGHTS *weights)
 {
-	if (!weights) {
+	if (!weights) 
+	{
 		m_array_animation	= array[::Random.randI(array.size())];
 		VERIFY				(m_array_animation);
 		return;
@@ -284,7 +287,7 @@ void CStalkerAnimationPair::on_animation_end	()
 	for ( ; i != e; ++i)
 		(*i)					();
 
-	this->m_object->OnEventAnimations(true);
+	//this->m_object->OnEventAnimations(true);
 
 }
 

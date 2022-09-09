@@ -97,10 +97,16 @@ void CALifeGraphRegistry::setup_current_level	()
 void CALifeGraphRegistry::attach	(CSE_Abstract &object, CSE_ALifeInventoryItem *item, GameGraph::_GRAPH_ID game_vertex_id, bool alife_query, bool add_children)
 {
 #ifdef DEBUG
-	if (psAI_Flags.test(aiALife)) {
+//	if (psAI_Flags.test(aiALife)) 
+	{
 		Msg						("[LSS] Attaching item [%s][%d] to [%s][%d]",item->base()->name_replace(),item->base()->ID,object.name_replace(),object.ID);
 	}
 #endif
+	//Msg("[LSS] Attaching item [%s][%d] to [%s][%d]", item->base()->name_replace(), item->base()->ID, object.name_replace(), object.ID);
+
+	if (!ai().game_graph().valid_vertex_id(game_vertex_id))
+		return;
+
 	if (alife_query)
 		remove					(smart_cast<CSE_ALifeDynamicObject*>(item),game_vertex_id);
 	else
@@ -115,13 +121,20 @@ void CALifeGraphRegistry::attach	(CSE_Abstract &object, CSE_ALifeInventoryItem *
 void CALifeGraphRegistry::detach	(CSE_Abstract &object, CSE_ALifeInventoryItem *item, GameGraph::_GRAPH_ID game_vertex_id, bool alife_query, bool remove_children)
 {
 #ifdef DEBUG
-	if (psAI_Flags.test(aiALife)) {
+//	if (psAI_Flags.test(aiALife)) 
+	{
 		Msg						("[LSS] Detaching item [%s][%d] from [%s][%d]",item->base()->name_replace(),item->base()->ID,object.name_replace(),object.ID);
 	}
 #endif
+	//Msg("[LSS] Detaching item [%s][%d] from [%s][%d]", item->base()->name_replace(), item->base()->ID, object.name_replace(), object.ID);
+
+	if (!ai().game_graph().valid_vertex_id(game_vertex_id))
+		return;
+
 	if (alife_query)
 		add						(smart_cast<CSE_ALifeDynamicObject*>(item),game_vertex_id);
-	else {
+	else 
+	{
 		CSE_ALifeDynamicObject	*object = smart_cast<CSE_ALifeDynamicObject*>(item);
 		VERIFY					(object);
 		object->m_tGraphID		= game_vertex_id;
@@ -150,11 +163,17 @@ void CALifeGraphRegistry::detach	(CSE_Abstract &object, CSE_ALifeInventoryItem *
 void CALifeGraphRegistry::add	(CSE_ALifeDynamicObject *object, GameGraph::_GRAPH_ID game_vertex_id, bool update)
 {
 #ifdef DEBUG
-	if (psAI_Flags.test(aiALife)) {
+	//if (psAI_Flags.test(aiALife)) 
+	{
 		Msg						("[LSS] adding object [%s][%d] to graph point %d",object->name_replace(),object->ID,game_vertex_id);
 	}
 #endif
-	if (!object->m_bOnline && object->used_ai_locations() /**&& object->interactive()/**/) {
+	//Msg("[LSS] adding object [%s][%d] to graph point %d", object->name_replace(), object->ID, game_vertex_id);
+	if (!ai().game_graph().valid_vertex_id(game_vertex_id))
+		return;
+
+	if (!object->m_bOnline && object->used_ai_locations() /**&& object->interactive()/**/) 
+	{
 		VERIFY					(ai().game_graph().valid_vertex_id(game_vertex_id));
 		m_objects[game_vertex_id].objects().add(object->ID,object);
 		object->m_tGraphID		= game_vertex_id;
@@ -171,13 +190,20 @@ void CALifeGraphRegistry::add	(CSE_ALifeDynamicObject *object, GameGraph::_GRAPH
 
 void CALifeGraphRegistry::remove	(CSE_ALifeDynamicObject *object, GameGraph::_GRAPH_ID game_vertex_id, bool update)
 {
-	if (object->used_ai_locations() /**&& object->interactive()/**/) {
+	if (!ai().game_graph().valid_vertex_id(game_vertex_id))
+		return;
+
+	if (object->used_ai_locations() /**&& object->interactive()/**/) 
+	{
 	#ifdef DEBUG
-		if (psAI_Flags.test(aiALife)) {
+	//	if (psAI_Flags.test(aiALife)) 
+		{
 			Msg					("[LSS] removing object [%s][%d] from graph point %d",object->name_replace(),object->ID,game_vertex_id);
 		}
 	#endif
+		//Msg("[LSS] removing object [%s][%d] from graph point %d", object->name_replace(), object->ID, game_vertex_id);
 		m_objects[game_vertex_id].objects().remove(object->ID);
+
 	}	
 	if (update && m_level)
 		level().remove			(object,ai().game_graph().vertex(game_vertex_id)->level_id() != level().level_id());

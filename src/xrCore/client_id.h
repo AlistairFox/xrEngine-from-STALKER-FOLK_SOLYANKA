@@ -3,7 +3,8 @@
 #pragma once
 
 #pragma pack(push,1)
-class ClientID {
+class ClientID 
+{
 	u32 id;
 public:
 			ClientID		():id(0)						{};
@@ -17,5 +18,20 @@ public:
 	bool	operator <		(const ClientID& other)const	{return value() < other.value();};
 };
 #pragma pack(pop)
+
+class MasterServerID
+{
+	u32 id;
+public: 
+	MasterServerID() :id(0) {};
+	MasterServerID(u32 val) : id(val) {};
+
+	u32 value() const { return id; };
+	void set(u32 val) { id = val; };
+	bool	operator ==		(const MasterServerID& other) const { return value() == other.value(); };
+	bool	operator !=		(const MasterServerID& other)const { return value() != other.value(); };
+	bool	operator <		(const MasterServerID& other)const { return value() < other.value(); };
+
+};
 
 #endif
