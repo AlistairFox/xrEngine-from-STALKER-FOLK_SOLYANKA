@@ -1715,42 +1715,46 @@ public:
 					CCC_StartTimeEnvironment	(LPCSTR N) : IConsole_Command(N) {};
 	virtual void	Execute						(LPCSTR args)
 	{
+		if (OnClient())
+			return;
+
 		u32 hours = 0, mins = 0;
 		sscanf(args,"%d %d", &hours, &mins);
 
 		game_sv_freemp* freemp = smart_cast<game_sv_freemp*>(Level().Server->game);
 
-		if (freemp)
+		if (!strstr(Core.Params, "-alife_off"))
 		{
-			freemp->ChangeGameTime(0, hours, mins);
-			GamePersistent().Environment().Invalidate();
+			if (freemp)
+			{
+				freemp->ChangeGameTime(0, hours, mins);
+				GamePersistent().Environment().Invalidate();
+				need_update = true;
+			}
+		}
+		else
+		{
+			u32 y, mo, d, h, m, s, ms = 0;
+			xrTime().get(y, mo, d, h, m, s, ms);
+
+			u64 NewTime = generate_time(y, mo, d, hours, mins, s, ms);
+
+			if (!g_pGameLevel)
+				return;
+
+			if (!Level().Server)
+				return;
+
+			if (!Level().Server->game)
+				return;
+
+			float eFactor = Level().Server->game->GetEnvironmentGameTimeFactor();
+
 			need_update = true;
 
+			Level().Server->game->SetEnvironmentGameTimeFactor(NewTime, eFactor);
+			Level().Server->game->SetGameTimeFactor(NewTime, g_fTimeFactor);
 		}
-
-
-		/*
-		u32 y, mo, d, h, m, s, ms = 0;
-		xrTime().get(y,mo,d,h,m, s, ms);
-
-		u64 NewTime			= generate_time	(y,mo,d,hours,mins,s,ms);
-
-		if (!g_pGameLevel)
-			return;
-
-		if (!Level().Server)
-			return;
-
-		if (!Level().Server->game)
-			return;
-
-		float eFactor = Level().Server->game->GetEnvironmentGameTimeFactor();
-  
-		need_update = true;
-
-		Level().Server->game->SetEnvironmentGameTimeFactor(NewTime,eFactor);
-		Level().Server->game->SetGameTimeFactor(NewTime,g_fTimeFactor);
-		*/
 	}
 };
 class CCC_SetWeather : public IConsole_Command {
@@ -3130,7 +3134,13 @@ public:
 
 	virtual void Execute(LPCSTR args)
 	{
-		Msg("Weather[%s] wfx[%5.0f] W0[%s] W1[%s]", g_pGamePersistent->Environment().CurrentWeatherName.c_str(), g_pGamePersistent->Environment().wfx_time, g_pGamePersistent->Environment().Current[0]->m_identifier.c_str(), g_pGamePersistent->Environment().Current[1]->m_identifier.c_str());
+		if (g_pGamePersistent->Environment().Current[0] && g_pGamePersistent->Environment().Current[1])
+			Msg("W1[%s], W2[%s], wfx[%5.0f] W0[%s] W1[%s]",
+				g_pGamePersistent->Environment().Current[0]->m_cfg_file.c_str(), 
+				g_pGamePersistent->Environment().Current[1]->m_cfg_file.c_str(),
+				g_pGamePersistent->Environment().wfx_time,
+				g_pGamePersistent->Environment().Current[0]->m_identifier.c_str()
+				, g_pGamePersistent->Environment().Current[1]->m_identifier.c_str());
 	}
 };
 
@@ -3464,7 +3474,6 @@ public:
 };
 
 extern float Shedule_Scale_AI_Stalker = 0;
-extern int   Shedule_Radius_Players	  = 0;
 extern float Shedule_Scale_Objects = 0;
 
 class CCC_AdmSurgeStop : public IConsole_Command
@@ -3767,64 +3776,249 @@ public:
 		FS.file_list_close(files);		
 	};
 };
+
  
-class CCC_INIFILE_PARSER : public IConsole_Command
+#include "game_cl_freemp.h"
+
+class CCC_ParticleO_Create : public IConsole_Command
 {
 public:
-	CCC_INIFILE_PARSER(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
+	CCC_ParticleO_Create(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
 
 	virtual void Execute(LPCSTR args)
 	{
-		string_path path;
-		FS.update_path(path, "$game_config$", "weapons\\wpn\\wpn_assults\\");
-		typedef xr_vector<LPSTR> vec_files;
-		vec_files* files = FS.file_list_open(path);
-		if (files)
-		{	
-			xr_vector<LPCSTR> sections_weapon;
+		//LPCSTR name;
+		//sscanf(args, "%s", name);
 
-			CInifileExt* file_ext = new CInifileExt();
-			for (auto s = files->begin(); s != files->end(); s++)
-			{
-				file_ext->LoadIniFile("weapons\\wpn\\wpn_assults\\", *s );
+		Fvector3 pos, dir, madPos;
+		float range;
+		pos.set(Device.vCameraPosition);
+		dir.set(Device.vCameraDirection);
+		collide::rq_result& RQ = HUD().GetCurrentRayQuery();
 
-				CInifileExt::vec_ini sects = file_ext->get_sections();
-
-				for (auto sec : sects)
-				{
-					for (auto line : sec->item)
-					{
-						if (xr_strcmp(line.first, "parent_section") == 0)
-						{
-							sections_weapon.push_back( sec->name.c_str() );
-						}
-					}
-				}
-				
-				file_ext->clear_tables();
-			}
-
- 			for (auto sec : sections_weapon)
-			{
-				NET_Packet		P;
-				P.w_begin(M_REMOTE_CONTROL_CMD);
-				string128 str;
-				xr_sprintf(str, "sv_spawn_to_player_inv %u %s %u", Game().local_svdpnid.value(), sec, 1);
-				P.w_stringZ(str);
-				Level().Send(P, net_flags(TRUE, TRUE));
-			}
+		if (RQ.O)
+		{
+			return;
 		}
-		FS.file_list_close(files);
-	};
+
+		range = RQ.range;
+		dir.normalize();
+		madPos.mad(pos, dir, range);
+
+		game_cl_freemp* freemp = smart_cast<game_cl_freemp*>(&Game());
+		//freemp->CreateParticle("crommcruac\\blowout_wave_blend", pos);
+		freemp->CreateParticle("se7\\sp_200", pos);
+
+		
+
+	}
+};
+
+class CCC_MasterServerPrint : public IConsole_Command
+{
+public:
+	CCC_MasterServerPrint(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
+
+	virtual void Execute(LPCSTR args)
+	{	  
+		if (!Level().Server)
+			return;
+
+		Level().Server->PrintMasterServerCLS();
+	}
+};	
+
+class CCC_MasterServerStartWORK : public IConsole_Command
+{
+public:
+	CCC_MasterServerStartWORK(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
+
+	virtual void Execute(LPCSTR args)
+	{
+		if (!Level().Server)
+			return;
+
+		Level().Server->StartServerCLS();
+	}
+};
+
+class CCC_MasterServerSendMsg : public IConsole_Command
+{
+public:
+	CCC_MasterServerSendMsg(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
+
+	virtual void Execute(LPCSTR args)
+	{
+		LPCSTR msg;
+		sscanf_s(args, "%s", &msg);
+
+		if (!Level().Server)
+			return;
+
+		if (Level().Server->isMaster())
+		{
+			for (auto ms : Level().Server->getMasterCLS())
+				Level().Server->SendMsgToMasterServerCL(msg, ms.id);
+		}
+		else
+		{
+			Level().SendMSG(msg, Level().MasterServerClient);
+		}
+	}
+};	
+
+class CCC_MasterSendDataType : public IConsole_Command
+{
+public:
+	CCC_MasterSendDataType(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
+
+	virtual void Execute(LPCSTR args)
+	{
+		int id = 0;
+		sscanf_s(args, "%d", &id);
+
+		if (!Level().Server)
+			return;
+
+		if (!Level().Server->isMaster()) 
+		{
+			Msg("Send Data: %d", id);
+			Level().MasterClientSend(id);
+		}
+	}
+};
+
+class CCC_MasterServerSendCMD : public IConsole_Command
+{
+public:
+	CCC_MasterServerSendCMD(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
+
+	virtual void Execute(LPCSTR args)
+	{	 /*
+		string128 cmd;
+		int id;
+
+		sscanf(args, "%d, %s", id, cmd);
+ 
+		if (!Level().Server)
+			return;
+
+		if (Level().Server->isMaster())
+		{
+ 			Level().Server->SendCMD_To_Server(id, cmd);
+		}
+		*/
+
+		int id = 0;
+		sscanf(args, "%d", &id);
+		if (!Level().Server)
+			return;
+
+		MasterServerID mid; mid.set(id);
+ 
+		if (Level().Server->isMaster())
+		{
+			Level().Server->SendReciveMsgsFromCLient(mid);
+		}
+	}
+};
+
+class CCC_MasterServerKillWorker : public IConsole_Command
+{
+public:
+	CCC_MasterServerKillWorker(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
+
+	virtual void Execute(LPCSTR args)
+	{	
+		int id = 0;
+		sscanf(args, "%d", &id);
+		if (!Level().Server)
+			return;
+
+		MasterServerID mid; mid.set(id);
+
+		if (Level().Server->isMaster())
+		{
+			Level().Server->SendKillProcess(mid);
+		}
+	}
+};
+
+
+
+class CCC_GetStatMemory : public IConsole_Command
+{
+public:
+	CCC_GetStatMemory(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
+
+	virtual void Execute(LPCSTR args)
+	{
+		int id = 0;
+		sscanf(args, "%d", &id);
+		if (!Level().Server)
+			return;
+
+		MasterServerID mid; mid.set(id);
+
+		if (Level().Server->isMaster())
+		{
+			Level().Server->MasterServer_StatsMemory(mid);
+		}
+	}
+};
+
+struct castCSE
+{
+	CSE_Abstract* abs;
+	CSE_ALifeCreatureActor* actor;
+	CSE_ALifeInventoryItem* item;
+	CSE_ALifeHumanStalker* stalker;
+	CSE_ALifeOnlineOfflineGroup* group;
+	CSE_ALifeItemWeapon* wpn;
+	CSE_ALifeItemAmmo* ammo;
+
+	CSE_ALifeHumanStalker s;
+	CSE_ALifeMonsterAbstract m;
+
+ 
+};
+
+
+class CCC_ServerSize : public IConsole_Command
+{
+public:
+	CCC_ServerSize(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
+
+	virtual void Execute(LPCSTR args)
+	{	 
+		if (!Level().Server)
+			return;
+		 
+		if (Level().Server)
+		{
+			for (auto e : *Level().Server->GetEntitys())
+			{
+				Msg("Entity: %d, name: %s, _msize(%d)", e.first, e.second->name_replace(), sizeof(*e.second) );
+			}
+
+		}
+
+	}
 };
 
 extern int enabled_particles;
+extern int MAX_DISTANCE_FIND_GRAPH;
+extern float ai_stop_update_dir = 0.1f;
 
 void register_mp_console_commands()
-{	
+{
+	CMD1(CCC_ServerSize, "server_memory");
+
+	CMD1(CCC_ParticleO_Create, "particle_create");
+
 	CMD1(CCC_weapon_set, "weapon_test");
-	CMD1(CCC_INIFILE_PARSER, "weapon_parser");
-	CMD4(CCC_Integer, "particle_sheduler", &enabled_particles, 0, 1);
+ 	CMD4(CCC_Integer,	 "particle_sheduler", &enabled_particles, 0, 1);
+ 
 
 	CMD1(CCC_GIVETASK, "give_task");
 	CMD1(CCC_GIVEINFO, "give_info");
@@ -3833,9 +4027,10 @@ void register_mp_console_commands()
 
 	CMD1(CCC_STOP_WFX, "fx_effect_stop");
 	CMD1(CCC_START_WFX, "fx_effect_start");
-//	CMD1(CCC_EXPORT_OBJECTS_TO_CLIENT, "alife_objects");
 
-	CMD4(CCC_Integer, "mp_alife_simulation_location", &ALIFE_ALL_LOCATION, 0, 2);
+
+	CMD4(CCC_Integer, "mp_alife_simulation_location", &ALIFE_ALL_LOCATION, 0, 2);		 
+	CMD4(CCC_Integer, "mp_alife_path_graph_distance", &MAX_DISTANCE_FIND_GRAPH, 50, 3000);
 
 	CMD1(CCC_AdmSurgeStart, "adm_surge");
 	CMD1(CCC_AdmPsiStormStart, "adm_psi_storm");
@@ -3859,7 +4054,7 @@ void register_mp_console_commands()
 	CMD1(CCC_ChangeTeamPlayer, "adm_set_team");
 
 	CMD4(CCC_Float,   "ai_shedule", &Shedule_Scale_AI_Stalker, 0, 20);
-	CMD4(CCC_Integer, "ai_shedule_dist", &Shedule_Radius_Players, 0, 100);
+ 	
 	CMD4(CCC_Float, "shedule_objects", &Shedule_Scale_Objects, 0, 20);
 
  	CMD1(ÑÑÑ_CheckOutfitCFS, "outfit_path_check");
@@ -4110,13 +4305,19 @@ void register_mp_console_commands()
 	CMD1(CCC_GameSpyProfile,				"gs_profile");
 	CMD4(CCC_Integer,						"sv_write_update_bin",				&g_sv_write_updates_bin, 0, 1);
 	CMD4(CCC_Integer,						"sv_traffic_optimization_level",	(int*)&g_sv_traffic_optimization_level, 0, 7);
-
-
-
-
-
+  
 	CMD1(CCC_AdmRegister, "reg");
 	CMD1(CCC_AdmDelateUser, "unreg");
 
+	//Master Server Connsole Commands
 
+	CMD1(CCC_MasterServerPrint, "ms_print_cls");
+	CMD1(CCC_MasterServerStartWORK, "ms_start_workers")
+
+	//CMD1(CCC_MasterServerSendMsg, "ms_send");
+	//CMD1(CCC_MasterSendDataType, "ms_send_data");
+
+	CMD1(CCC_MasterServerSendCMD, "ms_send_cmd");
+	CMD1(CCC_MasterServerKillWorker, "ms_kill_worker");
+	CMD1(CCC_GetStatMemory, "ms_stats");
 }

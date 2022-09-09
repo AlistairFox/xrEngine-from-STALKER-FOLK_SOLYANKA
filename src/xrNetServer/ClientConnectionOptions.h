@@ -8,5 +8,6 @@ struct ClientConnectionOptions
 	string64 user_pass = "";
 	int sv_port = 0;
 	int cl_port = 0;
+	string256 master_server = "";
 	bool bClPortWasSet = false;
 };

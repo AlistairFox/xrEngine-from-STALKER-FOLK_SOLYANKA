@@ -42,3 +42,4 @@ private:
 
 
 IC bool operator== (IClient const* pClient, ClientID const& ID) { return pClient->ID == ID; }
+

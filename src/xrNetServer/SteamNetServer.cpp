@@ -3,7 +3,7 @@
 
 // -----------------------------------------------------------------------------
 
-SteamNetServer* s_pCallbackInstance = nullptr;
+extern SteamNetServer* s_pCallbackInstance = nullptr;
 XRNETSERVER_API int	simulate_netwark_ping = 0;		// FPS
 
 void SvSteamNetConnectionStatusChangedCallback(SteamNetConnectionStatusChangedCallback_t *pInfo)
@@ -50,7 +50,7 @@ void SteamNetServer::_SendTo_LL(ClientID ID, void * data, u32 size, u32 dwFlags,
 	EResult result = m_pInterface->SendMessageToConnection(ID.value(), data, size, convert_flags_for_steam(dwFlags), nullptr);
 	if (result != k_EResultOK)
 	{
-		Msg("! [SteamNetClient] ERROR: Failed to send net-packet, reason: %d", result);
+		Msg("! [SteamNetServer] ERROR: Failed to send net-packet, reason: %d", result);
 	}
 }
 
@@ -90,8 +90,10 @@ bool SteamNetServer::CreateConnection(GameDescriptionData & game_descr, ServerCo
 	SteamNetworkingConfigValue_t opt;
 	opt.SetPtr(k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged, (void*)SvSteamNetConnectionStatusChangedCallback);
 
-	SteamNetworkingUtils()->SetGlobalConfigValueInt32(k_ESteamNetworkingConfig_SendBufferSize, 4096 * 4096);
-
+	SteamNetworkingUtils()->SetGlobalConfigValueInt32(k_ESteamNetworkingConfig_SendBufferSize, 1024 * 1024 * 10);
+	SteamNetworkingUtils()->SetGlobalConfigValueInt32(k_ESteamNetworkingConfig_TimeoutInitial, 30000);
+	SteamNetworkingUtils()->SetGlobalConfigValueInt32(k_ESteamNetworkingConfig_TimeoutConnected, 30000);
+ 
 	if (simulate_netwark_ping > 0)
 	{
 		int ping = 0;
@@ -126,6 +128,9 @@ bool SteamNetServer::CreateConnection(GameDescriptionData & game_descr, ServerCo
 
 	Msg("- [SteamNetServer] created on port %d", bindServerAddress.m_port);
 	thread_spawn(steam_net_update_server, "snetwork-update-server", 0, this);
+
+	if (isMaster())
+		CreateConnection_Master(connectOpt);
 
 	return true;
 }
@@ -170,12 +175,17 @@ void SteamNetServer::Update()
 	while (true)
 	{
 		csConnection.Enter();
+		
 		if (!IsConnectionCreated())
 		{
 			csConnection.Leave();
 			return;
 		}
+
 		PollIncomingMessages();
+		
+		PollIncomingMessagesMasterServer();
+
 		PollConnectionStateChanges();
 
 		csConnection.Leave();
@@ -544,6 +554,11 @@ bool SteamNetServer::GetClientPendingMessagesCount(ClientID ID, DWORD & dwPendin
 
 void SteamNetServer::UpdateClientStatistic(IClient* C)
 {
+	if (C->flags.bLocal)
+	{
+		return;
+	}
+
 	SteamNetworkingQuickConnectionStatus status;
 	if (!m_pInterface->GetQuickConnectionStatus(C->ID.value(), &status))
 	{

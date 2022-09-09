@@ -94,7 +94,15 @@ void BaseClient::ParseConnectionOptions(LPCSTR options, ClientConnectionOptions&
 		out.cl_port = atol(portstr);
 		clamp(out.cl_port, int(START_PORT), int(END_PORT));
 		out.bClPortWasSet = TRUE;
-	};
+	}; 
+		 
+	if (strstr(Core.Params, "-master_server("))
+	{
+		const char* s = strstr(Core.Params, "-master_server(") + 15;
+		strncpy_s(out.master_server, s, strchr(s, ')') - s);
+	}  
+
+	Msg("Connsole Master: %s, %s", options, out.master_server);
 }
 
 bool BaseClient::Connect(LPCSTR options)
@@ -103,7 +111,9 @@ bool BaseClient::Connect(LPCSTR options)
 
 	net_Disconnected = FALSE;
 
-	if (!psNET_direct_connect)
+	bool net_direct_cl = false;
+ 
+	if (!psNET_direct_connect )
 	{
 		ClientConnectionOptions connectOpt;
 		ParseConnectionOptions(options, connectOpt);
@@ -222,7 +232,7 @@ bool BaseClient::Sync_Thread()
 		// Waiting for queue empty state
 		if (net_Syncronised)
 		{
-			//Sleep(2000);
+			Sleep(2000);
 			break;
 		}
 		else {
@@ -239,11 +249,13 @@ bool BaseClient::Sync_Thread()
 		clPing.dwTime_ClientSend = TimerAsync(device_timer);
 
 		// Send it
-		__try {
+		__try 
+		{
 			if (!IsConnectionInit() || net_Disconnected)	break;
 
-			if (!SendPingMessage(clPing)) {
-				Msg("* DirectPlayClient: SyncThread: EXIT. (failed to send - disconnected?)");
+			if (!SendPingMessage(clPing)) 
+			{
+				Msg("* CLIENT: SyncThread: EXIT. (failed to send - disconnected?)");
 				break;
 			}
 		}
@@ -253,26 +265,19 @@ bool BaseClient::Sync_Thread()
 			break;
 		}
 
-		Msg("Synchronize Size [%d] Time[%d]", net_DeltaArray.size(), TimerAsync(device_timer));
-
 		// Waiting for reply-packet to arrive
-		if (!net_Syncronised) {
+		if (!net_Syncronised)
+		{
 			u32	old_size = net_DeltaArray.size();
 			u32	timeBegin = TimerAsync(device_timer);
 			
 			while ((net_DeltaArray.size() == old_size) && (TimerAsync(device_timer) - timeBegin < 5000))
-			{
 				Sleep(1);
-			}
-
-			
-
-			if (net_DeltaArray.size() >= syncSamples) {
+				
+			if (net_DeltaArray.size() >= syncSamples) 
+			{
 				net_Syncronised = TRUE;
 				net_TimeDelta = net_TimeDelta_Calculated;
-
-				Msg("net_timeDelta = [%d]", net_TimeDelta);
-
 				return true;
 			}
 		}
@@ -281,7 +286,7 @@ bool BaseClient::Sync_Thread()
 	return false;
 }
 
-void	BaseClient::Sync_Average()
+void BaseClient::Sync_Average()
 {
 	//***** Analyze results
 	s64		summary_delta = 0;
@@ -296,10 +301,8 @@ void	BaseClient::Sync_Average()
 	if (frac > s64(size / 2))	summary_delta += (summary_delta < 0) ? -1 : 1;
 	net_TimeDelta_Calculated = s32(summary_delta);
 	net_TimeDelta = (net_TimeDelta * 5 + net_TimeDelta_Calculated) / 6;
-
-	Msg("net_timeDelta = [%d]", net_TimeDelta);
-
-	//	Msg("* CLIENT: d(%d), dc(%d), s(%d)",net_TimeDelta,net_TimeDelta_Calculated,size);
+  
+	//Msg("* CLIENT: d(%d), dc(%d), s(%d)", net_TimeDelta, net_TimeDelta_Calculated, size);
 }
 
 void BaseClient::_Recieve(const void* data, u32 data_size, u32 /*param*/)

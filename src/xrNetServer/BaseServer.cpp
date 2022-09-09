@@ -114,6 +114,25 @@ void BaseServer::ParseConnectionOptions(LPCSTR options, ServerConnectionOptions&
 		clamp(out.dwServerPort, u32(START_PORT), u32(END_PORT));
 		out.bPortWasSet = true; //this is not casual game
 	}
+
+	/*
+	if (strstr(options, "portMS="))
+	{  
+		
+		const char* MS_Port = strstr(options, "portMS=") + 7;
+		string64 tmpStr = "";
+		if (strchr(MS_Port, '/'))
+		{
+			strncpy_s(tmpStr, MS_Port, strchr(MS_Port, '/') - MS_Port);
+		}
+		else
+		{
+			strncpy_s(tmpStr, MS_Port, 63);
+		}
+		out.dwMSPort = atol(tmpStr);
+		
+	}
+   */
 }
 
 
@@ -124,7 +143,6 @@ BaseServer::EConnect BaseServer::Connect(LPCSTR options, GameDescriptionData & g
 
 	if (strstr(options, "/single"))
 		psNET_direct_connect = TRUE;
-
 
 	// Parse options
 	ServerConnectionOptions connectOpt;

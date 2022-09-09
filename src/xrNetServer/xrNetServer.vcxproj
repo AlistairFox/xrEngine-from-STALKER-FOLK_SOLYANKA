@@ -254,7 +254,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="SteamNetClient.cpp" />
+    <ClCompile Include="SteamNetClient_Master.cpp" />
     <ClCompile Include="SteamNetServer.cpp" />
+    <ClCompile Include="SteamNetServer_Master.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseClient.h" />

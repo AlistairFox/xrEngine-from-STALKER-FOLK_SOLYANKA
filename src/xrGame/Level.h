@@ -74,7 +74,8 @@ private:
 #endif
 protected:
 	typedef IGame_Level			inherited;
-
+	typedef NET_CLIENT_CLASS	net_class;
+ 
 	CLevelSoundManager			*m_level_sound_manager;
 
 	// movement restriction manager
@@ -409,13 +410,19 @@ private:
 	xr_deque<NET_Packet>		script_client_events;
 
 public:
-	NET_Packet*							GetLastClientScriptEvent();
-	void										PopLastClientScriptEvent();
-	u32											GetSizeClientScriptEvent();
+	NET_Packet*					GetLastClientScriptEvent();
+	void						PopLastClientScriptEvent();
+	u32							GetSizeClientScriptEvent();
+// Master Server Client 
+	
+ 	void SendMSG(LPCSTR msg, MasterServerID id);
 
-
+	void MasterClientRecive(NET_Packet P, MasterServerID id) override;
+	void MasterClientSend(int type);
+ 
 	DECLARE_SCRIPT_REGISTER_FUNCTION
 };
+
 add_to_type_list(CLevel)
 #undef script_type_list
 #define script_type_list save_type_list(CLevel)

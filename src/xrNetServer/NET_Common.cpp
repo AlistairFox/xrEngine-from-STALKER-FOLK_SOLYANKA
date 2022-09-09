@@ -88,17 +88,19 @@ void MultipacketSender::_FlushSendBuffer( u32 timeout, Buffer* buf )
 
         unsigned            comp_sz     = Compressor.compressed_size( buf->buffer.B.count );        
         u8                  packet_data[MaxMultipacketSize];
-        MultipacketHeader*  header      = (MultipacketHeader*)packet_data;
+        MultipacketHeader*  header      = (MultipacketHeader*) packet_data;
 
         R_ASSERT(comp_sz < sizeof(packet_data)-sizeof(MultipacketHeader));
         R_ASSERT(comp_sz < 65535);
 
-        comp_sz = Compressor.Compress( packet_data+sizeof(MultipacketHeader), sizeof(packet_data)-sizeof(MultipacketHeader), 
-                                       buf->buffer.B.data, buf->buffer.B.count 
-                                     );
+        comp_sz = Compressor.Compress(  
+            packet_data+sizeof(MultipacketHeader), 
+            sizeof(packet_data)-sizeof(MultipacketHeader), 
+            buf->buffer.B.data, buf->buffer.B.count 
+        );
 
         header->tag             = NET_TAG_MERGED;
-        header->unpacked_size   = (u16)buf->buffer.B.count;
+        header->unpacked_size   = (u16) buf->buffer.B.count;
 		
         // dump/log if needed
 

@@ -40,6 +40,12 @@
     <ClCompile Include="SteamNetServer.cpp">
       <Filter>NET_Server</Filter>
     </ClCompile>
+    <ClCompile Include="SteamNetServer_Master.cpp">
+      <Filter>NET_Server\MasterServer</Filter>
+    </ClCompile>
+    <ClCompile Include="SteamNetClient_Master.cpp">
+      <Filter>NET_Client\MasterServer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ip_filter.h" />
@@ -111,6 +117,12 @@
     </Filter>
     <Filter Include="NET_Client">
       <UniqueIdentifier>{e9d7a0f5-655c-4c81-b93c-cdb619930612}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NET_Server\MasterServer">
+      <UniqueIdentifier>{cf192a83-6165-4532-b21e-b9119df3cbe2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NET_Client\MasterServer">
+      <UniqueIdentifier>{e8d0dd9c-68de-42e3-8772-4cbc647d65c3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

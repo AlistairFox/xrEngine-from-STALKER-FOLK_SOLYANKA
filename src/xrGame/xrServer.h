@@ -39,11 +39,13 @@ public:
 	u32						net_LastMoveUpdateTime;
 	
 	game_PlayerState*		ps;
-	struct{
+	struct
+	{
 		u8						m_maxPingWarnings;
 		u32						m_dwLastMaxPingWarningTime;
 	}m_ping_warn;
-	struct{
+	struct
+	{
 		BOOL					m_has_admin_rights;
 		u32						m_dwLoginTime;
 	}m_admin_rights;
@@ -62,7 +64,6 @@ public:
 	virtual					~xrClientData			();
 	virtual void			Clear					();
 };
-
 
 // main
 struct	svs_respawn
@@ -312,7 +313,7 @@ public:
 	void					OnVoiceMessage(NET_Packet& P, ClientID sender);
 
 
-	// scrip events
+	// script events
 private:
 	void					OnScriptEvent(NET_Packet & P, ClientID sender);
 
@@ -320,9 +321,25 @@ public:
 	void					KillStalkers();
 
 public:
-	ScriptEvent*	GetLastServerScriptEvent();
+	ScriptEvent*			GetLastServerScriptEvent();
 	void					PopLastServerScriptEvent();
 	u32						GetSizeServerScriptEvent();
+
+	//Master Server SEND RECIVE
+	
+	void PrintMasterServerCLS();
+	void StartServerCLS();
+	void SendReciveMsgsFromCLient(MasterServerID id);
+
+
+	void SendMsgToMasterServerCL (LPCSTR msg, MasterServerID id);
+	void MasterServerRecive(NET_Packet, MasterServerID id) override;
+	void SendCMD_To_Server(MasterServerID id, LPCSTR cmd);
+	void SendKillProcess(MasterServerID id);
+
+	void MasterServerConnected(MasterServerID id) override;
+	void MasterServerDisconnected(MasterServerID id) override;
+	void MasterServer_StatsMemory(MasterServerID id);
 };
 
 
