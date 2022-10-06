@@ -62,6 +62,7 @@ IC	T*		xr_new		(const P1& p1, const P2& p2, const P3& p3, const P4& p4, const P5
 }
 #else // DEBUG_MEMORY_NAME
 // new(0)
+/* 
 template <class T>
 IC	T*		xr_new		()
 {
@@ -122,6 +123,14 @@ IC	T*		xr_new		(const P1& p1, const P2& p2, const P3& p3, const P4& p4, const P5
 	T* ptr	= (T*)Memory.mem_alloc(sizeof(T));
 	return new (ptr) T(p1,p2,p3,p4,p5,p6,p7,p8,p9);
 }
+*/
+
+template <typename T, typename... Args>
+T* xr_new(Args&&... args) {
+	T* ptr = static_cast<T*>(Memory.mem_alloc(sizeof(T)));
+	return new (ptr) T(std::forward<Args>(args)...);
+}
+
 #endif // DEBUG_MEMORY_NAME
 
 template <bool _is_pm, typename T>
