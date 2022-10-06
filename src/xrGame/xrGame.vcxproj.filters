@@ -2563,6 +2563,9 @@
     <Filter Include="Core\Server\MasterServer">
       <UniqueIdentifier>{e32e2975-e3f0-46e2-a66b-07ad5576864d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Client\Objects\actor\base\ANIMS">
+      <UniqueIdentifier>{bb148b57-bfb2-4147-84d9-6748dce87a0b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mt_config.h">
@@ -5502,9 +5505,6 @@
     <ClInclude Include="actor_input_handler.h">
       <Filter>Core\Client\Objects\actor\base</Filter>
     </ClInclude>
-    <ClInclude Include="ActorAnimation.h">
-      <Filter>Core\Client\Objects\actor\base</Filter>
-    </ClInclude>
     <ClInclude Include="ActorCondition.h">
       <Filter>Core\Client\Objects\actor\base</Filter>
     </ClInclude>
@@ -7519,6 +7519,9 @@
     <ClInclude Include="MasterServerEvents.h">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="ActorAnimation.h">
+      <Filter>Core\Client\Objects\actor\base\ANIMS</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="damage_manager.cpp">
@@ -9184,9 +9187,6 @@
       <Filter>Core\Client\Objects\actor\base</Filter>
     </ClCompile>
     <ClCompile Include="Actor_Weapon.cpp">
-      <Filter>Core\Client\Objects\actor\base</Filter>
-    </ClCompile>
-    <ClCompile Include="ActorAnimation.cpp">
       <Filter>Core\Client\Objects\actor\base</Filter>
     </ClCompile>
     <ClCompile Include="ActorCameras.cpp">
@@ -11223,9 +11223,6 @@
     <ClCompile Include="UIAnimMode.cpp">
       <Filter>UI\GameTypes\FreeMp</Filter>
     </ClCompile>
-    <ClCompile Include="ActorAnimation_Scripted.cpp">
-      <Filter>Core\Client\Objects\actor\base</Filter>
-    </ClCompile>
     <ClCompile Include="VoiceChat.cpp">
       <Filter>Core\Server\Games\client\freemp\Voice</Filter>
     </ClCompile>
@@ -11277,6 +11274,15 @@
     </ClCompile>
     <ClCompile Include="xrMasterClient.cpp">
       <Filter>Core\Server\MasterServer</Filter>
+    </ClCompile>
+    <ClCompile Include="ActorAnimation_Scripted.cpp">
+      <Filter>Core\Client\Objects\actor\base\ANIMS</Filter>
+    </ClCompile>
+    <ClCompile Include="ActorAnimation.cpp">
+      <Filter>Core\Client\Objects\actor\base\ANIMS</Filter>
+    </ClCompile>
+    <ClCompile Include="ActorAnimation_Detectors.cpp">
+      <Filter>Core\Client\Objects\actor\base\ANIMS</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

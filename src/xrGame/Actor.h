@@ -76,17 +76,22 @@ class	CActor:
 private:
 	typedef CEntityAlive	inherited;
 
+
+	//SE7Kills
+	bool						MpSafeMode() const;
+	bool						MpAnimationMode() const;
+	bool						Setuped_callbacks();
+
 	ref_sound selected;
 
 	int oldAnim = 0;
-	int InputAnim = 0;
+	int IntAnim = 0;
 	int OutAnim = 0;
 	int MidAnim = 0;
-	u32 selectedID = 0;
+ 
 	u32 sSndID = 0;
 																													   
-	bool NEED_EXIT = false;
-	bool start_sel = false;
+ 	bool started_music_hand_item = false;
 	bool InPlay    = true;
 	bool OutPlay   = true;
 	bool MidPlay   = true;
@@ -94,6 +99,7 @@ private:
 	void					SelectScriptAnimation();
 	void					soundPlay();
 	void					script_anim(MotionID exit_animation, PlayCallback Callback, LPVOID CallbackParam);
+	
 	void					ReciveSoundPlay(NET_Packet packet);
 	void					ReciveAnimationPacket(NET_Packet& packet);
 	void					ReciveActivateItem(NET_Packet& packet);
@@ -102,7 +108,11 @@ private:
 	void					SendAnimationToServer(MotionID motion);
  	void					SendActivateItem(u16 slot, bool activate);
 
-	void					StopAllSNDs();
+	void					UpdateDetectorTorsoState(MotionID& M_torso, MotionID& M_head, MotionID& M_legs, int moving_idx, bool standing);
+	
+	void					UpdateAnimWeaponState(MotionID& torso, MotionID& M_head, MotionID& M_legs, int moving_idx, u32 mstate_rl, bool is_standing);
+
+	//END SE7kiLLS
 
 public:
 										CActor				();
@@ -114,11 +124,7 @@ public:
 	bool						MpNoClip					() const				;
 	bool						MpInvisibility				() const				;
 				
-	//SE7Kills
-	bool						MpSafeMode					() const;
-	bool						MpAnimationMode				() const;
 
-	bool						Setuped_callbacks();
  
 	bool CanChange = true;
  

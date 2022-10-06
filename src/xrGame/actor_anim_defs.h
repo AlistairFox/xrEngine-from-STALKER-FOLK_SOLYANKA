@@ -51,7 +51,11 @@ struct STorsoWpn
 
 	void		Create								(IKinematicsAnimated* K, LPCSTR base0, LPCSTR base1);
 
-	void		CreateDetector						(IKinematicsAnimated* K, u8 slot);
+	void		CreateDetectorPistol(IKinematicsAnimated* K);
+	void		CreateDetectorKnife(IKinematicsAnimated* K);
+	void		CreateDetectorBolt(IKinematicsAnimated* K);
+	void		CreateDetectorEMPTY(IKinematicsAnimated* K);
+
 };
 
 #define _total_anim_slots_ 32

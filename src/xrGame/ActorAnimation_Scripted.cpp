@@ -25,11 +25,12 @@ bool CActor::MpAnimationMode() const
 
 bool CActor::Setuped_callbacks()
 {
-	luabind::functor<bool>	funct;
-	R_ASSERT(ai().script_engine().functor("mp_bind_actor.callback_setuped", funct));
-	bool ret = funct();
+	//luabind::functor<bool>	funct;
+	//R_ASSERT(ai().script_engine().functor("mp_bind_actor.callback_setuped", funct));
+	//bool ret = funct();
 
-	return ret;
+	//return ret;
+	return true;
 }
 
 void SActorStateAnimation::CreateAnimationsScripted(IKinematicsAnimated* K)
@@ -96,6 +97,7 @@ void SActorStateAnimation::CreateAnimationsScripted(IKinematicsAnimated* K)
 					MotionID motionAnim = K->ID_Cycle_Safe(anim);
 					in_anims.m_animation_in[i][id] = motionAnim;
 				}
+
 				for (int id = 0; id != countOUT; id++)
 				{
 					string64 anim = { 0 };
@@ -103,6 +105,7 @@ void SActorStateAnimation::CreateAnimationsScripted(IKinematicsAnimated* K)
 					MotionID motionAnim = K->ID_Cycle_Safe(anim);
 					out_anims.m_animation_out[i][id] = motionAnim;
 				}
+
 				for (int id = 0; id != countMID; id++)
 				{
 					string64 anim = { 0 };
@@ -118,6 +121,7 @@ void SActorStateAnimation::CreateAnimationsScripted(IKinematicsAnimated* K)
 void CActor::script_anim(MotionID Animation, PlayCallback Callback, LPVOID CallbackParam)
 {
 	IKinematicsAnimated* k = smart_cast<IKinematicsAnimated*>(Visual());
+	
 	k->LL_PlayCycle(
 		k->LL_GetMotionDef(Animation)->bone_or_part,
 		Animation,
@@ -179,7 +183,7 @@ void CActor::ReciveActivateItem(NET_Packet& packet)
 		item->enable(activate);
 		
 		if (activate)
-			this->attach_no_check(item);
+			this->attach(item, false);
 		else 
 			this->detach(item);
 	}
@@ -187,14 +191,12 @@ void CActor::ReciveActivateItem(NET_Packet& packet)
 
 void CActor::ReciveSoundPlay(NET_Packet packet)
 {
-	u32 snd_id, selectedID;
+	u32 snd_id, sAnim;
 	bool activate = packet.r_u8();
-
-//	Msg("Recive SND Packet [%d] / act[%d]", snd_id, activate);
 
 	if (activate)
 	{
-		packet.r_u32(selectedID);
+		packet.r_u32(sAnim);
 		packet.r_u32(snd_id);
 
 		if (selected._p)
@@ -203,7 +205,7 @@ void CActor::ReciveSoundPlay(NET_Packet packet)
 				selected.stop();
 			}
 
-		ref_sound snd_sel = m_anims->m_script.m_sound_Animation[selectedID][snd_id];
+		ref_sound snd_sel = m_anims->m_script.m_sound_Animation[sAnim][snd_id];
 
 		if (!snd_sel._feedback())
 		{
@@ -250,7 +252,7 @@ void CActor::SendSoundPlay(u32 ID, bool Activate)
 	
 	if (Activate)
 	{
-		packet.w_u32(selectedID);
+		packet.w_u32(oldAnim);
 		packet.w_u32(ID);
 	}
 
@@ -260,27 +262,27 @@ void CActor::SendSoundPlay(u32 ID, bool Activate)
 
 void CActor::soundPlay()
 {
-	if (MidPlay || !InPlay || m_anims->m_script.m_rnd_snds[selectedID] == 0)
+	if (MidPlay || !InPlay || m_anims->m_script.m_rnd_snds[oldAnim] == 0)
 		return;
 
-	sSndID = Random.randI(1, m_anims->m_script.m_rnd_snds[selectedID]);
+	sSndID = Random.randI(1, m_anims->m_script.m_rnd_snds[oldAnim]);
 
-	if (!start_sel)
+	if (!started_music_hand_item)
 	{
-		ref_sound snd_sel = m_anims->m_script.m_sound_Animation[selectedID][sSndID];
+		ref_sound snd_sel = m_anims->m_script.m_sound_Animation[oldAnim][sSndID];
 		if (!snd_sel._feedback())
 		{
 			snd_sel.play_at_pos(this, Position(), false, 0);
 			selected = snd_sel;
 			SendSoundPlay(sSndID, 1);
 		}
-		start_sel = true;
+		started_music_hand_item = true;
 	}
 
 	if (!selected._feedback())
 	{
 		selected.stop();
-		start_sel = false;
+		started_music_hand_item = false;
 	}
 }
 
@@ -294,37 +296,28 @@ void CActor::SelectScriptAnimation()
 		if (InPlay && MidPlay && OutPlay)
 		{
 			oldAnim = ANIM_SELECTED;
-			InputAnim = 0;
+			IntAnim = 0;
 			OutAnim = 0;
 			MidAnim = 0;
 		}
 	}
 
-	u32 selectedAnimation = selectedID = oldAnim ;
-	u32 countIN = m_anims->m_script.in_anims.count[selectedAnimation];
-
-	MidPlay = false;
-	OutPlay = false;
-	InPlay = false;
-
+	u32 selectedAnimation = oldAnim ;
 	MotionID script_BODY;
 
-	if (countIN == 0)
+	u32 countIN = m_anims->m_script.in_anims.count[selectedAnimation];
+
+	if (IntAnim >= countIN || countIN == 0)
 		InPlay = true;
 	else
-		if (InputAnim >= countIN)
-			InPlay = true;
-		else
-			InPlay = false;
-
+		InPlay = false;
 
 	if (!InPlay)
 	{
-		script_BODY = m_anims->m_script.in_anims.m_animation_in[selectedAnimation][InputAnim];
+		script_BODY = m_anims->m_script.in_anims.m_animation_in[selectedAnimation][IntAnim];
 		script_anim(script_BODY, callbackAnim, this);
-		InputAnim += 1;
-		NEED_EXIT = true;
- 
+		IntAnim += 1;
+
 		bool weapon = false;
 
 		if (m_anims->m_script.m_animation_use_slot[selectedAnimation] > 0)
@@ -332,10 +325,11 @@ void CActor::SelectScriptAnimation()
 			u16 slot = m_anims->m_script.m_animation_use_slot[selectedAnimation];
 			PIItem item =  this->inventory().ItemFromSlot(slot);
 			CWeapon* wpn = smart_cast<CWeapon*>(item);
+
 			if (item && !wpn)
 			{
 				item->enable(true);
-				this->attach_no_check(item);
+				this->attach(item, false);
 				SendActivateItem(slot, true);
 			}
 			else
@@ -360,55 +354,37 @@ void CActor::SelectScriptAnimation()
 			packet.w_u16(0);
 			u_EventSend(packet, net_flags(true, true));
 		}
-	}
 
-	if (!InPlay)
 		return;
+	}
 
 	u32 countMid = m_anims->m_script.middle_anims.count[selectedAnimation];
 
-	if (MidAnim >= countMid)
+	if (countMid == 0 || ANIM_SELECTED == 0)
+		MidPlay = true;
+
+	if (!MidPlay)
 	{
-		if (ANIM_SELECTED == 0)
-		{
-			MidPlay = true;
-		}
-		else
+		if (MidAnim >= countMid)
 		{
 			bool valid = selectedAnimation != ANIM_SELECTED;
 			if (m_anims->m_script.m_animation_loop[selectedAnimation] && !valid)
 				MidAnim = 0;
 			else
 				MidPlay = true;
-
 		}
-	}
-	else
-	{
-		if (countMid == 0)
-			MidPlay = true;
-		else
-			MidPlay = false;
-	}
 
-	if (!MidPlay)
-	{
 		script_BODY = m_anims->m_script.middle_anims.m_animation[selectedAnimation][MidAnim];
 		script_anim(script_BODY, callbackAnim, this);
 		MidAnim += 1;
 
 		soundPlay();
-	}
-
-	if (!MidPlay)
 		return;
+	}
 
 	u32 countOUT = m_anims->m_script.out_anims.count[selectedAnimation];
 
-	if (countOUT == 0)
-		OutPlay = true;
-
-	if (OutAnim >= countOUT)
+	if (OutAnim >= countOUT || countOUT == 0)
 		OutPlay = true;
 	else
 		OutPlay = false;
@@ -422,17 +398,11 @@ void CActor::SelectScriptAnimation()
 
 	if (OutPlay)
 	{
-		//Msg("OutPlay");
-		if (selected._feedback())
+		if (selected._p)
 		{
-			selected.stop();
 			SendSoundPlay(0, false);
+			selected.stop();
 		}
-
-		NEED_EXIT = false;
-
-		if (!m_anims->m_script.m_animation_loop)
-			ANIM_SELECTED = 0;
  
 		if (m_anims->m_script.m_animation_use_slot[selectedAnimation] > 0)
 		{
@@ -448,12 +418,4 @@ void CActor::SelectScriptAnimation()
 		}
 	}
 }
-
-void CActor::StopAllSNDs()
-{
-	OutPlay = true;
-	CanChange = true;
-	NEED_EXIT = false;
-	ANIM_SELECTED = 0;
-}
-
+ 
