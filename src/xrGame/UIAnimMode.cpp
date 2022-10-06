@@ -29,7 +29,7 @@ bool CUIAMode::OnMouseAction(float x, float y, EUIMessages mouse_action)
             {
                 if (wind == text[id])
                 {
-                    Msg("Click Anim [%d] [%s] ", id, text[id]->GetText());
+                   // Msg("Click Anim [%d] [%s] ", id, text[id]->GetText());
                     ANIM_SELECTED = id;
                 }
             }
