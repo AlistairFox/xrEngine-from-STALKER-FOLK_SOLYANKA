@@ -79,10 +79,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>C:\Users\dima\Documents\GitHub\omp-engine\BINS\x32\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='LUAJIT_2|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>A:\Games\TEST\Dead Edge\bin\utils</OutDir>
+    <OutDir>C:\Users\dima\Documents\GitHub\omp-engine\BINS\x32\utils</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>

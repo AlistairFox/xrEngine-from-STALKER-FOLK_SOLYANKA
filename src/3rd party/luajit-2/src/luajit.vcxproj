@@ -220,7 +220,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IntDir>$(SolutionDir)\..\intermediate\$(Platform)-$(Configuration)\$(ProjectName)\</IntDir>
-    <OutDir>$(SolutionDir)..\bins\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)\..\binares\$(Platform)-$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>

@@ -7515,12 +7515,14 @@
     <ClInclude Include="level_events.h">
       <Filter>Core\Server\Games\client\freemp\events</Filter>
     </ClInclude>
-    <ClInclude Include="UIArtefactUpgradeWnd.h" />
     <ClInclude Include="MasterServerEvents.h">
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="ActorAnimation.h">
       <Filter>Core\Client\Objects\actor\base\ANIMS</Filter>
+    </ClInclude>
+    <ClInclude Include="UIArtefactUpgradeWnd.h">
+      <Filter>UI\Common\InventoryWnd\ArtefactUpgrade</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -11217,9 +11219,6 @@
     <ClCompile Include="SIniFileStream.cpp">
       <Filter>SaveINIFILE</Filter>
     </ClCompile>
-    <ClCompile Include="xrServer_process_events_PDA.cpp">
-      <Filter>Core\Server\ServerProcess</Filter>
-    </ClCompile>
     <ClCompile Include="UIAnimMode.cpp">
       <Filter>UI\GameTypes\FreeMp</Filter>
     </ClCompile>
@@ -11265,7 +11264,6 @@
     <ClCompile Include="ui\UIActorMenuArtUpgrade.cpp">
       <Filter>UI\Common\Inventory\MENUS</Filter>
     </ClCompile>
-    <ClCompile Include="UIArtefactUpgradeWnd.cpp" />
     <ClCompile Include="game_cl_freemp_alife.cpp">
       <Filter>Core\Server\Games\client\freemp\alife</Filter>
     </ClCompile>
@@ -11283,6 +11281,9 @@
     </ClCompile>
     <ClCompile Include="ActorAnimation_Detectors.cpp">
       <Filter>Core\Client\Objects\actor\base\ANIMS</Filter>
+    </ClCompile>
+    <ClCompile Include="UIArtefactUpgradeWnd.cpp">
+      <Filter>UI\Common\InventoryWnd\ArtefactUpgrade</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

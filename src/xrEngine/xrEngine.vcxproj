@@ -281,8 +281,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>$(LibraryPath);A:\Games\TEST\Dead Edge\bin\x86\LIBS\</LibraryPath>
-    <OutDir>A:\Games\TEST\Dead Edge\bin\x86\</OutDir>
+    <LibraryPath>$(LibraryPath);A:\Games\TEST\Dead Edge\bin\x86\LIBS\;$(OutDir)LIBS\</LibraryPath>
+    <OutDir>C:\Users\dima\Documents\GitHub\omp-engine\BINS\x32\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -311,13 +311,13 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='LUAJIT_2|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>$(LibraryPath);A:\Games\TEST\Dead Edge\bin\x86\LIBS\;A:\Games\TEST\Dead Edge\bin\dedicated\LIBS\</LibraryPath>
-    <OutDir>A:\Games\TEST\Dead Edge\bin\x86\</OutDir>
+    <LibraryPath>$(LibraryPath);C:\Users\dima\Documents\GitHub\omp-engine\BINS\x32\LIBS\</LibraryPath>
+    <OutDir>C:\Users\dima\Documents\GitHub\omp-engine\BINS\x32\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='LUAJIT_2_DEDICATED|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>$(LibraryPath);A:\Games\TEST\Dead Edge\bin\x86\LIBS\;A:\Games\TEST\Dead Edge\bin\dedicated\LIBS\</LibraryPath>
-    <OutDir>A:\Games\TEST\Dead Edge\bin\x86\dedicated\</OutDir>
+    <LibraryPath>$(LibraryPath);C:\Users\dima\Documents\GitHub\omp-engine\BINS\x32\LIBS</LibraryPath>
+    <OutDir>C:\Users\dima\Documents\GitHub\omp-engine\BINS\x32\dedicated\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Dedicated|x64'">
     <LinkIncremental>false</LinkIncremental>
