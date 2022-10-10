@@ -81,10 +81,7 @@ void CUISpawnMenuRP::SendMessage(CUIWindow *pWnd, s16 msg, void *pData)
 		LPCSTR nick = m_pNickname->GetText();
 		
 		if (xr_strlen(nick) == 0)
-		{
-			Msg("Null Nick Name");
-			return;
-		}
+ 			return;
 
 		game_cl_roleplay * game = smart_cast<game_cl_roleplay*>(&Game());
 		R_ASSERT(game);
@@ -106,7 +103,6 @@ void CUISpawnMenuRP::SendMessage(CUIWindow *pWnd, s16 msg, void *pData)
 		P.w_u32(team);
 		Game().u_EventSend(P);
 
-		HideDialog();
-		//m_pNickname->ClearText();
+		HideDialog(); 
 	}
 }

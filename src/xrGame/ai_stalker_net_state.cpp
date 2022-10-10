@@ -4,21 +4,6 @@
 
 #define HALF_FLOAT
 
-void write_bites(const u32& bit_count, const u32& value, u32& current, u64& output)
-{
-	output |= ( (value & ( (u64(1) << bit_count) - 1) ) << current);
-	current += bit_count;
-	//VERIFY(current <= 32);
-}
-
-u32 read_bites(const u32& bit_count, u32& current, const u64& output)
-{
-	u32			result = (output >> current) & ((u64(1) << bit_count) - 1);
-	current += bit_count;
-	//VERIFY(current <= 32);
-	return		(result);
-}
-
 u8 float_to_char4(float value) //0.0666 //4bit (ÒÎÊ ÄË‗ FLOAT 0.f->1.f)
 {
 	if (value > 1.0f)
@@ -71,8 +56,6 @@ float char_health_to_float(u8 value)
 	
 	float health = value >> 1 & (u8(1) << 7) - 1;
 	
-	//Msg("alive[%f]", health);
-
 	health /= 127;
 
 	return health + (alive ? 0.01 : 0);
@@ -120,14 +103,15 @@ void ai_stalker_net_state::state_write(NET_Packet& packet)
 		packet.w_u8(0);
 		packet.w_vec3(fv_position);
 	}
-
-  
+ 
 	//Body State
-	{
-		packet.w_u8(u_health > 0.00001f ? 1 : 0);
+	{	
+		u16 heal = HFLT.float_to_half(u_health);
+		
+		packet.w_u16(heal);
+		//packet.w_float(u_health);
 		packet.w_u8(u_active_slot);
 		packet.w_u16(u_active_item);
-		packet.w_u8(script_animation);
 
 		packet.w_angle8(torso_yaw);
 		packet.w_angle8(head_yaw);
@@ -138,11 +122,12 @@ void ai_stalker_net_state::state_write(NET_Packet& packet)
  	}
 
 
-//	Msg("PacketPos: %d", packet.B.count);
+	//packet.w(&torso_anim, sizeof(MotionID_numered));
+	//packet.w(&legs_anim,  sizeof(MotionID_numered));
+	//packet.w(&head_anim,  sizeof(MotionID_numered));
 
-	packet.w(&torso_anim, sizeof(MotionID_numered));
-	packet.w(&legs_anim,  sizeof(MotionID_numered));
-	packet.w(&head_anim,  sizeof(MotionID_numered));
+	//Óבנאכ Ñזאכ המ 14 באיע גלוסעמ 30 ))
+	exp_motions.Export(packet, legs_anim, torso_anim, head_anim);
 }
 
 void ai_stalker_net_state::state_read(NET_Packet& packet)
@@ -159,15 +144,15 @@ void ai_stalker_net_state::state_read(NET_Packet& packet)
 	{
 		packet.r_vec3(fv_position);
 	}
-
- 	 
+ 
 	//States
 	{	
-		u_health = packet.r_u8();
-		packet.r_u8(u_active_slot);  //8 bit
+
+		u_health = HFLT.half_to_float(packet.r_u16());
+		//packet.r_float(u_health);
+		packet.r_u8(u_active_slot);   
 		packet.r_u16(u_active_item);
-		script_animation = packet.r_u8();
-		 
+ 		 
 		packet.r_angle8(torso_yaw);
 		packet.r_angle8(head_yaw);
 
@@ -175,10 +160,10 @@ void ai_stalker_net_state::state_read(NET_Packet& packet)
 		packet.r_angle8(head_pitch);
  	}
 
-//	Msg("PacketPosRead: %d", packet.r_pos);
-
- 	packet.r(&torso_anim, sizeof(MotionID_numered));
-	packet.r(&legs_anim, sizeof(MotionID_numered));
-	packet.r(&head_anim, sizeof(MotionID_numered));
+ 	//packet.r(&torso_anim, sizeof(MotionID_numered));
+	//packet.r(&legs_anim, sizeof(MotionID_numered));
+	//packet.r(&head_anim, sizeof(MotionID_numered));
  
+	//Óבנאכ Ñזאכ המ 14 באיע גלוסעמ 30 ))
+	exp_motions.Import(packet, legs_anim, torso_anim, head_anim);
 } 

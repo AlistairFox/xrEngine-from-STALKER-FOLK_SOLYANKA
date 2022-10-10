@@ -13,8 +13,19 @@
 #include "script_engine.h"
 
 void CScriptPropertyEvaluatorWrapper::setup			(CScriptGameObject *object, CPropertyStorage *storage)
-{
-	luabind::call_member<void>	(this,"setup",object,storage);
+{  
+	try 
+	{
+		luabind::call_member<void>(this, "setup", object, storage);
+	}
+	catch (...)
+	{
+		Msg("SCRIPT RUNTIME WARNING : SETUP ( object [%s] evaluator [%s] alive [%s]) crashed!",
+			m_object->Name(),
+			m_evaluator_name,
+			m_object->Alive() ? "true" : "false"
+		);
+	}
 }
 
 void CScriptPropertyEvaluatorWrapper::setup_static	(CScriptPropertyEvaluator *evaluator, CScriptGameObject *object, CPropertyStorage *storage)
@@ -27,12 +38,13 @@ bool CScriptPropertyEvaluatorWrapper::evaluate		()
 	if (m_object) 
 	if (m_object->Alive())
 	{
-		try {
-			//Msg("evaluate try [%s]", this->m_evaluator_name);
-			return	(luabind::call_member<bool>(this,"evaluate"));
+		try 
+		{
+ 			return	(luabind::call_member<bool>(this,"evaluate"));
 		}
 	#ifdef DEBUG
-		catch(luabind::cast_failed &exception) {
+		catch(luabind::cast_failed &exception)
+		{
 	#ifdef LOG_ACTION
 			ai().script_engine().script_log (ScriptStorage::eLuaMessageTypeError,"SCRIPT RUNTIME ERROR : evaluator [%s] returns value with not a %s type!",m_evaluator_name,exception.info()->name());
 	#else
@@ -42,9 +54,17 @@ bool CScriptPropertyEvaluatorWrapper::evaluate		()
 	#endif
 		catch(...) 
 		{
+			/*
 			ai().script_engine().script_log (ScriptStorage::eLuaMessageTypeError,
 				"SCRIPT RUNTIME ERROR : object [%s] evaluator [%s] alive [%s] crashed!", 
 				this->m_object->Name(), 
+				m_evaluator_name,
+				this->m_object->Alive() ? "true" : "false"
+			);
+			*/
+
+			Msg("SCRIPT RUNTIME WARNING : EVALUATE ( object [%s] evaluator [%s] alive [%s] ) crashed!",
+				this->m_object->Name(),
 				m_evaluator_name,
 				this->m_object->Alive() ? "true" : "false"
 			);

@@ -156,7 +156,7 @@ void CUIActorMenu::Construct()
 	m_pQuickSlot				= UIHelper::CreateDragDropReferenceList(uiXml, "dragdrop_quick_slots", this);
 	m_pQuickSlot->Initialize	();
 
-	//List
+	//SE7kills
 	m_pInventoryPdaList			= UIHelper::CreateDragDropListEx(uiXml, "dragdrop_pda", this);
 
 	m_pTrashList				= UIHelper::CreateDragDropListEx		(uiXml, "dragdrop_trash", this);

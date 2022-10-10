@@ -60,8 +60,6 @@ CGameObject::CGameObject		()
 
 	m_callbacks					= xr_new<CALLBACK_MAP>();
 	m_anim_mov_ctrl				= 0;
-
-	currentPlayerRaycast = false;
 }
 
 CGameObject::~CGameObject		()
@@ -73,8 +71,6 @@ CGameObject::~CGameObject		()
 	xr_delete					(m_ai_location);
 	xr_delete					(m_callbacks);
 	xr_delete					(m_ai_obstacle);
-
-	currentPlayerRaycast = false;
 }
 
 void CGameObject::init			()
@@ -248,13 +244,6 @@ void CGameObject::OnEvent		(NET_Packet& P, u16 type)
 //			MakeMeCrow		();
 		}
 		break;
-
-		case GE_RAYCAST:
-		{
-		//	Msg("Recive Raycast Packet");
-
-			setMPPlayerRaycast(P.r_u8());
-		}break;
 	}
 }
 
@@ -773,21 +762,6 @@ CObject::SavedPosition CGameObject::ps_Element(u32 ID) const
 	SP.dwTime					+=	Level().timeServer_Delta();
 	return SP;
 }
-
-void CGameObject::setMPPlayerRaycast(bool value)
-{
-	if (OnClient())
-	{
-		NET_Packet packet;
-		u_EventGen(packet, GE_RAYCAST, this->ID());
-		packet.w_u8(value);
-		u_EventSend(packet);
-	//	Msg("Send Raycast Packet");
-	}
-
-	currentPlayerRaycast = value;
-}
-
 
 void CGameObject::u_EventGen(NET_Packet& P, u32 type, u32 dest)
 {

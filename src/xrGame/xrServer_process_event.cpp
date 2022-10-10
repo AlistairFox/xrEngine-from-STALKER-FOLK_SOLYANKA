@@ -246,6 +246,7 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 		{
 			SendBroadcast	(BroadcastCID, P, net_flags(TRUE, TRUE));
 		}break;
+	
 	case GE_PSEUDO_GIGANT_KICK:
 	case GE_BURER_GRAVI_PARTICLES:
 	case GE_BURER_GRAVI_WAVE:
@@ -254,24 +255,18 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 	case GE_BLOODSUCKER_VAMPIRE_STOP:
 	case GE_CONTROLLER_PSY_FIRE:
 	case GE_CHANGE_POS:
-		{			
-			SendTo		(SV_Client->ID, P, net_flags(TRUE, TRUE));
-		}break;
+	{			
+		SendTo		(SV_Client->ID, P, net_flags(TRUE, TRUE));
+	}break;
+	
 	case GE_INSTALL_UPGRADE:
 		{
 			shared_str				upgrade_id;
-
 			P.r_stringZ				( upgrade_id );
-
 			CSE_ALifeInventoryItem* iitem = smart_cast<CSE_ALifeInventoryItem*>( receiver );
-			
 			if ( !iitem )
-			{
 				break;
-			}
-
 			iitem->add_upgrade		( upgrade_id );
-
 			SendBroadcast(BroadcastCID, P, net_flags(TRUE, TRUE));
 		}break;
 	case GE_INV_BOX_STATUS:
@@ -390,11 +385,6 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 	
 	}break;
 
-	case GE_STALKER_ANIMS:
-	{
-		SendBroadcast(SV_Client->ID, P, net_flags(TRUE, TRUE));
-	}break;
-
 	case GE_MODE_SWITCH:
 	{
 		xrClientData* data = ID_to_client(sender);
@@ -418,40 +408,24 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 
 	}break;
 
-	case GAME_EVENT_UI_PDA_SERVER:
-	{
-		game_sv_freemp* freemp = smart_cast<game_sv_freemp*>(game);
-		u8 type;
-		P.r_u8(type);
-
-		if (type == 0)
-		{
-			freemp->OnPlayerUIContactsRecvest(P, sender);
-		}
-		else if (type == 1)
-		{
-			freemp->OnPlayerUIContacts(P, sender);
-		}
-		else if (type == 2)
-		{
-			ClientID id;
-			P.r_clientID(id);
-			ClientID LeaderID;
-			P.r_clientID(LeaderID);
-			freemp->OnPlayerUIContactsRemoveUser(id, LeaderID);
-		}
-		 
-	}break;
-
 	case GE_DETECTOR_STATE:
  	case GE_ACTOR_ANIMATIONS_EVENT:
 	{
 		SendBroadcast(sender, P, net_flags(true, true));
 	}break;
  
-    case GAME_EVENT_PDA_CHAT_SERVER:
+	case GAME_EVENT_UI_PDA_SERVER:
 	{
-		Process_events_PDA(P, sender);
+		game_sv_freemp* fmp = smart_cast<game_sv_freemp*>(game);
+		if (fmp)
+			fmp->RecivePdaContactMSG(P, sender);
+	}break;
+
+    case GAME_EVENT_UI_PDA_CHAT_SERVER:
+	{
+		game_sv_freemp* fmp = smart_cast<game_sv_freemp*>(game);
+		if (fmp)
+			fmp->RecivePdaChatMSG(P, sender);			
 	}break;
 
 	case GE_INV_BOX_PRIVATE_SAFE:
@@ -471,55 +445,7 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 		game->u_EventGen(packet, GE_UNLOAD_AMMO, destination);
 		SendTo(SV_Client->ID, P, net_flags(true, true));
 	}break;
-
-	case GE_ACTOR_SLOTS_SYNC:	
-	{
-		ClientID id;
-		P.r_clientID(id);
-		string32 slot[4];
-		P.r_stringZ(slot[0]);
-		P.r_stringZ(slot[1]);
-		P.r_stringZ(slot[2]);
-		P.r_stringZ(slot[3]);
-		
-		game_sv_freemp* freemp = smart_cast<game_sv_freemp*>(game);
-
-		if (freemp)
-		{
-			bool finded = false;
-			for (auto cl_slots : freemp->cl_slots)
-			{
-				if (cl_slots.cl_id == id)
-				{
-					finded = true;
-					xr_strcpy(cl_slots.slots[0], slot[0]);
-					xr_strcpy(cl_slots.slots[1], slot[1]);
-					xr_strcpy(cl_slots.slots[2], slot[2]);
-					xr_strcpy(cl_slots.slots[3], slot[3]);
-					break;
-				}
-			}
-
-			if (!finded)
-			{
-				ActorSlots c;
-				auto slots = c.slots;
-				xr_strcpy(slots[0], slot[0]);
-				xr_strcpy(slots[1], slot[1]);
-				xr_strcpy(slots[2], slot[2]);
-				xr_strcpy(slots[3], slot[3]);
-				c.cl_id = id;
-				freemp->cl_slots.push_back(c);
-			}
-
-		}
-	}break;
-
-	case GE_RAYCAST:
-	{
-		SendTo(SV_Client->ID, P, net_flags(true, true));
-	}break;
- 
+	 
 	default:
 		R_ASSERT2	(0,"Game Event not implemented!!!");
 		break;

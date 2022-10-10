@@ -42,6 +42,9 @@ public:
 	virtual	void net_import_update(NET_Packet& P);
 	
 	virtual void shedule_Update(u32 dt);
+
+	virtual void shedule_voice();
+	virtual void shedule_InventoryOwner();
 	virtual float shedule_Scale();
 
 

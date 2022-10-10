@@ -3,21 +3,21 @@
 #include "ai/stalker/ai_stalker.h"
 #include "stalker_animation_manager.h"
 #include "inventory.h"
-#include "../xrCore/_flags.h"
+#include "Actor.h" 			 
 
-#include "ai_stalker_net_state.h"
-#include "Actor.h"
- 
-enum sync_flags
+// Сохранение текущей анимки и нумерация (для синхры анимок)
+void CAI_Stalker::OnAnimationUpdate(MotionID motion, CBlend* blend, bool mix_anims, float pos)
 {
-	animation_flag = (1 << 0),
-	animation_update = (1 << 1),
-};
+	if (blend->bone_or_part == 0)
+	{
+		if (legs_anim_id > 254)
+			legs_anim_id = 0;
 
-void CAI_Stalker::OnEventUpdate(MotionID motion, CBlend* blend, bool mix_anims, float pos)
-{
-	//Msg("OnEventUpdate [%d], part[%d]", motion.idx, blend->bone_or_part);
- 
+		legs_anim_id += 1;
+		motion_legs = motion;
+		legs_loop = mix_anims;
+		pos_legs = pos;
+	}
 
 	if (blend->bone_or_part == 1)
 	{
@@ -28,17 +28,6 @@ void CAI_Stalker::OnEventUpdate(MotionID motion, CBlend* blend, bool mix_anims, 
 		motion_torso = motion;
 		torso_loop = mix_anims;
 		pos_torso = pos;
-	}
-
-	if (blend->bone_or_part == 0)
-	{
-		if (legs_anim_id > 254)
-			legs_anim_id = 0;
-
-		legs_anim_id += 1;
-		motion_legs = motion;
-		legs_loop = mix_anims;
-		pos_legs = pos;
 	}
 
 	if (blend->bone_or_part == 2)
@@ -53,31 +42,9 @@ void CAI_Stalker::OnEventUpdate(MotionID motion, CBlend* blend, bool mix_anims, 
 	}	
 }
 
-void CAI_Stalker::OnEventAnimationsRecived(NET_Packet packet)
-{ 		  
-	MotionID id;
-	u16 slot;
-	float amount;
-	packet.r(&id, sizeof(id));
-	packet.r_u16(slot);
- 
-	IKinematicsAnimated* ka = Visual()->dcast_PKinematicsAnimated();
-
-	if (!ka)
-		return;
-
-	bool has_slot_for_anim = false;
-
-	if (ka->LL_PartBlendsCount(0) < 6 && ka->LL_PartBlendsCount(1) < 6 &&  ka->LL_PartBlendsCount(2) < 6)
-			has_slot_for_anim = true;
-
-	if (has_slot_for_anim)
-		ka->LL_PlayCycle(slot, id, true, 0, 0, 0);
-}
-
+//Релиз тела
 extern    int        g_iCorpseRemove;
  
-
 bool CAI_Stalker::NeedToDestroyObject() const
 {
 	if (IsGameTypeSingle() || OnClient())
@@ -87,14 +54,10 @@ bool CAI_Stalker::NeedToDestroyObject() const
 	else
 	{
 		if (g_Alive() || g_iCorpseRemove == -1 || TimePassedAfterDeath() < m_dwBodyRemoveTime)
-		{
 			return false;
-		}
 
 		if (Level().timeServer() - m_last_player_detection_time < 5000)
-		{
 			return false;
-		}
 
 		if (HavePlayersNearby(50.f))
 		{
@@ -138,9 +101,7 @@ bool CAI_Stalker::HavePlayersNearby(float distance) const
 
 		if (id == Actor()->ID())
 			continue;
-
-		//Msg("ID [%d], DistPos[%.0f], Distance[%.0f]", id,this->Position().distance_to_sqr(pObject->Position()), distance_sqr);
-
+ 
 		if (this->Position().distance_to_sqr(pObject->Position()) < distance_sqr)
 		{
 			have = true;

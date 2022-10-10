@@ -150,7 +150,8 @@ void CAI_Stalker::react_on_member_death	()
 	if (Device.dwTimeGlobal < reaction.m_time + TOLLS_INTERVAL)
 		return;
 
-	if (agent_manager().member().group_behaviour()) {
+	if (agent_manager().member().group_behaviour()) 
+	{
 		if (!reaction.m_member->g_Alive())
 			sound().play		( StalkerSpace::eStalkerSoundTolls, 3000, 2000 );
 		else

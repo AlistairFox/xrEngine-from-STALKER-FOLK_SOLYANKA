@@ -170,6 +170,7 @@ void CSE_SmartCover::UPDATE_Write(NET_Packet &tNetPacket)
 {
 	inherited1::UPDATE_Write	(tNetPacket);
 }
+
 #ifndef XRGAME_EXPORTS
 void CSE_SmartCover::FillProps	(LPCSTR pref, PropItemVec& items)
 {
@@ -187,9 +188,7 @@ void CSE_SmartCover::FillProps	(LPCSTR pref, PropItemVec& items)
 	}
 #	endif // #ifdef XRSE_FACTORY_EXPORTS
 }
-#endif // #ifndef XRGAME_EXPORTS
-
-#ifdef XRSE_FACTORY_EXPORTS
+ 
 void CSE_SmartCover::set_loopholes_table_checker(BOOLValue *value){
 	value->OnChangeEvent.bind	(this,&CSE_SmartCover::OnChangeLoopholes);
 }

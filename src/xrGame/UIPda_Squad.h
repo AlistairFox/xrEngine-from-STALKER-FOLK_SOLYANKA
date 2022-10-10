@@ -2,18 +2,10 @@
 #include "ui/UIWindow.h"
 #include "ui/UIWndCallback.h"
 
-#include "game_sv_freemp.h"
-
 class CUIFrameWindow;
 class CUIStatic;
 class CUICharacterInfo;
 class CUIPropertiesBox;
-
-struct TeamPlayer
-{
-	ClientID Client;
-	u16 GameID = -1;
-};
 
 class CUIPda_Squad : public CUIWindow, public CUIWndCallback
 {
@@ -37,18 +29,21 @@ private:
 	CUIPropertiesBox* property_box_squad;
 
 public:
-	Team team_players;
-
+ 
 	CUIPda_Squad();
 	virtual ~CUIPda_Squad();
 
+	xr_vector<u32> players;
+	u32 leader_id = 0;
+	bool in_squad = false;
+	bool leader_in_squad = false;
 
 	void				Init();
 	virtual void 		Show(bool status);
 	virtual void		Update();
 	virtual void		ResetAll();
 
-	void				EventRecive(Team player_team);
+	void				EventRecive(NET_Packet packet);
 	
 	//PropertyBox
 	virtual bool		OnMouseAction(float x, float y, EUIMessages mouse_action);

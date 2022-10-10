@@ -107,11 +107,6 @@ void game_sv_freemp::OnPlayerConnectFinished(ClientID id_who)
 		u_EventSend(P);
 		xrCData->net_Ready = TRUE;
 	};
-
-//	
-//		WriteAlifeObjectsToClient(id_who);
-
-	//RespawnPlayer(id_who, true);
 }
 
 void game_sv_freemp::AddMoneyToPlayer(game_PlayerState * ps, s32 amount)
@@ -186,27 +181,6 @@ CSE_Abstract* game_sv_freemp::SpawnItemToActorReturn(u16 actorId, LPCSTR name)
 	CSE_Abstract* E = spawn_begin(name);
 	E->ID_Parent = actorId;
 	E->s_flags.assign(M_SPAWN_OBJECT_LOCAL);	// flags
-
-	/*
-	CSE_ALifeItemWeapon* pWeapon = smart_cast<CSE_ALifeItemWeapon*>(E);
-	
-	if (pWeapon)
-	{
-		u16 ammo_magsize = pWeapon->get_ammo_magsize();
-		pWeapon->a_elapsed = ammo_magsize;
-	}
-	*/
-	/*
-	CSE_ALifeItemPDA* pPda = smart_cast<CSE_ALifeItemPDA*>(E);
-	
-	if (pPda)
-	{
-		pPda->m_original_owner = actorId;
-	}
-	*/
-
-//	spawn_end(E, m_server->GetServerClient()->ID);
-
 	return E;
 }
 
@@ -260,12 +234,15 @@ void game_sv_freemp::OnPlayerReady(ClientID id_who)
 			RespawnPlayer(id_who, true);
 		
 
+			/* (REGISTER IN ALIFE OBJECTS MP ACTOR)	
+				!!!(OFF NOT FULL WORK GOOD)
 			CSE_ALifeDynamicObject* player = smart_cast<CSE_ALifeDynamicObject*>(server().ID_to_entity(ps->GameID));
 			if (player && ai().get_alife())
 			{
 				Msg("Register Object in alife():objects(%d), GRAPH (%d) FOR SHOW ONLY (crashed if alife():register(ent) ) ", player->ID, player->m_tGraphID);
 				alife().register_in_objects(player);
 			}
+			*/
 
 			if (flag)
 			if (LoadPlayer(ps))
@@ -280,9 +257,6 @@ void game_sv_freemp::OnPlayerReady(ClientID id_who)
 				// set start money
 				ps->money_for_round = spawned_items.StartMoney;
 			}
-
-
-
 		} break;
 
 	default:
@@ -294,51 +268,9 @@ void game_sv_freemp::OnPlayerReady(ClientID id_who)
 void game_sv_freemp::OnPlayerDisconnect(ClientID id_who, LPSTR Name, u16 GameID)
 {
 	inherited::OnPlayerDisconnect(id_who, Name, GameID);		  
-
-	if (&teamPlayers[id_who])
-	{
-		teamPlayers.erase(id_who);
-	}
-	else
-	for (auto table : teamPlayers)
-	{
-		for (auto pl : table.second.players)
-		{
-			if (pl == id_who)
-			{
-				pl = 0;
-				table.second.cur_players -= 1;
-			}
-			
-			OnPlayerUIContactsRecvestUpdate(pl, GameID);
-		}
-	}
 }
 
-struct real_sender
-{
-	xrServer* server_for_send;
-	NET_Packet* P;
-	u32	flags_to_send;
-
-	real_sender(xrServer* server, NET_Packet* Packet, u32 flags = DPNSEND_GUARANTEED)
-	{
-		server_for_send = server;
-		P = Packet;
-		flags_to_send = flags;
-	}
-	void operator()(IClient* client)
-	{
-		xrClientData* tmp_client = static_cast<xrClientData*>(client);
-		game_PlayerState* ps = tmp_client->ps;
-		if (!ps || !tmp_client->net_Ready)
-			return;
-
-		server_for_send->SendTo(client->ID, *P, flags_to_send);
-	}
-};
-
-void game_sv_freemp::OnPlayerKillPlayer(game_PlayerState * ps_killer, game_PlayerState * ps_killed, KILL_TYPE KillType, SPECIAL_KILL_TYPE SpecialKillType, CSE_Abstract * pWeaponA)
+void game_sv_freemp::OnPlayerKillPlayer(game_PlayerState* ps_killer, game_PlayerState* ps_killed, KILL_TYPE KillType, SPECIAL_KILL_TYPE SpecialKillType, CSE_Abstract* pWeaponA)
 {
 	if (ps_killed)
 	{
@@ -348,7 +280,7 @@ void game_sv_freemp::OnPlayerKillPlayer(game_PlayerState * ps_killer, game_Playe
 
 	signal_Syncronize();
 }
-
+ 
 void game_sv_freemp::OnEvent(NET_Packet &P, u16 type, u32 time, ClientID sender)
 {
 	switch (type)
@@ -376,8 +308,7 @@ void game_sv_freemp::OnEvent(NET_Packet &P, u16 type, u32 time, ClientID sender)
 	
 		case M_CHANGE_LEVEL:
 		{
-			//Msg("M_CHANGE_LEVEL");
-			if (change_level(P, sender))
+ 			if (change_level(P, sender))
 			{
 				server().SendBroadcast(BroadcastCID, P, net_flags(TRUE, TRUE));
 			}
@@ -385,40 +316,28 @@ void game_sv_freemp::OnEvent(NET_Packet &P, u16 type, u32 time, ClientID sender)
 
 		case GAME_EVENT_PLAYER_NAME_ACCAUNT:
 		{
- 			shared_str nick;
-			P.r_stringZ(nick);
-			u32 team;
-			P.r_u32(team);
+ 			shared_str nick;  P.r_stringZ(nick);
+			u32 team;		  P.r_u32(team);
 
 			xrClientData* data = server().ID_to_client(sender);
-
 			if (data && data->ps)
 			{			
-				LPCSTR old_name = data->name.c_str();
-				data->name = nick.c_str();
+ 				data->name = nick.c_str();
 				data->ps->m_account.set_player_name(nick.c_str());
-				set_account_nickname(data->ps->m_account.name_login().c_str(), data->ps->m_account.password().c_str(), nick.c_str(), team);
-		
-				NET_Packet			P;
-				GenerateGameMessage(P);
-				P.w_u32(GAME_EVENT_PLAYER_NAME);
-				P.w_u16(data->owner->ID);
-				P.w_s16(data->ps->team);
-				P.w_stringZ(old_name);
-				P.w_stringZ(data->ps->getName());
-				//---------------------------------------------------
-				real_sender tmp_functor(m_server, &P);
-				m_server->ForEachClientDoSender(tmp_functor);
-				//---------------------------------------------------
 				data->owner->set_name_replace(data->name.c_str());
 
+				set_account_nickname
+				(
+					data->ps->m_account.name_login().c_str(), 
+					data->ps->m_account.password().c_str(),
+					nick.c_str(),
+					team
+				);
+ 
 				signal_Syncronize();
 			}
-			
-			
+
 		}break;
-
-
 
 		default:
 			inherited::OnEvent(P, type, time, sender);
@@ -498,10 +417,6 @@ void game_sv_freemp::Update()
 			}
  		}
    
-		for (auto players : teamPlayers)
-		for (auto player : players.second.players)
-			OnPlayerUIContactsRecvestUpdate(player, players.second.ClientLeader);
-
 		if (loaded_gametime)
 		{
 			u64 time = GetGameTime() - GetStartGameTime();

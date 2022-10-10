@@ -16,7 +16,15 @@ void CScriptActionPlannerWrapper::setup			(CScriptGameObject *object)
 #ifdef LOG_ACTION
 	set_use_log								(!!psAI_Flags.test(aiGOAPScript));
 #endif
-	luabind::call_member<void>				(this,"setup",object);
+
+	try
+	{
+		luabind::call_member<void>(this, "setup", object);
+	}
+	catch (...)
+	{
+		Msg("[CScriptActionPlannerWrapper] [Error] SETUP [%s], Action [%d]", this->object().Name(), this->m_current_action_id);
+	}
 }
 
 void CScriptActionPlannerWrapper::setup_static	(CScriptActionPlanner *planner, CScriptGameObject *object)
@@ -37,7 +45,7 @@ void CScriptActionPlannerWrapper::update		()
 	}
 	catch(...)
 	{
-		Msg("[CScriptActionPlannerWrapper] [Error] ActionPlannerWrapper [%s], Action [%d]", this->object().Name(), this->m_current_action_id);
+		Msg("[CScriptActionPlannerWrapper] [Error] NAME [%s], Action [%d]", object().Name(), m_current_action_id);
 	}
 	
 }

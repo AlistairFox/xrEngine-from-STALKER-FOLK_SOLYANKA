@@ -143,9 +143,9 @@ void game_sv_freemp::SavePlayer(game_PlayerState* ps)
 	//json << "safemode" << Boolean(safemode);
 	json << "unlim_ammo" << Boolean(unlim_ammo);
 
-	
+	/*
 	xrClientData* data = (xrClientData*) get_client(ps->GameID);
-
+	
 	Array tab;
 	for (auto cl_AS : cl_slots)
 	{
@@ -160,6 +160,7 @@ void game_sv_freemp::SavePlayer(game_PlayerState* ps)
 		}
 	}
 	json << "player_quick_slots" << tab;
+	*/
 
 	if (ps->m_account.name_save().size() != 0)
 	{
@@ -182,8 +183,7 @@ void game_sv_freemp::SavePlayer(game_PlayerState* ps)
 		if (ofile.is_open())
 		{
 			ofile << json.json().c_str();
-			//Msg("SaveName %s", name);
-		}
+ 		}
 		ofile.close();
 	}
 	else

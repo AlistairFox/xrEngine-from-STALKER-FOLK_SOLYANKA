@@ -86,12 +86,6 @@ void CAI_Stalker::OnEvent		(NET_Packet& P, u16 type)
 
 			break;
 		}
-
-		case GE_STALKER_ANIMS:
-		{
-			OnEventAnimationsRecived(P);
-			break;
-		}
 	}
 }
 

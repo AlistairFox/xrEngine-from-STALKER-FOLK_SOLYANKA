@@ -162,7 +162,7 @@ void CStalkerAnimationPair::play			(IKinematicsAnimated *skeleton_animated, Play
 		m_object->CStepManager::on_animation_start(animation(),blend());
 
 
- 	m_object->OnEventUpdate(animation(), blend(), mix_animations, pos);
+ 	m_object->OnAnimationUpdate(animation(), blend(), mix_animations, pos);
 
 
 #ifdef DEBUG
@@ -287,6 +287,7 @@ void CStalkerAnimationPair::on_animation_end	()
 	for ( ; i != e; ++i)
 		(*i)					();
 
+	//SE7Kills (чекнуть может нужно скидывать анимку)
 	//this->m_object->OnEventAnimations(true);
 
 }

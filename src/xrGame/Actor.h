@@ -78,10 +78,12 @@ private:
 
 
 	//SE7Kills
+public:
 	bool						MpSafeMode() const;
 	bool						MpAnimationMode() const;
 	bool						Setuped_callbacks();
 
+private:
 	ref_sound selected;
 
 	int oldAnim = 0;

@@ -839,7 +839,7 @@ void CLevel::OnFrame	()
 		timer_old = Device.dwTimeGlobal + 1000;
 	} 
 
- 
+ 	/* Raycast (”брал не нужен)
 	collide::rq_result res = HUD().GetCurrentRayQuery();
 	CGameObject* obj = smart_cast<CGameObject*> (res.O);
 
@@ -859,7 +859,7 @@ void CLevel::OnFrame	()
 		old_select_obj->setMPPlayerRaycast(false);
 		old_select_obj = 0;
 	}
-	 
+	*/ 
 
 }
 

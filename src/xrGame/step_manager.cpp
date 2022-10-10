@@ -138,7 +138,8 @@ void CStepManager::on_animation_start(MotionID motion_id, CBlend *blend)
 	m_step_info.params		= it->second;
 	m_step_info.cur_cycle	= 1;					// all cycles are 1-based
 
-	for (u32 i=0; i<m_legs_count; i++) {
+	for (u32 i=0; i<m_legs_count; i++)
+	{
 		m_step_info.activity[i].handled	= false;
 		m_step_info.activity[i].cycle	= m_step_info.cur_cycle;
 	}

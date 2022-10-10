@@ -364,6 +364,11 @@ void CUIActorMenu::OnPressUserKey()
 {
 	switch ( m_currMenuMode )
 	{
+	case mmArtUpgrade:
+	{
+		//Se7kills (TOOD) 
+	}
+	break;
 	case mmUndefined:		break;
 	case mmInventory:		break;
 	case mmTrade:			
@@ -391,6 +396,11 @@ void CUIActorMenu::OnMesBoxYes( CUIWindow*, void* )
 {
 	switch( m_currMenuMode )
 	{
+	case mmArtUpgrade:
+	{
+		//Se7kills (TOOD) 
+	}
+	break;
 	case mmUndefined:
 		break;
 	case mmInventory:
@@ -421,6 +431,12 @@ void CUIActorMenu::OnMesBoxNo(CUIWindow*, void*)
 {
 	switch(m_currMenuMode)
 	{
+	case mmArtUpgrade:
+	{
+		//Se7kills (TOOD) 
+	}
+	break;
+
 	case mmUndefined:
 		break;
 	case mmInventory:

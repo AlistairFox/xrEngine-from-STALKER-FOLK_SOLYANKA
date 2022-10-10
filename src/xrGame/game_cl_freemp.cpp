@@ -105,8 +105,6 @@ void game_cl_freemp::net_import_update(NET_Packet & P)
 {
 	inherited::net_import_update(P);
 }
-//sync slots
-string32 slots[4];
 
 void game_cl_freemp::shedule_Update(u32 dt)
 {
@@ -115,19 +113,6 @@ void game_cl_freemp::shedule_Update(u32 dt)
 	if (!local_player)
 		return;
 	
-	if (!g_dedicated_server && m_pVoiceChat)
-	{
-		const bool started = m_pVoiceChat->IsStarted();
-		const bool is_dead = !local_player || local_player->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD);
-		const bool has_shown_dialogs = CurrentGameUI()->HasShownDialogs();
-		if (started && (is_dead || has_shown_dialogs))
-		{
-			m_pVoiceChat->Stop();
-			CurrentGameUI()->UIMainIngameWnd->SetActiveVoiceIcon(false);
-		}
-		m_pVoiceChat->Update();
-	}
-
 	/*
 	if (OnClient() && Device.dwTimeGlobal - old_time > 5000 && load_game_tasks)
 	{
@@ -164,7 +149,30 @@ void game_cl_freemp::shedule_Update(u32 dt)
 		load_game_tasks = true;
 	}	*/
 	
+	// Update Войса
+	shedule_voice();
 	// синхронизация имени и денег игроков для InventoryOwner
+	shedule_InventoryOwner();
+}
+
+void game_cl_freemp::shedule_voice()
+{
+	if (!g_dedicated_server && m_pVoiceChat)
+	{
+		const bool started = m_pVoiceChat->IsStarted();
+		const bool is_dead = !local_player || local_player->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD);
+		const bool has_shown_dialogs = CurrentGameUI()->HasShownDialogs();
+		if (started && (is_dead || has_shown_dialogs))
+		{
+			m_pVoiceChat->Stop();
+			CurrentGameUI()->UIMainIngameWnd->SetActiveVoiceIcon(false);
+		}
+		m_pVoiceChat->Update();
+	}
+}
+
+void game_cl_freemp::shedule_InventoryOwner()
+{
 	for (auto cl : players)
 	{
 		game_PlayerState* ps = cl.second;
@@ -188,32 +196,7 @@ void game_cl_freemp::shedule_Update(u32 dt)
 		{
 			pActor->set_money((u32)ps->money_for_round, false);
 		}
-		//Msg("Rank %d, Current %d", ps->rank, pActor->Rank());
-	}	
-
-	if (slots[0] != g_quick_use_slots[0] ||
-		slots[1] != g_quick_use_slots[1] ||
-		slots[2] != g_quick_use_slots[2] ||
-		slots[3] != g_quick_use_slots[3]   )
-	{
-		xr_strcpy(slots[0], g_quick_use_slots[0]);
-		xr_strcpy(slots[1], g_quick_use_slots[1]);	
-		xr_strcpy(slots[2], g_quick_use_slots[2]);
-		xr_strcpy(slots[3], g_quick_use_slots[3]);
-
-		NET_Packet packet;
-		Game().u_EventGen(packet, GE_ACTOR_SLOTS_SYNC, -1);
-		packet.w_clientID(Level().game->local_svdpnid);
-		packet.w_stringZ(slots[0]);
-		packet.w_stringZ(slots[1]);
-		packet.w_stringZ(slots[2]);
-		packet.w_stringZ(slots[3]);
-		Game().u_EventSend(packet);
-
 	}
-
-
-	
 }
 
 float game_cl_freemp::shedule_Scale()
@@ -406,10 +389,10 @@ void game_cl_freemp::OnRender()
 	if (m_pVoiceChat)
 		m_pVoiceChat->OnRender();
 
-	Team teamPL = m_game_ui->PdaMenu().pUIContacts->squad_UI->team_players;
+	u32 size = m_game_ui->PdaMenu().pUIContacts->squad_UI->players.size();
 
-	if (teamPL.cur_players > 0)
-	for (auto pl : teamPL.players)
+	if (size > 0)
+	for (auto pl : m_game_ui->PdaMenu().pUIContacts->squad_UI->players)
 	{
 		if (pl == 0)
 			continue;

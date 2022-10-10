@@ -5,26 +5,12 @@
 
 #include "../jsonxx/jsonxx.h"
 using namespace jsonxx;
-
-struct Team
-{
-	ClientID players[4];
-	ClientID ClientLeader = -1;
- 	u16 cur_players = 0;
-};
-
+ 
 struct SpawnSect
 {
 	s32 StartMoney;
 	xr_vector<xr_string> StartItems;
 };
-
-struct ActorSlots 
-{
-	string32 slots[4];
-	ClientID cl_id;
-};
-
  
 class xrServer;
 class CALifeSimulator;
@@ -46,9 +32,7 @@ protected:
 
 
 public:
-	xr_vector<ActorSlots> cl_slots;
-	xr_map<ClientID, Team> teamPlayers;
-	bool surge_started;
+ 	bool surge_started;
 	
 	
 	game_sv_freemp();
@@ -82,7 +66,7 @@ public:
 
 	virtual		BOOL				OnTouch(u16 eid_who, u16 eid_what, BOOL bForced = FALSE);
 
-	bool		SpawnItemToPos(LPCSTR section, Fvector3 position);
+	bool							SpawnItemToPos(LPCSTR section, Fvector3 position);
 
 	virtual		void				on_death(CSE_Abstract* e_dest, CSE_Abstract* e_src);
 
@@ -106,12 +90,8 @@ public:
 
 	virtual void LoadParamsDeffaultFMP();
 
-
-	void OnPlayerUIContacts(NET_Packet& P, ClientID const& clientID);
-	void OnPlayerUIContactsRecvest(NET_Packet& P, ClientID const& clientID);
-	void OnPlayerUIContactsRecvestUpdate(ClientID Client, ClientID leader);
-	void OnPlayerUIContactsRemoveUser(ClientID Client, ClientID Leader);
-
+	void RecivePdaChatMSG(NET_Packet& P, ClientID& sender);
+	void RecivePdaContactMSG(NET_Packet& P, ClientID& sender);
  
 
 	virtual	bool change_level(NET_Packet& net_packet, ClientID sender);

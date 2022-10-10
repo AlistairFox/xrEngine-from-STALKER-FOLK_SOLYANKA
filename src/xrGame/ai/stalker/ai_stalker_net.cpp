@@ -167,10 +167,6 @@ void CAI_Stalker::net_Export(NET_Packet& P)
 
 		if (ka)
 		{
-						
-			//Msg("torso[%d], head[%d], legs[%d]", torso_anim_id, head_anim_id, legs_anim_id);
-			//Msg("torsoID[%d], headID[%d], legsID[%d]", motion_torso.idx, motion_head.idx, motion_legs.idx);
-
 			state.torso_anim.id = motion_torso;
 			state.torso_anim.num = torso_anim_id;
 			state.torso_anim.loop = torso_loop;
@@ -191,10 +187,10 @@ void CAI_Stalker::net_Export(NET_Packet& P)
  
 		state.state_write(P);
 	}	 	
- 
+	
+	
+	/*
 	char* enum_to_str[4] = {"ePathTypeGamePath", "ePathTypeLevelPath", "ePathTypePatrolPath", "ePathTypeNoPath"};
-
-
 	if (Device.dwFrame % 30 == 0 && this->raycastNOW() && false)
 	{
 		Msg("PathType: %s", enum_to_str[movement().path_type()]);
@@ -223,7 +219,9 @@ void CAI_Stalker::net_Export(NET_Packet& P)
 		}
 
 	}
-	
+	*/
+
+
 }
 
 extern float ai_stop_update_dir;
@@ -325,19 +323,7 @@ void CAI_Stalker::net_Import(NET_Packet& P)
 			NET_A.clear();
 			//TODO: disable interpolation?
 		}
- 		  
-		//if (!state.script_animation || !ai_stop_update_dir)
-		if (false)
-		{		 
-			movement().m_body.current.yaw = angle_lerp(movement().m_body.current.yaw, state.torso_yaw, ai_stop_update_dir);
-			movement().m_head.current.yaw = angle_lerp(movement().m_head.current.yaw, state.head_yaw, ai_stop_update_dir);
-
-			movement().m_body.current.pitch = angle_lerp(movement().m_body.current.pitch, state.torso_pitch, ai_stop_update_dir);
-			if (state.script_animation)
-				state.head_pitch = 0;
-			movement().m_head.current.pitch = angle_lerp(movement().m_head.current.pitch, state.head_pitch, ai_stop_update_dir); 
-		}
- 
+ 		   
 		// Pavel: create structure for animation?
 		if (g_Alive())
 		{
@@ -370,21 +356,14 @@ void CAI_Stalker::net_Import(NET_Packet& P)
 				legs_anim_id = state.legs_anim.num;
 
 				if (blend_legs)
+				{
 					blend_legs->timeCurrent *= blend_legs->timeTotal * state.legs_anim.pos;
+					CStepManager::on_animation_start(id, blend_legs);
+				}
  			}
 
 			//if (blend_torso && blend_legs)
 			//	anim_sync(ka, blend_torso, blend_legs);
-		}
-
-		if (Level().CurrentControlEntity())
-		{
-			collide::rq_result rs = HUD().GetCurrentRayQuery();
-			if (rs.O == this)
-			{	
-				Msg("Head Angle: pitch[%f], rool[%f], yaw[%f] ", movement().m_head.current.pitch, movement().m_head.current.roll, movement().m_head.current.yaw);
-				Msg("Body Angle: pitch[%f], rool[%f], yaw[%f] ", movement().m_body.current.pitch, movement().m_body.current.roll, movement().m_body.current.yaw);
-			}
 		}
    
 		setVisible(TRUE);

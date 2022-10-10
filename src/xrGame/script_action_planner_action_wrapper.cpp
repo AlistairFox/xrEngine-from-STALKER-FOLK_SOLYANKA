@@ -12,7 +12,14 @@
 
 void CScriptActionPlannerActionWrapper::setup		(CScriptGameObject *object, CPropertyStorage *storage)
 {
-	luabind::call_member<void>			(this,"setup",object,storage);
+	try 
+	{
+		luabind::call_member<void>(this, "setup", object, storage);
+	}
+	catch (...)
+	{
+		Msg("CScriptActionPlannerActionWrapper Setup Crushed (%s), ID (%d)", object->Name(), object->ID() );
+	}
 }
 
 void CScriptActionPlannerActionWrapper::setup_static(CScriptActionPlannerAction *planner, CScriptGameObject *object, CPropertyStorage *storage)
@@ -22,7 +29,15 @@ void CScriptActionPlannerActionWrapper::setup_static(CScriptActionPlannerAction 
 
 void CScriptActionPlannerActionWrapper::initialize			()
 {
-	luabind::call_member<void>			(this,"initialize");
+	try
+	{
+		luabind::call_member<void>(this, "initialize");
+	}
+	catch (...)
+	{
+		Msg("CScriptActionPlannerActionWrapper INIT Crushed (%s), ID (%d)", object().Name(), object().ID());
+	}
+
 }
 
 void CScriptActionPlannerActionWrapper::initialize_static	(CScriptActionPlannerAction *action)
@@ -38,7 +53,7 @@ void CScriptActionPlannerActionWrapper::execute				()
 	}
 	catch (...)
 	{
-		Msg("[ActionPlannerActionWrapper][Error] Action Name [%s], Action [%d]", this->object().Name(), this->m_current_action_id);
+		Msg("CScriptActionPlannerActionWrapper [ERROR] execute Action Name [%s], Action [%d]", object().Name(), m_current_action_id);
 	}
 }
 
@@ -49,7 +64,14 @@ void CScriptActionPlannerActionWrapper::execute_static		(CScriptActionPlannerAct
 
 void CScriptActionPlannerActionWrapper::finalize				()
 {
-	luabind::call_member<void>			(this,"finalize");
+	try
+	{
+		luabind::call_member<void>(this, "finalize");
+	}
+	catch (...)
+	{
+		Msg("CScriptActionPlannerActionWrapper Finalize Crushed [%s], ID [%d]", object().Name(), object().ID());
+	}
 }
 
 void CScriptActionPlannerActionWrapper::finalize_static		(CScriptActionPlannerAction *action)

@@ -361,11 +361,8 @@ private:
 
 
 public:											   
-	void OnEventUpdate(MotionID motion, CBlend* blend, bool mix_anims, float pos);
+	void OnAnimationUpdate(MotionID motion, CBlend* blend, bool mix_anims, float pos);
  
-	void OnEventAnimationsRecived(NET_Packet packet);
-
-
 	u8 torso_anim_id;
 	u8 legs_anim_id;
 	u8 head_anim_id;

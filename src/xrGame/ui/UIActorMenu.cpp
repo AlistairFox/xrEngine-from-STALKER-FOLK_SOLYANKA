@@ -218,7 +218,8 @@ void CUIActorMenu::Show(bool status)
 		SetMenuMode							(m_currMenuMode);
 		PlaySnd								(eSndOpen);
 		m_ActorStateInfo->UpdateActorInfo	(m_pActorInvOwner);
-	}else
+	}
+	else
 	{
 		PlaySnd								(eSndClose);
 		SetMenuMode							(mmUndefined);
@@ -252,8 +253,7 @@ void CUIActorMenu::Update()
 		break;
 	case mmInventory:
 		{
-//			m_clock_value->TextItemControl()->SetText( InventoryUtilities::GetGameTimeAsString( InventoryUtilities::etpTimeToMinutes ).c_str() );
-			CurrentGameUI()->UIMainIngameWnd->UpdateZoneMap();
+ 			CurrentGameUI()->UIMainIngameWnd->UpdateZoneMap();
 			break;
 		}
 	case mmTrade:
@@ -274,6 +274,12 @@ void CUIActorMenu::Update()
 			CheckDistance();
 			break;
 		}
+	case mmArtUpgrade: 
+	{
+		CheckDistance();
+	}
+	break;
+
 	default: R_ASSERT(0); break;
 	}
 	
@@ -286,13 +292,14 @@ bool CUIActorMenu::StopAnyMove()  // true = актёр не идёт при открытом меню
 {
 	switch ( m_currMenuMode )
 	{
-	case mmInventory:
-		return false;
-	case mmUndefined:
-	case mmTrade:
-	case mmUpgrade:
-	case mmDeadBodySearch:
-		return true;
+		case mmInventory:
+			return false;
+		case mmUndefined:
+		case mmTrade:
+		case mmUpgrade:
+		case mmDeadBodySearch:
+		case mmArtUpgrade:
+			return true;
 	}
 	return true;
 }
@@ -429,9 +436,6 @@ void CUIActorMenu::InfoCurItem( CUICellItem* cell_item )
 		else
 			item_price = m_partner_trade->GetItemPrice(current_item, false);
 
-		//if(item_price>500)
-		//	item_price = iFloor(item_price/10+0.5f)*10;
-
 		CWeaponAmmo* ammo = smart_cast<CWeaponAmmo*>(current_item);
 		if(ammo)
 		{
@@ -444,9 +448,6 @@ void CUIActorMenu::InfoCurItem( CUICellItem* cell_item )
 					tmp_price = m_partner_trade->GetItemPrice(jitem, true);
 				else
 					tmp_price = m_partner_trade->GetItemPrice(jitem, false);
-
-				//if(tmp_price>500)
-				//	tmp_price = iFloor(tmp_price/10+0.5f)*10;
 
 				item_price		+= tmp_price;
 			}
@@ -466,8 +467,7 @@ void CUIActorMenu::InfoCurItem( CUICellItem* cell_item )
 	else
 		m_ItemInfo->InitItem	( cell_item, compare_item, u32(-1));
 
-//	m_ItemInfo->InitItem	( current_item, compare_item );
-	float dx_pos = GetWndRect().left;
+ 	float dx_pos = GetWndRect().left;
 
 	if (UI().is_fullhd())
 		fit_in_rect(m_ItemInfo, Frect().set(0.0f, 0.0f, UI_BASE_WIDTH_FULL - dx_pos, UI_BASE_HEIGHT_FULL), 10.0f, dx_pos);
@@ -493,6 +493,13 @@ void CUIActorMenu::UpdateItemsPlace()
 	case mmDeadBodySearch:
 		UpdateDeadBodyBag();
 		break;
+
+	case mmArtUpgrade:
+	{
+		//Se7kills (TOOD) (Апдейт предмета нужно сделать в инвентаре)
+	}
+	break;
+
 	default:
 		R_ASSERT(0);
 		break;
@@ -530,18 +537,24 @@ void CUIActorMenu::clear_highlight_lists()
 	{
 	case mmUndefined:
 		break;
-	case mmInventory:
+		case mmInventory:
+			break;
+		case mmTrade:
+			m_pTradeActorBagList->clear_select_armament();
+			m_pTradeActorList->clear_select_armament();
+			m_pTradePartnerBagList->clear_select_armament();
+			m_pTradePartnerList->clear_select_armament();
+			break;
+		case mmUpgrade:
+			break;
+		case mmDeadBodySearch:
+			m_pDeadBodyBagList->clear_select_armament();
 		break;
-	case mmTrade:
-		m_pTradeActorBagList->clear_select_armament();
-		m_pTradeActorList->clear_select_armament();
-		m_pTradePartnerBagList->clear_select_armament();
-		m_pTradePartnerList->clear_select_armament();
-		break;
-	case mmUpgrade:
-		break;
-	case mmDeadBodySearch:
-		m_pDeadBodyBagList->clear_select_armament();
+
+		case mmArtUpgrade:
+		{
+			//Se7kills (TOOD) 
+		}
 		break;
 	}
 	m_highlight_clear = true;
@@ -642,7 +655,15 @@ void CUIActorMenu::set_highlight_item( CUICellItem* cell_item )
 			highlight_armament( item, m_pDeadBodyBagList );
 			break;
 		}
+	case mmArtUpgrade:
+		{
+			//Se7kills (TOOD) 
+		}
+		break;
+
 	}
+
+
 	m_highlight_clear = false;
 }
 

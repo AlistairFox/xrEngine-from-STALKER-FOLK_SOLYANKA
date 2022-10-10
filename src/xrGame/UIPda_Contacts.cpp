@@ -75,7 +75,6 @@ void CUIPda_Contacts::Init()
 	property_box->Hide();
 	property_box->SetWindowName("property_box");
 
-	property_box->AddItem("Пригласить в отряд", NULL, PDA_PROPERTY_ADD_TO_SQUAD);
  //	property_box->AddItem("Выйти", NULL, PDA_PROPERTY_EXIT);
 
 	squad_UI_invite = UIHelper::CreateFrameWindow(xml, "squad_invite", squad_window);
@@ -144,8 +143,7 @@ void CUIPda_Contacts::Update()
 			if (actor)
 			if (xr_strlen(actor->Name()) > 0)
 			{
-				Msg("SetInviteText %s", actor->Name());
-				SetInvite(actor->Name());
+ 				SetInvite(actor->Name());
 			}
 		}
 	}
@@ -222,13 +220,12 @@ bool CUIPda_Contacts::OnMouseAction(float x, float y, EUIMessages mouse_action)
 	CUIScrollView* win = contacts_list;
 	auto child = win->Items();
 
-	if (squad_UI->team_players.ClientLeader == -1 || squad_UI->team_players.ClientLeader == Game().local_svdpnid)
- 	for (auto iter = child.rbegin(); iter != child.rend(); iter++)
+	for (auto iter = child.rbegin(); iter != child.rend(); iter++)
 	{
 		CUIWindow* w = (*iter);
 
 		auto begin = w->GetChildWndList().rbegin();
-		auto end = w->GetChildWndList().rend();
+		auto end   = w->GetChildWndList().rend();
 
 		for (; begin != end; begin++)
 		{
@@ -239,16 +236,22 @@ bool CUIPda_Contacts::OnMouseAction(float x, float y, EUIMessages mouse_action)
 
 			Fvector2 pos = GetUICursor().GetCursorPosition();
 
-			if (info && wndRect.in(pos))
+			if  (info && wndRect.in(pos) )
 			{
 				pos.x = x;
 				pos.y = y;
 
-				property_box->Show(wndRect, pos);
+				if (!squad_UI->in_squad || ( squad_UI->leader_id == Level().game->local_svdpnid.value() && squad_UI->players.size() <= 3) )
+				{
+					property_box->RemoveAll();
+					property_box->AddItem("Пригласить в отряд", NULL, PDA_PROPERTY_ADD_TO_SQUAD);
 
-				id_actor = info->OwnerID();
-				id_client = info->getClientID();
- 
+					property_box->Show(wndRect, pos);
+
+					id_actor = info->OwnerID();
+					id_client = info->getClientID();
+				}
+
 			}
 		}
 	}
@@ -266,19 +269,13 @@ void xr_stdcall CUIPda_Contacts::property_box_clicked(CUIWindow* w, void* d)
 	{
 		case (PDA_PROPERTY_ADD_TO_SQUAD):
 		{
- 
-			ClientID id;
-			id.set(id_client);
-
 			NET_Packet packet;
-			Level().game->u_EventGen(packet, GAME_EVENT_UI_PDA_SERVER, 0);
-			packet.w_u8(0);
-			packet.w_clientID(id);
- 			packet.w_clientID(Game().local_svdpnid);
+			Level().game->u_EventGen(packet, GAME_EVENT_UI_PDA_SERVER, -1);
+			packet.w_u8(1);	//SEND RECVEST
+			packet.w_u32(id_client);
+ 			packet.w_u32(Game().local_svdpnid.value());
 			Level().game->u_EventSend(packet);
 		};
-		break;
-
 		break;
 	}
 }
@@ -287,20 +284,17 @@ void xr_stdcall CUIPda_Contacts::button_yes(CUIWindow* w, void* d)
 {
 	invite_mode = false;
 
-	//Msg("button_yes");
-
 	if (!last_inviter.value())
 		return;
-
+ 
 	NET_Packet packet;
 	Game().u_EventGen(packet, GAME_EVENT_UI_PDA_SERVER, -1);
-	packet.w_u8(1);
-	packet.w_clientID(Game().local_svdpnid);
-	packet.w_clientID(ClientID(last_inviter));
+	packet.w_u8(2);	 //	ADD NEW CLIENT
+	packet.w_u32(Game().local_svdpnid.value());
+	packet.w_u32(last_inviter.value());
 	Game().u_EventSend(packet);
 
-	Msg("button_yes Send MSG");
-	return;
+ 	return;
 }
 
 void xr_stdcall CUIPda_Contacts::button_no(CUIWindow* w, void* d)
@@ -317,23 +311,56 @@ void CUIPda_Contacts::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
 
 void CUIPda_Contacts::EventRecive(NET_Packet& P)
 {
-	u8 type;
-	P.r_u8(type);
-
-	if (type == 0)
-	{
-		ClientID who;
-		P.r_clientID(who);
-
-		last_inviter = who;
-		invite_mode = true;
-	}
-
+	u8 type = P.r_u8();
 	if (type == 1)
 	{
-		Team TeamPlayers;
-		P.r(&TeamPlayers, sizeof(TeamPlayers));
-		squad_UI->EventRecive(TeamPlayers);
+		if (squad_UI->in_squad)
+			return;
+
+		last_inviter = ClientID( P.r_u32() );
+		invite_mode = true;
+	}
+	else if (type == 2)
+	{
+		u32 lead; P.r_u32(lead);
+		u32 id; P.r_u32(id);
+		
+		if (!squad_UI->leader_in_squad)
+		{
+			squad_UI->leader_id = last_inviter.value();
+ 			squad_UI->players.push_back(squad_UI->leader_id);
+			squad_UI->leader_in_squad = true;
+		}
+
+		if (squad_UI->players.size() > 3)
+			return;
+
+		squad_UI->players.push_back(id);
+		squad_UI->in_squad = true;
+	}
+	else if (type == 3)
+	{
+		u32 id; P.r_u32(id);
+		if (Level().game->local_svdpnid.value() == id)
+		{
+			squad_UI->in_squad = false;
+			squad_UI->leader_in_squad = false;
+			squad_UI->leader_id = 0;
+			squad_UI->players.clear();
+		}
+		else
+		{
+			for (auto b = squad_UI->players.begin(); b != squad_UI->players.end(); b++)
+			if (*b == id)
+				squad_UI->players.erase(b);
+		}
+	}
+	else if (type == 4)
+	{
+		squad_UI->players.clear();
+		squad_UI->leader_id = 0;
+		squad_UI->in_squad = false;
+		squad_UI->leader_in_squad = false;
 	}
 }
 
@@ -345,6 +372,4 @@ void CUIPda_Contacts::SetInvite(LPCSTR name)
 
 	squad_UI_invite_text->SetText(text);
 	squad_UI_invite_text->SetTextColor(color_rgba(255, 255, 0, 255));
-
-	Msg("SetInvite Text");
 }
