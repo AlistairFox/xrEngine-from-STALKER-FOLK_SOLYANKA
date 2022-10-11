@@ -43,6 +43,45 @@ struct XRCORE_API IIniFileStream
 	virtual void		skip_stringZ	()							= 0;
 };
 
+class HELF_FLOAT
+{
+
+	typedef unsigned short ushort;
+	typedef unsigned int uint;
+
+	uint as_uint(const float x) {
+		return *(uint*)&x;
+	}
+	float as_float(const uint x) {
+		return *(float*)&x;
+	}
+
+public:
+	float half_to_float(const ushort x)
+	{ // IEEE-754 16-bit floating-point format (without infinity): 1-5-10, exp-15, +-131008.0, +-6.1035156E-5, +-5.9604645E-8, 3.311 digits
+		const uint e = (x & 0x7C00) >> 10; // exponent
+		const uint m = (x & 0x03FF) << 13; // mantissa
+		const uint v = as_uint((float)m) >> 23; // evil log2 bit hack to count leading zeros in denormalized format
+		return as_float((x & 0x8000) << 16 |
+			(e != 0) * ((e + 112) << 23 | m) |
+			((e == 0) & (m != 0)) * ((v - 37) << 23 |
+				((m << (150 - v)) & 0x007FE000)));
+		// sign : normalized : denormalized
+	}
+
+	ushort float_to_half(const float x)
+	{ // IEEE-754 16-bit floating-point format (without infinity): 1-5-10, exp-15, +-131008.0, +-6.1035156E-5, +-5.9604645E-8, 3.311 digits
+		const uint b = as_uint(x) + 0x00001000; // round-to-nearest-even: add last bit after truncated mantissa
+		const uint e = (b & 0x7F800000) >> 23; // exponent
+		const uint m = b & 0x007FFFFF; // mantissa; in line below: 0x007FF000 = 0x00800000-0x00001000 = decimal indicator flag - initial rounding
+		return (b & 0x80000000) >> 16 |
+			(e > 112) * ((((e - 112) << 10) & 0x7C00) |
+				m >> 13) | ((e < 113) & (e > 101)) * ((((0x007FF000 + m) >> (125 - e)) + 1) >> 1) |
+			(e > 143) * 0x7FFF; // sign : normalized : denormalized : saturate
+	}
+};
+
+HELF_FLOAT FLOAT_TO_u16;
 
 #define INI_W(what_to_do)\
 if(inistream)\
@@ -119,14 +158,37 @@ public:
 		float q		= (a-min)/(max-min);
 		w_u16( u16(iFloor(q*65535.f+0.5f)));
 	}
+
 	IC void w_float_q8	( float a, float min, float max)
 	{
 		VERIFY		(a>=min && a<=max);
 		float q		= (a-min)/(max-min);
 		w_u8( u8(iFloor(q*255.f+0.5f)));
 	}
-	IC void w_angle16	( float a		)	{	w_float_q16	(angle_normalize(a),0,PI_MUL_2);}
-	IC void w_angle8	( float a		)	{w_float_q8	(angle_normalize(a),0,PI_MUL_2);	}
+
+	IC void w_float_helf( float a)
+	{
+ 		w_u16(FLOAT_TO_u16.float_to_half(a));
+	}
+
+	IC void r_float_helf( float& a)
+	{
+		a = FLOAT_TO_u16.half_to_float(r_u16());
+ 	}
+
+	IC float r_float_helf()
+	{
+		float ret = FLOAT_TO_u16.half_to_float(r_u16());
+		return ret;
+	}
+
+
+	IC void w_angle16	( float a		)	{	w_float_q16	(angle_normalize(a), 0, PI_MUL_2);	}
+	IC void w_angle8	( float a		)	{	w_float_q8	(angle_normalize(a), 0, PI_MUL_2);	}
+
+
+
+
 	IC void w_dir		( const Fvector& D) {w_u16(pvCompress(D));							}
 	IC void w_sdir		( const Fvector& D) {
 		Fvector C;
