@@ -4,41 +4,48 @@
 #include "stalker_animation_manager.h"
 #include "inventory.h"
 #include "Actor.h" 			 
+#include "ai_stalker_net_state.h"
 
 // Сохранение текущей анимки и нумерация (для синхры анимок)
-void CAI_Stalker::OnAnimationUpdate(MotionID motion, CBlend* blend, bool mix_anims, float pos)
+void CAI_Stalker::OnAnimationUpdate(MotionID motion, CBlend* blend, bool mix_anims, bool anim_ctrl , float pos)
 {
 	if (blend->bone_or_part == 0)
 	{
-		if (legs_anim_id > 254)
-			legs_anim_id = 0;
+		if (legs_num > 254)
+			legs_num = 0;
 
-		legs_anim_id += 1;
-		motion_legs = motion;
+		legs_num += 1;
+		legs_motion = motion;
 		legs_loop = mix_anims;
-		pos_legs = pos;
+		legs_pos = pos;
+		legs_anim_ctrl = anim_ctrl;
+		blend_legs = blend;
 	}
 
 	if (blend->bone_or_part == 1)
 	{
-		if (torso_anim_id > 254)
-			torso_anim_id = 0;
+		if (torso_num > 254)
+			torso_num = 0;
 
-		torso_anim_id += 1;
-		motion_torso = motion;
+		torso_num += 1;
+		torso_motion = motion;
 		torso_loop = mix_anims;
-		pos_torso = pos;
+		torso_pos = pos;
+		torso_anim_ctrl = anim_ctrl;
+		blend_torso = blend;
 	}
 
 	if (blend->bone_or_part == 2)
 	{
-		if (head_anim_id > 254)
-			head_anim_id = 0;
+		if (head_num > 254)
+			head_num = 0;
 
-		head_anim_id += 1;
-		motion_head = motion;
+		head_num += 1;
+		head_motion = motion;
 		head_loop = mix_anims;
-		pos_head = pos;
+		head_pos = pos;
+		head_anim_ctrl = anim_ctrl;
+		blend_head = blend;
 	}	
 }
 

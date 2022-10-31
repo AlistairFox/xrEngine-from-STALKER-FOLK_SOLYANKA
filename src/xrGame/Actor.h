@@ -813,4 +813,6 @@ IC	CActorCondition	&CActor::conditions	() const{ VERIFY(m_entity_condition); ret
 
 extern CActor*		g_actor;
 CActor*				Actor		();
+CActor*				S_Actor();
+
 extern const float	s_fFallTime;

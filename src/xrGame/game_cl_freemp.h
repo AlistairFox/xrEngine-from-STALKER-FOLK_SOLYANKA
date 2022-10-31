@@ -1,10 +1,12 @@
 #pragma once
 #include "game_cl_mp.h"
 #include "level_events.h"
+#include "script_json_file.h"
 
 
 class CUIGameFMP;
 class CVoiceChat;
+class CGameTask;
 
 class game_cl_freemp :public game_cl_mp
 {
@@ -43,8 +45,11 @@ public:
 	
 	virtual void shedule_Update(u32 dt);
 
+
 	virtual void shedule_voice();
 	virtual void shedule_InventoryOwner();
+	virtual void shedule_Quests();
+
 	virtual float shedule_Scale();
 
 
@@ -78,7 +83,16 @@ public:
 	CParticlesObject* pobjec;
 
 	void CreateParticle(LPCSTR name, Fvector3 pos);
+	
+	//TASKS
+	void load_task(CGameTask* t);
+	void save_task(CGameTask* t);
 
+	void callback_load(CGameTask* t);
+	void callback_save(CGameTask* t);
+
+	CObjectJsonEx json_ex;
+	
 
 private:
 	void OnVoiceMessage(NET_Packet* P);

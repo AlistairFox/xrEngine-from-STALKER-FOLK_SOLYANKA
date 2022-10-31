@@ -185,7 +185,10 @@ void CDialogScriptHelper::Action			(const CGameObject* pSpeakerGO1, const CGameO
 		THROW3(functor_exists, "Cannot find phrase dialog script function", *Actions()[i]);
 		try {
 			lua_function		(pSpeakerGO1->lua_game_object(), pSpeakerGO2->lua_game_object(), dialog_id, phrase_id);
-		} catch (...) {
+		} 
+		catch (...) 
+		{
+
 		}
 	}
 }

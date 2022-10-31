@@ -64,6 +64,12 @@ CActor*			Actor()
 	return		(g_actor); 
 };
 
+CActor* S_Actor()
+{
+	return (g_single_actor);
+};
+
+
 //--------------------------------------------------------------------
 void	CActor::ConvState(u32 mstate_rl, string128 *buf)
 {
@@ -518,7 +524,8 @@ BOOL CActor::net_Spawn		(CSE_Abstract* DC)
 	{
 		if (OnServer())
 		{
-			if (!smart_cast<CActorMP*>(this)) {
+			if (!smart_cast<CActorMP*>(this)) 
+			{
 				E->s_flags.set(M_SPAWN_OBJECT_LOCAL, TRUE);
 				E->s_flags.set(M_SPAWN_OBJECT_ASPLAYER, FALSE);
 				Msg("single_actor_spawn");
@@ -539,6 +546,10 @@ BOOL CActor::net_Spawn		(CSE_Abstract* DC)
 						g_actor = this;
 					}
 				}
+			}
+			else
+			{
+				g_single_actor = this;
 			}
 		}
 	}

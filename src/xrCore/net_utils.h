@@ -45,7 +45,6 @@ struct XRCORE_API IIniFileStream
 
 class HELF_FLOAT
 {
-
 	typedef unsigned short ushort;
 	typedef unsigned int uint;
 
@@ -81,8 +80,6 @@ public:
 	}
 };
 
-HELF_FLOAT FLOAT_TO_u16;
-
 #define INI_W(what_to_do)\
 if(inistream)\
 {\
@@ -105,6 +102,7 @@ class XRCORE_API NET_Packet
 {
 public:
 	IIniFileStream* inistream;
+	HELF_FLOAT FLOAT_TO_u16;
 
     void            construct( const void* data, unsigned size )
                     {

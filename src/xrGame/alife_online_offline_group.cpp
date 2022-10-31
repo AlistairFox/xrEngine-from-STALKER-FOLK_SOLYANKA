@@ -283,7 +283,7 @@ void CSE_ALifeOnlineOfflineGroup::try_switch_offline	()
 
 void CSE_ALifeOnlineOfflineGroup::switch_online			()
 {
-	Msg("Section %s, name %s, ID %d, switch_online", s_name.c_str(), name(), ID);
+	//Msg("Section %s, name %s, ID %d, switch_online", s_name.c_str(), name(), ID);
 	R_ASSERT					(!m_bOnline);
 	m_bOnline					= true;
 
@@ -300,7 +300,7 @@ void CSE_ALifeOnlineOfflineGroup::switch_online			()
 
 void CSE_ALifeOnlineOfflineGroup::switch_offline		()
 {
-	Msg("Section %s, name %s, ID %d, SWITCH OFFLINE", s_name.c_str(), name(), ID);
+	//Msg("Section %s, name %s, ID %d, SWITCH OFFLINE", s_name.c_str(), name(), ID);
 	R_ASSERT					(m_bOnline);
 	m_bOnline					= false;
 

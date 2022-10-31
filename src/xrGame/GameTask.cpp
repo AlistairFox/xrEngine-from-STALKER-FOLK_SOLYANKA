@@ -64,12 +64,22 @@ void CGameTask::OnArrived()
 	CreateMapLocation( false );
 }
 
+#include "game_cl_freemp.h"
+
 void CGameTask::CreateMapLocation( bool on_load )
 {
-	if ( m_map_object_id == u16(-1) || m_map_location.size() == 0 || !Level().Objects.net_Find(m_map_object_id))
+	if ( m_map_object_id == u16(-1) || m_map_location.size() == 0)
 	{
 		return;
 	}
+
+	game_cl_freemp* fmp = smart_cast<game_cl_freemp*>(&Game());
+
+	if (!Level().Objects.net_Find(m_map_object_id) && !fmp)
+		return; 
+
+	if (!fmp->GetAlifeObject(m_map_object_id))
+		return;
 
 	if ( on_load )
 	{
@@ -236,22 +246,22 @@ void CGameTask::save_task(IWriter &stream)
 void CGameTask::load_task(IReader &stream)
 {
 	load_data				(m_task_state,		stream);
-	load_data				(m_task_type,		stream);
-	load_data				(m_ReceiveTime,		stream);
-	load_data				(m_FinishTime,		stream);
-	load_data				(m_TimeToComplete,	stream);
-	load_data				(m_timer_finish,	stream);
+load_data(m_task_type, stream);
+load_data(m_ReceiveTime, stream);
+load_data(m_FinishTime, stream);
+load_data(m_TimeToComplete, stream);
+load_data(m_timer_finish, stream);
 
-	load_data				(m_Title,			stream);
-	load_data				(m_Description,		stream);
-	load_data				(m_pScriptHelper,	stream);
-	load_data				(m_icon_texture_name,stream);
-	load_data				(m_map_hint,		stream);
-	load_data				(m_map_location,	stream);
-	load_data				(m_map_object_id,	stream);
-	load_data				(m_priority,		stream);
-	CommitScriptHelperContents();
-	CreateMapLocation		(true);
+load_data(m_Title, stream);
+load_data(m_Description, stream);
+load_data(m_pScriptHelper, stream);
+load_data(m_icon_texture_name, stream);
+load_data(m_map_hint, stream);
+load_data(m_map_location, stream);
+load_data(m_map_object_id, stream);
+load_data(m_priority, stream);
+CommitScriptHelperContents();
+CreateMapLocation(true);
 }
 
 void CGameTask::save_task_ltx(CInifile& file, shared_str section)
@@ -262,7 +272,7 @@ void CGameTask::save_task_ltx(CInifile& file, shared_str section)
 	file.w_u64(section.c_str(), "m_FinishTime", m_FinishTime);
 	file.w_u64(section.c_str(), "m_TimeToComplete", m_TimeToComplete);
 	file.w_u64(section.c_str(), "m_timer_finish", m_timer_finish);
-	
+
 	string256 temp;
 	xr_strcpy(temp, m_Title.c_str());
 	file.w_string(section.c_str(), "m_Title", temp);
@@ -274,12 +284,12 @@ void CGameTask::save_task_ltx(CInifile& file, shared_str section)
 	file.w_string(section.c_str(), "m_map_hint", temp);
 	xr_strcpy(temp, m_map_location.c_str());
 	file.w_string(section.c_str(), "m_map_location", temp);
-	
+
 	file.w_u16(section.c_str(), "m_map_object_id", m_map_object_id);
 	file.w_u32(section.c_str(), "m_priority", m_priority);
 
 	string512 res;
-	
+
 	m_pScriptHelper.convert_to_string(m_pScriptHelper.m_s_complete_lua_functions, res);
 	file.w_string(section.c_str(), "complete_lua_functions", res);
 
@@ -302,15 +312,15 @@ void CGameTask::load_task_ltx(CInifile& file, shared_str section)
 	u8 task_type = file.r_u8(section.c_str(), "m_task_type");
 	m_task_type = ETaskType(task_type);
 
-	m_ReceiveTime	 = file.r_u64(section.c_str(), "m_ReceiveTime");
-	m_FinishTime	 = file.r_u64(section.c_str(), "m_FinishTime");
+	m_ReceiveTime = file.r_u64(section.c_str(), "m_ReceiveTime");
+	m_FinishTime = file.r_u64(section.c_str(), "m_FinishTime");
 	m_TimeToComplete = file.r_u64(section.c_str(), "m_TimeToComplete");
-	m_timer_finish   = file.r_u64(section.c_str(), "m_timer_finish");
+	m_timer_finish = file.r_u64(section.c_str(), "m_timer_finish");
 
-	m_Title._set( file.r_string(section.c_str(), "m_Title") );
+	m_Title._set(file.r_string(section.c_str(), "m_Title"));
 	m_Description._set(file.r_string(section.c_str(), "m_Description"));
 	m_icon_texture_name._set(file.r_string(section.c_str(), "m_icon_texture_name"));
-	
+
 
 	m_map_hint._set(file.r_string(section.c_str(), "m_map_hint"));
 	m_map_location._set(file.r_string(section.c_str(), "m_map_location"));
@@ -327,6 +337,81 @@ void CGameTask::load_task_ltx(CInifile& file, shared_str section)
 	CommitScriptHelperContents();
 	CreateMapLocation(true);
 
+}
+
+#include "..\jsonxx\jsonxx.h"
+using namespace jsonxx;
+
+template <typename T, typename Type>
+void save_json_data(CObjectJsonEx& json, Type data, LPCSTR key)
+{
+	json.import(key, (T) data);
+}
+
+void save_json_data(CObjectJsonEx& json, shared_str data, LPCSTR key)
+{
+	json.set_shared_str(key, data);
+}
+
+template <typename T>
+void load_json_data(CObjectJsonEx& json, T data, LPCSTR key)
+{
+	if (json.has<T>(key))
+		data = json.get<T>(key);
+}
+
+void load_json_data(CObjectJsonEx& json, shared_str data, LPCSTR key)
+{
+	if (json.has<String>(key))
+		json.get_shared_str(key, data);
+}
+
+void CGameTask::save_json(CObjectJsonEx& json)
+{
+	save_json_data<Number>(json, m_task_state, "task_state");
+	save_json_data<Number>(json, m_task_type, "task_type");
+	save_json_data<Number>(json, m_ReceiveTime,"recive_time");
+	save_json_data<Number>(json, m_FinishTime, "finish_time");
+	save_json_data<Number>(json, m_TimeToComplete, "time_to_complete");
+	save_json_data<Number>(json, m_timer_finish, "time_to_finish");
+
+	save_json_data(json, m_Title, "title");
+	save_json_data(json, m_Description, "descr");
+	save_json_data(json, m_icon_texture_name, "icon_texture_name");
+	save_json_data(json, m_map_hint, "map_hint");
+	save_json_data(json, m_map_location, "map_location");
+	save_json_data<Number>(json, m_map_object_id, "map_object_id");
+	save_json_data<Number>(json, m_priority, "priority");	   
+
+	m_pScriptHelper.save_json(json);
+}
+
+void CGameTask::load_json(CObjectJsonEx& json)
+{
+	int state = json.get_number("task_state");
+	m_task_state = ETaskState(state);
+
+	int type = json.get_number("task_type");
+	m_task_type = ETaskType(type);
+
+	//load_json_data<Number>(json, m_task_state, "task_state");
+	//load_json_data<Number>(json, m_task_type, "task_type");
+
+	load_json_data<Number>(json, m_ReceiveTime, "recive_time");
+	load_json_data<Number>(json, m_FinishTime, "finish_time");
+	load_json_data<Number>(json, m_TimeToComplete, "time_to_complete");
+	load_json_data<Number>(json, m_timer_finish, "time_to_finish");
+
+	load_json_data(json, m_Title, "title");
+	load_json_data(json, m_Description, "descr");
+	load_json_data(json, m_icon_texture_name, "icon_texture_name");
+	load_json_data(json, m_map_hint, "map_hint");
+	load_json_data(json, m_map_location, "map_location");
+	
+	load_json_data<Number>(json, m_map_object_id, "map_object_id");
+	load_json_data<Number>(json, m_priority, "priority");
+
+	m_pScriptHelper.load_json(json);
 }
 
 void CGameTask::CommitScriptHelperContents()
@@ -394,6 +479,35 @@ void SScriptTaskHelper::load(IReader &stream)
 		load_data(m_s_fail_lua_functions,			stream);
 		load_data(m_s_lua_functions_on_complete,	stream);
 		load_data(m_s_lua_functions_on_fail,		stream);
+}
+
+void SScriptTaskHelper::save_json(CObjectJsonEx& json)
+{
+	string512 res[4];
+	convert_to_string(m_s_complete_lua_functions, res[0]);
+	convert_to_string(m_s_fail_lua_functions, res[1]);
+	convert_to_string(m_s_lua_functions_on_complete, res[2]);
+	convert_to_string(m_s_lua_functions_on_fail, res[3]);
+
+	json.import("functions_lua_1", (String)res[0]);
+	json.import("functions_lua_2", (String)res[1]);
+	json.import("functions_lua_3", (String)res[2]);
+	json.import("functions_lua_4", (String)res[3]);
+}
+
+void SScriptTaskHelper::load_json(CObjectJsonEx& json)
+{
+	LPCSTR source[4];
+
+	source[0] = json.get_string("functions_lua_1");
+	source[1] = json.get_string("functions_lua_2");
+	source[2] = json.get_string("functions_lua_3");
+	source[3] = json.get_string("functions_lua_4");
+
+	m_s_complete_lua_functions = convert_to_vector(source[0]);
+	m_s_fail_lua_functions = convert_to_vector(source[1]);
+	m_s_lua_functions_on_complete = convert_to_vector(source[2]);
+	m_s_lua_functions_on_fail = convert_to_vector(source[3]);
 }
 
 void SScriptTaskHelper::convert_to_string(xr_vector<shared_str> functor, string512& res)

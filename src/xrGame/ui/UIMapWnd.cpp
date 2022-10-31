@@ -510,8 +510,7 @@ bool CUIMapWnd::OnMouseAction(float x, float y, EUIMessages mouse_action)
 {
 	if (mouse_action == WINDOW_RBUTTON_UP)
 	{
-		Msg("OnMouseAction ");
-
+		 
 		for (auto item : this->GetChildWndList())
 		{
 			CMapSpot* sp = smart_cast<CMapSpot*>(item);
@@ -523,10 +522,7 @@ bool CUIMapWnd::OnMouseAction(float x, float y, EUIMessages mouse_action)
 				Frect abs;
 				item->GetAbsoluteRect(abs);
 				Msg("AbsRect[%d,%d][%d,%d]", abs.x1, abs.x2, abs.y1, abs.y2);
-				//Msg("SpotName: %s", sp->MapLocation()->GetHint());
-
-				//CAI_Stalker* stalker = (CAI_Stalker*) Level().Objects.net_Find( sp->MapLocation()->ObjectID() );
-				
+ 				
 				game_cl_freemp* freemp = smart_cast<game_cl_freemp*>(Level().game);
 
 				if (freemp)
@@ -541,9 +537,7 @@ bool CUIMapWnd::OnMouseAction(float x, float y, EUIMessages mouse_action)
 						Msg("ObjectSpot: %d, %s", online_offline_group->ID, online_offline_group->name());
 					}
 				}
-
-
-			
+ 
 			}
 		}
 	}

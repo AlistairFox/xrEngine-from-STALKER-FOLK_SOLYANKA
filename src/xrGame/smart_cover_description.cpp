@@ -180,7 +180,7 @@ void description::process_loopholes()
 
 	if (std::find_if(  m_loopholes.begin(), m_loopholes.end(), enterable_predicate()) != m_loopholes.end())
 	{
-		Msg("smart_cover [%s] doesn't have enterable loopholes", m_table_id.c_str());
+		//Msg("smart_cover [%s] doesn't have enterable loopholes", m_table_id.c_str());
 	}
 
 
@@ -191,7 +191,7 @@ void description::process_loopholes()
 		exitable_predicate()
 	) != m_loopholes.end())
 	{
-		Msg("smart_cover [%s] doesn't have exitable loopholes", m_table_id.c_str());
+		//Msg("smart_cover [%s] doesn't have exitable loopholes", m_table_id.c_str());
 	}
 
 	VERIFY2						(

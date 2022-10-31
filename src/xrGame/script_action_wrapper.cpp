@@ -21,6 +21,7 @@ void CScriptActionWrapper::setup				(CScriptGameObject *object, CPropertyStorage
 	catch (...)
 	{
 		Msg("[CScriptActionWrapper] [Error] cannot setup object[%s][%d]/ storage_size [%d]", object->Name(), object->ID(), storage->m_storage.size());
+		ai().script_engine().print_stack();
 	}
 
 }
@@ -39,6 +40,7 @@ void CScriptActionWrapper::initialize			()
 	catch (...)
 	{
 		Msg("[CScriptActionWrapper] [Error] cannot initialize object[%s][%d]/ storage_size [%d]", m_object->Name(), m_object->ID(), m_storage->m_storage.size());
+		ai().script_engine().print_stack();
 	}
 	
 }
@@ -56,6 +58,7 @@ void CScriptActionWrapper::execute				()
 	catch (...)
 	{
 		Msg("[CScriptActionWrapper] [Error] cannot execute object[%s][%d]/ storage_size [%d]", m_object->Name(), m_object->ID(), m_storage->m_storage.size());
+		ai().script_engine().print_stack();
 	}
 }
 
@@ -72,6 +75,7 @@ void CScriptActionWrapper::finalize				()
 	catch (...)
 	{
 		Msg("[CScriptActionWrapper] [Error] cannot finalize object[%s][%d]/ storage_size [%d]", m_object->Name(), m_object->ID(), m_storage->m_storage.size());
+		ai().script_engine().print_stack();
 	}
 }
 

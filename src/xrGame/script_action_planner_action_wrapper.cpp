@@ -19,6 +19,7 @@ void CScriptActionPlannerActionWrapper::setup		(CScriptGameObject *object, CProp
 	catch (...)
 	{
 		Msg("CScriptActionPlannerActionWrapper Setup Crushed (%s), ID (%d)", object->Name(), object->ID() );
+		ai().script_engine().print_stack();
 	}
 }
 
@@ -36,6 +37,7 @@ void CScriptActionPlannerActionWrapper::initialize			()
 	catch (...)
 	{
 		Msg("CScriptActionPlannerActionWrapper INIT Crushed (%s), ID (%d)", object().Name(), object().ID());
+		ai().script_engine().print_stack();
 	}
 
 }
@@ -54,6 +56,7 @@ void CScriptActionPlannerActionWrapper::execute				()
 	catch (...)
 	{
 		Msg("CScriptActionPlannerActionWrapper [ERROR] execute Action Name [%s], Action [%d]", object().Name(), m_current_action_id);
+		ai().script_engine().print_stack();
 	}
 }
 
@@ -71,6 +74,7 @@ void CScriptActionPlannerActionWrapper::finalize				()
 	catch (...)
 	{
 		Msg("CScriptActionPlannerActionWrapper Finalize Crushed [%s], ID [%d]", object().Name(), object().ID());
+		ai().script_engine().print_stack();
 	}
 }
 

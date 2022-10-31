@@ -536,6 +536,10 @@ BOOL CAI_Stalker::net_Spawn			(CSE_Abstract* DC)
 	CSE_Abstract					*e	= (CSE_Abstract*)(DC);
 	CSE_ALifeHumanStalker			*tpHuman = smart_cast<CSE_ALifeHumanStalker*>(e);
 	R_ASSERT						(tpHuman);
+		
+#pragma todo("Se7Kills COMMENT THIS")
+	//Msg("Net_spawn %s, special_ch %s", DC->name_replace(), tpHuman->m_SpecificCharacter.c_str());
+ 
 
 
 	//static bool first_time			= true;
@@ -543,7 +547,8 @@ BOOL CAI_Stalker::net_Spawn			(CSE_Abstract* DC)
 	//	tpHuman->o_Position.z		-= 3.f;
 	//	first_time					= false;
 	//}
-	Msg("Net_spawn %s, special_ch %s", DC->name_replace(), tpHuman->m_SpecificCharacter.c_str());
+	
+	
 	m_group_behaviour				= !!tpHuman->m_flags.test(CSE_ALifeObject::flGroupBehaviour);
 
 	if (!CObjectHandler::net_Spawn(DC) || !inherited::net_Spawn(DC))
@@ -761,29 +766,6 @@ extern u64 UpdateCLStalkerTime;
 
 void CAI_Stalker::UpdateCL()
 {
-	/*
-	bool need_update = false;
-
-	for (auto pl : Game().players)
-	{
-		if (u32 id = pl.second->GameID)
-		{
-			CObject* obj = Level().Objects.net_Find(id);
-
-			if (smart_cast<CActorMP*>(obj))
-			if (obj->Position().distance_to(this->Position()) < Shedule_Radius_Players)
-			{
-				need_update = true;
-				break;
-			}
-		}
-	}
-
-	if (!need_update)
-		return;
-	*/
- 
-	//Msg("UpdateCL [%s], time[%u]", Name(), Device.dwTimeGlobal - LastUpdate);
 	LastUpdate = Device.dwTimeGlobal;
 
 	START_PROFILE("stalker")
@@ -837,16 +819,10 @@ void CAI_Stalker::UpdateCL()
 		}
 	}
 
-	//updateCL += timer.GetElapsed_ticks();
-
-	//timer.Start();
-	START_PROFILE("stalker/client_update/inherited")
+ 	START_PROFILE("stalker/client_update/inherited")
 	inherited::UpdateCL				();
 	STOP_PROFILE
-		
-	//updateCL_CUSTOM_MONSTER += timer.GetElapsed_ticks();
-	
-	//timer.Start();
+			
 	START_PROFILE("stalker/client_update/physics")
 	if (OnClient())
 	{
@@ -854,10 +830,6 @@ void CAI_Stalker::UpdateCL()
 		//character_physics_support()->movement()->CollisionEnable(false);
 	}
 	STOP_PROFILE
-
-	//updateCL_PHYSIC += timer.GetElapsed_ticks();
-
-	//timer.Start();
 
 	if (g_Alive())
 	{
@@ -885,8 +857,6 @@ void CAI_Stalker::UpdateCL()
 		STOP_PROFILE
 	}
 
-	//updateCL += timer.GetElapsed_ticks();
-
 	UpdateCLStalkerTime += timer.GetElapsed_ticks();
 
 #ifdef DEBUG
@@ -894,23 +864,6 @@ void CAI_Stalker::UpdateCL()
 #endif
 	STOP_PROFILE
 	STOP_PROFILE
-
-	/*
-	if (OnServer() && Device.dwTimeGlobal - old_TIME_PRINT > 1000)
-	{
-		old_TIME_PRINT = Device.dwTimeGlobal;
-
-		Msg("UpdateClient [%u]", updateCL * 1000 / CPU::qpc_freq);
-		Msg("UpdateCustom [%u]", updateCL_CUSTOM_MONSTER * 1000 / CPU::qpc_freq);
-		Msg("UpdatePhysic [%u]", updateCL_PHYSIC * 1000 / CPU::qpc_freq);
-
-		updateCL = 0;
-		updateCL_CUSTOM_MONSTER = 0;
-		updateCL_PHYSIC = 0;
-	} 
-	*/
-
-
 }
 
 void CAI_Stalker ::PHHit				(SHit &H )
@@ -934,14 +887,9 @@ void CAI_Stalker::shedule_Update		( u32 DT )
 		inherited::shedule_Update(DT);
 		return;
 	} 
-
-	//Msg("Shedule[%s], Time[%u]", Name(), Device.dwTimeGlobal - LastShedule);
  
 	LastShedule = Device.dwTimeGlobal;
-
-
-	 
-	 
+	   
 	START_PROFILE("stalker")
 	START_PROFILE("stalker/schedule_update")
 	VERIFY2				(getEnabled()||PPhysicsShell(), *cName());
@@ -1065,12 +1013,6 @@ void CAI_Stalker::shedule_Update		( u32 DT )
 	UpdateInventoryOwner(DT);
 	STOP_PROFILE
 
-//#ifdef DEBUG
-//	if (psAI_Flags.test(aiALife)) {
-//		smart_cast<CSE_ALifeHumanStalker*>(ai().alife().objects().object(ID()))->check_inventory_consistency();
-//	}
-//#endif
-	
 	START_PROFILE("stalker/schedule_update/physics")
 	VERIFY				(_valid(Position()));
 	m_pPhysics_support->in_shedule_Update(DT);

@@ -2188,7 +2188,11 @@ void CSE_ALifeHumanAbstract::FillProps		(LPCSTR pref, PropItemVec& items)
 //////////////////////////////////////////////////////////////////////////
 // CSE_ALifeHumanStalker
 //////////////////////////////////////////////////////////////////////////
-CSE_ALifeHumanStalker::CSE_ALifeHumanStalker(LPCSTR caSection) : CSE_ALifeHumanAbstract(caSection),CSE_PHSkeleton(caSection)
+
+
+
+CSE_ALifeHumanStalker::CSE_ALifeHumanStalker(LPCSTR caSection) : 
+	CSE_ALifeHumanAbstract(caSection),CSE_PHSkeleton(caSection) 
 {
 	m_trader_flags.set			(eTraderFlagInfiniteAmmo,TRUE);
 	m_start_dialog				= "";

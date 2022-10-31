@@ -249,15 +249,6 @@ void CMapLocation::CalcPosition()
 	CObject* pObject = Level().Objects.net_Find(m_objectID);
 	
 	/*
-	if (pObject && m_owner_se_object && xr_strcmp(m_owner_se_object->s_name.c_str(), pObject->cNameSect().c_str()) != 0)
-	{
-		//Msg("Object [%d] / name[%s], Server [%d] / name[%s] ", pObject->ID(), pObject->cNameSect().c_str(), m_owner_se_object->ID, m_owner_se_object->s_name.c_str());
-		m_position_global = m_owner_se_object->draw_level_position();
-		m_cached.m_Position.set(m_position_global.x, m_position_global.z);
-		return;
-	}  	
-
-
 	if (m_owner_se_object && ai().get_game_graph())
 	{
 
@@ -341,9 +332,7 @@ void CMapLocation::CalcLevelName()
 			LPCSTR lpc = ai().game_graph().header().level(level_id).name().c_str();
 			shared_str name;
 			name._set(lpc);
-
-			//Msg("CalcLevelName: %s, id:%d, level_name: %s", m_owner_se_object->name(), m_owner_se_object->ID, name.c_str());
-
+	    
 			if (m_cached.m_graphID != m_owner_se_object->m_tGraphID)
 			{
 				m_cached.m_LevelName = name;
@@ -393,10 +382,6 @@ bool CMapLocation::Update() //returns actual
 	}
 	else
 		m_cached.m_Actuality			= false;
-
-
-
-	//Msg("MAP_SPOT %d, active %d", this->m_objectID, m_cached.m_Actuality);
 
 	m_cached.m_updatedFrame				= Device.dwFrame;
 	return								m_cached.m_Actuality;
@@ -483,14 +468,21 @@ void CMapLocation::UpdateSpot(CUICustomMap* map, CMapSpot* sp )
 		GameGraph::_GRAPH_ID		dest_graph_id;
 
 		dest_graph_id		= m_owner_se_object->m_tGraphID;
-
+ 
 		map_point_path.clear();
 
-		VERIFY( Actor() );
-		GraphEngineSpace::CGameVertexParams		params(Actor()->locations().vertex_types(),flt_max);
+#pragma todo("SE7Kills REPLACE S_ACTOR() to ACTOR() (FOR CLIENT) ")
+#pragma todo("ACTOR() (MP) not have graph_id");
+#pragma todo("ÍÅ ÐÀÁÎÒÀÅÒ ÏÐÀÂÈËÜÍÎ ÂÛÊËÞ×ÈË ÂÎÎÁÙÅ")
+
+		if (!IsGameTypeSingle())
+			return;
+
+		//VERIFY( Actor() );
+		GraphEngineSpace::CGameVertexParams		params(S_Actor()->locations().vertex_types(),flt_max);
 		bool res = ai().graph_engine().search(
 			ai().game_graph(),
-			Actor()->ai_location().game_vertex_id(),
+			S_Actor()->ai_location().game_vertex_id(),
 			dest_graph_id,
 			&map_point_path,
 			params
@@ -576,6 +568,7 @@ void CMapLocation::UpdateSpot(CUICustomMap* map, CMapSpot* sp )
 				}
 			}
 		}
+	
 	}
 
 

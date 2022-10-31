@@ -162,7 +162,9 @@ void CStalkerAnimationPair::play			(IKinematicsAnimated *skeleton_animated, Play
 		m_object->CStepManager::on_animation_start(animation(),blend());
 
 
- 	m_object->OnAnimationUpdate(animation(), blend(), mix_animations, pos);
+	bool ctrl = ( this->use_animation_movement_control(skeleton_animated, animation()) || use_animation_movement_control ) ;
+
+ 	m_object->OnAnimationUpdate(animation(), blend(), mix_animations, global_animation() && ctrl, pos);
 
 
 #ifdef DEBUG

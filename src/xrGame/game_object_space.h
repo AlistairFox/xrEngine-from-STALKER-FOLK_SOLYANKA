@@ -53,6 +53,7 @@ namespace GameObject {
 		eWeaponNoAmmoAvailable,
 
 		eTaskLoadState,
+		eTaskSaveState,
 
 		eDummy = u32(-1),
 	};

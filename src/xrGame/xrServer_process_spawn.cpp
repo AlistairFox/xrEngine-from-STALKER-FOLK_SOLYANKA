@@ -158,7 +158,7 @@ CSE_Abstract* xrServer::Process_spawn(NET_Packet& P, ClientID sender, BOOL bSpaw
 
 	// log
 	//Msg		("- SERVER: Spawning '%s'(%d,%d,%d) as #%d, on '%s'", E->name_replace(), E->g_team(), E->g_squad(), E->g_group(), E->ID, CL?CL->Name:"*SERVER*");
-	Msg("- SERVER: Spawning: (%s), ID : (%d), CL(%s)", E->name_replace(),E->ID, CL ? CL->name.c_str() : " * SERVER");
+//	Msg("- SERVER: Spawning: (%s), ID : (%d), CL(%s)", E->name_replace(),E->ID, CL ? CL->name.c_str() : " * SERVER");
 	return E;
 }
 

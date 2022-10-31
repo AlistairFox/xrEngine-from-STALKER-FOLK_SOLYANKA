@@ -116,6 +116,9 @@ CGameTask*	CGameTaskManager::GiveGameTaskToActor(CGameTask* t, u32 timeToComplet
 	return t;
 }
 
+
+#include "game_cl_freemp.h"
+
 void CGameTaskManager::LoadGameTask(CGameTask* t)
 {
 	t->CommitScriptHelperContents();
@@ -126,14 +129,18 @@ void CGameTaskManager::LoadGameTask(CGameTask* t)
 	std::stable_sort(GetGameTasks().begin(), GetGameTasks().end(), task_prio_pred);
 	t->OnArrived();
 	SetActiveTask(t);
-	
-
+ 
 	//установить флажок необходимости прочтения тасков в PDA
 	if (CurrentGameUI())
 		CurrentGameUI()->UpdatePda();
 
 	//t->ChangeStateCallback();
-	t->LoadStateCallback();
+	//t->LoadStateCallback();
+
+	game_cl_freemp* freemp = smart_cast<game_cl_freemp*>(&Game());
+
+	if (freemp)
+		freemp->load_task(t);
 }
 
 void CGameTaskManager::SetTaskState(CGameTask* t, ETaskState state)

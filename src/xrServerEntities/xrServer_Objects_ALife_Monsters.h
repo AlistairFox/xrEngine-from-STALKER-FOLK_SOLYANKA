@@ -14,13 +14,14 @@
 #include "character_info_defs.h"
 #include "associative_vector.h"
 #include "alife_movement_manager_holder.h"
-#include "net_physics_state.h"
 
-#include "../xrGame/ai_stalker_net_state.h"
+#include "net_physics_state.h"
+#include "ai_stalker_net_state.h"
 
 class CALifeMonsterBrain;
 class CALifeHumanBrain;
 class CALifeOnlineOfflineGroupBrain;
+ 
 
 #pragma warning(push)
 #pragma warning(disable:4005)
@@ -552,29 +553,10 @@ SERVER_ENTITY_DECLARE_END
 add_to_type_list(CSE_ALifeHumanAbstract)
 #define script_type_list save_type_list(CSE_ALifeHumanAbstract)
 
+
 SERVER_ENTITY_DECLARE_BEGIN2(CSE_ALifeHumanStalker,CSE_ALifeHumanAbstract,CSE_PHSkeleton)
 	shared_str						m_start_dialog;
-
-	net_physics_state				physics_state;
-	ai_stalker_net_state			stalker_state;
-
-
-	float							f_head_dir_pitch = 0;
-	float							f_head_dir_yaw = 0;
-	u16								u_active_slot = 0;
-
-	u16								u_torso_anm_idx = 0;
-	u16								u_legs_anm_idx = 0;
-	u16								u_head_anm_idx = 0;
-	u16								u_script_anm_idx = 0;
-
-	u8								u_torso_anm_slot = 0;
-	u8								u_legs_anm_slot = 0;
-	u8								u_head_anm_slot = 0;
-	u8								u_script_anm_slot = 0;
-
-	u8								phSyncFlag = 0;
-	u8								test_animation = 0;
+	ai_stalker_net_state  			stalker_state;
 
 									CSE_ALifeHumanStalker	(LPCSTR caSection);
 	virtual							~CSE_ALifeHumanStalker	();

@@ -1,11 +1,58 @@
 #pragma once
 #include "../jsonxx/jsonxx.h"
+#include <string> 
 
 using namespace jsonxx;
+
+class CObjectJsonEx : public Object
+{
+	string_path directory_path;
+
+public:
+	CObjectJsonEx() {};
+	~CObjectJsonEx() {};
+
+	typedef Object o;
+
+	bool load(LPCSTR file_name, LPCSTR path);
+	bool save(LPCSTR file_name, LPCSTR path);
+
+ 
+	bool has_array(LPCSTR key);
+	Array get_array(LPCSTR key);
+	void set_array(LPCSTR key, Array value);
+	
+	bool has_object(LPCSTR key);
+	CObjectJsonEx get_object(LPCSTR key);
+	void set_object(LPCSTR key, CObjectJsonEx table);
+
+	bool has_bool(LPCSTR value);
+	bool has_number(LPCSTR value);
+	bool has_string(LPCSTR value);
+
+	double get_number(LPCSTR key);
+	bool get_bool(LPCSTR key);
+	LPCSTR get_string(LPCSTR key);
+
+	void set_string(LPCSTR key, LPCSTR value);
+	void set_number(LPCSTR key, double value);
+	void set_bool(LPCSTR key, bool value);
+
+	void set_shared_str(LPCSTR key, shared_str value)
+	{
+		o::import(key, (String) value.c_str());
+	};
+	
+	void get_shared_str(LPCSTR key, shared_str& val)
+	{
+		val._set(o::get<String>(key).c_str());
+	}
+};
 
 class CJsonFile
 {
  	string_path directory_path;
+	Object json_file;
 
 public:
 	//CJsonFile();
@@ -36,8 +83,8 @@ public:
 	Object get_object_from_array(Array array, int key, Object new_table); 
 	int array_size(Array array);
 
-	void SaveJSON(Object table, LPCSTR file_name, LPCSTR path);
-	Object LoadJSON(Object table, LPCSTR file_name, LPCSTR path);
+	void SaveJSON(LPCSTR file_name, LPCSTR path);
+	void LoadJSON(LPCSTR file_name, LPCSTR path);
 };
  
 

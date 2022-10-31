@@ -359,6 +359,7 @@ CBlend*	CKinematicsAnimated::LL_PlayCycle(u16 part, MotionID motion_ID, BOOL  bM
 	blend_cycles[part].push_back(B);
 	return		B;
 }
+
 CBlend*	CKinematicsAnimated::LL_PlayCycle		(u16 part, MotionID motion_ID, BOOL bMixIn, PlayCallback Callback, LPVOID CallbackParam, u8 channel /*=0*/)
 {
 	VERIFY					(motion_ID.valid()); 
@@ -368,6 +369,7 @@ CBlend*	CKinematicsAnimated::LL_PlayCycle		(u16 part, MotionID motion_ID, BOOL b
     						 m_def->Accrue(),m_def->Falloff(),m_def->Speed(),m_def->StopAtEnd(), 
                              Callback,CallbackParam,channel);
 }
+
 CBlend*	CKinematicsAnimated::PlayCycle		(LPCSTR  N, BOOL bMixIn, PlayCallback Callback, LPVOID CallbackParam,u8 channel  /*= 0*/)
 {
 	MotionID motion_ID		= ID_Cycle(N);

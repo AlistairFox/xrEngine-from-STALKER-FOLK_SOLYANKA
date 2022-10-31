@@ -16,8 +16,8 @@ level_events::level_events()
 
 level_events::~level_events()
 {
-    shedule_unregister();
-	 
+    shedule_unregister(); 
+	Level().event_functors.clear_and_free();
 }
 
 float level_events::shedule_Scale()
@@ -74,7 +74,7 @@ void level_events::shedule_Update(u32 dt)
 			}
 		}
 		else
-			Msg("--- Cant Call shedule_Update [%s]", name_f.c_str());
+			Msg("--- Не найден скрипт (%s)", name_f.c_str());
 	}
 
 }

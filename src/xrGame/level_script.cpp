@@ -837,6 +837,24 @@ int get_local_player_id()
 	return Game().local_player->GameID;
 }
 
+ClientID get_local_client_ID()
+{
+	return Game().local_svdpnid;
+}
+
+#include "game_cl_base.h" 
+
+ClientID get_client_by_player_id(u32 id)
+{
+	xrClientData* data = (xrClientData*) Level().Server->game->get_client(id);
+
+	if (data)
+		return data->ID;
+	else
+		return ClientID(0);
+}
+
+
 int get_g_actor_id()
 {
 	if (!Actor())
@@ -1085,6 +1103,15 @@ void send_news_item_drop(u16 gameid, LPCSTR name, int count)
 	}
 }
 
+u8 get_level_by_name(LPCSTR name)
+{
+	for (auto level : ai().game_graph().header().levels())
+	{
+		if (xr_strcmp(level.second.name(), name))
+			return level.first;
+	}
+}
+
 LPCSTR get_level_name(u8 id)
 {	
 	return	ai().game_graph().header().level(id).name().c_str();
@@ -1112,7 +1139,6 @@ LPCSTR get_object_level(u16 obj_id)
 
 void register_event_update(LPCSTR name_functor)
 {
-  
 	bool find = false;
 
 	for (auto funct : Level().event_functors)
@@ -1133,32 +1159,6 @@ void register_event_update(LPCSTR name_functor)
 		Msg("--- Register Twice [%s] level_update", name_functor);
 	 
 }
-
-void register_event_update_server(LPCSTR name_functor)
-{
- 	if (OnServer())
-	{
-		bool find = false;
-
-		for (auto funct : Level().event_functors)
-		{
-			if (xr_strcmp(funct.c_str(), name_functor) == 0)
-			{
-				find = true;
-				break;
-			}
-		}
-
-		if (!find)
-		{
-			Msg("Register level_update [%s]", name_functor);
-			Level().event_functors.push_back(shared_str(name_functor));
-		}
-		else
-			Msg("--- Register Twice [%s] level_update", name_functor);
-	}
-}
-
 
 CSE_ALifeDynamicObject* alife_object_cl(u16 obj_id)
 {
@@ -1187,15 +1187,16 @@ void CLevel::script_register(lua_State *L)
 		
 		];
 
-
 	module(L, "level")
 		[
-				//Custom Event For UPDATE 
-				def("event_update", &register_event_update),
+				//Custom EVENTS	FOR CALL UPDATE
+				def("register_event_update", &register_event_update),
+
 				
 				// obsolete\deprecated
 				def("object_by_id", get_object_by_id),
 				def("level_name", get_level_name),
+				def("get_level_by_name", get_level_by_name),
 				def("get_object_level", get_object_level),
 #ifdef DEBUG
 				def("debug_object", get_object_by_name),
@@ -1287,6 +1288,9 @@ void CLevel::script_register(lua_State *L)
 				// new for mp
 				def("get_object_by_client", &get_object_by_client),
 				def("get_local_player_id", &get_local_player_id),
+				def("get_local_client_ID", &get_local_client_ID),
+				def("get_client_by_player_id", &get_client_by_player_id),
+
 				def("get_g_actor_id", &get_g_actor_id),
 				def("set_surge_time", &set_surge_time)
 	],
@@ -1304,12 +1308,7 @@ void CLevel::script_register(lua_State *L)
 		def("object_give_to_actor", object_give_to_actor),
 		def("send_news_item_drop", send_news_item_drop)
 	],
-	
-	module(L, "server")
-	[
-		def("event_update", &register_event_update_server)
-	],
-
+ 
 	module(L, "script_events")
 	[
 		def("send_to_server", &send_script_event_to_server),

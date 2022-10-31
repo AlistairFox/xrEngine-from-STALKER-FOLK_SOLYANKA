@@ -336,14 +336,17 @@ void CActor::Feel_Grenade_Update( float rad )
 		if ( (*it_b)->getDestroy() ) continue;					// Don't touch candidates for destroy
 
 		CGrenade* grn = smart_cast<CGrenade*>( *it_b );
+		
 		if( !grn || grn->Initiator() == ID() || grn->Useful() )
 		{
 			continue;
 		}
+
 		if ( grn->time_from_begin_throw() < m_fFeelGrenadeTime )
 		{
 			continue;
 		}
+
 		if ( HUD().AddGrenade_ForMark( grn ) )
 		{
 			//.	Msg("__ __ Add new grenade! id = %d ", grn->ID() );

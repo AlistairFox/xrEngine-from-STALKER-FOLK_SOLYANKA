@@ -695,10 +695,12 @@ extern int updateCL_Rate = 30;
 #endif // !DEDICATE
 
 extern int stop_sheduler = 0;
+extern int fps_limit = 60;
  
 
 void CCC_Register()
-{
+{	 
+	CMD4(CCC_Integer, "fps_limit", &fps_limit, 1, 600);
 	CMD4(CCC_Integer, "stop_shedule", &stop_sheduler, 0, 1);
 	CMD4(CCC_Float, "r__viewport_near", &VIEWPORT_NEAR, 0.05f, 1.0f);
 
@@ -745,12 +747,14 @@ void CCC_Register()
 	CMD3(CCC_Mask,		"rs_detail",			&psDeviceFlags,		rsDetails	);
 	//CMD4(CCC_Float,		"r__dtex_range",		&r__dtex_range,		5,		175	);
 
-//	CMD3(CCC_Mask,		"rs_constant_fps",		&psDeviceFlags,		rsConstantFPS			);
+//
 	
 	CMD3(CCC_Mask,		"rs_render_dynamics",	&psDeviceFlags,		rsDrawDynamic			);
 
 	CMD3(CCC_ToggleMask, "rs_render_statics", &psDeviceFlags, rsDrawStatic);
 #endif
+
+	CMD3(CCC_Mask, "rs_constant_fps", &psDeviceFlags, rsConstantFPS);
 
 	// Render device states
 	CMD4(CCC_Integer,	"r__supersample",		&ps_r__Supersample,			1,		4		);

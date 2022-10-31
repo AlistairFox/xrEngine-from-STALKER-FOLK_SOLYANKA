@@ -140,8 +140,7 @@ BOOL CInventoryOwner::net_Spawn		(CSE_Abstract* DC)
 		//-------------------------------------
 		m_known_info_registry->registry().init(E->ID);
 		//-------------------------------------
-
-
+ 
 		CAI_PhraseDialogManager* dialog_manager = smart_cast<CAI_PhraseDialogManager*>(this);
 		if( dialog_manager && !dialog_manager->GetStartDialog().size() )
 		{

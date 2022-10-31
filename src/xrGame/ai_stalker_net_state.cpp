@@ -1,75 +1,88 @@
 #include "stdafx.h"
 #include "ai_stalker_net_state.h"
  
+//#define HALF_FLOAT
 
-#define HALF_FLOAT
-
-u8 float_to_char4(float value) //0.0666 //4bit (ТОК ДЛЯ FLOAT 0.f->1.f)
+void EXPORT_MOTIONS::Import(NET_Packet& P, MotionID_numered& legs, MotionID_numered& torso, MotionID_numered& head)
 {
-	if (value > 1.0f)
-		value = 1.0f;
-	return u8(15.f * value);
+	/*
+	P.r_float_helf(legs.pos);
+	P.r_float_helf(torso.pos);
+	P.r_float_helf(head.pos);
+	*/ 
+
+	//Основа
+	u64 value = P.r_u64();
+	Import_Base(legs, torso, head, value);
+ 
+ };
+
+void EXPORT_MOTIONS::Export(NET_Packet& P, MotionID_numered& legs, MotionID_numered& torso, MotionID_numered& head)
+{
+	/*
+	P.w_float_helf(legs.pos);
+	P.w_float_helf(torso.pos);
+	P.w_float_helf(head.pos);
+	*/ 
+
+	// Основа
+	u64 value = 0;
+	Export_Base(legs, torso, head, value); P.w_u64(value);	 //8
+ 
+};
+
+void EXPORT_MOTIONS::Import_Base(MotionID_numered& legs, MotionID_numered& torso, MotionID_numered& head, u64& val)
+{
+	u32 cur = 0;
+
+	legs.id.idx = BIT.read_bites(10, cur, val);
+	torso.id.idx = BIT.read_bites(10, cur, val);
+	head.id.idx = BIT.read_bites(10, cur, val);
+
+	legs.id.slot = BIT.read_bites(2, cur, val);
+	torso.id.slot = BIT.read_bites(2, cur, val);
+	head.id.slot = BIT.read_bites(2, cur, val);
+
+	legs.num = BIT.read_bites(8, cur, val);
+	torso.num = BIT.read_bites(8, cur, val);
+	head.num = BIT.read_bites(8, cur, val);
+
+	legs.loop = BIT.read_bites(1, cur, val);
+	torso.loop = BIT.read_bites(1, cur, val);
+	head.loop = BIT.read_bites(1, cur, val);
+
+	//63 total
 }
  
-float char4_to_float(u8 value) //0.0666 //4 bit (ТОК ДЛЯ FLOAT 0.f->1.f)
+void EXPORT_MOTIONS::Export_Base(MotionID_numered& legs, MotionID_numered& torso, MotionID_numered& head, u64& val)
 {
-	return value / 15.0f;
+	u32 cur = 0;
+	BIT.write_bites(10, legs.id.idx, cur, val);
+	BIT.write_bites(10, torso.id.idx, cur, val);
+	BIT.write_bites(10, head.id.idx, cur, val);
+
+	BIT.write_bites(2, legs.id.slot, cur, val);
+	BIT.write_bites(2, torso.id.slot, cur, val);
+	BIT.write_bites(2, head.id.slot, cur, val);
+
+	BIT.write_bites(8, legs.num, cur, val);
+	BIT.write_bites(8, torso.num, cur, val);
+	BIT.write_bites(8, head.num, cur, val);
+
+	BIT.write_bites(1, legs.loop, cur, val);
+	BIT.write_bites(1, torso.loop, cur, val);
+	BIT.write_bites(1, head.loop, cur, val);
+
+	//63 bit TOTAL = 8 bytes (1 bit empty)
 }
 
-u8 float_to_char8(float value) //0.0039 //8bit (ТОК ДЛЯ FLOAT 0.f->1.f)
-{
-	if (value > 1.0f)
-		value = 1.0f;
-	return u8(255.0f * value);
-}
-
-float char8_to_float(u8 value) //0.0039 //8 bit (ТОК ДЛЯ FLOAT 0.f->1.f)
-{
-	return  value / 255.0f ;
-}
-
-u8 char_health(float value)
-{
-	bool isAlive = true;
-	
-	if (value == 0.0f)
-		isAlive = false;
-
-	if (value > 1.0f)
-		value = 1.0f;
-
-	u8 heltch_write = value * 127;
-
-	u8 heltch = 0;
-
-	heltch |= (isAlive & (u8(1) << 1) - 1) << 0;
-	
-	heltch |= (heltch_write & (u8(1) << 7) - 1) << 1;
-
-	return heltch;
-}
-
-float char_health_to_float(u8 value)
-{
-
-	u8 alive = value >> 0 & (u8(1) << 1) - 1;
-	
-	float health = value >> 1 & (u8(1) << 7) - 1;
-	
-	health /= 127;
-
-	return health + (alive ? 0.01 : 0);
-}
- 
 void ai_stalker_net_state::fill_position(CPHSynchronize * sync)
 {
-	CPHSynchronize* new_sync = sync;
-
-	if (new_sync)
+	if (sync)
 	{
 		phSyncFlag = true;
 		SPHNetState state;
-		new_sync->get_State(state);
+		sync->get_State(state);
 
 		physics_state.fill(state);
 	}
@@ -86,6 +99,10 @@ ai_stalker_net_state::ai_stalker_net_state()
 	u_active_slot = 0;
 	fv_position.set(0,0,0);
 	fv_linear_vel.set(0,0,0);
+	torso_yaw = 0.0f;
+	head_yaw = 0.0f;
+	torso_pitch = 0.0f;
+	head_pitch = 0.0f;
 
 	phSyncFlag = false;
 }
@@ -95,8 +112,7 @@ void ai_stalker_net_state::state_write(NET_Packet& packet)
 	//Physic states
 	if (phSyncFlag)
 	{
-		packet.w_u8(1);
-		physics_state.write(packet);
+		packet.w_u8(1); physics_state.write(packet);		 //14
 	}
 	else 			
 	{
@@ -106,39 +122,39 @@ void ai_stalker_net_state::state_write(NET_Packet& packet)
  
 	//Body State
 	{	
-		u16 heal = HFLT.float_to_half(u_health);
-		
-		packet.w_u16(heal);
-		//packet.w_float(u_health);
 		packet.w_u8(u_active_slot);
 		packet.w_u16(u_active_item);
+		packet.w_float_helf(u_health);						  //5
 
+#ifndef	HALF_FLOAT
+		// 4 BYTE or float all (4  * 4 ) = 16 BYTE
 		packet.w_angle8(torso_yaw);
 		packet.w_angle8(head_yaw);
- 
 		packet.w_angle8(torso_pitch);
-		packet.w_angle8(head_pitch);
- 
+		packet.w_angle8(head_pitch);						  //4
+#else
+		packet.w_float_helf(torso_yaw);		  
+		packet.w_float_helf(head_yaw);
+		packet.w_float_helf(torso_pitch);
+		packet.w_float_helf(head_pitch);					  //OR 8 
+#endif
  	}
 
+	//Animation Export
+	exp_motions.Export(packet, legs_anim, torso_anim, head_anim); 
 
-	//packet.w(&torso_anim, sizeof(MotionID_numered));
-	//packet.w(&legs_anim,  sizeof(MotionID_numered));
-	//packet.w(&head_anim,  sizeof(MotionID_numered));
-
-	//Убрал Сжал до 14 байт вместо 30 ))
-	exp_motions.Export(packet, legs_anim, torso_anim, head_anim);
+	// MAX BYTES 38 
+	// MIN BYTES 32
 }
 
 void ai_stalker_net_state::state_read(NET_Packet& packet)
 {
 	//physic
-	packet.r_u8(phSyncFlag);
+	packet.r_u8(phSyncFlag);															 //1
 
 	if (phSyncFlag)
 	{
-		physics_state.read(packet);
-		fv_position.set(physics_state.physics_position);
+		physics_state.read(packet);	fv_position.set(physics_state.physics_position);	 //13
 	}
 	else
 	{
@@ -147,23 +163,26 @@ void ai_stalker_net_state::state_read(NET_Packet& packet)
  
 	//States
 	{	
-
-		u_health = HFLT.half_to_float(packet.r_u16());
-		//packet.r_float(u_health);
-		packet.r_u8(u_active_slot);   
+ 		packet.r_u8(u_active_slot);   													 //5 BYTE
 		packet.r_u16(u_active_item);
- 		 
+		packet.r_float_helf(u_health);
+
+#ifndef	HALF_FLOAT																		// 4 BYTE  
 		packet.r_angle8(torso_yaw);
 		packet.r_angle8(head_yaw);
-
 		packet.r_angle8(torso_pitch);
 		packet.r_angle8(head_pitch);
- 	}
+#else
+		packet.r_float_helf(torso_yaw);													// 8 BYTE
+		packet.r_float_helf(head_yaw);
+		packet.r_float_helf(torso_pitch);
+		packet.r_float_helf(head_pitch);
+#endif	
+	}																					//23 BYTE BODY STATE
+																						
+	//Animation Import	MAY BY timer ( > 500ms ) send ANIMATION
+	exp_motions.Import(packet, legs_anim, torso_anim, head_anim);  //15 max, 9 min BYTE
 
- 	//packet.r(&torso_anim, sizeof(MotionID_numered));
-	//packet.r(&legs_anim, sizeof(MotionID_numered));
-	//packet.r(&head_anim, sizeof(MotionID_numered));
- 
-	//Убрал Сжал до 14 байт вместо 30 ))
-	exp_motions.Import(packet, legs_anim, torso_anim, head_anim);
+	// MAX BYTES 38 
+	// MIN BYTES 32
 } 

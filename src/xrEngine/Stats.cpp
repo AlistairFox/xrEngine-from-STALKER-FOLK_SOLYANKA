@@ -183,7 +183,8 @@ void CStats::Show()
 	float		f_base_size	= 0.01f;
 				F.SetHeightI	(f_base_size);
 
-	if (vtune.enabled())	{
+	if (vtune.enabled())
+	{
 		float sz		= pFont->GetHeight();
 		pFont->SetHeightI(0.02f);
 		pFont->SetColor	(0xFFFF0000	);
@@ -202,6 +203,18 @@ void CStats::Show()
 		return;
 	}
 
+	if (!psDeviceFlags.test(rsStatistic))
+	{
+		F.SetColor(0xFFFFFFFF);
+
+		F.OutSet(0, 0);
+		F.SetHeightI(0.025);
+
+		F.OutNext("FPS/RFPS:    %3.1f/%3.1f", fFPS, fRFPS);
+		F.OutNext("TPS:         %2.2f M", fTPS);
+
+		pFont->OnRender();
+	}
 
 	// Show them
 	if (psDeviceFlags.test(rsStatistic))
@@ -347,7 +360,8 @@ void CStats::Show()
 		pFont->OnRender					();
 	};
 
-	if( /*psDeviceFlags.test(rsStatistic) ||*/ psDeviceFlags.test(rsCameraPos) ){
+	if( psDeviceFlags.test(rsCameraPos) )
+	{
 		_draw_cam_pos					(pFont);
 		pFont->OnRender					();
 	};

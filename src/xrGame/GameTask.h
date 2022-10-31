@@ -5,6 +5,8 @@
 #include "script_export_space.h"
 #include "../../sdk/include/luabind/functor.hpp"
 
+#include "script_json_file.h"
+
 class CGameTaskManager;
 class CMapLocation;
 class CGameTask;
@@ -27,6 +29,10 @@ public:
 
 	virtual void			save			(IWriter &stream);
 	virtual void			load			(IReader &stream);
+
+	virtual void			save_json(CObjectJsonEx& json);
+	virtual void			load_json(CObjectJsonEx& json);
+
 	
 	void convert_to_string(xr_vector<shared_str> functor, string512& res);
 	xr_vector<shared_str>	convert_to_vector(shared_str save_str);
@@ -80,6 +86,10 @@ public:
 
 	void					save_task_ltx   (CInifile& file, shared_str section);
 	void					load_task_ltx	(CInifile& file, shared_str section);
+
+	void					save_json(CObjectJsonEx& json);
+	void					load_json(CObjectJsonEx& json);
+
 
 	shared_str				m_ID;
 	shared_str				m_Title;

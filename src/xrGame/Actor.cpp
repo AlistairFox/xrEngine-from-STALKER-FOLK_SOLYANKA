@@ -1343,7 +1343,6 @@ void CActor::shedule_Update	(u32 DT)
 	
 		
 		g_Orientate				(mstate_real,dt);
-
 		g_Physics				(NET_SavedAccel,NET_Jump,dt);
 		
 		g_cl_ValidateMState		(dt,mstate_wishful);

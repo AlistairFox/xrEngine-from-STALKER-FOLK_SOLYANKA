@@ -152,15 +152,41 @@ void CScriptIniFile::script_register(lua_State *L)
 
 	module(L)
 	[
-		class_<Object>("create_object")
-			.def( constructor<>() )
+		class_<Object>("json_object")
+			.def( constructor<>() ),
 
+		class_<CObjectJsonEx>("json_o_ex")
+			.def(constructor<>() )
+			
+			.def("has_bool", &CObjectJsonEx::has_bool)
+			.def("has_string", &CObjectJsonEx::has_string)
+			.def("has_number", &CObjectJsonEx::has_number)
+		
+			.def("get_bool", &CObjectJsonEx::get_bool)
+			.def("get_string", &CObjectJsonEx::get_string)
+			.def("get_number", &CObjectJsonEx::get_number)
 
+			.def("set_bool", &CObjectJsonEx::set_bool)
+			.def("set_string", &CObjectJsonEx::set_string)
+			.def("set_number", &CObjectJsonEx::set_number)
+
+			.def("has_object", &CObjectJsonEx::has_object)
+			.def("get_object", &CObjectJsonEx::get_object)
+			.def("set_object", &CObjectJsonEx::set_object)
+
+			.def("has_array", &CObjectJsonEx::has_array)
+			.def("get_array", &CObjectJsonEx::get_array)
+			.def("set_array", &CObjectJsonEx::set_array)
+
+			.def("load", &CObjectJsonEx::load)
+			.def("save", &CObjectJsonEx::save)
 	];
 
 	module(L)
 	[
-		class_<Array>("create_array")
+		class_<Array>("json_array")
 			.def(constructor<>())
+
+		
 	];
 }

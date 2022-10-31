@@ -11285,6 +11285,9 @@
     <ClCompile Include="UIArtefactUpgradeWnd.cpp">
       <Filter>UI\Common\InventoryWnd\ArtefactUpgrade</Filter>
     </ClCompile>
+    <ClCompile Include="game_cl_tasks.cpp">
+      <Filter>Core\Server\Games\client\freemp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="ai\monsters\chimera\chimera_attack_state.h">

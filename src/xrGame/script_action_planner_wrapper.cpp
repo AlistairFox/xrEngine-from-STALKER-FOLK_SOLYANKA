@@ -24,6 +24,7 @@ void CScriptActionPlannerWrapper::setup			(CScriptGameObject *object)
 	catch (...)
 	{
 		Msg("[CScriptActionPlannerWrapper] [Error] SETUP [%s], Action [%d]", this->object().Name(), this->m_current_action_id);
+		ai().script_engine().print_stack();
 	}
 }
 
@@ -46,6 +47,7 @@ void CScriptActionPlannerWrapper::update		()
 	catch(...)
 	{
 		Msg("[CScriptActionPlannerWrapper] [Error] NAME [%s], Action [%d]", object().Name(), m_current_action_id);
+		ai().script_engine().print_stack();
 	}
 	
 }

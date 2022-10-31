@@ -15,6 +15,7 @@
 #include "../../../xrServerEntities/script_export_space.h"
 
 #include "../../../xrServerEntities/PHNetState.h"
+ 
 
 #ifdef DEBUG
 	template <typename _object_type>
@@ -43,15 +44,18 @@
 	>								script_planner;
 #endif
 
-namespace MonsterSpace {
+namespace MonsterSpace
+{
 	enum EMovementDirection;
 };
 
-namespace StalkerSpace {
+namespace StalkerSpace 
+{
 	enum EBodyAction;
 };
 
-namespace smart_cover {
+namespace smart_cover 
+{
 	class cover;
 	class loophole;
 
@@ -61,7 +65,8 @@ namespace smart_cover {
 };
 
 
-namespace stalker_interpolation {
+namespace stalker_interpolation
+{
 	struct InterpData
 	{
 		Fvector Pos;
@@ -104,6 +109,9 @@ struct SBoneProtections;
 class CDangerLocation;
 class CRestrictedObject;
 
+struct MotionID_numered;
+struct ai_stalker_net_state;
+
 class CAI_Stalker : 
 	public CCustomMonster, 
 	public CObjectHandler,
@@ -145,7 +153,44 @@ private:
 private:
 	float							m_power_fx_factor;
 
+
+	//Se7Kills Animation
+
+public:
+	void OnAnimationUpdate(MotionID motion, CBlend* blend, bool mix_anims, bool anim_controller, float pos);
+
 private:
+	void ApplyAnimation(ai_stalker_net_state& state);
+
+	MotionID torso_motion, legs_motion, head_motion;
+	u8 torso_num, legs_num, head_num;
+	bool torso_loop, head_loop, legs_loop;
+	bool torso_anim_ctrl, head_anim_ctrl, legs_anim_ctrl;
+	float torso_pos, legs_pos, head_pos;
+
+	u8 client_torso_num;
+	u8 client_head_num;
+	u8 client_legs_num;
+
+
+	void anim_sync(IKinematicsAnimated* skeleton_animated, CBlend* blend_1, CBlend* blend_2);
+
+	CBlend* blend_torso = 0;
+	CBlend* blend_legs	= 0;
+	CBlend* blend_head	= 0;
+
+	// Релиз тела
+
+	//float							m_near_players_distance = 0;
+	mutable u32						m_last_player_detection_time = 0;
+	//u32							m_near_players_delay_time = 0;
+public:
+	bool NeedToDestroyObject() const;
+	ALife::_TIME_ID TimePassedAfterDeath() const;
+	bool HavePlayersNearby(float distance) const;
+private:
+	//Pavel* Interpolation STALKERS
+
 	// for interpolation
 	SPHNetState						LastState;
 	SPHNetState						RecalculatedState;
@@ -169,6 +214,12 @@ private:
 	u32								m_dwIStartTime;
 	u32								m_dwIEndTime;
 	u32								m_dwILastUpdateTime;
+
+	void							CalculateInterpolationParams();
+	virtual void					make_Interpolation();
+	void							postprocess_packet(stalker_interpolation::net_update_A& packet);
+
+	//END Pavel*
 
 private:
 	float							m_fRankDisperison;
@@ -232,8 +283,6 @@ public:
 	virtual void						PH_I_CrPr							(); // actions & operations after correction before prediction steps
 	virtual void						PH_A_CrPr							(); // actions & operations after phisic correction-prediction steps
 
-			void						postprocess_packet					(stalker_interpolation::net_update_A &packet);
-	
 	virtual BOOL						net_Spawn							(CSE_Abstract* DC);
 	virtual void						net_Export							(NET_Packet& P);
 	virtual void						net_Import							(NET_Packet& P);
@@ -245,8 +294,6 @@ public:
 	//For MP sync
 	u32 LastShedule = 0;
 	u32 LastUpdate = 0;
-
-	bool sync_send = false;
 
 	//save/load server serialization
 	virtual void						save								(NET_Packet &output_packet);
@@ -342,59 +389,6 @@ public:
 	
 			bool						undetected_anomaly		();
 			bool						inside_anomaly			();
-
-
-private:
-
-			void						ApplyAnimation(
-											u16 u_torso_motion_idx, u8 u_torso_motion_slot,
-											u16 u_legs_motion_idx, u8 u_legs_motion_slot,
-											u16 u_head_motion_idx, u8 u_head_motion_slot,
-											u16 u_script_motion_idx, u8 u_script_motion_slot,
-											float u_time_torso, float u_time_legs, float u_time_head, float u_time_script
-										);
-
-
-
-			void						CalculateInterpolationParams();
-			virtual void				make_Interpolation();
-
-
-public:											   
-	void OnAnimationUpdate(MotionID motion, CBlend* blend, bool mix_anims, float pos);
- 
-	u8 torso_anim_id;
-	u8 legs_anim_id;
-	u8 head_anim_id;
-
-	MotionID motion_torso;
-	MotionID motion_legs;
-	MotionID motion_head;
-
-	bool torso_loop;
-	bool legs_loop;
-	bool head_loop;
-
-	float pos_torso;
-	float pos_head;
-	float pos_legs;
-
-	void anim_sync(IKinematicsAnimated* skeleton_animated, CBlend* blend_1, CBlend* blend_2);
-
-	CBlend* blend_torso;
-	CBlend* blend_legs;
-	
-
-
-	//float							m_near_players_distance = 0;
-	mutable u32						m_last_player_detection_time = 0;
-	//u32								m_near_players_delay_time = 0;
-
-	bool NeedToDestroyObject() const;
-
-	ALife::_TIME_ID TimePassedAfterDeath() const;
-
-	bool HavePlayersNearby(float distance) const;
 
 private:
 	bool				m_can_kill_member;

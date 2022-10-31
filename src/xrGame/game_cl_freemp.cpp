@@ -8,9 +8,6 @@
 #include "VoiceChat.h"
 #include "ui/UIMainIngameWnd.h"
 
-#include "GametaskManager.h"
-#include "GameTask.h"
-
 #include "ui/UIPdaWnd.h"
 #include "UIPda_Contacts.h"
 #include "UIPda_Chat.h"	  
@@ -24,7 +21,6 @@
 game_cl_freemp::game_cl_freemp()
 {
 	l_events = xr_new<level_events>();
-
 
 	LPCSTR sec_name = "freemp_team_indicator";
 	Indicator_render1 = pSettings->r_float(sec_name, "indicator_1");
@@ -65,8 +61,6 @@ game_cl_freemp::~game_cl_freemp()
 	{
  		alife_objects[obj.first] = 0;
 	}
-
-	Level().event_functors.clear_and_free();
 }
 
 CUIGameCustom* game_cl_freemp::createGameUI()
@@ -112,47 +106,14 @@ void game_cl_freemp::shedule_Update(u32 dt)
 
 	if (!local_player)
 		return;
-	
-	/*
-	if (OnClient() && Device.dwTimeGlobal - old_time > 5000 && load_game_tasks)
-	{
-		string_path filename;
-		FS.update_path(filename, "$mp_saves$", "task\\tasks.ltx");
 
-		CInifile* file = xr_new<CInifile>("filename", false, false, false);
-
-		for (auto task : Level().GameTaskManager().GetGameTasks())
-		{
-			task.save_ltx(*file, task.task_id);
-		}
-
-		file->save_as(filename);
-	}
-	else if (!load_game_tasks && Actor() && Actor()->Setuped_callbacks() && Device.dwTimeGlobal - old_time > 5000)
-	{
-		string_path filename;
-		FS.update_path(filename, "$mp_saves$", "task\\tasks.ltx");
-
-		CInifile* file = xr_new<CInifile>(filename, true, true);
-
-		for (auto sec : file->sections())
-		{
-			CGameTask* task = xr_new<CGameTask>();
-			task->load_task_ltx(*file, sec->Name);
-			task->m_ID = sec->Name.c_str();
-
-			Level().GameTaskManager().LoadGameTask(task);
-			Msg("LoadTask: %s", task->m_ID.c_str());
-		}
-
-
-		load_game_tasks = true;
-	}	*/
-	
 	// Update Войса
 	shedule_voice();
 	// синхронизация имени и денег игроков для InventoryOwner
 	shedule_InventoryOwner();
+	// Shedule Save QUESTS
+	shedule_Quests();
+
 }
 
 void game_cl_freemp::shedule_voice()
@@ -197,6 +158,27 @@ void game_cl_freemp::shedule_InventoryOwner()
 			pActor->set_money((u32)ps->money_for_round, false);
 		}
 	}
+}
+
+#include "GameTask.h"
+#include "GametaskManager.h"
+
+u32 old_task_save_update = 0;
+
+void game_cl_freemp::shedule_Quests()
+{	   
+	if (old_task_save_update < Device.dwTimeGlobal)
+		return;
+
+	old_task_save_update = Device.dwTimeGlobal + 1000;
+   
+	json_ex.reset();
+
+	for (auto task : Level().GameTaskManager().GetGameTasks())
+		this->save_task(task.game_task);  
+
+	json_ex.save("tasks.save", "$mp_client_player$");
+
 }
 
 float game_cl_freemp::shedule_Scale()
@@ -462,6 +444,8 @@ void game_cl_freemp::CreateParticle(LPCSTR name, Fvector3 pos)
 	pobjec = CParticlesObject::Create(name);
 	pobjec->play_at_pos(pos);
 }
+
+ 
 
 void game_cl_freemp::OnVoiceMessage(NET_Packet* P)
 {

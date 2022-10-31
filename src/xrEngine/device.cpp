@@ -231,6 +231,7 @@ void CRenderDevice::PreCache	(u32 amount, bool b_draw_loadscreen, bool b_wait_us
 extern int g_svDedicateServerUpdateReate = 100;
 
 ENGINE_API xr_list<LOADING_EVENT>			g_loading_events;
+extern int fps_limit;
 
 void CRenderDevice::on_idle		()
 {
@@ -239,9 +240,9 @@ void CRenderDevice::on_idle		()
 		return;
 	}
 
-#ifdef DEDICATED_SERVER
+ 
 	u32 FrameStartTime = TimerGlobal.GetElapsed_ms();
-#endif
+ 
 	if (psDeviceFlags.test(rsStatistic))
 		g_bEnableStatGather	= TRUE;
 	else									
@@ -301,7 +302,7 @@ void CRenderDevice::on_idle		()
 		if (Begin())				{
 
 			seqRender.Process						(rp_Render);
-			if (psDeviceFlags.test(rsCameraPos) || psDeviceFlags.test(rsStatistic) || psDeviceFlags.test(rsProfiler) || Statistic->errors.size())
+			//if (psDeviceFlags.test(rsCameraPos) || psDeviceFlags.test(rsStatistic) || psDeviceFlags.test(rsProfiler) || Statistic->errors.size())
 				Statistic->Show						();
 			//	TEST!!!
 			//Statistic->RenderTOTAL_Real.End			();
@@ -350,6 +351,17 @@ void CRenderDevice::on_idle		()
 		Device.seqParallel.clear_not_free	();
 		seqFrameMT.Process					(rp_Frame);
 	}
+
+	//FPS LOCK FOR CLIENT
+#ifndef DEDICATED_SERVER
+	u32 FrameEndTime = TimerGlobal.GetElapsed_ms();
+	u32 FrameTime = (FrameEndTime - FrameStartTime);
+	
+	u32 DSUpdateDelta = 1000 / fps_limit;
+	if (FrameTime < DSUpdateDelta)
+ 		Sleep(DSUpdateDelta - FrameTime);
+#endif
+
 
 #ifdef DEDICATED_SERVER
 	u32 FrameEndTime = TimerGlobal.GetElapsed_ms();
@@ -471,18 +483,29 @@ void CRenderDevice::FrameMove()
 
 	dwTimeContinual	= TimerMM.GetElapsed_ms() - app_inactive_time;
 
-	if (psDeviceFlags.test(rsConstantFPS))	{
+	if (psDeviceFlags.test(rsConstantFPS))	
+	{
 		// 20ms = 50fps
 		//fTimeDelta		=	0.020f;			
 		//fTimeGlobal		+=	0.020f;
 		//dwTimeDelta		=	20;
 		//dwTimeGlobal	+=	20;
+		
 		// 33ms = 30fps
-		fTimeDelta		=	0.033f;			
-		fTimeGlobal		+=	0.033f;
-		dwTimeDelta		=	33;
-		dwTimeGlobal	+=	33;
-	} else {
+		//fTimeDelta		=	0.033f;			
+		//fTimeGlobal		+=	0.033f;
+		//dwTimeDelta		=	33;
+		//dwTimeGlobal	+=	33;
+
+		// 40 FPS 
+		fTimeDelta = 0.016f;
+		fTimeGlobal += 0.016f;
+		dwTimeDelta = 16;
+		dwTimeGlobal += 16;
+
+	} 
+	else
+	{
 		// Timer
 		float fPreviousFrameTime = Timer.GetElapsed_sec(); Timer.Start();	// previous frame
 		fTimeDelta = 0.1f * fTimeDelta + 0.9f*fPreviousFrameTime;			// smooth random system activity - worst case ~7% error

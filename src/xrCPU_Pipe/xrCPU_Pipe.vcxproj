@@ -75,7 +75,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>$(LibraryPath);A:\Games\TEST\Dead Edge\bin\x86\LIBS\;$(OutDir)LIBS\</LibraryPath>
+    <LibraryPath>$(LibraryPath);$(OutDir)LIBS\</LibraryPath>
     <OutDir>C:\Users\dima\Documents\GitHub\omp-engine\BINS\x32\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

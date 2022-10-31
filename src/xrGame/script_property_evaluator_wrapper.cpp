@@ -25,6 +25,8 @@ void CScriptPropertyEvaluatorWrapper::setup			(CScriptGameObject *object, CPrope
 			m_evaluator_name,
 			m_object->Alive() ? "true" : "false"
 		);
+
+		ai().script_engine().print_stack();
 	}
 }
 
@@ -68,6 +70,7 @@ bool CScriptPropertyEvaluatorWrapper::evaluate		()
 				m_evaluator_name,
 				this->m_object->Alive() ? "true" : "false"
 			);
+			ai().script_engine().print_stack();
 
 			//this->m_object = 0;
 			//this->m_storage = 0;

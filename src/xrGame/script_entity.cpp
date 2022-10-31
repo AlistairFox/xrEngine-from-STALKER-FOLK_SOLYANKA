@@ -266,6 +266,7 @@ void CScriptEntity::ProcessScripts()
 		if (psAI_Flags.is(aiLua))
 			Msg("Entity Action removed!!!");
 #endif
+
 		if (true /*psAI_Flags.is(aiLua)*/ )
 		{
 			object().callback(GameObject::eActionTypeRemoved)(object().lua_game_object(),u32(eActionTypeRemoved));
@@ -563,7 +564,8 @@ void ScriptCallBack(CBlend* B)
 {
 	CScriptEntity	*l_tpScriptMonster = static_cast<CScriptEntity*>(B->CallbackParam);
 	VERIFY			(l_tpScriptMonster);
-	if (l_tpScriptMonster->GetCurrentAction() && !B->bone_or_part) {
+	if (l_tpScriptMonster->GetCurrentAction() && !B->bone_or_part) 
+	{
 		if (!l_tpScriptMonster->GetCurrentAction()->m_tAnimationAction.m_bCompleted)
 			l_tpScriptMonster->object().callback(GameObject::eActionTypeAnimation)(l_tpScriptMonster->object().lua_game_object(),u32(eActionTypeAnimation));
 			
@@ -574,6 +576,8 @@ void ScriptCallBack(CBlend* B)
 	}
 }
 
+#include "ai/stalker/ai_stalker.h"
+
 bool CScriptEntity::bfScriptAnimation()
 {
 	if (GetScriptControl() && !GetCurrentAction() && GetActionCount())
@@ -583,23 +587,26 @@ bool CScriptEntity::bfScriptAnimation()
 		GetScriptControl() && 
 		GetCurrentAction() && 
 		!GetCurrentAction()->m_tAnimationAction.m_bCompleted && 
-		xr_strlen(GetCurrentAction()->m_tAnimationAction.m_caAnimationToPlay)) {
-
+		xr_strlen(GetCurrentAction()->m_tAnimationAction.m_caAnimationToPlay)) 
+	{
 			if (m_tpScriptAnimation == m_tpNextAnimation)
 				return			(true);
 
-#ifdef DEBUG
-			//if (!xr_strcmp("m_stalker_wounded",*object().cName()))
-			//	Msg				("%6d Playing animation : %s , Object %s",Device.dwTimeGlobal,*GetCurrentAction()->m_tAnimationAction.m_caAnimationToPlay, *object().cName());
-#endif
+			Msg("!!! [Warning] [script_entity] Play Animation ENTITY section[%s]", object().cNameSect().c_str());
+
 			m_tpScriptAnimation = m_tpNextAnimation;
 			IKinematicsAnimated	*skeleton_animated = smart_cast<IKinematicsAnimated*>(object().Visual());
 			LPCSTR				animation_id = *GetCurrentAction()->m_tAnimationAction.m_caAnimationToPlay;
 			MotionID			animation = skeleton_animated->ID_Cycle(animation_id);
 			CBlend				*result = 0;
-			for (u16 i=0; i<MAX_PARTS; ++i) {
+
+			//CAI_Stalker* stalker = smart_cast<CAI_Stalker*>(&object());
+
+			for (u16 i=0; i<MAX_PARTS; ++i) 
+			{
 				CBlend			*blend = 0;
-				if (result) {
+				if (result)
+				{
 					skeleton_animated->LL_PlayCycle(i,animation,TRUE,0,0);
 					continue;
 				}
@@ -607,6 +614,7 @@ bool CScriptEntity::bfScriptAnimation()
 				blend			= skeleton_animated->LL_PlayCycle(i,animation,TRUE,ScriptCallBack,this);
 				if (!blend)
 					continue;
+
 				result			= blend;
 				CMotionDef	*MD = skeleton_animated->LL_GetMotionDef( animation );
 				VERIFY( MD );
@@ -615,8 +623,10 @@ bool CScriptEntity::bfScriptAnimation()
 			}
 
 			return				(true);
-		}
-	else {
+		
+	}
+	else 
+	{
 		m_tpScriptAnimation.invalidate();
 		return		(false);
 	}
