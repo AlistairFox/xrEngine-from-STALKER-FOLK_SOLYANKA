@@ -157,6 +157,11 @@ void game_cl_freemp::shedule_InventoryOwner()
 		{
 			pActor->set_money((u32)ps->money_for_round, false);
 		}
+
+		if (ps->rank != pActor->Rank())
+		{
+			pActor->SetRankClient(ps->rank);
+		}
 	}
 }
 
@@ -350,6 +355,21 @@ void game_cl_freemp::TranslateGameMessage(u32 msg, NET_Packet& P)
 						CurrentGameUI()->TalkMenu->AddIconedMessage(name.c_str(), text.c_str(), icon.c_str(), "iconed_answer_item");
 			}
 			
+		}break;
+
+		case M_INVENTORY_OWNER_RANK:
+		{
+			u32 id, rank;
+			P.r_u32(id);
+			P.r_u32(rank);
+
+			CObject* o = Level().Objects.net_Find(id);
+			CInventoryOwner* owner = smart_cast<CInventoryOwner*>(o);
+			if (owner)
+			{
+				owner->SetRankClient(rank);
+			}
+
 		}break;
 
 	 

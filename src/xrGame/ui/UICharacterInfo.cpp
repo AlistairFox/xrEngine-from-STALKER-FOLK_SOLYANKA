@@ -233,6 +233,7 @@ void CUICharacterInfo::InitCharacterMP(CInventoryOwner * invOwner)
 {
 	ClearInfo();
 	m_ownerID = invOwner->object_id();
+
 	if (m_icons[eName])
 	{
 		m_icons[eName]->TextItemControl()->SetText(invOwner->Name());
@@ -363,13 +364,21 @@ void CUICharacterInfo::Update()
 
 	if ( hasOwner() && ( m_bForceUpdate ||(Device.dwFrame%50 == 0) )  )
 	{
-		m_bForceUpdate = false;
+		m_bForceUpdate = false;	
 
 		CSE_ALifeTraderAbstract* T = detail::object_exists_in_alife_registry(m_ownerID) ?
 									 ch_info_get_from_id(m_ownerID) : NULL;
-		if (NULL==T)
+		if (NULL == T)
 		{
-		//	m_ownerID = u16(-1);
+			CObject* obj = Level().Objects.net_Find(m_ownerID);
+			CEntityAlive* alive = smart_cast<CEntityAlive*>(obj);
+
+			if (alive && !alive->g_Alive())
+			{
+				if (m_icons[eIcon])
+					m_icons[eIcon]->SetTextureColor(color_argb(255, 255, 160, 160));
+			}
+
 			return;
 		}
 		else

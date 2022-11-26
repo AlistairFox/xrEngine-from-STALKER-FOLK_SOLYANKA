@@ -554,9 +554,6 @@ void CEnvironment::SelectEnvs(EnvVec* envs, CEnvDescriptor*& e0, CEnvDescriptor*
 	}
 }
 
-int error = 0;
-bool need_update = false;
-
 bool CEnvironment::StartWeatherMP(shared_str name1, shared_str name2, shared_str descr1, shared_str descr2, float ex1, float ex2, float exG1, float exG2)
 {
 	if (name1.size() && name2.size())
@@ -580,8 +577,7 @@ bool CEnvironment::StartWeatherMP(shared_str name1, shared_str name2, shared_str
 		else
 			select_weather2 = Weather2;		
 
-		//Msg("SetW [%s], [%s] time [%s][%s]", (select_weather1->first).c_str(), (select_weather2->first).c_str(), descr1.c_str(), descr2.c_str());
-		SelectEnvsMP(&select_weather1->second, &select_weather2->second, Current[0], Current[1], descr1, descr2, ex1, ex2, exG1, exG2);
+ 		SelectEnvsMP(&select_weather1->second, &select_weather2->second, Current[0], Current[1], descr1, descr2, ex1, ex2, exG1, exG2);
 		  
 		CurrentWeather = &Weather2->second;
 		CurrentWeatherName = Weather2->first;		 

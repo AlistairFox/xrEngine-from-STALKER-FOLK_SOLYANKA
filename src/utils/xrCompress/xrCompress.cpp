@@ -1,6 +1,12 @@
 #include "stdafx.h"
 #include "xrCompress.h"
 
+
+#define CFS_ARCHIVE_SE7	2610
+
+
+
+
 //typedef void DUMMY_STUFF (const void*,const u32&,void*);
 //XRCORE_API DUMMY_STUFF	*g_temporary_stuff;
 //XRCORE_API DUMMY_STUFF	*g_dummy_stuff;
@@ -416,8 +422,6 @@ void xrCompressor::SetPackHeaderName(LPCSTR n)
 	R_ASSERT2		(pPackHeader, n);
 }
    
-#define CFS_ARCHIVE_SE7	2610
-
 void xrCompressor::ClosePack()
 {
 	fs_pack_writer->close_chunk	(); 

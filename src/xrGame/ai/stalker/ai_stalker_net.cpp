@@ -226,8 +226,6 @@ void CAI_Stalker::net_Export(NET_Packet& P)
  
 }
 
-extern float ai_stop_update_dir;
-
 void CAI_Stalker::net_Import(NET_Packet& P)
 {
 	R_ASSERT(Remote());
