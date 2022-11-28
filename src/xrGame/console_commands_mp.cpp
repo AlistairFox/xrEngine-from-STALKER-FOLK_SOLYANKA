@@ -3127,93 +3127,7 @@ public:
 	}
 };
 
-class CCC_WeatherCurr : public IConsole_Command
-{
-public:
-	CCC_WeatherCurr(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
-
-	virtual void Execute(LPCSTR args)
-	{
-		if (g_pGamePersistent->Environment().Current[0] && g_pGamePersistent->Environment().Current[1])
-			Msg("W1[%s], W2[%s], wfx[%5.0f] W0[%s] W1[%s]",
-				g_pGamePersistent->Environment().Current[0]->m_cfg_file.c_str(), 
-				g_pGamePersistent->Environment().Current[1]->m_cfg_file.c_str(),
-				g_pGamePersistent->Environment().wfx_time,
-				g_pGamePersistent->Environment().Current[0]->m_identifier.c_str()
-				, g_pGamePersistent->Environment().Current[1]->m_identifier.c_str());
-	}
-};
-
-class CCC_WeatherSync : public IConsole_Command
-{
-public:
-	CCC_WeatherSync(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
-
-	virtual void Execute(LPCSTR args)
-	{
-		g_pGamePersistent->Environment().Invalidate();
-	}
-};
-
-class ÑÑÑ_CheckOutfitCFS :  public IConsole_Command
-{
-public:
-	ÑÑÑ_CheckOutfitCFS(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
-
-	virtual void Execute(LPCSTR args)
-	{
-		for (auto sect : pSettings->sections())
-		{
-			if (sect->line_exist("actor_visual"))
-			{
-				LPCSTR check_path = pSettings->r_string(sect->Name, "actor_visual");
-				string_path path;
-				FS.update_path(path, "$game_meshes$", check_path);
-				
-				{
-					Msg("Outfit [%s] exist[%s]", path, FS.exist(path)? "true" : "false");
-				}
-
-			}
-		}
-	}
-
-};
-
-class CCC_SPAWN_SLOT_ITEMS : public IConsole_Command
-{
-public:
-	CCC_SPAWN_SLOT_ITEMS(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
-
-	virtual void Execute(LPCSTR args)
-	{
-		game_sv_mp* srv = smart_cast<game_sv_mp*>(Level().Server->game);
-
-		if (!srv)
-			return;
-
-		u32 raid;
-		sscanf(args, "%u", &raid);
-
-		for (auto section : pSettings->sections())
-		{
-			if (section->line_exist("class") && !section->line_exist("ignore_spawn"))
-			{
-				
-				CLASS_ID clsid = pSettings->r_clsid("outfit_base", "class");
-				CLASS_ID clsid_check = pSettings->r_clsid(section->Name.c_str(), "class");		
-				//Msg("clsid %d == clsid", clsid == clsid_check);
-
-				if (clsid == clsid_check)
-				{
-					srv->SpawnItem(section->Name.c_str(), raid);
-					//Msg("Spawn Item [%s]", section->Name.c_str());
-				}
-				 
-			}
-		}
-	}
-};
+/* END REG ACC*/
 
 
 
@@ -3266,9 +3180,6 @@ public:
 	
 };
 
-
-
-
 class CCC_UnlimatedAmmo : public IConsole_Command
 {
 public:
@@ -3317,8 +3228,6 @@ public:
 	}
 
 };
-
-
 
 class CCC_TeleportToPosition : public IConsole_Command
 {
@@ -3375,9 +3284,6 @@ public:
 			Fvector pos;
 			ClientID id, sec_id;
 			
-			//string128 tmp;
-			//exclude_raid_from_args(args, tmp, sizeof(tmp));
-
 			sscanf(args, "%u %u", &Client_ID, &Second_ID);
 
 			id.set(Client_ID); 
@@ -3472,9 +3378,6 @@ public:
 		}
 	}
 };
-
-extern float Shedule_Scale_AI_Stalker = 0;
-extern float Shedule_Scale_Objects = 0;
 
 class CCC_AdmSurgeStop : public IConsole_Command
 {
@@ -3628,32 +3531,9 @@ public:
 	}
 };
 
-
-
-/*
-class CCC_EXPORT_OBJECTS_TO_CLIENT : public IConsole_Command
-{
-public:
-	CCC_EXPORT_OBJECTS_TO_CLIENT(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
-
-	virtual void Execute(LPCSTR args)
-	{
-		if (OnClient())
-			return;
-
-		game_sv_freemp* freemp = smart_cast<game_sv_freemp*>(Level().Server->game);
-		if (freemp)
-		{
-			freemp->WriteAlifeObjectsToClient();
-		}
-	};
-};
-*/
-
-
 #include "xr_ini_ext.h"
 
-extern int ALIFE_ALL_LOCATION = 0;
+
 
 struct WeaponTAB {
 	Fvector3 pos;
@@ -3787,9 +3667,6 @@ public:
 
 	virtual void Execute(LPCSTR args)
 	{
-		//LPCSTR name;
-		//sscanf(args, "%s", name);
-
 		Fvector3 pos, dir, madPos;
 		float range;
 		pos.set(Device.vCameraPosition);
@@ -3806,13 +3683,12 @@ public:
 		madPos.mad(pos, dir, range);
 
 		game_cl_freemp* freemp = smart_cast<game_cl_freemp*>(&Game());
-		//freemp->CreateParticle("crommcruac\\blowout_wave_blend", pos);
-		freemp->CreateParticle("se7\\sp_200", pos);
-
-		
-
+ 		freemp->CreateParticle("se7\\sp_200", pos);
 	}
 };
+
+
+//MASTER SERVER CMDS
 
 class CCC_MasterServerPrint : public IConsole_Command
 {
@@ -3894,21 +3770,7 @@ public:
 	CCC_MasterServerSendCMD(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
 
 	virtual void Execute(LPCSTR args)
-	{	 /*
-		string128 cmd;
-		int id;
-
-		sscanf(args, "%d, %s", id, cmd);
- 
-		if (!Level().Server)
-			return;
-
-		if (Level().Server->isMaster())
-		{
- 			Level().Server->SendCMD_To_Server(id, cmd);
-		}
-		*/
-
+	{	
 		int id = 0;
 		sscanf(args, "%d", &id);
 		if (!Level().Server)
@@ -4006,46 +3868,161 @@ public:
 	}
 };
 
-extern int enabled_particles;
+class CCC_SetRankForID : public IConsole_Command
+{
+public: 
+	CCC_SetRankForID(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
+
+	virtual void Execute(LPCSTR args)
+	{			  
+		if (!OnServer())
+		{
+			int rank = 0, id = 0;
+			sscanf(args, "%d %d", &id, &rank);
+
+			NET_Packet		P;
+			P.w_begin(M_REMOTE_CONTROL_CMD);
+			string128 str;
+			xr_sprintf(str, "set_rank %d %d", id, rank);
+			P.w_stringZ(str);
+			Level().Send(P, net_flags(TRUE, TRUE));
+			return;
+		}
+		else
+		{
+			int rank = 0, id = 0;
+			sscanf(args, "%d %d", &id, &rank);
+			
+			game_sv_freemp* freemp = smart_cast<game_sv_freemp*>(Level().Server->game);
+
+			if (freemp)
+			{
+				ClientID clID;
+				clID.set(id);
+
+				xrClientData* data = (xrClientData*) Level().Server->GetClientByID(clID);
+				if (data && data->ps)
+					data->ps->rank = rank;
+
+				freemp->signal_Syncronize();
+			}
+		}	 		
+	}
+};
+
+
 extern int MAX_DISTANCE_FIND_GRAPH;
-extern float ai_stop_update_dir = 0.1f;
+extern int ALIFE_ALL_LOCATION = 0;
+ 
+extern float Shedule_Scale_AI_Stalker = 0;
+extern float Shedule_Scale_Objects = 0;
+
+extern float wpn_pos_x = 0;
+extern float wpn_pos_y = 0;
+extern float wpn_pos_z = 0;
+extern int wpn_slot = 0;
+extern bool wpn_rotation = false;
+
+class CCC_StrappPos : public IConsole_Command
+{
+public:
+	CCC_StrappPos(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
+
+	virtual void Execute(LPCSTR args)
+	{
+		float x, y, z;
+		int slot;
+		int size = sscanf(args, "%d, %f, %f, %f", &slot, &x, &y, &z);
+
+		if (Level().game)
+		{
+			wpn_slot = slot;
+			wpn_pos_x = x;
+			wpn_pos_y = y;
+			wpn_pos_z = z;
+		}
+	}
+};
+
+class CCC_StrappAngle : public IConsole_Command
+{
+public:
+	CCC_StrappAngle(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
+
+	virtual void Execute(LPCSTR args)
+	{
+		float x, y, z;
+		int slot;
+		sscanf(args, "%d, %f, %f, %f", &slot, &x, &y, &z);
+		if (Level().game)
+		{
+			CActor* actor = smart_cast<CActor*>(Level().Objects.net_Find(Level().game->local_player->GameID));
+
+			if (actor)
+			{
+				wpn_slot = slot;
+				wpn_pos_x = x;
+				wpn_pos_y = y;
+				wpn_pos_z = z;
+				wpn_rotation = true;
+			}
+		}
+	}
+};
 
 void register_mp_console_commands()
 {
-	CMD1(CCC_ServerSize, "server_memory");
-
-	CMD1(CCC_ParticleO_Create, "particle_create");
-
-	CMD1(CCC_weapon_set, "weapon_test");
- 	CMD4(CCC_Integer,	 "particle_sheduler", &enabled_particles, 0, 1);
+	//CAMERA
+	CMD4(CCC_Vector3, "cam_2_offset", &CCameraLook2::m_cam_offset, Fvector().set(-1000, -1000, -1000), Fvector().set(1000, 1000, 1000));
+	CMD1(CCC_StrappPos,  "wpn_offset_slot");
+	CMD1(CCC_StrappAngle, "wpn_angle_slot");
  
 
-	CMD1(CCC_GIVETASK, "give_task");
-	CMD1(CCC_GIVEINFO, "give_info");
-	CMD1(CCC_DEL_INFO, "del_info");
+	//TEST	
+	CMD1(CCC_ServerSize, "server_memory_entity");
 
+	{
+		//CMD1(ÑÑÑ_CheckOutfitCFS, "outfit_path_check");
+		//CMD1(CCC_SPAWN_SLOT_ITEMS, "spawn_slot_items");
+		//CMD1(CCC_SaveStalkers, "save_stalkers");
+		//CMD1(CCC_ParticleO_Create, "particle_create");
+		//CMD1(CCC_GIVETASK, "give_task");
+		//CMD1(CCC_GIVEINFO, "give_info");
+		//CMD1(CCC_DEL_INFO, "del_info");
+		//CMD1(CCC_SetRankForID, "set_rank");
+		//CMD1(CCC_STOP_WFX, "fx_effect_stop");
+		//CMD1(CCC_START_WFX, "fx_effect_start");
+	}
+	
+ 
+	//Master Server Connsole Commands
 
-	CMD1(CCC_STOP_WFX, "fx_effect_stop");
-	CMD1(CCC_START_WFX, "fx_effect_start");
+	CMD1(CCC_MasterServerPrint, "ms_print_cls");
+	CMD1(CCC_MasterServerStartWORK, "ms_start_workers")
 
+	//CMD1(CCC_MasterServerSendMsg, "ms_send");
+	//CMD1(CCC_MasterSendDataType, "ms_send_data");
 
+	CMD1(CCC_MasterServerSendCMD, "ms_send_cmd");
+	CMD1(CCC_MasterServerKillWorker, "ms_kill_worker");
+	CMD1(CCC_GetStatMemory, "ms_stats");
+
+	// MP GLOBAL ALIFE SETTINGS
 	CMD4(CCC_Integer, "mp_alife_simulation_location", &ALIFE_ALL_LOCATION, 0, 2);		 
 	CMD4(CCC_Integer, "mp_alife_path_graph_distance", &MAX_DISTANCE_FIND_GRAPH, 50, 3000);
 
-	CMD1(CCC_AdmSurgeStart, "adm_surge");
+	//ADMIN		(SE7kILLS)
+
+	CMD1(CCC_AdmSurgeStart,	   "adm_surge");
 	CMD1(CCC_AdmPsiStormStart, "adm_psi_storm");
-	CMD1(CCC_AdmFalloutStart, "adm_fallout");
+	CMD1(CCC_AdmFalloutStart,  "adm_fallout");
 
 	CMD1(CCC_AdmSurgeStop, "adm_surge_stop");
 	CMD1(CCC_AdmFalloutStop, "adm_fallout_stop");
 	CMD1(CCC_AdmPsiStormStop, "adm_psi_storm_stop");
 
-
-	CMD4(CCC_Float, "snd_volume_players", &psSoundVPlayers, 0, 1);
-	CMD4(CCC_Float, "snd_volume_recorder", &psSoundVRecorder, 0, 1);
-	CMD4(CCC_Integer, "snd_recorder_mode", &psSoundRecorderMode, 0, 1);
-	CMD4(CCC_Integer, "snd_recorder_denoise", &psSoundRecorderDenoise, 0, 1);
-
+	CMD1(CCC_AdmRegister, "register_new_acc");
+	CMD1(CCC_AdmDelateUser, "unregister_acc");
 
 	CMD1(CCC_TeleportPlayer, "adm_teleport_to_player");
 	CMD1(CCC_TeleportToPlayer, "adm_teleport_player");
@@ -4053,14 +4030,27 @@ void register_mp_console_commands()
 	CMD1(CCC_TeleportToPosition, "adm_teleport");
 	CMD1(CCC_ChangeTeamPlayer, "adm_set_team");
 
-	CMD4(CCC_Float,   "ai_shedule", &Shedule_Scale_AI_Stalker, 0, 20);
- 	
-	CMD4(CCC_Float, "shedule_objects", &Shedule_Scale_Objects, 0, 20);
+	CMD1(CCC_ADD_Money_to_client_self, "g_money");
+	CMD1(CCC_Set_Money_to_client, "sv_set_money");
 
- 	CMD1(ÑÑÑ_CheckOutfitCFS, "outfit_path_check");
 
-	CMD1(CCC_SPAWN_SLOT_ITEMS, "spawn_slot_items");
-	CMD1(CCC_SaveStalkers, "save_stalkers");
+	//CLIENT PING SIMMULATION
+
+	CMD4(CCC_Integer, "net_sv_simulate_lag", &simulate_netwark_ping, 0, 100);
+	CMD4(CCC_Integer, "net_cl_simulate_lag", &simulate_netwark_ping_cl, 0, 100);
+
+	//SOUND
+	CMD4(CCC_Float,   "snd_volume_players", &psSoundVPlayers, 0, 1);
+	CMD4(CCC_Float,   "snd_volume_recorder", &psSoundVRecorder, 0, 1);
+	CMD4(CCC_Integer, "snd_recorder_mode", &psSoundRecorderMode, 0, 1);
+	CMD4(CCC_Integer, "snd_recorder_denoise", &psSoundRecorderDenoise, 0, 1);
+
+	CMD4(CCC_Float, "ai_shedule",		&Shedule_Scale_AI_Stalker, 0, 20);
+	CMD4(CCC_Float, "shedule_objects",	&Shedule_Scale_Objects, 0, 20);
+
+ 
+
+	//PAVEL
 
 	CMD1(CCC_SpawnToInventory,		"sv_spawn_to_player_inv");
 	CMD1(CCC_SpawnToObjWithId,		"sv_spawn_to_obj_with_id");
@@ -4078,20 +4068,16 @@ void register_mp_console_commands()
 	CMD1(CCC_AdmGodMode,			"adm_god_mode"			);
 	CMD1(CCC_UnlimatedAmmo,			"adm_unlimited_ammo");
 
-	CMD1(CCC_ADD_Money_to_client_self, "g_money");
-	CMD1(CCC_Set_Money_to_client, "sv_set_money");
-
-	CMD4(CCC_Vector3, "cam_2_offset", &CCameraLook2::m_cam_offset, Fvector().set(-1000, -1000, -1000), Fvector().set(1000, 1000, 1000));
- 	CMD4(CCC_Integer, "net_sv_simulate_lag", &simulate_netwark_ping, 0, 100);
-	CMD4(CCC_Integer, "net_cl_simulate_lag", &simulate_netwark_ping_cl, 0, 100);
-
-	CMD1(CCC_WeatherCurr, "weather_current");
-	CMD1(CCC_WeatherSync, "weather_sync");
 
 	CMD1(CCC_MovePlayerToRPoint,	"sv_move_player_to_rpoint");
+	CMD1(CCC_GiveMoneyToPlayer,		"sv_give_money");
+	CMD1(CCC_TransferMoney,			"transfer_money");
 
-	CMD1(CCC_GiveMoneyToPlayer, "sv_give_money");
-	CMD1(CCC_TransferMoney, "transfer_money");
+	CMD4(CCC_Integer, "draw_mp_statistic", &g_cl_draw_mp_statistic, 0, 1);
+
+
+
+	//ORIGINAL MP
 
 	CMD1(CCC_Restart,				"g_restart"				);
 	CMD1(CCC_RestartFast,			"g_restart_fast"		);
@@ -4104,12 +4090,7 @@ void register_mp_console_commands()
 	
 	CMD1(CCC_Net_CL_Resync,			"net_cl_resync" );
 	CMD1(CCC_Net_CL_ClearStats,		"net_cl_clearstats" );
-	CMD1(CCC_Net_SV_ClearStats,		"net_sv_clearstats" );
-
-	CMD4(CCC_Integer,				"draw_mp_statistic", &g_cl_draw_mp_statistic, 0, 1);
-
-
-   
+	CMD1(CCC_Net_SV_ClearStats,		"net_sv_clearstats" ); 
 
 	// Network
  
@@ -4305,19 +4286,4 @@ void register_mp_console_commands()
 	CMD1(CCC_GameSpyProfile,				"gs_profile");
 	CMD4(CCC_Integer,						"sv_write_update_bin",				&g_sv_write_updates_bin, 0, 1);
 	CMD4(CCC_Integer,						"sv_traffic_optimization_level",	(int*)&g_sv_traffic_optimization_level, 0, 7);
-  
-	CMD1(CCC_AdmRegister, "reg");
-	CMD1(CCC_AdmDelateUser, "unreg");
-
-	//Master Server Connsole Commands
-
-	CMD1(CCC_MasterServerPrint, "ms_print_cls");
-	CMD1(CCC_MasterServerStartWORK, "ms_start_workers")
-
-	//CMD1(CCC_MasterServerSendMsg, "ms_send");
-	//CMD1(CCC_MasterSendDataType, "ms_send_data");
-
-	CMD1(CCC_MasterServerSendCMD, "ms_send_cmd");
-	CMD1(CCC_MasterServerKillWorker, "ms_kill_worker");
-	CMD1(CCC_GetStatMemory, "ms_stats");
 }

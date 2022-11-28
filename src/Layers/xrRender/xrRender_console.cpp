@@ -802,10 +802,10 @@ void		xrRender_initconsole	()
 
 	CMD4(CCC_Integer,	"r2_wait_sleep",		&ps_r2_wait_sleep,			0,		1		);
 
-	CMD4(CCC_Integer, "r2_dhemi_count",			&ps_r2_dhemi_count, 4, 25);
+
 
 #ifndef MASTER_GOLD
-	
+	CMD4(CCC_Integer,	"r2_dhemi_count",		&ps_r2_dhemi_count, 4, 25);
 	CMD4(CCC_Float,		"r2_dhemi_sky_scale",	&ps_r2_dhemi_sky_scale,		0.0f,	100.f	);
 	CMD4(CCC_Float,		"r2_dhemi_light_scale",	&ps_r2_dhemi_light_scale,	0,		100.f	);
 	CMD4(CCC_Float,		"r2_dhemi_light_flow",	&ps_r2_dhemi_light_flow,	0,		1.f	);

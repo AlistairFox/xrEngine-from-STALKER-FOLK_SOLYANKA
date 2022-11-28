@@ -859,18 +859,20 @@ void CActor::HitSignal(float perc, Fvector& vLocalDir, CObject* who, s16 element
 	}
 }
 void start_tutorial(LPCSTR name);
+
 void CActor::Die	(CObject* who)
 {
 #ifdef DEBUG
 	Msg("--- Actor [%s] dies !", this->Name());
 #endif // #ifdef DEBUG
+
 	inherited::Die		(who);
 
 	if (OnServer())
 	{	
 		u16 I = inventory().FirstSlot();
 		u16 E = inventory().LastSlot();
-
+		// !!! Чистка слотов
 		for (; I <= E; ++I)
 		{
 			PIItem item_in_slot = inventory().ItemFromSlot(I);
@@ -885,7 +887,8 @@ void CActor::Die	(CObject* who)
 							grenade->DropGrenade();
 						else
 							item_in_slot->SetDropManual(TRUE);
-					}else
+					}
+					else
 					{
 						//This logic we do on a server site
 						/*
@@ -959,7 +962,8 @@ void CActor::Die	(CObject* who)
 	{
 		cam_Set				(eacFreeLook);
 		start_tutorial		("game_over");
-	} else
+	} 
+	else
 	{
 		cam_Set				(eacFixedLookAt);
 	}

@@ -256,6 +256,11 @@ CSE_Abstract *CLevel::spawn_item		(LPCSTR section, const Fvector &position, u32 
 		return				(abstract);
 }
 
+bool CLevel::ClientData_AlifeOff()
+{
+	return xr_strcmp(m_game_description.spawn_name, "alife_off") == 0;
+}
+
 void	CLevel::ProcessGameSpawns	()
 {
 	while (!game_spawn_queue.empty())

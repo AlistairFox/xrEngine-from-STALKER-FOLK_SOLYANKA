@@ -335,11 +335,41 @@ bool CInventoryOwner::IsTrading()
 	return m_bTrading;
 }
 
+#include "Weapon.h"
+
 //==============
 void CInventoryOwner::renderable_Render		()
 {
+	//Se7Kills (Only Render Active ITEM)
+
 	if (inventory().ActiveItem())
+	{
+		CWeapon* wpn = smart_cast<CWeapon*>(inventory().ActiveItem());
+		if (wpn)
+			wpn->strapped_mode(false);
 		inventory().ActiveItem()->renderable_Render();
+	}
+	
+	if (smart_cast<CActor*>(this))
+	{
+		CInventoryItem* item_2 = inventory().ItemFromSlot(INV_SLOT_2);
+		CInventoryItem* item_3 = inventory().ItemFromSlot(INV_SLOT_3);
+
+		CWeapon* wpn1 = smart_cast<CWeapon*>(item_2);
+		CWeapon* wpn2 = smart_cast<CWeapon*>(item_3);
+
+		if (wpn1)
+		{
+			wpn1->strapped_mode(wpn1 != inventory().ActiveItem());
+			wpn1->renderable_Render();
+		}
+
+		if (wpn2)
+		{
+			wpn2->strapped_mode(wpn2 != inventory().ActiveItem());
+			wpn2->renderable_Render();
+		}
+	}	 
 
 	CAttachmentOwner::renderable_Render();
 }
@@ -465,16 +495,35 @@ void CInventoryOwner::SetCommunity	(CHARACTER_COMMUNITY_INDEX new_community)
 	trader->m_community_index  = new_community;
 }
 
+void CInventoryOwner::SetRankClient(CHARACTER_RANK_VALUE rank)
+{
+	CharacterInfo().m_CurrentRank.set(rank);
+}
+
 void CInventoryOwner::SetRank			(CHARACTER_RANK_VALUE rank)
 {
+	if (!OnServer())
+		return;
+
 	CEntityAlive* EA					= smart_cast<CEntityAlive*>(this); VERIFY(EA);
 
 	CharacterInfo().m_CurrentRank.set(rank);
 
+
+	//Добавил раньше проверки ai().alife().objects().object(); (игрока нет в ai().alife().objects() ) 
+	//Павел не делал регистрацию мп игрока в objects();
+
+	NET_Packet packet;
+	packet.w_begin(M_GAMEMESSAGE);
+	packet.w_u32(M_INVENTORY_OWNER_RANK);  //ЗАРЕГАЙ НОВЫЙ ЕВЕНТ В xrMessages.h
+	packet.w_u32(this->object_id());
+	packet.w_u32(rank);
+	Level().Server->SendBroadcast(Level().Server->GetServerClient()->ID, packet, net_flags(true, true));
+
+	
+
 	CSE_Abstract* e_entity = ai().alife().objects().object(EA->ID(), false);
- 
-	if(!e_entity) return;
- 
+ 	if(!e_entity) return;
 	CSE_ALifeTraderAbstract* trader		= smart_cast<CSE_ALifeTraderAbstract*>(e_entity);
 	if(!trader) return;
  

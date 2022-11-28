@@ -50,6 +50,8 @@ void CHudItem::PlaySound(LPCSTR alias, const Fvector& position)
 	m_sounds.PlaySound	(alias, position, object().H_Root(), !!GetHUDmode());
 }
 
+#include "Weapon.h"
+
 void CHudItem::renderable_Render()
 {
 	UpdateXForm					();
@@ -60,11 +62,19 @@ void CHudItem::renderable_Render()
 	}
 	else 
 	{
+		CWeapon* wpn = smart_cast<CWeapon*>(this);
+
+		if (!_hud_render && wpn && wpn->strapped_mode())
+		{
+			on_renderable_Render();
+		}		 
+
 		if (!object().H_Parent() || (!_hud_render && !IsHidden()))
 		{
 			on_renderable_Render		();
 			debug_draw_firedeps			();
-		}else
+		}
+		else
 		if (object().H_Parent()) 
 		{
 			CInventoryOwner	*owner = smart_cast<CInventoryOwner*>(object().H_Parent());

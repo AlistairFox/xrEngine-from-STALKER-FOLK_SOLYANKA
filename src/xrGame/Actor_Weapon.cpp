@@ -86,14 +86,21 @@ void CActor::g_fireParams	(const CHudItem* pHudItem, Fvector &fire_pos, Fvector 
 		fire_pos = weapon->get_LastFP();
 		//fire_dir = weapon->get_LastFD();
 	}
-
 }
 
 void CActor::g_WeaponBones	(int &L, int &R1, int &R2)
 {
-	R1				= m_r_hand;
-	R2				= m_r_finger2;
-	L				= m_l_finger1;
+	R1 = m_r_hand;
+	R2 = m_r_finger2;
+	L  = m_l_finger1;
+}
+
+void CActor::g_WeaponBones_Stripped(int& L, int& R1, int& R2, bool side)
+{
+	//не трогать
+	L = m_spine1;
+	R1 = m_spine2;
+	R2 = m_spine1;
 }
 
 BOOL CActor::g_State (SEntityState& state) const

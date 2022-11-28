@@ -77,6 +77,7 @@ void CAttachableItem::OnH_A_Chield		()
 		object().setVisible			(true);
 }
 
+#include "Level.h"
 void CAttachableItem::renderable_Render	()
 {
 	::Render->set_Transform			(&object().XFORM());

@@ -267,13 +267,53 @@ public:
 public:
 	IC		LPCSTR			strap_bone0			() const {return m_strap_bone0;}
 	IC		LPCSTR			strap_bone1			() const {return m_strap_bone1;}
-	IC		void			strapped_mode		(bool value) {m_strapped_mode = value;}
+
+	void	strapped_update(bool value);
+	IC		void			strapped_mode(bool value)
+	{
+		if (value != m_strapped_mode)
+		{
+			m_strapped_mode = value;
+			strapped_update(value);
+		}
+	}
+
 	IC		bool			strapped_mode		() const {return m_strapped_mode;}
+
+	void set_offset_slot_2(float x, float y, float z, bool pos)
+	{
+		Msg("Set OFFSET 2 (%f, %f, %f)", x, y, z);
+
+		if (pos)
+			m_strap_pos_slot_2.set(x,y,z);
+		else
+			m_strap_angle_slot_2.set(x,y,z);
+	}
+
+	void set_offset_slot_3(float x, float y, float z, bool pos)
+	{
+		Msg("Set OFFSET 3 (%f, %f, %f)", x,y,z);
+
+		if (pos)
+			m_strap_pos_slot_3.set(x,y,z);
+		else
+			m_strap_angle_slot_3.set(x, y, z);
+	}
+
+
+	Fvector					m_strap_pos_slot_2;
+	Fvector					m_strap_pos_slot_3;
+
+	Fvector					m_strap_angle_slot_2;
+	Fvector					m_strap_angle_slot_3;
 
 protected:
 	LPCSTR					m_strap_bone0;
 	LPCSTR					m_strap_bone1;
 	Fmatrix					m_StrapOffset;
+
+
+
 	bool					m_strapped_mode;
 	bool					m_can_be_strapped;
 

@@ -146,10 +146,11 @@ void CWeapon::UpdateXForm	()
 	}
 
 	const CInventoryOwner	*parent = smart_cast<const CInventoryOwner*>(E);
+
 	if (parent && parent->use_simplified_visual())
 		return;
-
-	if (parent->attached(this))
+  
+	if (parent && parent->attached(this))
 		return;
 
 	IKinematics*			V = smart_cast<IKinematics*>	(E->Visual());
@@ -159,7 +160,12 @@ void CWeapon::UpdateXForm	()
 	int						boneL = -1, boneR = -1, boneR2 = -1;
 
 	// this ugly case is possible in case of a CustomMonster, not a Stalker, nor an Actor
-	E->g_WeaponBones		(boneL,boneR,boneR2);
+	CActor* Actor = smart_cast<CActor*>(E);
+
+	if (Actor && strapped_mode())
+		Actor->g_WeaponBones_Stripped(boneL, boneR, boneR2, CurrSlot() == INV_SLOT_3);
+	else
+		E->g_WeaponBones		(boneL,boneR,boneR2);
 
 	if (boneR == -1)		return;
 
@@ -167,12 +173,14 @@ void CWeapon::UpdateXForm	()
 		boneL				= boneR2;
 
 	V->CalculateBones		();
+
 	Fmatrix& mL				= V->LL_GetTransform(u16(boneL));
 	Fmatrix& mR				= V->LL_GetTransform(u16(boneR));
+
 	// Calculate
 	Fmatrix					mRes;
 	Fvector					R,D,N;
-	D.sub					(mL.c,mR.c);	
+	D.sub					(mL.c, mR.c);	
 
 	if(fis_zero(D.magnitude()))
 	{
@@ -194,6 +202,125 @@ void CWeapon::UpdateXForm	()
 	UpdatePosition			(mRes);
 }
 
+extern float wpn_pos_x;
+extern float wpn_pos_y;
+extern float wpn_pos_z;
+extern int wpn_slot;
+extern bool wpn_rotation;
+
+CInifile* filestraps;
+
+string_path path_file;
+
+void CWeapon::UpdatePosition(const Fmatrix& trans)
+{
+	Position().set(trans.c);
+
+	if (Device.dwFrame % 1000 == 0)
+	{
+		if (filestraps)
+			CInifile::Destroy(filestraps);
+
+		if (xr_strlen(path_file) == 0)
+			FS.update_path(path_file, "$game_config$", "actors_straps.ltx");
+
+		FS.rescan_path(path_file, false);
+
+		filestraps = xr_new<CInifile>(path_file, true, true, true);
+	}
+
+	if (H_Parent() == Level().CurrentControlEntity() && filestraps)
+	{
+		if (CurrSlot() == INV_SLOT_2)
+		{
+			if (filestraps->section_exist("slot_2"))
+			{
+				Fvector pos = filestraps->r_fvector3("slot_2", "pos");
+				Fvector orient = filestraps->r_fvector3("slot_2", "angle");
+
+				Fvector hpb;
+				hpb.set(orient);
+				hpb.mul(PI / 180);
+				m_StrapOffset.setHPB(hpb.x, hpb.y, hpb.z);
+				m_StrapOffset.translate_over(pos);
+			}
+		}
+
+		if (CurrSlot() == INV_SLOT_3)
+		{		 
+			if (filestraps->section_exist("slot_3"))
+			{
+				Fvector pos = filestraps->r_fvector3("slot_3", "pos");
+				Fvector orient = filestraps->r_fvector3("slot_3", "angle");
+
+				Fvector hpb;
+				hpb.set(orient);
+				hpb.mul(PI / 180);
+				m_StrapOffset.setHPB(hpb.x, hpb.y, hpb.z);
+				m_StrapOffset.translate_over(pos);
+			}
+		}
+	}
+  
+	/*
+	if (H_Parent() == Level().CurrentControlEntity())
+	{
+		if (wpn_slot != 0)
+		{
+			Msg("Modify Slot: %d", wpn_slot);
+			Msg("Pos PRE [%f][%f][%f]", VPUSH(m_StrapOffset.c));
+			Fvector hpb;
+			m_StrapOffset.getHPB(hpb);
+			Msg("ROT PRE [%f][%f][%f]", VPUSH(hpb));
+		}
+
+		if (CurrSlot() == INV_SLOT_3 && wpn_slot == 3)
+		{
+			if (wpn_rotation)
+			{
+				Fvector hpb; hpb.set(wpn_pos_x, wpn_pos_y, wpn_pos_z);
+				hpb.mul(PI / 180);
+				m_StrapOffset.setHPB(hpb.x, hpb.y, hpb.z);
+			}
+			else
+				m_StrapOffset.translate_over(wpn_pos_x, wpn_pos_y, wpn_pos_z);
+		}
+
+
+		if (CurrSlot() == INV_SLOT_2 && wpn_slot == 2)
+		{
+			if (wpn_rotation)
+			{
+				Fvector hpb; hpb.set(wpn_pos_x, wpn_pos_y, wpn_pos_z);
+				hpb.mul(PI / 180);
+				m_StrapOffset.setHPB(hpb.x, hpb.y, hpb.z);
+			}
+			else
+				m_StrapOffset.translate_over(wpn_pos_x, wpn_pos_y, wpn_pos_z);
+		}
+
+		if (wpn_slot != 0)
+		{
+			Msg("Pos[%f][%f][%f]", VPUSH(m_StrapOffset.c));
+			Fvector hpb;
+			m_StrapOffset.getHPB(hpb);
+			Msg("ROT[%f][%f][%f]", VPUSH(hpb));
+		}
+
+		wpn_pos_x = 0;
+		wpn_pos_y = 0;
+		wpn_pos_z = 0;
+		wpn_slot = 0;
+		wpn_rotation = false;
+
+	}
+	*/
+
+	XFORM().mul(trans, strapped_mode() ? m_StrapOffset : m_Offset);
+	VERIFY(!fis_zero(DET(renderable.xform)));
+}
+
+
 void CWeapon::UpdateFireDependencies_internal()
 {
 	if (Device.dwFrame!=dwFP_Frame) 
@@ -204,8 +331,7 @@ void CWeapon::UpdateFireDependencies_internal()
 
 		if ( GetHUDmode() )
 		{
-			//Msg("HudMode");
-			HudItemData()->setup_firedeps		(m_current_firedeps);
+ 			HudItemData()->setup_firedeps		(m_current_firedeps);
 			VERIFY(_valid(m_current_firedeps.m_FireParticlesXForm));
 		} 
 		else 
@@ -1003,14 +1129,6 @@ void CWeapon::SetDefaults()
 	m_flagsAddOnState	= 0;
 	m_zoom_params.m_bIsZoomModeNow	= false;
 }
-
-void CWeapon::UpdatePosition(const Fmatrix& trans)
-{
-	Position().set		(trans.c);
-	XFORM().mul			(trans,m_strapped_mode ? m_StrapOffset : m_Offset);
-	VERIFY				(!fis_zero(DET(renderable.xform)));
-}
-
 
 bool CWeapon::Action(u16 cmd, u32 flags) 
 {
@@ -2049,6 +2167,10 @@ u32 CWeapon::Cost() const
 
 }
 
+void CWeapon::strapped_update(bool value)
+{
+	//setVisible(value);
+}
 
 bool CWeapon::bLoadAltScopesParams(LPCSTR section)
 {

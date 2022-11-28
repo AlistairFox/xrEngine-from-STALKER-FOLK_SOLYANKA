@@ -1169,6 +1169,11 @@ CSE_ALifeDynamicObject* alife_object_cl(u16 obj_id)
 	return 0;
 }
 
+bool alife_off()
+{
+	return Level().ClientData_AlifeOff();
+}
+
 
 #pragma optimize("s",on)
 void CLevel::script_register(lua_State *L)
@@ -1182,8 +1187,8 @@ void CLevel::script_register(lua_State *L)
 
 	module(L, "alife_level")
 		[
-			def("get_object", &alife_object_cl)
-		
+			def("get_object", &alife_object_cl),
+			def("alife_off", &alife_off)
 		
 		];
 

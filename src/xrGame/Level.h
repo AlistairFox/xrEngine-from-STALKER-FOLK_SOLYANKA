@@ -382,6 +382,9 @@ public:
 			bool			IsClient					();
 			CSE_Abstract	*spawn_item					(LPCSTR section, const Fvector &position, u32 level_vertex_id, u16 parent_id, bool return_item = false);
 			
+	//	
+			bool ClientData_AlifeOff();
+
 protected:
 	u32		m_dwCL_PingDeltaSend;
 	u32		m_dwCL_PingLastSendTime;
