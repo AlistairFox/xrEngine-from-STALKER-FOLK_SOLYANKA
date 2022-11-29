@@ -3917,66 +3917,11 @@ extern int ALIFE_ALL_LOCATION = 0;
 extern float Shedule_Scale_AI_Stalker = 0;
 extern float Shedule_Scale_Objects = 0;
 
-extern float wpn_pos_x = 0;
-extern float wpn_pos_y = 0;
-extern float wpn_pos_z = 0;
-extern int wpn_slot = 0;
-extern bool wpn_rotation = false;
-
-class CCC_StrappPos : public IConsole_Command
-{
-public:
-	CCC_StrappPos(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
-
-	virtual void Execute(LPCSTR args)
-	{
-		float x, y, z;
-		int slot;
-		int size = sscanf(args, "%d, %f, %f, %f", &slot, &x, &y, &z);
-
-		if (Level().game)
-		{
-			wpn_slot = slot;
-			wpn_pos_x = x;
-			wpn_pos_y = y;
-			wpn_pos_z = z;
-		}
-	}
-};
-
-class CCC_StrappAngle : public IConsole_Command
-{
-public:
-	CCC_StrappAngle(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
-
-	virtual void Execute(LPCSTR args)
-	{
-		float x, y, z;
-		int slot;
-		sscanf(args, "%d, %f, %f, %f", &slot, &x, &y, &z);
-		if (Level().game)
-		{
-			CActor* actor = smart_cast<CActor*>(Level().Objects.net_Find(Level().game->local_player->GameID));
-
-			if (actor)
-			{
-				wpn_slot = slot;
-				wpn_pos_x = x;
-				wpn_pos_y = y;
-				wpn_pos_z = z;
-				wpn_rotation = true;
-			}
-		}
-	}
-};
 
 void register_mp_console_commands()
 {
 	//CAMERA
 	CMD4(CCC_Vector3, "cam_2_offset", &CCameraLook2::m_cam_offset, Fvector().set(-1000, -1000, -1000), Fvector().set(1000, 1000, 1000));
-	CMD1(CCC_StrappPos,  "wpn_offset_slot");
-	CMD1(CCC_StrappAngle, "wpn_angle_slot");
- 
 
 	//TEST	
 	CMD1(CCC_ServerSize, "server_memory_entity");

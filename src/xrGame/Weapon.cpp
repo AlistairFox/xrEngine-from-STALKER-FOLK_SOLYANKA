@@ -202,120 +202,77 @@ void CWeapon::UpdateXForm	()
 	UpdatePosition			(mRes);
 }
 
-extern float wpn_pos_x;
-extern float wpn_pos_y;
-extern float wpn_pos_z;
-extern int wpn_slot;
-extern bool wpn_rotation;
-
 CInifile* filestraps;
-
 string_path path_file;
+
+void CWeapon::UpdateStrapPosition()
+{
+	string_path file;
+	FS.update_path(file, "$game_config$", "actors_strap.ltx");
+	FS.rescan_path(file, false);
+
+	CInifile* file_strap = xr_new<CInifile>(file, true, true, false);
+
+	if (file_strap)
+	{
+		string32 slot2, slot3;
+		sprintf(slot2, "slot_2_anim_%d", this->animation_slot());
+		sprintf(slot3, "slot_3_anim_%d", this->animation_slot());
+
+		if (file_strap->section_exist(slot2))
+		{
+			m_strap_pos_slot_2 = file_strap->r_fvector3(slot2, "pos");
+			m_strap_angle_slot_2 = file_strap->r_fvector3(slot2, "angle");
+			if (file_strap->line_exist(slot2, "enable"))
+				m_strap_ignore = file_strap->r_bool(slot2, "enable");
+		}
+
+		if (file_strap->section_exist(slot3))
+		{
+			m_strap_pos_slot_3 = file_strap->r_fvector3(slot3, "pos");
+			m_strap_angle_slot_3 = file_strap->r_fvector3(slot3, "angle");
+			if (file_strap->line_exist(slot3, "enable"))
+				m_strap_ignore = file_strap->r_bool(slot3, "enable");
+		}
+	}
+
+	CInifile::Destroy(file_strap);
+}
+
+
 
 void CWeapon::UpdatePosition(const Fmatrix& trans)
 {
 	Position().set(trans.c);
-
-	if (Device.dwFrame % 1000 == 0)
+	/* ƒÀﬂ Õ¿—“–Œ… » œŒÀŒ∆≈Õ»ﬂ ¬ —¿ÃŒ… »√–≈ –¿— ŒÃ≈Õ“»“‹
+	 if (Device.dwFrame % 100 == 0)
+	 {
+		 UpdateStrapPosition();
+	 }
+	 */
+	if (!m_strap_setuped)
 	{
-		if (filestraps)
-			CInifile::Destroy(filestraps);
-
-		if (xr_strlen(path_file) == 0)
-			FS.update_path(path_file, "$game_config$", "actors_straps.ltx");
-
-		FS.rescan_path(path_file, false);
-
-		filestraps = xr_new<CInifile>(path_file, true, true, true);
+		m_strap_setuped = true;
+		UpdateStrapPosition();
 	}
 
-	if (H_Parent() == Level().CurrentControlEntity() && filestraps)
+
+	if (H_Parent() && smart_cast<CActor*>(H_Parent()))
 	{
 		if (CurrSlot() == INV_SLOT_2)
 		{
-			if (filestraps->section_exist("slot_2"))
-			{
-				Fvector pos = filestraps->r_fvector3("slot_2", "pos");
-				Fvector orient = filestraps->r_fvector3("slot_2", "angle");
-
-				Fvector hpb;
-				hpb.set(orient);
-				hpb.mul(PI / 180);
-				m_StrapOffset.setHPB(hpb.x, hpb.y, hpb.z);
-				m_StrapOffset.translate_over(pos);
-			}
+			Fvector hpb; hpb.set(m_strap_actor_angle_2); hpb.mul(PI / 180);
+			m_StrapOffset.setHPB(hpb.x, hpb.y, hpb.z);
+			m_StrapOffset.translate_over(m_strap_actor_pos_2);
 		}
 
 		if (CurrSlot() == INV_SLOT_3)
-		{		 
-			if (filestraps->section_exist("slot_3"))
-			{
-				Fvector pos = filestraps->r_fvector3("slot_3", "pos");
-				Fvector orient = filestraps->r_fvector3("slot_3", "angle");
-
-				Fvector hpb;
-				hpb.set(orient);
-				hpb.mul(PI / 180);
-				m_StrapOffset.setHPB(hpb.x, hpb.y, hpb.z);
-				m_StrapOffset.translate_over(pos);
-			}
+		{
+			Fvector hpb; hpb.set(m_strap_actor_angle_3); hpb.mul(PI / 180);
+			m_StrapOffset.setHPB(hpb.x, hpb.y, hpb.z);
+			m_StrapOffset.translate_over(m_strap_actor_pos_3);
 		}
 	}
-  
-	/*
-	if (H_Parent() == Level().CurrentControlEntity())
-	{
-		if (wpn_slot != 0)
-		{
-			Msg("Modify Slot: %d", wpn_slot);
-			Msg("Pos PRE [%f][%f][%f]", VPUSH(m_StrapOffset.c));
-			Fvector hpb;
-			m_StrapOffset.getHPB(hpb);
-			Msg("ROT PRE [%f][%f][%f]", VPUSH(hpb));
-		}
-
-		if (CurrSlot() == INV_SLOT_3 && wpn_slot == 3)
-		{
-			if (wpn_rotation)
-			{
-				Fvector hpb; hpb.set(wpn_pos_x, wpn_pos_y, wpn_pos_z);
-				hpb.mul(PI / 180);
-				m_StrapOffset.setHPB(hpb.x, hpb.y, hpb.z);
-			}
-			else
-				m_StrapOffset.translate_over(wpn_pos_x, wpn_pos_y, wpn_pos_z);
-		}
-
-
-		if (CurrSlot() == INV_SLOT_2 && wpn_slot == 2)
-		{
-			if (wpn_rotation)
-			{
-				Fvector hpb; hpb.set(wpn_pos_x, wpn_pos_y, wpn_pos_z);
-				hpb.mul(PI / 180);
-				m_StrapOffset.setHPB(hpb.x, hpb.y, hpb.z);
-			}
-			else
-				m_StrapOffset.translate_over(wpn_pos_x, wpn_pos_y, wpn_pos_z);
-		}
-
-		if (wpn_slot != 0)
-		{
-			Msg("Pos[%f][%f][%f]", VPUSH(m_StrapOffset.c));
-			Fvector hpb;
-			m_StrapOffset.getHPB(hpb);
-			Msg("ROT[%f][%f][%f]", VPUSH(hpb));
-		}
-
-		wpn_pos_x = 0;
-		wpn_pos_y = 0;
-		wpn_pos_z = 0;
-		wpn_slot = 0;
-		wpn_rotation = false;
-
-	}
-	*/
-
 	XFORM().mul(trans, strapped_mode() ? m_StrapOffset : m_Offset);
 	VERIFY(!fis_zero(DET(renderable.xform)));
 }

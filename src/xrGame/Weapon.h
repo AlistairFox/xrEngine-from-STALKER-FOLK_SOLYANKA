@@ -307,6 +307,10 @@ public:
 	Fvector					m_strap_angle_slot_2;
 	Fvector					m_strap_angle_slot_3;
 
+	bool m_strap_ignore		= false;
+	bool m_strap_setuped	= false;
+
+
 protected:
 	LPCSTR					m_strap_bone0;
 	LPCSTR					m_strap_bone1;
@@ -336,6 +340,7 @@ private:
 protected:
 	virtual void			UpdateFireDependencies_internal	();
 	virtual void			UpdatePosition			(const Fmatrix& transform);	//.
+	virtual void			UpdateStrapPosition();
 	virtual void			UpdateXForm				();
 	virtual void			UpdateHudAdditonal		(Fmatrix&);
 	IC		void			UpdateFireDependencies	()			{ if (dwFP_Frame==Device.dwFrame) return; UpdateFireDependencies_internal(); };
