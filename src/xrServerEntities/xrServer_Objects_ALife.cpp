@@ -559,8 +559,8 @@ bool CSE_ALifeObject::used_ai_locations		() const
 #include "game_base_space.h"
 #include "../xrEngine/IGame_Persistent.h"
 
-extern int ALIFE_ALL_LOCATION;
-
+extern int ALIFE_ALL_LOCATION; //2 State OFF ALL OBJECTS
+ 
 bool CSE_ALifeObject::can_switch_online		() const
 {
 	if (ALIFE_ALL_LOCATION == 2)
@@ -1587,6 +1587,16 @@ bool CSE_ALifeObjectHangingLamp::match_configuration() const
 #endif
 }
 
+bool CSE_ALifeObjectHangingLamp::can_switch_online() const
+{
+	return true;
+}
+
+bool CSE_ALifeObjectHangingLamp::can_switch_offline() const
+{
+	return  false;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 // CSE_ALifeObjectSearchlight
 ////////////////////////////////////////////////////////////////////////////
@@ -1631,6 +1641,16 @@ void CSE_ALifeObjectProjector::FillProps			(LPCSTR pref, PropItemVec& values)
 bool CSE_ALifeObjectProjector::used_ai_locations() const
 {
 	return						(false);
+}
+
+bool CSE_ALifeObjectProjector::can_switch_online() const
+{
+	return true;
+}
+
+bool CSE_ALifeObjectProjector::can_switch_offline() const
+{
+	return  false;
 }
 
 ////////////////////////////////////////////////////////////////////////////

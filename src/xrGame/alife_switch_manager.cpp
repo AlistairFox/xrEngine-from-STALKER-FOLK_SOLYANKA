@@ -234,19 +234,14 @@ void CALifeSwitchManager::switch_object	(CSE_ALifeDynamicObject	*I)
 		return;
 	}
 
-	//if (!I->m_bOnline)
-	//	try_switch_online(I);
-
-	 
 	if (!synchronize_location(I))
 		return;
 
 	if (I->m_bOnline)
-		try_switch_offline	(I);
+		try_switch_offline(I);
 	else
-		try_switch_online	(I);
-	 
-
+		try_switch_online(I);
+ 
 	if (I->redundant())
 		release				(I);
 }

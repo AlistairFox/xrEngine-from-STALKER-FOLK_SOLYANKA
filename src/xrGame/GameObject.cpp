@@ -1010,6 +1010,7 @@ extern float Shedule_Scale_Objects;
 
 float CGameObject::shedule_Scale()
 {
+	/*
 	if (Game().players.size() > 0)
 	{
 		bool finded = false;
@@ -1033,8 +1034,10 @@ float CGameObject::shedule_Scale()
 	}
 
 	return Shedule_Scale_Objects;
+	*/	
+	return Shedule_Scale_Objects;
 }
-
+		  
 #include "smart_zone.h"
 #include "ai/stalker/ai_stalker.h"
 #include "ai/monsters/basemonster/base_monster.h"

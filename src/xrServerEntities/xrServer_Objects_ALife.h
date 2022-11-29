@@ -501,6 +501,9 @@ SERVER_ENTITY_DECLARE_BEGIN2(CSE_ALifeObjectHangingLamp,CSE_ALifeDynamicObjectVi
 	virtual bool					used_ai_locations			() const;
 	virtual bool					match_configuration			() const;
 	virtual bool		__stdcall	validate					();
+	virtual bool					can_switch_online() const;
+	virtual bool					can_switch_offline() const;
+
 #ifndef XRGAME_EXPORTS
 	virtual void 		__stdcall	on_render					(CDUInterface* du, ISE_AbstractLEOwner* owner, bool bSelected, const Fmatrix& parent,int priority, bool strictB2F);
 #endif // #ifndef XRGAME_EXPORTS
@@ -513,6 +516,9 @@ SERVER_ENTITY_DECLARE_BEGIN(CSE_ALifeObjectProjector,CSE_ALifeDynamicObjectVisua
 									CSE_ALifeObjectProjector	(LPCSTR caSection);
 	virtual							~CSE_ALifeObjectProjector	();
 	virtual bool					used_ai_locations	() const;
+		
+	virtual bool					can_switch_online() const;
+	virtual bool					can_switch_offline() const;
 SERVER_ENTITY_DECLARE_END
 add_to_type_list(CSE_ALifeObjectProjector)
 #define script_type_list save_type_list(CSE_ALifeObjectProjector)
@@ -531,7 +537,6 @@ SERVER_ENTITY_DECLARE_BEGIN3(CSE_ALifeHelicopter,CSE_ALifeDynamicObjectVisual,CS
 	virtual CSE_Motion*	__stdcall	motion						();
 	virtual CSE_Abstract			*cast_abstract			() {return this;}
 	virtual BOOL					Net_Relevant();
-
 SERVER_ENTITY_DECLARE_END
 add_to_type_list(CSE_ALifeHelicopter)
 #define script_type_list save_type_list(CSE_ALifeHelicopter)
