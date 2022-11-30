@@ -203,12 +203,11 @@ void CWeapon::UpdateXForm	()
 }
 
 CInifile* filestraps;
-string_path path_file;
 
 void CWeapon::UpdateStrapPosition()
 {
 	string_path file;
-	FS.update_path(file, "$game_config$", "actors_strap.ltx");
+	FS.update_path(file, "$game_config$", "actors_straps.ltx");
 	FS.rescan_path(file, false);
 
 	CInifile* file_strap = xr_new<CInifile>(file, true, true, false);
@@ -244,35 +243,55 @@ void CWeapon::UpdateStrapPosition()
 void CWeapon::UpdatePosition(const Fmatrix& trans)
 {
 	Position().set(trans.c);
-	/* ƒÀﬂ Õ¿—“–Œ… » œŒÀŒ∆≈Õ»ﬂ ¬ —¿ÃŒ… »√–≈ –¿— ŒÃ≈Õ“»“‹
-	 if (Device.dwFrame % 100 == 0)
-	 {
-		 UpdateStrapPosition();
-	 }
-	 */
+	
+	// ƒÀﬂ Õ¿—“–Œ… » œŒÀŒ∆≈Õ»ﬂ ¬ —¿ÃŒ… »√–≈ –¿— ŒÃ≈Õ“»“‹
+	
+	//if (Device.dwFrame % 120 == 0)
+	//	 UpdateStrapPosition();
+	 
+
 	if (!m_strap_setuped)
 	{
 		m_strap_setuped = true;
 		UpdateStrapPosition();
 	}
 
-
 	if (H_Parent() && smart_cast<CActor*>(H_Parent()))
 	{
+		/*
+		if (this == smart_cast<CActor*>(H_Parent())->inventory().ActiveItem())
+		{
+			Msg("CurSlot item(%s) slot(%d), anim(%d)", this->Name(), CurrSlot(), animation_slot() );
+
+			if (CurrSlot() == INV_SLOT_2)
+			{
+				Msg("P [%f][%f][%f]", VPUSH(m_strap_pos_slot_2));
+				Msg("A [%f][%f][%f]", VPUSH(m_strap_angle_slot_2));
+			}
+
+			if (CurrSlot() == INV_SLOT_3)
+			{
+				Msg("P [%f][%f][%f]", VPUSH(m_strap_pos_slot_3));
+				Msg("A [%f][%f][%f]", VPUSH(m_strap_angle_slot_3));
+			}
+		}
+		*/
+
 		if (CurrSlot() == INV_SLOT_2)
 		{
-			Fvector hpb; hpb.set(m_strap_actor_angle_2); hpb.mul(PI / 180);
+			Fvector hpb; hpb.set(m_strap_angle_slot_2); hpb.mul(PI / 180);
 			m_StrapOffset.setHPB(hpb.x, hpb.y, hpb.z);
-			m_StrapOffset.translate_over(m_strap_actor_pos_2);
+			m_StrapOffset.translate_over(m_strap_pos_slot_2);
 		}
 
 		if (CurrSlot() == INV_SLOT_3)
 		{
-			Fvector hpb; hpb.set(m_strap_actor_angle_3); hpb.mul(PI / 180);
+			Fvector hpb; hpb.set(m_strap_angle_slot_3); hpb.mul(PI / 180);
 			m_StrapOffset.setHPB(hpb.x, hpb.y, hpb.z);
-			m_StrapOffset.translate_over(m_strap_actor_pos_3);
+			m_StrapOffset.translate_over(m_strap_pos_slot_3);
 		}
 	}
+
 	XFORM().mul(trans, strapped_mode() ? m_StrapOffset : m_Offset);
 	VERIFY(!fis_zero(DET(renderable.xform)));
 }
@@ -1055,6 +1074,9 @@ bool  CWeapon::need_renderable()
 
 void CWeapon::renderable_Render		()
 {
+	if (m_strap_ignore && strapped_mode())
+		return;
+
 	UpdateXForm				();
 
 	//Ì‡ËÒÓ‚‡Ú¸ ÔÓ‰Ò‚ÂÚÍÛ
