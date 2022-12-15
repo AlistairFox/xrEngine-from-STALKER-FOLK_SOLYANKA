@@ -1723,7 +1723,7 @@ public:
 
 		game_sv_freemp* freemp = smart_cast<game_sv_freemp*>(Level().Server->game);
 
-		if (!strstr(Core.Params, "-alife_off"))
+		if (!Level().ClientData_AlifeOff())
 		{
 			if (freemp)
 			{
@@ -3242,8 +3242,16 @@ public:
 			u32 Client_ID;
 			Fvector pos;
 			ClientID id;
-			sscanf(args, "%u %f %f %f", &Client_ID, &pos.x, &pos.y, &pos.z);
+			float x, y, z;
+			int ret = sscanf(args, "%u, %f, %f, %f", &Client_ID, x,y,z);
+		
+			if (ret != 4)
+			{
+				Msg("ERROR EXECUTE TELEPORT TO POS ClientID, x,y,z");
+				return;
+			}
 
+			pos.set(x,y,z);
 			id.set(Client_ID);
 
 			if (!g_pGameLevel || !Level().Server) return;
@@ -3284,7 +3292,13 @@ public:
 			Fvector pos;
 			ClientID id, sec_id;
 			
-			sscanf(args, "%u %u", &Client_ID, &Second_ID);
+			int ret = sscanf(args, "%u, %u", &Client_ID, &Second_ID);
+
+			if (ret != 2)
+			{
+				Msg("sv Error run cmd (ClientID, SecondID)");
+				return;
+			}
 
 			id.set(Client_ID); 
 			sec_id.set(Second_ID);
@@ -3302,8 +3316,8 @@ public:
 						CObject* o = Level().Objects.net_Find(pl.second->GameID);
 						if (o)
 						{
-							sv_game->TeleportPlayerTo(id, pos);
 							pos.set(o->Position());
+							sv_game->TeleportPlayerTo(id, pos);
 						}
 						break;
 					}
@@ -3313,12 +3327,18 @@ public:
 		else
 		{
 			u32 client_ID;
-			sscanf(args, "%u", &client_ID);
+			int ret = sscanf(args, "%u", &client_ID);
+
+			if (ret != 1)
+			{
+				Msg("Error cmd(ClientID) ");
+				return;
+			}
 
 			NET_Packet		P;
 			P.w_begin(M_REMOTE_CONTROL_CMD);
 			string128 str;
-			xr_sprintf(str, "adm_teleport_player %u %u", Game().local_svdpnid, client_ID);
+			xr_sprintf(str, "adm_teleport_player %u, %u", Game().local_svdpnid, client_ID);
 			P.w_stringZ(str);
 			Level().Send(P, net_flags(TRUE, TRUE));
 		}
@@ -3911,8 +3931,8 @@ public:
 };
 
 
-extern int MAX_DISTANCE_FIND_GRAPH;
-extern int ALIFE_ALL_LOCATION = 0;
+extern int MAX_DISTANCE_FIND_GRAPH = 3000;
+extern int ALIFE_ALL_LOCATION = 1;
  
 extern float Shedule_Scale_AI_Stalker = 0;
 extern float Shedule_Scale_Objects = 0;
@@ -3954,7 +3974,7 @@ void register_mp_console_commands()
 
 	// MP GLOBAL ALIFE SETTINGS
 	CMD4(CCC_Integer, "mp_alife_simulation_location", &ALIFE_ALL_LOCATION, 0, 2);		 
-	CMD4(CCC_Integer, "mp_alife_path_graph_distance", &MAX_DISTANCE_FIND_GRAPH, 50, 3000);
+	CMD4(CCC_Integer, "mp_alife_path_graph_distance", &MAX_DISTANCE_FIND_GRAPH, 1, 3000);
 
 	//ADMIN		(SE7kILLS)
 

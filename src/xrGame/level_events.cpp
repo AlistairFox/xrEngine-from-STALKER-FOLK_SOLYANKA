@@ -25,6 +25,7 @@ float level_events::shedule_Scale()
     return 0.f;
 }
 
+
 bool level_events::shedule_Needed()
 {
     return true;
@@ -54,7 +55,7 @@ void level_events::shedule_Update(u32 dt)
 		if (stalker || monster || changer || group || zone)
 			obj.second->update_CL();			  // Для вызова нужна функция в скрипте иле вылет	  (Поэтому чек на класс)
 	}
-
+ 
 	for (auto name_f : Level().event_functors)
 	{
 		luabind::functor<void> update;
@@ -62,9 +63,7 @@ void level_events::shedule_Update(u32 dt)
 		if (has_functor)
 		{
 			try
-			{
-			//	Msg("Call LUABIND [%s]", name_f.c_str());
-			
+			{			
 				update(Device.dwTimeGlobal);
 			}
 			catch (...)

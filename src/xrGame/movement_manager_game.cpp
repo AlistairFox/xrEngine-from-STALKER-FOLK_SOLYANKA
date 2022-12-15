@@ -53,7 +53,7 @@ void CMovementManager::show_game_path_info	()
 		Msg						("!   [%d][%d][%d][%d]",(*I).tMask[0],(*I).tMask[1],(*I).tMask[2],(*I).tMask[3]);
 }
 
-extern int MAX_DISTANCE_FIND_GRAPH = 150;
+extern int MAX_DISTANCE_FIND_GRAPH;
 
 void CMovementManager::process_game_path()
 {

@@ -496,7 +496,7 @@ void CCustomZone::UpdateCL		()
 {
 	inherited::UpdateCL			();
 	
-	if (xr_strcmp(Level().get_net_DescriptionData().spawn_name, "alife_off") == 0)
+	if (Level().ClientData_AlifeOff())
 		return;
 
 	if (m_zone_flags.test(eFastMode))				
@@ -506,7 +506,7 @@ void CCustomZone::UpdateCL		()
 // called as usual
 void CCustomZone::shedule_Update(u32 dt)
 {
-	if (xr_strcmp(Level().get_net_DescriptionData().spawn_name, "alife_off") == 0)
+	if (Level().ClientData_AlifeOff())
 		return;
 
 	m_zone_flags.set(eZoneIsActive, FALSE);

@@ -203,19 +203,6 @@ void CStats::Show()
 		return;
 	}
 
-	if (!psDeviceFlags.test(rsStatistic))
-	{
-		F.SetColor(0xFFFFFFFF);
-
-		F.OutSet(0, 0);
-		F.SetHeightI(0.025);
-
-		F.OutNext("FPS/RFPS:    %3.1f/%3.1f", fFPS, fRFPS);
-		F.OutNext("TPS:         %2.2f M", fTPS);
-
-		pFont->OnRender();
-	}
-
 	// Show them
 	if (psDeviceFlags.test(rsStatistic))
 	{

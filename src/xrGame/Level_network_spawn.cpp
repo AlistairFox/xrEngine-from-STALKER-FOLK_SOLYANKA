@@ -258,6 +258,9 @@ CSE_Abstract *CLevel::spawn_item		(LPCSTR section, const Fvector &position, u32 
 
 bool CLevel::ClientData_AlifeOff()
 {
+	if (strstr(Core.Params, "-alife_off"))
+		return true;
+
 	return xr_strcmp(m_game_description.spawn_name, "alife_off") == 0;
 }
 

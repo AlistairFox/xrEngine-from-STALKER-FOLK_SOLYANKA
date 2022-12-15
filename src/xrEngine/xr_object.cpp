@@ -157,6 +157,10 @@ void	CObject::Center					(Fvector& C)	const	{
 //float	CObject::Radius					()				const	{ VERIFY2(renderable.visual,*cName()); return renderable.visual->vis.sphere.R;								}
 float	CObject::Radius					()				const	{
 	VERIFY2(renderable.visual,*cName());
+
+	if (!renderable.visual)
+		return 0.f;
+
 	return renderable.visual->getVisData().sphere.R;
 }
 //const	Fbox&	CObject::BoundingBox	()				const	{ VERIFY2(renderable.visual,*cName()); return renderable.visual->vis.box;									}

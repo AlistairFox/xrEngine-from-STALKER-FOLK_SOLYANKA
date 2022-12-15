@@ -752,9 +752,10 @@ void CCC_Register()
 	CMD3(CCC_Mask,		"rs_render_dynamics",	&psDeviceFlags,		rsDrawDynamic			);
 
 	CMD3(CCC_ToggleMask, "rs_render_statics", &psDeviceFlags, rsDrawStatic);
+	CMD3(CCC_Mask,		 "rs_constant_fps", &psDeviceFlags, rsConstantFPS);
 #endif
 
-	CMD3(CCC_Mask, "rs_constant_fps", &psDeviceFlags, rsConstantFPS);
+	
 
 	// Render device states
 	CMD4(CCC_Integer,	"r__supersample",		&ps_r__Supersample,			1,		4		);
@@ -765,7 +766,7 @@ void CCC_Register()
 	CMD3(CCC_Mask,		"rs_fullscreen",		&psDeviceFlags,		rsFullscreen			);
 	CMD3(CCC_Mask,		"rs_refresh_60hz",		&psDeviceFlags,		rsRefresh60hz			);
 	CMD3(CCC_Mask,		"rs_stats",				&psDeviceFlags,		rsStatistic				);
-	CMD4(CCC_Float,		"rs_vis_distance",		&psVisDistance,		0.1f,	3.5f			);
+	CMD4(CCC_Float,		"rs_vis_distance",		&psVisDistance,		0.8f,	0.8f			);
 
 	CMD3(CCC_Mask,		"rs_cam_pos",			&psDeviceFlags,		rsCameraPos				);
 	CMD3(CCC_Mask,		"rs_debug_lua",			&psDeviceFlags,		rsDebug);

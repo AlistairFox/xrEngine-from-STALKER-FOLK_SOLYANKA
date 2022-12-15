@@ -61,7 +61,7 @@ class UIPdaChat : public CUIWindow, public CUIWndCallback
 	void xr_stdcall button_click_anonimous_mode_switch(CUIWindow* w, void* d);
 
 	virtual void		SendMessage(CUIWindow* pWnd, s16 msg, void* pData);
-	void AddNewsData(GAME_NEWS_DATA data, ClientID PlayerID);
+	void AddNewsData(GAME_NEWS_DATA data, ClientID PlayerID, bool GlobalChat);
 	void SendPacket(GAME_NEWS_DATA data);
  
 	u32 old_second_id = 0;

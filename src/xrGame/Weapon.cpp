@@ -2387,8 +2387,7 @@ float CWeapon::GetHudFov()
 		}
 	}
 	*/
-
-
+ 
 	// От бедра	 
 	
 	if (ParentIsActor() && Level().CurrentViewEntity() == H_Parent())

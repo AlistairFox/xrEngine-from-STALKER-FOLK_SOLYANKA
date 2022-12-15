@@ -8,7 +8,8 @@
 #include "Level.h"
 #include "UICursor.h"
 
-extern int ANIM_SELECTED = 0;
+#include "Actor.h"
+//extern int ANIM_SELECTED = 0;
 
 bool CUIAMode::OnMouseAction(float x, float y, EUIMessages mouse_action)
 {
@@ -30,7 +31,7 @@ bool CUIAMode::OnMouseAction(float x, float y, EUIMessages mouse_action)
                 if (wind == text[id])
                 {
                    // Msg("Click Anim [%d] [%s] ", id, text[id]->GetText());
-                    ANIM_SELECTED = id;
+                    Actor()->ANIM_SELECTED = id;
                 }
             }
             id += 1;

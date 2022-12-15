@@ -87,7 +87,7 @@ xrServer::EConnect xrServer::Connect(shared_str &session_name, GameDescriptionDa
 
 	game->Create			(session_name);
 
-	bool alife_off = strstr(Core.Params, "-alife_off");
+	bool alife_off = Level().ClientData_AlifeOff();
 
 	xr_strcpy(game_descr.map_name, alife_off ? game->level_name(session_name.c_str()).c_str() : Level().name().c_str());   
 	xr_strcpy(game_descr.map_version, game_sv_GameState::parse_level_version(session_name.c_str()).c_str());

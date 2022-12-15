@@ -28,7 +28,7 @@ game_sv_freemp::~game_sv_freemp()
 
 void game_sv_freemp::Create(shared_str & options)
 {
-	if (!strstr(Core.Params, "-alife_off"))
+	if (!Level().ClientData_AlifeOff())
 		m_alife_simulator = xr_new<CALifeSimulator>(&server(), &options);
 
 	inherited::Create(options);

@@ -525,7 +525,8 @@ void game_sv_GameState::Create					(shared_str &options)
 	}
 
 	// loading scripts
-	ai().script_engine().remove_script_process(ScriptEngine::eScriptProcessorGame);
+ 	ai().script_engine().remove_script_process(ScriptEngine::eScriptProcessorGame);
+
 	string_path					S;
 	FS.update_path				(S,"$game_config$","script.ltx");
 	CInifile					*l_tpIniFile = xr_new<CInifile>(S);
@@ -733,11 +734,11 @@ void game_sv_GameState::Update		()
 		m_item_respawner.update(Level().timeServer());
 	}
 	
-	if (Level().game) {
-		CScriptProcess				*script_process = ai().script_engine().script_process(ScriptEngine::eScriptProcessorGame);
-		if (script_process)
-			script_process->update	();
-	}
+ 
+	CScriptProcess				*script_process = ai().script_engine().script_process(ScriptEngine::eScriptProcessorGame);
+	if (script_process)
+		script_process->update	();
+	
 }
 
 void game_sv_GameState::OnDestroyObject(u16 eid_who)
@@ -761,7 +762,9 @@ game_sv_GameState::game_sv_GameState()
 
 game_sv_GameState::~game_sv_GameState()
 {
+	
 	ai().script_engine().remove_script_process(ScriptEngine::eScriptProcessorGame);
+
 	xr_delete(m_event_queue);
 
 	SaveMapList();

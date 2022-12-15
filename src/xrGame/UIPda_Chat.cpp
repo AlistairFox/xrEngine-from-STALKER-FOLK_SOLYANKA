@@ -287,6 +287,8 @@ void UIPdaChat::Update()
 		{
 			if (old_chat != ModeGlobalChat || chat_text->GetSize() == 0)
 			{
+				//Msg("Update GlobalChat");
+
 				old_chat = ModeGlobalChat;
 				old_second_id = 0;
 				chat_text->Clear();
@@ -368,6 +370,8 @@ void xr_stdcall UIPdaChat::button_click_send_msg(CUIWindow* w, void* d)
 	if (!SecondActor)
 		return;
 
+	Msg("UI PDA click send msg");
+
 	shared_str text = chat_editbox->GetText();
 
 	if (text.size() < 2)
@@ -384,7 +388,7 @@ void xr_stdcall UIPdaChat::button_click_send_msg(CUIWindow* w, void* d)
 		data.texture_name = owner->IconName();
 		data.receive_time = Level().GetGameTime();
 
-		AddNewsData(data, SecondActor->ID());
+		AddNewsData(data, SecondActor->ID(), ModeGlobalChat);
 		SendPacket(data);
 	}
 
@@ -428,9 +432,9 @@ void xr_stdcall UIPdaChat::button_click_send_money(CUIWindow* w, void* d)
 
 }
 
-void UIPdaChat::AddNewsData(GAME_NEWS_DATA data, ClientID PlayerID)
+void UIPdaChat::AddNewsData(GAME_NEWS_DATA data, ClientID PlayerID, bool GlobalChat)
 {
-	if (PlayerID.value() != 0)
+	if (!GlobalChat)
 		news_data[PlayerID].push_back(data);
 	else
 		global_chat.push_back(data);
@@ -467,7 +471,7 @@ void UIPdaChat::RecivePacket(NET_Packet& P)
 		data.receive_time = Level().GetGameTime();
 		data.texture_name = texture_name;
 
-		AddNewsData(data, 0);
+		AddNewsData(data, 0, true);
 
 		if (old_chat == 1)
 		{
@@ -505,9 +509,9 @@ void UIPdaChat::RecivePacket(NET_Packet& P)
 		data.texture_name = texture_name;
 
 		if (GameID == LocalActorCL)
-			AddNewsData(data, SenderID);
+			AddNewsData(data, SenderID, false);
 		else
-			AddNewsData(data, GameID);
+			AddNewsData(data, GameID, false);
 
 		if (old_chat == 0)
 		{

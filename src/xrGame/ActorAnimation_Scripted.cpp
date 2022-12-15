@@ -5,8 +5,6 @@
 #include "../Include/xrRender/Kinematics.h"
 #include "Weapon.h"
 
-extern int ANIM_SELECTED;
-
 bool CActor::MpAnimationMode() const
 { 
 	if (Level().CurrentControlEntity() == this)
@@ -33,6 +31,8 @@ bool CActor::Setuped_callbacks()
 	return true;
 }
 
+int SlotStop = -1; 
+
 void SActorStateAnimation::CreateAnimationsScripted(IKinematicsAnimated* K)
 {
 	string_path filepath;
@@ -42,6 +42,7 @@ void SActorStateAnimation::CreateAnimationsScripted(IKinematicsAnimated* K)
 	if (file && file->section_exist("animations"))
 	{
 		u32 count = file->r_u32("animations", "count");
+ 
 		for (int i = 0; i < count; i++)
 		{
 			string32 tmp = { 0 };
@@ -61,6 +62,7 @@ void SActorStateAnimation::CreateAnimationsScripted(IKinematicsAnimated* K)
 						snds = file->r_u32(animation, "anim_snd_rnd");
 					else
 						snds = 1;
+
 					for (int snd_i = 1; snd_i <= snds; snd_i++)
 					{
 						string32 tmp = { 0 };
@@ -122,16 +124,21 @@ void CActor::script_anim(MotionID Animation, PlayCallback Callback, LPVOID Callb
 {
 	IKinematicsAnimated* k = smart_cast<IKinematicsAnimated*>(Visual());
 	
-	k->LL_PlayCycle(
+	CBlend* b = k->LL_PlayCycle(
 		k->LL_GetMotionDef(Animation)->bone_or_part,
 		Animation,
 		TRUE,
 		k->LL_GetMotionDef(Animation)->Accrue(),
 		k->LL_GetMotionDef(Animation)->Falloff(),
 		k->LL_GetMotionDef(Animation)->Speed(),
+		//true,
 		k->LL_GetMotionDef(Animation)->StopAtEnd(),
 		Callback, CallbackParam, 0
 	);
+
+	if (b)
+		Msg("BlendTime: %f", b->timeTotal);
+
 
 	CanChange = false;
 	SendAnimationToServer(Animation);
@@ -153,17 +160,21 @@ void CActor::ReciveAnimationPacket(NET_Packet& packet)
 
 	if (motion.valid() && k)
 	{
- 
-		k->LL_PlayCycle(
+		CBlend* blend =  k->LL_PlayCycle(
 			k->LL_GetMotionDef(motion)->bone_or_part,
 			motion,
 			TRUE,
 			k->LL_GetMotionDef(motion)->Accrue(),
 			k->LL_GetMotionDef(motion)->Falloff(),
 			k->LL_GetMotionDef(motion)->Speed(),
+			//true, // Всегда стопить иначе анимация зависнет без переключения (ток снимать костюм)
 			k->LL_GetMotionDef(motion)->StopAtEnd(),
 			callbackAnim, this, 0
 		);
+
+		if (blend)
+			Msg("time_end: %f", blend->timeTotal);
+
 
 		CanChange = false;
 	}
@@ -288,9 +299,14 @@ void CActor::soundPlay()
 
 void CActor::SelectScriptAnimation()
 {
+ 
 	if (!CanChange)
 		return;
 
+	Msg("InAnim[%d]", IntAnim);
+	Msg("MidAnim[%d]", MidAnim);
+	Msg("OutAnim[%d]", OutAnim);
+  
 	if (oldAnim != ANIM_SELECTED)
 	{
 		if (InPlay && MidPlay && OutPlay)
@@ -302,11 +318,15 @@ void CActor::SelectScriptAnimation()
 		}
 	}
 
-	u32 selectedAnimation = oldAnim ;
+	u32 selectedAnimation = oldAnim;
 	MotionID script_BODY;
 
 	u32 countIN = m_anims->m_script.in_anims.count[selectedAnimation];
 
+	MidPlay = false;
+	OutPlay = false;
+	InPlay = false;
+	 
 	if (IntAnim >= countIN || countIN == 0)
 		InPlay = true;
 	else
@@ -360,27 +380,28 @@ void CActor::SelectScriptAnimation()
 
 	u32 countMid = m_anims->m_script.middle_anims.count[selectedAnimation];
 
-	if (countMid == 0 || ANIM_SELECTED == 0)
+	if (MidAnim >= countMid && 
+		m_anims->m_script.m_animation_loop[selectedAnimation] &&
+		selectedAnimation == ANIM_SELECTED)
+		MidAnim = 0;	 
+ 
+	if (countMid == 0)
+		MidPlay = true;
+
+	if (ANIM_SELECTED == 0)
 		MidPlay = true;
 
 	if (!MidPlay)
 	{
-		if (MidAnim >= countMid)
-		{
-			bool valid = selectedAnimation != ANIM_SELECTED;
-			if (m_anims->m_script.m_animation_loop[selectedAnimation] && !valid)
-				MidAnim = 0;
-			else
-				MidPlay = true;
-		}
-
 		script_BODY = m_anims->m_script.middle_anims.m_animation[selectedAnimation][MidAnim];
 		script_anim(script_BODY, callbackAnim, this);
 		MidAnim += 1;
 
 		soundPlay();
-		return;
 	}
+
+	if (!MidPlay)
+		return;
 
 	u32 countOUT = m_anims->m_script.out_anims.count[selectedAnimation];
 
@@ -397,25 +418,48 @@ void CActor::SelectScriptAnimation()
 	}
 
 	if (OutPlay)
+		EndAnimation(selectedAnimation);
+}
+
+void CActor::EndAnimation(int selectedAnimation)
+{
+	if (selected._p)
 	{
-		if (selected._p)
+		SendSoundPlay(0, false);
+		selected.stop();
+	}
+
+	if (m_anims->m_script.m_animation_use_slot[selectedAnimation] > 0)
+	{
+		u16 slot = m_anims->m_script.m_animation_use_slot[selectedAnimation];
+		PIItem item = this->inventory().ItemFromSlot(slot);
+		CWeapon* wpn = smart_cast<CWeapon*>(item);
+		if (item && !wpn)
 		{
-			SendSoundPlay(0, false);
-			selected.stop();
-		}
- 
-		if (m_anims->m_script.m_animation_use_slot[selectedAnimation] > 0)
-		{
-			u16 slot = m_anims->m_script.m_animation_use_slot[selectedAnimation];
-			PIItem item = this->inventory().ItemFromSlot(slot);
-			CWeapon* wpn = smart_cast<CWeapon*>(item);
-			if (item && !wpn)
-			{
-				item->enable(false);
-				this->detach(item);
-				SendActivateItem(slot, false);
-			}
+			item->enable(false);
+			this->detach(item);
+			SendActivateItem(slot, false);
 		}
 	}
 }
+
+void CActor::StopAllSNDs()
+{
+	IntAnim = 0;
+	OutAnim = 0;
+	MidAnim = 0;
+
+	InPlay = true;
+	MidAnim = true;
+	OutPlay = true;
+
+	CanChange = true;
+
+	EndAnimation(oldAnim);
+
+	oldAnim = ANIM_SELECTED;
+
+}
+
+
  

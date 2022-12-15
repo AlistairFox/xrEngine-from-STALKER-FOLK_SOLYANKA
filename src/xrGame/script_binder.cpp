@@ -69,7 +69,8 @@ void CScriptBinder::reinit			()
 	}
 
 #ifdef DEBUG_MEMORY_MANAGER
-	if (g_bMEMO) {
+	if (g_bMEMO) 
+	{
 //		lua_gc				(ai().script_engine().lua(),LUA_GCCOLLECT,0);
 //		lua_gc				(ai().script_engine().lua(),LUA_GCCOLLECT,0);
 		Msg					("CScriptBinder::reinit() : %d",Memory.mem_usage() - start);
@@ -89,6 +90,11 @@ void CScriptBinder::reload			(LPCSTR section)
 		start							= Memory.mem_usage();
 #endif // DEBUG_MEMORY_MANAGER
 #ifndef DBG_DISABLE_SCRIPTS
+
+	if (Level().ClientData_AlifeOff())
+		return;
+
+
 	VERIFY					(!m_object);
 	if (!pSettings->line_exist(section,"script_binding"))
 		return;
@@ -194,14 +200,19 @@ void CScriptBinder::net_Destroy		()
 
 void CScriptBinder::set_object		(CScriptBinderObject *object)
 {
-	if (/*OnServer()*/ xr_strcmp(Level().get_net_DescriptionData().spawn_name, "alife_off") != 0) // 
+	if (!Level().ClientData_AlifeOff())  
 	{
+		//Msg("Bind Object %s", object->m_object->Name());
+
 		R_ASSERT2				(!m_object,"Cannot bind to the object twice!");
 #ifdef _DEBUG
 		Msg					("* Core object %s is binded with the script object",smart_cast<CGameObject*>(this) ? *smart_cast<CGameObject*>(this)->cName() : "");
 #endif // _DEBUG
 		m_object			= object;
-	} else {
+	}
+	else
+	{
+ 		m_object = 0;
 		xr_delete			(object);
 	}
 }
@@ -210,6 +221,7 @@ void CScriptBinder::shedule_Update	(u32 time_delta)
 {
 	if (m_object) 
 	{
+		//Msg("Update Shedule %s", m_object->m_object->Name());
 		try 
 		{
 			m_object->shedule_Update	(time_delta);

@@ -82,6 +82,10 @@ public:
 	bool						MpSafeMode() const;
 	bool						MpAnimationMode() const;
 	bool						Setuped_callbacks();
+	int							ANIM_SELECTED = 0;
+
+	void						StopAllSNDs();
+	void						EndAnimation(int anim);
 
 private:
 	ref_sound selected;
@@ -97,6 +101,8 @@ private:
 	bool InPlay    = true;
 	bool OutPlay   = true;
 	bool MidPlay   = true;
+
+
 
 	void					SelectScriptAnimation();
 	void					soundPlay();

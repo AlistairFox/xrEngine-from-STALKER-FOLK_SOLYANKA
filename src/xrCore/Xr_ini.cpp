@@ -194,6 +194,8 @@ void	CInifile::Load(IReader* F, LPCSTR path
                                 #endif
                                     )
 {
+	//Msg("Load Ini file %s", path);
+
 	R_ASSERT(F);
 	Sect		*Current = 0;
 	string4096	str;

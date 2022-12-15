@@ -866,6 +866,8 @@ void CActor::Die	(CObject* who)
 	Msg("--- Actor [%s] dies !", this->Name());
 #endif // #ifdef DEBUG
 
+	StopAllSNDs();
+
 	inherited::Die		(who);
 
 	if (OnServer())
