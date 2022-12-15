@@ -357,14 +357,13 @@ void CRender::OnFrame()
 void CRender::OnFrame()
 {
 	Models->DeleteQueue			();
-	if (ps_r2_ls_flags.test(R2FLAG_EXP_MT_CALC))	{
+	if (ps_r2_ls_flags.test(R2FLAG_EXP_MT_CALC))	
+	{
 		// MT-details (@front)
-		Device.seqParallel.insert	(Device.seqParallel.begin(),
-			fastdelegate::FastDelegate0<>(Details,&CDetailManager::MT_CALC));
+		Device.seqParallel.insert	(Device.seqParallel.begin(), fastdelegate::FastDelegate0<>(Details, &CDetailManager::MT_CALC));
 
 		// MT-HOM (@front)
-		Device.seqParallel.insert	(Device.seqParallel.begin(),
-			fastdelegate::FastDelegate0<>(&HOM,&CHOM::MT_RENDER));
+		Device.seqParallel.insert	(Device.seqParallel.begin(), fastdelegate::FastDelegate0<>(&HOM, &CHOM::MT_RENDER));
 	}
 }
 

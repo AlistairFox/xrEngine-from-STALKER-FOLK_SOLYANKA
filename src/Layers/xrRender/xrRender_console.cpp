@@ -649,9 +649,13 @@ public:
 		 
 extern int particles_disable = 0;
 
+extern int Render_OCC = 1;
+
+
 //-----------------------------------------------------------------------
 void		xrRender_initconsole	()
 {
+	CMD4(CCC_Integer, "ren_occ", &Render_OCC, 0, 1);
 
 	CMD4(CCC_Integer, "particles_disabled", &particles_disable, 0, 1);
 
@@ -734,7 +738,7 @@ void		xrRender_initconsole	()
 	CMD4(CCC_Float,		"r2_ssa_lod_a",			&ps_r2_ssaLOD_A,			16,		96		);
 	CMD4(CCC_Float,		"r2_ssa_lod_b",			&ps_r2_ssaLOD_B,			32,		64		);
 	CMD2(CCC_tf_MipBias,"r2_tf_mipbias",		&ps_r2_tf_Mipbias			);
-
+											
 	// R2-specific
 	CMD2(CCC_R2GM,		"r2em",					&ps_r2_gmaterial							);
 	CMD3(CCC_Mask,		"r2_tonemap",			&ps_r2_ls_flags,			R2FLAG_TONEMAP	);

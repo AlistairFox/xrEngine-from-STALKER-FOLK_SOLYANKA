@@ -2,10 +2,11 @@
 #include ".\r__occlusion.h"
 
 #include "QueryHelper.h"
+ 
 
 R_occlusion::R_occlusion(void)
 {
-	enabled			= strstr(Core.Params,"-no_occq")?FALSE:TRUE;
+	enabled = Render_OCC; //strstr(Core.Params,"-no_occq")?FALSE:TRUE;
 }
 R_occlusion::~R_occlusion(void)
 {
@@ -39,7 +40,7 @@ void	R_occlusion::occq_destroy	(				)
 }
 u32		R_occlusion::occq_begin		(u32&	ID		)
 {
-	if (!enabled)		return 0;
+	if (!Render_OCC)		return 0;
 
 	//	Igor: prevent release crash if we issue too many queries
 	if (pool.empty())
@@ -71,7 +72,7 @@ u32		R_occlusion::occq_begin		(u32&	ID		)
 }
 void	R_occlusion::occq_end		(u32&	ID		)
 {
-	if (!enabled)		return;
+	if (!Render_OCC)		return;
 
 	//	Igor: prevent release crash if we issue too many queries
 	if (ID == iInvalidHandle) return;
@@ -80,9 +81,10 @@ void	R_occlusion::occq_end		(u32&	ID		)
 	//CHK_DX			(used[ID].Q->Issue	(D3DISSUE_END));
 	CHK_DX			(EndQuery(used[ID].Q));
 }
+
 R_occlusion::occq_result R_occlusion::occq_get		(u32&	ID		)
 {
-	if (!enabled)		return 0xffffffff;
+	if (!Render_OCC)		return 0xffffffff;
 
 	//	Igor: prevent release crash if we issue too many queries
 	if (ID == iInvalidHandle) return 0xFFFFFFFF;

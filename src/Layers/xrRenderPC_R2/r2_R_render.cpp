@@ -397,7 +397,8 @@ void CRender::Render		()
 	}
 
 	// Directional light - fucking sun
-	if (bSUN)	{
+	if (bSUN)	
+	{
 		RImplementation.stats.l_visible		++;
 		if( !ps_r2_ls_flags_ext.is(R2FLAGEXT_SUN_OLD))
 			render_sun_cascades					();
