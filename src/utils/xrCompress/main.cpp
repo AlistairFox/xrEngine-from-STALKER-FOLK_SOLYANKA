@@ -15,6 +15,7 @@ int __cdecl main	(int argc, char* argv[])
 	xrCompressor		C;
 
 	C.SetStoreFiles(NULL!=strstr(params,"-store"));
+	C.SetStoreDDS(NULL != strstr(params, "-dds_store"));
 
 #ifndef MOD_COMPRESS
 	if(strstr(params,"-diff"))

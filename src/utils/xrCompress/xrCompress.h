@@ -6,6 +6,7 @@ class xrCompressor
 {
 	bool						bFast;
 	bool						bStoreFiles;
+	bool						bStoreDDS;
 	IWriter*					fs_pack_writer;
 	CMemoryWriter				fs_desc;
 	shared_str					target_name;
@@ -63,6 +64,7 @@ public:
 	void	SetMaxVolumeSize	(u32 sz)					{XRP_MAX_SIZE=sz;}
 	void	SetTargetName		(LPCSTR n)					{target_name=n;}
 	void	SetPackHeaderName	(LPCSTR n);
+	void	SetStoreDDS(bool b) { bStoreDDS = b; };
 
 	void	ProcessLTX			(CInifile& ini);
 	void	ProcessTargetFolder	();

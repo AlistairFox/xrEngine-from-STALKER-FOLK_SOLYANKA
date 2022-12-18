@@ -116,6 +116,7 @@ bool xrCompressor::testVFS(LPCSTR path)
 	if (!stricmp(p_ext,".script"))
 		return			(FALSE);
 	//new SE7  TEXTURES
+	if (!bStoreDDS)
 	if (!stricmp(p_ext, ".dds"))
 		return			(FALSE);
 
