@@ -424,7 +424,12 @@ player_hud::~player_hud()
 
 void player_hud::load(const shared_str& player_hud_sect)
 {
-	if(player_hud_sect ==m_sect_name)	return;
+	shared_str name = player_hud_sect;
+
+	if (strstr(Core.Params, "-skip_hands"))
+		name = shared_str("actor_hud_1");
+
+	if(name == m_sect_name)	return;
 	bool b_reload = (m_model!=NULL);
 	if(m_model)
 	{
@@ -432,11 +437,13 @@ void player_hud::load(const shared_str& player_hud_sect)
 		::Render->model_Delete		(v);
 	}
 
-	m_sect_name					= player_hud_sect;
-	const shared_str& model_name= pSettings->r_string(player_hud_sect, "visual");
+	Msg("load hud %s", name.c_str());
+
+	m_sect_name					= name;
+	const shared_str& model_name= pSettings->r_string(name, "visual");
 	m_model						= smart_cast<IKinematicsAnimated*>(::Render->model_Create(model_name.c_str()));
 
-	CInifile::Sect& _sect		= pSettings->r_section(player_hud_sect);
+	CInifile::Sect& _sect		= pSettings->r_section(name);
 	CInifile::SectCIt _b		= _sect.Data.begin();
 	CInifile::SectCIt _e		= _sect.Data.end();
 	for(;_b!=_e;++_b)
