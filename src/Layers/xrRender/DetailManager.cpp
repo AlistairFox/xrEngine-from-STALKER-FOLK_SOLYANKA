@@ -87,11 +87,41 @@ CDetailManager::CDetailManager	()
 	m_time_rot_2 = 0;
 	m_time_pos	= 0;
 	m_global_time_old = 0;
+
+	cache_level1 = (CacheSlot1**)Memory.mem_alloc(dm_cache1_line * sizeof(CacheSlot1*));
+	for (u32 i = 0; i < dm_cache1_line; ++i)
+	{
+		cache_level1[i] = (CacheSlot1*)Memory.mem_alloc(dm_cache1_line * sizeof(CacheSlot1));
+		for (u32 j = 0; j < dm_cache1_line; ++j)
+			new (&(cache_level1[i][j])) CacheSlot1();
+	}
+
+	cache = (Slot***) Memory.mem_alloc(dm_cache_line * sizeof(Slot**));
+	for (u32 i = 0; i < dm_cache_line; ++i)
+		cache[i] = (Slot**)Memory.mem_alloc(dm_cache_line * sizeof(Slot*));
+
+	cache_pool = (Slot*)Memory.mem_alloc(dm_cache_size * sizeof(Slot));
+	for (u32 i = 0; i < dm_cache_size; ++i)
+		new (&(cache_pool[i])) Slot();
 }
 
 CDetailManager::~CDetailManager	()
 {
+	for (u32 i = 0; i < dm_cache_size; ++i)
+		cache_pool[i].~Slot();
+	Memory.mem_free(cache_pool);
 
+	for (u32 i = 0; i < dm_cache_line; ++i)
+		Memory.mem_free(cache[i]);
+	Memory.mem_free(cache);
+
+	for (u32 i = 0; i < dm_cache1_line; ++i)
+	{
+		for (u32 j = 0; j < dm_cache1_line; ++j)
+			cache_level1[i][j].~CacheSlot1();
+		Memory.mem_free(cache_level1[i]);
+	}
+	Memory.mem_free(cache_level1);
 }
 /*
 */
@@ -184,9 +214,14 @@ void CDetailManager::Unload		()
 }
 
 extern ECORE_API float r_ssaDISCARD;
+extern int sDET;
 
 void CDetailManager::UpdateVisibleM()
 {
+	for (int i = 0; i != 3; i++)
+	for (auto& vis : m_visibles[i])
+		vis.clear();
+
 	Fvector		EYE				= RDEVICE.vCameraPosition_saved;
 
 	CFrustum	View;
@@ -204,6 +239,7 @@ void CDetailManager::UpdateVisibleM()
 	// Initialize 'vis' and 'cache'
 	// Collect objects for rendering
 	RDEVICE.Statistic->RenderDUMP_DT_VIS.Begin	();
+	
 	for (int _mz=0; _mz<dm_cache1_line; _mz++){
 		for (int _mx=0; _mx<dm_cache1_line; _mx++){
 			CacheSlot1& MS		= cache_level1[_mz][_mx];
@@ -273,8 +309,12 @@ void CDetailManager::UpdateVisibleM()
 						SlotItem			**siIT=&(*sp.items.begin()), **siEND=&(*sp.items.end());
 						for (; siIT!=siEND; siIT++){
 							SlotItem& Item			= *(*siIT);
-							float   scale			= Item.scale_calculated	= Item.scale*alpha_i;
-							float	ssa				= scale*scale*Rq_drcp;
+
+							
+							
+							float   scale			= !sDET ? Item.scale_calculated = Item.scale : Item.scale_calculated = Item.scale*alpha_i;
+							float	ssa				= !sDET ? scale : scale*scale*Rq_drcp;
+							
 							if (ssa < r_ssaDISCARD)
 							{
 								continue;
@@ -363,4 +403,12 @@ void __stdcall	CDetailManager::MT_CALC		()
 			m_frame_calc				= RDEVICE.dwFrame;
 		}
 	MT.Leave					        ();
+}
+
+ICF void CDetailManager::MT_SYNC()
+{
+	if (m_frame_calc == RDEVICE.dwFrame)
+		return;
+
+	MT_CALC();
 }

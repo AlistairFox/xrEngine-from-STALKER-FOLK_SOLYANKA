@@ -24,8 +24,11 @@ void xrServer::SLS_Default	()
 
 	string_path				fn_spawn;
 
-	if (!ai().get_alife())
-	if (FS.exist(fn_spawn, "$level$", "level.spawn")) {
+	if (ai().get_alife())
+		return;
+
+	if (FS.exist(fn_spawn, "$level$", "level.spawn")) 
+	{
 		IReader*			SP		= FS.r_open(fn_spawn);
 		NET_Packet			P;
 		u32					S_id;

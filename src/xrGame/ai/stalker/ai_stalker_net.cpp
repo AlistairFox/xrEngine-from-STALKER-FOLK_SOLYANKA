@@ -183,9 +183,9 @@ void CAI_Stalker::net_Export(NET_Packet& P)
 			//state.torso_anim.anim_ctrl = torso_anim_ctrl;
 			//state.head_anim.anim_ctrl = head_anim_ctrl;
 
-			state.legs_anim.pos = blend_legs->timeCurrent;
-			state.torso_anim.pos = blend_torso->timeCurrent;
-			state.head_anim.pos = blend_head->timeCurrent;
+			//state.legs_anim.pos = blend_legs->timeCurrent;
+			//state.torso_anim.pos = blend_torso->timeCurrent;
+			//state.head_anim.pos = blend_head->timeCurrent;
 		}
 
 		state.state_write(P);

@@ -178,7 +178,8 @@ void	CDetailManager::cache_Update	(int v_x, int v_z, Fvector& view, int limit)
 		cache_task.erase	(best_id);
 	}
 
-    if (bNeedMegaUpdate){
+    if (bNeedMegaUpdate)
+	{
         for (int _mz1=0; _mz1<dm_cache1_line; _mz1++){
             for (int _mx1=0; _mx1<dm_cache1_line; _mx1++){
                 CacheSlot1& MS 	= cache_level1[_mz1][_mx1];

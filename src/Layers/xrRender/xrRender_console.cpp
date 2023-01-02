@@ -648,13 +648,62 @@ public:
 #endif	//	(RENDER == R_R3) || (RENDER == R_R4)
 		 
 extern int particles_disable = 0;
-
 extern int Render_OCC = 1;
+
+
+/// DETAILS NEW 
+
+extern int dm_size			= 24;
+extern int dm_cache1_line	= dm_size * 2 / dm_cache1_count;
+extern int dm_cache_line	= dm_size + 1 + dm_size;
+extern int dm_cache_size	= dm_cache_line * dm_cache_line;
+extern float dm_fade		= float(2 * dm_size) - .5f;
+
+
+//const int		dm_size				= 24;	 
+//const int 	dm_cache1_line		= dm_size*2/dm_cache1_count;		//! dm_size*2 must be div dm_cache1_count
+//const int		dm_cache_line		= dm_size+1+dm_size;
+//const int		dm_cache_size		= dm_cache_line*dm_cache_line;
+//const float	dm_fade				= float(2*dm_size)-.5f;
+
+int ps_render_detail_radius = 48;
+extern int sDET = true;
+					
+class CCC_DetailsRenderDIST : public CCC_Integer
+{
+public:
+	CCC_DetailsRenderDIST(LPCSTR N, int* v, int min, int max) : CCC_Integer(N, v, min, max) 
+	{
+		dm_cache1_line = max * 2 / dm_cache1_count;
+		dm_cache_line = max + 1 + max;
+		dm_cache_size = dm_cache_line * dm_cache_line;
+ 	};
+
+	void Apply()
+	{
+		dm_size = ps_render_detail_radius;
+		dm_fade = float(2 * dm_size) - .5f;
+	}
+
+	virtual void Execute(LPCSTR args)
+	{	
+		CCC_Integer::Execute(args);
+		Apply();
+	}
+ 	virtual void	Status(TStatus & S)
+	{
+		CCC_Integer::Status(S);
+	}
+};
 
 
 //-----------------------------------------------------------------------
 void		xrRender_initconsole	()
 {
+	CMD4(CCC_DetailsRenderDIST, "r__detail_distance", &ps_render_detail_radius, 24, 128);
+	CMD4(CCC_Float,				"r__detail_density", &ps_r__Detail_density, .2f, 0.6f);
+	CMD4(CCC_Integer,			"r__detail_scale", &sDET, 0, 1);
+
 	CMD4(CCC_Integer, "ren_occ", &Render_OCC, 0, 1);
 
 	CMD4(CCC_Integer, "particles_disabled", &particles_disable, 0, 1);
@@ -690,11 +739,10 @@ void		xrRender_initconsole	()
 
 	Fvector	tw_min,tw_max;
 	
-	CMD4(CCC_Float,		"r__geometry_lod",		&ps_r__LOD,					0.1f,	1.2f		);
+	CMD4(CCC_Float,		"r__geometry_lod",		&ps_r__LOD,					0.1f,	4.0f		);
 //.	CMD4(CCC_Float,		"r__geometry_lod_pow",	&ps_r__LOD_Power,			0,		2		);
 
 //.	CMD4(CCC_Float,		"r__detail_density",	&ps_r__Detail_density,		.05f,	0.99f	);
-	CMD4(CCC_Float,		"r__detail_density",	&ps_r__Detail_density,		.2f,	0.6f	);
 
 #ifdef DEBUG
 	CMD4(CCC_Float,		"r__detail_l_ambient",	&ps_r__Detail_l_ambient,	.5f,	.95f	);

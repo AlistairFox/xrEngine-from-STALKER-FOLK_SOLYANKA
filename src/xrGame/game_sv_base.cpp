@@ -339,9 +339,7 @@ void game_sv_GameState::net_Export_Update(NET_Packet& P, ClientID id_to, ClientI
 	};
 	net_Export_GameTime			(P);
 };
-float old_time_env_sv = 0;
-extern bool need_update;
-
+ 
 #include "GamePersistent.h"
 
 void game_sv_GameState::net_Export_GameTime						(NET_Packet& P)

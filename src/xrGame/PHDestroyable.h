@@ -72,7 +72,8 @@ virtual		void						GenSpawnReplace				(u16 source_id,LPCSTR section,shared_str v
 virtual		void						InitServerObject			(CSE_Abstract*				D)																				;
 private:
 			void						NotificatePart				(CPHDestroyableNotificate *dn)																				;
-			void						PhysicallyRemovePart		(CPHDestroyableNotificate *dn)																				;																											;
+			void						PhysicallyRemovePart(CPHDestroyableNotificate* dn);
+ 		
 };
 
 

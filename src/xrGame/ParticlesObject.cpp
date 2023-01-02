@@ -236,13 +236,11 @@ Fvector& CParticlesObject::Position		()
 	return vis.sphere.P;
 }
 
-extern int enabled_particles = true;
-
 float CParticlesObject::shedule_Scale		()	
 { 
-	if(g_dedicated_server)		return 5.0f;
-
-	return enabled_particles == 1 ? Device.vCameraPosition.distance_to(Position())/200.f : 50;
+	if(g_dedicated_server)		
+		return 5.0f;
+	return Device.vCameraPosition.distance_to(Position())/200.f;
 }
 
 void CParticlesObject::renderable_Render	()

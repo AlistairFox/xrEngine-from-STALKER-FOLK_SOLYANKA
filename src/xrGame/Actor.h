@@ -120,6 +120,11 @@ private:
 	
 	void					UpdateAnimWeaponState(MotionID& torso, MotionID& M_head, MotionID& M_legs, int moving_idx, u32 mstate_rl, bool is_standing);
 
+	//ZOMBIED
+
+	void					UpdateZombieMove();
+	void					RegisterZombieAnims();
+
 	//END SE7kiLLS
 
 public:

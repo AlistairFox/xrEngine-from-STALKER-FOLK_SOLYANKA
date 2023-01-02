@@ -8,8 +8,8 @@
 
 level_events::level_events()
 {
-    shedule.t_min = 5;
-    shedule.t_max = 20;
+    shedule.t_min = 100;
+    shedule.t_max = 200;
 
     shedule_register();
 }
@@ -22,7 +22,7 @@ level_events::~level_events()
 
 float level_events::shedule_Scale()
 {
-    return 0.f;
+    return 1.f;
 }
 
 

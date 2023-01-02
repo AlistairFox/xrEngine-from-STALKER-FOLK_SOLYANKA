@@ -503,6 +503,7 @@ void CCustomZone::UpdateCL		()
 		UpdateWorkload	(Device.dwTimeDelta);	
 }
 
+
 // called as usual
 void CCustomZone::shedule_Update(u32 dt)
 {
@@ -1530,7 +1531,7 @@ void CCustomZone::o_switch_2_slow				()
 	}
 	processing_deactivate		();
 }
-
+ 
 void CCustomZone::save							(NET_Packet &output_packet)
 {
 	inherited::save			(output_packet);

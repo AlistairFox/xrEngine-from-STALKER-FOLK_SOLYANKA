@@ -343,7 +343,7 @@ bool UIPdaChat::OnMouseAction(float x, float y, EUIMessages mouse_action)
 			{
 				u16 owner = info->OwnerID();
 
-				Msg("Set OwnerID %d", owner);
+				//Msg("Set OwnerID %d", owner);
 
 				CActor* actor = smart_cast<CActor*>(Level().Objects.net_Find(owner));
 
@@ -363,14 +363,11 @@ bool UIPdaChat::OnMouseAction(float x, float y, EUIMessages mouse_action)
 
 void xr_stdcall UIPdaChat::button_click_send_msg(CUIWindow* w, void* d)
 {
-
 	if (!LocalActor)
 		return;
 
-	if (!SecondActor)
+	if (!SecondActor && !ModeGlobalChat)
 		return;
-
-	Msg("UI PDA click send msg");
 
 	shared_str text = chat_editbox->GetText();
 
@@ -388,7 +385,14 @@ void xr_stdcall UIPdaChat::button_click_send_msg(CUIWindow* w, void* d)
 		data.texture_name = owner->IconName();
 		data.receive_time = Level().GetGameTime();
 
-		AddNewsData(data, SecondActor->ID(), ModeGlobalChat);
+		//Msg("Send %d, text %s", ModeGlobalChat, data.news_text.c_str());
+
+		if (!ModeGlobalChat)
+			AddNewsData(data, SecondActor->ID(), ModeGlobalChat);
+		else
+			AddNewsData(data, 0, ModeGlobalChat);
+
+
 		SendPacket(data);
 	}
 
@@ -439,7 +443,8 @@ void UIPdaChat::AddNewsData(GAME_NEWS_DATA data, ClientID PlayerID, bool GlobalC
 	else
 		global_chat.push_back(data);
 
-	Msg("Игрок [%s] Отправил сообщение[%s] ", data.news_caption.c_str(), data.news_text.c_str());
+	if (OnServer())
+		Msg("Игрок [%s] Отправил сообщение[%s] ", data.news_caption.c_str(), data.news_text.c_str());
 }
 
 #include "UIGameCustom.h"
@@ -447,8 +452,6 @@ void UIPdaChat::AddNewsData(GAME_NEWS_DATA data, ClientID PlayerID, bool GlobalC
 
 void UIPdaChat::RecivePacket(NET_Packet& P)
 {
-	Msg("Recive Packet");
-
 	u8 Global;
 	P.r_u8(Global);
 
@@ -456,9 +459,6 @@ void UIPdaChat::RecivePacket(NET_Packet& P)
 	{
 		GAME_NEWS_DATA data;
 		data.m_type = data.eNews;
-
-		//		ClientID GameID;
-		//		P.r_clientID(GameID);
 		shared_str news_caption;
 		P.r_stringZ(news_caption);
 		shared_str news_text;
@@ -569,8 +569,6 @@ void UIPdaChat::SendPacket(GAME_NEWS_DATA data)
 	P.w_stringZ(news_text);
 	shared_str texture_name = data.texture_name;
 	P.w_stringZ(texture_name);
-
-	//Msg("---export caption[%s] / text [%s] / texture [%s]", news_caption.c_str(), news_text.c_str(), texture_name.c_str());
 
 	Game().u_EventSend(P);
 }

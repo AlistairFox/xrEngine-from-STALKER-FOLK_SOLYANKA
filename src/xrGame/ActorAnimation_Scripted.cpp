@@ -299,13 +299,12 @@ void CActor::soundPlay()
 
 void CActor::SelectScriptAnimation()
 {
- 
 	if (!CanChange)
 		return;
 
-	Msg("InAnim[%d]", IntAnim);
-	Msg("MidAnim[%d]", MidAnim);
-	Msg("OutAnim[%d]", OutAnim);
+	//Msg("InAnim[%d]", IntAnim);
+	//Msg("MidAnim[%d]", MidAnim);
+	//Msg("OutAnim[%d]", OutAnim);
   
 	if (oldAnim != ANIM_SELECTED)
 	{

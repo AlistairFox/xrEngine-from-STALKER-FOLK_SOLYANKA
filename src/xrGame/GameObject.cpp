@@ -1008,6 +1008,8 @@ extern float Shedule_Scale_Objects;
 #include "actor_mp_client.h"
 #include "Spectator.h"
 
+#include "CustomZone.h"
+
 float CGameObject::shedule_Scale()
 {
 	/*
@@ -1035,6 +1037,14 @@ float CGameObject::shedule_Scale()
 
 	return Shedule_Scale_Objects;
 	*/	
+
+	if (smart_cast<CPHDestroyable*>(this) || smart_cast<CPhysicObject*>(this) || smart_cast<CCustomZone*>(this) )
+	{
+		if (OnClient())
+			return Device.vCameraPosition.distance_to(Position()) / 50;
+	} 
+
+
 	return Shedule_Scale_Objects;
 }
 		  
@@ -1064,8 +1074,12 @@ shared_str CGameObject::shedule_clsid()
 		xr_strcat(text, "inv_item");
 	else if (smart_cast<CPHDestroyable*>(this))
 		xr_strcat(text, "destr_physic_object");
+	else if (smart_cast<CPhysicObject*>(this))
+		xr_strcat(text, "physic_object");
 	else if (smart_cast<CEatableItem*>(this))
 		xr_strcat(text, "eated item");
+	else if (smart_cast<CCustomZone*>(this))
+		xr_strcat(text, "custom zone");
 	else
 	{
 		itoa(clsid(), text, 10);

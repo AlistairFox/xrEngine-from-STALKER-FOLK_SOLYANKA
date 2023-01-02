@@ -1706,7 +1706,6 @@ public:
 
 	virtual void	Info	(TInfo& I)	{xr_strcpy(I,"Vote No"); };
 };
-extern bool need_update = false;
 
 #include "xr_time.h"
 
@@ -1729,7 +1728,6 @@ public:
 			{
 				freemp->ChangeGameTime(0, hours, mins);
 				GamePersistent().Environment().Invalidate();
-				need_update = true;
 			}
 		}
 		else
@@ -1750,10 +1748,11 @@ public:
 
 			float eFactor = Level().Server->game->GetEnvironmentGameTimeFactor();
 
-			need_update = true;
-
 			Level().Server->game->SetEnvironmentGameTimeFactor(NewTime, eFactor);
 			Level().Server->game->SetGameTimeFactor(NewTime, g_fTimeFactor);
+
+			GamePersistent().Environment().Invalidate();
+
 		}
 	}
 };

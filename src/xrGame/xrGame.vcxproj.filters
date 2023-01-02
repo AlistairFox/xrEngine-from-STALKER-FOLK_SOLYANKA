@@ -2566,6 +2566,9 @@
     <Filter Include="Core\Client\Objects\actor\base\ANIMS">
       <UniqueIdentifier>{bb148b57-bfb2-4147-84d9-6748dce87a0b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GUNSLINGER">
+      <UniqueIdentifier>{a16bc002-c655-4e25-aab2-1ca2b033ce32}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mt_config.h">
@@ -7524,6 +7527,18 @@
     <ClInclude Include="UIArtefactUpgradeWnd.h">
       <Filter>UI\Common\InventoryWnd\ArtefactUpgrade</Filter>
     </ClInclude>
+    <ClInclude Include="ActorUtils.h">
+      <Filter>GUNSLINGER</Filter>
+    </ClInclude>
+    <ClInclude Include="DetectorUtils.h">
+      <Filter>GUNSLINGER</Filter>
+    </ClInclude>
+    <ClInclude Include="WeaponAnims.h">
+      <Filter>GUNSLINGER</Filter>
+    </ClInclude>
+    <ClInclude Include="WeaponUtils.h">
+      <Filter>GUNSLINGER</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="damage_manager.cpp">
@@ -11287,6 +11302,21 @@
     </ClCompile>
     <ClCompile Include="game_cl_tasks.cpp">
       <Filter>Core\Server\Games\client\freemp</Filter>
+    </ClCompile>
+    <ClCompile Include="WeaponUtils.cpp">
+      <Filter>GUNSLINGER</Filter>
+    </ClCompile>
+    <ClCompile Include="ActorUtils.cpp">
+      <Filter>GUNSLINGER</Filter>
+    </ClCompile>
+    <ClCompile Include="DetectorUtils.cpp">
+      <Filter>GUNSLINGER</Filter>
+    </ClCompile>
+    <ClCompile Include="WeaponAnims.cpp">
+      <Filter>GUNSLINGER</Filter>
+    </ClCompile>
+    <ClCompile Include="ActorAnimation_Zombied.cpp">
+      <Filter>Core\Client\Objects\actor\base\ANIMS</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

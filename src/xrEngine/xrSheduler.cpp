@@ -448,10 +448,10 @@ void CSheduler::ProcessStep			()
 {
 	// Normal priority
 	u32		dwTime					= Device.dwTimeGlobal;
-	/*
+
 	if (Device.dwTimeGlobal - oldTimeUpdate > 1000)
 	{
-		
+		/*
 		for (auto Item : Items)
 		{
 			if (!Item.Object)
@@ -467,6 +467,7 @@ void CSheduler::ProcessStep			()
 				Item.dwTimeForExecute = Device.dwTimeGlobal;
 			}
 		}
+		*/
  
 		for (auto timer : timer_table)
 		{
@@ -507,7 +508,7 @@ void CSheduler::ProcessStep			()
 
 		oldTimeUpdate = Device.dwTimeGlobal;
 	} 
- 	*/
+ 	 
 
 	for (int i=0;!Items.empty() && Top().dwTimeForExecute < dwTime; ++i)
 	{
@@ -541,8 +542,10 @@ void CSheduler::ProcessStep			()
 
 		m_current_step_obj = T.Object;
  
+		CTimer t; t.Start();
 		T.Object->shedule_Update(clampr(Elapsed, u32(1), u32(_max(u32(T.Object->shedule.t_max), u32(1000)))));
-
+		timer_table[T.Object->shedule_clsid()] += t.GetElapsed_ticks();
+	
 		if (!m_current_step_obj)
 		{
 			continue;
