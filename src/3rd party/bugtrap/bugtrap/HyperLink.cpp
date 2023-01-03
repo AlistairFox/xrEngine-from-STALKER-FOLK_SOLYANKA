@@ -121,6 +121,10 @@ void CHyperLink::DoAction(void) const
 	}
 }
 
+#ifdef _M_X64
+#define GWL_USERDATA GWLP_USERDATA
+#endif
+
 /**
  * @param hwnd - window handle.
  * @param uMsg - message identifier.

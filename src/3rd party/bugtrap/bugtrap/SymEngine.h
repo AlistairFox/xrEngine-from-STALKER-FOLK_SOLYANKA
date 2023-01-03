@@ -277,6 +277,40 @@ private:
 	{
 		/// Initialize the object.
 		CRegistersValues(void);
+#ifdef _M_X64
+		/// RAX register.
+		TCHAR m_szRax[32];
+		/// RBX register.
+		TCHAR m_szRbx[32];
+		/// RCX register.
+		TCHAR m_szRcx[32];
+		/// RDX register.
+		TCHAR m_szRdx[32];
+		/// RSI register.
+		TCHAR m_szRsi[32];
+		/// RDI register.
+		TCHAR m_szRdi[32];
+		/// RSP register.
+		TCHAR m_szRsp[32];
+		/// RBP register.
+		TCHAR m_szRbp[32];
+		/// RIP register.
+		TCHAR m_szRip[32];
+		/// CS register.
+		TCHAR m_szSegCs[16];
+		/// DS register.
+		TCHAR m_szSegDs[16];
+		/// SS register.
+		TCHAR m_szSegSs[16];
+		/// ES register.
+		TCHAR m_szSegEs[16];
+		/// FS register.
+		TCHAR m_szSegFs[16];
+		/// GS register.
+		TCHAR m_szSegGs[16];
+		/// EFLAGS register.
+		TCHAR m_szEFlags[16];
+#else
 		/// EAX register.
 		TCHAR m_szEax[16];
 		/// EBX register.
@@ -309,6 +343,7 @@ private:
 		TCHAR m_szSegGs[16];
 		/// EFLAGS register.
 		TCHAR m_szEFlags[16];
+#endif
 	};
 
 	/// Handle to the process for which symbols are to be maintained.
@@ -369,7 +404,7 @@ private:
 	/// Get string representation of system exception code.
 	static PCTSTR ConvertExceptionCodeToString(DWORD dwException);
 	/// Adapter for ReadProcessMemory() function called from StackWalk64() function.
-	static BOOL CALLBACK ReadProcessMemoryProc64(HANDLE hProcess, DWORD64 pBaseAddress, PVOID pBuffer, DWORD nSize, PDWORD pNumberOfBytesRead);
+	static BOOL CALLBACK ReadProcessMemoryProc64(HANDLE hProcess, DWORD64 pBaseAddress, PVOID pBuffer, DWORD nSize, LPDWORD pNumberOfBytesRead);
 	/// Safely copy memory blocks.
 	static void SafeCopy(PVOID pDestination, PVOID pSource, DWORD dwSize);
 	/// Add new file to zip archive.
@@ -570,10 +605,10 @@ inline CSymEngine::CStackWalkContext::CStackWalkContext(void)
  * @param pNumberOfBytesRead - number of bytes read.
  * @return if the function succeeds, the return value is nonzero.
  */
-inline BOOL CALLBACK CSymEngine::ReadProcessMemoryProc64(HANDLE hProcess, DWORD64 pBaseAddress, PVOID pBuffer, DWORD nSize, PDWORD pNumberOfBytesRead)
+inline BOOL CALLBACK CSymEngine::ReadProcessMemoryProc64(HANDLE hProcess, DWORD64 pBaseAddress, PVOID pBuffer, DWORD nSize, LPDWORD pNumberOfBytesRead)
 {
 	hProcess;
-	return ReadProcessMemory(GetCurrentProcess(), (PVOID)pBaseAddress, pBuffer, nSize, pNumberOfBytesRead);
+	return ReadProcessMemory(GetCurrentProcess(), (PVOID)pBaseAddress, pBuffer, nSize, (SIZE_T*)pNumberOfBytesRead);
 }
 
 /**

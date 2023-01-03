@@ -323,6 +323,13 @@ void CHexView::ScrollHexView(int nScrollBarType, int nScrollCode)
 	}
 }
 
+// FX: Я не понимаю нахуя (а главное зачем?) вам BugTrap в 2к22, но дело ваше
+// Но знайте, моя жопа горит от переноса этого кода
+
+#ifdef _M_X64
+#define GWL_USERDATA GWLP_USERDATA
+#endif
+
 /**
  * @param hwnd - window handle.
  * @param uMsg - message identifier.

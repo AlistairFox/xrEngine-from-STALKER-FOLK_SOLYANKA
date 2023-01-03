@@ -715,7 +715,7 @@ extern "C" BUGTRAP_API DWORD APIENTRY BT_GetLogFileEntry(INT_PTR nLogFileIndexOr
 		if (nLogFileIndexOrName < 0)
 			return ERROR_NOT_FOUND;
 	}
-	CLogLink* pLogLink = g_arrLogLinks[nLogFileIndexOrName];
+	CLogLink* pLogLink = g_arrLogLinks[(int)nLogFileIndexOrName];
 	_ASSERTE(pLogLink != NULL);
 	BUGTRAP_LOGTYPE eLogType = pLogLink->GetLogType();
 	if (pLogEntry != NULL)

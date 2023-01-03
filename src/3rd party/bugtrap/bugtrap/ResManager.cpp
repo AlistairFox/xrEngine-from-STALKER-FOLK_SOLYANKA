@@ -17,6 +17,11 @@
 #include "ResManager.h"
 #include "Globals.h"
 
+#ifdef _M_X64
+#define GCL_HICON GCLP_HICON
+#define GCL_HICONSM GCLP_HICONSM
+#endif
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif

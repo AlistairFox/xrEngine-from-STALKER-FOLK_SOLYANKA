@@ -142,6 +142,24 @@ CSymEngine::CSysErrorInfo& CSymEngine::CSysErrorInfo::operator=(const CSysErrorI
 
 CSymEngine::CRegistersValues::CRegistersValues(void)
 {
+#ifdef _M_X64
+	* m_szRax = _T('\0');
+	*m_szRbx = _T('\0');
+	*m_szRcx = _T('\0');
+	*m_szRdx = _T('\0');
+	*m_szRsi = _T('\0');
+	*m_szRdi = _T('\0');
+	*m_szRsp = _T('\0');
+	*m_szRbp = _T('\0');
+	*m_szRip = _T('\0');
+	*m_szSegCs = _T('\0');
+	*m_szSegDs = _T('\0');
+	*m_szSegSs = _T('\0');
+	*m_szSegEs = _T('\0');
+	*m_szSegFs = _T('\0');
+	*m_szSegGs = _T('\0');
+	*m_szEFlags = _T('\0');
+#else
 	*m_szEax = _T('\0');
 	*m_szEbx = _T('\0');
 	*m_szEcx = _T('\0');
@@ -158,6 +176,7 @@ CSymEngine::CRegistersValues::CRegistersValues(void)
 	*m_szSegFs = _T('\0');
 	*m_szSegGs = _T('\0');
 	*m_szEFlags = _T('\0');
+#endif
 }
 
 /**
@@ -404,6 +423,17 @@ BOOL CSymEngine::AdjustExceptionStackFrame(void)
 		CONTEXT ctxSafe = m_StartExceptionContext;
 		for (;;)
 		{
+#ifdef _M_X64
+			BOOL bResult = FStackWalk64(IMAGE_FILE_MACHINE_AMD64,
+			                            m_hSymProcess,
+			                            hThread,
+			                            &stFrame,
+			                            &m_StartExceptionContext,
+			                            ReadProcessMemoryProc64,
+			                            FSymFunctionTableAccess64,
+			                            FSymGetModuleBase64,
+			                            NULL);
+#else
 			BOOL bResult = FStackWalk64(IMAGE_FILE_MACHINE_I386,
 			                            m_hSymProcess,
 			                            hThread,
@@ -413,6 +443,8 @@ BOOL CSymEngine::AdjustExceptionStackFrame(void)
 			                            FSymFunctionTableAccess64,
 			                            FSymGetModuleBase64,
 			                            NULL);
+#endif
+
 			if (! bResult || ! stFrame.AddrFrame.Offset || bFoundThrowingFrame)
 			{
 				if (bFoundThrowingFrame)
@@ -792,6 +824,24 @@ void CSymEngine::GetRegistersValues(CRegistersValues& rRegVals)
 #define CONVERT_REGISTER_VALUE_TO_STRING(reg, digits) \
 	_stprintf_s(rRegVals.m_sz##reg, countof(rRegVals.m_sz##reg), _T("0x%0") _T(#digits) _T("lX"), m_pExceptionPointers->ContextRecord->reg);
 
+#ifdef _M_X64
+	CONVERT_REGISTER_VALUE_TO_STRING(Rax, 16)
+	CONVERT_REGISTER_VALUE_TO_STRING(Rbx, 16)
+	CONVERT_REGISTER_VALUE_TO_STRING(Rcx, 16)
+	CONVERT_REGISTER_VALUE_TO_STRING(Rdx, 16)
+	CONVERT_REGISTER_VALUE_TO_STRING(Rsi, 16)
+	CONVERT_REGISTER_VALUE_TO_STRING(Rdi, 16)
+	CONVERT_REGISTER_VALUE_TO_STRING(Rsp, 16)
+	CONVERT_REGISTER_VALUE_TO_STRING(Rbp, 16)
+	CONVERT_REGISTER_VALUE_TO_STRING(Rip, 16)
+	CONVERT_REGISTER_VALUE_TO_STRING(SegCs, 4)
+	CONVERT_REGISTER_VALUE_TO_STRING(SegDs, 4)
+	CONVERT_REGISTER_VALUE_TO_STRING(SegSs, 4)
+	CONVERT_REGISTER_VALUE_TO_STRING(SegEs, 4)
+	CONVERT_REGISTER_VALUE_TO_STRING(SegFs, 4)
+	CONVERT_REGISTER_VALUE_TO_STRING(SegGs, 4)
+	CONVERT_REGISTER_VALUE_TO_STRING(EFlags, 8)
+#else
 	CONVERT_REGISTER_VALUE_TO_STRING(Eax, 8);
 	CONVERT_REGISTER_VALUE_TO_STRING(Ebx, 8);
 	CONVERT_REGISTER_VALUE_TO_STRING(Ecx, 8);
@@ -808,7 +858,7 @@ void CSymEngine::GetRegistersValues(CRegistersValues& rRegVals)
 	CONVERT_REGISTER_VALUE_TO_STRING(SegFs, 4);
 	CONVERT_REGISTER_VALUE_TO_STRING(SegGs, 4);
 	CONVERT_REGISTER_VALUE_TO_STRING(EFlags, 8);
-
+#endif
 #undef CONVERT_REGISTER_VALUE_TO_STRING
 }
 
@@ -819,31 +869,61 @@ void CSymEngine::GetRegistersValues(CRegistersValues& rRegVals)
 void CSymEngine::GetRegistersString(PTSTR pszRegString, DWORD dwRegStringSize)
 {
 	_ASSERTE(m_pExceptionPointers != NULL);
+#if defined _M_IX86
 	_stprintf_s(pszRegString, dwRegStringSize,
-	           _T("EAX=%08X  EBX=%08X  ECX=%08X  EDX=%08X\r\n")
-	           _T("ESI=%08X  EDI=%08X  FLG=%08X\r\n")
-	           _T("EBP=%08X  ESP=%08X  EIP=%08X\r\n")
-	           _T("CS=%04X  DS=%04X  SS=%04X  ES=%04X  FS=%04X  GS=%04X"),
+		_T("EAX=%08X  EBX=%08X  ECX=%08X  EDX=%08X\r\n")
+		_T("ESI=%08X  EDI=%08X  FLG=%08X\r\n")
+		_T("EBP=%08X  ESP=%08X  EIP=%08X\r\n")
+		_T("CS=%04X  DS=%04X  SS=%04X  ES=%04X  FS=%04X  GS=%04X"),
 
-	           m_pExceptionPointers->ContextRecord->Eax,
-	           m_pExceptionPointers->ContextRecord->Ebx,
-	           m_pExceptionPointers->ContextRecord->Ecx,
-	           m_pExceptionPointers->ContextRecord->Edx,
+		m_pExceptionPointers->ContextRecord->Eax,
+		m_pExceptionPointers->ContextRecord->Ebx,
+		m_pExceptionPointers->ContextRecord->Ecx,
+		m_pExceptionPointers->ContextRecord->Edx,
 
-	           m_pExceptionPointers->ContextRecord->Esi,
-	           m_pExceptionPointers->ContextRecord->Edi,
-	           m_pExceptionPointers->ContextRecord->EFlags,
+		m_pExceptionPointers->ContextRecord->Esi,
+		m_pExceptionPointers->ContextRecord->Edi,
+		m_pExceptionPointers->ContextRecord->EFlags,
 
-	           m_pExceptionPointers->ContextRecord->Ebp,
-	           m_pExceptionPointers->ContextRecord->Esp,
-	           m_pExceptionPointers->ContextRecord->Eip,
+		m_pExceptionPointers->ContextRecord->Ebp,
+		m_pExceptionPointers->ContextRecord->Esp,
+		m_pExceptionPointers->ContextRecord->Eip,
 
-	           m_pExceptionPointers->ContextRecord->SegCs,
-	           m_pExceptionPointers->ContextRecord->SegDs,
-	           m_pExceptionPointers->ContextRecord->SegSs,
-	           m_pExceptionPointers->ContextRecord->SegEs,
-	           m_pExceptionPointers->ContextRecord->SegFs,
-	           m_pExceptionPointers->ContextRecord->SegGs);
+		m_pExceptionPointers->ContextRecord->SegCs,
+		m_pExceptionPointers->ContextRecord->SegDs,
+		m_pExceptionPointers->ContextRecord->SegSs,
+		m_pExceptionPointers->ContextRecord->SegEs,
+		m_pExceptionPointers->ContextRecord->SegFs,
+		m_pExceptionPointers->ContextRecord->SegGs);
+#else
+	_stprintf_s(pszRegString, dwRegStringSize,
+		_T("RAX=%016I64X  RBX=%016I64X\r\n")
+		_T("RCX=%016I64X  RDX=%016I64X\r\n")
+		_T("RSI=%016I64X  RDI=%016I64X\r\n")
+		_T("FLG=%08lX          RBP=%016I64X\r\n")
+		_T("RSP=%016I64X  RIP=%016I64X\r\n")
+		_T("CS=%04X  DS=%04X  SS=%04X  ES=%04X  FS=%04X  GS=%04X"),
+
+		m_pExceptionPointers->ContextRecord->Rax,
+		m_pExceptionPointers->ContextRecord->Rbx,
+		m_pExceptionPointers->ContextRecord->Rcx,
+		m_pExceptionPointers->ContextRecord->Rdx,
+
+		m_pExceptionPointers->ContextRecord->Rsi,
+		m_pExceptionPointers->ContextRecord->Rdi,
+		m_pExceptionPointers->ContextRecord->EFlags,
+
+		m_pExceptionPointers->ContextRecord->Rbp,
+		m_pExceptionPointers->ContextRecord->Rsp,
+		m_pExceptionPointers->ContextRecord->Rip,
+
+		m_pExceptionPointers->ContextRecord->SegCs,
+		m_pExceptionPointers->ContextRecord->SegDs,
+		m_pExceptionPointers->ContextRecord->SegSs,
+		m_pExceptionPointers->ContextRecord->SegEs,
+		m_pExceptionPointers->ContextRecord->SegFs,
+		m_pExceptionPointers->ContextRecord->SegGs);
+#endif
 }
 
 /**
@@ -1159,12 +1239,15 @@ BOOL CSymEngine::InitStackTrace(LPSTACKFRAME64 pStackFrame)
 	}
 	else
 	{
-/*
-		HANDLE hThread = GetCurrentThread();
-		m_StartExceptionContext.ContextFlags = CONTEXT_FULL;
-		if (! GetThreadContext(hThread, &m_StartExceptionContext))
-			return FALSE;
-*/
+		/*
+				HANDLE hThread = GetCurrentThread();
+				m_StartExceptionContext.ContextFlags = CONTEXT_FULL;
+				if (! GetThreadContext(hThread, &m_StartExceptionContext))
+					return FALSE;
+		*/
+#ifdef _M_X64
+		RtlCaptureContext(&m_StartExceptionContext);
+#else
 		__asm
 		{
 			push eax
@@ -1195,29 +1278,29 @@ BOOL CSymEngine::InitStackTrace(LPSTACKFRAME64 pStackFrame)
 			pop es
 
 			// fill m_StartExceptionContext
-			mov dword ptr [edi] CONTEXT.ContextFlags, CONTEXT_FULL
-			mov dword ptr [edi] CONTEXT.Eax, eax
-			mov dword ptr [edi] CONTEXT.Ecx, ecx
-			mov dword ptr [edi] CONTEXT.Edx, edx
-			mov dword ptr [edi] CONTEXT.Ebx, ebx
-			mov dword ptr [edi] CONTEXT.Esi, esi
-			mov dword ptr [edi] CONTEXT.Edi, edi
-			mov word ptr [edi] CONTEXT.SegSs, ss
-			mov word ptr [edi] CONTEXT.SegCs, cs
-			mov word ptr [edi] CONTEXT.SegDs, ds
-			mov word ptr [edi] CONTEXT.SegEs, es
-			mov word ptr [edi] CONTEXT.SegFs, fs
-			mov word ptr [edi] CONTEXT.SegGs, gs
+			mov dword ptr[edi] CONTEXT.ContextFlags, CONTEXT_FULL
+			mov dword ptr[edi] CONTEXT.Eax, eax
+			mov dword ptr[edi] CONTEXT.Ecx, ecx
+			mov dword ptr[edi] CONTEXT.Edx, edx
+			mov dword ptr[edi] CONTEXT.Ebx, ebx
+			mov dword ptr[edi] CONTEXT.Esi, esi
+			mov dword ptr[edi] CONTEXT.Edi, edi
+			mov word ptr[edi] CONTEXT.SegSs, ss
+			mov word ptr[edi] CONTEXT.SegCs, cs
+			mov word ptr[edi] CONTEXT.SegDs, ds
+			mov word ptr[edi] CONTEXT.SegEs, es
+			mov word ptr[edi] CONTEXT.SegFs, fs
+			mov word ptr[edi] CONTEXT.SegGs, gs
 			// m_StartExceptionContext.EFlags = flags
 			pushfd
-			pop [edi] CONTEXT.EFlags
+			pop[edi] CONTEXT.EFlags
 			// extract caller's EBP, IP (return address) and ESP
 			mov eax, [ebp]
-			mov dword ptr [edi] CONTEXT.Ebp, eax
+			mov dword ptr[edi] CONTEXT.Ebp, eax
 			mov eax, [ebp + 4]
-			mov dword ptr [edi] CONTEXT.Eip, eax
+			mov dword ptr[edi] CONTEXT.Eip, eax
 			lea eax, [ebp + 8]
-			mov dword ptr [edi] CONTEXT.Esp, eax
+			mov dword ptr[edi] CONTEXT.Esp, eax
 
 			pop edi
 			pop eax
@@ -1234,6 +1317,8 @@ BOOL CSymEngine::InitStackTrace(LPSTACKFRAME64 pStackFrame)
 	pStackFrame->AddrFrame.Mode = AddrModeFlat;
 	pStackFrame->AddrFrame.Offset = m_StartExceptionContext.Ebp;
 	pStackFrame->AddrFrame.Segment = (WORD)m_StartExceptionContext.SegEs;
+#endif
+	}
 	return TRUE;
 }
 
@@ -1272,11 +1357,17 @@ BOOL CSymEngine::InitStackTrace(HANDLE hThread)
 	m_swContext.m_hThread = hThread;
 	ZeroMemory(&m_swContext.m_stFrame, sizeof(m_swContext.m_stFrame));
 	m_swContext.m_stFrame.AddrPC.Mode = AddrModeFlat;
-	m_swContext.m_stFrame.AddrPC.Offset = m_swContext.m_context.Eip;
 	m_swContext.m_stFrame.AddrStack.Mode = AddrModeFlat;
-	m_swContext.m_stFrame.AddrStack.Offset = m_swContext.m_context.Esp;
 	m_swContext.m_stFrame.AddrFrame.Mode = AddrModeFlat;
+#ifdef _M_X64
+	m_swContext.m_stFrame.AddrPC.Offset = m_swContext.m_context.Rip;
+	m_swContext.m_stFrame.AddrStack.Offset = m_swContext.m_context.Rsp;
+	m_swContext.m_stFrame.AddrFrame.Offset = m_swContext.m_context.Rbp;
+#else
+	m_swContext.m_stFrame.AddrPC.Offset = m_swContext.m_context.Eip;
+	m_swContext.m_stFrame.AddrStack.Offset = m_swContext.m_context.Esp;
 	m_swContext.m_stFrame.AddrFrame.Offset = m_swContext.m_context.Ebp;
+#endif
 	m_dwFrameCount = 0;
 	return TRUE;
 }
@@ -2202,6 +2293,17 @@ void CSymEngine::GetRegistersInfo(CXmlWriter& rXmlWriter)
 	CRegistersValues RegVals;
 	GetRegistersValues(RegVals);
 	rXmlWriter.WriteStartElement(_T("registers")); // <registers>
+#ifdef _M_X64
+	rXmlWriter.WriteElementString(_T("eax"), RegVals.m_szRax); // <eax>...</eax>
+	rXmlWriter.WriteElementString(_T("ebx"), RegVals.m_szRbx); // <ebx>...</ebx>
+	rXmlWriter.WriteElementString(_T("ecx"), RegVals.m_szRcx); // <ecx>...</ecx>
+	rXmlWriter.WriteElementString(_T("edx"), RegVals.m_szRdx); // <edx>...</edx>
+	rXmlWriter.WriteElementString(_T("esi"), RegVals.m_szRsi); // <esi>...</esi>
+	rXmlWriter.WriteElementString(_T("edi"), RegVals.m_szRdi); // <edi>...</edi>
+	rXmlWriter.WriteElementString(_T("esp"), RegVals.m_szRsp); // <esp>...</esp>
+	rXmlWriter.WriteElementString(_T("ebp"), RegVals.m_szRbp); // <ebp>...</ebp>
+	rXmlWriter.WriteElementString(_T("eip"), RegVals.m_szRip); // <eip>...</eip>
+#else
 	 rXmlWriter.WriteElementString(_T("eax"), RegVals.m_szEax); // <eax>...</eax>
 	 rXmlWriter.WriteElementString(_T("ebx"), RegVals.m_szEbx); // <ebx>...</ebx>
 	 rXmlWriter.WriteElementString(_T("ecx"), RegVals.m_szEcx); // <ecx>...</ecx>
@@ -2211,6 +2313,7 @@ void CSymEngine::GetRegistersInfo(CXmlWriter& rXmlWriter)
 	 rXmlWriter.WriteElementString(_T("esp"), RegVals.m_szEsp); // <esp>...</esp>
 	 rXmlWriter.WriteElementString(_T("ebp"), RegVals.m_szEbp); // <ebp>...</ebp>
 	 rXmlWriter.WriteElementString(_T("eip"), RegVals.m_szEip); // <eip>...</eip>
+#endif
 	 rXmlWriter.WriteElementString(_T("cs"), RegVals.m_szSegCs); // <cs>...</cs>
 	 rXmlWriter.WriteElementString(_T("ds"), RegVals.m_szSegDs); // <ds>...</ds>
 	 rXmlWriter.WriteElementString(_T("ss"), RegVals.m_szSegSs); // <ss>...</ss>
@@ -2715,8 +2818,7 @@ BOOL CSymEngine::GetNextStackTraceEntry(CStackTraceEntry& rEntry)
 	if (hModule != NULL)
 		GetModuleFileName(hModule, rEntry.m_szModule, countof(rEntry.m_szModule));
 	DWORD64 dwExceptionAddress = m_swContext.m_stFrame.AddrPC.Offset;
-	WORD wExceptionSegment; // wExceptionSegment = m_swContext.m_stFrame.AddrPC.Segment;
-	__asm { mov word ptr [wExceptionSegment], cs }
+	WORD wExceptionSegment = m_swContext.m_stFrame.AddrPC.Segment;
 	_stprintf_s(rEntry.m_szAddress, countof(rEntry.m_szAddress),
 	            _T("%04lX:%08lX"), wExceptionSegment, dwExceptionAddress);
 
