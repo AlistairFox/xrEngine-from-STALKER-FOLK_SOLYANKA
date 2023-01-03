@@ -105,17 +105,28 @@ void	MODEL::build			(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callback* bc,
 #endif
 }
 
+int LOADED = 0;
+
 void	MODEL::build_internal	(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callback* bc, void* bcp)
 {
+	LOADED++;
+
+
 	// verts
 	verts_count	= Vcnt;
+	Msg("Load Model %d, verts_count[%d], [%d], total [%d] mb", LOADED, verts_count, sizeof(Fvector), verts_count * sizeof(Fvector) / 1024 / 1024);
 	verts		= CALLOC(Fvector,verts_count);
 	CopyMemory	(verts,V,verts_count*sizeof(Fvector));
 	
+	
+
 	// tris
 	tris_count	= Tcnt;
+	Msg("Load Model %d, tris_count[%d], [%d], total [%d] mb", LOADED, tris_count, sizeof(TRI), tris_count * sizeof(TRI) / 1024 / 1024);
 	tris		= CALLOC(TRI,tris_count);
 	CopyMemory	(tris,T,tris_count*sizeof(TRI));
+
+	Msg("Copy Memory END");
 
 	// callback
 	if (bc)		bc	(verts,Vcnt,tris,Tcnt,bcp);

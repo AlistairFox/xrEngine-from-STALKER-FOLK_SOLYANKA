@@ -150,6 +150,8 @@ void *FileDownload		(LPCSTR file_name, const int &file_handle, u32 &file_size)
 
 //	file_size			= r_bytes;
 
+	//Msg("FILE: %s", file_name);
+
 	R_ASSERT3			(
 		!_close(file_handle),
 		"can't close file : ",
@@ -339,7 +341,11 @@ IReader*	IReader::open_chunk(u32 ID)
 	} else return 0;
 };
 void	IReader::close()
-{	xr_delete((IReader*)this); }
+{	
+	//Msg("CLOSE");
+	auto* self = this;
+	xr_delete(self);
+}
 
 #include "FS_impl.h"
 

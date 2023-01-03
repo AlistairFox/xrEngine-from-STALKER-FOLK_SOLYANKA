@@ -155,12 +155,14 @@ void CStats::Show()
 	}
 	*/
 
+	/*
 	{
 		float mem_count		= float	(Memory.stat_calls);
 		if (mem_count>fMem_calls)	fMem_calls	=	mem_count;
 		else						fMem_calls	=	.9f*fMem_calls + .1f*mem_count;
 		Memory.stat_calls	= 0		;
 	}
+	*/
 
 	////////////////////////////////////////////////
 	if (g_dedicated_server) return;
