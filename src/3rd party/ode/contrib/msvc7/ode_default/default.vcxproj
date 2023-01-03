@@ -72,8 +72,6 @@
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
     <LinkIncremental>false</LinkIncremental>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
-    <LibraryPath>A:\Games\TEST\Dead Edge\bin\x86\;$(LibraryPath)</LibraryPath>
-    <OutDir>C:\Users\dima\Documents\GitHub\omp-engine\BINS\x32</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Mixed|Win32'">
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
@@ -191,7 +189,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
       <TargetMachine>MachineX86</TargetMachine>
-      <ImportLibrary>$(OutDir)LIBS\$(TargetName).lib</ImportLibrary>
+      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
     </Link>
     <PostBuildEvent>
       <Message>Performing registration</Message>

@@ -281,8 +281,6 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>$(LibraryPath);A:\Games\TEST\Dead Edge\bin\x86\LIBS\;$(OutDir)LIBS\</LibraryPath>
-    <OutDir>C:\Users\dima\Documents\GitHub\omp-engine\BINS\x32\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -590,7 +588,6 @@
       <FixedBaseAddress>false</FixedBaseAddress>
       <DataExecutionPrevention />
       <AdditionalLibraryDirectories>$(SolutionDir)\..\binares\Win32-Release\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <ImportLibrary>$(OutDir)LIBS\$(TargetName).lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

@@ -80,9 +80,6 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>$(LibraryPath);A:\Games\TEST\Dead Edge\bin\x86\LIBS\;$(OutDir)LIBS\</LibraryPath>
-    <ExternalIncludePath>C:\Users\dima\Documents\GitHub\omp-engine\src\Layers\xrRenderPC_R2;$(ExternalIncludePath)</ExternalIncludePath>
-    <OutDir>C:\Users\dima\Documents\GitHub\omp-engine\BINS\x32\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='LUAJIT_2|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -173,7 +170,6 @@
       <DataExecutionPrevention />
       <TargetMachine>MachineX86</TargetMachine>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-      <ImportLibrary>$(OutDir)LIBS\$(TargetName).lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='LUAJIT_2|Win32'">
