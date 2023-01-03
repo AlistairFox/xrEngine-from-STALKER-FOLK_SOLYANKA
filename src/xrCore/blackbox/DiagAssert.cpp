@@ -524,7 +524,7 @@ static DWORD ConvertAddress ( DWORD dwAddr , LPTSTR szOutBuff )
     }
 
     // Get the function.
-    DWORD dwDisp ;
+    DWORD_PTR dwDisp ;
     if ( 0 != g_cSym.SymGetSymFromAddr ( dwAddr , &dwDisp , pIHS ) )
     {
         if ( 0 == dwDisp )
@@ -546,8 +546,10 @@ static DWORD ConvertAddress ( DWORD dwAddr , LPTSTR szOutBuff )
 
         stIHL.SizeOfStruct = sizeof ( IMAGEHLP_LINE ) ;
 
+        DWORD dwDispR;
+
         if ( 0 != g_cSym.SymGetLineFromAddr ( dwAddr  ,
-                                              &dwDisp ,
+                                              &dwDispR ,
                                               &stIHL   ) )
         {
             // Put this on the next line and indented a bit.
@@ -555,11 +557,11 @@ static DWORD ConvertAddress ( DWORD dwAddr , LPTSTR szOutBuff )
                                   _T ( "\n\t\t%s, Line %d" ) ,
                                   stIHL.FileName             ,
                                   stIHL.LineNumber            ) ;
-            if ( 0 != dwDisp )
+            if ( 0 != dwDispR)
             {
                 pCurrPos += wsprintf ( pCurrPos             ,
                                        _T ( " + %d bytes" ) ,
-                                       dwDisp                ) ;
+                                    dwDispR) ;
             }
         }
     }
@@ -651,7 +653,7 @@ void DoStackTrace ( LPTSTR szString  ,
         dwMachine                = IMAGE_FILE_MACHINE_ALPHA ;
         stFrame.AddrPC.Offset    = (unsigned long)stCtx.Fir ;
 #else
-#error ( "Unknown machine!" )
+// #error ( "Unknown machine!" )
 #endif
 
         // Loop for the first 512 stack elements.

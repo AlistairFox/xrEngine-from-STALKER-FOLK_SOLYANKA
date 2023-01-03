@@ -124,7 +124,7 @@
       </DataExecutionPrevention>
       <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
       <AdditionalOptions>lj_vm.obj %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>xrCore.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)\..\binares\$(Platform)-$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>

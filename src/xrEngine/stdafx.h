@@ -65,8 +65,8 @@ extern ENGINE_API CInifile *pGameIni;
 #pragma comment( lib, "xrCDB.lib"	)
 #pragma comment( lib, "xrSound.lib"	)
 
-#include "lua/library_linkage.h"
-#include "luabind/library_linkage.h"
+//#include "lua/library_linkage.h"
+//#include "luabind/library_linkage.h"
 
 #pragma comment( lib, "xrAPI.lib"	)
 
