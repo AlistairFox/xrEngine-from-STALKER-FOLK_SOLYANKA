@@ -1,5 +1,5 @@
 #include <functional>
-//#include "../xrCore/xrCore.h"
+#include "../xrCore/xrCore.h"
 
 #include "xrScripts.h"
 extern "C"
