@@ -448,26 +448,10 @@ void CSheduler::ProcessStep			()
 {
 	// Normal priority
 	u32		dwTime					= Device.dwTimeGlobal;
-
+	
+	/*
 	if (Device.dwTimeGlobal - oldTimeUpdate > 1000)
-	{
-		/*
-		for (auto Item : Items)
-		{
-			if (!Item.Object)
-				continue;
-
-			if (!Item.Object->shedule.fast_exit)
-				continue;
-
-			float scale = Item.Object->shedule_Scale();
-
-			if (scale < 1)
-			{
-				Item.dwTimeForExecute = Device.dwTimeGlobal;
-			}
-		}
-		*/
+	{  
  
 		for (auto timer : timer_table)
 		{
@@ -508,7 +492,8 @@ void CSheduler::ProcessStep			()
 
 		oldTimeUpdate = Device.dwTimeGlobal;
 	} 
- 	 
+ 	*/
+	
 
 	for (int i=0;!Items.empty() && Top().dwTimeForExecute < dwTime; ++i)
 	{

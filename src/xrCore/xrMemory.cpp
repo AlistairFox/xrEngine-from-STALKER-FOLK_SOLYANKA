@@ -102,7 +102,7 @@ u32 mem_usage_impl(u32* pBlocksUsed, u32* pBlocksFree) {
     static bool no_memory_usage = !!strstr(GetCommandLine(), "-no_memory_usage");
     if (no_memory_usage)
         return 0;
-
+      
     _HEAPINFO hinfo;
     int heapstatus;
     hinfo._pentry = nullptr;

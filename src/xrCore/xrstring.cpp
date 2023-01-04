@@ -153,7 +153,7 @@ str_value*	str_container::dock		(str_c value)
 	// calc len
 	u32		s_len				= xr_strlen(value);
 	u32		s_len_with_zero		= (u32)s_len+1;
-	VERIFY	(HEADER+s_len_with_zero < 4096);
+	//VERIFY	(HEADER+s_len_with_zero < 4096);
 
 	// setup find structure
 	char	header[sizeof(str_value)];
@@ -175,13 +175,10 @@ str_value*	str_container::dock		(str_c value)
 		|| is_leaked_string
 #endif //DEBUG
 		) {
+		const size_t sizeStringNode = sizeof(str_value) + s_len_with_zero;
 
-		result					= (str_value*)Memory.mem_alloc(HEADER+s_len_with_zero
-#ifdef DEBUG_MEMORY_NAME
-			, "storage: sstring"
-#endif // DEBUG_MEMORY_NAME
-			);
-
+		result = (str_value*)Memory.mem_alloc(sizeStringNode);
+		 
 #ifdef DEBUG
 		static int num_leaked_string = 0;
 		if ( is_leaked_string )
