@@ -1080,7 +1080,7 @@ static inline bool check (const u8 &mask, const u8 &test)
 	return							(!!(mask & test));
 }
 
-const	u32		CSE_ALifeObjectPhysic::m_freeze_delta_time		= 5000;
+const	u32		CSE_ALifeObjectPhysic::m_freeze_delta_time		= 1000;
 const	u32		CSE_ALifeObjectPhysic::random_limit				= 40;		
 
 #ifdef DEBUG
@@ -1090,6 +1090,10 @@ const	u32		CSE_ALifeObjectPhysic::m_update_delta_time		= 0;
 //if TRUE, then object sends update packet
 BOOL CSE_ALifeObjectPhysic::Net_Relevant()
 {
+	if (freezed)
+		return false;
+	return true;
+
 	if (!freezed)
 	{
 #ifdef XRGAME_EXPORTS

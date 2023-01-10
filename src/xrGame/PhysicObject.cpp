@@ -363,6 +363,7 @@ void CPhysicObject::UpdateCL()
 	}
 
 	m_anim_script_callback.update( *this );
+
 	PHObjectPositionUpdate();
 
 #ifdef	DEBUG
@@ -383,8 +384,6 @@ void CPhysicObject::PHObjectPositionUpdate	()
 	
 	if(m_pPhysicsShell)
 	{
-
-
 		if(m_type==epotBox) 
 		{
 			m_pPhysicsShell->Update();
@@ -615,7 +614,8 @@ void CPhysicObject::net_Export_PH_Params(NET_Packet& P, SPHNetState& State, mask
 	//Msg("Export State.enabled:%i",int(State.enabled));
 
 	float					magnitude = _sqrt(State.quaternion.magnitude());
-	if (fis_zero(magnitude)) {
+	if (fis_zero(magnitude)) 
+	{
 		magnitude			= 1;
 		State.quaternion.x	= 0.f;
 		State.quaternion.y	= 0.f;
@@ -651,7 +651,8 @@ void CPhysicObject::net_Export_PH_Params(NET_Packet& P, SPHNetState& State, mask
 		P.w_float		(State.angular_vel.z);
 	}
 
-	if (!(num_items.mask & CSE_ALifeObjectPhysic::inventory_item_linear_null)) {
+	if (!(num_items.mask & CSE_ALifeObjectPhysic::inventory_item_linear_null)) 
+	{
 		/*clamp				(State.linear_vel.x,-32.f,32.f);
 		clamp				(State.linear_vel.y,-32.f,32.f);
 		clamp				(State.linear_vel.z,-32.f,32.f);*/
@@ -696,6 +697,16 @@ void CPhysicObject::net_Import			(NET_Packet& P)
 	{
 		return;
 	}
+
+
+	CPHSynchronize* pSyncObj = this->PHGetSyncItem(0);
+	
+	pSyncObj->set_State(N.State);
+
+
+	if (true)
+		return;
+
 
 	net_updatePhData				*p = NetSync();
 
@@ -775,9 +786,11 @@ void CPhysicObject::net_Import_PH_Params(NET_Packet& P, net_update_PItem& N, mas
 void CPhysicObject::PH_B_CrPr		()
 {
 };
+
 void CPhysicObject::PH_I_CrPr		()		// actions & operations between two phisic prediction steps
 {
 }; 
+
 void CPhysicObject::PH_A_CrPr		()
 {
 	if (m_just_after_spawn)
@@ -843,7 +856,7 @@ void CPhysicObject::Interpolate()
 		p->NET_IItem.size())
 	{
 		SPHNetState newState = p->NET_IItem.front().State;
-				
+		/*
 		if (p->NET_IItem.size() >= 2)
 		{
 
@@ -863,6 +876,7 @@ void CPhysicObject::Interpolate()
 				}
 			}
 		}
+		*/
 		pSyncObj->set_State(newState);
 	}
 }
