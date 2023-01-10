@@ -1010,7 +1010,8 @@ void CActor::g_Physics			(Fvector& _accel, float jump, float dt)
 
 		Fvector pos;
 		character_physics_support()->movement()->GetPosition(pos);
-	
+		
+		/*
 		if (prePos.distance_to_xz(pos) > 4.0f) 
 		{	
 			Msg("!!!Pre Calc Pos [%f][%f][%f]", prePos.x, prePos.y, prePos.z);
@@ -1024,6 +1025,7 @@ void CActor::g_Physics			(Fvector& _accel, float jump, float dt)
 			//character_physics_support()->movement()->SetVelocity(0,0,0);
 			//character_physics_support()->movement()->SetPosition(prePos);
 		}
+		*/
 
 		bool new_border_state=character_physics_support()->movement()->isOutBorder();
 		if(m_bOutBorder!=new_border_state && Level().CurrentControlEntity() == this)

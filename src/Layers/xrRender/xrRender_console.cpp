@@ -696,13 +696,15 @@ public:
 	}
 };
 
+extern int off_details;
 
 //-----------------------------------------------------------------------
 void		xrRender_initconsole	()
 {
-	CMD4(CCC_DetailsRenderDIST, "r__detail_distance", &ps_render_detail_radius, 24, 128);
+	CMD4(CCC_DetailsRenderDIST, "r__detail_distance", &ps_render_detail_radius, 1, 128);
 	CMD4(CCC_Float,				"r__detail_density", &ps_r__Detail_density, .2f, 0.6f);
 	CMD4(CCC_Integer,			"r__detail_scale", &sDET, 0, 1);
+	CMD4(CCC_Integer,			"r__detail_off", &off_details, 0, 1);
 
 	CMD4(CCC_Integer, "ren_occ", &Render_OCC, 0, 1);
 

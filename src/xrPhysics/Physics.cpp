@@ -19,6 +19,8 @@
 #pragma warning(default:4267)
 #pragma warning(default:4995)
 
+#include <limits>
+
 extern CPHWorld *ph_world;
 ///////////////////////////////////////////////////////////////////
 
@@ -258,7 +260,7 @@ IC static int CollideIntoGroup(dGeomID o1, dGeomID o2,dJointGroupID jointGroup,C
 
 
 		if	(pushing_neg)
-			surface.mu=dInfinity;
+			surface.mu = std::numeric_limits<dReal>::max();
 		if	(do_collide && collided_contacts<MAX_CONTACTS)
 		{
 			++collided_contacts;

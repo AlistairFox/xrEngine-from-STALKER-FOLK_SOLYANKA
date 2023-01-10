@@ -78,23 +78,21 @@ bool game_sv_freemp::SpawnItemToPos(LPCSTR section, Fvector3 position)
 
 	if (E->cast_human_abstract() || E->cast_monster_abstract())
 	{
-
 		if (!m_alife_simulator)
 		{
 			Msg("! You can't spawn \"%s\" because alife simulator is not initialized!", section);
 			return false;
 		}
-		else
-		{
-			Msg("Alife_Simulator Finded");
-		}
-
-		u32 graph = ai().alife().graph().actor()->m_tGraphID;
 
 		u32 LV = ai().get_level_graph()->vertex_id(position);
 
+
 		if (ai().get_level_graph()->valid_vertex_id(LV))
-			alife().spawn_item(section, position, ai().get_level_graph()->vertex_id(position), graph, 0xffff);
+		{
+			u32 GV = ai().cross_table().vertex(LV).game_vertex_id();
+			Msg("LV[%d], GV[%d]", LV, GV);
+			alife().spawn_item(section, position, LV, GV, 0xffff);
+		}
 		else
 			Msg("! Level vertex incorrect");
 

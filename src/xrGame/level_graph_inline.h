@@ -26,6 +26,7 @@ IC const CLevelGraph::CHeader &CLevelGraph::header	() const
 ICF bool CLevelGraph::valid_vertex_id	(u32 id) const
 {
 	bool				b = id < header().vertex_count();
+	//Msg("Valid[%d], vxs[%d]", id, header().vertex_count());
 	return				(b);
 }
 

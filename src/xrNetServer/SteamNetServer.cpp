@@ -57,6 +57,8 @@ void SteamNetServer::_SendTo_LL(ClientID ID, void * data, u32 size, u32 dwFlags,
 // -----------------------------------------------------------------------------
 
 #pragma region create / destroy listener
+			  
+bool master_server_sv = false;
 
 bool SteamNetServer::CreateConnection(GameDescriptionData & game_descr, ServerConnectionOptions & connectOpt)
 {
@@ -130,7 +132,12 @@ bool SteamNetServer::CreateConnection(GameDescriptionData & game_descr, ServerCo
 	thread_spawn(steam_net_update_server, "snetwork-update-server", 0, this);
 
 	if (isMaster())
+	{
 		CreateConnection_Master(connectOpt);
+		master_server_sv = true;
+	}
+	else
+		master_server_sv = false;
 
 	return true;
 }
@@ -184,7 +191,8 @@ void SteamNetServer::Update()
 
 		PollIncomingMessages();
 		
-		PollIncomingMessagesMasterServer();
+		if (master_server_sv)
+			PollIncomingMessagesMasterServer();
 
 		PollConnectionStateChanges();
 

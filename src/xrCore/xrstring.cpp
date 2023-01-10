@@ -6,7 +6,7 @@
 #include "FS_impl.h"
 
 XRCORE_API	extern		str_container*	g_pStringContainer	= NULL;
-#define		HEADER		16			// ref + len + crc + next
+#define		HEADER		16	+ sizeof(void*)		// ref + len + crc + next
 
 #if 1
 
@@ -174,10 +174,17 @@ str_value*	str_container::dock		(str_c value)
 #ifdef DEBUG
 		|| is_leaked_string
 #endif //DEBUG
-		) {
-		const size_t sizeStringNode = sizeof(str_value) + s_len_with_zero;
+		) 
+	{
+		result = (str_value*)Memory.mem_alloc(HEADER + s_len_with_zero
+#ifdef DEBUG_MEMORY_NAME
+			, "storage: sstring"
+#endif // DEBUG_MEMORY_NAME
+		);
 
-		result = (str_value*)Memory.mem_alloc(sizeStringNode);
+		//const size_t sizeStringNode = sizeof(str_value) + s_len_with_zero;
+
+		//result = (str_value*)Memory.mem_alloc(sizeStringNode);
 		 
 #ifdef DEBUG
 		static int num_leaked_string = 0;

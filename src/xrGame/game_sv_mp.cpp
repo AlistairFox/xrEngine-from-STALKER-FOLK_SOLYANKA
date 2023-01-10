@@ -276,7 +276,7 @@ void	game_sv_mp::KillPlayer				(ClientID id_who, u16 GameID)
 		pActor->set_death_time		();
 	}
 	//-------------------------------------------------------
-	u16 PlayerID = (xrCData != 0) ? xrCData->ps->GameID : GameID;
+	u16 PlayerID = (xrCData && xrCData->ps) ? xrCData->ps->GameID : GameID;
 	//-------------------------------------------------------
 	SendPlayerKilledMessage(PlayerID, KT_HIT, PlayerID, 0, SKT_NONE);
 	//-------------------------------------------------------

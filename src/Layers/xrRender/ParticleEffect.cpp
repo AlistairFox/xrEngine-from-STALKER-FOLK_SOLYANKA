@@ -456,7 +456,8 @@ void ParticleRenderStream( LPVOID lpvParams )
 
 				if ( angle != *((DWORD*)&m.rot.x) ) {
 					angle = *((DWORD*)&m.rot.x);
-					fsincos(angle, sina, cosa);
+					sina = std::sinf(*(float*)&angle);
+					cosa = std::cosf(*(float*)&angle);
 				}
 
 				 _mm_prefetch( 64 + (char*) &particles[i + 1] , _MM_HINT_NTA );
@@ -466,12 +467,13 @@ void ParticleRenderStream( LPVOID lpvParams )
 
 				float r_x		= m.size.x*0.5f;
 				float r_y		= m.size.y*0.5f;
-				float speed;
-				BOOL speed_calculated = FALSE;
+				float speed		= 0;
+				bool speed_calculated = false;
 
-				if (pPE.m_Def->m_Flags.is(CPEDef::dfVelocityScale)){
+				if (pPE.m_Def->m_Flags.is(CPEDef::dfVelocityScale))
+				{
 					magnitude_sse( m.vel , speed );
-					speed_calculated = TRUE;
+					speed_calculated = true;
 					r_x			+= speed*pPE.m_Def->m_VelocityScale.x;
 					r_y			+= speed*pPE.m_Def->m_VelocityScale.y;
 				}

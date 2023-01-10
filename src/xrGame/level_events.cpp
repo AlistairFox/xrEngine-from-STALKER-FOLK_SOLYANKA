@@ -20,9 +20,11 @@ level_events::~level_events()
 	Level().event_functors.clear_and_free();
 }
 
+extern float Shedule_Events;
+
 float level_events::shedule_Scale()
 {
-    return 1.f;
+    return Shedule_Events;
 }
 
 

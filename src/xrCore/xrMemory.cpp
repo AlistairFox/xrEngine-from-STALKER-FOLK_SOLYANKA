@@ -89,16 +89,16 @@ XRCORE_API void vminfo(size_t* _free, size_t* reserved, size_t* committed) {
     }
 }
 
-XRCORE_API void log_vminfo() {
+XRCORE_API void log_vminfo() 
+{
     size_t w_free, w_reserved, w_committed;
     vminfo(&w_free, &w_reserved, &w_committed);
     Msg("* [win32]: free[%d K], reserved[%d K], committed[%d K]", w_free / 1024, w_reserved / 1024,
         w_committed / 1024);
 }
 
-u32 mem_usage_impl(u32* pBlocksUsed, u32* pBlocksFree) {
-     
-    
+size_t mem_usage_impl(u32* pBlocksUsed, u32* pBlocksFree)
+{    
     static bool no_memory_usage = !!strstr(GetCommandLine(), "-no_memory_usage");
     if (no_memory_usage)
         return 0;
@@ -138,9 +138,9 @@ u32 mem_usage_impl(u32* pBlocksUsed, u32* pBlocksFree) {
         FATAL("bad node in heap");
         break;
     }
-    return (u32)total;
+    return total;
 }
 
-u32 xrMemory::mem_usage(u32* pBlocksUsed, u32* pBlocksFree) {
+size_t xrMemory::mem_usage(u32* pBlocksUsed, u32* pBlocksFree) {
     return mem_usage_impl(pBlocksUsed, pBlocksFree);
 }

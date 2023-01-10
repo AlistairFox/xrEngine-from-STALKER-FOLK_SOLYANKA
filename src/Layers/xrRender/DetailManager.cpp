@@ -350,8 +350,13 @@ void CDetailManager::UpdateVisibleM()
 	RDEVICE.Statistic->RenderDUMP_DT_VIS.End	();
 }
 
+extern int off_details = 0;
+
 void CDetailManager::Render	()
 {
+	if (off_details)
+		return;
+
 #ifndef _EDITOR
 	if (0==dtFS)						return;
 	if (!psDeviceFlags.is(rsDetails))	return;

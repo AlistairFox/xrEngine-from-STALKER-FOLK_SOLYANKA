@@ -5,7 +5,7 @@ public:
     void _initialize();
     void _destroy();
 
-    u32 mem_usage(u32* pBlocksUsed = NULL, u32* pBlocksFree = NULL);
+    size_t mem_usage(u32* pBlocksUsed = NULL, u32* pBlocksFree = NULL);
     void mem_compact();
 
     void* mem_alloc(size_t size);
@@ -53,7 +53,7 @@ IC void operator delete[](void* p) { xr_free(p); }
 
 XRCORE_API void vminfo(size_t* _free, size_t* reserved, size_t* committed);
 XRCORE_API void log_vminfo();
-XRCORE_API u32 mem_usage_impl(u32* pBlocksUsed, u32* pBlocksFree);
+XRCORE_API size_t mem_usage_impl(u32* pBlocksUsed, u32* pBlocksFree);
 
 template <typename T, typename... Args>
 T* xr_new(Args&&... args) 

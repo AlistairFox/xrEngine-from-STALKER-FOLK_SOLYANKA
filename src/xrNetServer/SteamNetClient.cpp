@@ -59,6 +59,7 @@ SteamNetClient::~SteamNetClient()
 
 #pragma region connect / disconnect
 
+bool master_server = false;
 
 bool SteamNetClient::CreateConnection(ClientConnectionOptions & connectOpt)
 {
@@ -129,8 +130,8 @@ bool SteamNetClient::CreateConnection(ClientConnectionOptions & connectOpt)
 	}
 
 	SteamNetworkingUtils()->SetGlobalConfigValueInt32(k_ESteamNetworkingConfig_SendBufferSize, 1024 * 1024 * 10);
-	SteamNetworkingUtils()->SetGlobalConfigValueInt32(k_ESteamNetworkingConfig_TimeoutInitial, 30000);
-	SteamNetworkingUtils()->SetGlobalConfigValueInt32(k_ESteamNetworkingConfig_TimeoutConnected, 30000);
+	//SteamNetworkingUtils()->SetGlobalConfigValueInt32(k_ESteamNetworkingConfig_TimeoutInitial, 30000);
+	//SteamNetworkingUtils()->SetGlobalConfigValueInt32(k_ESteamNetworkingConfig_TimeoutConnected, 30000);
 
 	SteamNetworkingConfigValue_t opt;
 	opt.SetPtr(k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged, (void*)ClSteamNetConnectionStatusChangedCallback);
@@ -156,7 +157,12 @@ bool SteamNetClient::CreateConnection(ClientConnectionOptions & connectOpt)
 	//Меж серверное взаимодействие для передачи данных от серверов (позиций, квестов, карты, синхра)
 	// (Пока в разработке)
 	if (xr_strlen(connectOpt.master_server) > 1)
+	{
 		CreateConnectionMS(connectOpt);
+		master_server = true;
+	}
+	else
+		master_server = false;
 
 	return true;
 }
@@ -213,7 +219,7 @@ void SteamNetClient::Update()
 			csConnection.Leave();
 			break;
 		}
- 
+ 		/*
 		if (!GameDescriptionReceived() && !m_bWasConnected && t.GetElapsed_ms() % 5000 == 0)
 		{
 			SteamNetConnectionRealTimeStatus_t status;
@@ -224,10 +230,12 @@ void SteamNetClient::Update()
 				SendClientData();
 			}
 		}
+		*/
  
 		PollIncomingMessages();
 		//MasterServer
-		PollIncomingMS_Messages();
+		if (master_server)
+			PollIncomingMS_Messages();
 		//END
 		PollConnectionStateChanges();
 

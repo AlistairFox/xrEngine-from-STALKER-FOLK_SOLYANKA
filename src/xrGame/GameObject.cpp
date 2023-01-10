@@ -363,8 +363,14 @@ BOOL CGameObject::net_Spawn		(CSE_Abstract*	DC)
 	}
 
 	// if we have a parent
-	if ( ai().get_level_graph() ) {
-		if ( E->ID_Parent == 0xffff ) {
+ 
+	CSE_ALifeObject* alife = smart_cast<CSE_ALifeObject*>(E);
+
+	// x64 FIX
+	if ( ai().get_level_graph() && alife && alife->m_tGraphID != 0xffff )
+	{
+		if ( E->ID_Parent == 0xffff )
+		{
 			CSE_ALifeObject* l_tpALifeObject	= smart_cast<CSE_ALifeObject*>(E);
 			if (l_tpALifeObject && ai().level_graph().valid_vertex_id(l_tpALifeObject->m_tNodeID))
 				ai_location().level_vertex		(l_tpALifeObject->m_tNodeID);
@@ -390,7 +396,8 @@ BOOL CGameObject::net_Spawn		(CSE_Abstract*	DC)
 				)
 				Position().y					= EPS_L + ai().level_graph().vertex_plane_y(*ai_location().level_vertex(),Position().x,Position().z);
 		}
-		else {
+		else 
+		{
 			CSE_ALifeObject* const alife_object	= smart_cast<CSE_ALifeObject*>(E);
 			if ( alife_object && ai().level_graph().valid_vertex_id(alife_object->m_tNodeID) ) {
 				ai_location().level_vertex		(alife_object->m_tNodeID);
@@ -398,6 +405,7 @@ BOOL CGameObject::net_Spawn		(CSE_Abstract*	DC)
 			}
 		}
 	}
+
 	inherited::net_Spawn		(DC);
 
 	m_bObjectRemoved			= false;
@@ -593,6 +601,10 @@ void CGameObject::setup_parent_ai_locations(bool assign_position)
 		return;
 
 	if (!ai().get_level_graph())
+		return;
+
+	// x64 FIX
+	if (OnClient())
 		return;
 
 	if (l_tpGameObject->UsedAI_Locations() && ai().level_graph().valid_vertex_id(l_tpGameObject->ai_location().level_vertex_id()))
