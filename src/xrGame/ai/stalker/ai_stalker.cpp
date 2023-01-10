@@ -772,6 +772,20 @@ void CAI_Stalker::UpdateCL()
 	START_PROFILE("stalker/client_update")
 	VERIFY2						(PPhysicsShell()||getEnabled(), *cName());
 
+	if (OnClient())
+	{
+		float d = Device.vCameraPosition.distance_to_xz(Position());
+		if (d > 200)
+		{
+			if (g_Alive() && Remote() && !IsGameTypeSingle())
+			{
+				make_Interpolation();
+			}
+			return;
+		}
+	}
+
+
 	CTimer timer;
 	timer.Start();
 

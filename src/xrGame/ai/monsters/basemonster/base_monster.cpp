@@ -430,6 +430,19 @@ void CBaseMonster::UpdateCL()
 	}
 #endif
 
+	if (OnClient())
+	{
+		float d = Device.vCameraPosition.distance_to_xz(Position());
+		if (d > 200)
+		{
+			if (g_Alive() && Remote() && !IsGameTypeSingle())
+			{
+				make_Interpolation();
+			}
+			return;
+		}
+	}
+
 	/*
 	bool need_update = false;
 
