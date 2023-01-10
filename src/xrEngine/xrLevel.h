@@ -93,7 +93,7 @@ struct	hdrNODES
 #pragma pack(1)
 #ifndef _EDITOR
 
-//#define _USE_VERSION_11
+#define _USE_VERSION_11
 
 #ifdef _USE_VERSION_11
 
@@ -101,8 +101,8 @@ class NodePosition
 { 
 	u8	data[6];
  	
-	ICF	void xz	(u32 value)	{ CopyMemory	(data,&value,4);		}
-	ICF	void y	(u16 value)	{ CopyMemory	(data + 4, &value,2);	}
+	ICF	void xz	(u32 value)	{ CopyMemory	(data, &value, 4);		}
+	ICF	void y	(u16 value)	{ CopyMemory	(data + 4, &value, 2);	}
 public:
 	ICF	u32	xz	() const	
 	{
@@ -151,45 +151,23 @@ public:
 };	
 #endif
 
-
-struct NodeCompressed {
+#ifdef _USE_VERSION_11
+struct NodeCompressed 
+{
 public:
-	u8				data[12];
+	u8 data_light;
+	//u8			data[12];
+	u32				data[4];
 private:
 	
 	ICF	void link(u8 link_index, u32 value)
 	{
-		value			&= 0x007fffff;
-		switch (link_index) {
-			case 0 : {
-				value	|= (*(u32*)data) & 0xff800000;
-				CopyMemory(data, &value, sizeof(u32));
-				break;
-			}
-			case 1 : {
-				value	<<= 7;
-				value	|= (*(u32*)(data + 2)) & 0xc000007f;
-				CopyMemory(data + 2, &value, sizeof(u32));
-				break;
-			}
-			case 2 : {
-				value	<<= 6;
-				value	|= (*(u32*)(data + 5)) & 0xe000003f;
-				CopyMemory(data + 5, &value, sizeof(u32));
-				break;
-			}
-			case 3 : {
-				value	<<= 5;
-				value	|= (*(u32*)(data + 8)) & 0xf000001f;
-				CopyMemory(data + 8, &value, sizeof(u32));
-				break;
-			}
-		}
+		data[link_index] = value;
 	}
 	
 	ICF	void light(u8 value)
 	{
-		data[10]		|= value << 4;
+		data_light = value;
 	}
 
 public:
@@ -208,32 +186,17 @@ public:
 				case 3 : return(cover3);
 				default : NODEFAULT;
 			}
-	#ifdef DEBUG
-			return				(u8(-1));
-	#endif
 		}
 	};
 
 	SCover			high;
 	SCover			low;
 	u16				plane;
-
  	NodePosition	p; 
-	
-	// 32 + 16 + 40 + 92 = 180 bits = 24.5 bytes => 25 bytes
-
+	 
 	ICF	u32	link(u8 index) const
 	{
-		switch (index) {
-			case 0 :	return	((*(u32*)data) & 0x007fffff);
-			case 1 :	return	(((*(u32*)(data + 2)) >> 7) & 0x007fffff);
-			case 2 :	return	(((*(u32*)(data + 5)) >> 6) & 0x007fffff);
-			case 3 :	return	(((*(u32*)(data + 8)) >> 5) & 0x007fffff);
-			default :	NODEFAULT;
-		}
-#ifdef DEBUG
-		return			(0);
-#endif
+		return data[index];
 	}
 	
 	friend class	CLevelGraph;
@@ -241,106 +204,96 @@ public:
 	friend class	CNodeRenumberer;
 	friend class	CRenumbererConverter;
 };
-#endif
-
-#ifdef AI_COMPILER
-struct NodeCompressed6 {
+#else
+struct NodeCompressed
+{
 public:
-	u8				data[11];
+	u8				data[12];
 private:
-	
+
 	ICF	void link(u8 link_index, u32 value)
 	{
-		value			&= 0x001fffff;
+		value &= 0x007fffff;
 		switch (link_index) {
-			case 0 : {
-				value	|= (*(u32*)data) & 0xffe00000;
-				CopyMemory(data, &value, sizeof(u32));
-				break;
-			}
-			case 1 : {
-				value	<<= 5;
-				value	|= (*(u32*)(data + 2)) & 0xfc00001f;
-				CopyMemory(data + 2, &value, sizeof(u32));
-				break;
-			}
-			case 2 : {
-				value	<<= 2;
-				value	|= (*(u32*)(data + 5)) & 0xff800003;
-				CopyMemory(data + 5, &value, sizeof(u32));
-				break;
-			}
-			case 3 : {
-				value	<<= 7;
-				value	|= (*(u32*)(data + 7)) & 0xf000007f;
-				CopyMemory(data + 7, &value, sizeof(u32));
-				break;
-			}
+		case 0: {
+			value |= (*(u32*)data) & 0xff800000;
+			CopyMemory(data, &value, sizeof(u32));
+			break;
+		}
+		case 1: {
+			value <<= 7;
+			value |= (*(u32*)(data + 2)) & 0xc000007f;
+			CopyMemory(data + 2, &value, sizeof(u32));
+			break;
+		}
+		case 2: {
+			value <<= 6;
+			value |= (*(u32*)(data + 5)) & 0xe000003f;
+			CopyMemory(data + 5, &value, sizeof(u32));
+			break;
+		}
+		case 3: {
+			value <<= 5;
+			value |= (*(u32*)(data + 8)) & 0xf000001f;
+			CopyMemory(data + 8, &value, sizeof(u32));
+			break;
+		}
 		}
 	}
-	
+
 	ICF	void light(u8 value)
 	{
-		data[10]		|= value << 4;
+		data[10] |= value << 4;
 	}
 
 public:
-	u16				cover0 : 4;
-	u16				cover1 : 4;
-	u16				cover2 : 4;
-	u16				cover3 : 4;
+	struct SCover {
+		u16			cover0 : 4;
+		u16			cover1 : 4;
+		u16			cover2 : 4;
+		u16			cover3 : 4;
+
+		ICF	u16	cover(u8 index) const
+		{
+			switch (index) {
+			case 0: return(cover0);
+			case 1: return(cover1);
+			case 2: return(cover2);
+			case 3: return(cover3);
+			default: NODEFAULT;
+			}
+		}
+	};
+
+	SCover			high;
+	SCover			low;
 	u16				plane;
 	NodePosition	p;
 
 	ICF	u32	link(u8 index) const
 	{
 		switch (index) {
-			case 0 :	return	((*(u32*)data) & 0x001fffff);
-			case 1 :	return	(((*(u32*)(data + 2)) >> 5) & 0x001fffff);
-			case 2 :	return	(((*(u32*)(data + 5)) >> 2) & 0x001fffff);
-			case 3 :	return	(((*(u32*)(data + 7)) >> 7) & 0x001fffff);
-			default :	NODEFAULT;
+		case 0:	return	((*(u32*)data) & 0x007fffff);
+		case 1:	return	(((*(u32*)(data + 2)) >> 7) & 0x007fffff);
+		case 2:	return	(((*(u32*)(data + 5)) >> 6) & 0x007fffff);
+		case 3:	return	(((*(u32*)(data + 8)) >> 5) & 0x007fffff);
+		default:	NODEFAULT;
 		}
-#ifdef DEBUG
-		return			(0);
-#endif
-	}
-	
-	ICF	u8	light() const
-	{
-		return			(data[10] >> 4);
-	}
-	
-	ICF	u16	cover(u8 index) const
-	{
-		switch (index) {
-			case 0 : return(cover0);
-			case 1 : return(cover1);
-			case 2 : return(cover2);
-			case 3 : return(cover3);
-			default : NODEFAULT;
-		}
-#ifdef DEBUG
-		return				(u8(-1));
-#endif
 	}
 
-	friend class CLevelGraph;
-	friend struct CNodeCompressed;
-	friend class CNodeRenumberer;
-};									// 2+5+2+11 = 20b
-#endif
-
-struct SNodePositionOld {
-	s16				x;
-	u16				y;
-	s16				z;
+	friend class	CLevelGraph;
+	friend struct	CNodeCompressed;
+	friend class	CNodeRenumberer;
+	friend class	CRenumbererConverter;
 };
-#pragma pack	(pop)
 
-#ifdef _EDITOR
-typedef	SNodePositionOld NodePosition;
+
 #endif
+
+
+#endif //_EDITOR
+
+#pragma pack	(pop)
 
 const u32 XRCL_CURRENT_VERSION		=	18; //17;	// input
 const u32 XRCL_PRODUCTION_VERSION	=	14;	// output 

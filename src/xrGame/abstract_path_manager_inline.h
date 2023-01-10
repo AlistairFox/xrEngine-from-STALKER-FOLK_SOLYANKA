@@ -71,6 +71,7 @@ IC	void CPathManagerTemplate::build_path	(const _vertex_id_type start_vertex_id,
 	m_current_index			= _index_type(-1);
 	m_intermediate_index	= _index_type(-1);
 	m_actuality				= !failed();
+	//max_visited_node_count = 256 * 1024;
 
 	if (!m_failed)
 		return;

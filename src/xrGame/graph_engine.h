@@ -63,7 +63,7 @@ public:
 #ifdef AI_COMPILER
 	typedef CVertexAllocatorFixed<2*1024*1024>				CVertexAllocator;
 #else
-	typedef CVertexAllocatorFixed<64*1024>					CVertexAllocator;
+	typedef CVertexAllocatorFixed<256*1024>					CVertexAllocator;
 	typedef CVertexAllocatorFixed<8*1024>					CSolverVertexAllocator;
 	typedef CVertexAllocatorFixed<1024>						CStringVertexAllocator;
 #endif // AI_COMPILER
