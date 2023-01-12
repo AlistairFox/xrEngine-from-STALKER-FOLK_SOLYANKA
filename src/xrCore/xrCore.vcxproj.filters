@@ -76,6 +76,9 @@
     <Filter Include="OS">
       <UniqueIdentifier>{79ad6b83-93aa-485b-808d-dc51cbb79096}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Memory manager\POOL">
+      <UniqueIdentifier>{8c021fbe-4bde-4877-89c5-c29fd0b833aa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FTimer.cpp">
@@ -241,6 +244,18 @@
       <Filter>OS</Filter>
     </ClCompile>
     <ClCompile Include="xrSyncronize.cpp" />
+    <ClCompile Include="xrMemory_subst_msvc.cpp">
+      <Filter>Memory manager</Filter>
+    </ClCompile>
+    <ClCompile Include="memory_usage.cpp">
+      <Filter>Memory manager</Filter>
+    </ClCompile>
+    <ClCompile Include="xrMemory_align.cpp">
+      <Filter>Memory manager\POOL</Filter>
+    </ClCompile>
+    <ClCompile Include="xrMemory_POOL.cpp">
+      <Filter>Memory manager\POOL</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FTimer.h">
@@ -523,6 +538,15 @@
       <Filter>OS</Filter>
     </ClInclude>
     <ClInclude Include="xrSyncronize.h" />
+    <ClInclude Include="xrMemory_subst_msvc.h">
+      <Filter>Memory manager</Filter>
+    </ClInclude>
+    <ClInclude Include="xrMEMORY_POOL.h">
+      <Filter>Memory manager\POOL</Filter>
+    </ClInclude>
+    <ClInclude Include="xrMemory_align.h">
+      <Filter>Memory manager\POOL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="xrCore.rc">

@@ -630,7 +630,7 @@ void CRenderDevice::OnWM_Activate(WPARAM wParam, LPARAM lParam)
 	if (bActive!=Device.b_is_Active)
 	{
 
-		Device.b_is_Active = true;//bActive;
+		Device.b_is_Active = bActive;
 
 		if (Device.b_is_Active)	
 		{

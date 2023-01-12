@@ -1,96 +1,85 @@
 #pragma once
 
-class XRCORE_API xrMemory {
-public:
-    void _initialize();
-    void _destroy();
+#include "memory_monitor.h"
 
-    size_t mem_usage(u32* pBlocksUsed = NULL, u32* pBlocksFree = NULL);
-    void mem_compact();
+#	define DUMP_PHASE	do {} while (0)
 
-    void* mem_alloc(size_t size);
-    void* mem_realloc(void* p, size_t size);
-    void mem_free(void* p);
-    void mem_copy(void* _Dst, void const* _Src, size_t _Size) { memcpy(_Dst, _Src, _Size); };
-    void mem_fill(void* _Dst, int _Src, size_t _Size) { RtlFillMemory(_Dst, _Src, _Size); };
-    void mem_fill32(void* _Dst, u32 _Src, size_t _Size)
-    {
-            u32* ptr = static_cast<u32*>(_Dst);
-            u32* end = ptr + _Size;
-            while (ptr != end)
-                *ptr++ = _Src;
-    }
-};
+#include "xrMemory_POOL.h"
 
-extern XRCORE_API xrMemory Memory;
 
-template <class T>
-IC T* xr_alloc(u32 count) {
-    return (T*) Memory.mem_alloc(count * sizeof(T));
-}
-template <class T>
-IC void xr_free(T*& P) {
-    if (P) {
-        Memory.mem_free((void*)P);
-        P = NULL;
-    };
-}
-IC void* xr_malloc(size_t size) { return Memory.mem_alloc(size); }
-IC void* xr_realloc(void* P, size_t size) { return Memory.mem_realloc(P, size); }
 
-XRCORE_API char* xr_strdup(const char* string);
 
-#pragma warning(push)
-#pragma warning(disable : 4595) // Warning C4595 'operator new': non - member operator new or delete
-// functions may not be declared inline
-
-IC void* operator new(size_t size) { return Memory.mem_alloc(size ? size : 1); }
-IC void operator delete(void* p) { xr_free(p); }
-IC void* operator new[](size_t size) { return Memory.mem_alloc(size ? size : 1); }
-IC void operator delete[](void* p) { xr_free(p); }
-
-#pragma warning(pop)
-
-XRCORE_API void vminfo(size_t* _free, size_t* reserved, size_t* committed);
-XRCORE_API void log_vminfo();
-XRCORE_API size_t mem_usage_impl(u32* pBlocksUsed, u32* pBlocksFree);
-
-template <typename T, typename... Args>
-T* xr_new(Args&&... args) 
+class XRCORE_API		xrMemory
 {
-    T* ptr = static_cast<T*>(Memory.mem_alloc(sizeof(T)));
-    return new (ptr) T(std::forward<Args>(args)...);
-}
+	typedef void	__stdcall	pso_MemFill(void* dest, int value, u32 count);
+	typedef void	__stdcall	pso_MemFill32(void* dest, u32 value, u32 count);
+	typedef void	__stdcall	pso_MemCopy(void* dest, const void* src, u32 count);
 
-template <bool _is_pm, typename T>
-struct xr_special_free {
-    IC void operator()(T*& ptr) {
-        void* _real_ptr = dynamic_cast<void*>(ptr);
-        ptr->~T();
-        Memory.mem_free(_real_ptr);
-    }
+public:
+	struct				mdbg {
+		void*			_p;
+		size_t 			_size;
+		const char*		_name;
+		u32				_dummy;
+	};
+public:
+	xrMemory			();
+	void				_initialize		(BOOL _debug_mode=FALSE);
+	void				_destroy		();
+
+	u32					stat_calls;
+	s32					stat_counter;
+public:
+	u32					mem_usage		(u32* pBlocksUsed=NULL, u32* pBlocksFree=NULL);
+	void				mem_compact		();
+	void				mem_counter_set	(u32 _val)	{ stat_counter = _val;	}
+	u32					mem_counter_get	()			{ return stat_counter;	}
+
+	void*				mem_alloc		(size_t	size				);
+	void*				mem_realloc		(void*	p, size_t size		);
+	void				mem_free		(void*	p					);
+
+	pso_MemCopy*		mem_copy;
+	pso_MemFill*		mem_fill;
+	pso_MemFill32*		mem_fill32;
 };
 
-template <typename T>
-struct xr_special_free<false, T> {
-    IC void operator()(T*& ptr) {
-        ptr->~T();
-        Memory.mem_free(ptr);
-    }
-};
+extern XRCORE_API	xrMemory	Memory;
+
+#undef	ZeroMemory
+#undef	CopyMemory
+#undef	FillMemory
+#define ZeroMemory(a,b)		Memory.mem_fill(a,0,b)
+#define CopyMemory(a,b,c)	memcpy(a,b,c)			//. CopyMemory(a,b,c)
+#define FillMemory(a,b,c)	Memory.mem_fill(a,c,b)
+
+// delete
+#include "xrMemory_subst_msvc.h"
+
+// generic "C"-like allocations/deallocations
 
 template <class T>
-IC void xr_delete(T*& ptr) {
-    if (ptr) {
-        xr_special_free<std::is_polymorphic_v<T>, T>()(ptr);
-        ptr = nullptr;
-    }
-}
+IC T*		xr_alloc	(u32 count)				{	return  (T*)Memory.mem_alloc(count*sizeof(T));	}
 template <class T>
-IC void xr_delete(T* const& ptr) {
-    if (ptr)
-    {
-        xr_special_free<std::is_polymorphic_v<T>, T>(ptr);
-        const_cast<T*&>(ptr) = nullptr;
-    }
-}
+IC void		xr_free		(T* &P)					{	if (P) { Memory.mem_free((void*)P); P=NULL;	};	}
+IC void*	xr_malloc	(size_t size)			{	return	Memory.mem_alloc(size);					}
+IC void*	xr_realloc	(void* P, size_t size)	{	return Memory.mem_realloc(P,size);				}
+
+XRCORE_API	char* 	xr_strdup	(const char* string);
+
+IC void*	operator new		(size_t size)		{	return Memory.mem_alloc(size?size:1);				}
+IC void		operator delete		(void *p)			{	xr_free(p);											}
+IC void*	operator new[]		(size_t size)		{	return Memory.mem_alloc(size?size:1);				}
+IC void		operator delete[]	(void* p)			{	xr_free(p);											}
+
+
+// POOL-ing
+const		u32			mem_pools_count			=	54;
+const		u32			mem_pools_ebase			=	64;		//64 bit fix
+const		u32			mem_generic				=	mem_pools_count+1;
+extern		MEMPOOL		mem_pools				[mem_pools_count];
+extern		BOOL		mem_initialized;
+
+XRCORE_API void vminfo			(size_t *_free, size_t *reserved, size_t *committed);
+XRCORE_API void log_vminfo		();
+XRCORE_API u32	mem_usage_impl	(HANDLE heap_handle, u32* pBlocksUsed, u32* pBlocksFree);

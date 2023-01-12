@@ -156,8 +156,8 @@ static void full_memory_stats	( )
 {
 	Memory.mem_compact		();
 
-	u32		_crt_heap		= mem_usage_impl(0,0);
-	u32		_process_heap	= mem_usage_impl(0,0);
+	u32		_crt_heap		= mem_usage_impl((HANDLE)_get_heap_handle(), 0,0);
+	u32		_process_heap	= mem_usage_impl(GetProcessHeap(), 0,0);
 
 #ifdef SEVERAL_ALLOCATORS
 	//u32		_game_lua		= game_lua_memory_usage();

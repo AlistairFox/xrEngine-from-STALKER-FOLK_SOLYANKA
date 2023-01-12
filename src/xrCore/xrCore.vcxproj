@@ -567,6 +567,7 @@
     <ClCompile Include="LzHuf.cpp" />
     <ClCompile Include="lzo_compressor.cpp" />
     <ClCompile Include="memory_monitor.cpp" />
+    <ClCompile Include="memory_usage.cpp" />
     <ClCompile Include="Model.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeader>
@@ -621,6 +622,9 @@
     </ClCompile>
     <ClCompile Include="xrDebugNew.cpp" />
     <ClCompile Include="xrMemory.cpp" />
+    <ClCompile Include="xrMemory_align.cpp" />
+    <ClCompile Include="xrMemory_POOL.cpp" />
+    <ClCompile Include="xrMemory_subst_msvc.cpp" />
     <ClCompile Include="xrsharedmem.cpp" />
     <ClCompile Include="xrstring.cpp" />
     <ClCompile Include="xrSyncronize.cpp" />
@@ -703,6 +707,9 @@
     <ClInclude Include="xrDebug.h" />
     <ClInclude Include="xrDebug_macros.h" />
     <ClInclude Include="xrMemory.h" />
+    <ClInclude Include="xrMemory_align.h" />
+    <ClInclude Include="xrMEMORY_POOL.h" />
+    <ClInclude Include="xrMemory_subst_msvc.h" />
     <ClInclude Include="xrPool.h" />
     <ClInclude Include="xrsharedmem.h" />
     <ClInclude Include="xrstring.h" />
