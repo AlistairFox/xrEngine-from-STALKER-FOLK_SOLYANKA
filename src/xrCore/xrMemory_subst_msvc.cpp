@@ -134,8 +134,7 @@ void* xrMemory::mem_realloc(void* p, size_t size)
 };
 void  xrMemory::mem_free(void* p)
 {
-	free(p);
+	if (p)
+		free(p);
 }
-
-
 #endif
