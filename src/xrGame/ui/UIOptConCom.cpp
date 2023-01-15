@@ -46,15 +46,15 @@ public:
 	virtual void	Save	(IWriter *F)	{};
 };
 
-
+#include "game_sv_base.h"
 void CUIOptConCom::Init()
 {
 	ReadPlayerNameFromRegistry();
 	CMD3(CCC_UserName,	"mm_net_player_name", m_playerName,	64);
 
-	m_iMaxPlayers		= 32;
+	m_iMaxPlayers		= MAX_PLAYERS_COUNT;
 	m_curGameMode		= eGameIDDeathmatch;
-	CMD4(CCC_Integer,	"mm_net_srv_maxplayers",			&m_iMaxPlayers,	2, 32);
+	CMD4(CCC_Integer,	"mm_net_srv_maxplayers",			&m_iMaxPlayers,	2, MAX_PLAYERS_COUNT);
 	CMD3(CCC_Token,		"mm_net_srv_gamemode",				&m_curGameMode,	g_GameModes);
 	m_uNetSrvParams.zero();
 	CMD3(CCC_Mask,		"mm_mm_net_srv_dedicated",			&m_uNetSrvParams,	flNetSrvDedicated);

@@ -8,7 +8,7 @@
 #include "game_sv_event_queue.h"
 #include "game_sv_item_respawner.h"
 
-#define MAX_PLAYERS_COUNT 32
+#define MAX_PLAYERS_COUNT 128
 
 enum ERoundEnd_Result
 {
