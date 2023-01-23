@@ -698,14 +698,19 @@ void CPhysicObject::net_Import			(NET_Packet& P)
 		return;
 	}
 
+	/*
+	CGameObject* game_object = smart_cast<CGameObject*>(this);
+	if (game_object && game_object->lua_game_object() && game_object->lua_game_object()->m_door)
+		return;
+
 
 	CPHSynchronize* pSyncObj = this->PHGetSyncItem(0);
 	
 	pSyncObj->set_State(N.State);
+	*/
 
-
-	if (true)
-		return;
+//	if (true)
+//		return;
 
 
 	net_updatePhData				*p = NetSync();
