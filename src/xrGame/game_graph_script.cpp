@@ -50,6 +50,12 @@ GameGraph::LEVEL_MAP const& get_levels	( CGameGraph const* graph )
 	return				graph->header().levels();
 }
 
+bool get_graph_acces(CGameGraph::CVertex vertex)
+{
+	//graph->
+	return true;
+}
+
 #pragma optimize("s",on)
 void CGameGraph::script_register		(lua_State *L)
 {
@@ -67,7 +73,8 @@ void CGameGraph::script_register		(lua_State *L)
 			.def("valid_vertex_id",	&CGameGraph::valid_vertex_id)
 			.def("vertex",			&CGameGraph::vertex)
 			.def("vertex_id",		&CGameGraph::vertex_id)
-			.def("levels",			&get_levels, return_stl_iterator),
+			.def("levels",			&get_levels, return_stl_iterator) 	 
+			.def("get_graph_acces", &get_graph_acces),
 
 		class_<CVertex>("GameGraph__CVertex")
 			.def("level_point",		&CVertex__level_point)

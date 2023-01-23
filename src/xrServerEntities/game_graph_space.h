@@ -91,7 +91,8 @@ namespace GameGraph {
 #else
 	class
 #endif
-		CVertex {
+	CVertex 
+	{
 		Fvector						tLocalPoint;
 		Fvector						tGlobalPoint;
 		u32							tLevelID:8;
@@ -119,7 +120,8 @@ namespace GameGraph {
 #else
 	class
 #endif
-		CHeader {
+	CHeader 
+	{
 		u8							m_version;
 		_GRAPH_ID					m_vertex_count;
 		u32							m_edge_count;

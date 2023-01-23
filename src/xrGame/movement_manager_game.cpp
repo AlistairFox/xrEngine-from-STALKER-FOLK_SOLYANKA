@@ -42,7 +42,16 @@ void CMovementManager::show_game_path_info	()
 		target_vertex_type[1],
 		target_vertex_type[2],
 		target_vertex_type[3]
+	); 
+	const u8* CurrentGameGraph = ai().game_graph().vertex(object().ai_location().game_vertex_id())->vertex_type();
+	Msg(
+		"! CurrentGameGraph point mask [%d][%d][%d][%d]",
+		CurrentGameGraph[0],
+		CurrentGameGraph[1],
+		CurrentGameGraph[2],
+		CurrentGameGraph[3]
 	);
+
 
 	Msg							("! Object masks (%d) :",m_location_manager->vertex_types().size());
 

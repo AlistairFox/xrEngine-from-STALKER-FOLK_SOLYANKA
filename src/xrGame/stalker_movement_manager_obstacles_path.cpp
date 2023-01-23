@@ -163,8 +163,8 @@ void stalker_movement_manager_obstacles::build_level_path					()
 			if (!pure_search_result) 
 			{
 				
-				Msg					("! level_path().failed() during navigation [%s] sleep 2s", object().cName().c_str());
-				old_timeLOCK = Device.dwTimeGlobal + 2000;
+				Msg					("! level_path().failed() during navigation [%s] sleep 5s, position[%f][%f][%f]", object().cName().c_str(), VPUSH(object().Position()) );
+				old_timeLOCK = Device.dwTimeGlobal + 5000;
 				break;
 			}
 		}
