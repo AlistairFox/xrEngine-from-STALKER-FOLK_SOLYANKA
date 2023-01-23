@@ -235,6 +235,8 @@ string128 updateCL;
 string128 updateSH;
 string128 updateSH_count;
 
+float last_fps = 0;
+
 #include "IGame_Persistent.h"
 
 void CTextConsole::DrawLog( HDC hDC, RECT* pRect )
@@ -322,6 +324,32 @@ void CTextConsole::DrawLog( HDC hDC, RECT* pRect )
 			}
 		}
 
+		if (g_pGameLevel && last_fps != Device.Statistic->fFPS)
+		{
+			last_fps = Device.Statistic->fFPS;
+			
+			string32 fps = {0};
+			itoa(u32(last_fps), fps, 10);
+			
+			string32 full_fps = {0};
+			xr_strcpy(full_fps, "FPS: ");
+			xr_strcat(full_fps, fps);
+			
+			if (last_fps < 30)
+			{
+				SetTextColor(hDC, RGB(255, 0, 0));
+				TextOut(hDC, 10, 5, full_fps, xr_strlen(full_fps));
+				//m_server_info.AddItem("FPS: ", fps, RGB(255, 0, 0));
+			}
+			else
+			{
+				SetTextColor(hDC, RGB(0, 255, 0));
+				TextOut(hDC, 10, 5, full_fps, xr_strlen(full_fps));
+				//m_server_info.AddItem("FPS: ", fps, RGB(0, 255, 0));
+			}	
+		}
+
+
 		if (g_pGameLevel && (Device.dwTimeGlobal - m_last_time > 500))
 		{
 			m_last_time = Device.dwTimeGlobal;
@@ -381,7 +409,7 @@ void CTextConsole::DrawLog( HDC hDC, RECT* pRect )
 
 
 		bool right = false;
-		ypos = 5;
+		ypos = 25;
 		for (u32 i = 0; i < m_server_info.Size(); ++i)
 		{
 			SetTextColor(hDC, m_server_info[i].color);
@@ -395,7 +423,7 @@ void CTextConsole::DrawLog( HDC hDC, RECT* pRect )
 			if (ypos > y_top_max - 40)
 			{
 				right = true;
-				ypos = 5;
+				ypos = 25;
 				//break;
 			}
 		}
@@ -414,7 +442,7 @@ void CTextConsole::DrawLog( HDC hDC, RECT* pRect )
 
 		bool right = false;
 
-		ypos = 5;
+		ypos = 15;
 		for (u32 i = 0; i < m_server_info.Size(); ++i)
 		{
 			SetTextColor(hDC, m_server_info[i].color);

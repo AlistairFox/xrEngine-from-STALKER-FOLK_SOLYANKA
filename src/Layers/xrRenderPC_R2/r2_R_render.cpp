@@ -253,20 +253,25 @@ void CRender::Render		()
 	//*******
 	// Sync point
 	Device.Statistic->RenderDUMP_Wait_S.Begin	();
-	if (1)
+
+	if (0)
 	{
 		CTimer	T;							T.Start	();
 		BOOL	result						= FALSE;
 		HRESULT	hr							= S_FALSE;
 		while	((hr=q_sync_point[q_sync_count]->GetData	(&result,sizeof(result),D3DGETDATA_FLUSH))==S_FALSE)
 		{
-			if (!SwitchToThread())			Sleep(ps_r2_wait_sleep);
-			if (T.GetElapsed_ms() > 500)	{
+			if (!SwitchToThread())		
+				Sleep(ps_r2_wait_sleep);
+
+			if (T.GetElapsed_ms() > 500)	
+			{
 				result	= FALSE;
 				break;
 			}
 		}
 	}
+
 	Device.Statistic->RenderDUMP_Wait_S.End		();
 	q_sync_count								= (q_sync_count+1)%HW.Caps.iGPUNum;
 	CHK_DX										(q_sync_point[q_sync_count]->Issue(D3DISSUE_END));
@@ -294,7 +299,8 @@ void CRender::Render		()
 		r_dsgraph_render_hud					();
 		r_dsgraph_render_graph					(0);
 		r_dsgraph_render_lods					(true,true);
-		if(Details)	Details->Render				();
+		if(Details)
+			Details->Render				();
 		Target->phase_scene_end					();
 	} else {
 		// level, SPLIT
@@ -365,7 +371,8 @@ void CRender::Render		()
 		Target->phase_scene_begin				();
 		r_dsgraph_render_hud					();
 		r_dsgraph_render_lods					(true,true);
-		if(Details)	Details->Render				();
+		if(Details)	
+			Details->Render				();
 		Target->phase_scene_end					();
 	}
 

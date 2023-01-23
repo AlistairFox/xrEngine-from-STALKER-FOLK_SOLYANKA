@@ -65,7 +65,7 @@ void  dxRenderDeviceRender::Reset( HWND hWnd, u32 &dwWidth, u32 &dwHeight, float
 #if defined (USE_DX10) || (USE_DX11) 
 
 #else
-	Resources->DeferredUnload();
+	//Resources->DeferredUnload();
 #endif
 
 	HW.Reset				(hWnd);
@@ -73,7 +73,7 @@ void  dxRenderDeviceRender::Reset( HWND hWnd, u32 &dwWidth, u32 &dwHeight, float
 #if defined (USE_DX10) || (USE_DX11) 
 
 #else
-	Resources->DeferredUpload();
+	//Resources->DeferredUpload();
 #endif
 
 

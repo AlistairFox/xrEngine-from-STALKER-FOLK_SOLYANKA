@@ -160,6 +160,7 @@ void CDetailManager::hw_Unload()
 }
 
 #if !defined(USE_DX10) && !defined(USE_DX11)
+
 void CDetailManager::hw_Load_Shaders()
 {
 	// Create shader to access constant storage
@@ -209,21 +210,23 @@ void CDetailManager::hw_Render()
 	RCache.set_c			(&*hwc_wave,	wave.div(PI_MUL_2));	// wave
 	RCache.set_c			(&*hwc_wind,	dir1);																					// wind-dir
 	hw_Render_dump			(&*hwc_array,	1, 0, c_hdr );
-
+ 
 	// Wave1
 	//wave.set				(1.f/3.f,		1.f/7.f,	1.f/5.f,	RDEVICE.fTimeGlobal*swing_current.speed);
+ 
 	wave.set				(1.f/3.f,		1.f/7.f,	1.f/5.f,	m_time_pos);
 	RCache.set_c			(&*hwc_wave,	wave.div(PI_MUL_2));	// wave
 	RCache.set_c			(&*hwc_wind,	dir2);																					// wind-dir
 	hw_Render_dump			(&*hwc_array,	2, 0, c_hdr );
+ 	 
 
 	// Still
 	RCache.set_c			(&*hwc_s_consts,scale,		scale,		scale,				1.f);
 	RCache.set_c			(&*hwc_s_xform,	RDEVICE.mFullTransform);
-	hw_Render_dump			(&*hwc_s_array,	0, 1, c_hdr );
+	hw_Render_dump			(&*hwc_s_array,	0, 1, c_hdr ); 
 }
-
-void	CDetailManager::hw_Render_dump		(ref_constant x_array, u32 var_id, u32 lod_id, u32 c_offset)
+    
+void CDetailManager::hw_Render_dump		(ref_constant x_array, u32 var_id, u32 lod_id, u32 c_offset)
 {
 	RDEVICE.Statistic->RenderDUMP_DT_Count	= 0;
 
@@ -248,10 +251,13 @@ void	CDetailManager::hw_Render_dump		(ref_constant x_array, u32 var_id, u32 lod_
 	VERIFY(objects.size()<=list.size());
 
 	// Iterate
-	for (u32 O=0; O<objects.size(); O++){
+	for (u32 O=0; O<objects.size(); O++)
+	{
 		CDetail&	Object				= *objects	[O];
 		xr_vector <SlotItemVec* >& vis	= list		[O];
-		if (!vis.empty()){
+
+		if (!vis.empty())
+		{
 			// Setup matrices + colors (and flush it as nesessary)
 			RCache.set_Element				(Object.shader->E[lod_id]);
 			RImplementation.apply_lmaterial	();
@@ -262,11 +268,14 @@ void	CDetailManager::hw_Render_dump		(ref_constant x_array, u32 var_id, u32 lod_
 
 			xr_vector <SlotItemVec* >::iterator _vI = vis.begin();
 			xr_vector <SlotItemVec* >::iterator _vE = vis.end();
-			for (; _vI!=_vE; _vI++){
+			for (; _vI!=_vE; _vI++)
+			{
 				SlotItemVec*	items		= *_vI;
 				SlotItemVecIt _iI			= items->begin();
 				SlotItemVecIt _iE			= items->end();
-				for (; _iI!=_iE; _iI++){
+ 
+				for (; _iI!=_iE; _iI++)
+				{
 					SlotItem&	Instance	= **_iI;
 					u32			base		= dwBatch*4;
 
@@ -292,7 +301,8 @@ void	CDetailManager::hw_Render_dump		(ref_constant x_array, u32 var_id, u32 lod_
 					c_storage[base+3].set	(s,				s,				s,				h		);
 #endif
 					dwBatch	++;
-					if (dwBatch == hw_BatchSize)	{
+					if (dwBatch == hw_BatchSize)
+					{
 						// flush
 						RDEVICE.Statistic->RenderDUMP_DT_Count					+=	dwBatch;
 						u32 dwCNT_verts			= dwBatch * Object.number_vertices;

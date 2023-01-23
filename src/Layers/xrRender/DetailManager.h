@@ -41,7 +41,8 @@ extern float dm_fade;
 class ECORE_API CDetailManager
 {
 public:
-	struct	SlotItem	{								// один кустик
+	struct	SlotItem	
+	{								// один кустик
 		float						scale;
 		float						scale_calculated;
 		Fmatrix						mRotY;
@@ -53,18 +54,21 @@ public:
 #endif
 	};
 	DEFINE_VECTOR(SlotItem*,SlotItemVec,SlotItemVecIt);
-	struct	SlotPart	{                              	// 
+	struct	SlotPart
+	{                              	// 
 		u32							id;					// ID модельки
 		SlotItemVec					items;              // список кустиков
 		SlotItemVec					r_items[3];         // список кустиков for render
 	};
-	enum	SlotType	{
+	enum	SlotType
+	{
 		stReady						= 0,				// Ready to use
 		stPending,										// Pending for decompression
 
 		stFORCEDWORD				= 0xffffffff
 	};
-	struct	Slot		{								// распакованый слот размером DETAIL_SLOT_SIZE
+	struct	Slot	
+	{								// распакованый слот размером DETAIL_SLOT_SIZE
 		struct{
 			u32						empty	:1;
 			u32						type	:1;
@@ -87,6 +91,7 @@ public:
 	typedef	svector<CDetail*,dm_max_objects>	DetailVec;
 	typedef	DetailVec::iterator					DetailIt;
 	typedef	poolSS<SlotItem,4096>				PSS;
+
 public:
 	int								dither			[16][16];
 public:

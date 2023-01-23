@@ -294,7 +294,7 @@ void CDetailManager::UpdateVisibleM()
 					float	alpha_i		= 1.f - alpha;
 					float	dist_sq_rcp	= 1.f / dist_sq;
 
-					S.frame			= RDEVICE.dwFrame+Random.randI(15,30);
+					S.frame			= RDEVICE.dwFrame+Random.randI(120,300);
 					for (int sp_id=0; sp_id<dm_obj_in_slot; sp_id++){
 						SlotPart&			sp	= S.G		[sp_id];
 						if (sp.id==DetailSlot::ID_Empty)	continue;
@@ -376,8 +376,10 @@ void CDetailManager::Render	()
 
 	RCache.set_CullMode		(CULL_NONE);
 	RCache.set_xform_world	(Fidentity);
-	if (UseVS())			hw_Render	();
-	else					soft_Render	();
+	if (UseVS())	
+		hw_Render	();
+	else					
+		soft_Render	();
 	RCache.set_CullMode		(CULL_CCW);
 	RDEVICE.Statistic->RenderDUMP_DT_Render.End	();
 	m_frame_rendered		= RDEVICE.dwFrame;
