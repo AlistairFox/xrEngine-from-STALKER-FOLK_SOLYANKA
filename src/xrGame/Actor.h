@@ -88,6 +88,10 @@ public:
 	void						EndAnimation(int anim);
 
 private:
+	bool wpn_camera = false;
+	bool animation_extra_exit = false;
+
+
 	ref_sound selected;
 
 	int oldAnim = 0;

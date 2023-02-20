@@ -3935,7 +3935,7 @@ extern int ALIFE_ALL_LOCATION = 1;
  
 extern float Shedule_Scale_AI_Stalker = 0;
 extern float Shedule_Scale_Objects = 0;
-extern float Shedule_Events = 0.2f;
+extern float Shedule_Events = 0.1f;
 
 
 void register_mp_console_commands()
@@ -3945,7 +3945,7 @@ void register_mp_console_commands()
 
 	//TEST	
 	CMD1(CCC_ServerSize, "server_memory_entity");
-	CMD4(CCC_Float, "sh_events", &Shedule_Events, 0.0f, 2.f);
+//	CMD4(CCC_Float, "sh_events", &Shedule_Events, 0.0f, 2.f);
 
 	{
 		//CMD1(ÑÑÑ_CheckOutfitCFS, "outfit_path_check");

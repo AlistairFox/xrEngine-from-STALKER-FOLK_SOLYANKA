@@ -2569,6 +2569,9 @@
     <Filter Include="GUNSLINGER">
       <UniqueIdentifier>{a16bc002-c655-4e25-aab2-1ca2b033ce32}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UI\Common\InventoryWnd\UpgradesWeapon">
+      <UniqueIdentifier>{79052211-9151-445e-86e3-45ee73a3877f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mt_config.h">
@@ -7539,6 +7542,9 @@
     <ClInclude Include="WeaponUtils.h">
       <Filter>GUNSLINGER</Filter>
     </ClInclude>
+    <ClInclude Include="UI_UpgradesQuick.h">
+      <Filter>UI\Common\InventoryWnd\UpgradesWeapon</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="damage_manager.cpp">
@@ -11317,6 +11323,9 @@
     </ClCompile>
     <ClCompile Include="ActorAnimation_Zombied.cpp">
       <Filter>Core\Client\Objects\actor\base\ANIMS</Filter>
+    </ClCompile>
+    <ClCompile Include="UI_UpgradesQuick.cpp">
+      <Filter>UI\Common\InventoryWnd\UpgradesWeapon</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

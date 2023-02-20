@@ -1469,6 +1469,8 @@ u64 UpdateCLStalker_temp = 0;
 
 u32 clearTime = 0;
 
+#include "game_sv_freemp.h"
+
 void xrServer::GetServerInfo( CServerInfo* si )
 {
 	string32  tmp;
@@ -1479,8 +1481,6 @@ void xrServer::GetServerInfo( CServerInfo* si )
 	LPCSTR time = InventoryUtilities::GetTimeAsString( Device.dwTimeGlobal, InventoryUtilities::etpTimeToSecondsAndDay ).c_str();
 	
 	si->AddItem( "Uptime", time, RGB(255,228,0) );
-
-//	xr_strcpy( tmp256, get_token_name(game_types, game->Type() ) );
 
 	xr_strcpy( tmp256, GameTypeToString( game->Type(), true ) );
 
@@ -1537,19 +1537,6 @@ void xrServer::GetServerInfo( CServerInfo* si )
 	} 
 
 	{
-		/*
-		string32 FPS_str = {0};
-		string32 tmp_fps = { 0 };
-
- 
-		xr_strcat(FPS_str, ltoa(Device.Statistic->fFPS, tmp_fps, 10));
- 
-		if (Device.Statistic->fFPS > 60)
-			si->AddItem("Server FPS", FPS_str, RGB(0, 255, 0));
-		else 
-			si->AddItem("Server FPS", FPS_str, RGB(255, 0, 0));
-		*/
-
 		u32		_crt_heap = mem_usage_impl((HANDLE)_get_heap_handle(), 0, 0);
 		u32		_process_heap = mem_usage_impl(GetProcessHeap(), 0, 0);
 
@@ -1557,7 +1544,6 @@ void xrServer::GetServerInfo( CServerInfo* si )
 
  		si->AddItem("Mem", itoa(_crt_heap/1024 / 1024, tmp_fps, 10), RGB(128, 128, 0));
 		si->AddItem("MemP", itoa(_process_heap/1024 / 1024, tmp_fps, 10), RGB(128, 128, 0));
-
 	}
 
 	u32 stalkers = 0;
@@ -1601,11 +1587,8 @@ void xrServer::GetServerInfo( CServerInfo* si )
 		{
 			arts += 1;
 		}
-
-
-
 	}
-
+ 
 	string32 stalker = { 0 };	
  	xr_strcat(stalker, itoa(stalkers, tmp, 10));
 	xr_strcat(stalker, "/");
@@ -1617,7 +1600,8 @@ void xrServer::GetServerInfo( CServerInfo* si )
 	xr_strcat(monster_str, "/");
 	xr_strcat(monster_str, itoa(mostersAlive, tmp, 10));
 	si->AddItem("monsters", monster_str, RGB(0, 255, 0));
-
+	 
+	/*
 	string32 items_str = { 0 };
 	xr_strcat(items_str, itoa(items, tmp, 10));
 	si->AddItem("items", items_str, RGB(0, 128, 0));
@@ -1628,6 +1612,7 @@ void xrServer::GetServerInfo( CServerInfo* si )
 
 	si->AddItem("ClientObjects", itoa(Level().Objects.o_count(), tmp, 10), RGB(255,0,0));
 	si->AddItem("ServerObjects", itoa(entities.size(), tmp, 10), RGB(255, 0, 0));
+	*/
 
 	if (clearTime + 1000 < Device.dwTimeGlobal)
 	{
@@ -1639,8 +1624,12 @@ void xrServer::GetServerInfo( CServerInfo* si )
 		clearTime = Device.dwTimeGlobal;
 	}
 
-	si->AddItem("UpdateCL_Monsters", itoa(UpdateCLMonster_temp * 1000 / CPU::qpc_freq, tmp, 10), RGB(0, 255, 0));
-	si->AddItem("UpdateCL_Stalkers", itoa(UpdateCLStalker_temp * 1000 / CPU::qpc_freq, tmp, 10), RGB(0, 255, 0));
+	//si->AddItem("UpdateCL_Monsters", itoa(UpdateCLMonster_temp * 1000 / CPU::qpc_freq, tmp, 10), RGB(0, 255, 0));
+	//si->AddItem("UpdateCL_Stalkers", itoa(UpdateCLStalker_temp * 1000 / CPU::qpc_freq, tmp, 10), RGB(0, 255, 0));
+ 
+	game_sv_freemp* freemp = smart_cast<game_sv_freemp*>(game);
+	if (freemp)
+		freemp->GetServerInfo(si);
 
 	/*
 	if ( g_sv_dm_dwTimeLimit > 0 )

@@ -31,6 +31,8 @@ protected:
 	CALifeSimulator* m_alife_simulator;
 
 
+
+
 public:
  	bool surge_started;
 	
@@ -136,4 +138,7 @@ public:
 		VERIFY(m_alife_simulator);
 		return						(*m_alife_simulator);
 	}
+
+	void GetServerInfo(CServerInfo* info);
+
 };

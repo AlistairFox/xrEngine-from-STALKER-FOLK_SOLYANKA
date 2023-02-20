@@ -18,7 +18,10 @@ class XRCORE_API CStreamReader;
 class XRCORE_API CLocatorAPI  
 {
 	friend class FS_Path;
+
 public:
+	bool use_stash_dbx = false;
+
 	struct	file
 	{
 		LPCSTR					name;			// low-case name

@@ -1095,7 +1095,7 @@ void CActor::g_Physics			(Fvector& _accel, float jump, float dt)
 	}
 }
 
-float g_fov = 55.0f;
+float g_fov = 73.0f;
 
 float CActor::currentFOV()
 {
@@ -1103,6 +1103,23 @@ float CActor::currentFOV()
 		return g_fov;
 
 	CWeapon* pWeapon = smart_cast<CWeapon*>(inventory().ActiveItem());	
+
+	if (pWeapon)
+	{
+		if (pWeapon->IsZoomed() && eacFirstEye != cam_active)
+		{
+			cam_Set(eacFirstEye);
+			wpn_camera = true;
+			setVisible(false);
+		}
+		else
+		if (wpn_camera && !pWeapon->IsZoomed())
+		{
+			cam_Set(eacLookAt);
+			wpn_camera = false;	 
+			setVisible(true);
+		}
+	}
 
 	if (/*eacFirstEye == cam_active && */ pWeapon && pWeapon->IsZoomed() && (!pWeapon->ZoomTexture() || (!pWeapon->IsRotatingToZoom() && pWeapon->ZoomTexture())))
 	{

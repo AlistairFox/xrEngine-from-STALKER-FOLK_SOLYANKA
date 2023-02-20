@@ -2,7 +2,6 @@
 #include "game_sv_freemp.h"
 #include "Level.h"
 
-#include <fstream>;
 #include "../jsonxx/jsonxx.h"
 
 #include <fstream>
@@ -250,10 +249,7 @@ bool game_sv_freemp::LoadPlayer(game_PlayerState* id_who)
 
 	signal_Syncronize();
 
-
-
-
-
+  
 	if (json.has<Object>("Inventory"))
 	{
 		Object inv = json.get<Object>("Inventory");

@@ -438,63 +438,12 @@ IC bool time_find(TDATA E1, LPCSTR name)
 {
 	return E1.object_name == name;
 };
-
-
-xr_vector <TDATA> timer_data;
-xr_map<shared_str, u64> timer_table;
-xr_map<shared_str, u64> timer_rt;
  
 void CSheduler::ProcessStep			()
 {
 	// Normal priority
 	u32		dwTime					= Device.dwTimeGlobal;
 	
-	/*
-	if (Device.dwTimeGlobal - oldTimeUpdate > 1000)
-	{  
- 
-		for (auto timer : timer_table)
-		{
-			TDATA data;
-			data.object_name = timer.first;
-			data.ticks = timer.second;
-			timer_data.push_back(data);
-		}
-
-		std::sort(timer_data.begin(), timer_data.end(), time_sort);
- 
-	 	
-		Msg("SHEDULE OBJECTS START");
-		for (auto item : timer_data)
-		{
-			u16 time_count = u16( item.ticks * u64(1000) / CPU::qpc_freq ) ;
-			u64 time_ticks = item.ticks;
-
-			string32 time_t = {0}, time_c = { 0 };
-			itoa(time_ticks, time_t, 10);
-			itoa(time_count, time_c, 10);
-
-
-			Msg("Sheduled %s, time_ticks: %s, time_ms: %s", item.object_name.c_str(), time_t, time_c);
- 		}
-		Msg("SHEDULE OBJECTS END");
- 		
-	
-		for (auto t : timer_rt)
-		{
-			Msg("TOTAL [%s], time [%d]", t.first.c_str(), t.second);
-		}
-		
-
-		timer_table.clear();
-		timer_data.clear_and_free();
-		timer_rt.clear();
-
-		oldTimeUpdate = Device.dwTimeGlobal;
-	} 
- 	*/
-	
-
 	for (int i=0;!Items.empty() && Top().dwTimeForExecute < dwTime; ++i)
 	{
 		//u32		delta_ms			= dwTime - Top().dwTimeForExecute;
@@ -526,11 +475,10 @@ void CSheduler::ProcessStep			()
 		}
 
 		m_current_step_obj = T.Object;
- 
-		CTimer t; t.Start();
+
 		T.Object->shedule_Update(clampr(Elapsed, u32(1), u32(_max(u32(T.Object->shedule.t_max), u32(1000)))));
-		timer_table[T.Object->shedule_clsid()] += t.GetElapsed_ticks();
-	
+ 
+
 		if (!m_current_step_obj)
 		{
 			continue;

@@ -100,6 +100,21 @@
     <Filter Include="Refactored\stats_manager">
       <UniqueIdentifier>{1dabad97-ed85-4a0d-b8f5-9db5f6d26227}</UniqueIdentifier>
     </Filter>
+    <Filter Include="dx9 to dx10 Utils">
+      <UniqueIdentifier>{f0f7522e-7df7-4093-a543-bd7ff3a7bf95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="StateManager">
+      <UniqueIdentifier>{86bb122c-aac2-420d-b0fc-a5d5ef42331d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils">
+      <UniqueIdentifier>{e9d79e0e-4720-4090-98e3-dc01f8a7dd41}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3DFluid">
+      <UniqueIdentifier>{9d37ac15-9a42-43cc-8df2-6b7a224c4fb0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Debug">
+      <UniqueIdentifier>{00c999cc-10d1-405c-ab81-6d622ef61aee}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Interfase implementations">
       <UniqueIdentifier>{8cba82ab-00d6-4cd4-a6fb-41756422cc81}</UniqueIdentifier>
     </Filter>
@@ -168,21 +183,6 @@
     </Filter>
     <Filter Include="Interfase implementations\MSAARender">
       <UniqueIdentifier>{182ea0a8-4ffe-409c-964f-fb100400ccba}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="dx9 to dx10 Utils">
-      <UniqueIdentifier>{f0f7522e-7df7-4093-a543-bd7ff3a7bf95}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="StateManager">
-      <UniqueIdentifier>{86bb122c-aac2-420d-b0fc-a5d5ef42331d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Utils">
-      <UniqueIdentifier>{e9d79e0e-4720-4090-98e3-dc01f8a7dd41}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="3DFluid">
-      <UniqueIdentifier>{9d37ac15-9a42-43cc-8df2-6b7a224c4fb0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Debug">
-      <UniqueIdentifier>{00c999cc-10d1-405c-ab81-6d622ef61aee}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

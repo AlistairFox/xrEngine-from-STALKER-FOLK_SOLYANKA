@@ -168,6 +168,26 @@ MotionID CKinematicsAnimated::LL_MotionID	(LPCSTR B)
     }
     return motion_ID;
 }
+
+shared_str CKinematicsAnimated::LL_MotionID_name(int id)
+{
+ 	for (int k = int(m_Motions.size()) - 1; k >= 0; --k) {
+		shared_motions* s_mots = &m_Motions[k].motions;
+		for (auto motion : *s_mots->motion_map())
+		{
+			if (motion.second == id)
+			{
+				return motion.first;
+			}
+		}
+		
+		//accel_map::iterator I = s_mots->motion_map()->find(LPSTR(B));
+		//if (I != s_mots->motion_map()->end()) { motion_ID.set(u16(k), I->second); break; }
+	}
+
+	return "null motion";
+}
+
 u16 CKinematicsAnimated::LL_PartID		(LPCSTR B)
 {
 	if (0==m_Partition)	return BI_NONE;
@@ -773,7 +793,8 @@ void CKinematicsAnimated::Load(const char* N, IReader *data, u32 dwFlags)
                 Msg					("! error in model [%s]. Unable to load motion file '%s'.", N, nm);
                 }
     	}
-    }else    
+    }
+	else    
 	{
 		string_path	nm;
 		strconcat			(sizeof(nm),nm,N,".ogf");

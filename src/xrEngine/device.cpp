@@ -177,11 +177,13 @@ void CRenderDevice::End		(void)
 
 volatile u32	mt_Thread_marker		= 0x12345678;
 void 			mt_Thread	(void *ptr)	{
-	while (true) {
+	while (true)
+	{
 		// waiting for Device permission to execute
 		Device.mt_csEnter.Enter	();
 
-		if (Device.mt_bMustExit) {
+		if (Device.mt_bMustExit) 
+		{
 			Device.mt_bMustExit = FALSE;				// Important!!!
 			Device.mt_csEnter.Leave();					// Important!!!
 			return;
@@ -191,6 +193,7 @@ void 			mt_Thread	(void *ptr)	{
  
 		for (u32 pit=0; pit<Device.seqParallel.size(); pit++)
 			Device.seqParallel[pit]	();
+
 		Device.seqParallel.clear_not_free	();
 		Device.seqFrameMT.Process	(rp_Frame);
 
@@ -345,7 +348,8 @@ void CRenderDevice::on_idle		()
 	mt_csLeave.Leave						();
 
 	// Ensure, that second thread gets chance to execute anyway
-	if (dwFrame!=mt_Thread_marker)			{
+	if (dwFrame!=mt_Thread_marker)		
+	{
 		for (u32 pit=0; pit<Device.seqParallel.size(); pit++)
 			Device.seqParallel[pit]			();
 		Device.seqParallel.clear_not_free	();
@@ -653,7 +657,7 @@ void	CRenderDevice::AddSeqFrame			( pureFrame* f, bool mt )
 	if ( mt )	
 		seqFrameMT.Add	(f,REG_PRIORITY_HIGH);
 	else								
-		seqFrame.Add		(f,REG_PRIORITY_LOW);
+		seqFrame.Add		(f, REG_PRIORITY_LOW, 0, "render");
 
 }
 

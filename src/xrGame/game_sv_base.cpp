@@ -344,7 +344,6 @@ void game_sv_GameState::net_Export_Update(NET_Packet& P, ClientID id_to, ClientI
 
 void game_sv_GameState::net_Export_GameTime						(NET_Packet& P)
 {
-
 	//Syncronize GameTime 
 	P.w_u64(GetGameTime());
 	P.w_float(GetGameTimeFactor());
@@ -353,40 +352,31 @@ void game_sv_GameState::net_Export_GameTime						(NET_Packet& P)
 	P.w_u64(GetEnvironmentGameTime());
 	P.w_float(GetEnvironmentGameTimeFactor());
 
+	bool send_weather = true;
+	
+	if (!GamePersistent().Environment().Current[0] || 
+		!GamePersistent().Environment().Current[1])
+		send_weather = false;
+
+	if (!send_weather)
+	{
+		P.w_u8(0);
+		return;
+	}
+	else
+		P.w_u8(1);
+	    
 	P.w_float(g_pGamePersistent->Environment().wfx_time);
-	
-	//P.w_stringZ(g_pGamePersistent->Environment().CurrentWeatherName);
-	//P.w_stringZ(g_pGamePersistent->Environment().PrewWeatherName);
-	
-	LPCSTR name1, name2, descr1, descr2;
-	float ex_time1, ex_time2;
-	float ex_timeGAME_1, ex_timeGAME_2;
 
-	if (GamePersistent().Environment().Current[0])
-	{
-		name1 = g_pGamePersistent->Environment().Current[0]->m_cfg_file.c_str();
-		descr1 = g_pGamePersistent->Environment().Current[0]->m_identifier.c_str();
-		ex_time1 = g_pGamePersistent->Environment().Current[0]->exec_time;
-		ex_timeGAME_1 = g_pGamePersistent->Environment().Current[0]->exec_time_fGameTime;
-	}
+ 	P.w_stringZ(g_pGamePersistent->Environment().Current[0]->m_cfg_file.c_str());
+	P.w_stringZ(g_pGamePersistent->Environment().Current[1]->m_cfg_file.c_str());
+	P.w_stringZ(g_pGamePersistent->Environment().Current[0]->m_identifier.c_str());
+	P.w_stringZ(g_pGamePersistent->Environment().Current[1]->m_identifier.c_str());
 
-	if (GamePersistent().Environment().Current[1])
-	{
-		name2 = g_pGamePersistent->Environment().Current[1]->m_cfg_file.c_str();
-		descr2 = g_pGamePersistent->Environment().Current[1]->m_identifier.c_str();
-		ex_time2 = g_pGamePersistent->Environment().Current[1]->exec_time;
-		ex_timeGAME_2 = g_pGamePersistent->Environment().Current[1]->exec_time_fGameTime;
-	}
-
- 	P.w_stringZ(name1);
-	P.w_stringZ(name2);
-	P.w_stringZ(descr1);
-	P.w_stringZ(descr2);
-
-	P.w_float(ex_time1);
-	P.w_float(ex_time2);
-	P.w_float(ex_timeGAME_1);
-	P.w_float(ex_timeGAME_2);
+	P.w_float(g_pGamePersistent->Environment().Current[0]->exec_time);
+	P.w_float(g_pGamePersistent->Environment().Current[1]->exec_time);
+	P.w_float(g_pGamePersistent->Environment().Current[0]->exec_time_fGameTime);
+	P.w_float(g_pGamePersistent->Environment().Current[1]->exec_time_fGameTime);
 };
 
 

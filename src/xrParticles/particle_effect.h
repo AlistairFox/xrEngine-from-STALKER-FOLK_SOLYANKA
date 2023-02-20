@@ -28,7 +28,7 @@ namespace PAPI{
 			particles_allocated		= max_particles;
 
 			real_ptr				= xr_malloc( sizeof( Particle ) * ( max_particles + 1 ) );
-			particles				= (Particle*) ( (uintptr_t) real_ptr + ( 64 - ( (uintptr_t) real_ptr & 63 ) ) );
+			particles = (Particle*)((uintptr_t)real_ptr + (64 - ((uintptr_t)real_ptr & 63)));
 			//Msg( "Allocated %u bytes (%u particles) with base address 0x%p" , max_particles * sizeof( Particle ) , max_particles , particles );
 		}
 					~ParticleEffect	()

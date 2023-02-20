@@ -10,21 +10,21 @@ enum	EGameActions
 	kCROUCH,
 	kACCEL,
 	kSPRINT_TOGGLE,
-						
+
 	kFWD,
 	kBACK,
 	kL_STRAFE,
 	kR_STRAFE,
-						
+
 	kL_LOOKOUT,
 	kR_LOOKOUT,
-						
+
 	kCAM_1,
 	kCAM_2,
 	kCAM_3,
 	kCAM_ZOOM_IN,
 	kCAM_ZOOM_OUT,
-						
+
 	kTORCH,
 	kNIGHT_VISION,
 	kDETECTOR,
@@ -35,8 +35,9 @@ enum	EGameActions
 	kWPN_5,
 	kWPN_6,
 
-	kSafeMode,	
+	kSafeMode,
 	kAnimMode,
+	kAnimModeExit,
 	kVOICE_CHAT,
 	kVOICE_DISTANCE,
 	 

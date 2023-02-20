@@ -491,6 +491,11 @@ void CActor::g_cl_Orientate	(u32 mstate_rl, float dt)
 
 
 	// если есть движение - выровнять модель по камере
+	
+	r_model_yaw = angle_normalize(r_torso.yaw);
+	mstate_real &= ~mcTurn;
+
+	/*
 	if (mstate_rl&mcAnyMove)
 	{
 		r_model_yaw		= angle_normalize(r_torso.yaw);
@@ -517,6 +522,7 @@ void CActor::g_cl_Orientate	(u32 mstate_rl, float dt)
 			angle_lerp	(r_model_yaw,r_model_yaw_dest, PI_MUL_2  , dt);
 		}
 	}
+	*/
 
 	//Msg("After Lerp yaw[%f] / pitch[%f] / rool[%f]", r_torso.yaw, r_torso.pitch, r_torso.roll);
 }

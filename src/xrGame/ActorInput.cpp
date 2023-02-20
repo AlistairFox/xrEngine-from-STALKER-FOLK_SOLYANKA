@@ -108,6 +108,11 @@ void CActor::IR_OnKeyboardPress(int cmd)
 
 	switch(cmd)
 	{
+		case kAnimModeExit:
+		{
+			animation_extra_exit = true;
+		}break;
+
 		case kJUMP:		
 			{
 				mstate_wishful |= mcJump;
@@ -488,6 +493,8 @@ void CActor::ActorUse()
 		u16 element = BI_NONE;
 		if(object) 
 			element = (u16)RQ.element;
+
+
 
 		if(object && Level().IR_GetKeyState(DIK_LSHIFT))
 		{

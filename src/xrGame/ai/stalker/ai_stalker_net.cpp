@@ -332,32 +332,34 @@ void CAI_Stalker::net_Import(NET_Packet& P)
 }
 
 #include "animation_movement_controller.h"
+#include "../xrEngine/SkeletonMotions.h"
+
+u16 MAX_BITS_COUNT = (u32(1) << 10);
 
 void CAI_Stalker::ApplyAnimation(ai_stalker_net_state& state)
 {
 	IKinematicsAnimated* ka = Visual()->dcast_PKinematicsAnimated();
  
+	if (state.torso_anim.id.idx < MAX_BITS_COUNT)
 	if (state.torso_anim.num != client_torso_num)
 	{
 		blend_torso = ka->LL_PlayCycle(ka->LL_GetMotionDef(state.torso_anim.id)->bone_or_part, state.torso_anim.id, state.torso_anim.loop, 0, 0, 0);		
 		client_torso_num = state.torso_anim.num;
-
-		//blend_torso->timeCurrent = state.torso_anim.pos;
 	}
 
+	if (state.head_anim.id.idx < MAX_BITS_COUNT)
 	if (state.head_anim.num != client_head_num)
 	{
 		blend_head = ka->LL_PlayCycle(ka->LL_GetMotionDef(state.head_anim.id)->bone_or_part, state.head_anim.id, state.head_anim.loop, 0, 0, 0);
 		client_head_num = state.head_anim.num;
 	}
-
+ 
+	if (state.legs_anim.id.idx < MAX_BITS_COUNT)
 	if (state.legs_anim.num != client_legs_num)
 	{
 		blend_legs = ka->LL_PlayCycle(ka->LL_GetMotionDef(state.legs_anim.id)->bone_or_part, state.legs_anim.id, state.legs_anim.loop, 0, 0, 0);
 		client_legs_num = state.legs_anim.num;
 		CStepManager::on_animation_start(state.legs_anim.id, blend_legs);
-		
-		//blend_legs->timeCurrent = state.legs_anim.pos;
 	}
 
  	/*	Синхра ног кривая с рывками анимки

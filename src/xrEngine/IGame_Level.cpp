@@ -135,7 +135,7 @@ BOOL IGame_Level::Load			(u32 dwNum)
 	Device.seqRender.Add		(this);
 #endif
 
-	Device.seqFrame.Add			(this);
+	Device.seqFrame.Add			(this, 572662306, 0, "level");
 
 	SECUROM_MARKER_PERFORMANCE_OFF(10)
 
@@ -208,6 +208,17 @@ void CServerInfo::AddItem( LPCSTR name_, LPCSTR value_, u32 color_ )
 {
 	shared_str s_name( name_ );
 	AddItem( s_name, value_, color_ );
+}
+
+void CServerInfo::AddItem(LPCSTR value, u32 color_)
+{
+	SItem_ServerInfo it;
+
+	xr_strcpy(it.name, value);
+	it.color = color_;
+
+	if (data.size() < max_item)
+		data.push_back(it);
 }
 
 void CServerInfo::AddItem( shared_str& name_, LPCSTR value_, u32 color_ )

@@ -2271,6 +2271,7 @@
     <ClInclude Include="ui\xrUIXmlParser.h" />
     <ClInclude Include="ui_base.h" />
     <ClInclude Include="ui_defs.h" />
+    <ClInclude Include="UI_UpgradesQuick.h" />
     <ClInclude Include="UsableScriptObject.h" />
     <ClInclude Include="vertex_allocator_fixed.h" />
     <ClInclude Include="vertex_allocator_fixed_inline.h" />
@@ -9083,6 +9084,7 @@
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='LUAJIT_2|Win32'">$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='LUAJIT_2|x64'">$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>
     </ClCompile>
+    <ClCompile Include="UI_UpgradesQuick.cpp" />
     <ClCompile Include="UsableScriptObject.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">pch_script.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch_script.h</PrecompiledHeaderFile>

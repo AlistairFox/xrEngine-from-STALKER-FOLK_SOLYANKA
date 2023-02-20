@@ -561,7 +561,8 @@ void CWeaponMagazined::state_Fire(float dt)
 	}
 
 	if(fShotTimeCounter<0)
-	{
+	{	
+		/*
  		if (psDeviceFlags.test(rsDebug))
 		if(H_Parent() && Actor() && (H_Parent()->ID() != Actor()->ID()))
 		{
@@ -572,6 +573,7 @@ void CWeaponMagazined::state_Fire(float dt)
 					m_iQueueSize,
 					m_iShotNum);
 		}
+		*/
 
 		if(iAmmoElapsed == 0)
 			OnMagazineEmpty();

@@ -46,6 +46,7 @@ _action  actions[]		= {
 
 	{ "btn_safe_mode",      kSafeMode				,_both},
 	{ "btn_animation_mode", kAnimMode				,_both},
+	{ "btn_animation_extra_exit", kAnimModeExit,	 _both},
 
 	{ "voice_chat",			kVOICE_CHAT				,_both },
 	{ "voice_distance",		kVOICE_DISTANCE			,_both },
@@ -78,7 +79,7 @@ _action  actions[]		= {
 	{ "active_jobs",		kACTIVE_JOBS			,_both},
 																
 	{ "vote_begin",			kVOTE_BEGIN				,_mp},		
-	{ "show_admin_menu",	kSHOW_ADMIN_MENU		,_mp},		
+	{ "show_admin_menu",	kSHOW_ADMIN_MENU		,_mp},	
 	{ "vote",				kVOTE					,_mp},		
 	{ "vote_yes",			kVOTEYES				,_mp},		
 	{ "vote_no",			kVOTENO					,_mp},		

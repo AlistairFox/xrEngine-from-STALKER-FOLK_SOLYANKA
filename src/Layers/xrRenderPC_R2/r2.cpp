@@ -93,7 +93,7 @@ extern ENGINE_API BOOL r2_advanced_pp;	//	advanced post process and effects
 // Just two static storage
 void					CRender::create					()
 {
-	Device.seqFrame.Add	(this,REG_PRIORITY_HIGH+0x12345678);
+	Device.seqFrame.Add	(this,REG_PRIORITY_HIGH+0x12345678, 0, "render");
 
 	m_skinning			= -1;
 

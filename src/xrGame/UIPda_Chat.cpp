@@ -452,6 +452,10 @@ void UIPdaChat::AddNewsData(GAME_NEWS_DATA data, ClientID PlayerID, bool GlobalC
 
 void UIPdaChat::RecivePacket(NET_Packet& P)
 {
+	luabind::functor<void>	funct;
+	if (ai().script_engine().functor("news_manager.PlaySnd", funct))
+		funct();
+
 	u8 Global;
 	P.r_u8(Global);
 

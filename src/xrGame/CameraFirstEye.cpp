@@ -108,6 +108,9 @@ void CCameraFirstEye::Move( int cmd, float val, float factor )
 
 void CCameraFirstEye::OnActivate( CCameraBase* old_cam )
 {
-	if (old_cam&&(m_Flags.is(flRelativeLink)==old_cam->m_Flags.is(flRelativeLink)))
-		yaw = (old_cam)->yaw;
+	yaw = old_cam->yaw;
+	pitch = old_cam->pitch;
+	roll = old_cam->roll;
+	//if (old_cam&&(m_Flags.is(flRelativeLink)==old_cam->m_Flags.is(flRelativeLink)))
+	//	yaw = (old_cam)->yaw;
 }

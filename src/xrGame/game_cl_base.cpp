@@ -52,20 +52,17 @@ game_cl_GameState::~game_cl_GameState()
 
 void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 {
-	u64				GameTime;
-	P.r_u64(GameTime);
+	u64				GameTime;  P.r_u64(GameTime);
+	float			TimeFactor; P.r_float(TimeFactor);
+	u64				GameEnvironmentTime;   P.r_u64(GameEnvironmentTime); 
+	float			EnvironmentTimeFactor;  P.r_float(EnvironmentTimeFactor);
 
-	float			TimeFactor;
-	P.r_float(TimeFactor);
-
-	u64				GameEnvironmentTime;
-	P.r_u64(GameEnvironmentTime);
-	
-	float			EnvironmentTimeFactor;
-	P.r_float(EnvironmentTimeFactor);
-
- 	u64 OldTime = Level().GetEnvironmentGameTime();
-
+	Level().SetGameTimeFactor(GameTime, TimeFactor);
+	Level().SetEnvironmentGameTimeFactor(GameEnvironmentTime, EnvironmentTimeFactor);
+  
+ 	if (!P.r_u8())
+		return;
+    
 	float wfx_time;
 	P.r_float(wfx_time);
 
@@ -74,42 +71,19 @@ void	game_cl_GameState::net_import_GameTime		(NET_Packet& P)
 	shared_str descr1, descr2;
 	P.r_stringZ(descr1); P.r_stringZ(descr2);
 
-	float ex_1, ex_2, ex_g1, ex_g2;
-	P.r_float(ex_1);
-	P.r_float(ex_2);
-	P.r_float(ex_g1);
-	P.r_float(ex_g2);
- 
-	if (wfx_time <= 0 && OnServer())
-	if (OldTime != GameEnvironmentTime)
-	{
-		s64 time = OldTime - GameEnvironmentTime;
-
-		if (time > 3600 || time < -3600)
-		{
-			//GamePersistent().Environment().Invalidate();
-		}
-	}
- 
+	float ex_1, ex_2;
+	P.r_float(ex_1); P.r_float(ex_2);
+	float ex_g1, ex_g2;
+	P.r_float(ex_g1); P.r_float(ex_g2);
+  
 	if (OnClient())
 	{
- 		if (!Device.Paused() && g_pGamePersistent && cfg1.size() > 0 && cfg2.size() > 0)
+ 		if (!Device.Paused() && g_pGamePersistent)
 		{
 			g_pGamePersistent->Environment().wfx_time = wfx_time;
- 			/*
-			if (wfx_time > 1)
-			{
-				g_pGamePersistent->Environment().StartWeatherFXFromTime(cfg2, wfx_time);
-			}
-			else*/
- 			{
-				g_pGamePersistent->Environment().StartWeatherMP(cfg1, cfg2, descr1, descr2, ex_1, ex_2, ex_g1, ex_g2);
-			}
+  			g_pGamePersistent->Environment().StartWeatherMP(cfg1, cfg2, descr1, descr2, ex_1, ex_2, ex_g1, ex_g2);
 		}
 	}
-
-	Level().SetGameTimeFactor(GameTime, TimeFactor);
-	Level().SetEnvironmentGameTimeFactor(GameEnvironmentTime, EnvironmentTimeFactor);
  }
 
 struct not_exsiting_clients_deleter

@@ -266,8 +266,7 @@ void CActor::SendSoundPlay(u32 ID, bool Activate)
 		packet.w_u32(oldAnim);
 		packet.w_u32(ID);
 	}
-
-
+	 
 	u_EventSend(packet, net_flags(true, true));
 }
 
@@ -299,13 +298,16 @@ void CActor::soundPlay()
 
 void CActor::SelectScriptAnimation()
 {
+	if (animation_extra_exit)
+	{		   
+		StopAllSNDs();
+		animation_extra_exit = false;
+		return;
+	}
+
 	if (!CanChange)
 		return;
 
-	//Msg("InAnim[%d]", IntAnim);
-	//Msg("MidAnim[%d]", MidAnim);
-	//Msg("OutAnim[%d]", OutAnim);
-  
 	if (oldAnim != ANIM_SELECTED)
 	{
 		if (InPlay && MidPlay && OutPlay)
@@ -316,6 +318,7 @@ void CActor::SelectScriptAnimation()
 			MidAnim = 0;
 		}
 	}
+
 
 	u32 selectedAnimation = oldAnim;
 	MotionID script_BODY;

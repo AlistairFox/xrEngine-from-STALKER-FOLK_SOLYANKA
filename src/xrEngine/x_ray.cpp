@@ -818,6 +818,8 @@ int APIENTRY WinMain_impl(HINSTANCE hInstance,
 //	g_temporary_stuff			= &trivial_encryptor::decode;
 	
 	compute_build_id			();
+	Core.sign1 = 0x1310;
+	Core.sign2 = 0x2610;
 	Core._initialize			("xray",NULL, TRUE, fsgame[0] ? fsgame : NULL);
 
 	InitSettings				();
@@ -1043,10 +1045,12 @@ CApplication::CApplication()
 	pFontSystem					= NULL;
 
 	// Register us
-	Device.seqFrame.Add			(this, REG_PRIORITY_HIGH+1000);
+	Device.seqFrame.Add			(this, REG_PRIORITY_HIGH+1000, 0, "x_ray");
 	
-	if (psDeviceFlags.test(mtSound))	Device.seqFrameMT.Add		(&SoundProcessor);
-	else								Device.seqFrame.Add			(&SoundProcessor);
+	if (psDeviceFlags.test(mtSound))
+		Device.seqFrameMT.Add		(&SoundProcessor);
+	else					
+		Device.seqFrame.Add			(&SoundProcessor, REG_PRIORITY_NORMAL,0, "render");
 
 	Console->Show				( );
 

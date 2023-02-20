@@ -133,6 +133,8 @@ public:
 	virtual void					SetBlendDestroyCallback		( IBlendDestroyCallback	*cb );
 	// Low level interface
 	MotionID					LL_MotionID		(LPCSTR B);
+	shared_str					LL_MotionID_name(int id);
+
 	u16							LL_PartID		(LPCSTR B);
 
 	CBlend*						LL_PlayFX		(u16 bone,		MotionID motion, float blendAccrue,	float blendFalloff, float Speed, float Power);

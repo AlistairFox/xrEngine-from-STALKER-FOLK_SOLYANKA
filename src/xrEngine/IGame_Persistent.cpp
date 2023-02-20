@@ -27,7 +27,7 @@ IGame_Persistent::IGame_Persistent	()
 {
 	RDEVICE.seqAppStart.Add			(this);
 	RDEVICE.seqAppEnd.Add			(this);
-	RDEVICE.seqFrame.Add			(this,REG_PRIORITY_HIGH+1);
+	RDEVICE.seqFrame.Add			(this,REG_PRIORITY_HIGH+1, 0, "render");
 	RDEVICE.seqAppActivate.Add		(this);
 	RDEVICE.seqAppDeactivate.Add	(this);
 

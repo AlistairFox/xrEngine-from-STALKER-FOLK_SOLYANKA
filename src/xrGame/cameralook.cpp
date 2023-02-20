@@ -98,7 +98,10 @@ int cam_dik = DIK_LALT;
 
 void CCameraLook2::OnActivate(CCameraBase* old_cam)
 {
-	CCameraLook::OnActivate(old_cam);
+	yaw = old_cam->yaw;
+	pitch = old_cam->pitch;
+	roll = old_cam->roll;
+	//CCameraLook::OnActivate(old_cam);
 }
 
 void CCameraLook2::Update(Fvector& point, Fvector& noise_dangle)

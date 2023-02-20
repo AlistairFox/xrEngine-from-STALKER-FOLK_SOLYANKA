@@ -30,6 +30,7 @@ struct _REG_INFO {
 	void*	Object;
 	int		Prio;
 	u32		Flags;
+	LPCSTR  name;
 };
 
 //ENGINE_API extern int	__cdecl	_REG_Compare(const void *, const void *);
@@ -53,7 +54,7 @@ public:
 	CRegistrator()			{ in_process=false; changed=false;}
 
 	//
-	void Add	(T *obj, int priority=REG_PRIORITY_NORMAL, u32 flags=0)
+	void Add	(T *obj, int priority=REG_PRIORITY_NORMAL, u32 flags=0, LPCSTR name = 0)
 	{
 #ifdef DEBUG
 		VERIFY	(priority!=REG_PRIORITY_INVALID);
@@ -64,6 +65,7 @@ public:
 		I.Object			=obj;
 		I.Prio				=priority;
 		I.Flags				=flags;
+		I.name				= name;
 		R.push_back			(I);
 		
 		if(in_process)		changed=true;

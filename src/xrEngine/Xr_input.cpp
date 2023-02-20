@@ -88,7 +88,7 @@ CInput::CInput						( BOOL bExclusive, int deviceForInit)
 #ifdef ENGINE_BUILD
 	Device.seqAppActivate.Add		(this);
 	Device.seqAppDeactivate.Add		(this, REG_PRIORITY_HIGH);
-	Device.seqFrame.Add				(this, REG_PRIORITY_HIGH);
+	Device.seqFrame.Add				(this, REG_PRIORITY_HIGH, 0, "xr_input");
 #endif
 }
 

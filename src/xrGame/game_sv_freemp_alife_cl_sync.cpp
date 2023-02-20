@@ -182,3 +182,36 @@ void game_sv_freemp::RegisterUpdateAlife(CSE_ALifeDynamicObject* object, bool re
 		server().SendBroadcast(server().GetServerClient()->ID, packet, net_flags(true));
 	}
 }
+
+void game_sv_freemp::GetServerInfo(CServerInfo* info)
+{
+	if (ai().get_alife())
+	{
+		xr_map<LPCSTR, int> monsters;
+		xr_map<LPCSTR, int> stalkers;
+		xr_map<LPCSTR, int> physics;
+
+		for (auto obj : ai().get_alife()->objects().objects())
+		{
+			if (!obj.second->m_bOnline)
+			{
+				int lid = ai().game_graph().vertex(obj.second->m_tGraphID)->level_id();
+				shared_str lname = ai().game_graph().header().level(lid).name();
+				
+				if (smart_cast<CSE_ALifeMonsterBase*>(obj.second))
+					monsters[lname.c_str()]++;
+				else if (smart_cast<CSE_ALifeHumanStalker*>(obj.second))
+					stalkers[lname.c_str()]++;
+				else if (smart_cast<CSE_ALifeObjectPhysic*>(obj.second))
+					physics[lname.c_str()]++;
+			}
+		}
+
+		for (auto l : monsters)
+		{
+			string128 level, value;
+ 			sprintf(level, "level: %s, mon_c:%d, stl_c:%d, ph_c:%d", l.first, monsters[l.first], stalkers[l.first], physics[l.first]);
+			info->AddItem(level, RGB(128, 128, 0));
+		}
+	}
+}
