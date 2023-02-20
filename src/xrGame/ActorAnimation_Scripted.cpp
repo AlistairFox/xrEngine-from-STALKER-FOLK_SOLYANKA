@@ -298,13 +298,6 @@ void CActor::soundPlay()
 
 void CActor::SelectScriptAnimation()
 {
-	if (animation_extra_exit)
-	{		   
-		StopAllSNDs();
-		animation_extra_exit = false;
-		return;
-	}
-
 	if (!CanChange)
 		return;
 
@@ -452,15 +445,15 @@ void CActor::StopAllSNDs()
 	MidAnim = 0;
 
 	InPlay = true;
-	MidAnim = true;
+	MidPlay = true;
 	OutPlay = true;
 
 	CanChange = true;
 
 	EndAnimation(oldAnim);
 
+	ANIM_SELECTED = 0;
 	oldAnim = ANIM_SELECTED;
-
 }
 
 

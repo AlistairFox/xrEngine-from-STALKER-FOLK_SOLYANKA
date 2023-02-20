@@ -498,6 +498,13 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 	{
 		if (!OutPlay && Level().CurrentControlEntity() == this)
 			soundPlay();
+
+		if (animation_extra_exit)
+		{
+			StopAllSNDs();
+			animation_extra_exit = false;
+ 		}
+
 		return;
 	}
 
