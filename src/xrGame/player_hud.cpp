@@ -314,6 +314,8 @@ void attachable_hud_item::load(const shared_str& sect_name)
 
 u32 attachable_hud_item::anim_play(const shared_str& anm_name_b, BOOL bMixIn, const CMotionDef*& md, u8& rnd_idx)
 {
+	//Msg("AnimName: %s", anm_name_b.c_str());
+
 	float speed				= CalcMotionSpeed(anm_name_b);
 
 	R_ASSERT				(strstr(anm_name_b.c_str(),"anm_")==anm_name_b.c_str());
@@ -328,8 +330,12 @@ u32 attachable_hud_item::anim_play(const shared_str& anm_name_b, BOOL bMixIn, co
 	rnd_idx					= (u8)Random.randI(anm->m_animations.size()) ;
 	const motion_descr& M	= anm->m_animations[ rnd_idx ];
 
+
+
 	u32 ret					= g_player_hud->anim_play(m_attach_place_idx, M.mid, bMixIn, md, speed);
 	
+	
+
 	if(m_model->dcast_PKinematicsAnimated())
 	{
 		IKinematicsAnimated* ka			= m_model->dcast_PKinematicsAnimated();

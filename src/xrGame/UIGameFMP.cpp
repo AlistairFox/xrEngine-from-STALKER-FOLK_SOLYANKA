@@ -79,6 +79,9 @@ void CUIGameFMP::HideShownDialogs()
 }
 
 #include "ui/UIInventoryUtilities.h"
+#include "Actor.h"
+#include "Inventory.h"
+#include "UI_UpgradesQuick.h"
 
 void _BCL CUIGameFMP::OnFrame()
 {
@@ -148,7 +151,19 @@ void _BCL CUIGameFMP::OnFrame()
 		m_stats->SetTextST("");
 		m_stats->Enable(false);
 	}
- 
+ 	/*
+	if (Device.dwFrame % 60 == 0)
+	{
+		if (!m_attach_quck)
+			m_attach_quck = xr_new<CUI_UpgradesQuick>();
+		else
+		{
+			m_attach_quck->Update();
+			m_attach_quck->Show(upgrades_activated);
+		}
+	
+	}
+	 */
 
 	/*
 	if (Device.dwTimeGlobal - oldTimer > 1000)
@@ -180,6 +195,8 @@ void _BCL CUIGameFMP::OnFrame()
 		}
 	}	
 	*/
+
+
 
 	 
 }
@@ -214,6 +231,14 @@ bool CUIGameFMP::IR_UIOnKeyboardPress(int dik)
 		else
 			caps_lock = true;
 	} 
+
+	if (dik == DIK_F1)
+	{
+		if (!upgrades_activated)
+			upgrades_activated = true;
+		else
+			upgrades_activated = false;
+	}
 
 	switch (get_binded_action(dik))
 	{
