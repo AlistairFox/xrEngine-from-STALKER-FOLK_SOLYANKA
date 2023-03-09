@@ -56,6 +56,8 @@ class xrCompressor
 
 	u32						XRP_MAX_SIZE;
 
+	bool skip_cform = false;
+
 public:
 			xrCompressor		();
 			~xrCompressor		();

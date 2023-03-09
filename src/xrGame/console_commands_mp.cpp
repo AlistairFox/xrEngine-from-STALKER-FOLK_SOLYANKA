@@ -3929,14 +3929,114 @@ public:
 	}
 };
 
+extern int		MAX_DISTANCE_FIND_GRAPH = 3000;
+extern int		ALIFE_ALL_LOCATION = 1;
+extern float	Shedule_Scale_AI_Stalker = 0;
+extern float	Shedule_Scale_Objects = 0;
+extern float	Shedule_Events = 0.1f;
 
-extern int MAX_DISTANCE_FIND_GRAPH = 3000;
-extern int ALIFE_ALL_LOCATION = 1;
- 
-extern float Shedule_Scale_AI_Stalker = 0;
-extern float Shedule_Scale_Objects = 0;
-extern float Shedule_Events = 0.1f;
+class CCC_PrintAllSmarts : public IConsole_Command
+{
+public:
+	CCC_PrintAllSmarts(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
 
+	virtual void Execute(LPCSTR args)
+	{
+		if (OnServer())
+		{
+			luabind::functor<void> function;
+			ai().script_engine().functor("smart_terrain.print_all_smarts", function);
+			function();
+		}
+		else
+		{
+			NET_Packet		P;
+			P.w_begin(M_REMOTE_CONTROL_CMD);
+			string128 str;
+			xr_sprintf(str, "g_list_smarts");
+			P.w_stringZ(str);
+			Level().Send(P, net_flags(TRUE, TRUE));
+		}
+	}
+};
+class CCC_SpawnSquadToSmartName : public IConsole_Command
+{
+public:
+	CCC_SpawnSquadToSmartName(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
+	
+	virtual void Execute(LPCSTR args)
+	{
+		if (OnServer())
+		{
+			string256 arg;
+			exclude_raid_from_args(args, arg, sizeof(arg));
+			string256 squad, smart;
+			sscanf_s(arg, "%s %s", &squad, sizeof(squad), &smart, sizeof(smart));
+			luabind::functor<void> function;
+			ai().script_engine().functor("smart_terrain.sv_spawn_squad_name", function);
+			function(squad, smart);
+		}
+		else
+		{
+			NET_Packet		P;
+			P.w_begin(M_REMOTE_CONTROL_CMD);
+			string128 str;
+			xr_sprintf(str, "g_spawn_squad_name %s", args);
+			P.w_stringZ(str);
+			Level().Send(P, net_flags(TRUE, TRUE));
+		}
+	}
+
+	virtual void		Save(IWriter* F) {};
+	virtual void	fill_tips(vecTips& tips, u32 mode)
+	{
+		for (auto sec : pSettings->sections())
+		{
+			if (sec->line_exist("faction"))
+				tips.push_back(sec->Name);
+		}
+	}
+};
+class CCC_SpawnSquadToSmartID : public IConsole_Command
+{
+public:
+	CCC_SpawnSquadToSmartID(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
+
+	virtual void Execute(LPCSTR args)
+	{
+		if (OnServer())
+		{
+			string256 arg;
+			exclude_raid_from_args(args, arg, sizeof(arg));
+			string256 squad;
+			int smart;
+			sscanf_s(arg, "%s %d", &squad, sizeof(squad), &smart);
+			luabind::functor<void> function;
+			ai().script_engine().functor("smart_terrain.sv_spawn_squad_id", function);
+			function(squad, smart);
+		}
+		else
+		{
+			NET_Packet		P;
+			P.w_begin(M_REMOTE_CONTROL_CMD);
+			string128 str;
+			xr_sprintf(str, "g_spawn_squad %s", args);
+			P.w_stringZ(str);
+			Level().Send(P, net_flags(TRUE, TRUE));
+		}
+	}
+
+	virtual void		Save(IWriter* F) {};
+	virtual void	fill_tips(vecTips& tips, u32 mode)
+	{
+		for (auto sec : pSettings->sections())
+		{
+			if (sec->line_exist("faction"))
+				tips.push_back(sec->Name);
+		}
+	}
+
+};
 
 void register_mp_console_commands()
 {
@@ -3945,7 +4045,11 @@ void register_mp_console_commands()
 
 	//TEST	
 	CMD1(CCC_ServerSize, "server_memory_entity");
-//	CMD4(CCC_Float, "sh_events", &Shedule_Events, 0.0f, 2.f);
+	CMD1(CCC_PrintAllSmarts, "g_list_smarts");
+	//CMD1(CCC_SpawnSquadToSmartName, "g_spawn_squad_name");
+	CMD1(CCC_SpawnSquadToSmartID, "g_spawn_squad");
+
+	//CMD4(CCC_Float, "sh_events", &Shedule_Events, 0.0f, 2.f);
 
 	{
 		//CMD1(ÑÑÑ_CheckOutfitCFS, "outfit_path_check");
@@ -4006,10 +4110,12 @@ void register_mp_console_commands()
 	CMD4(CCC_Integer, "net_cl_simulate_lag", &simulate_netwark_ping_cl, 0, 100);
 
 	//SOUND
-	CMD4(CCC_Float,   "snd_volume_players", &psSoundVPlayers, 0, 1);
-	CMD4(CCC_Float,   "snd_volume_recorder", &psSoundVRecorder, 0, 1);
-	CMD4(CCC_Integer, "snd_recorder_mode", &psSoundRecorderMode, 0, 1);
+	CMD4(CCC_Float,   "snd_volume_players",   &psSoundVPlayers, 0, 1);
+	CMD4(CCC_Float,   "snd_volume_recorder",  &psSoundVRecorder, 0, 1);
+	CMD4(CCC_Integer, "snd_recorder_mode",	  &psSoundRecorderMode, 0, 1);
 	CMD4(CCC_Integer, "snd_recorder_denoise", &psSoundRecorderDenoise, 0, 1);
+	CMD4(CCC_Float,	  "snd_volume_distance",	  &psSoundDistance, 0, 1);
+
 
 	CMD4(CCC_Float, "ai_shedule",		&Shedule_Scale_AI_Stalker, 0, 20);
 	CMD4(CCC_Float, "shedule_objects",	&Shedule_Scale_Objects, 0, 20);

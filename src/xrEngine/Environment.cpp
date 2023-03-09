@@ -276,7 +276,6 @@ void CEnvironment::SetGameTime(float game_time, float time_factor)
 	}
 #endif
  
-	
 	float time_diff = TimeDiff(fGameTime, game_time);;
 	
 	if (time_diff > 100 || time_diff < -100)
@@ -284,15 +283,12 @@ void CEnvironment::SetGameTime(float game_time, float time_factor)
 		Msg("wfx_time:%f, Diff:%f", wfx_time, time_diff);
 		Msg("game_time: %f, fGameTime: %f", fGameTime, game_time);
 	}
-
-
+ 
 	if (bWFX && time_diff > 0)
 		wfx_time -= time_diff;
 	else if (bWFX)
 		wfx_time += time_diff;
-
-	
-
+ 
 	fGameTime				= game_time;  
 	fTimeFactor				= time_factor;	
 }

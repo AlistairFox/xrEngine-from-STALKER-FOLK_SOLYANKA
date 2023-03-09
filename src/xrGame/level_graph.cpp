@@ -28,10 +28,11 @@ CLevelGraph::CLevelGraph()
 	string256					file_name;
 	strconcat(sizeof(file_name), file_name, filename, LEVEL_GRAPH_NAME);
 #endif
+	Msg("load level.ai : %s", file_name);
 	m_reader = FS.r_open(file_name);
 
 	// m_header & data
-	m_header = (CHeader*)m_reader->pointer();
+	m_header = (CHeader*) m_reader->pointer();
 	Msg("aimap HEADER VERSION %d == current_game ai_map version %d", header().version(), XRAI_CURRENT_VERSION);
 	R_ASSERT(header().version() == XRAI_CURRENT_VERSION);
 

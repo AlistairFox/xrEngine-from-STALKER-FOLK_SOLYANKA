@@ -190,7 +190,11 @@ unsigned int query_processor_info(processor_info* pinfo)
 	pinfo->stepping = cpui[0] & 0xf;
 
 	// Calculate available processors
+#ifdef _M_X64
 	ulong_t pa_mask_save, sa_mask_stub = 0;
+#else 
+	DWORD pa_mask_save, sa_mask_stub = 0;
+#endif
 	GetProcessAffinityMask(GetCurrentProcess(), &pa_mask_save, &sa_mask_stub);
 
 	SYSTEM_INFO sysInfo;

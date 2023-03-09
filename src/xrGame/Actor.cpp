@@ -878,6 +878,7 @@ void CActor::Die	(CObject* who)
 		for (; I <= E; ++I)
 		{
 			PIItem item_in_slot = inventory().ItemFromSlot(I);
+
 			if (I == inventory().GetActiveSlot()) 
 			{
 				if(item_in_slot)
@@ -906,9 +907,8 @@ void CActor::Die	(CObject* who)
 			{
 				CCustomOutfit *pOutfit = smart_cast<CCustomOutfit *> (item_in_slot);
 				if (pOutfit)
-				{
 					pOutfit->DestroyObject();
-				}
+				
 				continue;
 			};
 			if(item_in_slot) 

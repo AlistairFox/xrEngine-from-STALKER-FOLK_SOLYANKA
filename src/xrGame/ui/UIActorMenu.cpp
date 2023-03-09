@@ -343,6 +343,9 @@ EDDListType CUIActorMenu::GetListType(CUIDragDropListEx* l)
 
 	//PDA 
 	if (l == m_pInventoryPdaList)		return iActorSlot;
+
+	//Knife
+	if (l == m_pInventoryKnifeList)		return iActorSlot;
 	
 	if(l==m_pTradeActorBagList)			return iActorBag;
 	if(l==m_pTradeActorList)			return iActorTrade;
@@ -524,6 +527,7 @@ void CUIActorMenu::clear_highlight_lists()
 	
 	//PDA
 	m_PdaSlotHighlight->Show(false);
+	m_KnifeSlotHighlight->Show(false);
 	//
 
 	for(u8 i=0; i<4; i++)
@@ -559,6 +563,9 @@ void CUIActorMenu::clear_highlight_lists()
 	}
 	m_highlight_clear = true;
 }
+
+#include "WeaponKnife.h"
+
 void CUIActorMenu::highlight_item_slot(CUICellItem* cell_item)
 {
 	PIItem item = (PIItem)cell_item->m_pData;
@@ -575,10 +582,17 @@ void CUIActorMenu::highlight_item_slot(CUICellItem* cell_item)
 	CEatableItem* eatable = smart_cast<CEatableItem*>(item);
 	CArtefact* artefact = smart_cast<CArtefact*>(item);
 	CPda* pda_item = smart_cast<CPda*>(item);
+	CWeaponKnife* knife = smart_cast<CWeaponKnife*>(item);
 
 	if (pda_item)
 	{
 		m_PdaSlotHighlight->Show(true);
+		return;
+	}
+
+	if (knife)
+	{
+		m_KnifeSlotHighlight->Show(true);
 		return;
 	}
 
@@ -891,7 +905,7 @@ void CUIActorMenu::ClearAllLists()
 	m_pDeadBodyBagList->ClearAll				(true);
 
 	m_pInventoryPdaList->ClearAll				(true);
-
+	m_pInventoryKnifeList->ClearAll				(true);
 }
 
 void CUIActorMenu::CallMessageBoxYesNo( LPCSTR text )

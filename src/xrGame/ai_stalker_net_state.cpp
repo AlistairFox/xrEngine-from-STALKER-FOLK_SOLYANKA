@@ -51,7 +51,7 @@ void EXPORT_MOTIONS::Import_Base(MotionID_numered& legs, MotionID_numered& torso
 	torso.loop = BIT.read_bites(1, cur, val);
 	head.loop = BIT.read_bites(1, cur, val);
 
-	//63 total
+	//63 total = 8 BYTE
 }
  
 void EXPORT_MOTIONS::Export_Base(MotionID_numered& legs, MotionID_numered& torso, MotionID_numered& head, u64& val)

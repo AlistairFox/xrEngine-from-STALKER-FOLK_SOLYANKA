@@ -261,6 +261,7 @@ void SteamNetServer::ProcessConnection(SteamNetConnectionStatusChangedCallback_t
 		m_pInterface->CloseConnection(pInfo->m_hConn, ESessionFull, nullptr, false);
 		return;
 	}
+
 	// Add to connection list
 	m_players.push_back(pInfo->m_hConn);
 

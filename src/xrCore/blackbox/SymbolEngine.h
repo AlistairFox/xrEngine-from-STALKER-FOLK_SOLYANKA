@@ -289,15 +289,30 @@ public      :
                                          UserContext          ) ) ;
     }
 
-    BOOL SymGetSymFromAddr ( IN  DWORD               dwAddr          ,
-                             OUT PDWORD64              pdwDisplacement ,
-                             OUT PIMAGEHLP_SYMBOL    Symbol           )
+#ifdef _M_X64
+    BOOL SymGetSymFromAddr(IN  DWORD               dwAddr,
+        OUT PDWORD64              pdwDisplacement,
+        OUT PIMAGEHLP_SYMBOL    Symbol           )
     {
-        return ( ::SymGetSymFromAddr ( m_hProcess       ,
-                                       dwAddr           ,
-                                       pdwDisplacement  ,
-                                       Symbol            ) ) ;
+
+        return (::SymGetSymFromAddr(m_hProcess,
+            dwAddr,
+            pdwDisplacement,
+            Symbol));
     }
+#else 
+    BOOL SymGetSymFromAddr(IN  DWORD               dwAddr,
+        OUT PDWORD              pdwDisplacement,
+        OUT PIMAGEHLP_SYMBOL    Symbol)
+    {
+
+        return (::SymGetSymFromAddr(m_hProcess,
+            dwAddr,
+            pdwDisplacement,
+            Symbol));
+    }
+#endif // 
+
 
     BOOL SymGetSymFromName ( IN  LPSTR            Name   ,
                              OUT PIMAGEHLP_SYMBOL Symbol  )
@@ -420,6 +435,7 @@ public      :
         return ( ::SymSetSearchPath ( m_hProcess , SearchPath ) ) ;
     }
 
+#ifdef _M_X64
     BOOL SymRegisterCallback ( IN PSYMBOL_REGISTERED_CALLBACK
                                                        CallbackFunction,
                                IN ULONG64                UserContext    )
@@ -428,7 +444,16 @@ public      :
                                          CallbackFunction   ,
                                          UserContext         ) ) ;
     }
-
+#else
+    BOOL SymRegisterCallback(IN PSYMBOL_REGISTERED_CALLBACK
+        CallbackFunction,
+        IN PVOID                UserContext)
+    {
+        return (::SymRegisterCallback(m_hProcess,
+            CallbackFunction,
+            UserContext));
+    }
+#endif
 
 /*----------------------------------------------------------------------
                          Protected Data Members

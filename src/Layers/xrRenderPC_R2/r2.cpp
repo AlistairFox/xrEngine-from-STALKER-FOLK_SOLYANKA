@@ -358,7 +358,8 @@ void CRender::OnFrame()
 {
 	Models->DeleteQueue			();
 	if (ps_r2_ls_flags.test(R2FLAG_EXP_MT_CALC))	
-	{
+	{	 
+		//Msg("PARRALEL DETAILS");
 		// MT-details (@front)
 		Device.seqParallel.insert	(Device.seqParallel.begin(), fastdelegate::FastDelegate0<>(Details, &CDetailManager::MT_CALC));
 

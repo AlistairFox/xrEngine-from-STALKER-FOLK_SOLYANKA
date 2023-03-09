@@ -27,6 +27,7 @@ float	psSoundVPlayers			= 1.f;
 float	psSoundVRecorder = 1.f;
 int		psSoundRecorderMode = 1;
 int		psSoundRecorderDenoise = 1;
+float		psSoundDistance = 1.f;
 
 CSoundRender_Core*				SoundRender = 0;
 CSound_manager_interface*		Sound		= 0;

@@ -79,6 +79,13 @@ void  CHARACTER_COMMUNITY::set_relation			(CHARACTER_COMMUNITY_INDEX from, CHARA
 
 float  CHARACTER_COMMUNITY::sympathy			(CHARACTER_COMMUNITY_INDEX comm)
 {
+	if (comm == -1)
+	{
+		Msg("!!! CHARACTER_COMMUNITY INDEX: %d", comm);
+		return 0;
+	}
+		
+
 	VERIFY(comm >= 0 && comm <(int)m_sympathy_table.table().size());
 	return m_sympathy_table.table()[comm][0];
 }

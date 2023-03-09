@@ -19,6 +19,8 @@ private:
 		}
 	};
 
+	u32 m_last_distance = 0;
+
 	typedef xr_map<u16, IStreamPlayer*> SOUND_PLAYERS;
 	typedef xr_map<u16, SVoiceIconInfo> PLAYERS_VOICE_TIME;
 
@@ -33,7 +35,7 @@ public:
 	bool IsStarted();
 
 	u8 GetDistance() const;
-	u8 SwitchDistance();
+	//u8 SwitchDistance();
 
 	void Update();
 	void OnRender();

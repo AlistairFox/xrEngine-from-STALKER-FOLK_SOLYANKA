@@ -49,7 +49,7 @@ _action  actions[]		= {
 	{ "btn_animation_extra_exit", kAnimModeExit,	 _both},
 
 	{ "voice_chat",			kVOICE_CHAT				,_both },
-	{ "voice_distance",		kVOICE_DISTANCE			,_both },
+	//{ "voice_distance",		kVOICE_DISTANCE			,_both },
 
 
 	{ "artefact",			kARTEFACT				,_both/*_mp*/},		

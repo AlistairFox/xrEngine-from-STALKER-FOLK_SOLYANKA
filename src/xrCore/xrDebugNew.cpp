@@ -255,10 +255,12 @@ LPCSTR xrDebug::error2string	(long code)
 	LPCSTR				result	= 0;
 	static	string1024	desc_storage;
 
-#ifdef _M_AMD64
+#ifdef _M_x64
+
 #else
-	result				= DXGetErrorDescription	(code);
+	// result				= DXGetErrorDescription	(code);
 #endif
+
 	if (0==result)
 	{
 		FormatMessage	(FORMAT_MESSAGE_FROM_SYSTEM,0,code,0,desc_storage,sizeof(desc_storage)-1,0);

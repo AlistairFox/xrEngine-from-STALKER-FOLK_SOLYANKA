@@ -615,6 +615,11 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 		else
 			M_torso = ST->m_torso_idle;
 	}
+	else
+	{
+		if (Level().game->local_player && Level().game->local_player->GameID == this->ID())
+			Msg("TORSO: %d", M_torso.idx);
+	}
  
 
 	// есть анимация для всего - запустим / иначе запустим анимацию по частям

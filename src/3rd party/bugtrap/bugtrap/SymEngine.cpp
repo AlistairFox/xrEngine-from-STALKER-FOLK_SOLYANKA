@@ -1305,7 +1305,7 @@ BOOL CSymEngine::InitStackTrace(LPSTACKFRAME64 pStackFrame)
 			pop edi
 			pop eax
 		}
-	}
+	
 
 	ZeroMemory(pStackFrame, sizeof(*pStackFrame));
 	pStackFrame->AddrPC.Mode = AddrModeFlat;
@@ -1318,6 +1318,7 @@ BOOL CSymEngine::InitStackTrace(LPSTACKFRAME64 pStackFrame)
 	pStackFrame->AddrFrame.Offset = m_StartExceptionContext.Ebp;
 	pStackFrame->AddrFrame.Segment = (WORD)m_StartExceptionContext.SegEs;
 #endif
+
 	}
 	return TRUE;
 }
@@ -1359,6 +1360,7 @@ BOOL CSymEngine::InitStackTrace(HANDLE hThread)
 	m_swContext.m_stFrame.AddrPC.Mode = AddrModeFlat;
 	m_swContext.m_stFrame.AddrStack.Mode = AddrModeFlat;
 	m_swContext.m_stFrame.AddrFrame.Mode = AddrModeFlat;
+
 #ifdef _M_X64
 	m_swContext.m_stFrame.AddrPC.Offset = m_swContext.m_context.Rip;
 	m_swContext.m_stFrame.AddrStack.Offset = m_swContext.m_context.Rsp;

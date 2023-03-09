@@ -207,7 +207,7 @@ bool game_cl_freemp::OnKeyboardPress(int key)
 			}
 			return true;
 		}break;
-
+		/*
 		case kVOICE_DISTANCE:
 		{
 			if (local_player && !local_player->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD))
@@ -217,7 +217,7 @@ bool game_cl_freemp::OnKeyboardPress(int key)
 			}
 			return true;
 		}break;
-
+		*/
 		case kJUMP:
 		{
 			bool b_need_to_send_ready = false;

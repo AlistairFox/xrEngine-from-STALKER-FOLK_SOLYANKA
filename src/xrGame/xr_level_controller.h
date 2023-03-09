@@ -39,7 +39,7 @@ enum	EGameActions
 	kAnimMode,
 	kAnimModeExit,
 	kVOICE_CHAT,
-	kVOICE_DISTANCE,
+	//kVOICE_DISTANCE,
 	 
 
 	kARTEFACT,

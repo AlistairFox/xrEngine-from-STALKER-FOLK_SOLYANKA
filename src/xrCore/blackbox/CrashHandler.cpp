@@ -453,7 +453,12 @@ LPCTSTR __stdcall GetFaultReason ( EXCEPTION_POINTERS * pExPtrs )
         pSym->SizeOfStruct = sizeof ( IMAGEHLP_SYMBOL ) ;
         pSym->MaxNameLength = SYM_BUFF_SIZE - sizeof ( IMAGEHLP_SYMBOL);
 
+#ifdef _M_X64
         DWORD64 dwDisp64 ;
+#else 
+        DWORD dwDisp64;
+#endif
+
         if ( TRUE ==
               SymGetSymFromAddr ( (HANDLE)GetCurrentProcessId ( )     ,
                                   (DWORD)pExPtrs->ExceptionRecord->
@@ -765,8 +770,12 @@ LPCTSTR __stdcall
         }
 
         ASSERT ( iCurr < ( BUFF_SIZE - MAX_PATH ) ) ;
-        DWORD64 dwDisp ;
 
+#ifdef _M_X64
+        DWORD64 dwDisp;
+#else 
+        DWORD dwDisp;
+#endif
         // Output the symbol name?
         if ( GSTSO_SYMBOL == ( dwOpts & GSTSO_SYMBOL ) )
         {

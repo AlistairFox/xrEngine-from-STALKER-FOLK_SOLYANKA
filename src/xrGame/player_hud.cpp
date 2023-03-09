@@ -314,8 +314,6 @@ void attachable_hud_item::load(const shared_str& sect_name)
 
 u32 attachable_hud_item::anim_play(const shared_str& anm_name_b, BOOL bMixIn, const CMotionDef*& md, u8& rnd_idx)
 {
-	//Msg("AnimName: %s", anm_name_b.c_str());
-
 	float speed				= CalcMotionSpeed(anm_name_b);
 
 	R_ASSERT				(strstr(anm_name_b.c_str(),"anm_")==anm_name_b.c_str());

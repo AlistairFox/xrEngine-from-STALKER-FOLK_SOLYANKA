@@ -127,8 +127,8 @@ bool xrCompressor::testVFS(LPCSTR path)
 	//if (!stricmp(p_ext, ".geomx"))
 	//	return (FALSE);
 
-	if (!stricmp(p_ext, ".cform"))
-		return (FALSE);
+	//if (!stricmp(p_ext, ".cform"))
+	//	return (FALSE);
 
 	//OGF
 	if (!stricmp(p_ext, ".ogf"))

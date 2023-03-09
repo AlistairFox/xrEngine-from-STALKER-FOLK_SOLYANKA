@@ -59,7 +59,8 @@ u8 CVoiceChat::GetDistance() const
 {
 	return m_pSender->GetDistance();
 }
-
+	
+/*
 u8 CVoiceChat::SwitchDistance()
 {
 	R_ASSERT(m_pSender != nullptr);
@@ -76,7 +77,8 @@ u8 CVoiceChat::SwitchDistance()
 		m_pSender->SetDistance(5);
 		return 5;
 	}
-}
+} 
+*/
 
 void CVoiceChat::Update()
 {
@@ -117,6 +119,15 @@ void CVoiceChat::OnRender()
 
 			pActor->RenderIndicator(pos, 0.2, 0.2, GetVoiceIndicatorShader());
 		}
+	}
+
+	if (m_last_distance != psSoundDistance)
+	{
+		m_last_distance = (int) psSoundDistance * 30;
+		if (m_last_distance < 5)
+			m_pSender->SetDistance(5);
+		else 
+			m_pSender->SetDistance(psSoundDistance);
 	}
 }
 

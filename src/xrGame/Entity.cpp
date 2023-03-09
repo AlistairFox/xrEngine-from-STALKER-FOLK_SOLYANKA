@@ -81,7 +81,14 @@ void CEntity::Die(CObject* who)
 	VERIFY				(m_registered_member);
 
 	m_registered_member	= false;
-	Level().seniority_holder().team(g_Team()).squad(g_Squad()).group(g_Group()).unregister_member(this);
+	try 
+	{
+		Level().seniority_holder().team(g_Team()).squad(g_Squad()).group(g_Group()).unregister_member(this);
+	}
+	catch (...)
+	{
+		Msg("Cant UnSet Squad ID: %d, name: %s, sect: %s", ID(), Name(), this->cNameSect().c_str());
+	}
 }
 
 //обновление состояния
@@ -204,8 +211,16 @@ BOOL CEntity::net_Spawn		(CSE_Abstract* DC)
 	if (g_Alive()) 
 	{
 		m_registered_member		= true;
-		Level().seniority_holder().team(g_Team()).squad(g_Squad()).group(g_Group()).register_member(this);
-		++Level().seniority_holder().team(g_Team()).squad(g_Squad()).group(g_Group()).m_dwAliveCount;
+		try 
+		{
+			Level().seniority_holder().team(g_Team()).squad(g_Squad()).group(g_Group()).register_member(this);
+			++Level().seniority_holder().team(g_Team()).squad(g_Squad()).group(g_Group()).m_dwAliveCount;
+		}
+		catch (...)
+		{
+			Msg("Cant Set Squad ID: %d, name: %s, sect: %s", ID(), Name(), this->cNameSect().c_str());
+		}
+
 	}
 
 	if(!g_Alive())
@@ -233,9 +248,17 @@ BOOL CEntity::net_Spawn		(CSE_Abstract* DC)
 
 void CEntity::net_Destroy	()
 {
-	if (m_registered_member) {
+	if (m_registered_member)
+	{
 		m_registered_member	= false;
-		Level().seniority_holder().team(g_Team()).squad(g_Squad()).group(g_Group()).unregister_member(this);
+		try
+		{
+			Level().seniority_holder().team(g_Team()).squad(g_Squad()).group(g_Group()).unregister_member(this);
+		}
+		catch (...)
+		{
+			Msg("Cant UnSet Squad ID: %d, name: %s, sect: %s", ID(), Name(), this->cNameSect().c_str());
+		}
 	}
 
 	inherited::net_Destroy	();
@@ -353,13 +376,29 @@ void CEntity::ChangeTeam(int team, int squad, int group)
 
 	// remove from current team
 	on_before_change_team	();
-	Level().seniority_holder().team(g_Team()).squad(g_Squad()).group(g_Group()).unregister_member	(this);
+	try
+	{
+		Level().seniority_holder().team(g_Team()).squad(g_Squad()).group(g_Group()).unregister_member(this);
+	}
+	catch (...)
+	{
+		Msg("Cant UnSet Squad ID: %d, name: %s, sect: %s", ID(), Name(), this->cNameSect().c_str());
+	}
 
 	id_Team					= team;
 	id_Squad				= squad;
 	id_Group				= group;
 
 	// add to new team
-	Level().seniority_holder().team(g_Team()).squad(g_Squad()).group(g_Group()).register_member		(this);
+	
+	try
+	{
+		Level().seniority_holder().team(g_Team()).squad(g_Squad()).group(g_Group()).register_member(this);
+	}
+	catch (...)
+	{
+		Msg("Cant Set Squad ID: %d, name: %s, sect: %s", ID(), Name(), this->cNameSect().c_str());
+	}
+
 	on_after_change_team	();
 }

@@ -42,27 +42,6 @@ ref_light	precache_light = 0;
 BOOL CRenderDevice::Begin	()
 {
 #ifndef DEDICATED_SERVER
-
-	/*
-	HW.Validate		();
-	HRESULT	_hr		= HW.pDevice->TestCooperativeLevel();
-    if (FAILED(_hr))
-	{
-		// If the device was lost, do not render until we get it back
-		if		(D3DERR_DEVICELOST==_hr)		{
-			Sleep	(33);
-			return	FALSE;
-		}
-
-		// Check if the device is ready to be reset
-		if		(D3DERR_DEVICENOTRESET==_hr)
-		{
-			Reset	();
-		}
-	}
-	*/
-
-
 	switch (m_pRender->GetDeviceState())
 	{
 	case IRenderDeviceRender::dsOK:
@@ -85,14 +64,6 @@ BOOL CRenderDevice::Begin	()
 
 	m_pRender->Begin();
 
-	/*
-	CHK_DX					(HW.pDevice->BeginScene());
-	RCache.OnFrameBegin		();
-	RCache.set_CullMode		(CULL_CW);
-	RCache.set_CullMode		(CULL_CCW);
-	if (HW.Caps.SceneMode)	overdrawBegin	();
-	*/
-
 	FPU::m24r	();
 	g_bRendering = 	TRUE;
 #endif
@@ -109,42 +80,27 @@ extern void CheckPrivilegySlowdown();
 void CRenderDevice::End		(void)
 {
 #ifndef DEDICATED_SERVER
-
-
-#ifdef INGAME_EDITOR
-	bool							load_finished = false;
-#endif // #ifdef INGAME_EDITOR
 	if (dwPrecacheFrame)
 	{
 		::Sound->set_master_volume	(0.f);
 		dwPrecacheFrame	--;
-//.		pApp->load_draw_internal	();
+
 		if (0==dwPrecacheFrame)
 		{
-
-#ifdef INGAME_EDITOR
-			load_finished			= true;
-#endif // #ifdef INGAME_EDITOR
-			//Gamma.Update		();
 			m_pRender->updateGamma();
 
 			if(precache_light) precache_light->set_active	(false);
 			if(precache_light) precache_light.destroy		();
 			::Sound->set_master_volume						(1.f);
-//			pApp->destroy_loading_shaders					();
 
 			m_pRender->ResourcesDestroyNecessaryTextures	();
 			Memory.mem_compact								();
 			Msg												("* MEMORY USAGE: %d K",Memory.mem_usage()/1024);
 			Msg												("* End of synchronization A[%d] R[%d]",b_is_Active, b_is_Ready);
 
-#ifdef FIND_CHUNK_BENCHMARK_ENABLE
-			g_find_chunk_counter.flush();
-#endif // FIND_CHUNK_BENCHMARK_ENABLE
-
 			CheckPrivilegySlowdown							();
 			
-			if(g_pGamePersistent->GameType()==1)//haCk
+			if(g_pGamePersistent->GameType()==1)
 			{
 				WINDOWINFO	wi;
 				GetWindowInfo(m_hWnd,&wi);
@@ -155,30 +111,31 @@ void CRenderDevice::End		(void)
 	}
 
 	g_bRendering		= FALSE;
-	// end scene
+
 	//	Present goes here, so call OA Frame end.
 	if (g_SASH.IsBenchmarkRunning())
 		g_SASH.DisplayFrame(Device.fTimeGlobal);
 	m_pRender->End();
-	//RCache.OnFrameEnd	();
-	//Memory.dbg_check		();
-    //CHK_DX				(HW.pDevice->EndScene());
-
-	//HRESULT _hr		= HW.pDevice->Present( NULL, NULL, NULL, NULL );
-	//if				(D3DERR_DEVICELOST==_hr)	return;			// we will handle this later
-	//R_ASSERT2		(SUCCEEDED(_hr),	"Presentation failed. Driver upgrade needed?");
-#	ifdef INGAME_EDITOR
-		if (load_finished && m_editor)
-			m_editor->on_load_finished	();
-#	endif // #ifdef INGAME_EDITOR
 #endif
 }
 
 
 volatile u32	mt_Thread_marker		= 0x12345678;
-void 			mt_Thread	(void *ptr)	{
+void 			mt_Thread	(void *ptr)
+{
+	u32 TimerOLD = 0;
+	u32 timer_ms = 0;
+	CTimer t;
+
 	while (true)
 	{
+		if (TimerOLD + 1000 < Device.dwTimeGlobal)
+		{
+			//Msg("SecondTH: %d", timer_ms);
+			timer_ms = 0;
+			TimerOLD = Device.dwTimeGlobal;
+		}
+
 		// waiting for Device permission to execute
 		Device.mt_csEnter.Enter	();
 
@@ -190,12 +147,17 @@ void 			mt_Thread	(void *ptr)	{
 		}
 		// we has granted permission to execute
 		mt_Thread_marker			= Device.dwFrame;
- 
+	
+		t.Start();
+
 		for (u32 pit=0; pit<Device.seqParallel.size(); pit++)
 			Device.seqParallel[pit]	();
 
 		Device.seqParallel.clear_not_free	();
+		
+		
 		Device.seqFrameMT.Process	(rp_Frame);
+		timer_ms += t.GetElapsed_ticks(); 
 
 		// now we give control to device - signals that we are ended our work
 		Device.mt_csEnter.Leave	();
@@ -236,16 +198,28 @@ extern int g_svDedicateServerUpdateReate = 100;
 ENGINE_API xr_list<LOADING_EVENT>			g_loading_events;
 extern int fps_limit;
 
+u32 MainThRender = 0;
+u32 MainThGlobal = 0;
+u32 MsgOldTime = 0;
+
 void CRenderDevice::on_idle		()
 {
-	if (!b_is_Ready) {
+
+	if (Device.dwTimeGlobal > MsgOldTime)
+	{
+		MsgOldTime = Device.dwTimeGlobal + 1000;
+		//Msg("MainTH Render[%d], Global[%d]", MainThRender, MainThGlobal);
+		MainThRender = 0;
+		MainThGlobal = 0;
+	}
+	
+	if (!b_is_Ready)
+	{
 		Sleep	(100);
 		return;
 	}
 
- 
 	u32 FrameStartTime = TimerGlobal.GetElapsed_ms();
- 
 	if (psDeviceFlags.test(rsStatistic))
 		g_bEnableStatGather	= TRUE;
 	else									
@@ -301,17 +275,17 @@ void CRenderDevice::on_idle		()
 #ifndef DEDICATED_SERVER
 	Statistic->RenderTOTAL_Real.FrameStart	();
 	Statistic->RenderTOTAL_Real.Begin		();
-	if (b_is_Active)							{
-		if (Begin())				{
+	if (b_is_Active)					
+	{
+		CTimer t; t.Start();
+		if (Begin())		
+		{
 
 			seqRender.Process						(rp_Render);
-			//if (psDeviceFlags.test(rsCameraPos) || psDeviceFlags.test(rsStatistic) || psDeviceFlags.test(rsProfiler) || Statistic->errors.size())
-				Statistic->Show						();
-			//	TEST!!!
-			//Statistic->RenderTOTAL_Real.End			();
-			//	Present goes here
+ 			Statistic->Show						();
 			End										();
 		}
+		MainThRender += t.GetElapsed_ticks();
 	}
 	Statistic->RenderTOTAL_Real.End			();
 	Statistic->RenderTOTAL_Real.FrameEnd	();
@@ -338,9 +312,7 @@ void CRenderDevice::on_idle		()
 			Statistic->fRFPS = fInv * Statistic->fRFPS + fOne * 1000.f / Statistic->RenderTOTAL.result;
 		}
 	}
-
-
-
+  
 	// *** Suspend threads
 	// Capture startup point
 	// Release end point - allow thread to wait for startup point
@@ -348,6 +320,7 @@ void CRenderDevice::on_idle		()
 	mt_csLeave.Leave						();
 
 	// Ensure, that second thread gets chance to execute anyway
+	CTimer t; t.Start();
 	if (dwFrame!=mt_Thread_marker)		
 	{
 		for (u32 pit=0; pit<Device.seqParallel.size(); pit++)
@@ -355,6 +328,7 @@ void CRenderDevice::on_idle		()
 		Device.seqParallel.clear_not_free	();
 		seqFrameMT.Process					(rp_Frame);
 	}
+	MainThGlobal += t.GetElapsed_ticks();
 
 	//FPS LOCK FOR CLIENT
 #ifndef DEDICATED_SERVER
@@ -420,9 +394,13 @@ void CRenderDevice::message_loop()
 #endif // #ifdef INGAME_EDITOR
 
 	MSG						msg;
+
     PeekMessage				(&msg, NULL, 0U, 0U, PM_NOREMOVE );
-	while (msg.message != WM_QUIT) {
-		if (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE)) {
+
+	while (msg.message != WM_QUIT)
+	{
+		if (PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
+		{
 			TranslateMessage(&msg);
 			DispatchMessage	(&msg);
 			continue;
