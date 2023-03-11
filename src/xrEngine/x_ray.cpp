@@ -777,14 +777,21 @@ int APIENTRY WinMain_impl(HINSTANCE hInstance,
 		HWND logoPicture = GetDlgItem(logoWindow, IDC_STATIC_LOGO);
 		RECT logoRect;
 		GetWindowRect(logoPicture, &logoRect);
-
+#ifdef DEDICATED_SERVER
 		bool Show = !strstr(Core.Params, "-hide") && g_dedicated_server;
 
 		UINT flags;
+		
 		if (Show)
 			flags = SWP_NOMOVE | SWP_SHOWWINDOW;
 		else
 			flags = SWP_NOMOVE | SWP_HIDEWINDOW;
+#else
+		UINT flags;
+		flags = SWP_NOMOVE | SWP_SHOWWINDOW;
+#endif
+
+	
 
  		SetWindowPos(
 			logoWindow,

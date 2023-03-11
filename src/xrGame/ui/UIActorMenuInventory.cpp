@@ -439,7 +439,7 @@ void CUIActorMenu::InitInventoryContents(CUIDragDropListEx* pBagList)
 	InitCellForSlot				(GRENADE_SLOT);
 	InitCellForSlot				(HELMET_SLOT);
 	//InitCellForSlot				(PDA_SLOT);
-	//InitCellForSlot				(KNIFE_SLOT);
+	InitCellForSlot				(KNIFE_SLOT);
 
 	curr_list					= m_pInventoryBeltList;
 	TIItemContainer::iterator itb = m_pActorInvOwner->inventory().m_belt.begin();

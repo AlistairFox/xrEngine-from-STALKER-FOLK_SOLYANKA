@@ -454,8 +454,9 @@ void ParticleRenderStream( LPVOID lpvParams )
 
 				 _mm_prefetch( (char*) &particles[i + 1] , _MM_HINT_NTA );
 
-				if ( angle != *((DWORD*)&m.rot.x) ) {
-					angle = *((DWORD*)&m.rot.x);
+				if ( angle != m.rot.x ) 
+				{
+					angle = m.rot.x;
 					sina = std::sinf(*(float*)&angle);
 					cosa = std::cosf(*(float*)&angle);
 				}

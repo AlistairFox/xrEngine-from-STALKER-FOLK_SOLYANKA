@@ -185,7 +185,7 @@ void game_sv_freemp::RegisterUpdateAlife(CSE_ALifeDynamicObject* object, bool re
 
 void game_sv_freemp::GetServerInfo(CServerInfo* info)
 {
-	if (ai().get_alife())
+	if (ai().get_alife() && false)
 	{
 		xr_map<LPCSTR, int> monsters;
 		xr_map<LPCSTR, int> stalkers;

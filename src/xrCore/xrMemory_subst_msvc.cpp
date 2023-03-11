@@ -47,6 +47,7 @@ void*	xrMemory::mem_alloc		(size_t size )
 			*acc_header(_ptr)	=	(u8)pool;
 		}
 	}
+	memset(_ptr, 0, size);
 	return	_ptr;
 }
 
