@@ -119,6 +119,30 @@ void CRenderDevice::End		(void)
 #endif
 }
 
+void detached_Thread(void *ptr)
+{
+	while (true)
+	{
+		
+		Device.mt_csEnter.Enter();
+
+		if (Device.mt_bMustExit)
+		{
+			Device.mt_bMustExit = FALSE;				// Important!!!
+			Device.mt_csEnter.Leave();					// Important!!!
+			return;
+		}
+		 
+		for (u32 pit = 0; pit < Device.seqParallel.size(); pit++)
+			Device.seqParallel[pit]();
+		
+		Device.seqParallel.clear_not_free();
+
+		Device.mt_csEnter.Leave();					// Important!!!
+
+	}
+};
+
 
 volatile u32	mt_Thread_marker		= 0x12345678;
 void 			mt_Thread	(void *ptr)
@@ -434,7 +458,7 @@ void CRenderDevice::Run			()
 	mt_csEnter.Enter			();
 	mt_bMustExit				= FALSE;
 	thread_spawn				(mt_Thread,"X-RAY Secondary thread",0,0);
-
+	//thread_spawn				(detached_Thread, "X-Ray Path Finding Thread", 0, 0);
 	// Message cycle
 	seqAppStart.Process			(rp_AppStart);
 

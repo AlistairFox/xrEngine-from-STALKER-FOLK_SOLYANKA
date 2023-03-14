@@ -171,6 +171,7 @@ public:
 	CRegistrator	<pureFrame			>			seqFrameMT;
 	CRegistrator	<pureDeviceReset	>			seqDeviceReset;
 	xr_vector		<fastdelegate::FastDelegate0<> >	seqParallel;
+	xr_vector		<fastdelegate::FastDelegate0<> >  seqDetached;
 
 	// Dependent classes
 	//CResourceManager*						Resources;
@@ -277,6 +278,17 @@ public:
 		);
 		if (I != seqParallel.end())
 			seqParallel.erase	(I);
+	}
+
+	ICF		void			remove_from_seq_detached(const fastdelegate::FastDelegate0<>& delegate)
+	{
+		xr_vector<fastdelegate::FastDelegate0<> >::iterator I = std::find(
+			seqDetached.begin(),
+			seqDetached.end(),
+			delegate
+		);
+		if (I != seqDetached.end())
+			seqDetached.erase(I);
 	}
 
 public:
