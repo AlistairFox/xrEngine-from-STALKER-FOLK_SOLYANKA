@@ -51,7 +51,7 @@ CLevelGraph::CLevelGraph()
 		Fvector pos = vertex_position(m_nodes[i].position());
 		if (!valid_vertex_position(pos))
 		{
-			//Msg("Vertex [%d] -> [%f][%f][%f] not valid", i, pos.x, pos.y, pos.z);
+			Msg("Vertex [%d] -> [%f][%f][%f] not valid", i, pos.x, pos.y, pos.z);
 		}
 	}
 
