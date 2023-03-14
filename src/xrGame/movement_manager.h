@@ -199,6 +199,9 @@ protected:
 
 public:
 
+	Fbox ObjectAiLevelMap;
+	bool use_ai_box = false;
+
 					CMovementManager		(CCustomMonster *object);
 	virtual			~CMovementManager		();
 	virtual void	Load					(LPCSTR caSection);
