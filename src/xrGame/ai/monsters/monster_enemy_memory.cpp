@@ -50,10 +50,10 @@ void CMonsterEnemyMemory::update()
 	{
 		if ( CEntityAlive* enemy = smart_cast<CEntityAlive*>(monster->HitMemory.get_last_hit_object()) )
 		{
-			if ( monster->CCustomMonster::useful(&monster->memory().enemy(), enemy) && 
-				 monster->Position().distance_to(enemy->Position()) 
-				                        < 
-				 monster->get_feel_enemy_who_just_hit_max_distance() )
+			float m_dist = monster->Position().distance_to(enemy->Position());
+			float max_dist = monster->get_feel_enemy_who_just_hit_max_distance();
+
+			if ( monster->CCustomMonster::useful(&monster->memory().enemy(), enemy) && m_dist < max_dist )
 			{	 
 				/*
 				Msg("Add Monster [%s, %d], Enemy [%s][%d] ",
@@ -158,21 +158,13 @@ void CMonsterEnemyMemory::update_mp()
 	{
 		if (CEntityAlive* enemy = smart_cast<CEntityAlive*>(monster->HitMemory.get_last_hit_object()))
 		{
-			if (monster->CCustomMonster::useful(&monster->memory().enemy(), enemy) &&
-				monster->Position().distance_to(enemy->Position())
-				<
-				monster->get_feel_enemy_who_just_hit_max_distance())
+			float const m_dist = monster->Position().distance_to(enemy->Position());
+			float const max_dist = monster->get_feel_enemy_who_just_hit_max_distance();
+			if (monster->CCustomMonster::useful(&monster->memory().enemy(), enemy) &&  m_dist < max_dist)
 			{
-
-				/*
-				Msg("HIT Add Monster [%s, %d], Enemy [%s][%d] ",
-					monster->cName().c_str(), monster->ID(),
-					enemy->cName().c_str(), enemy->ID()
-				);
-				*/
-
+				
 				add_enemy(enemy);
-
+				Msg("Add Enemy %s, dist: %d", enemy->Name(), m_dist);
 				bool const self_is_dog = !!smart_cast<const CAI_Dog*>(monster);
 				if (self_is_dog)
 				{
@@ -197,21 +189,15 @@ void CMonsterEnemyMemory::update_mp()
 				{
 					float const xz_dist = monster->Position().distance_to_xz(enemy_actor->Position());
 					float const y_dist = _abs(monster->Position().y - enemy_actor->Position().y);
-
+					float const max_dist = monster->get_feel_enemy_who_made_sound_max_distance();
+						
 					if (monster->CCustomMonster::useful(&monster->memory().enemy(), enemy) &&
 						y_dist < 10 &&
-						xz_dist < monster->get_feel_enemy_who_made_sound_max_distance() &&
+						xz_dist < max_dist &&
 						enemy_actor->memory().visual().visible_now(monster))
 					{
-						/*
-						Msg("Sound Add Monster [%s, %d], Enemy [%s][%d] ",
-							monster->cName().c_str(), monster->ID(),
-							enemy->cName().c_str(), enemy->ID()
-						);
-
-						*/
-
 						add_enemy(enemy);
+						Msg("Add Enemy %s, dist: %d", enemy->Name(), xz_dist);
 
 						bool const self_is_dog = !!smart_cast<const CAI_Dog*>(monster);
 						if (self_is_dog)
@@ -317,10 +303,12 @@ void CMonsterEnemyMemory::remove_non_actual()
 			 it->first->getDestroy()					||
 			 (it->second.time + time_memory < cur_time) ||
 			 (it->first->g_Team() == monster->g_Team()) ||
-			 !monster->memory().enemy().is_useful(it->first) ) 
+			 !monster->memory().enemy().is_useful(it->first) ||
+			(it->second.position.distance_to(monster->Position()) > 300  )
+		) 
 		{
 			m_objects.erase (it);
-		}
+		} 
 	}
 }
 
