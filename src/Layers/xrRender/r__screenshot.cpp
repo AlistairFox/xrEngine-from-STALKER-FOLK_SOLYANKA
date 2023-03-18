@@ -191,36 +191,50 @@ void CRender::ScreenshotImpl	(ScreenshotMode mode, LPCSTR name, CMemoryWriter* m
 		case IRender_interface::SM_FOR_LEVELMAP:
 		case IRender_interface::SM_FOR_CUBEMAP:
 			{
-				VERIFY(!"CRender::Screenshot. This screenshot type is not supported for DX10.");
-				/*
-				string64			t_stemp;
-				string_path			buf;
-				VERIFY				(name);
-				strconcat			(sizeof(buf),buf,"ss_",Core.UserName,"_",timestamp(t_stemp),"_#",name);
-				xr_strcat				(buf,".tga");
-				IWriter*		fs	= FS.w_open	("$screenshots$",buf); R_ASSERT(fs);
-				TGAdesc				p;
-				p.format			= IMG_24B;
+#ifdef USE_DX11
+				string_path buf;
+				VERIFY(name);
+				strconcat(sizeof(buf), buf, name, ".tga");
+				IWriter* fs = FS.w_open("$screenshots$", buf);
+				R_ASSERT(fs);
 
-				//	TODO: DX10: This is totally incorrect but mimics 
-				//	original behaviour. Fix later.
-				hr					= pFB->LockRect(&D,0,D3DLOCK_NOSYSLOCK);
-				if(hr!=D3D_OK)		return;
-				hr					= pFB->UnlockRect();
-				if(hr!=D3D_OK)		goto _end_;
+				ID3DTexture2D* pTex = Target->t_ss_async;
+				HW.pContext->CopyResource(pTex, pSrcTexture);
 
+				D3D_MAPPED_TEXTURE2D MappedData;
+				
+				HW.pContext->Map(pTex, 0, D3D_MAP_READ, 0, &MappedData);
+
+				// Swap r and b, but don't kill alpha
+				{
+					u32* pPixel = (u32*)MappedData.pData;
+					u32* pEnd = pPixel + (Device.dwWidth * Device.dwHeight);
+
+					for (; pPixel != pEnd; pPixel++)
+					{
+						u32 p = *pPixel;
+						*pPixel = color_argb(color_get_A(p), color_get_B(p), color_get_G(p), color_get_R(p));
+					}
+				}
 				// save
-				u32* data			= (u32*)xr_malloc(Device.dwHeight*Device.dwHeight*4);
-				imf_Process			(data,Device.dwHeight,Device.dwHeight,(u32*)D.pBits,Device.dwWidth,Device.dwHeight,imf_lanczos3);
-				p.scanlenght		= Device.dwHeight*4;
-				p.width				= Device.dwHeight;
-				p.height			= Device.dwHeight;
-				p.data				= data;
-				p.maketga			(*fs);
-				xr_free				(data);
+				u32* data = (u32*)xr_malloc(Device.dwHeight * Device.dwHeight * 4);
+				imf_Process(data, Device.dwHeight, Device.dwHeight, (u32*)MappedData.pData, Device.dwWidth, Device.dwHeight, imf_lanczos3);
+				
+				HW.pContext->Unmap(pTex, 0);
+				
+				TGAdesc				p;
+				p.format = IMG_24B;
+				p.scanlenght = Device.dwHeight * 4;
+				p.width = Device.dwHeight;
+				p.height = Device.dwHeight;
+				p.data = data;
+				p.maketga(*fs);
+				xr_free(data);
 
-				FS.w_close			(fs);
-				*/
+				FS.w_close(fs);
+#else 
+			Msg("!!CRender::Screenshot. This screenshot type is not supported for DX10.");
+#endif 
 			}
 			break;
 	}
@@ -243,7 +257,6 @@ void CRender::ScreenshotImpl	(ScreenshotMode mode, LPCSTR name, CMemoryWriter* m
 
 	// Create temp-surface
 	IDirect3DSurface9*	pFB;
-	D3DLOCKED_RECT		D;
 	HRESULT				hr;
 	int width = Device.dwWidth;
 	int height = Device.dwHeight;
@@ -282,31 +295,14 @@ void CRender::ScreenshotImpl	(ScreenshotMode mode, LPCSTR name, CMemoryWriter* m
 	hr					= HW.pDevice->GetFrontBufferData(0,pFB);
 	if(hr!=D3D_OK)		return;
 
-	
+	D3DLOCKED_RECT		D;
+
 	hr					= pFB->LockRect(&D,0,D3DLOCK_NOSYSLOCK);
 	if(hr!=D3D_OK)		return;
 
 	// Image processing (gamma-correct)
 	u32* pPixel		= (u32*)D.pBits;
 	u32* pEnd		= pPixel+(Device.dwWidth*Device.dwHeight);
-	//	IGOR: Remove inverse color correction and kill alpha
-	/*
-	D3DGAMMARAMP	G;
-	dxRenderDeviceRender::Instance().gammaGenLUT(G);
-	for (int i=0; i<256; i++) {
-		G.red	[i]	/= 256;
-		G.green	[i]	/= 256;
-		G.blue	[i]	/= 256;
-	}
-	for (;pPixel!=pEnd; pPixel++)	{
-		u32 p = *pPixel;
-		*pPixel = color_xrgb	(
-			G.red	[color_get_R(p)],
-			G.green	[color_get_G(p)],
-			G.blue	[color_get_B(p)]
-			);
-	}
-	*/
 
 	//	Kill alpha
 	for (;pPixel!=pEnd; pPixel++)	
@@ -427,7 +423,7 @@ void CRender::ScreenshotImpl	(ScreenshotMode mode, LPCSTR name, CMemoryWriter* m
 				string_path			buf;
 				VERIFY				(name);
 				strconcat			(sizeof(buf), buf, name, ".tga");
-				IWriter*		fs	= FS.w_open	("$screenshots$",buf); R_ASSERT(fs);
+				IWriter*			fs	= FS.w_open	("$screenshots$",buf); R_ASSERT(fs);
 				TGAdesc				p;
 				p.format			= IMG_24B;
 
@@ -439,10 +435,11 @@ void CRender::ScreenshotImpl	(ScreenshotMode mode, LPCSTR name, CMemoryWriter* m
 				if(hr!=D3D_OK)		goto _end_;
 
 				// save
-				u32* data			= (u32*)xr_malloc(Device.dwHeight*Device.dwHeight*4);
-				imf_Process			(data,Device.dwHeight,Device.dwHeight,(u32*)D.pBits,Device.dwWidth,Device.dwHeight,imf_lanczos3);
+				u32* data			= (u32*)xr_malloc(Device.dwWidth*Device.dwHeight*4);
+				imf_Process			(data,Device.dwWidth, Device.dwHeight,(u32*)D.pBits, Device.dwWidth,Device.dwHeight,imf_lanczos3);
+
 				p.scanlenght		= Device.dwHeight*4;
-				p.width				= Device.dwHeight;
+				p.width				= Device.dwWidth;
 				p.height			= Device.dwHeight;
 				p.data				= data;
 				p.maketga			(*fs);
