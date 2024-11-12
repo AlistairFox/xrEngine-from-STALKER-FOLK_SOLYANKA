@@ -4042,28 +4042,11 @@ void register_mp_console_commands()
 {
 	//CAMERA
 	CMD4(CCC_Vector3, "cam_2_offset", &CCameraLook2::m_cam_offset, Fvector().set(-1000, -1000, -1000), Fvector().set(1000, 1000, 1000));
-
+ 
 	//TEST	
 	CMD1(CCC_ServerSize, "server_memory_entity");
 	CMD1(CCC_PrintAllSmarts, "g_list_smarts");
-	//CMD1(CCC_SpawnSquadToSmartName, "g_spawn_squad_name");
-	CMD1(CCC_SpawnSquadToSmartID, "g_spawn_squad");
-
-	//CMD4(CCC_Float, "sh_events", &Shedule_Events, 0.0f, 2.f);
-
-	{
-		//CMD1(ÑÑÑ_CheckOutfitCFS, "outfit_path_check");
-		//CMD1(CCC_SPAWN_SLOT_ITEMS, "spawn_slot_items");
-		//CMD1(CCC_SaveStalkers, "save_stalkers");
-		//CMD1(CCC_ParticleO_Create, "particle_create");
-		//CMD1(CCC_GIVETASK, "give_task");
-		//CMD1(CCC_GIVEINFO, "give_info");
-		//CMD1(CCC_DEL_INFO, "del_info");
-		//CMD1(CCC_SetRankForID, "set_rank");
-		//CMD1(CCC_STOP_WFX, "fx_effect_stop");
-		//CMD1(CCC_START_WFX, "fx_effect_start");
-	}
-	
+	CMD1(CCC_SpawnSquadToSmartID, "g_spawn_squad");	
  
 	//Master Server Connsole Commands
 

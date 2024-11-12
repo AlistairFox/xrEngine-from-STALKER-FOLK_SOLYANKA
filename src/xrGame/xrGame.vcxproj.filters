@@ -1750,54 +1750,6 @@
     <Filter Include="Core\Server\Games">
       <UniqueIdentifier>{135e31c5-379f-4986-8cd3-21344b537637}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core\Server\Games\client">
-      <UniqueIdentifier>{f31be0a7-2278-4771-adb1-77aa50188929}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\Games\client\artefact_hunt">
-      <UniqueIdentifier>{66f36599-72a1-4492-9657-f8090a513a53}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\Games\client\deathmatch">
-      <UniqueIdentifier>{37aa4c4f-e98b-4e13-a4e6-5780e75e424c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\Games\client\team_deathmatch">
-      <UniqueIdentifier>{496c9eb4-01e0-410d-852e-9605563d757d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\Games\client\single">
-      <UniqueIdentifier>{c62c9fd3-306b-481a-b2f5-5bf1c3539b16}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\Games\client\base">
-      <UniqueIdentifier>{badd1f3a-ad65-4282-8809-27f8982e835d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\Games\client\mp">
-      <UniqueIdentifier>{5411b18c-4bb0-45a1-a247-4c882be425e7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\Games\client\mp\screenshots">
-      <UniqueIdentifier>{85716612-2641-475b-8692-a6d33fece6cd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\Games\client\mp\anticheat">
-      <UniqueIdentifier>{dccae07c-5e17-459b-a835-97ed5c5a3d4e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\Games\client\mp\award_system">
-      <UniqueIdentifier>{47dbfa6b-5100-46b4-84ef-5a5be067990e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\Games\client\mp\award_system\event_handlers">
-      <UniqueIdentifier>{f5d00d63-bf6b-4a47-bbd2-cb460ea0a4a4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\Games\client\mp\award_system\player_state">
-      <UniqueIdentifier>{c278de32-07c5-400f-9fca-bdf0eccb3aaf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\Games\client\mp\award_system\player_state\state_parameters">
-      <UniqueIdentifier>{fcb82cb2-2d5f-4ca9-ba2b-44dbdf7046ac}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\Games\client\capture_the_artefact">
-      <UniqueIdentifier>{6c5cfecb-bb84-4d16-8270-cef65928b53a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\Games\client\freemp">
-      <UniqueIdentifier>{00557b8e-492b-48c7-b4b0-332fc13aa87c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\Games\client\roleplay">
-      <UniqueIdentifier>{1c5daa59-a8c1-44b0-94b3-717b5321e1f7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Core\Server\Games\server">
       <UniqueIdentifier>{7e6a1f5e-03fd-4e57-b3e2-2fd513178ec6}</UniqueIdentifier>
     </Filter>
@@ -1818,9 +1770,6 @@
     </Filter>
     <Filter Include="Core\Server\Games\server\capture_the_artefact">
       <UniqueIdentifier>{a58df264-1026-4011-a161-c1c769651a23}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\Games\server\freemp">
-      <UniqueIdentifier>{d08e08ef-3e2f-4791-9485-377179643799}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core\Server\Games\server\roleplay">
       <UniqueIdentifier>{275b40cc-c72b-4e31-9af8-bc1b0f0a7e86}</UniqueIdentifier>
@@ -1965,9 +1914,6 @@
     </Filter>
     <Filter Include="SaveINIFILE">
       <UniqueIdentifier>{1028b5a6-b51c-4c14-8f5d-e72d72982b58}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\Games\client\freemp\Voice">
-      <UniqueIdentifier>{bd359ad9-730f-4c26-b7ed-14d59f3269ee}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core\Client">
       <UniqueIdentifier>{91242079-ab53-4b19-ba16-188d927415a2}</UniqueIdentifier>
@@ -2542,12 +2488,6 @@
     <Filter Include="Core\Common\xr_INI_Ext">
       <UniqueIdentifier>{e31a400c-96b7-46e3-9f03-dba82cb6c53a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core\Server\Games\client\freemp\events">
-      <UniqueIdentifier>{4c229dbb-43af-46a4-8e29-a367a2646480}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\Games\server\freemp\alife">
-      <UniqueIdentifier>{18675211-7ba7-442d-97b5-d5e37e054238}</UniqueIdentifier>
-    </Filter>
     <Filter Include="AI\AScript\ScriptClasses\ScriptGameObject">
       <UniqueIdentifier>{46dd80f4-1e5e-4d92-8c78-3ad8fbacb81a}</UniqueIdentifier>
     </Filter>
@@ -2557,20 +2497,77 @@
     <Filter Include="UI\Common\InventoryWnd\ArtefactUpgrade">
       <UniqueIdentifier>{4361620c-5e34-4430-bafd-0dee23dc05c2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core\Server\Games\client\freemp\alife">
-      <UniqueIdentifier>{69350e1a-60e6-4a1d-b1d0-62027fc7c4ec}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Core\Server\MasterServer">
       <UniqueIdentifier>{e32e2975-e3f0-46e2-a66b-07ad5576864d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Core\Client\Objects\actor\base\ANIMS">
       <UniqueIdentifier>{bb148b57-bfb2-4147-84d9-6748dce87a0b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GUNSLINGER">
-      <UniqueIdentifier>{a16bc002-c655-4e25-aab2-1ca2b033ce32}</UniqueIdentifier>
-    </Filter>
     <Filter Include="UI\Common\InventoryWnd\UpgradesWeapon">
       <UniqueIdentifier>{79052211-9151-445e-86e3-45ee73a3877f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Server\Games\client">
+      <UniqueIdentifier>{f31be0a7-2278-4771-adb1-77aa50188929}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Server\Games\client\artefact_hunt">
+      <UniqueIdentifier>{66f36599-72a1-4492-9657-f8090a513a53}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Server\Games\client\deathmatch">
+      <UniqueIdentifier>{37aa4c4f-e98b-4e13-a4e6-5780e75e424c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Server\Games\client\team_deathmatch">
+      <UniqueIdentifier>{496c9eb4-01e0-410d-852e-9605563d757d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Server\Games\client\single">
+      <UniqueIdentifier>{c62c9fd3-306b-481a-b2f5-5bf1c3539b16}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Server\Games\client\base">
+      <UniqueIdentifier>{badd1f3a-ad65-4282-8809-27f8982e835d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Server\Games\client\mp">
+      <UniqueIdentifier>{5411b18c-4bb0-45a1-a247-4c882be425e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Server\Games\client\mp\screenshots">
+      <UniqueIdentifier>{85716612-2641-475b-8692-a6d33fece6cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Server\Games\client\mp\anticheat">
+      <UniqueIdentifier>{dccae07c-5e17-459b-a835-97ed5c5a3d4e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Server\Games\client\mp\award_system">
+      <UniqueIdentifier>{47dbfa6b-5100-46b4-84ef-5a5be067990e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Server\Games\client\mp\award_system\event_handlers">
+      <UniqueIdentifier>{f5d00d63-bf6b-4a47-bbd2-cb460ea0a4a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Server\Games\client\mp\award_system\player_state">
+      <UniqueIdentifier>{c278de32-07c5-400f-9fca-bdf0eccb3aaf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Server\Games\client\mp\award_system\player_state\state_parameters">
+      <UniqueIdentifier>{fcb82cb2-2d5f-4ca9-ba2b-44dbdf7046ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Server\Games\client\capture_the_artefact">
+      <UniqueIdentifier>{6c5cfecb-bb84-4d16-8270-cef65928b53a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Server\Games\client\freemp">
+      <UniqueIdentifier>{00557b8e-492b-48c7-b4b0-332fc13aa87c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Server\Games\client\freemp\Voice">
+      <UniqueIdentifier>{bd359ad9-730f-4c26-b7ed-14d59f3269ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Server\Games\client\freemp\events">
+      <UniqueIdentifier>{4c229dbb-43af-46a4-8e29-a367a2646480}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Server\Games\client\freemp\alife">
+      <UniqueIdentifier>{69350e1a-60e6-4a1d-b1d0-62027fc7c4ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Server\Games\client\roleplay">
+      <UniqueIdentifier>{1c5daa59-a8c1-44b0-94b3-717b5321e1f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Server\Games\server\freemp">
+      <UniqueIdentifier>{d08e08ef-3e2f-4791-9485-377179643799}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Server\Games\server\freemp\alife">
+      <UniqueIdentifier>{18675211-7ba7-442d-97b5-d5e37e054238}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -7530,18 +7527,6 @@
     <ClInclude Include="UIArtefactUpgradeWnd.h">
       <Filter>UI\Common\InventoryWnd\ArtefactUpgrade</Filter>
     </ClInclude>
-    <ClInclude Include="ActorUtils.h">
-      <Filter>GUNSLINGER</Filter>
-    </ClInclude>
-    <ClInclude Include="DetectorUtils.h">
-      <Filter>GUNSLINGER</Filter>
-    </ClInclude>
-    <ClInclude Include="WeaponAnims.h">
-      <Filter>GUNSLINGER</Filter>
-    </ClInclude>
-    <ClInclude Include="WeaponUtils.h">
-      <Filter>GUNSLINGER</Filter>
-    </ClInclude>
     <ClInclude Include="UI_UpgradesQuick.h">
       <Filter>UI\Common\InventoryWnd\UpgradesWeapon</Filter>
     </ClInclude>
@@ -11308,18 +11293,6 @@
     </ClCompile>
     <ClCompile Include="game_cl_tasks.cpp">
       <Filter>Core\Server\Games\client\freemp</Filter>
-    </ClCompile>
-    <ClCompile Include="WeaponUtils.cpp">
-      <Filter>GUNSLINGER</Filter>
-    </ClCompile>
-    <ClCompile Include="ActorUtils.cpp">
-      <Filter>GUNSLINGER</Filter>
-    </ClCompile>
-    <ClCompile Include="DetectorUtils.cpp">
-      <Filter>GUNSLINGER</Filter>
-    </ClCompile>
-    <ClCompile Include="WeaponAnims.cpp">
-      <Filter>GUNSLINGER</Filter>
     </ClCompile>
     <ClCompile Include="ActorAnimation_Zombied.cpp">
       <Filter>Core\Client\Objects\actor\base\ANIMS</Filter>

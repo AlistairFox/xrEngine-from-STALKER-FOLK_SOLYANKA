@@ -42,53 +42,53 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='LUAJIT_2|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='LUAJIT_2|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Mixed|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Mixed|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -497,6 +497,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <FloatingPointModel>Precise</FloatingPointModel>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -797,7 +798,6 @@
     <ClInclude Include="ActorCondition.h" />
     <ClInclude Include="ActorEffector.h" />
     <ClInclude Include="ActorHelmet.h" />
-    <ClInclude Include="ActorUtils.h" />
     <ClInclude Include="actor_anim_defs.h" />
     <ClInclude Include="actor_defs.h" />
     <ClInclude Include="Actor_Flags.h" />
@@ -1319,7 +1319,6 @@
     <ClInclude Include="cover_point_inline.h" />
     <ClInclude Include="cta_game_artefact.h" />
     <ClInclude Include="cta_game_artefact_activation.h" />
-    <ClInclude Include="DetectorUtils.h" />
     <ClInclude Include="game_cl_roleplay.h" />
     <ClInclude Include="game_sv_roleplay.h" />
     <ClInclude Include="level_events.h" />
@@ -2293,7 +2292,6 @@
     <ClInclude Include="Weapon.h" />
     <ClInclude Include="WeaponAK74.h" />
     <ClInclude Include="WeaponAmmo.h" />
-    <ClInclude Include="WeaponAnims.h" />
     <ClInclude Include="WeaponAutomaticShotgun.h" />
     <ClInclude Include="WeaponBinoculars.h" />
     <ClInclude Include="WeaponBinocularsVision.h" />
@@ -2316,7 +2314,6 @@
     <ClInclude Include="WeaponSVD.h" />
     <ClInclude Include="WeaponSVU.h" />
     <ClInclude Include="WeaponUSP45.h" />
-    <ClInclude Include="WeaponUtils.h" />
     <ClInclude Include="WeaponVal.h" />
     <ClInclude Include="WeaponVintorez.h" />
     <ClInclude Include="WeaponWalther.h" />
@@ -3241,7 +3238,6 @@
     <ClCompile Include="ActorHelmet.cpp" />
     <ClCompile Include="ActorInput.cpp" />
     <ClCompile Include="ActorMountedWeapon.cpp" />
-    <ClCompile Include="ActorUtils.cpp" />
     <ClCompile Include="ActorVehicle.cpp" />
     <ClCompile Include="actor_communication.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">pch_script.h</PrecompiledHeaderFile>
@@ -4624,7 +4620,6 @@
     </ClCompile>
     <ClCompile Include="cta_game_artefact.cpp" />
     <ClCompile Include="cta_game_artefact_activation.cpp" />
-    <ClCompile Include="DetectorUtils.cpp" />
     <ClCompile Include="game_cl_freemp_alife.cpp" />
     <ClCompile Include="game_cl_roleplay.cpp" />
     <ClCompile Include="game_cl_tasks.cpp" />
@@ -9147,7 +9142,6 @@
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='LUAJIT_2|x64'">$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <ClCompile Include="WeaponAmmo.cpp" />
-    <ClCompile Include="WeaponAnims.cpp" />
     <ClCompile Include="WeaponAutomaticShotgun.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">stdafx.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h</PrecompiledHeaderFile>
@@ -9505,7 +9499,6 @@
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='LUAJIT_2|Win32'">$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='LUAJIT_2|x64'">$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>
     </ClCompile>
-    <ClCompile Include="WeaponUtils.cpp" />
     <ClCompile Include="WeaponVal.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">pch_script.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch_script.h</PrecompiledHeaderFile>

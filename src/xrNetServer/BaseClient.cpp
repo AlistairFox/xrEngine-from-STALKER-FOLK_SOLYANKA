@@ -96,13 +96,13 @@ void BaseClient::ParseConnectionOptions(LPCSTR options, ClientConnectionOptions&
 		out.bClPortWasSet = TRUE;
 	}; 
 		 
-	if (strstr(Core.Params, "-master_server("))
-	{
-		const char* s = strstr(Core.Params, "-master_server(") + 15;
-		strncpy_s(out.master_server, s, strchr(s, ')') - s);
-	}  
-
-	Msg("Connsole Master: %s, %s", options, out.master_server);
+//	if (strstr(Core.Params, "-master_server("))
+//	{
+//		const char* s = strstr(Core.Params, "-master_server(") + 15;
+//		strncpy_s(out.master_server, s, strchr(s, ')') - s);
+//	}  
+//
+//	Msg("Connsole Master: %s, %s", options, out.master_server);
 }
 
 bool BaseClient::Connect(LPCSTR options)

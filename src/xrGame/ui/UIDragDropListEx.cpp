@@ -134,12 +134,15 @@ void CUIDragDropListEx::CreateDragItem(CUICellItem* itm)
 
 void CUIDragDropListEx::DestroyDragItem()
 {
-	if(m_selected_item && m_drag_item && m_drag_item->ParentItem()==m_selected_item)
+	if (this)
 	{
-		VERIFY(GetParent()->GetMouseCapturer()==m_drag_item);
-		GetParent()->SetCapture				(NULL, false);
+		if (m_selected_item && m_drag_item && m_drag_item->ParentItem() == m_selected_item)
+		{
+			VERIFY(GetParent()->GetMouseCapturer() == m_drag_item);
+			GetParent()->SetCapture(NULL, false);
 
-		delete_data							(m_drag_item);
+			delete_data(m_drag_item);
+		}
 	}
 }
 

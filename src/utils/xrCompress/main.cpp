@@ -21,7 +21,67 @@ int __cdecl main	(int argc, char* argv[])
 	if(strstr(params,"-diff"))
 	{
 		ProcessDifference	();
-	}else
+	}
+
+	if (strstr(params, "-unpack"))
+	{
+
+
+		LPCSTR						fsgame_ltx_name = "-fsltx ";
+		string_path					fsgame = "";
+		if (strstr(params, fsgame_ltx_name))
+		{
+			int						sz = xr_strlen(fsgame_ltx_name);
+			sscanf(strstr(params, fsgame_ltx_name) + sz, "%[^ ] ", fsgame);
+		}
+
+		Core._initialize("xrCompress_Unpack", 0, TRUE, fsgame[0] ? fsgame : "NULL");
+
+		FS_FileSet set;
+		FS.file_list(set, "$game_data$");
+
+		FS_FileSet set_mp;
+		FS.file_list(set_mp, "$game_arch_mp$");
+
+		Msg("Start Save Files: %d", set.size());
+		printf("Files Size: %d \n", set.size());
+
+
+		for (auto s : set)
+		{
+			string_path file, file2;
+			FS.update_path(file, "$game_data$", s.name.c_str());
+
+			if (!FS.path_exist("$game_unpacked$"))
+			{
+				FS.append_path("$game_unpacked$", "", "unpacked", 0);
+				FS.update_path(file2, "$game_unpacked$", s.name.c_str());
+			}
+			else
+				FS.update_path(file2, "$game_unpacked$", s.name.c_str());
+
+
+			IReader* r = FS.r_open(file);
+
+			if (r)
+			{
+				printf("S: %s \n", s.name.c_str());
+				Msg("S: %s", s.name.c_str());
+
+				IWriter* w = FS.w_open(file2);
+				w->w(r->pointer(), r->length());
+				FS.w_close(w);
+			}
+			else
+			{
+				Msg("Cant Read: %s", s.name.c_str());
+			}
+
+			FS.r_close(r);
+		}
+ 
+	}
+	else
 #endif
 	{
 #ifndef MOD_COMPRESS

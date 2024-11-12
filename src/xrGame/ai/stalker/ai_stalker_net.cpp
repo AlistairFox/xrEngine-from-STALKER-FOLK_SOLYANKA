@@ -353,6 +353,7 @@ void CAI_Stalker::ApplyAnimation(ai_stalker_net_state& state)
 			ka->LL_GetMotionDef(motion)->Accrue(),
 			ka->LL_GetMotionDef(motion)->Falloff(),
 			ka->LL_GetMotionDef(motion)->Speed(),
+			ka->LL_GetMotionDef(motion)->StopAtEnd(),
 			0, 0, 0
 		);		
 		client_torso_num = state.torso_anim.num;
@@ -370,6 +371,7 @@ void CAI_Stalker::ApplyAnimation(ai_stalker_net_state& state)
 			ka->LL_GetMotionDef(motion)->Accrue(),
 			ka->LL_GetMotionDef(motion)->Falloff(),
 			ka->LL_GetMotionDef(motion)->Speed(),
+			ka->LL_GetMotionDef(motion)->StopAtEnd(),
 			0, 0, 0
 		);
 		client_head_num = state.head_anim.num;
@@ -386,6 +388,7 @@ void CAI_Stalker::ApplyAnimation(ai_stalker_net_state& state)
 			ka->LL_GetMotionDef(motion)->Accrue(),
 			ka->LL_GetMotionDef(motion)->Falloff(),
 			ka->LL_GetMotionDef(motion)->Speed(),
+			ka->LL_GetMotionDef(motion)->StopAtEnd(),
 			0, 0, 0
 		);
 

@@ -297,15 +297,7 @@ IReader* open_chunk(void* ptr, u32 ID)
 
 void CLocatorAPI::LoadArchive(archive& A, LPCSTR entrypoint)
 {
-	if (!use_stash_dbx)
-	{
-		printf("DONT HACK MY DB FILE !!! \n");
-		printf("DONT HACK MY DB FILE !!! \n");
-		printf("DONT HACK MY DB FILE !!! \n");
-		printf("DONT HACK MY DB FILE !!! \n");
-		printf("DONT HACK MY DB FILE !!! \n");
-		R_ASSERT(false, "YOU TRY HACK DB FILE LOOSER");
-	}
+	Msg("File: Archive: %s", A.path.c_str());
 
 	// Create base path
 	string_path					fs_entry_point;
@@ -373,8 +365,7 @@ void CLocatorAPI::LoadArchive(archive& A, LPCSTR entrypoint)
 
 	if (!hdr)
 		hdr = open_chunk(A.hSrcFile, CFS_ARCHIVE_SE7);
-
-
+ 
 	R_ASSERT			(hdr);
 	RStringVec			fv;
 	while (!hdr->eof())

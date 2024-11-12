@@ -17,6 +17,8 @@ public:
 	virtual void video_Sync(u32 _time) { m_texture->video_Sync(_time);}
 	virtual void video_Play(BOOL looped, u32 _time=0xFFFFFFFF) { return m_texture->video_Play(looped, _time);}
 	virtual void video_Stop() { m_texture->video_Stop();};
+	LPCSTR get_texture_name() { return m_texture->cName.c_str(); };
+
 private:
 	CTexture*				m_texture;
 };

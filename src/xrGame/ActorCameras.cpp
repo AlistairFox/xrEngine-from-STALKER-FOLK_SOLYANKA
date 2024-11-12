@@ -77,7 +77,7 @@ void CActor::camUpdateLadder(float dt)
 	}
 
 	IElevatorState* es = character_physics_support()->movement()->ElevatorState();
-	if(es && es->State()==clbClimbingDown)
+	if(es && es->State()== IElevatorState::clbClimbingDown)
 	{
 		float &cam_pitch					= cameras[eacFirstEye]->pitch;
 		const float ldown_pitch				= cameras[eacFirstEye]->lim_pitch.y;

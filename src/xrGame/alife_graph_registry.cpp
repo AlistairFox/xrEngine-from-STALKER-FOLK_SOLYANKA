@@ -70,12 +70,12 @@ void CALifeGraphRegistry::setup_current_level	()
 	level().set_process_time	(m_process_time);
 
 	for (int i=0, n=ai().game_graph().header().vertex_count(); i<n; ++i)
-		if (ai().game_graph().vertex(i)->level_id() == level().level_id()) {
-			D_OBJECT_P_MAP::const_iterator	I = m_objects[i].objects().objects().begin();
-			D_OBJECT_P_MAP::const_iterator	E = m_objects[i].objects().objects().end();
-			for ( ; I != E; ++I)
-				level().add		((*I).second);
-		}
+	if (ai().game_graph().vertex(i)->level_id() == level().level_id()) {
+		D_OBJECT_P_MAP::const_iterator	I = m_objects[i].objects().objects().begin();
+		D_OBJECT_P_MAP::const_iterator	E = m_objects[i].objects().objects().end();
+		for ( ; I != E; ++I)
+			level().add		((*I).second);
+	}
 
 	{
 		xr_vector<CSE_ALifeDynamicObject*>::const_iterator	I = m_temp.begin();
@@ -85,13 +85,35 @@ void CALifeGraphRegistry::setup_current_level	()
 
 		m_temp.clear			();
 	}
+
+	for (auto LEVEL : ai().game_graph().header().levels())
+	{
+		Msg("[alife_graph_registry] SPAWN: Level(%s) : ID : %d, FIRST: %d", LEVEL.second.name().c_str(), LEVEL.second.id(), LEVEL.first);
+	}
+
+	if (!actor())
+	{
+		Msg("[alife_graph_registry] ACTOR IS DEAD");
+	}
+	else
+		Msg("[alife_graph_registry] ACTOR IS Alive");
+
+	Msg("[alife_graph_registry] LevelGraph: %d", actor()->m_tGraphID);
+	Msg("[alife_graph_registry] LevelID: %d", ai().game_graph().vertex(actor()->m_tGraphID)->level_id());
+	Msg("[alife_graph_registry] ActorHealth: %f", actor()->get_health());
+
+
 	GameGraph::LEVEL_MAP::const_iterator I = ai().game_graph().header().levels().find(ai().game_graph().vertex(actor()->m_tGraphID)->level_id());
-	R_ASSERT2					(ai().game_graph().header().levels().end() != I,"Graph point level ID not found!");
+
+	if (I == ai().game_graph().header().levels().end())
+		Msg("Check LevelID == ai().game_graph().header().levels().end()");
+
+//	R_ASSERT2					(ai().game_graph().header().levels().end() != I,"Graph point level ID not found!");
 
 	int							id = pApp->Level_ID(*(*I).second.name(), "1.0", true);
-	VERIFY3(id >= 0, "Level is corrupted or doesn't exist", *(*I).second.name());
+//	VERIFY3(id >= 0, "Level is corrupted or doesn't exist", *(*I).second.name());
 
-	ai().load					(*(*I).second.name());
+ 	ai().load					(*(*I).second.name());
 }
 
 void CALifeGraphRegistry::attach	(CSE_Abstract &object, CSE_ALifeInventoryItem *item, GameGraph::_GRAPH_ID game_vertex_id, bool alife_query, bool add_children)

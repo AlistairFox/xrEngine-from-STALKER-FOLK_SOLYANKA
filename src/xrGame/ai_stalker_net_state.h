@@ -58,11 +58,14 @@ public:
 	void Import(NET_Packet& P, MotionID_numered& legs, MotionID_numered& torso, MotionID_numered& head);
 };
 
+
+
 struct ai_stalker_net_state
 {
-	EXPORT_MOTIONS exp_motions;
-
+ 
 	public:
+		EXPORT_MOTIONS exp_motions;
+
 		net_physics_state physics_state;
 		Fvector fv_position;
  		Fvector fv_linear_vel;

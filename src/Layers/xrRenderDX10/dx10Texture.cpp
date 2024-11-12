@@ -327,6 +327,9 @@ ID3DBaseTexture*	CRender::texture_load(LPCSTR fRName, u32& ret_msize, bool bStag
 	string_path				fname;
 	xr_strcpy(fname,fRName); //. andy if (strext(fname)) *strext(fname)=0;
 	fix_texture_name		(fname);
+
+	Msg("Loading texture '%s'", fname);
+
 	IReader* S				= NULL;
 	if (!FS.exist(fn,"$game_textures$",	fname,	".dds")	&& strstr(fname,"_bump"))	goto _BUMP_from_base;
 	if (FS.exist(fn,"$level$",			fname,	".dds"))							goto _DDS;

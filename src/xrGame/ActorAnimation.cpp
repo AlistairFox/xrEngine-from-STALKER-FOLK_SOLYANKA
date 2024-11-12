@@ -189,6 +189,7 @@ void SActorState::CreateClimb(IKinematicsAnimated* K)
 	m_torso[12].Create(K,base,"_13");
 
 	m_head_idle.invalidate();///K->ID_Cycle("head_idle_0");
+
 	jump_begin		= K->ID_Cycle(strconcat(sizeof(buf),buf,base,"_jump_begin"));
 	jump_idle		= K->ID_Cycle(strconcat(sizeof(buf),buf,base,"_jump_idle"));
 	landing[0]		= K->ID_Cycle(strconcat(sizeof(buf),buf,base,"_jump_end"));

@@ -126,7 +126,8 @@ void IGame_Persistent::Disconnect	()
 #ifndef _EDITOR
 	// clear "need to play" particles
 	destroy_particles					(true);
-	pEnvironment->OnDisconnect();
+
+//	pEnvironment->OnDisconnect();
 
 	if(g_hud)
 			DEL_INSTANCE			(g_hud);

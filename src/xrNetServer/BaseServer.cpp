@@ -115,24 +115,15 @@ void BaseServer::ParseConnectionOptions(LPCSTR options, ServerConnectionOptions&
 		out.bPortWasSet = true; //this is not casual game
 	}
 
-	/*
-	if (strstr(options, "portMS="))
-	{  
-		
-		const char* MS_Port = strstr(options, "portMS=") + 7;
-		string64 tmpStr = "";
-		if (strchr(MS_Port, '/'))
-		{
-			strncpy_s(tmpStr, MS_Port, strchr(MS_Port, '/') - MS_Port);
-		}
+	if (strstr(options, "server_ip="))
+	{
+ 		const char* ServerIP = strstr(options, "server_ip=") + 10;
+		if (strchr(ServerIP, '/'))
+			strncpy_s(Core.LocalIP, ServerIP, strchr(ServerIP, '/') - ServerIP);
 		else
-		{
-			strncpy_s(tmpStr, MS_Port, 63);
-		}
-		out.dwMSPort = atol(tmpStr);
-		
-	}
-   */
+			xr_strcpy(Core.LocalIP, ServerIP);
+	
+ 	}
 }
 
 

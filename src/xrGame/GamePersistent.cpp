@@ -464,7 +464,8 @@ void CGamePersistent::update_logo_intro()
 		xr_delete				(m_intro);
 		Msg("intro_delete ::update_logo_intro");
 		Console->Execute		("main_menu on");
-	}else
+	}
+	else
 	if(!m_intro)
 	{
 		m_intro_event			= 0;

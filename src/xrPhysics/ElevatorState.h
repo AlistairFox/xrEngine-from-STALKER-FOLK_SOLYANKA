@@ -7,8 +7,7 @@ struct dContact;
 struct SGameMtl;
 class IClimableObject;
 
-class CElevatorState :
-	public IElevatorState
+class CElevatorState : public IElevatorState
 {
 public:	
 

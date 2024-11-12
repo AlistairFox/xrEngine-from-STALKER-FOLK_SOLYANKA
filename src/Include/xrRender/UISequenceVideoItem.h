@@ -15,6 +15,7 @@ public:
 	virtual void video_Sync(u32 _time) = 0;
 	virtual void video_Play(BOOL looped, u32 _time=0xFFFFFFFF) = 0;
 	virtual void video_Stop() = 0;
+	virtual LPCSTR get_texture_name() = 0;
 };
 
 #endif	//	UISequenceVideoItem_included

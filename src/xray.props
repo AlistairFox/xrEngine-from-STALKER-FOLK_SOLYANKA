@@ -5,7 +5,7 @@
   <PropertyGroup>
     <IncludePath>$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\..\binares\$(Platform)-$(Configuration)\;$(SolutionDir)\..\SDK\libraries\x64;$(DXSDK_DIR)\Lib\x64;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)\..\binares\$(Platform)-$(Configuration)\</OutDir>
+    <OutDir>A:\STALKER\DE\gameclient\bin\x64\</OutDir>
     <IntDir>$(SolutionDir)\..\intermediate\$(Platform)-$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup>

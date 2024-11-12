@@ -26,6 +26,8 @@ void steam_net_update_server(void* P)
 
 // -----------------------------------------------------------------------------
 
+extern bool ServerHost = false;
+
 SteamNetServer::SteamNetServer(CTimer* timer, BOOL	dedicated)
 	: BaseServer(timer, dedicated)
 #ifdef PROFILE_CRITICAL_SECTIONS
@@ -35,13 +37,14 @@ SteamNetServer::SteamNetServer(CTimer* timer, BOOL	dedicated)
 	m_players.reserve((dedicated) ? GetMaxPlayers() + 1 : GetMaxPlayers()); // 
 	m_server_password.reserve(64);
 	m_pending_clients.clear();
+	ServerHost = true;
 }
 
 // -----------------------------------------------------------------------------
 
 SteamNetServer::~SteamNetServer()
 {
-
+	ServerHost = false;
 }
 // -----------------------------------------------------------------------------
 
@@ -65,7 +68,8 @@ bool SteamNetServer::CreateConnection(GameDescriptionData & game_descr, ServerCo
 	SteamDatagramErrMsg errMsg;
 	SteamNetworkingIdentity identity;
 	identity.Clear();
-	identity.SetLocalHost();
+	if (strstr(Core.LocalIP, "localhost") != 0)	
+		identity.SetLocalHost();
 
 	if (!GameNetworkingSockets_Init(&identity, errMsg))
 	{
@@ -84,7 +88,20 @@ bool SteamNetServer::CreateConnection(GameDescriptionData & game_descr, ServerCo
 	// SETUP SERVER PORT
 	SteamNetworkingIPAddr bindServerAddress;
 	bindServerAddress.Clear();
-	bindServerAddress.m_port = (uint16)connectOpt.dwServerPort;
+
+	if (strstr(Core.LocalIP, "localhost") != 0)
+	{
+		bindServerAddress.m_port = (uint16)connectOpt.dwServerPort;
+	}
+	else
+	{
+		bindServerAddress.ParseString(Core.LocalIP);
+		bindServerAddress.m_port = (uint16)connectOpt.dwServerPort;
+	}
+
+	string128 tmp;
+	bindServerAddress.ToString(tmp, 128, true);
+	Msg("~~~ [SteamNetServer] ServerIP: %s", tmp);
 
 	psNET_Port = connectOpt.dwServerPort;
 
@@ -131,13 +148,15 @@ bool SteamNetServer::CreateConnection(GameDescriptionData & game_descr, ServerCo
 	Msg("- [SteamNetServer] created on port %d", bindServerAddress.m_port);
 	thread_spawn(steam_net_update_server, "snetwork-update-server", 0, this);
 
-	if (isMaster())
-	{
-		CreateConnection_Master(connectOpt);
-		master_server_sv = true;
-	}
-	else
-		master_server_sv = false;
+//	PollConnectionStateChanges();
+
+//	if (isMaster())
+//	{
+//		CreateConnection_Master(connectOpt);
+//		master_server_sv = true;
+//	}
+//	else
+//		master_server_sv = false;
 
 	return true;
 }
@@ -191,8 +210,8 @@ void SteamNetServer::Update()
 
 		PollIncomingMessages();
 		
-		if (master_server_sv)
-			PollIncomingMessagesMasterServer();
+		//if (master_server_sv)
+		//PollIncomingMessagesMasterServer();
 
 		PollConnectionStateChanges();
 
@@ -209,12 +228,9 @@ void SteamNetServer::PollConnectionStateChanges()
 
 void SteamNetServer::PollIncomingMessages()
 {
-	while (true)
+	while (true && m_pInterface)
 	{
-		if (m_pInterface == nullptr)
-			break;
-
-		ISteamNetworkingMessage *pIncomingMsg = nullptr;
+ 		ISteamNetworkingMessage *pIncomingMsg = nullptr;
 
 		int numMsgs = m_pInterface->ReceiveMessagesOnPollGroup(m_hPollGroup, &pIncomingMsg, 1);
 		if (numMsgs <= 0)
@@ -237,6 +253,7 @@ void SteamNetServer::PollIncomingMessages()
 		}
 		else if (m_size == sizeof(MSYS_CLIENT_DATA) && m_ping->sign1 == 0x02281488 && m_ping->sign2 == 0x01488228)
 		{ // client data message
+			Msg("[SteamNetworking] Recive Packet MSYS_CLIENT_DATA");
 			OnClientDataReceived(pIncomingMsg->m_conn, pIncomingMsg->m_identityPeer, (MSYS_CLIENT_DATA*)m_data);
 		}
 		else
@@ -352,7 +369,7 @@ void SteamNetServer::OnClientDataReceived(HSteamNetConnection connection, SteamN
 	cl_data.clientID.set(connection); // set clientId
 	cl_data.process_id = data->process_id;
 
-	if (identity.IsLocalHost() && data->process_id == GetCurrentProcessId())
+	if (data->process_id == GetCurrentProcessId()) // identity.IsLocalHost() &&
 	{ // if server client
 		xr_strcpy(cl_data.name, "ServerAdmin");
 		xr_strcpy(cl_data.pass, "pass");
@@ -365,6 +382,8 @@ void SteamNetServer::OnClientDataReceived(HSteamNetConnection connection, SteamN
 	}
 	else
 	{
+		Msg("- [SteamNetServer] client connected: %u", connection);
+
 		xr_strcpy(cl_data.name, data->name);
 		xr_strcpy(cl_data.pass, data->pass);
 
@@ -447,6 +466,9 @@ void SteamNetServer::OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusC
 
 void SteamNetServer::DisconnectAll()
 {
+	if (!m_pInterface)
+		return; 
+
 	for (auto &connection : m_players)
 	{
 		m_pInterface->CloseConnection(connection, EServerShutdown, nullptr, false);

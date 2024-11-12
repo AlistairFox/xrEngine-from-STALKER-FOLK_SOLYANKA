@@ -34,24 +34,24 @@ void EXPORT_MOTIONS::Export(NET_Packet& P, MotionID_numered& legs, MotionID_nume
 void EXPORT_MOTIONS::Import_Base(MotionID_numered& legs, MotionID_numered& torso, MotionID_numered& head, u64& val)
 {
 	u32 cur = 0;
+	
+	legs.id.idx = BIT.read_bites(10, cur, val);			//u16
+	torso.id.idx = BIT.read_bites(10, cur, val);		//u16
+	head.id.idx = BIT.read_bites(10, cur, val);			//u16
 
-	legs.id.idx = BIT.read_bites(10, cur, val);
-	torso.id.idx = BIT.read_bites(10, cur, val);
-	head.id.idx = BIT.read_bites(10, cur, val);
+	legs.id.slot = BIT.read_bites(2, cur, val);			//u8
+	torso.id.slot = BIT.read_bites(2, cur, val);		//u8
+	head.id.slot = BIT.read_bites(2, cur, val);			//u8
 
-	legs.id.slot = BIT.read_bites(2, cur, val);
-	torso.id.slot = BIT.read_bites(2, cur, val);
-	head.id.slot = BIT.read_bites(2, cur, val);
+	legs.num = BIT.read_bites(8, cur, val);				//u8
+	torso.num = BIT.read_bites(8, cur, val);			//u8
+	head.num = BIT.read_bites(8, cur, val);				//u8
 
-	legs.num = BIT.read_bites(8, cur, val);
-	torso.num = BIT.read_bites(8, cur, val);
-	head.num = BIT.read_bites(8, cur, val);
+	legs.loop = BIT.read_bites(1, cur, val);			//u8
+	torso.loop = BIT.read_bites(1, cur, val);			//u8
+	head.loop = BIT.read_bites(1, cur, val);			//u8
 
-	legs.loop = BIT.read_bites(1, cur, val);
-	torso.loop = BIT.read_bites(1, cur, val);
-	head.loop = BIT.read_bites(1, cur, val);
-
-	//63 total = 8 BYTE
+	//63 total = 8 BYTE || 15 BYTE
 }
  
 void EXPORT_MOTIONS::Export_Base(MotionID_numered& legs, MotionID_numered& torso, MotionID_numered& head, u64& val)

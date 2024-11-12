@@ -66,7 +66,9 @@ bool SteamNetClient::CreateConnection(ClientConnectionOptions & connectOpt)
 	m_bWasConnected = false;
 	m_pInterface = SteamNetworkingSockets();
 
-	if (m_pInterface != nullptr)
+	bool isLocal = strstr(Core.LocalIP, "localhost") != 0;
+
+	if (m_pInterface != nullptr && isLocal)
 	{
 		// server client
 		SteamNetworkingIdentity identity;
@@ -152,20 +154,23 @@ bool SteamNetClient::CreateConnection(ClientConnectionOptions & connectOpt)
 
 	thread_spawn(steam_net_update_client, "snetwork-update-client", 0, this);
 
+	PollConnectionStateChanges();
 
 	//Connect To Second Server To recive Data (stalkers pos, player pos, for quest, maps, ets )	 (2 server cross sync)
 	//Меж серверное взаимодействие для передачи данных от серверов (позиций, квестов, карты, синхра)
 	// (Пока в разработке)
-	if (xr_strlen(connectOpt.master_server) > 1)
-	{
-		CreateConnectionMS(connectOpt);
-		master_server = true;
-	}
-	else
-		master_server = false;
+//	if (xr_strlen(connectOpt.master_server) > 1)
+//	{
+//		CreateConnectionMS(connectOpt);
+//		master_server = true;
+//	}
+//	else
+//		master_server = false;
 
 	return true;
 }
+
+extern bool ServerHost;
 
 void SteamNetClient::DestroyConnection()
 {
@@ -188,7 +193,8 @@ void SteamNetClient::DestroyConnection()
 		m_hConnection = k_HSteamNetConnection_Invalid;
 	}
 
-	m_pInterface = nullptr;
+	if (!ServerHost)
+		m_pInterface = nullptr;
 
 	m_user_name.clear();
 	m_user_pass.clear();
@@ -234,8 +240,8 @@ void SteamNetClient::Update()
  
 		PollIncomingMessages();
 		//MasterServer
-		if (master_server)
-			PollIncomingMS_Messages();
+		//if (master_server)
+		//	PollIncomingMS_Messages();
 		//END
 		PollConnectionStateChanges();
 

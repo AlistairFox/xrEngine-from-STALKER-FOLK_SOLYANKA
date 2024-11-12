@@ -112,11 +112,15 @@ void CUIActorMenu::Construct()
 	/*
 	* Se7kills PDA Slot
 	*/
+
+	//SE7kills
+	m_pInventoryPdaList = UIHelper::CreateDragDropListEx(uiXml, "dragdrop_pda", this);
 		m_PdaSlotHighlight = UIHelper::CreateStatic(uiXml, "pda_slot_highlight", this);
 		m_PdaSlotHighlight->Show(false);
 
-		m_KnifeSlotHighlight = UIHelper::CreateStatic(uiXml, "knife_slot_highlight", this);
-		m_KnifeSlotHighlight->Show(false);
+	//m_pInventoryKnifeList		= UIHelper::CreateDragDropListEx(uiXml, "dragdrop_knife", this);
+ 	//	m_KnifeSlotHighlight = UIHelper::CreateStatic(uiXml, "knife_slot_highlight", this);
+	//	m_KnifeSlotHighlight->Show(false);
 	/*
 	* End 	
 	*/
@@ -157,9 +161,6 @@ void CUIActorMenu::Construct()
 	m_pQuickSlot				= UIHelper::CreateDragDropReferenceList(uiXml, "dragdrop_quick_slots", this);
 	m_pQuickSlot->Initialize	();
 
-	//SE7kills
-	m_pInventoryPdaList			= UIHelper::CreateDragDropListEx(uiXml, "dragdrop_pda", this);
-	m_pInventoryKnifeList		= UIHelper::CreateDragDropListEx(uiXml, "dragdrop_knife", this);
 
 	m_pTrashList				= UIHelper::CreateDragDropListEx		(uiXml, "dragdrop_trash", this);
 	m_pTrashList->m_f_item_drop	= CUIDragDropListEx::DRAG_CELL_EVENT	(this,&CUIActorMenu::OnItemDrop);
@@ -268,7 +269,7 @@ void CUIActorMenu::Construct()
 	BindDragDropListEvents				(m_pDeadBodyBagList);
 	BindDragDropListEvents				(m_pQuickSlot);
 	BindDragDropListEvents				(m_pInventoryPdaList);
-	BindDragDropListEvents				(m_pInventoryKnifeList);
+//	BindDragDropListEvents				(m_pInventoryKnifeList);
 
 	m_allowed_drops[iTrashSlot].push_back(iActorBag);
 	m_allowed_drops[iTrashSlot].push_back(iActorSlot);

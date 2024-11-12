@@ -96,7 +96,7 @@ protected:
 	CUIDragDropListEx*			m_pInventoryHelmetList;
 	CUIDragDropListEx*			m_pInventoryDetectorList;
 	CUIDragDropListEx*			m_pInventoryBagList;
-	CUIDragDropListEx*			m_pInventoryKnifeList;
+
 
 	CUIDragDropListEx*			m_pTradeActorBagList;
 	CUIDragDropListEx*			m_pTradeActorList;
@@ -114,7 +114,6 @@ protected:
 	CUIStatic*					m_HelmetSlotHighlight;
 	CUIStatic*					m_OutfitSlotHighlight;
 	CUIStatic*					m_DetectorSlotHighlight;
-	CUIStatic*					m_KnifeSlotHighlight;
 
 
 	CUIStatic*					m_QuickSlotsHighlight[4];
@@ -123,6 +122,9 @@ protected:
 	//PDA SLOT
 	CUIStatic*					m_PdaSlotHighlight;
 	CUIDragDropListEx*			m_pInventoryPdaList;
+	//	CUIDragDropListEx*		m_pInventoryKnifeList;
+	//	CUIStatic*				m_KnifeSlotHighlight;
+
 	//END
 
 	CUIInventoryUpgradeWnd*		m_pUpgradeWnd;

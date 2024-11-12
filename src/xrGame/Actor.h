@@ -91,7 +91,6 @@ private:
 	bool wpn_camera = false;
 	bool animation_extra_exit = false;
 
-
 	ref_sound selected;
 
 	int oldAnim = 0;
@@ -105,9 +104,7 @@ private:
 	bool InPlay    = true;
 	bool OutPlay   = true;
 	bool MidPlay   = true;
-
-
-
+ 
 	void					SelectScriptAnimation();
 	void					soundPlay();
 	void					script_anim(MotionID exit_animation, PlayCallback Callback, LPVOID CallbackParam);

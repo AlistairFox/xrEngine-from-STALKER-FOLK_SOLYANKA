@@ -164,7 +164,7 @@ void CMonsterEnemyMemory::update_mp()
 			{
 				
 				add_enemy(enemy);
-				Msg("Add Enemy %s, dist: %d", enemy->Name(), m_dist);
+				Msg("Add Enemy %s, dist: %f", enemy->Name(), m_dist);
 				bool const self_is_dog = !!smart_cast<const CAI_Dog*>(monster);
 				if (self_is_dog)
 				{
@@ -197,7 +197,7 @@ void CMonsterEnemyMemory::update_mp()
 						enemy_actor->memory().visual().visible_now(monster))
 					{
 						add_enemy(enemy);
-						Msg("Add Enemy %s, dist: %d", enemy->Name(), xz_dist);
+						Msg("Add Enemy %s, dist: %f", enemy->Name(), xz_dist);
 
 						bool const self_is_dog = !!smart_cast<const CAI_Dog*>(monster);
 						if (self_is_dog)

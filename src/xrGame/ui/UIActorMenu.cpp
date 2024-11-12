@@ -345,7 +345,7 @@ EDDListType CUIActorMenu::GetListType(CUIDragDropListEx* l)
 	if (l == m_pInventoryPdaList)		return iActorSlot;
 
 	//Knife
-	if (l == m_pInventoryKnifeList)		return iActorSlot;
+//	if (l == m_pInventoryKnifeList)		return iActorSlot;
 	
 	if(l==m_pTradeActorBagList)			return iActorBag;
 	if(l==m_pTradeActorList)			return iActorTrade;
@@ -527,7 +527,7 @@ void CUIActorMenu::clear_highlight_lists()
 	
 	//PDA
 	m_PdaSlotHighlight->Show(false);
-	m_KnifeSlotHighlight->Show(false);
+	// m_KnifeSlotHighlight->Show(false);
 	//
 
 	for(u8 i=0; i<4; i++)
@@ -590,11 +590,11 @@ void CUIActorMenu::highlight_item_slot(CUICellItem* cell_item)
 		return;
 	}
 
-	if (knife)
-	{
-		m_KnifeSlotHighlight->Show(true);
-		return;
-	}
+	//if (knife)
+	//{
+	//	m_KnifeSlotHighlight->Show(true);
+	//	return;
+	//}
 
 	if(weapon)
 	{
@@ -905,7 +905,7 @@ void CUIActorMenu::ClearAllLists()
 	m_pDeadBodyBagList->ClearAll				(true);
 
 	m_pInventoryPdaList->ClearAll				(true);
-	m_pInventoryKnifeList->ClearAll				(true);
+//	m_pInventoryKnifeList->ClearAll				(true);
 }
 
 void CUIActorMenu::CallMessageBoxYesNo( LPCSTR text )

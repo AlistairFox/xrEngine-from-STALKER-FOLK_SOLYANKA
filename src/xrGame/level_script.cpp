@@ -1079,7 +1079,8 @@ void send_news_item_drop(u16 gameid, LPCSTR name, int count)
 
 	if (freemp)
  	{
-		xrClientData* data = (xrClientData*)freemp->get_client(gameid);
+		xrClientData* data = (xrClientData*) freemp->get_client(gameid);
+
 		if (data)
 		{
 			string32 tmp = { 0 };

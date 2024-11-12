@@ -60,7 +60,7 @@ void CUIActorMenu::InitInventoryMode()
 	CurrentGameUI()->UIMainIngameWnd->ShowZoneMap(true);
 //	m_clock_value->Show					(true);
 
-	m_pInventoryKnifeList->Show(true);
+//	m_pInventoryKnifeList->Show(true);
 }
 
 void CUIActorMenu::DeInitInventoryMode()
@@ -249,7 +249,7 @@ void CUIActorMenu::OnInventoryAction(PIItem pItem, u16 action_type)
 		m_pTradeActorBagList,
 		m_pTradeActorList,
 		m_pInventoryPdaList,
-		m_pInventoryKnifeList,
+		//m_pInventoryKnifeList,
 		NULL
 	};
 
@@ -439,7 +439,7 @@ void CUIActorMenu::InitInventoryContents(CUIDragDropListEx* pBagList)
 	InitCellForSlot				(GRENADE_SLOT);
 	InitCellForSlot				(HELMET_SLOT);
 	//InitCellForSlot				(PDA_SLOT);
-	InitCellForSlot				(KNIFE_SLOT);
+	//InitCellForSlot				(KNIFE_SLOT);
 
 	curr_list					= m_pInventoryBeltList;
 	TIItemContainer::iterator itb = m_pActorInvOwner->inventory().m_belt.begin();
@@ -754,8 +754,8 @@ CUIDragDropListEx* CUIActorMenu::GetSlotList(u16 slot_idx)
 			return m_pInventoryPdaList;
 		break;
 
-		case KNIFE_SLOT:
-			return m_pInventoryKnifeList;
+		//case KNIFE_SLOT:
+		//	return m_pInventoryKnifeList;
 		break;
 	};
 	return NULL;
@@ -1062,6 +1062,7 @@ void CUIActorMenu::PropertiesBoxForAddon( PIItem item, bool& b_show )
 		}
 		return;
 	}
+
 
 	if ( pGrenadeLauncher )
 	{

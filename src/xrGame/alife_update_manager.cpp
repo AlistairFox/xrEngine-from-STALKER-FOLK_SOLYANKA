@@ -24,6 +24,7 @@
 #include "mt_config.h"
 
 #include "saved_game_wrapper.h"
+#include "GamePersistent.h"
 
 using namespace ALife;
 

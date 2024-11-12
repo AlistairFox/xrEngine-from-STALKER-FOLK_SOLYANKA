@@ -111,7 +111,8 @@ IC	void CStalkerAnimationManager::play_script_impl			()
 
 bool CStalkerAnimationManager::play_script					()
 {
-	if (script_animations().empty()) {
+	if (script_animations().empty()) 
+	{
 		m_start_new_script_animation	= false;
 		script().reset		();
 		return				(false);
@@ -192,7 +193,8 @@ void CStalkerAnimationManager::play_legs					()
 	bool					first_time = !legs().animation();
 	bool					result = legs().animation(assign_legs_animation());
 	
-	if (!first_time && !result && legs().blend()) {
+	if (!first_time && !result && legs().blend()) 
+	{
 		float				amount = legs().blend()->blendAmount;
 		m_previous_speed	= (m_target_speed - m_previous_speed)*amount + m_previous_speed;
 	}

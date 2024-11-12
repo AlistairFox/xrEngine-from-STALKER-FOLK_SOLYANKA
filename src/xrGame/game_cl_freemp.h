@@ -8,7 +8,7 @@ class CUIGameFMP;
 class CVoiceChat;
 class CGameTask;
 
-class game_cl_freemp :public game_cl_mp
+class game_cl_freemp : public game_cl_mp
 {
 private:
 	typedef game_cl_mp inherited;

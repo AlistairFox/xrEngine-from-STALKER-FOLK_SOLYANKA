@@ -1003,7 +1003,7 @@ void CActor::g_Physics			(Fvector& _accel, float jump, float dt)
 	if(g_Alive())
 	{
 		if(mstate_real&mcClimb&&!cameras[eacFirstEye]->bClampYaw)
-				accel.set(0.f,0.f,0.f);
+			accel.set(0.f,0.f,0.f);
 		
 		Fvector prePos = Position();
 		character_physics_support()->movement()->Calculate			(accel,cameras[cam_active]->vDirection,0,jump,dt,false);
@@ -1011,21 +1011,12 @@ void CActor::g_Physics			(Fvector& _accel, float jump, float dt)
 		Fvector pos;
 		character_physics_support()->movement()->GetPosition(pos);
 		
-		/*
 		if (prePos.distance_to_xz(pos) > 4.0f) 
-		{	
-			Msg("!!!Pre Calc Pos [%f][%f][%f]", prePos.x, prePos.y, prePos.z);
-			Msg("!!!Calc Pos [%f][%f][%f]", pos.x, pos.y, pos.z);
-			
-			Fvector speed;
-			character_physics_support()->movement()->GetCharacterVelocity(speed);
-
-			Msg("!!! Velocity [%f][%f][%f]", speed.x, speed.y, speed.z);
-
-			//character_physics_support()->movement()->SetVelocity(0,0,0);
-			//character_physics_support()->movement()->SetPosition(prePos);
+		{				
+			character_physics_support()->movement()->SetVelocity(0,0,0);
+			character_physics_support()->movement()->SetPosition(prePos);
 		}
-		*/
+	
 
 		bool new_border_state=character_physics_support()->movement()->isOutBorder();
 		if(m_bOutBorder!=new_border_state && Level().CurrentControlEntity() == this)

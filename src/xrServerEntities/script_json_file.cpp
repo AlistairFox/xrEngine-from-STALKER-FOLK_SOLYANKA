@@ -165,6 +165,19 @@ void CJsonFile::LoadJSON(LPCSTR file_name, LPCSTR path)
 bool CObjectJsonEx::load(LPCSTR file_name, LPCSTR path)
 {
 	FS.update_path(directory_path, path, file_name);
+
+	IReader* read =	FS.r_open(directory_path);
+ 
+	if (read)
+	{
+		shared_str text_file;
+		read->r_stringZ(text_file);
+		o::parse(text_file.c_str());
+	}
+	else
+		return false;
+
+	/*
 	std::ifstream ifile(directory_path);
 	if (ifile.is_open())
 	{
@@ -173,7 +186,7 @@ bool CObjectJsonEx::load(LPCSTR file_name, LPCSTR path)
 	}
 	else
 		return false;
-
+		*/
 	return true;
 }
 
@@ -182,8 +195,10 @@ bool CObjectJsonEx::save(LPCSTR file_name, LPCSTR path)
 	//Сделать Файл Если нету Папок не сделает...
 	FS.update_path(directory_path, path, file_name);
 	IWriter* file = FS.w_open(directory_path);
+	file->w_stringZ(o::json().c_str());
 	FS.w_close(file);
-	//
+ 
+	/*
 	std::ofstream ofile(directory_path);
 	if (ofile.is_open())
 		ofile << o::json().c_str();
@@ -191,7 +206,7 @@ bool CObjectJsonEx::save(LPCSTR file_name, LPCSTR path)
 	 	return false;
 
 	ofile.close();
-
+	*/
 	return true;
 }
 

@@ -133,10 +133,12 @@ void CUISequenceVideoItem::Update()
 	if (m_texture->HasTexture())
 	{
 		BOOL is_playing		= m_sound._handle() ? !!m_sound._feedback() : m_texture->video_IsPlaying();
-		if (is_playing)
+		
+ 		if (is_playing)
 		{
 			m_texture->video_Sync(m_sync_time);
-		}else
+		}
+		else
 		{
 			// sync start
 			if (m_flags.test(etiNeedStart))
@@ -152,6 +154,7 @@ void CUISequenceVideoItem::Update()
 			}
 		}
 	}
+ 
 }
 
 void CUISequenceVideoItem::OnRender()

@@ -169,8 +169,9 @@ void	CKinematics::Load(const char* N, IReader *data, u32 dwFlags)
 		{
 			string_path		lod_name;
 			LD->r_string	(lod_name, sizeof(lod_name));
-//.         strconcat		(sizeof(name_load),name_load, short_name, ":lod:", lod_name.c_str());
-            m_lod 			= (dxRender_Visual*) ::Render->model_CreateChild(lod_name, NULL);
+	//        strconcat		(sizeof(name_load),name_load, short_name, ":lod:", lod_name.c_str());
+	//		Msg("Loading Load");
+			m_lod 			= (dxRender_Visual*) ::Render->model_CreateChild(lod_name, NULL);
 
 			if ( CKinematics* lod_kinematics = dynamic_cast<CKinematics*>(m_lod) )
 			{
@@ -653,7 +654,7 @@ void CKinematics::AddWallmark(const Fmatrix* parent_xform, const Fvector3& start
 }
 
 static const float LIFE_TIME=30.f;
-struct zero_wm_pred : public std::unary_function<intrusive_ptr<CSkeletonWallmark>, bool>
+struct zero_wm_pred  
 {
 	bool operator()(const intrusive_ptr<CSkeletonWallmark> x){ return x==0; }
 };
