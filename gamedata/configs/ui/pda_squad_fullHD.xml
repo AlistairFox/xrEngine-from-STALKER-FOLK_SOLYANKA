@@ -1,0 +1,38 @@
+<window>
+	<squad_wnd x="0" y="0" width="707" height="398">
+		<frame_0 x="28" y="83" width="158" height="162" stretch="1">
+			<texture>ui_inGame2_demo_player_info_window</texture>
+		</frame_0>
+		<frame_1 x="194" y="83" width="158" height="162" stretch="1">
+			<texture>ui_inGame2_demo_player_info_window</texture>
+		</frame_1>
+		<frame_2 x="360" y="83" width="158" height="162" stretch="1">
+			<texture>ui_inGame2_demo_player_info_window</texture>
+		</frame_2>
+		<frame_3 x="526" y="83" width="158" height="162" stretch="1">
+			<texture>ui_inGame2_demo_player_info_window</texture>
+		</frame_3>
+		
+		<cap_0 x="32" y="86" width="150" height="156" stretch="1">
+			<texture>ui_pda_squad_cap_0</texture>
+		</cap_0>
+		<cap_1 x="198" y="86" width="150" height="156" stretch="1">
+			<texture>ui_pda_squad_cap_1</texture>
+		</cap_1>
+		<cap_2 x="364" y="86" width="150" height="156" stretch="1">
+			<texture>ui_pda_squad_cap_2</texture>
+		</cap_2>
+		<cap_3 x="530" y="86" width="150" height="156" stretch="1">
+			<texture>ui_pda_squad_cap_3</texture>
+		</cap_3>
+		<!--ui_inGame2_helmet_blocker ui_inGame2_artefact_blocker
+		<squad_list x="28" y="83" width="707" height="398" always_show_scroll="0" flip_vert="1" can_select="1" scroll_profile="default"/>-->
+		<squad_list x="28" y="83" width="681" height="162"/>
+		
+		<squad_leader x="0" y="0" width="11" height="11">
+			<auto_static x="102" y="226" width="11" height="11" stretch="1">
+				<texture>ui_minimap_squad_leader</texture>
+			</auto_static>		
+		</squad_leader>
+	</squad_wnd>
+</window>

@@ -97,6 +97,38 @@ public:
 private:
 	void OnVoiceMessage(NET_Packet* P);
 	CVoiceChat* m_pVoiceChat = nullptr;
+
+
+public:
+	// XRMPE SQUAD SYSYTEM
+	struct MP_SquadInvite
+	{
+		shared_str InviteMessage;
+		u16	   InviterID;
+		u32	   ReceivedTime;
+	};
+
+	struct MP_SquadCL
+	{
+		xr_vector<game_PlayerState*> players;
+		ClientID squad_leader_cid;
+		u16 id;
+		shared_str current_quest;
+		u16 current_map_point;
+		bool need_update;
+	};
+
+	xr_vector<MP_SquadInvite*> mp_squad_invites;
+
+	ref_sound 	m_sndPDAmsg;
+
+	MP_SquadCL* local_squad = nullptr;
+	MP_SquadInvite*		FindInviteByInviterID(u16 gameid);
+	void				RemoveInviteByInviterID(u16 gameid);
+	bool				m_bSwitchToNextInvite;
+	void GiveNews(LPCSTR caption, LPCSTR text, LPCSTR texture_name, int delay, int show_time, int type, bool noSound);
+	void GiveNews(LPCSTR caption, LPCSTR text, LPCSTR texture_name, int delay, int show_time, int type);
+	// END XRMPE SYSTEM
 };
  
 

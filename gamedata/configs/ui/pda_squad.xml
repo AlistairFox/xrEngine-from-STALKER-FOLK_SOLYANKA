@@ -1,0 +1,37 @@
+<window>
+	<squad_wnd x="0" y="0" width="447" height="283">
+		<frame_0 x="20" y="63" width="105" height="105" stretch="1">
+			<texture>ui_inGame2_demo_player_info_window</texture>
+		</frame_0>
+		<frame_1 x="129" y="63" width="105" height="105" stretch="1">
+			<texture>ui_inGame2_demo_player_info_window</texture>
+		</frame_1>
+		<frame_2 x="238" y="63" width="105" height="105" stretch="1">
+			<texture>ui_inGame2_demo_player_info_window</texture>
+		</frame_2>
+		<frame_3 x="347" y="63" width="105" height="105" stretch="1">
+			<texture>ui_inGame2_demo_player_info_window</texture>
+		</frame_3>
+		
+		<cap_0 x="22" y="65" width="101" height="101" stretch="1">
+			<texture>ui_pda_squad_cap_0</texture>
+		</cap_0>
+		<cap_1 x="131" y="65" width="101" height="101" stretch="1">
+			<texture>ui_pda_squad_cap_1</texture>
+		</cap_1>
+		<cap_2 x="240" y="65" width="101" height="101" stretch="1">
+			<texture>ui_pda_squad_cap_2</texture>
+		</cap_2>
+		<cap_3 x="349" y="65" width="101" height="101" stretch="1">
+			<texture>ui_pda_squad_cap_3</texture>
+		</cap_3>
+
+		<squad_list x="20" y="63" width="432" height="115"/>
+		
+		<squad_leader x="0" y="0" width="8" height="8">
+			<auto_static x="68" y="153" width="8" height="8" stretch="1">
+				<texture>ui_minimap_squad_leader</texture>
+			</auto_static>		
+		</squad_leader>		
+	</squad_wnd>
+</window>

@@ -2569,6 +2569,18 @@
     <Filter Include="Core\Server\Games\server\freemp\alife">
       <UniqueIdentifier>{18675211-7ba7-442d-97b5-d5e37e054238}</UniqueIdentifier>
     </Filter>
+    <Filter Include="XRMPE_FILE">
+      <UniqueIdentifier>{cf225b5d-8801-4c49-97c7-7d4ae99d1a81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Server\Games\client\freemp\xrmpe">
+      <UniqueIdentifier>{a1a38545-9038-4dc0-a4bd-4b9028eee4c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="XRMPE_FILE\UI">
+      <UniqueIdentifier>{40fe08cb-b746-45e2-a0ad-3bd5b479cede}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="XRMPE_FILE\MainInGame">
+      <UniqueIdentifier>{b638e8cc-7d7d-4915-8e82-d3cd8472c38e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mt_config.h">
@@ -7530,6 +7542,21 @@
     <ClInclude Include="UI_UpgradesQuick.h">
       <Filter>UI\Common\InventoryWnd\UpgradesWeapon</Filter>
     </ClInclude>
+    <ClInclude Include="UIInviteToSquadMsgBox.h">
+      <Filter>XRMPE_FILE\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UIPdaContactsWnd.h">
+      <Filter>XRMPE_FILE\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UIPdaListItem.h">
+      <Filter>XRMPE_FILE\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UISquadWnd.h">
+      <Filter>XRMPE_FILE\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UIHudSquadWnd.h">
+      <Filter>XRMPE_FILE\MainInGame</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="damage_manager.cpp">
@@ -11299,6 +11326,24 @@
     </ClCompile>
     <ClCompile Include="UI_UpgradesQuick.cpp">
       <Filter>UI\Common\InventoryWnd\UpgradesWeapon</Filter>
+    </ClCompile>
+    <ClCompile Include="UIInviteToSquadMsgBox.cpp">
+      <Filter>XRMPE_FILE\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UIPdaContactsWnd.cpp">
+      <Filter>XRMPE_FILE\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UIPdaListItem.cpp">
+      <Filter>XRMPE_FILE\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UISquadWnd.cpp">
+      <Filter>XRMPE_FILE\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UIHudSquadWnd.cpp">
+      <Filter>XRMPE_FILE\MainInGame</Filter>
+    </ClCompile>
+    <ClCompile Include="game_sv_freemp_squad.cpp">
+      <Filter>Core\Server\Games\server\freemp\alife</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

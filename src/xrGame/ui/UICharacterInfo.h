@@ -44,6 +44,7 @@ protected:
 		eCommunityBigIconOver,
 */
 		eName,
+		eLongName,
 		eNameCaption,
 		eRank,
 		eRankCaption,
@@ -95,4 +96,6 @@ public:
 
 	static	bool		get_actor_community		(shared_str* our, shared_str* enemy);
 	static	bool		ignore_community		(shared_str const& check_community);
+
+	virtual void InitCharacterOnClient(shared_str name, shared_str community, shared_str icon);
 };

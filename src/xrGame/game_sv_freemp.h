@@ -141,4 +141,34 @@ public:
 
 	void GetServerInfo(CServerInfo* info);
 
+	// SQUAD 
+
+	virtual		void	join_player_in_squad(NET_Packet& packet, u16 id);
+	virtual		void	delete_player_from_squad(NET_Packet& packet, u16 id);
+	virtual		void	delete_player_from_squad(u16 id);
+	virtual		void	make_player_squad_leader(NET_Packet& packet, u16 id);
+
+
+
+	struct MP_Squad
+	{
+		xr_vector<game_PlayerState*> players;
+		ClientID squad_leader_cid;
+		u16 id;
+		shared_str current_quest = "";
+		u16 current_map_point;
+	};
+	xr_vector<MP_Squad*> mp_squads;
+
+	MP_Squad* m_lobby_squad;
+
+
+	MP_Squad* create_squad(game_PlayerState* ps);
+	void delete_squad(u16 squad_id);
+	MP_Squad* find_squad_by_squadid(u16 id);
+	bool check_player_in_squad(game_PlayerState* ps, MP_Squad* squad);
+	void SendMpSuqadToMembers(MP_Squad* squad);
+	void delete_player_from_player_list(MP_Squad* squad, game_PlayerState* pPlayer);
+	void find_new_squad_leader(u16 squad_id);
+ 
 };

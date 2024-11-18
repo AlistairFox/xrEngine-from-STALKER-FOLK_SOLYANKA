@@ -56,6 +56,7 @@ void CUICharacterInfo::InitCharacterInfo(Fvector2 pos, Fvector2 size, CUIXml* xm
 
 	Init_IconInfoItem(*xml_doc, "community_icon", eCommunityIcon);
 	Init_IconInfoItem(*xml_doc, "community_icon_over", eCommunityIconOver);
+	Init_StrInfoItem(*xml_doc, "long_name_static", eLongName);
 
 /*	Init_IconInfoItem( *xml_doc, "rank_icon",           eRankIcon     );
 	Init_IconInfoItem( *xml_doc, "rank_icon_over",      eRankIconOver );
@@ -327,6 +328,8 @@ void CUICharacterInfo::ResetAllStrings()
 	if(m_icons[eCommunity])		m_icons[eCommunity]->TextItemControl()->SetText		("");
 	if(m_icons[eReputation])	m_icons[eReputation]->TextItemControl()->SetText	("");
 	if(m_icons[eRelation])		m_icons[eRelation]->TextItemControl()->SetText		("");
+
+	if (m_icons[eLongName])		m_icons[eLongName]->TextItemControl()->SetText("");
 }
 
 void CUICharacterInfo::UpdateRelation()
@@ -454,4 +457,47 @@ bool CUICharacterInfo::ignore_community( shared_str const& check_community )
 		}
 	}
 	return false;
+}
+
+void CUICharacterInfo::InitCharacterOnClient(shared_str name, shared_str community, shared_str icon)
+{
+	shared_str const& comm_id = community;
+	LPCSTR   community0 = comm_id.c_str();
+
+	//if (m_icons[eName]) { m_icons[eName]->TextItemControl()->SetText(name.c_str()); }
+	//if (m_icons[eRank]) { m_icons[eRank]->TextItemControl()->SetTextST("novice"); }
+	//if (m_icons[eCommunity]) { m_icons[eCommunity]->TextItemControl()->SetTextST(community0); }
+	//if (m_icons[eReputation]) { m_icons[eReputation]->TextItemControl()->SetTextST("good"); }
+
+	if (m_icons[eLongName] && name.size() >= 12)
+	{
+		m_icons[eLongName]->TextItemControl()->SetText(name.c_str());
+	}
+	else if (m_icons[eName])
+	{
+		m_icons[eName]->TextItemControl()->SetText(name.c_str());
+	}
+
+	string64 community1;
+	xr_strcpy(community1, sizeof(community1), community0);
+	xr_strcat(community1, sizeof(community1), "_icon");
+
+	string64 community2;
+	xr_strcpy(community2, sizeof(community2), community0);
+	xr_strcat(community2, sizeof(community2), "_wide");
+
+	if (m_icons[eCommunityIcon]) { m_icons[eCommunityIcon]->InitTexture(community2); }
+
+	m_bForceUpdate = true;
+	for (int i = eIcon; i < eMaxCaption; ++i)
+	{
+		if (m_icons[i])
+		{
+			m_icons[i]->Show(true);
+		}
+	}
+
+	m_texture_name = icon;
+	if (m_icons[eIcon]) { m_icons[eIcon]->InitTexture(m_texture_name.c_str()); }
+	SetRelation((ALife::eRelationTypeNeutral), 5000);
 }

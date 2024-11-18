@@ -16,7 +16,8 @@ public:
 						CUIPropertiesBox					(CUIPropertiesBox* sub_property_box = NULL);
 	virtual				~CUIPropertiesBox					();
 
-			void		InitPropertiesBox					(Fvector2 pos, Fvector2 size);
+	void		InitPropertiesBox(Fvector2 pos, Fvector2 size, LPCSTR xmlFile = "actor_menu.xml");
+	//		void		InitPropertiesBox					(Fvector2 pos, Fvector2 size);
 
 	virtual void		SendMessage							(CUIWindow *pWnd, s16 msg, void *pData);
 	virtual bool		OnMouseAction								(float x, float y, EUIMessages mouse_action);

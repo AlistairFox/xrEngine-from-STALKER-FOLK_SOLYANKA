@@ -28,7 +28,7 @@ CUIPropertiesBox::~CUIPropertiesBox()
 }
 
 
-void CUIPropertiesBox::InitPropertiesBox(Fvector2 pos, Fvector2 size)
+void CUIPropertiesBox::InitPropertiesBox(Fvector2 pos, Fvector2 size, LPCSTR xmlFile)
 {
 	inherited::SetWndPos		(pos);
 	inherited::SetWndSize		(size);
@@ -36,7 +36,7 @@ void CUIPropertiesBox::InitPropertiesBox(Fvector2 pos, Fvector2 size)
 	AttachChild				(&m_UIListWnd);
 
 	CUIXml					xml_doc;
-	xml_doc.Load			(CONFIG_PATH, UI_PATH, "actor_menu.xml");
+	xml_doc.Load			(CONFIG_PATH, UI_PATH, xmlFile);
 
 	LPCSTR t = xml_doc.Read	("properties_box:texture", 0, "");
 	R_ASSERT				(t);

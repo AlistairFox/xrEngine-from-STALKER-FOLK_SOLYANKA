@@ -60,7 +60,7 @@ class CUIActorMenu :	public CUIDialogWnd,
 	typedef CUIDialogWnd		inherited;
 	typedef inventory::upgrade::Upgrade 	Upgrade_type;
 
-protected:
+public:
 	enum eActorMenuSndAction{	eSndOpen	=0,
 								eSndClose,
 								eItemToSlot,
@@ -71,11 +71,18 @@ protected:
 								eAttachAddon,
 								eDetachAddon,
 								eItemUse,
+								eSquadInvite,
+								eSquadAction,
 								eSndMax};
+
+
 
 	EMenuMode					m_currMenuMode;
 	ref_sound					sounds					[eSndMax];
 	void						PlaySnd					(eActorMenuSndAction a);
+
+
+protected:
 
 	UIHint*						m_hint_wnd;
 	CUIItemInfo*				m_ItemInfo;

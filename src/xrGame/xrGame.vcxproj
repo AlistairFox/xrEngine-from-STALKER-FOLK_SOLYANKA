@@ -2100,11 +2100,16 @@
     <ClInclude Include="UIGameRP.h" />
     <ClInclude Include="UIGameSP.h" />
     <ClInclude Include="UIGameTDM.h" />
+    <ClInclude Include="UIHudSquadWnd.h" />
+    <ClInclude Include="UIInviteToSquadMsgBox.h" />
     <ClInclude Include="UIPanelsClassFactory.h" />
+    <ClInclude Include="UIPdaContactsWnd.h" />
+    <ClInclude Include="UIPdaListItem.h" />
     <ClInclude Include="UIPda_Chat.h" />
     <ClInclude Include="UIPda_Contacts.h" />
     <ClInclude Include="UIPda_Squad.h" />
     <ClInclude Include="UIPlayerItem.h" />
+    <ClInclude Include="UISquadWnd.h" />
     <ClInclude Include="UIStaticItem.h" />
     <ClInclude Include="UITeamHeader.h" />
     <ClInclude Include="UITeamPanels.h" />
@@ -4627,6 +4632,7 @@
     <ClCompile Include="game_sv_freemp_alife_cl_sync.cpp" />
     <ClCompile Include="game_sv_freemp_PDA.cpp" />
     <ClCompile Include="game_sv_freemp_save.cpp" />
+    <ClCompile Include="game_sv_freemp_squad.cpp" />
     <ClCompile Include="game_sv_freemp_trade.cpp" />
     <ClCompile Include="game_sv_roleplay.cpp" />
     <ClCompile Include="game_sv_roleplay_drop_items.cpp" />
@@ -8271,11 +8277,16 @@
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='LUAJIT_2|x64'">$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <ClCompile Include="UIGameTDM.cpp" />
+    <ClCompile Include="UIHudSquadWnd.cpp" />
+    <ClCompile Include="UIInviteToSquadMsgBox.cpp" />
     <ClCompile Include="UIPanelsClassFactory.cpp" />
+    <ClCompile Include="UIPdaContactsWnd.cpp" />
+    <ClCompile Include="UIPdaListItem.cpp" />
     <ClCompile Include="UIPda_Chat.cpp" />
     <ClCompile Include="UIPda_Contacts.cpp" />
     <ClCompile Include="UIPda_Squad.cpp" />
     <ClCompile Include="UIPlayerItem.cpp" />
+    <ClCompile Include="UISquadWnd.cpp" />
     <ClCompile Include="UIStaticItem.cpp" />
     <ClCompile Include="UITeamHeader.cpp" />
     <ClCompile Include="UITeamPanels.cpp" />

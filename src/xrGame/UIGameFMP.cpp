@@ -14,6 +14,11 @@
 
 BOOL g_cl_draw_mp_statistic = FALSE;
 
+void CUIGameFMP::UpdateHudSquad()
+{
+	m_hud_squad->UpdateMembers();
+}
+
 CUIGameFMP::CUIGameFMP()
 {
 	m_game = NULL;
@@ -46,6 +51,8 @@ void CUIGameFMP::Init(int stage)
 		//surge_background = UIHelper::CreateStatic(uiXml, "surge", 0);
 		//surge_cap = UIHelper::CreateTextWnd(uiXml, "surge_cap", 0);
 
+		m_hud_squad = xr_new<CUIHudSquadWnd>(); m_hud_squad->SetAutoDelete(true);
+
 	}
 	else if (stage == 1)
 	{
@@ -60,6 +67,7 @@ void CUIGameFMP::Init(int stage)
 		//m_window->AttachChild(surge_background);
 		//m_window->AttachChild(surge_cap);
 
+		m_hud_squad->Init(uiXml, "hud_squad");
 	}
 	m_animation = xr_new<CUIAMode>();
 	m_animation->Init();

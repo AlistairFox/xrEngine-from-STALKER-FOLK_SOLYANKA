@@ -445,6 +445,49 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 		game->u_EventGen(packet, GE_UNLOAD_AMMO, destination);
 		SendTo(SV_Client->ID, P, net_flags(true, true));
 	}break;
+
+
+
+	// xrMPE
+
+	case GE_PDA_SQUAD_SEND_INVITE:
+	{
+		u16 id = P.r_u16();
+		CSE_Abstract* e_src = game->get_entity_from_eid(id);
+		if (!e_src) break;
+
+		NET_Packet tmp_packet;
+		CGameObject::u_EventGen(tmp_packet, GE_PDA_SQUAD_SEND_INVITE, receiver->ID);
+		tmp_packet.w_u16(receiver->ID);
+
+		SendTo(e_src->owner->ID, tmp_packet, net_flags(TRUE, TRUE));
+
+	}break;
+	case GE_PDA_SQUAD_CANCEL_INVITE:
+	{
+		u16 id = P.r_u16();
+		CSE_Abstract* e_src = game->get_entity_from_eid(id);
+		if (!e_src) break;
+
+		NET_Packet tmp_packet;
+		CGameObject::u_EventGen(tmp_packet, GE_PDA_SQUAD_CANCEL_INVITE, receiver->ID);
+		tmp_packet.w_u16(receiver->ID);
+
+		SendTo(e_src->owner->ID, tmp_packet, net_flags(TRUE, TRUE));
+	}break;
+	case GE_PDA_SQUAD_RESPOND_INVITE:
+	{
+		game->join_player_in_squad(P, destination);
+	}break;
+	case GE_PDA_SQUAD_KICK_PLAYER:
+	{
+		game->delete_player_from_squad(P, destination);
+	}break;
+	case GE_PDA_SQUAD_MAKE_LEADER:
+	{
+		game->make_player_squad_leader(P, destination);
+	}break;
+
 	 
 	default:
 		R_ASSERT2	(0,"Game Event not implemented!!!");

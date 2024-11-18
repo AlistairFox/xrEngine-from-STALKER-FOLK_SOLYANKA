@@ -114,8 +114,13 @@ void	game_PlayerState::net_Export(NET_Packet& P, BOOL Full)
 	P.w_u16			(	GameID	);
 	P.w_s8			(	skin	);
 	P.w_u8			(	m_bCurrentVoteAgreed	);
+	P.w_u32			(MPSquadID);
+
+
 
 	P.w_u32			(Device.dwTimeGlobal - DeathTime);
+
+
 	if (Full)
 	{
 		m_account.net_Export(P);
@@ -142,6 +147,8 @@ void	game_PlayerState::net_Import(NET_Packet& P)
 	P.r_u16			(	GameID	);
 	P.r_s8			(	skin	);
 	P.r_u8			(	m_bCurrentVoteAgreed	);
+	P.r_u32			(MPSquadID);
+
 
 	DeathTime = P.r_u32();
 	if (bFullUpdate)
@@ -170,6 +177,9 @@ void	game_PlayerState::skip_Import(NET_Packet& P)
 	P.r_u16			();//	GameID	);
 	P.r_s8			();//	skin	);
 	P.r_u8			();//	m_bCurrentVoteAgreed	);
+	P.r_u32			();
+
+
 
 	P.r_u32(); //DeathTime
 	if (bFullUpdate)
@@ -194,6 +204,13 @@ bool	game_PlayerState::HasOldID				(u16 ID)
 		return true;
 	return false;
 }
+
+LPCSTR game_PlayerState::getIcon()
+{
+	xr_sprintf(icon_name, "icon_t%d_s%d", team, skin);
+	return icon_name;
+}
+
 
 game_TeamState::game_TeamState()
 {
@@ -337,3 +354,4 @@ void game_GameState::SetEnvironmentGameTimeFactor	(ALife::_TIME_ID GameTime, con
 	m_qwEStartProcessorTime		= Level().timeServer_Async();
 	m_fETimeFactor				= fTimeFactor;
 }
+

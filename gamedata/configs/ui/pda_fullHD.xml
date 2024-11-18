@@ -1,0 +1,88 @@
+<w>
+	<main x="0" y="0" width="1920" height="1080"/>
+	<background_static x="192" y="0" width="1536" height="1080" stretch="1">
+		<texture>ui_inGame2_pda_texture</texture>
+        <auto_frameline x="64" y="80" width="416" height="38">
+            <texture>ui_inGame2_pda_buttons_leftside</texture>
+        </auto_frameline>
+	    <auto_frameline x="1338" y="80" width="143" height="38">
+	        <texture>ui_inGame2_pda_buttons_rightside</texture>
+	    </auto_frameline>
+	    <auto_static x="1536" y="0" width="195" height="1080" stretch="1">
+		    <texture>ui_inGame2_widescreen_sidepanels_right</texture>
+	    </auto_static>
+	    <auto_static x="-192" y="0" width="195" height="1080" stretch="1">
+		    <texture>ui_inGame2_widescreen_sidepanels_left</texture>
+	    </auto_static>
+	</background_static>
+
+	<noice_static x="230" y="46" width="1459" height="960" stretch="1">
+		<texture a="70">ui_pda2_noice</texture>
+	</noice_static>
+
+	<caption_static x="257" y="80" width="1412" height="38">
+		<text font="letterica16" align="l" x="9" y="7" r="170" g="170" b="170"/>
+	</caption_static>
+
+	<close_button x="1662" y="37" width="49" height="48" hint="pda_btn_close" stretch="1">
+        <texture_t>ui_inGame2_pda_offline_t</texture_t>
+        <texture_e>ui_inGame2_pda_offline_e</texture_e>
+        <texture_h>ui_inGame2_pda_offline_h</texture_h>
+	</close_button>
+
+	<clock_wnd x="1619" y="100" width="45" height="38" alignment="c">
+	    <text font="letterica18" r="220" g="220" b="220" align="c" vert_align="c"/>
+	</clock_wnd>
+
+	<hint_wnd x="0" y="0" width="394" height="169">
+		<background x="0" y="0" width="394" height="141" border="5">
+			<texture a="100">ui_icons_PDA_tooltips</texture>
+		</background>
+		<text x="19" y="14" width="356" height="141">
+			<text font="letterica16" color="ui_6" complex_mode="1" align="l" vert_align="t"/>
+		</text>
+	</hint_wnd>
+
+	<tab x="640" y="80" width="921" height="38">
+		<button x="0" y="0" width="257" height="38" id="eptContacts" hint="pda_btn_contacts_hint" frame_mode="0">
+			<text align="c" vert_align="c" x="0" y="0" font="letterica16">pda_btn_contacts</text>
+            <texture>ui_inGame2_pda_button</texture>
+			<text_color>
+				<t r="255" g="255" b="255"/>
+				<d r="255" g="255" b="255"/>
+				<e r="200" g="200" b="200"/>
+				<h r="170" g="170" b="170"/>
+			</text_color>
+		</button>
+		<button x="223" y="0" width="257" height="38" id="eptTasks" hint="pda_btn_quests_hint" frame_mode="0">
+			<text align="c" vert_align="c" x="0" y="0" width="294" height="38" font="letterica16">pda_btn_quests</text>
+            <texture>ui_inGame2_pda_button</texture>
+			<text_color>
+				<t r="255" g="255" b="255"/>
+				<d r="255" g="255" b="255"/>
+				<e r="200" g="200" b="200"/>
+				<h r="170" g="170" b="170"/>
+			</text_color>
+		</button>
+		<button x="445" y="0" width="257" height="38" id="eptRanking" hint="pda_btn_ranking_hint" frame_mode="0">
+			<text align="c" vert_align="c" x="0" y="0" font="letterica16">pda_btn_ranking</text>
+            <texture>ui_inGame2_pda_button</texture>
+			<text_color>
+				<t r="255" g="255" b="255"/>
+				<d r="255" g="255" b="255"/>
+				<e r="200" g="200" b="200"/>
+				<h r="170" g="170" b="170"/>
+			</text_color>
+		</button>
+		<button x="668" y="0" width="257" height="38" id="eptLogs" hint="pda_btn_logs_hint" frame_mode="0">
+			<text align="c" vert_align="c" x="0" y="0" font="letterica16">pda_btn_logs</text>
+            <texture>ui_inGame2_pda_button</texture>
+			<text_color>
+				<t r="255" g="255" b="255"/>
+				<d r="255" g="255" b="255"/>
+				<e r="200" g="200" b="200"/>
+				<h r="170" g="170" b="170"/>
+			</text_color>
+		</button>
+	</tab>
+</w>

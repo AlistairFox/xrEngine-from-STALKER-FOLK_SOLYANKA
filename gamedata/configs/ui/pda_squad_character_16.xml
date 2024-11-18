@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<!-- CHARACTER INFO IN THE SQUAD -->
+<window>
+	<!-- NAME -->
+	<name_static x="1" y="84" width="82" height="18">
+		<text x="0" y="0" font="letterica18" align="c" r="225" g="225" b="250"/>
+	</name_static>
+
+	<long_name_static x="1" y="84" width="82" height="18">
+		<text x="0" y="0" font="letterica16" align="c" r="225" g="225" b="250"/>
+	</long_name_static>
+	<!-- ICON -->
+	<icon x="1" y="2" width="82" height="72" stretch="1"/>
+
+	<pda_char_auto_statics><!--
+		<auto_static x="0" y="120" width="325" height="3" stretch="1">
+			<texture>ui\ui_pda_horizontal_line</texture>
+		</auto_static>
+			
+		<auto_frameline x="103" y="18" width="1" height="85" vertical="1">
+			<texture a="190">ui_inGame2_pda_line_vertical</texture>
+	    </auto_frameline>
+		<auto_frameline x="104" y="43" width="120" height="1" horizontal="1">
+			<texture a="190">ui_inGame2_pda_line_horizontal</texture>
+	    </auto_frameline>-->	
+	</pda_char_auto_statics>
+</window>
+

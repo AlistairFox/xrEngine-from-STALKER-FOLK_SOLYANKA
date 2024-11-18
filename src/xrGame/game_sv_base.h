@@ -65,8 +65,7 @@ public:
 	xr_vector<RPoint>				rpoints	[TEAM_COUNT];
 	DEF_VECTOR(RPRef, RPoint*);
 	RPRef							rpointsBlocked;
-	
-	ERoundEnd_Result				round_end_reason;
+  	ERoundEnd_Result				round_end_reason;
 	
 	virtual		void				SaveMapList				();
 	virtual		bool				HasMapRotation			() {return m_bMapRotation; };
@@ -193,4 +192,14 @@ public:
 	virtual		void				DumpOnlineStatistic		(){};
 				
 				bool				CheckNewPlayer			(xrClientData* CL);
+
+
+
+	// XRMPE 
+
+				virtual		void				join_player_in_squad(NET_Packet& packet, u16 id)					{};
+				virtual		void				delete_player_from_squad(NET_Packet& packet, u16 id)				{};
+				virtual		void				make_player_squad_leader(NET_Packet& packet, u16 id)				{};
+				
+		 
 };

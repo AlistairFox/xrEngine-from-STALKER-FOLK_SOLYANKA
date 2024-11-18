@@ -1,7 +1,7 @@
 #pragma once
 
 #include "UIGameMP.h"
-
+#include "UIHudSquadWnd.h"
 
 class game_cl_freemp;
 class CUITextWnd;
@@ -23,9 +23,16 @@ protected:
 	CUIStatic*  surge_background;
 	CUITextWnd* surge_cap;
 
+
+	CUIHudSquadWnd* m_hud_squad;
+
+	
+
 	bool upgrades_activated = false;
 
 public:
+	void UpdateHudSquad();
+
 				CUIGameFMP();
 	virtual		~CUIGameFMP();
 
@@ -38,6 +45,8 @@ public:
 	virtual void	_BCL OnFrame();
 
 	virtual bool IR_UIOnKeyboardPress(int dik);
+
+
 
 	u32 surge_time = 0;
 	u32 surge_time_end = 0;

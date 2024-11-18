@@ -306,6 +306,67 @@ void game_cl_freemp::OnConnected()
 
 
 }
+
+
+void game_cl_freemp::GiveNews(LPCSTR caption, LPCSTR text, LPCSTR texture_name, int delay, int show_time, int type = 0)
+{
+	if (!Actor()) return;
+
+	GAME_NEWS_DATA				news_data;
+	news_data.m_type = (GAME_NEWS_DATA::eNewsType)type;
+	news_data.news_caption = caption;
+	news_data.news_text = text;
+	if (show_time != 0)
+		news_data.show_time = show_time;
+
+	VERIFY(xr_strlen(texture_name) > 0);
+
+	news_data.texture_name = texture_name;
+
+	if (delay == 0)
+	{
+		Actor()->AddGameNews(news_data);
+		m_sndPDAmsg.play(NULL, sm_2D);
+	}
+	else
+	{
+		Actor()->AddGameNews_deffered(news_data, delay);
+		m_sndPDAmsg.play(NULL, sm_2D, (float)delay);
+	}
+}
+#define SQUAD_MEMBER_LOCATION	"friend_location"
+#define SQUAD_LEADER_LOCATION	"alife_presentation_squad_friend"
+void game_cl_freemp::GiveNews(LPCSTR caption, LPCSTR text, LPCSTR texture_name, int delay, int show_time, int type, bool noSound)
+{
+	if (!Actor()) return;
+
+	GAME_NEWS_DATA				news_data;
+	news_data.m_type = (GAME_NEWS_DATA::eNewsType)type;
+	news_data.news_caption = caption;
+	news_data.news_text = text;
+	if (show_time != 0)
+		news_data.show_time = show_time;
+
+	VERIFY(xr_strlen(texture_name) > 0);
+
+	news_data.texture_name = texture_name;
+
+
+	if (delay == 0)
+	{
+		Actor()->AddGameNews(news_data);
+		if (!noSound)
+			m_sndPDAmsg.play(NULL, sm_2D);
+	}
+	else
+	{
+		Actor()->AddGameNews_deffered(news_data, delay);
+		if (!noSound)
+			m_sndPDAmsg.play(NULL, sm_2D, (float)delay);
+	}
+}
+
+#include "map_manager.h"
 	
 void game_cl_freemp::TranslateGameMessage(u32 msg, NET_Packet& P)
 {
@@ -372,8 +433,75 @@ void game_cl_freemp::TranslateGameMessage(u32 msg, NET_Packet& P)
 
 		}break;
 
-	 
 
+		/// xrMPE PDA events
+
+		case GE_PDA_SQUAD_RESPOND_INVITE:
+		{
+			u8 capacity;
+			u16 id;
+			P.r_clientID(local_squad->squad_leader_cid); //squad leader id
+			P.r_u16(local_squad->id); //squad id
+			P.r_u16(local_squad->current_map_point); //current map point
+			P.r_stringZ(local_squad->current_quest); //current quest
+			P.r_u8(capacity);
+			shared_str message;
+			P.r_stringZ(message);
+
+			if (xr_strlen(message))
+			{
+				GiveNews("Отряд", message.c_str(), "ui_inGame2_PD_Lider", 0, 4000, 0, false);
+			}
+
+
+			if (local_squad->players.size())
+				local_squad->players.clear(); //clear all playerstates because we refill this list
+  
+			m_game_ui->UpdateHudSquad();
+			local_squad->need_update = true;
+
+		}break;
+
+		case GE_PDA_SQUAD_KICK_PLAYER:
+		{
+			local_squad->id = 0;
+			local_squad->squad_leader_cid = 0;
+			local_squad->current_map_point = 0;
+			local_squad->current_quest = 0;
+
+			for (u32 o_it = 0; o_it < local_squad->players.size(); o_it++)
+			{
+				if (Level().MapManager().HasMapLocation(SQUAD_MEMBER_LOCATION, local_squad->players[o_it]->GameID))
+					Level().MapManager().RemoveMapLocation(SQUAD_MEMBER_LOCATION, local_squad->players[o_it]->GameID);
+				else if (Level().MapManager().HasMapLocation(SQUAD_LEADER_LOCATION, local_squad->players[o_it]->GameID))
+					Level().MapManager().RemoveMapLocation(SQUAD_LEADER_LOCATION, local_squad->players[o_it]->GameID);
+			}
+
+			if (local_squad->players.size())
+				local_squad->players.clear();
+
+			local_squad->need_update = true;
+			shared_str message;
+			P.r_stringZ(message);
+
+			if (xr_strlen(message))
+				GiveNews("Отряд", message.c_str(), "ui_inGame2_PD_Lider", 0, 4000, 0, false);
+ 		 
+			m_game_ui->UpdateHudSquad();
+
+			//ChatDestination update
+		//	if (m_game_ui->m_pMessagesWnd && m_game_ui->m_pMessagesWnd->GetChatWnd())
+		//		m_game_ui->m_pMessagesWnd->GetChatWnd()->OnSquadLeave();
+		}break;
+		case GE_PDA_SQUAD_MAKE_LEADER:
+		{
+			shared_str message;
+			P.r_stringZ(message);
+
+			if (xr_strlen(message))
+				GiveNews("Отряд", message.c_str(), "ui_inGame2_PD_Lider", 0, 4000, 0, false);
+		}break;
+		 
 		default:
 			inherited::TranslateGameMessage(msg, P);
 			break;
@@ -471,4 +599,31 @@ void game_cl_freemp::OnVoiceMessage(NET_Packet* P)
 {
 	m_pVoiceChat->ReceiveMessage(P);
 }
- 
+
+
+game_cl_freemp::MP_SquadInvite* game_cl_freemp::FindInviteByInviterID(u16 ID)
+{
+	xr_vector<MP_SquadInvite*>::const_iterator it = mp_squad_invites.begin();
+	xr_vector<MP_SquadInvite*>::const_iterator it_e = mp_squad_invites.end();
+
+	for (; it != it_e; ++it)
+	{
+		if ((*it)->InviterID == ID)
+			return (*it);
+	}
+	return 0;
+}
+
+void game_cl_freemp::RemoveInviteByInviterID(u16 ID)
+{
+	xr_vector<MP_SquadInvite*>::const_iterator it = mp_squad_invites.begin();
+	xr_vector<MP_SquadInvite*>::const_iterator it_e = mp_squad_invites.end();
+
+	for (; it != it_e; ++it)
+	{
+		if ((*it)->InviterID == ID)
+			mp_squad_invites.erase(it);
+	}
+
+	return;
+}

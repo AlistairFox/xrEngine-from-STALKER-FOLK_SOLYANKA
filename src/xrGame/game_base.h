@@ -45,6 +45,8 @@ struct game_PlayerState
 	s16			m_iDeaths;
 	//money that player have at the current moment
 	s32			money_for_round;
+	u32								MPSquadID;
+
 
 	float		experience_Real;
 	float		experience_New;
@@ -91,6 +93,9 @@ struct game_PlayerState
 			//void	setName					(LPCSTR s){xr_strcpy(name,s);}
 			void	SetGameID				(u16 NewID);
 			bool	HasOldID				(u16 ID);
+
+			string32	icon_name;
+			LPCSTR getIcon();
 			bool	IsSkip					() const {return testFlag(GAME_PLAYER_FLAG_SKIP);}
 
 			s16		frags					() const {return m_iRivalKills - m_iSelfKills - m_iTeamKills;} 
@@ -144,6 +149,8 @@ protected:
 
 	u32								m_round_start_time;
 	string64						m_round_start_time_str;
+
+
 protected:
 	virtual		void				switch_Phase			(u32 new_phase);
 	virtual		void				OnSwitchPhase			(u32 old_phase, u32 new_phase)	{};	
