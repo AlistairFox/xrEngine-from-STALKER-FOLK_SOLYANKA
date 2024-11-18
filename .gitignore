@@ -7,7 +7,8 @@
 /intermediate
 /include
 /BINS
- 
+/SDK/sources/speexdsp/win32/
+
 # User-specific files
 *.rsuser
 *.suo

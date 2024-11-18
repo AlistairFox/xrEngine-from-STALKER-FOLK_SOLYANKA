@@ -116,9 +116,9 @@ bool xrCompressor::testVFS(LPCSTR path)
 	if (!stricmp(p_ext,".script"))
 		return			(FALSE);
 	//new SE7  TEXTURES
-	if (!bStoreDDS)
-	if (!stricmp(p_ext, ".dds"))
-		return			(FALSE);
+	// if (!bStoreDDS)
+	// if (!stricmp(p_ext, ".dds"))
+	// 	return			(FALSE);
 
 	//LEVELS
 	//if (!stricmp(p_ext, ".geom"))
@@ -131,15 +131,15 @@ bool xrCompressor::testVFS(LPCSTR path)
 	//	return (FALSE);
 
 	//OGF
-	if (!stricmp(p_ext, ".ogf"))
-		return (FALSE);
-
-	if (!stricmp(p_ext, ".omf"))
-		return (FALSE);
-
-	//SOUND
-	if (!stricmp(p_ext, ".ogg"))
-		return (FALSE);
+	// if (!stricmp(p_ext, ".ogf"))
+	// 	return (FALSE);
+	// 
+	// if (!stricmp(p_ext, ".omf"))
+	// 	return (FALSE);
+	// 
+	// //SOUND
+	// if (!stricmp(p_ext, ".ogg"))
+	// 	return (FALSE);
  
 	return				(TRUE);
 }
