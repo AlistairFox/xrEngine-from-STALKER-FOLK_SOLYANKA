@@ -662,8 +662,8 @@ int g_get_general_goodwill_between ( u16 from, u16 to)
 	CHARACTER_GOODWILL presonal_goodwill		= RELATION_REGISTRY().GetGoodwill(from, to); 
 	VERIFY(presonal_goodwill != NO_GOODWILL);
 
-	CSE_ALifeTraderAbstract* from_obj;
-	CSE_ALifeTraderAbstract* to_obj;
+	CSE_ALifeTraderAbstract* from_obj = nullptr;
+	CSE_ALifeTraderAbstract* to_obj	  = nullptr;
 
 	game_cl_freemp* freemp = smart_cast<game_cl_freemp*>(&Game());
 
@@ -698,7 +698,7 @@ int g_get_general_goodwill_between_MP(u16 to)
 	CHARACTER_GOODWILL presonal_goodwill = RELATION_REGISTRY().GetGoodwill(Game().local_player->GameID, to);
 	VERIFY(presonal_goodwill != NO_GOODWILL);
 
- 	CSE_ALifeTraderAbstract* trader_obj;
+ 	CSE_ALifeTraderAbstract* trader_obj = nullptr;
 
 	game_cl_freemp* freemp = smart_cast<game_cl_freemp*>(&Game());
  

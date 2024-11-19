@@ -42,6 +42,8 @@ void	CBlender_LaEmB::Load(	IReader& fs, u16 version )
 	xrPREAD_PROP	(fs,xrPID_CONSTANT,	oT2_const);
 }
 
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
 void	CBlender_LaEmB::Compile(CBlender_Compile& C)
 {
 	IBlender::Compile		(C);

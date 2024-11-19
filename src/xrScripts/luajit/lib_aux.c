@@ -28,6 +28,9 @@
 
 /* -- I/O error handling -------------------------------------------------- */
 
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
+
 LUALIB_API int luaL_fileresult(lua_State *L, int stat, const char *fname)
 {
   if (stat) {

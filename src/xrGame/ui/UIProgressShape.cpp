@@ -5,6 +5,9 @@
 #include "../Include/xrRender/UIShader.h"
 #include "../Include/xrRender/UIRender.h"
 
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
+
 CUIProgressShape::CUIProgressShape()
 {
 	m_bText			= false;

@@ -5,11 +5,11 @@
 #include "ip_address.h"
 #include "dp_ids.h"
 
-#pragma warning(push)
 #pragma warning(disable:4995)
-#include "dxerr.h"
-#pragma warning(pop)
+#pragma warning(disable:4996)
 
+#include "dxerr.h"
+ 
 XRNETSERVER_API Flags32	psNET_Flags = { 0 };
 XRNETSERVER_API int		psNET_ClientUpdate = 30;		// FPS
 XRNETSERVER_API int		psNET_ClientPending = 2;

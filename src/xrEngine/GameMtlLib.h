@@ -266,6 +266,9 @@ public:
 			xr_delete	(*p_it);
 		material_pairs.clear();
 	}
+
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
     // material routine
     IC GameMtlIt 		GetMaterialIt	(LPCSTR name)
     {

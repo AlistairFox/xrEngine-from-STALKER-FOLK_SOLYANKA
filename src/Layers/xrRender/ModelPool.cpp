@@ -231,6 +231,8 @@ dxRender_Visual* CModelPool::Instance_Find(LPCSTR N)
 	}
 	return Model;
 }
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
 
 dxRender_Visual* CModelPool::Create(const char* name, IReader* data)
 {

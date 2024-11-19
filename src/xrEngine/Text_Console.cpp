@@ -6,6 +6,10 @@ extern char const * const		ioc_prompt;
 extern char const * const		ch_cursor;
 int g_svTextConsoleUpdateRate = 1;
 
+
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
+
 CTextConsole::CTextConsole()
 {
 	m_pMainWnd    = NULL;

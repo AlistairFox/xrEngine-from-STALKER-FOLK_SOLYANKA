@@ -19,6 +19,10 @@
 #include "lj_jit.h"
 #endif
 
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
+
+
 /* -- Frames -------------------------------------------------------------- */
 
 /* Get frame corresponding to a level. */

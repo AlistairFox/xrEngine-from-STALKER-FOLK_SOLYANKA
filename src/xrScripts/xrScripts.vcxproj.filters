@@ -19,12 +19,6 @@
     <Filter Include="Lua\LuaBind\include\detail">
       <UniqueIdentifier>{608c1820-5cdc-42cd-80ca-d5716a723d0d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core">
-      <UniqueIdentifier>{6f97e716-0cdd-4ee3-92a4-724ffdad6f4a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Imdexlib">
-      <UniqueIdentifier>{07668c46-1ee4-4a76-892f-674287756a63}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Lua\LuaJIT\source">
       <UniqueIdentifier>{f184226d-bc2e-4733-b96c-5328ef9c5b3c}</UniqueIdentifier>
     </Filter>
@@ -33,6 +27,12 @@
     </Filter>
     <Filter Include="Lua\Lua">
       <UniqueIdentifier>{0bf4a17a-80cd-4ee1-86f4-3726b94742f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core">
+      <UniqueIdentifier>{6f97e716-0cdd-4ee3-92a4-724ffdad6f4a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Imdexlib">
+      <UniqueIdentifier>{07668c46-1ee4-4a76-892f-674287756a63}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -180,7 +180,7 @@ IC void mk_mark(MARK& M, const char* S)
 void  FileCompress	(const char *fn, const char* sign, void* data, u32 size)
 {
 	MARK M; mk_mark(M,sign);
-
+#pragma warning(disable:4996)
 	int H	= open(fn,O_BINARY|O_CREAT|O_WRONLY|O_TRUNC,S_IREAD|S_IWRITE);
 	R_ASSERT2(H>0,fn);
 	_write	(H,&M,8);
@@ -191,7 +191,7 @@ void  FileCompress	(const char *fn, const char* sign, void* data, u32 size)
 void*  FileDecompress	(const char *fn, const char* sign, u32* size)
 {
 	MARK M,F; mk_mark(M,sign);
-
+#pragma warning(disable:4996)
 	int	H = open	(fn,O_BINARY|O_RDONLY);
 	R_ASSERT2(H>0,fn);
 	_read	(H,&F,8);
@@ -199,7 +199,7 @@ void*  FileDecompress	(const char *fn, const char* sign, u32* size)
 		F[8]=0;		Msg("FATAL: signatures doesn't match, file(%s) / requested(%s)",F,sign);
 	}
     R_ASSERT(strncmp(M,F,8)==0);
-
+#pragma warning(disable:4996)
 	void* ptr = 0; u32 SZ;
 	SZ = _readLZ (H, ptr, filelength(H)-8);
 	_close	(H);

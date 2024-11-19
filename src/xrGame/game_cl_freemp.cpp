@@ -372,11 +372,6 @@ void game_cl_freemp::TranslateGameMessage(u32 msg, NET_Packet& P)
 {
 	switch (msg)
 	{
-		case (GAME_EVENT_UI_PDA):
-		{
- 			m_game_ui->PdaMenu().pUIContacts->EventRecive(P);
-		}break;
-
 		case (GAME_EVENT_PDA_CHAT):
 		{
 			m_game_ui->PdaMenu().pUIChatWnd->RecivePacket(P);
@@ -518,34 +513,7 @@ void game_cl_freemp::OnRender()
 	
 	if (m_pVoiceChat)
 		m_pVoiceChat->OnRender();
-
-	u32 size = m_game_ui->PdaMenu().pUIContacts->squad_UI->players.size();
-
-	if (size > 0)
-	for (auto pl : m_game_ui->PdaMenu().pUIContacts->squad_UI->players)
-	{
-		if (pl == 0)
-			continue;
-
-		game_PlayerState* ps = GetPlayerByGameID(GetPlayerByClientID(pl));
-
-		if (!ps)
-			continue;
-
-		if (ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD)) continue;
-		if (ps == local_player) continue;
-
-		CActor* pActor = smart_cast<CActor*>(Level().Objects.net_Find(ps->GameID));
-		if (!pActor) continue;
-
-		float pos = 0.0f;
-	
-		Fvector posH = IndicatorPosition;
- 		pActor->RenderIndicatorNew(posH, Indicator_render1, Indicator_render2, IndicatorShaderFreemp);
-			
-	}
-
-
+ 
 	if (caps_lock && local_player->testFlag(GAME_PLAYER_HAS_ADMIN_RIGHTS))
 	{
 		for (auto pl : players)

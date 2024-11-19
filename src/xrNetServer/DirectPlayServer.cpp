@@ -32,7 +32,7 @@ DirectPlayServer::~DirectPlayServer()
 }
 
 // -----------------------------------------------------------------------------
-
+#pragma warning(disable:4996)
 HRESULT	DirectPlayServer::net_Handler(u32 dwMessageType, PVOID pMessage)
 {
 	// HRESULT     hr = S_OK;

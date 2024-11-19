@@ -25,6 +25,8 @@
 
 #include "OpenALDeviceList.h"
 
+#pragma warning(disable:4996)
+
 #pragma warning(push)
 #pragma warning(disable:4995)
 #include <objbase.h>

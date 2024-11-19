@@ -106,7 +106,7 @@ bool SteamNetClient::CreateConnection(ClientConnectionOptions & connectOpt)
 	serverAddr.Clear();
 
 	int sv_port = connectOpt.sv_port;
-
+#pragma warning(disable:4996)
 	if (stricmp(connectOpt.server_name, "localhost") == 0) // 127.0.0.1 ?!
 	{
 		serverAddr.SetIPv6LocalHost((uint16)sv_port);

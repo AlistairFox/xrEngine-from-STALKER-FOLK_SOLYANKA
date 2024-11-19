@@ -81,7 +81,7 @@ extern ENGINE_API CInifile *pGameIni;
 #endif
 
 #if	!defined(DEBUG) || defined(FORCE_NO_EXCEPTIONS)
-#	define LUABIND_NO_EXCEPTIONS
+// #	define LUABIND_NO_EXCEPTIONS
 #	define BOOST_NO_EXCEPTIONS
 #endif
 

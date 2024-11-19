@@ -40,6 +40,8 @@ void	CBlender_Compile::r_Pass		(LPCSTR _vs, LPCSTR _ps, bool bFog, BOOL bZtest, 
 	ctable.merge			(&ps->constants);
 	ctable.merge			(&vs->constants);
 
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
 	// Last Stage - disable
 	if (0==stricmp(_ps,"null"))	{
 		RS.SetTSS				(0,D3DTSS_COLOROP,D3DTOP_DISABLE);

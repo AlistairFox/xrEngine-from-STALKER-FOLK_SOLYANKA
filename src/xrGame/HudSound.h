@@ -52,7 +52,13 @@ struct HUD_SOUND_ITEM
 	bool			m_b_exclusive;
 	xr_vector<SSnd> sounds;
 
+#pragma warning(push)
+#pragma warning(disable:4996)
+ 
 	bool operator == (LPCSTR alias) const{return 0==stricmp(m_alias.c_str(),alias);}
+	
+#pragma warning(pop)
+
 };
 
 class HUD_SOUND_COLLECTION

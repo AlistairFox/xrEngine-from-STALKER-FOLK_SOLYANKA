@@ -10,6 +10,10 @@
 #ifdef DEBUG
 #include	"../../xrcore/dump_string.h"
 #endif
+
+
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
 extern int	psSkeletonUpdate;
 using	namespace animation;
 //////////////////////////////////////////////////////////////////////////

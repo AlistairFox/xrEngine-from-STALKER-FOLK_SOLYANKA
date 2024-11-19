@@ -81,6 +81,10 @@ static const char *reader_file(lua_State *L, void *ud, size_t *size)
   return *size > 0 ? ctx->buf : NULL;
 }
 
+
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
+
 LUALIB_API int luaL_loadfilex(lua_State *L, const char *filename,
 			      const char *mode)
 {

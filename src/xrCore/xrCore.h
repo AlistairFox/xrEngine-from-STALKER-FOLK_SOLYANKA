@@ -6,6 +6,9 @@
 #	define MASTER_GOLD
 #endif // DEBUG
 
+#pragma warning(disable:4995)
+#pragma warning(disable:4996)
+
 //#define BENCHMARK_BUILD
 
 #ifdef	BENCHMARK_BUILD
@@ -38,11 +41,11 @@
 #else
 	// "release"
 	#if defined(_CPPUNWIND) && !defined __BORLANDC__
-		#error Please disable exceptions...
+//		#error Please disable exceptions...
 	#endif
 	#define _HAS_EXCEPTIONS		1	// STL
-	#define XRAY_EXCEPTIONS		0	// XRAY
-	#define LUABIND_NO_EXCEPTIONS
+	#define XRAY_EXCEPTIONS		1	// XRAY
+//	#define LUABIND_NO_EXCEPTIONS
 	#pragma warning(disable:4530)
 #endif
 

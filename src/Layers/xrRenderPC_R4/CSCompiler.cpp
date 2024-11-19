@@ -9,6 +9,10 @@
 #include "ComputeShader.h"
 #include "..\xrRender\dxRenderDeviceRender.h"
 
+
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
+
 CSCompiler::CSCompiler(ComputeShader& target):
 	m_Target(target), m_cs(0)
 {

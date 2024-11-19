@@ -482,6 +482,9 @@ bool CScriptDebugger::HasBreakPoint(const char* fileName, s32 lineNum)
 		if(bp.nLine == lineNum)
 			if( xr_strlen(bp.fileName) == xr_strlen(sFileName) )
 			{
+
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
 				if(stricmp(*bp.fileName, sFileName) == 0)
 					return true;
 			}

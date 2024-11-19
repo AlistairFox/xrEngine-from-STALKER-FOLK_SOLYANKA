@@ -240,6 +240,10 @@ static void clib_unloadlib(CLibrary *cl)
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 #endif
 
+
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
+
 static void *clib_getsym(CLibrary *cl, const char *name)
 {
   void *p = NULL;

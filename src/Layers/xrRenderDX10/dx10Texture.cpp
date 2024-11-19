@@ -16,6 +16,10 @@
 // #include "std_classes.h"
 // #include "xr_avi.h"
 
+
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
+
 void fix_texture_name(LPSTR fn)
 {
 	LPSTR _ext = strext(fn);

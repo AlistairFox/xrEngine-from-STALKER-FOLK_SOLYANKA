@@ -149,6 +149,8 @@ bool CPSLibrary::Load2()
         if(pb) pb->Inc					();
 #endif
 
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
         xr_sprintf				(_path, sizeof(_path),"%s%s",p_path, p_name);
         if(0==stricmp(p_ext,".pe"))
         {

@@ -6,6 +6,8 @@
 #	define SCRIPT_API		__declspec(dllimport)
 #endif // #ifdef XR_SCRIPTS
 
+#define LUABIND_NO_EXCEPTION
+
 #define LUABIND_API		SCRIPT_API
 #define LUASTUDIO_API	SCRIPT_API
 #define LUACORE			SCRIPT_API

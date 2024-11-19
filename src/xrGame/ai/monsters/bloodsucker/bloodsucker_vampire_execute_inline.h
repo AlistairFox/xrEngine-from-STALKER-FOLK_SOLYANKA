@@ -25,7 +25,7 @@ void CStateBloodsuckerVampireExecuteAbstract::initialize()
 {
 	inherited::initialize					();
 
-	CActor *actor;
+	CActor *actor = nullptr;
 
 	if (IsGameTypeSingle())
 		object->CControlledActor::install();

@@ -10,6 +10,10 @@
 
 #include "ShadersExternalData.h"
 
+
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
+
 class IRenderVisual;
 class IMainMenu;
 class ENGINE_API CPS_Instance;

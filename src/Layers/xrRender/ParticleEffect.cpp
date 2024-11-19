@@ -266,6 +266,8 @@ IC void FillSprite_fpu	(FVF::LIT*& pv, const Fvector& T, const Fvector& R, const
 	pv->set		(b.x+pos.x,b.y+pos.y,b.z+pos.z,	clr, rb.x,lt.y);	pv++;
 }
 
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
 __forceinline void fsincos(const float angle, float& sine, float& cosine)
 {
 	sine = std::sinf(angle);

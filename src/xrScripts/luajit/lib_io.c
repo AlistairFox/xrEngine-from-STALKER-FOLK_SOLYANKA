@@ -80,6 +80,8 @@ static IOFileUD *io_file_new(lua_State *L)
   return iof;
 }
 
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
 static IOFileUD *io_file_open(lua_State *L, const char *mode)
 {
   const char *fname = strdata(lj_lib_checkstr(L, 1));

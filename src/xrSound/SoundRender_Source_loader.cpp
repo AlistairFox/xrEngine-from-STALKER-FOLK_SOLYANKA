@@ -126,6 +126,8 @@ void CSoundRender_Source::LoadWave	(LPCSTR pName)
 	FS.r_close				(wave);
 }
 
+#pragma warning(disable:4996)
+
 void CSoundRender_Source::load(LPCSTR name)
 {
 	string_path			fn,N;

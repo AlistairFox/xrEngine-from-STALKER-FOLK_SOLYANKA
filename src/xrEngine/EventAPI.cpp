@@ -5,6 +5,8 @@
 extern	void msRead			();
 extern	void msCreate		(LPCSTR name);
 
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
 //---------------------------------------------------------------------
 class ENGINE_API CEvent
 {

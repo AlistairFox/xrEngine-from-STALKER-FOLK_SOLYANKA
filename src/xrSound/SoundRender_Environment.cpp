@@ -8,6 +8,8 @@
 #include <eax/eax.h>
 #pragma warning(pop)
 
+#pragma warning(disable:4996)
+
 CSoundRender_Environment::CSoundRender_Environment(void)
 {
 	version			= sdef_env_version;

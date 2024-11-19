@@ -97,7 +97,7 @@ void game_sv_freemp::RecivePdaChatMSG(NET_Packet& P, ClientID& sender)
 				return;
 			}
 
-			freemp->AddMoneyToPlayer(ps_from, -money);
+			freemp->AddMoneyToPlayer(ps_from, -((s32)money) );
 			freemp->AddMoneyToPlayer(ps_to, money);
 		}
 

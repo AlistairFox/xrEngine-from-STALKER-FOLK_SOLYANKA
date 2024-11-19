@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #pragma hdrstop
-
+#pragma warning(disable:4996)
 #include "xrstring.h"
 
 #include "FS_impl.h"
@@ -79,7 +79,7 @@ struct str_container_impl
 			{
 				u32			crc		= crc32	(value->value, value->dwLength);
 				string32	crc_str;
-				R_ASSERT3	(crc==value->dwCRC, "CorePanic: read-only memory corruption (shared_strings)", itoa(value->dwCRC,crc_str,16));
+ 				R_ASSERT3	(crc==value->dwCRC, "CorePanic: read-only memory corruption (shared_strings)", itoa(value->dwCRC,crc_str,16));
 				R_ASSERT3	(value->dwLength == xr_strlen(value->value), "CorePanic: read-only memory corruption (shared_strings, internal structures)", value->value);
 				value = value->next;
 			}

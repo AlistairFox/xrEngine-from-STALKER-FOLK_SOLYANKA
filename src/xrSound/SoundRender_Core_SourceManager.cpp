@@ -3,6 +3,7 @@
 
 #include "SoundRender_Core.h"
 #include "SoundRender_Source.h"
+#pragma warning(disable:4996)
 
 CSoundRender_Source*	CSoundRender_Core::i_create_source		(LPCSTR name)
 {

@@ -642,6 +642,8 @@ void	CHW::updateWindowProps	(HWND m_hWnd)
 }
 
 
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
 struct _uniq_mode
 {
 	_uniq_mode(LPCSTR v):_val(v){}

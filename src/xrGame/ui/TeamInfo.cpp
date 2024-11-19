@@ -2,6 +2,10 @@
 #include "TeamInfo.h"
 #include "../string_table.h"
 
+
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
+
 u32			CTeamInfo::team1_color;
 u32			CTeamInfo::team2_color;
 shared_str	CTeamInfo::team1_name;

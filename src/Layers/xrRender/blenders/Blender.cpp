@@ -10,6 +10,9 @@
 
 #include "Blender.h"
 
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
+
 void CBlender_DESC::Setup	(LPCSTR N)
 {
 	// Name

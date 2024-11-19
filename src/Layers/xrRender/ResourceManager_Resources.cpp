@@ -133,6 +133,8 @@ void		CResourceManager::_DeleteDecl		(const SDeclaration* dcl)
 	Msg	("! ERROR: Failed to find compiled vertex-declarator");
 }
 
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
 //--------------------------------------------------------------------------------------------------------------
 #ifndef _EDITOR
 SVS*	CResourceManager::_CreateVS		(LPCSTR _name)

@@ -74,6 +74,8 @@ LJLIB_CF(os_rename)
   return luaL_fileresult(L, rename(fromname, toname) == 0, fromname);
 }
 
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
 LJLIB_CF(os_tmpname)
 {
 #if LJ_TARGET_PS3 || LJ_TARGET_PS4 || LJ_TARGET_PSVITA

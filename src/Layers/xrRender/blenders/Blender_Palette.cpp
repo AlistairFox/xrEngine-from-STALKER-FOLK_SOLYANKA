@@ -3,6 +3,8 @@
 
 #include "Blender.h"
 
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
 //////////////////////////////////////////////////////////////////////
 #include "blender_clsid.h"
 IC bool		p_sort			(IBlender* A, IBlender* B)

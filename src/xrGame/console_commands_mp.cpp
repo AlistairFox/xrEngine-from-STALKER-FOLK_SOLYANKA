@@ -3001,9 +3001,9 @@ public:
 		{
 			string128 login;
 			string128 password;
-			int admin;
+			int admin = 0;
 
-			if (sscanf_s(args, "%s %s %d", &login, sizeof(login), &password, sizeof(password), admin) != 3)
+			if (sscanf_s(args, "%s %s %d", &login, sizeof(login), &password, sizeof(password), &admin) != 3)
 			{
 				Msg("Login and pass not good format");
 				return;
@@ -3241,8 +3241,8 @@ public:
 			u32 Client_ID;
 			Fvector pos;
 			ClientID id;
-			float x, y, z;
-			int ret = sscanf(args, "%u, %f, %f, %f", &Client_ID, x,y,z);
+			float x = 0, y = 0, z = 0;
+			int ret = sscanf(args, "%u, %f, %f, %f", &Client_ID, &x,&y, &z);
 		
 			if (ret != 4)
 			{

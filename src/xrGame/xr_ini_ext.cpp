@@ -81,6 +81,8 @@ void CInifileExt::ModyfyLine(string_path file_path, LPCSTR file_name, bool save_
 
 	ItemINI  data;
 
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
 	while (!reader->eof())
 	{
 		bool write_str = true;

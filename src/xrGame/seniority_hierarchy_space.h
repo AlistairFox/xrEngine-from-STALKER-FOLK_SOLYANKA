@@ -10,6 +10,9 @@
 
 #define SQUAD_HIERARCHY_HOLDER_USE_LEADER
 
+
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
 namespace SeniorityHierarchy {
 	IC	shared_str to_string		(u32 number)
 	{

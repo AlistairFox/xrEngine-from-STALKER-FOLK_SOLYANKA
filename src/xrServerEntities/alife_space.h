@@ -145,7 +145,7 @@ namespace ALife {
 		eAddonPermanent				= 1,	//постоянно подключено по умолчанию
 		eAddonAttachable			= 2		//можно присоединять
 	};
-
+#pragma warning(disable:4996)
 	IC EHitType	g_tfString2HitType(LPCSTR caHitType)
 	{
 		if (!stricmp(caHitType,"burn"))

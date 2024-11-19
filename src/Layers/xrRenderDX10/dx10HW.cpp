@@ -14,6 +14,10 @@
 #include "StateManager\dx10SamplerStateCache.h"
 #include "StateManager\dx10StateCache.h"
 
+
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
+
 #ifndef _EDITOR
 void	fill_vid_mode_list			(CHW* _hw);
 void	free_vid_mode_list			();

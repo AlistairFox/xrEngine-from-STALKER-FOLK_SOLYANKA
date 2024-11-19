@@ -304,7 +304,7 @@ void CLocatorAPI::LoadArchive(archive& A, LPCSTR entrypoint)
 	fs_entry_point[0]			= 0;
 	if(A.header)
 	{
-
+#pragma warning(disable:4996)
 		shared_str read_path	= A.header->r_string("header","entry_point");
 		if(0==stricmp(read_path.c_str(),"gamedata"))
 		{

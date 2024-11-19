@@ -9,6 +9,10 @@
 #endif
 #pragma warning(default:4995)
 
+
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
+
 #include <D3DX10Core.h>
 
 #include "../xrRender/ResourceManager.h"
@@ -626,6 +630,8 @@ void	CResourceManager::DBG_VerifyTextures	()
 }
 #endif
 
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
 //--------------------------------------------------------------------------------------------------------------
 CMatrix*	CResourceManager::_CreateMatrix	(LPCSTR Name)
 {

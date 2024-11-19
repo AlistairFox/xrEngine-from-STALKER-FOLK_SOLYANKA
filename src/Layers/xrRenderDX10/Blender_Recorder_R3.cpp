@@ -9,6 +9,10 @@
 
 #include "../xrRender/tss.h"
 
+
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
+
 void fix_texture_name(LPSTR fn);
 
 void CBlender_Compile::r_Stencil(BOOL Enable, u32 Func, u32 Mask, u32 WriteMask, u32 Fail, u32 Pass, u32 ZFail)

@@ -8,6 +8,9 @@
 #include "UISpinNum.h"
 #include "UILines.h"
 
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
+
 CUISpinNum::CUISpinNum()
 :	m_iVal(0),
 	m_iMin(0),

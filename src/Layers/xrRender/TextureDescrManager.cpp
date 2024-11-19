@@ -16,6 +16,8 @@ public:
 	}
 };
 
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
 void fix_texture_thm_name(LPSTR fn)
 {
 	LPSTR _ext = strext(fn);

@@ -2,6 +2,9 @@
 #include "script_lua_helper.h"
 #include "script_debugger.h"
 
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
+
 CDbgLuaHelper*	CDbgLuaHelper::m_pThis	= NULL;
 lua_State*		CDbgLuaHelper::L		= NULL;
 

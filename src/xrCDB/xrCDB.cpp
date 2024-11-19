@@ -104,7 +104,7 @@ void	MODEL::build			(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callback* bc,
 
 #endif
 }
-
+#pragma warning(disable:4995)
 int LOADED = 0;
 
 void	MODEL::build_internal	(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callback* bc, void* bcp)

@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #pragma hdrstop
-
+#pragma warning(disable:4996)
 #include "fs_internal.h"
 
 XRCORE_API CInifile const * pSettings		= NULL;

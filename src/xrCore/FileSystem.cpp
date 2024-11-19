@@ -212,6 +212,7 @@ bool EFS_Utils::GetOpenNameInternal( LPCSTR initial,  LPSTR buffer, int sz_buf, 
             xr_strcpy		(buffer, sz_buf, fns);
         }
     }
+#pragma warning(disable:4996)
     strlwr				(buffer);
     return 				bRes;
 }

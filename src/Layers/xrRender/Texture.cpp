@@ -13,6 +13,10 @@
 #include "dxRenderDeviceRender.h"
 #endif
 
+
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
+
 // #include "std_classes.h"
 // #include "xr_avi.h"
 

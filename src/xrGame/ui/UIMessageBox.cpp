@@ -79,7 +79,9 @@ void CUIMessageBox::InitMessageBox(LPCSTR box_template)
 
 	LPCSTR _type							= uiXml.ReadAttrib(str,0,"type",NULL);
 	R_ASSERT								(_type);
-	
+
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
 	m_eMessageBoxStyle	= MESSAGEBOX_OK;
 	if(0==stricmp(_type,"ok")){
 		m_eMessageBoxStyle	= MESSAGEBOX_OK;

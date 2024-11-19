@@ -98,6 +98,10 @@ void SetThreadName( DWORD dwThreadID , LPCSTR szThreadName )
   }
 }
 
+
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
+
 DWORD ttapi_Init( processor_info* ID )
 {
 	if ( ttapi_initialized )

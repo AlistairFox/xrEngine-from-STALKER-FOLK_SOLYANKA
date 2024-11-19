@@ -11,6 +11,9 @@
 
 #include "..\dxRenderDeviceRender.h"
 
+#pragma warning(disable:4996)
+#pragma warning(disable:4995)
+
 static int ParseName(LPCSTR N)
 {
 	if (0==xr_strcmp(N,"$null"))	return -1;
@@ -196,12 +199,13 @@ void	CBlender_Compile::PassEnd			()
 	SH->passes.push_back	(_pass_);
 }
 
+ 
 void	CBlender_Compile::PassSET_PS		(LPCSTR name)
 {
 	xr_strcpy	(pass_ps,name);
 	strlwr	(pass_ps);
 }
-
+ 
 void	CBlender_Compile::PassSET_VS		(LPCSTR name)
 {
 	xr_strcpy	(pass_vs,name);

@@ -58,7 +58,7 @@ void move_item_from_to_INVBOX(u16 from_id, u16 to_id, u16 what_id)
 	P.w_u16(what_id);
 
 	bool find = false;
-	LPCSTR name;
+	LPCSTR name = nullptr;
 
 	for (auto pl : Level().game->players)
 	{
