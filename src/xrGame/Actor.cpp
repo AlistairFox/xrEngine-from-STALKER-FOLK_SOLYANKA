@@ -2360,3 +2360,94 @@ bool CActor::unlimited_ammo()
 	game_PlayerState* ps = Game().GetPlayerByGameID(ID());
 	return (ps && ps->testFlag(GAME_PLAYER_MP_UNLIMATED_AMMO));
 }
+
+
+void CActor::RenderSquadIndicator(LPCSTR Text, u32 color, Fvector dpos, float width, float height, const ui_shader& IndShader)
+{
+	if (!g_Alive()) return;
+
+	CBoneInstance& BI = smart_cast<IKinematics*>(Visual())->LL_GetBoneInstance(u16(m_spine));
+	Fmatrix M;
+	smart_cast<IKinematics*>(Visual())->CalculateBones();
+	M.mul(XFORM(), BI.mTransform);
+
+	Fvector v0, v1;
+	v0.set(M.c); v1.set(M.c);
+	Fvector T = Device.vCameraTop;
+	v1.add(T);
+
+	Fvector v0r, v1r;
+	Device.mFullTransform.transform(v0r, v0);
+	Device.mFullTransform.transform(v1r, v1);
+	float size = v1r.distance_to(v0r);
+
+	CGameFont* pFont = UI().Font().pFontGraffiti19Russian;
+	if (!pFont) return;
+
+	float delta_up = 0.0f;
+	if (size < mid_size) delta_up = upsize;
+	else delta_up = upsize * (mid_size / size);
+	dpos.y += delta_up;
+	if (size > mid_size) size = mid_size;
+
+	M.c.y += dpos.y;
+
+	Fvector4 v_res;
+	Device.mFullTransform.transform(v_res, M.c);
+
+	if (v_res.z < 0 || v_res.w < 0)	return;
+	if (v_res.x < -1.f || v_res.x > 1.f || v_res.y < -1.f || v_res.y > 1.f) return;
+
+	float x = (1.f + v_res.x) / 2.f * (Device.dwWidth);
+	float y = (1.f - v_res.y) / 2.f * (Device.dwHeight);
+
+	width *= UI().get_current_kx();
+	height *= UI().get_current_kx();
+
+	x -= width / 2.0f;
+
+	//-------------------------------------------ALPHA
+	float distance = 0.0f;
+	if (Level().CurrentControlEntity())
+		distance = Level().CurrentControlEntity()->Position().distance_to(Position());
+
+	float dist_to_center = 0;
+	Fvector2 center_screen;
+
+	center_screen.set((float)(Device.dwWidth / 2), (float)(Device.dwHeight / 2));
+	dist_to_center = center_screen.distance_to(Fvector2().set(x + (width / 2.0f), y + (height / 2.0f)));
+
+	u32 alpha = 255;
+
+	if (dist_to_center <= 200.0f * UI().get_current_kx())
+		clamp(distance, 12.0f, 17.0f);
+	else
+		clamp(distance, 12.0f, 35.0f);
+
+	alpha = 3000 / (u32)distance;
+
+	u32 ind_color = color_argb(alpha, 255, 255, 255);
+
+	u32	_R = color_get_R(color);
+	u32	_G = color_get_G(color);
+	u32	_B = color_get_B(color);
+	color = color_argb(alpha, _R, _G, _B);
+	//-------------------------------------------------
+
+	UIRender->StartPrimitive(4, IUIRender::ptTriStrip, UI().m_currentPointType);
+	UIRender->SetShader(*IndShader);
+
+	UIRender->PushPoint(x, y + height, 0.0f, ind_color, 0.f, 1.f);
+	UIRender->PushPoint(x, y, 0.0f, ind_color, 0.f, 0.f);
+	UIRender->PushPoint(x + width, y + height, 0.0f, ind_color, 1.f, 1.f);
+	UIRender->PushPoint(x + width, y, 0.0f, ind_color, 1.f, 0.f);
+
+	UIRender->FlushPrimitive();
+
+	y += height;
+
+	pFont->SetAligment(CGameFont::alCenter);
+	pFont->SetColor(color);
+ 	pFont->Out(x + (width / 2.0f), y, Text);
+	pFont->OnRender();
+}

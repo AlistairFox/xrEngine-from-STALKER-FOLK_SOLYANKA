@@ -49,6 +49,9 @@ game_cl_freemp::game_cl_freemp()
 	load_game_tasks = false;
 
 	alife_objects_synchronized = false;
+
+	m_SquadLeaderShader->create("hud\\default", "ui\\ui_squad_leader");
+	m_SquadMemberShader->create("hud\\default", "ui\\ui_squad_member");
 }
 
 game_cl_freemp::~game_cl_freemp()
@@ -545,6 +548,26 @@ void game_cl_freemp::OnRender()
 
 	}
  
+	//if (m_bSquadIndicators)
+	{
+		for (u32 o_it = 0; o_it < local_squad->players.size(); o_it++)
+		{
+			if (!local_squad->players[o_it]) continue;
+
+			CObject* pObject = Level().Objects.net_Find(local_squad->players[o_it]->GameID);
+			if (!pObject) continue;
+			CActor* pActor = smart_cast<CActor*>(pObject);
+			if (!pActor) continue;
+
+			if (local_player == local_squad->players[o_it])
+				continue;
+
+			if (players[local_squad->squad_leader_cid]->GameID == local_squad->players[o_it]->GameID)
+				pActor->RenderSquadIndicator(local_squad->players[o_it]->getName(), color_argb(225, 255, 241, 150), Fvector().set(0.0f, 0.35f, 0.0f), 32.0f, 32.0f, m_SquadLeaderShader);
+			else
+				pActor->RenderSquadIndicator(local_squad->players[o_it]->getName(), color_argb(225, 255, 241, 150), Fvector().set(0.0f, 0.35f, 0.0f), 32.0f, 32.0f, m_SquadMemberShader);
+		}
+	}
 }
 
 void game_cl_freemp::OnScreenResolutionChanged()

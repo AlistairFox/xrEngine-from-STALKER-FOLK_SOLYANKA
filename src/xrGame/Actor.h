@@ -251,6 +251,8 @@ public:
 
 	virtual bool						unlimited_ammo			();
 
+	virtual void						 RenderSquadIndicator(LPCSTR Text, u32 color, Fvector dpos, float width, float height, const ui_shader& IndShader);
+
 	virtual bool						NeedToDestroyObject()  const;
 	virtual ALife::_TIME_ID				TimePassedAfterDeath() const;
 

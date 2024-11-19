@@ -118,6 +118,8 @@ public:
 		bool need_update;
 	};
 
+	ui_shader			m_SquadLeaderShader;
+	ui_shader			m_SquadMemberShader;
 	xr_vector<MP_SquadInvite*> mp_squad_invites;
 
 	ref_sound 	m_sndPDAmsg;

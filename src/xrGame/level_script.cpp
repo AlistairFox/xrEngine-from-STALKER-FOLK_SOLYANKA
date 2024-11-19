@@ -703,16 +703,11 @@ int g_get_general_goodwill_between_MP(u16 to)
 	game_cl_freemp* freemp = smart_cast<game_cl_freemp*>(&Game());
  
 	if (freemp)
-	{
- 		trader_obj = smart_cast<CSE_ALifeTraderAbstract*>(freemp->alife_objects[to]);
-	}
-
-	if (!trader_obj)
-	{
-		//Msg("[LUA] !!!Error not find (%d)", to);
-		return 0;
-	}
+  		trader_obj = smart_cast<CSE_ALifeTraderAbstract*>(freemp->alife_objects[to]);
  
+	if (!trader_obj)
+  		return 0;
+  
 	CHARACTER_GOODWILL community_to_obj_goodwill = RELATION_REGISTRY().GetCommunityGoodwill(Game().local_player->team, to);	
 	CHARACTER_GOODWILL community_to_community_goodwill = RELATION_REGISTRY().GetCommunityRelation(Game().local_player->team, trader_obj->Community());
 
