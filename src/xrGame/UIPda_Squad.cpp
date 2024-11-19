@@ -1,4 +1,6 @@
 #include "stdafx.h"
+
+/*
 #include "UIPda_Squad.h"
 
 #include "stdafx.h"
@@ -91,7 +93,7 @@ void CUIPda_Squad::Update()
 					continue;
 
 				CActor* actor_player = smart_cast<CActor*>( Level().Objects.net_Find(gameID) );
-				if (actor_player /* && character_team[idx]->OwnerID() != actor_player->ID()*/)
+				if (actor_player /* && character_team[idx]->OwnerID() != actor_player->ID()*)
  					character_team[idx]->InitCharacterMP(actor_player, player);
 			}
 			else
@@ -221,3 +223,4 @@ void CUIPda_Squad::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
 	inherited::SendMessage(pWnd, msg, pData);
 	CUIWndCallback::OnEvent(pWnd, msg, pData);
 }
+*/

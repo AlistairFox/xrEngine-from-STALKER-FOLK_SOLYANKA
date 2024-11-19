@@ -2106,8 +2106,12 @@
     <ClInclude Include="UIPdaContactsWnd.h" />
     <ClInclude Include="UIPdaListItem.h" />
     <ClInclude Include="UIPda_Chat.h" />
-    <ClInclude Include="UIPda_Contacts.h" />
-    <ClInclude Include="UIPda_Squad.h" />
+    <ClInclude Include="UIPda_Contacts.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="UIPda_Squad.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="UIPlayerItem.h" />
     <ClInclude Include="UISquadWnd.h" />
     <ClInclude Include="UIStaticItem.h" />
@@ -8283,8 +8287,12 @@
     <ClCompile Include="UIPdaContactsWnd.cpp" />
     <ClCompile Include="UIPdaListItem.cpp" />
     <ClCompile Include="UIPda_Chat.cpp" />
-    <ClCompile Include="UIPda_Contacts.cpp" />
-    <ClCompile Include="UIPda_Squad.cpp" />
+    <ClCompile Include="UIPda_Contacts.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="UIPda_Squad.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="UIPlayerItem.cpp" />
     <ClCompile Include="UISquadWnd.cpp" />
     <ClCompile Include="UIStaticItem.cpp" />

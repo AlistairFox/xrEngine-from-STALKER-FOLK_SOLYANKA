@@ -1,5 +1,5 @@
 #pragma once
-
+/*
 #include "ui/UIWindow.h"
 #include "ui/UIWndCallback.h"
 
@@ -78,3 +78,4 @@ public:
 };
 
 
+*/

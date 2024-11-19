@@ -1,4 +1,5 @@
 #include "stdafx.h"
+/*
 #include "UIPda_Contacts.h"
 #include "UIPda_Squad.h"
 #include "UIPda_Chat.h"
@@ -373,3 +374,4 @@ void CUIPda_Contacts::SetInvite(LPCSTR name)
 	squad_UI_invite_text->SetText(text);
 	squad_UI_invite_text->SetTextColor(color_rgba(255, 255, 0, 255));
 }
+*/

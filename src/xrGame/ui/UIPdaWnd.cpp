@@ -26,8 +26,10 @@
 #include "UITaskWnd.h"
 #include "UIRankingWnd.h"
 #include "UILogsWnd.h"
-#include "UIPda_Contacts.h"
+// #include "UIPda_Contacts.h"
 #include "UIPda_Chat.h"
+
+#include "UIPdaContactsWnd.h"
 
 
 #define PDA_XML		"pda.xml"
@@ -42,7 +44,7 @@ CUIPdaWnd::CUIPdaWnd()
 //-	pUIFactionWarWnd = NULL;
 	pUIRankingWnd    = NULL;
 	pUILogsWnd       = NULL;
-	pUIContacts		 = NULL;
+//	pUIContacts		 = NULL;
 	pUIChatWnd		 = NULL;
 
 	m_hint_wnd       = NULL;
@@ -55,7 +57,7 @@ CUIPdaWnd::~CUIPdaWnd()
 //-	delete_data( pUIFactionWarWnd );
 	delete_data( pUIRankingWnd );
 	delete_data( pUILogsWnd );
-	delete_data( pUIContacts );
+//	delete_data( pUIContacts );
 	delete_data(pUIChatWnd);
 
 	delete_data( m_hint_wnd );
@@ -103,11 +105,14 @@ void CUIPdaWnd::Init()
 	pUILogsWnd->Init				();
 
 	//MP 
-	pUIContacts = xr_new<CUIPda_Contacts>();
-	pUIContacts->Init();
+	//pUIContacts = xr_new<CUIPda_Contacts>();
+	//pUIContacts->Init();
 
-	pUIChatWnd = xr_new<UIPdaChat>();
-	pUIChatWnd->Init();
+	pUIContactsWnd = xr_new<CUIPdaContactsWnd>();
+	pUIContactsWnd->Init();
+
+//	pUIChatWnd = xr_new<UIPdaChat>();
+//	pUIChatWnd->Init();
 
 	UITabControl					= xr_new<CUITabControl>();
 	UITabControl->SetAutoDelete		(true);
@@ -209,7 +214,7 @@ void CUIPdaWnd::SetActiveSubdialog(const shared_str& section)
 	} 
 	else if (section == "eptContacts")
 	{
-		m_pActiveDialog = pUIContacts;
+		m_pActiveDialog = pUIContactsWnd;
 	}
 	else if (section == "eptChat")
 	{
@@ -316,7 +321,7 @@ void CUIPdaWnd::Reset()
 //-	if ( pUIFactionWarWnd )	pUITaskWnd->ResetAll();
 	if ( pUIRankingWnd )	pUIRankingWnd->ResetAll();
 	if ( pUILogsWnd )		pUILogsWnd->ResetAll();
-	if (pUIContacts)		pUIContacts->ResetAll();
+	if (pUIContactsWnd)		pUIContactsWnd->ResetAll();
 	if (pUIChatWnd)			pUIChatWnd->ResetAll();
 }
 
