@@ -52,7 +52,7 @@ public:
 	CUILogsWnd*				pUILogsWnd;
 //	CUIPda_Contacts*		pUIContacts;
 
-	CUIPdaContactsWnd* pUIContactsWnd;
+	CUIPdaContactsWnd*		pUIContactsWnd;
 	UIPdaChat*				pUIChatWnd;
 
 	virtual void			Reset				();

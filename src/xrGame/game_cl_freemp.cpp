@@ -52,6 +52,10 @@ game_cl_freemp::game_cl_freemp()
 
 	m_SquadLeaderShader->create("hud\\default", "ui\\ui_squad_leader");
 	m_SquadMemberShader->create("hud\\default", "ui\\ui_squad_member");
+
+	local_squad = xr_new<MP_SquadCL>();
+	local_squad->need_update = false;
+
 }
 
 game_cl_freemp::~game_cl_freemp()
@@ -549,6 +553,7 @@ void game_cl_freemp::OnRender()
 	}
  
 	//if (m_bSquadIndicators)
+	if (local_squad)
 	{
 		for (u32 o_it = 0; o_it < local_squad->players.size(); o_it++)
 		{

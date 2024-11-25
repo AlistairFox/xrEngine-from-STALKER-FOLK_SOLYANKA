@@ -121,10 +121,13 @@ void STorsoWpn::Create(IKinematicsAnimated* K, LPCSTR base0, LPCSTR base1)
 	moving[eRun]	= K->ID_Cycle_Safe(strconcat(sizeof(buf),buf,base0,"_torso",base1,"_aim_3"));
 	moving[eSprint]	= K->ID_Cycle_Safe(strconcat(sizeof(buf),buf,base0,"_torso",base1,"_escape_0"));
  
-	moving[eIdleSafe] = K->ID_Cycle_Safe(strconcat(sizeof(buf), buf, base0, "_torso", base1, "_idle_1"));
-	moving[eWalkSafe] = K->ID_Cycle_Safe(strconcat(sizeof(buf), buf, base0, "_torso", base1, "_walk_1"));
-	moving[eRunSafe]  = K->ID_Cycle_Safe(strconcat(sizeof(buf), buf, base0, "_torso", base1, "_run_1"));
-	moving[eSprintSafe] = K->ID_Cycle_Safe(strconcat(sizeof(buf), buf, base0, "_torso", base1, "_escape_0"));
+	if (base0 != "cr")
+	{
+		moving[eIdleSafe] = K->ID_Cycle_Safe(strconcat(sizeof(buf), buf, base0, "_torso", base1, "_idle_1"));
+		moving[eWalkSafe] = K->ID_Cycle_Safe(strconcat(sizeof(buf), buf, base0, "_torso", base1, "_walk_1"));
+		moving[eRunSafe] = K->ID_Cycle_Safe(strconcat(sizeof(buf), buf, base0, "_torso", base1, "_run_1"));
+		moving[eSprintSafe] = K->ID_Cycle_Safe(strconcat(sizeof(buf), buf, base0, "_torso", base1, "_escape_0"));
+	}
 
 	zoom			= K->ID_Cycle_Safe(strconcat(sizeof(buf),buf,base0,"_torso",base1,"_aim_0"));
 	holster			= K->ID_Cycle_Safe(strconcat(sizeof(buf),buf,base0,"_torso",base1,"_holster_0"));
@@ -151,9 +154,13 @@ void SAnimState::Create(IKinematicsAnimated* K, LPCSTR base0, LPCSTR base1)
 	legs_rs			= K->ID_Cycle(strconcat(sizeof(buf),buf,base0,base1,"_rs_0"));
 
 	legs_fwd_safe = K->ID_Cycle(strconcat(sizeof(buf), buf, base0, base1, "_fwd_1"));
-	legs_back_safe = K->ID_Cycle(strconcat(sizeof(buf),buf, base0, base1, "_back_1"));
-	legs_ls_safe = K->ID_Cycle(strconcat(sizeof(buf), buf,  base0, base1, "_ls_1"));
-	legs_rs_safe = K->ID_Cycle(strconcat(sizeof(buf), buf,  base0, base1, "_rs_1"));
+	legs_back_safe = K->ID_Cycle(strconcat(sizeof(buf),buf, base0, base1, "_back_0"));
+	legs_ls_safe = K->ID_Cycle(strconcat(sizeof(buf), buf,  base0, base1, "_ls_0"));
+	legs_rs_safe = K->ID_Cycle(strconcat(sizeof(buf), buf,  base0, base1, "_rs_0"));
+	// xrmpe
+	//legs_back_safe = K->ID_Cycle(strconcat(sizeof(buf),buf, base0, base1, "_back_1"));
+  	//legs_ls_safe = K->ID_Cycle(strconcat(sizeof(buf), buf,  base0, base1, "_ls_1"));
+	//legs_rs_safe = K->ID_Cycle(strconcat(sizeof(buf), buf,  base0, base1, "_rs_1"));
 
 }
 
@@ -204,10 +211,13 @@ void SActorState::Create(IKinematicsAnimated* K, LPCSTR base)
 	string128		buf,buf1;
 	
 	legs_turn		= K->ID_Cycle(strconcat(sizeof(buf),buf,base,"_turn"));
-	legs_turn_safe  = K->ID_Cycle(strconcat(sizeof(buf), buf, base, "_turn_safe"));
-
 	legs_idle		= K->ID_Cycle(strconcat(sizeof(buf),buf,base,"_idle_0"));
-	legs_idle_safe  = K->ID_Cycle(strconcat(sizeof(buf), buf, base, "_idle_1"));
+
+
+
+// xrmpe
+//	legs_turn_safe  = K->ID_Cycle(strconcat(sizeof(buf), buf, base, "_turn_safe"));
+//	legs_idle_safe  = K->ID_Cycle(strconcat(sizeof(buf), buf, base, "_idle_1"));
 
 	death			= K->ID_Cycle(strconcat(sizeof(buf),buf,base,"_death_0"));
 	
@@ -237,11 +247,8 @@ void SActorState::Create(IKinematicsAnimated* K, LPCSTR base)
 
 //	m_torso[13].Create(K, base, "_14");
 
-	
 	m_torso_idle	 = K->ID_Cycle(strconcat(sizeof(buf),buf,base,"_torso_0_aim_0"));
-
 	m_head_idle		 = K->ID_Cycle("head_idle_0");
-	m_head_idle_safe = K->ID_Cycle("head_idle_1");
 
 	jump_begin		 = K->ID_Cycle(strconcat(sizeof(buf),buf,base,"_jump_begin"));
 	jump_idle		 = K->ID_Cycle(strconcat(sizeof(buf),buf,base,"_jump_idle"));
@@ -250,24 +257,35 @@ void SActorState::Create(IKinematicsAnimated* K, LPCSTR base)
 
 	for (int k=0; k<12; ++k)
 		m_damage[k]	= K->ID_FX(strconcat(sizeof(buf),buf,base,"_damage_",itoa(k,buf1,10)));
-	
+
+
+
+
+	if (base != "cr")
+	{
+		legs_idle_safe = K->ID_Cycle(strconcat(sizeof(buf), buf, base, "_idle_0"));
+		legs_turn_safe = K->ID_Cycle(strconcat(sizeof(buf), buf, base, "_turn"));
+		m_head_idle_safe = K->ID_Cycle("head_idle_1");
+	}	
 }
 
 void SActorSprintState::Create(IKinematicsAnimated* K)
 {
 	//leg anims
 	legs_fwd = K->ID_Cycle("norm_escape_00");
-	legs_fwd_safe = K->ID_Cycle("norm_escape_00");
-	
 	legs_ls = K->ID_Cycle("norm_escape_ls_0");
-	legs_ls_safe = K->ID_Cycle("norm_escape_ls_0");
-
 	legs_rs = K->ID_Cycle("norm_escape_rs_0");
-	legs_rs_safe = K->ID_Cycle("norm_escape_rs_0");
 
 	legs_jump_fwd	=K->ID_Cycle("norm_escape_jump_00");
 	legs_jump_ls	=K->ID_Cycle("norm_escape_ls_jump_00");
 	legs_jump_rs	=K->ID_Cycle("norm_escape_rs_jump_00");
+
+	// if (base != "cr")
+	{
+		legs_fwd_safe = K->ID_Cycle("norm_escape_00");
+		legs_ls_safe = K->ID_Cycle("norm_escape_ls_0");
+		legs_rs_safe = K->ID_Cycle("norm_escape_rs_0");
+	}
 }
  
 void SActorMotions::Create(IKinematicsAnimated* V)
@@ -276,6 +294,7 @@ void SActorMotions::Create(IKinematicsAnimated* V)
 
 	m_normal.Create	(V,"norm");
 	m_crouch.Create	(V,"cr");
+
  	m_climb.CreateClimb(V);
 	m_sprint.Create(V);
 

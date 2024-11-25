@@ -156,11 +156,11 @@ void xrDebug::backend(const char* expression, const char* description, const cha
 
     CS.Enter();
 
-    Msg("Exception Backend: ");
+ //   Msg("Exception Backend: ");
 
     string4096 assertion_info;
 
-    gather_info(expression, description, argument0, argument1, file, line, function, assertion_info, sizeof(assertion_info));
+ //   gather_info(expression, description, argument0, argument1, file, line, function, assertion_info, sizeof(assertion_info));
 
     LPCSTR endline = "\r\n";
     LPSTR buffer = assertion_info + xr_strlen(assertion_info);
@@ -170,7 +170,7 @@ void xrDebug::backend(const char* expression, const char* description, const cha
     if (handler)
         handler();
 
-    Msg("Backend excpetion: %s", assertion_info);
+ //   Msg("Backend excpetion: %s", assertion_info);
 
     FlushLog();
  
@@ -189,8 +189,6 @@ void xrDebug::backend(const char* expression, const char* description, const cha
     //    Msg("Assertion: %s", assertion_info);
 
     CS.Leave();
-
-    //TerminateProcess(GetCurrentProcess(), 1);
 }
 
 #endif

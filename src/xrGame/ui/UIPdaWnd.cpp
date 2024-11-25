@@ -111,8 +111,8 @@ void CUIPdaWnd::Init()
 	pUIContactsWnd = xr_new<CUIPdaContactsWnd>();
 	pUIContactsWnd->Init();
 
-//	pUIChatWnd = xr_new<UIPdaChat>();
-//	pUIChatWnd->Init();
+	pUIChatWnd = xr_new<UIPdaChat>();
+	pUIChatWnd->Init();
 
 	UITabControl					= xr_new<CUITabControl>();
 	UITabControl->SetAutoDelete		(true);
@@ -357,8 +357,7 @@ void RearrangeTabButtons(CUITabControl* pTab)
 
 bool CUIPdaWnd::OnKeyboardAction(int dik, EUIMessages keyboard_action)
 {
-	if (!this->pUIChatWnd->IsShown())
-	if ( is_binded(kACTIVE_JOBS, dik) )
+ 	if ( is_binded(kACTIVE_JOBS, dik) )
 	{
 		if ( WINDOW_KEY_PRESSED == keyboard_action )
 			HideDialog();
