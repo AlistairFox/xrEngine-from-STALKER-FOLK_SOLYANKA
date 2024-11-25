@@ -74,7 +74,7 @@ rcEncNormalize( _PPMD_FILE* stream )
 {
     while(      (low ^ (low+range)) < TOP 
             ||  range < BOT 
-            &&  ((range= -low & (BOT-1)),1)
+            &&  ((range= -static_cast<int>(low) & (BOT-1)),1)
          ) 
     {
         _PPMD_E_PUTC( low >> 24, stream );
@@ -116,7 +116,7 @@ rcDecNormalize( _PPMD_FILE* stream )
 {
     while(      (low ^ (low+range)) < TOP 
             ||  range < BOT 
-            &&  ((range= -low & (BOT-1)),1) 
+            &&  ((range = -static_cast<int>(low) & (BOT-1)),1)
          ) 
     {
         code    = (code << 8) | _PPMD_D_GETC(stream);
