@@ -26,7 +26,7 @@ CBlend	*PlayMotionByParts(IKinematicsAnimated* sa, MotionID motion_ID, BOOL bMix
 
 CBlend*	anim_script_callback::play_cycle( IKinematicsAnimated* sa,const shared_str& anim )
 {
-	Msg("!!! [Warning] [physic_object] Play ANIMATION");
+//	Msg("!!! [Warning] [physic_object] Play ANIMATION");
 
 	MotionID	m	=	sa->LL_MotionID		( *anim )			;
 	R_ASSERT( m.valid( ) );

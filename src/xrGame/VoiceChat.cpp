@@ -117,7 +117,15 @@ void CVoiceChat::OnRender()
 			CActor* pActor = smart_cast<CActor*>(pObject);
 			if (!pActor) continue;
 
-			pActor->RenderIndicator(pos, 0.2, 0.2, GetVoiceIndicatorShader());
+			bool isCorrectSquad = false;
+			for (auto PL : players_in_squad)
+			{
+				if (PL.PlayerState->GameID == ps->GameID)
+					isCorrectSquad = true;
+			}
+
+			if (isCorrectSquad)
+				pActor->RenderIndicator(pos, 0.2, 0.2, GetVoiceIndicatorShader());
 		}
 	}
 
@@ -144,18 +152,36 @@ void CVoiceChat::ReceiveMessage(NET_Packet* P)
 	u16 clientId = P->r_u16();
 	CObject* obj = Level().Objects.net_Find(clientId);
 	if (!obj)
+ 		return;
+ 
+	bool isValidDistance = true;
+
+	// Se7kills
+	//const bool isValidDistance = (Actor()->Position().distance_to(obj->Position()) <= voiceDistance);
+	//
+	//if (isValidDistance == false)
+	//	return;
+
+	float distance = Actor()->Position().distance_to(obj->Position());
+
+	bool isCorrectSquad = false;
+	for (auto PL : players_in_squad)
 	{
+		if (PL.PlayerState->GameID == clientId)
+			isCorrectSquad = true;
+	}
+
+	if (!isCorrectSquad && distance > 30)
+	{
+		// Msg("Squad Is Not Correct");
 		return;
 	}
 
-	const bool isValidDistance = (Actor()->Position().distance_to(obj->Position()) <= voiceDistance);
-
-	if (isValidDistance == false)
-		return;
+	// Msg("Recived Packet VoiceChat: try PlaySound!!!!");
 
 	IStreamPlayer* player = GetStreamPlayer(clientId);
 	player->SetPosition(obj->Position());
-	player->SetDistance(voiceDistance);
+	player->SetDistance(voiceDistance < 30.0f ? voiceDistance : 0); // voiceDistance
 
 	u8 packetsCount = P->r_u8();
 

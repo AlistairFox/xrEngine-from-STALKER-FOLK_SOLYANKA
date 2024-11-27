@@ -14,7 +14,7 @@
 #include "game_cl_mp.h"
 #include "actor_mp_client.h"
 
-#define			PDA_CONTACT_CHAR		"pda_character.xml"
+#define			PDA_CONTACT_CHAR		"xrmpe\\pda_character.xml"
 
 CUIPdaListItem::CUIPdaListItem()
 {
@@ -45,18 +45,19 @@ void CUIPdaListItem::InitPdaListItem(Fvector2 pos, Fvector2 size)
 void CUIPdaListItem::InitCharacter(CInventoryOwner* pInvOwner)
 {
 	VERIFY(pInvOwner);
-	Msg("New Contact found, his name is %s", pInvOwner->Name());
+	// Msg("New Contact found, his name is %s", pInvOwner->Name());
 	//UIInfo->InitCharacter(pInvOwner->object_id());
 
-	game_PlayerState* pPlayer = Level().game->GetPlayerByGameID(pInvOwner->cast_game_object()->ID());
+	// Se7kills Нужно поченить не забыть потом нормальное определение иконки
+	// game_PlayerState* pPlayer = Level().game->GetPlayerByGameID(pInvOwner->cast_game_object()->ID());
 
-	if (pPlayer)
-	{
-		UIInfo->InitCharacterOnClient(pPlayer->getName(), pInvOwner->CharacterInfo().Community().id(), pPlayer->getIcon());
-	}
-	else
-	{
+	//if (pPlayer)
+	//{
+	//	UIInfo->InitCharacterOnClient(pPlayer->getName(), pInvOwner->CharacterInfo().Community().id(), pPlayer->getIcon());
+	//}
+	//else
+	//{
 		UIInfo->InitCharacterOnClient(pInvOwner->Name(), pInvOwner->CharacterInfo().Community().id(), pInvOwner->IconName());
-	}
+	//}
 
 }

@@ -11,9 +11,11 @@ CUIHudSquadWnd::CUIHudSquadWnd() {}
 
 CUIHudSquadWnd::~CUIHudSquadWnd() {}
 
-void CUIHudSquadWnd::Init(CUIXml& xml, LPCSTR path)
+void CUIHudSquadWnd::Init()
 {
-	CUIXmlInit::InitWindow(xml, path, 0, this);
+	CUIXml uiXRMPE;
+	uiXRMPE.Load(CONFIG_PATH, UI_PATH, "xrmpe\\gameui_xrmpe_squad.xml");
+ 	CUIXmlInit::InitWindow(uiXRMPE, "hud_squad", 0, this);
 
 	m_game = smart_cast<game_cl_freemp*>(&Game());
 	R_ASSERT(m_game);
@@ -25,7 +27,7 @@ void CUIHudSquadWnd::Init(CUIXml& xml, LPCSTR path)
 
 		m_pSquadMembers[i] = xr_new<CUIHudSquadMember>();
 		m_pSquadMembers[i]->SetAutoDelete(true);
-		m_pSquadMembers[i]->Init(xml, buf);
+		m_pSquadMembers[i]->Init(uiXRMPE, buf);
 
 		AttachChild(m_pSquadMembers[i]);
 		m_pSquadMembers[i]->Show(false);
@@ -39,24 +41,28 @@ void CUIHudSquadWnd::Update()
 
 void CUIHudSquadWnd::UpdateMembers()
 {
-	if (!m_game->local_player) return;
+	if (!m_game->local_player) 
+		return;
 
-	for (int i = 0; i < squad_size - 1; ++i) m_pSquadMembers[i]->Clear();
+	for (int i = 0; i < squad_size - 1; ++i) 
+		m_pSquadMembers[i]->Clear();
 
-	if (!m_game->local_squad->players.size()) return;
-
-	xr_vector<game_PlayerState*>::const_iterator it = m_game->local_squad->players.begin();
-	xr_vector<game_PlayerState*>::const_iterator it_e = m_game->local_squad->players.end();
-
-	int j = 0;
-
-	for (; it != it_e; ++it)
+	if (!m_game->local_squad->players.size())
 	{
-		if ((*it) && (*it)->GameID != m_game->local_player->GameID)
+		Msg("No Players In Squad");
+		return;
+	}
+
+	Msg("Size Players: %d", m_game->local_squad->players.size());
+  
+	int j = 0;
+ 	for (auto& player : m_game->local_squad->players)
+	{
+		if (player->GameID != m_game->local_player->GameID)
 		{
 			if (j < squad_size - 1)
 			{
-				m_pSquadMembers[j]->Add(*it);
+				m_pSquadMembers[j]->Add(player);
 				j++;
 			}
 		}

@@ -4,6 +4,8 @@
 #include "VoiceSender.h"
 #include "associative_vector.h"
 
+class game_PlayerState;
+
 class CVoiceChat
 {
 private:
@@ -18,13 +20,36 @@ private:
 			time = _time;
 		}
 	};
-
+	 
 	u32 m_last_distance = 0;
 
 	typedef xr_map<u16, IStreamPlayer*> SOUND_PLAYERS;
 	typedef xr_map<u16, SVoiceIconInfo> PLAYERS_VOICE_TIME;
 
 public:
+	
+	struct VoicePlayer
+	{
+		shared_str name;
+		u32 distance = 0;
+		u32 SquadID = 0;
+		game_PlayerState* PlayerState = 0;
+
+		VoicePlayer()
+		{ 
+			distance = 0;
+			SquadID = 0;
+			PlayerState = 0; 
+		};
+		~VoicePlayer() 
+		{ 
+			distance = 0;
+			SquadID = 0;
+			PlayerState = 0;
+		}
+	};
+
+	xr_vector<VoicePlayer> players_in_squad;
 	CVoiceChat();
 	~CVoiceChat();
 

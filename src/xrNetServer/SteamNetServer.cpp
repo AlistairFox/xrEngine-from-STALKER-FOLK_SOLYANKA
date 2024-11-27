@@ -169,10 +169,8 @@ void SteamNetServer::DestroyConnection()
 	m_server_password.clear();
 
 	if (m_pInterface == nullptr)
-	{
-		return;
-	}
-
+ 		return;
+ 
 	DisconnectAll();
 
 	if (m_hListenSock != k_HSteamListenSocket_Invalid)

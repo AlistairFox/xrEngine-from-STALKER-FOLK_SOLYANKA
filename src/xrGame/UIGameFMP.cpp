@@ -51,7 +51,8 @@ void CUIGameFMP::Init(int stage)
 		//surge_background = UIHelper::CreateStatic(uiXml, "surge", 0);
 		//surge_cap = UIHelper::CreateTextWnd(uiXml, "surge_cap", 0);
 
-		m_hud_squad = xr_new<CUIHudSquadWnd>(); m_hud_squad->SetAutoDelete(true);
+		m_hud_squad = xr_new<CUIHudSquadWnd>();
+		m_hud_squad->SetAutoDelete(true);
 
 	}
 	else if (stage == 1)
@@ -67,7 +68,7 @@ void CUIGameFMP::Init(int stage)
 		//m_window->AttachChild(surge_background);
 		//m_window->AttachChild(surge_cap);
 
-		m_hud_squad->Init(uiXml, "hud_squad");
+		m_hud_squad->Init();
 	}
 	m_animation = xr_new<CUIAMode>();
 	m_animation->Init();
@@ -141,8 +142,8 @@ void _BCL CUIGameFMP::OnFrame()
 				stats.getPacketsInPerSec(),
 				stats.getPacketsOutPerSec(),
 				//stats.getQueueTime(),
-				//stats.getSendRateBytesPerSecond(),
 				//stats.getPendingReliable(),
+				//stats.getSendRateBytesPerSecond(),
 				//stats.getPendingUnreliable(),
 				//stats.getSentUnackedReliable(),
 				stats.getQualityLocal(),
@@ -159,6 +160,18 @@ void _BCL CUIGameFMP::OnFrame()
 		m_stats->SetTextST("");
 		m_stats->Enable(false);
 	}
+
+	if (m_game && m_game->local_squad->players.size())
+	{
+		if (!m_hud_squad->IsShown())
+			m_hud_squad->Show(true);
+	}
+	else
+	{
+		if (m_hud_squad->IsShown())
+			m_hud_squad->Show(false);
+	}
+
  	/*
 	if (Device.dwFrame % 60 == 0)
 	{

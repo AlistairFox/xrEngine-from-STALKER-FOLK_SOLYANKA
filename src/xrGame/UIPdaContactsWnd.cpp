@@ -21,7 +21,7 @@
 
 #include "ui/UIHelper.h"
 
-#define PDA_CONTACTS_XML		"pda_contacts.xml"
+#define PDA_CONTACTS_XML		"xrmpe\\pda_contacts.xml"
 #define PDA_CONTACT_HEIGHT		70
 
 CUIPdaContactsWnd::CUIPdaContactsWnd()
@@ -142,7 +142,7 @@ void CUIPdaContactsWnd::ProcessPropertiesBoxClicked(CUIWindow* w, void* d)
 	CUIPdaContactItem* item = smart_cast<CUIPdaContactItem*>(UIContactsList->GetSelected());
 	if (!item)
 	{
-		Msg("! FAILED to create contact from selected item");
+		Msg("! FAILED to create contact from selected item: %p", item);
 		return;
 	}
 
@@ -167,7 +167,8 @@ void CUIPdaContactsWnd::ProcessPropertiesBoxClicked(CUIWindow* w, void* d)
 	}break;
 	}
 }
-
+#include "Actor.h"
+#include "actor_mp_client.h"
 void CUIPdaContactsWnd::Update()
 {
 	if (Device.dwTimeGlobal - m_previous_time > m_delay)
@@ -182,16 +183,16 @@ void CUIPdaContactsWnd::Update()
 		CPda* pPda = tmp_actor->GetPDA();
 		if (!pPda) return;
 
-		Msg("Updating PDA Contacts");
+		// Msg("Updating PDA Contacts");
 
 		pPda->ActivePDAContacts(m_pda_list);
-
-		xr_vector<CPda*>::iterator it = m_pda_list.begin();
-		xr_vector<CPda*>::iterator it_e = m_pda_list.end();
-
-		for (; it != it_e; ++it)
+ 
+		for (auto pda : m_pda_list)
 		{
-			AddContact(*it);
+			auto A = smart_cast<CActor*> (pda->GetOwnerObject());
+			auto MP = smart_cast<CActorMP*>(pda->GetOwnerObject());
+			if (A && MP)
+ 				AddContact(pda);
 		}
 		//m_bNeedUpdate = false;
 		m_flags.set(flNeedUpdate, FALSE);
@@ -241,6 +242,7 @@ void CUIPdaContactsWnd::AddContact(CPda* pda)
 
 	CUIPdaContactItem* pItem = NULL;
 	pItem = xr_new<CUIPdaContactItem>(this);
+ 
 	UIContactsList->AddWindow(pItem, true);
 	pItem->InitPdaListItem(Fvector2().set(0, 0), Fvector2().set(UIContactsList->GetWidth(), 120.0f));
 
@@ -300,6 +302,8 @@ void CUIPdaContactsWnd::OnPropertyPdaSendInviteClicked(CPda* temp_pda)
 		return;
 	}
 
+	Msg("--- PlayerState No Has Squad Send Event !!!");
+
 	NET_Packet P;
 	CGameObject::u_EventGen(P, GE_PDA_SQUAD_SEND_INVITE, Level().CurrentControlEntity()->ID());
 	P.w_u16(ps->GameID);
@@ -311,6 +315,8 @@ void CUIPdaContactsWnd::OnPropertyPdaCancelInviteClicked(CPda* temp_pda)
 	Msg("Sending invite cancellation to %s", temp_pda->H_Parent()->cName().c_str());
 	game_PlayerState* ps = Level().game->GetPlayerByGameID(temp_pda->H_Parent()->ID());
 	if (!ps) return; //Send only to players
+
+	Msg("--- PlayerState FINDED Send Event !!!");
 
 	NET_Packet P;
 	CGameObject::u_EventGen(P, GE_PDA_SQUAD_CANCEL_INVITE, Level().CurrentControlEntity()->ID());
@@ -342,13 +348,14 @@ bool CUIPdaContactItem::OnMouseDown(int mouse_btn)
 {
 	if (mouse_btn == MOUSE_1)
 	{
-		//m_cw->UIListWnd->SetSelected(this);
+		m_cw->UIContactsList->SetSelected(this);
 		m_cw->HidePropertiesBox();
 		return true;
 	}
 
 	if (mouse_btn == MOUSE_2 || mouse_btn == MOUSE_3)
 	{
+		Msg("Set Selected THIS: %p", this);
 		m_cw->UIContactsList->SetSelected(this);
 		m_cw->ShowPropertiesBox();
 		return true;

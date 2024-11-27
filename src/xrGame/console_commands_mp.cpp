@@ -4038,8 +4038,104 @@ public:
 
 };
 
+
+#include "game_cl_freemp.h"
+#include "UIGameFMP.h"
+#include "ui/UIActorMenu.h"
+#include "ui/UIPdaWnd.h"
+class CCC_RealoadCFGS : public IConsole_Command
+{
+public:
+	CCC_RealoadCFGS(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; };
+
+	virtual void		Execute(LPCSTR args)
+	{
+		pSettings->Destroy(const_cast<CInifile*>(pSettings));
+		//xr_delete(&pSettings);
+		FS.rescan_pathes();
+		string_path	fname;
+		FS.update_path(fname, "$game_config$", "system.ltx");
+		pSettings = xr_new<CInifile>(fname, TRUE);
+	}
+};
+
+class CCC_ReloadPlayerUI : public IConsole_Command
+{
+public:
+	CCC_ReloadPlayerUI(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; }
+
+	virtual void Execute(LPCSTR args)
+	{
+		string_path p;
+		FS.update_path(p, "$game_config$", "");
+		FS.rescan_path(p, true);
+
+		game_cl_freemp* fmp = smart_cast<game_cl_freemp*>(Level().game);
+		if (fmp)
+		{
+			fmp->m_game_ui->HideShownDialogs();
+			fmp->m_game_ui->ActorMenu().ReloadActorMenu();
+		}
+	}
+};
+
+class CCC_ReloadPdaUI : public IConsole_Command
+{
+public:
+	CCC_ReloadPdaUI(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; }
+
+	virtual void Execute(LPCSTR args)
+	{
+		string_path p;
+		FS.update_path(p, "$game_config$", "");
+		FS.rescan_path(p, true);
+
+		game_cl_freemp* fmp = smart_cast<game_cl_freemp*>(Level().game);
+		if (fmp)
+		{
+			fmp->m_game_ui->HideShownDialogs();
+			fmp->m_game_ui->PdaMenu().Init();
+		}
+	}
+};
+
+#include "UIZoneMap.h"
+#include "ui/UIMainIngameWnd.h"
+
+class CCC_ReloadMeinMenu : public IConsole_Command
+{
+public:
+	CCC_ReloadMeinMenu(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; }
+
+	virtual void Execute(LPCSTR args)
+	{
+		string_path p;
+		FS.update_path(p, "$game_config$", "");
+		FS.rescan_path(p, true);
+
+		game_cl_freemp* fmp = smart_cast<game_cl_freemp*>(Level().game);
+		if (fmp)
+		{
+			fmp->m_game_ui->UIMainIngameWnd->Show(false);
+			xr_delete(fmp->m_game_ui->UIMainIngameWnd);
+			fmp->m_game_ui->UIMainIngameWnd = xr_new<CUIMainIngameWnd>();
+			fmp->m_game_ui->UIMainIngameWnd->Init();
+			fmp->m_game_ui->UIMainIngameWnd->OnConnected();
+			fmp->m_game_ui->UIMainIngameWnd->ShowZoneMap(true);
+ 			fmp->m_game_ui->UIMainIngameWnd->Show(true);
+		}
+	}
+};
+
+
 void register_mp_console_commands()
 {
+	// RELOAD UI 
+	CMD1(CCC_RealoadCFGS, "reload_configs");
+	CMD1(CCC_ReloadPlayerUI, "reload_ui_actor");
+	CMD1(CCC_ReloadMeinMenu, "reload_UI_main_in_game");
+	CMD1(CCC_ReloadPdaUI, "reload_ui_pda");
+
 	//CAMERA
 	CMD4(CCC_Vector3, "cam_2_offset", &CCameraLook2::m_cam_offset, Fvector().set(-1000, -1000, -1000), Fvector().set(1000, 1000, 1000));
  

@@ -19,7 +19,7 @@ public:
 	CUIHudSquadWnd();
 	~CUIHudSquadWnd();
 
-	void	Init(CUIXml& xml, LPCSTR path);
+	void	Init();
 	virtual void	Update();
 	void	UpdateMembers();
 

@@ -14,6 +14,7 @@
 #include "Level.h"
 #include "game_sv_freemp.h"
 #include "WeaponMagazined.h"
+#include "game_sv_mp.h"
  
 void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 {
@@ -455,10 +456,20 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 		u16 id = P.r_u16();
 		CSE_Abstract* e_src = game->get_entity_from_eid(id);
 		if (!e_src) break;
-
-		NET_Packet tmp_packet;
-		CGameObject::u_EventGen(tmp_packet, GE_PDA_SQUAD_SEND_INVITE, receiver->ID);
-		tmp_packet.w_u16(receiver->ID);
+		game_sv_mp* mpgame = smart_cast<game_sv_mp*>(game);
+		if (mpgame)
+		{
+			string128 tmp;
+			sprintf(tmp, "Send Invite TO: %llu", e_src->owner->ID);
+			mpgame->SvSendChatMessage(tmp);
+		}
+ 		NET_Packet tmp_packet;
+		tmp_packet.w_begin(M_GAMEMESSAGE);
+		tmp_packet.w_u32(GE_PDA_SQUAD_SEND_INVITE);
+		if (receiver != nullptr)
+			tmp_packet.w_u16(receiver->ID);
+		else
+			tmp_packet.w_u16(-1);
 
 		SendTo(e_src->owner->ID, tmp_packet, net_flags(TRUE, TRUE));
 
@@ -469,23 +480,47 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 		CSE_Abstract* e_src = game->get_entity_from_eid(id);
 		if (!e_src) break;
 
-		NET_Packet tmp_packet;
-		CGameObject::u_EventGen(tmp_packet, GE_PDA_SQUAD_CANCEL_INVITE, receiver->ID);
-		tmp_packet.w_u16(receiver->ID);
+		game_sv_mp* mpgame = smart_cast<game_sv_mp*>(game);
+		if (mpgame)
+		{
+			string128 tmp;
+			sprintf(tmp, "Send CancelInvite TO: %llu", e_src->owner->ID);
+			mpgame->SvSendChatMessage(tmp);
+		}
 
+
+		NET_Packet tmp_packet;
+		tmp_packet.w_begin(M_GAMEMESSAGE);
+		tmp_packet.w_u32(GE_PDA_SQUAD_CANCEL_INVITE);
+		if (receiver != nullptr)
+			tmp_packet.w_u16(receiver->ID);
+		else
+			tmp_packet.w_u16(-1);
+  
 		SendTo(e_src->owner->ID, tmp_packet, net_flags(TRUE, TRUE));
 	}break;
 	case GE_PDA_SQUAD_RESPOND_INVITE:
 	{
+		game_sv_mp* mpgame = smart_cast<game_sv_mp*>(game);
+		if (mpgame)
+			mpgame->SvSendChatMessage("Respond Invite");
+ 
 		game->join_player_in_squad(P, destination);
 	}break;
 	case GE_PDA_SQUAD_KICK_PLAYER:
 	{
+		game_sv_mp* mpgame = smart_cast<game_sv_mp*>(game);
+		if (mpgame)
+			mpgame->SvSendChatMessage("Kick Player From Squad");
+		 
 		game->delete_player_from_squad(P, destination);
 	}break;
 	case GE_PDA_SQUAD_MAKE_LEADER:
 	{
-		game->make_player_squad_leader(P, destination);
+		game_sv_mp* mpgame = smart_cast<game_sv_mp*>(game);
+		if (mpgame)
+		mpgame->SvSendChatMessage("Make Player Leader Squad");
+ 		game->make_player_squad_leader(P, destination);
 	}break;
 
 	 

@@ -9,7 +9,7 @@
 #include "UIPdaContactsWnd.h"
 #include "game_cl_freemp.h"
 
-#define SQUAD_INVITE_XML		"squad_invite.xml"
+#define SQUAD_INVITE_XML		"xrmpe\\squad_invite.xml"
 
 CUIInviteToSquadMsgBox::CUIInviteToSquadMsgBox()
 {

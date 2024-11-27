@@ -1018,7 +1018,7 @@ void CSE_ALifeCreatureAbstract::STATE_Read	(NET_Packet &tNetPacket, u16 size)
 	o_model						= o_torso.yaw;
 	if (m_wVersion > 87) 
 	{
-		Msg("Name: %s, replace: %s", name(), name_replace());
+	//	Msg("Name: %s, replace: %s", name(), name_replace());
 		load_data				(m_dynamic_out_restrictions,tNetPacket);
 		load_data				(m_dynamic_in_restrictions,tNetPacket);
 	}

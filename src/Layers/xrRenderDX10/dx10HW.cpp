@@ -726,6 +726,44 @@ void CHW::OnAppDeactivate()
 	}
 }
 
+void CHW::updateWindowProps_Position(HWND m_hWnd, u32 X, u32 Y, u32 SizeX, u32 SizeY)
+{
+	if (psDeviceFlags.is(rsFullscreen))
+		return;
+
+	u32		dwWindowStyle = 0;
+	// Set window properties depending on what mode were in.
+
+	if (m_move_window)
+	{
+		Msg("Update Window Pos : X: %u, Y: %u", X, Y);
+
+		SetWindowLong(m_hWnd, GWL_STYLE, dwWindowStyle = (WS_BORDER | WS_DLGFRAME | WS_VISIBLE | WS_SYSMENU | WS_MINIMIZEBOX));
+
+		RECT			m_rcWindowBounds;
+
+		SetRect(&m_rcWindowBounds,
+			X,
+			Y,
+			X + m_ChainDesc.BufferDesc.Width,
+			Y + m_ChainDesc.BufferDesc.Height);
+
+		AdjustWindowRect(&m_rcWindowBounds, dwWindowStyle, FALSE);
+
+		SetWindowPos(m_hWnd,
+			HWND_NOTOPMOST,
+			m_rcWindowBounds.left,
+			m_rcWindowBounds.top,
+			(m_rcWindowBounds.right - m_rcWindowBounds.left),
+			(m_rcWindowBounds.bottom - m_rcWindowBounds.top),
+			SWP_SHOWWINDOW | SWP_NOCOPYBITS | SWP_DRAWFRAME);
+	}
+
+	ShowCursor(FALSE);
+	SetForegroundWindow(m_hWnd);
+
+}
+
 
 BOOL CHW::support( D3DFORMAT fmt, DWORD type, DWORD usage)
 {

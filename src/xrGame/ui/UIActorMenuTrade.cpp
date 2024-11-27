@@ -649,3 +649,8 @@ void CUIActorMenu::TransferItemsMp(CUIDragDropListEx* pSellList, CUIDragDropList
 		pPlayer->u_EventSend(P);
 	}
 }
+
+void CUIActorMenu::ReloadActorMenu()
+{
+	Construct();
+}

@@ -584,6 +584,8 @@ CUIMiniMap::CUIMiniMap()
 CUIMiniMap::~CUIMiniMap()
 {}
 
+
+/*
 void CUIMiniMap::Init_internal(const shared_str& name, CInifile& pLtx, const shared_str& sect_name, LPCSTR sh_name)
 {
 	inherited::Init_internal	(name, pLtx, sect_name, sh_name);
@@ -601,7 +603,6 @@ void CUIMiniMap::UpdateSpots()
 void  CUIMiniMap::Draw()
 {
 	return inherited::Draw();	 
-	/*
 	u32	segments_count			= 20;
 
 	UIRender->SetShader			(*m_UIStaticItem.GetShader());
@@ -662,8 +663,6 @@ void  CUIMiniMap::Draw()
 
 //------------
 	CUIWindow::Draw(); //draw childs
-
-	*/
 }
 
 bool CUIMiniMap::GetPointerTo(const Fvector2& src, float item_radius, Fvector2& pos, float& heading)
@@ -711,3 +710,4 @@ bool CUIMiniMap::IsRectVisible(Frect r)
 	float spot_radius		= r.width() / 2.0f;
 	return clip_center.distance_to(rect_center)+spot_radius < vis_radius; //assume that all minimap spots are circular
 }
+*/

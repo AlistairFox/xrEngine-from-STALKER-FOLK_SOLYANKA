@@ -627,32 +627,54 @@ BOOL CRenderDevice::Paused()
 	return g_pauseMngr.Paused();
 };
 
+extern int gAlvaysActive;
+
 void CRenderDevice::OnWM_Activate(WPARAM wParam, LPARAM lParam)
 {
-	u16 fActive						= LOWORD(wParam);
-	BOOL fMinimized					= (BOOL) HIWORD(wParam);
-	BOOL bActive					= ((fActive!=WA_INACTIVE) && (!fMinimized))?TRUE:FALSE;
+	u16 fActive = LOWORD(wParam);
+	BOOL fMinimized = (BOOL)HIWORD(wParam);
+	BOOL fWindowed = !psDeviceFlags.is(rsFullscreen);
+	BOOL bActive = /*fWindowed ? true : */ ((fActive != WA_INACTIVE) && (!fMinimized)) ? TRUE : FALSE;
 
-	if (bActive!=Device.b_is_Active)
+
+	if (gAlvaysActive)
 	{
+		Device.b_is_Active = TRUE;
 
-		Device.b_is_Active = bActive;
-
-		if (Device.b_is_Active)	
+		if (Device.b_is_Active)
 		{
 			Device.seqAppActivate.Process(rp_AppActivate);
-			app_inactive_time		+= TimerMM.GetElapsed_ms() - app_inactive_time_start;
-			ShowCursor			(FALSE);
+			app_inactive_time += TimerMM.GetElapsed_ms() - app_inactive_time_start;
+			ShowCursor(FALSE);
 		}
-		else	
+		else
 		{
-			app_inactive_time_start	= TimerMM.GetElapsed_ms();
+			app_inactive_time_start = TimerMM.GetElapsed_ms();
 			Device.seqAppDeactivate.Process(rp_AppDeactivate);
-			ShowCursor				(TRUE);
+			ShowCursor(TRUE);
 		}
+		return;
 	}
 
+	if (bActive != Device.b_is_Active)
+	{
+		Device.b_is_Active = bActive;
+
+		if (Device.b_is_Active)
+		{
+			Device.seqAppActivate.Process(rp_AppActivate);
+			app_inactive_time += TimerMM.GetElapsed_ms() - app_inactive_time_start;
+			ShowCursor(FALSE);
+		}
+		else
+		{
+			app_inactive_time_start = TimerMM.GetElapsed_ms();
+			Device.seqAppDeactivate.Process(rp_AppDeactivate);
+			ShowCursor(TRUE);
+		}
+	}
 }
+
 
 void	CRenderDevice::AddSeqFrame			( pureFrame* f, bool mt )
 {

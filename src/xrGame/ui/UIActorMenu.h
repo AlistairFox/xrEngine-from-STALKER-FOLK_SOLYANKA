@@ -333,6 +333,9 @@ protected:
 	void						TransferItemsMp				(CUIDragDropListEx* pSellList, CUIDragDropListEx* pBuyList, CTrade* pTrade, bool bBuying);
 
 public:
+	virtual void				ReloadActorMenu();
+
+
 								CUIActorMenu				();
 	virtual						~CUIActorMenu				();
 

@@ -4,6 +4,7 @@
 #include "../hudsound.h"
 #include "../../xrServerEntities/alife_space.h"
 #include "../EntityCondition.h"
+#include "UIArtefactPanel.h"
 
 class	CUIPdaMsgListItem;
 class	CLAItem;
@@ -14,6 +15,7 @@ class	CMissile;
 class	CInventoryItem;
 class	CUIHudStatesWnd;
 class	CUIMotionIcon;
+class	CUIArtefactPanel;
 
 class CUIMainIngameWnd: public CUIWindow  
 {
@@ -80,6 +82,8 @@ protected:
 	// - ранения
 	// - голода
 	// - усталости
+
+
 	CUIStatic*			UIWeaponJammedIcon;
 //	CUIStatic			UIRadiaitionIcon;
 //	CUIStatic			UIWoundIcon;
@@ -95,6 +99,8 @@ protected:
 
 public:
 	
+	CUIArtefactPanel* m_artefactPanel;
+
 	// Енумы соответсвующие предупреждающим иконкам 
 	enum EWarningIcons
 	{
@@ -109,15 +115,14 @@ public:
 		ewiArtefact,
 	};
 
+	void				SetActiveVoiceIcon(bool active);
+	void				SetVoiceDistance(u8 distance);
+
 	void				SetMPChatLog					(CUIWindow* pChat, CUIWindow* pLog);
 
 	// Задаем цвет соответствующей иконке
 	void				SetWarningIconColor				(EWarningIcons icon, const u32 cl);
 	void				TurnOffWarningIcon				(EWarningIcons icon);
-	void				SetActiveVoiceIcon(bool active);
-	void				SetVoiceDistance(u8 distance);
-
-
 
 	// Пороги изменения цвета индикаторов, загружаемые из system.ltx
 	typedef				xr_map<EWarningIcons, xr_vector<float> >	Thresholds;

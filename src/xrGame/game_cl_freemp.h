@@ -127,6 +127,10 @@ public:
 	MP_SquadCL* local_squad = nullptr;
 	MP_SquadInvite*		FindInviteByInviterID(u16 gameid);
 	void				RemoveInviteByInviterID(u16 gameid);
+
+	void				OnSquadInvniteReceived(NET_Packet& P);
+ 	void				OnSquadCancelReceived(NET_Packet& P);
+
 	bool				m_bSwitchToNextInvite;
 	void GiveNews(LPCSTR caption, LPCSTR text, LPCSTR texture_name, int delay, int show_time, int type, bool noSound);
 	void GiveNews(LPCSTR caption, LPCSTR text, LPCSTR texture_name, int delay, int show_time, int type);

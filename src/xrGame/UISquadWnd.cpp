@@ -11,7 +11,7 @@
 
 #include "game_cl_freemp.h"
 
-#define PDA_SQUAD_XML	"pda_squad.xml"
+#define PDA_SQUAD_XML	"xrmpe\\pda_squad.xml"
 
 CUISquadWnd::CUISquadWnd() {}
 
@@ -70,7 +70,7 @@ void CUISquadWnd::Init()
 	//---------------------------PropertiesBox
 	m_UIPropertiesBox = xr_new<CUIPropertiesBox>();
 
-	m_UIPropertiesBox->InitPropertiesBox(Fvector2().set(0, 0), Fvector2().set(300, 300), "pda_contacts.xml");
+	m_UIPropertiesBox->InitPropertiesBox(Fvector2().set(0, 0), Fvector2().set(300, 300), "xrmpe\\pda_contacts.xml");
 	AttachChild(m_UIPropertiesBox);
 	m_UIPropertiesBox->Hide();
 	m_UIPropertiesBox->SetWindowName("property_box");
@@ -233,6 +233,8 @@ void CUISquadWnd::AddSquadMember(game_PlayerState* pPlayer)
 
 	m_cap[member_number]->Show(false);
 
+	Msg("ADD Squad Member In SquadUI[%s]", pPlayer->getName());
+
 	pItem->InitSquadItem(Fvector2().set((pda_squad_item_distance * member_number), 0), Fvector2().set(84, 115));
 
 	pItem->InitCharacter(pPlayer);
@@ -275,7 +277,7 @@ void CUISquadWnd::RemoveAll()
 }
 
 //----------------------------------------------------------------------- class CUIPdaSquadItem
-#define PDA_SQUAD_CHARECTER		"pda_squad_character.xml"
+#define PDA_SQUAD_CHARECTER		"xrmpe\\pda_squad_character.xml"
 
 #include "Actor.h"
 #include "character_info.h"
@@ -343,9 +345,10 @@ void CUIPdaSquadItem::InitCharacter(game_PlayerState* pPlayer)
 
 	CInventoryOwner* pInvOwner = smart_cast<CInventoryOwner*>(Level().Objects.net_Find(pPlayer->GameID));
 
+	// Se7kills Нужно поченить не забыть потом нормальное определение иконки
 	if (pPlayer && pInvOwner)
 	{
-		UIInfo->InitCharacterOnClient(pPlayer->getName(), pInvOwner->CharacterInfo().Community().id(), pPlayer->getIcon());
+		UIInfo->InitCharacterOnClient(pPlayer->getName(), pInvOwner->CharacterInfo().Community().id(), /* pPlayer->getIcon() */ pInvOwner->IconName());
 	}
 	else
 	{

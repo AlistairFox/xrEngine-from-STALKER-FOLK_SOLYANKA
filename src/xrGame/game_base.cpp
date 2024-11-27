@@ -31,6 +31,9 @@ game_PlayerState::game_PlayerState(NET_Packet* account_info)
 	RespawnTime			= 0;
 	m_bPayForSpawn		= false;
 
+	MPSquadID			= 0;
+
+
 	clear				();
 
 	if (account_info)

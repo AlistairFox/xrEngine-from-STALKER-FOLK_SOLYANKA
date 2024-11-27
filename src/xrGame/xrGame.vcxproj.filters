@@ -6873,9 +6873,6 @@
     <ClInclude Include="ui\UITalkWnd.h">
       <Filter>UI\Common\TALK</Filter>
     </ClInclude>
-    <ClInclude Include="ui\UICarPanel.h">
-      <Filter>UI\Common\MainIngame</Filter>
-    </ClInclude>
     <ClInclude Include="ui\UIHudStatesWnd.h">
       <Filter>UI\Common\MainIngame</Filter>
     </ClInclude>
@@ -7512,9 +7509,6 @@
     <ClInclude Include="UIAnimMode.h">
       <Filter>UI\GameTypes\FreeMp</Filter>
     </ClInclude>
-    <ClInclude Include="VoiceSender.h">
-      <Filter>Core\Server\Games\client\freemp\Voice</Filter>
-    </ClInclude>
     <ClInclude Include="VoiceChat.h">
       <Filter>Core\Server\Games\client\freemp\Voice</Filter>
     </ClInclude>
@@ -7556,6 +7550,12 @@
     </ClInclude>
     <ClInclude Include="UIHudSquadWnd.h">
       <Filter>UI\Common\PDA\XRMPE_FILE\MainInGame</Filter>
+    </ClInclude>
+    <ClInclude Include="VoiceSender.h">
+      <Filter>Core\Server\Games\client\freemp\Voice</Filter>
+    </ClInclude>
+    <ClInclude Include="UIArtefactPanel.h">
+      <Filter>UI\Common\MainIngame</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -10559,9 +10559,6 @@
     <ClCompile Include="ui\UITalkWnd.cpp">
       <Filter>UI\Common\TALK</Filter>
     </ClCompile>
-    <ClCompile Include="ui\UICarPanel.cpp">
-      <Filter>UI\Common\MainIngame</Filter>
-    </ClCompile>
     <ClCompile Include="ui\UIHudStatesWnd.cpp">
       <Filter>UI\Common\MainIngame</Filter>
     </ClCompile>
@@ -11344,6 +11341,9 @@
     </ClCompile>
     <ClCompile Include="game_sv_freemp_squad.cpp">
       <Filter>Core\Server\Games\server\freemp\alife</Filter>
+    </ClCompile>
+    <ClCompile Include="UIArtefactPanel.cpp">
+      <Filter>UI\Common\MainIngame</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

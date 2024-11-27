@@ -696,10 +696,52 @@ extern int updateCL_Rate = 30;
 
 extern int stop_sheduler = 0;
 extern int fps_limit = 60;
- 
 
+class CCC_UpdateWindowPos : public IConsole_Command
+{
+	Ivector4 vector_data;
+
+public:
+	CCC_UpdateWindowPos(LPCSTR N) : IConsole_Command(N)
+	{
+		bEmptyArgsHandled = false;
+	}
+
+	virtual void	Execute(LPCSTR args)
+	{
+		Ivector4 v;
+		if (1 != sscanf(args, "%d", &v.x))
+		{
+			InvalidSyntax(); return;
+		}
+
+		v.y = 0;
+		v.z = 0;
+		v.w = 0;
+
+		vector_data.set(v);
+
+		Msg("Update Window: PosX: %d", v.x, v.y, v.z, v.w);
+		Device.m_pRender->UpdateWindow(Device.m_hWnd, v.x, v.y, v.z, v.w);
+	}
+
+	virtual void	Status(TStatus& S)
+	{
+		xr_sprintf(S, sizeof(S), "ivector4 [X, Y, sizeX, sizeY] (%f, %f, %f, %f)", vector_data.x, vector_data.y, vector_data.z, vector_data.w);
+	}
+	virtual void	Info(TInfo& I)
+	{
+		xr_sprintf(I, sizeof(I), "ivector4 [X, Y, sizeX, sizeY]");
+	}
+
+};
+ 
+extern int gAlvaysActive = 0;
 void CCC_Register()
 {	 
+	CMD4(CCC_Integer, "r__always_active", &gAlvaysActive, 0, 1);
+	CMD1(CCC_UpdateWindowPos, "r__update_window");
+
 	CMD4(CCC_Integer, "fps_limit", &fps_limit, 1, 600);
 	CMD4(CCC_Integer, "stop_shedule", &stop_sheduler, 0, 1);
 	CMD4(CCC_Float, "r__viewport_near", &VIEWPORT_NEAR, 0.05f, 1.0f);

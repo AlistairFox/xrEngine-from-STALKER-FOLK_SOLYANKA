@@ -1327,6 +1327,7 @@
     <ClInclude Include="script_event.h" />
     <ClInclude Include="SIniFileStream.h" />
     <ClInclude Include="UIAnimMode.h" />
+    <ClInclude Include="UIArtefactPanel.h" />
     <ClInclude Include="UIArtefactUpgradeWnd.h" />
     <ClInclude Include="UIGameFMP.h" />
     <ClInclude Include="CustomDetector.h" />
@@ -2140,7 +2141,6 @@
     <ClInclude Include="ui\UIBuyWeaponTab.h" />
     <ClInclude Include="ui\UIBuyWndBase.h" />
     <ClInclude Include="ui\UIBuyWndShared.h" />
-    <ClInclude Include="ui\UICarPanel.h" />
     <ClInclude Include="ui\UICDkey.h" />
     <ClInclude Include="ui\UICellCustomItems.h" />
     <ClInclude Include="ui\UICellItem.h" />
@@ -4666,6 +4666,7 @@
     </ClCompile>
     <ClCompile Include="SIniFileStream.cpp" />
     <ClCompile Include="UIAnimMode.cpp" />
+    <ClCompile Include="UIArtefactPanel.cpp" />
     <ClCompile Include="UIArtefactUpgradeWnd.cpp" />
     <ClCompile Include="UIGameFMP.cpp" />
     <ClCompile Include="CustomDetector.cpp" />
@@ -8429,7 +8430,6 @@
     </ClCompile>
     <ClCompile Include="ui\UIBuyWeaponTab.cpp" />
     <ClCompile Include="ui\UIBuyWndShared.cpp" />
-    <ClCompile Include="ui\UICarPanel.cpp" />
     <ClCompile Include="ui\UICDkey.cpp" />
     <ClCompile Include="ui\UICellCustomItems.cpp" />
     <ClCompile Include="ui\UICellItem.cpp" />

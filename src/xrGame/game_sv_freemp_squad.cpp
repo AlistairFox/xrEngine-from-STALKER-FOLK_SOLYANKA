@@ -7,6 +7,8 @@
 //Squad
 void game_sv_freemp::join_player_in_squad(NET_Packet& P, u16 id)
 {
+	Msg("--- Server[SQUAD]  join_player_in_squad: %d", id);
+
 	u16 InviterId = P.r_u16();
 	CSE_Abstract* first_member = get_entity_from_eid(InviterId);
 	if (!first_member) return;
@@ -117,7 +119,7 @@ void game_sv_freemp::delete_player_from_squad(u16 id)
 
 		NET_Packet PLastPlayer;
 		GenerateGameMessage(PLastPlayer);
-		PLastPlayer.w_u16(GE_PDA_SQUAD_KICK_PLAYER);
+		PLastPlayer.w_u32(GE_PDA_SQUAD_KICK_PLAYER);
 		string32 msgLP;
 		xr_sprintf(msgLP, CStringTable().translate("mp_squad_disbanded").c_str()); //"Отряд расформирован"
 		PLastPlayer.w_stringZ(msgLP);
@@ -172,7 +174,7 @@ void game_sv_freemp::delete_player_from_squad(NET_Packet& P, u16 id)
 	{
 		NET_Packet P_;
 		GenerateGameMessage(P_);
-		P_.w_u16(GE_PDA_SQUAD_KICK_PLAYER);
+		P_.w_u32(GE_PDA_SQUAD_KICK_PLAYER);
 		string32 msg;
 		xr_sprintf(msg, CStringTable().translate("mp_squad_self_left").c_str()); //Вы вышли из отряда
 		P_.w_stringZ(msg);
@@ -198,7 +200,7 @@ void game_sv_freemp::delete_player_from_squad(NET_Packet& P, u16 id)
 		if (!self_kick) {
 			NET_Packet P_;
 			GenerateGameMessage(P_);
-			P_.w_u16(GE_PDA_SQUAD_KICK_PLAYER);
+			P_.w_u32(GE_PDA_SQUAD_KICK_PLAYER);
 			string32 msg;
 			xr_sprintf(msg, CStringTable().translate("mp_squad_kick").c_str()); //Вас исключили из отряда
 			P_.w_stringZ(msg);
@@ -207,7 +209,7 @@ void game_sv_freemp::delete_player_from_squad(NET_Packet& P, u16 id)
 
 		NET_Packet PLastPlayer;
 		GenerateGameMessage(PLastPlayer);
-		PLastPlayer.w_u16(GE_PDA_SQUAD_KICK_PLAYER);
+		PLastPlayer.w_u32(GE_PDA_SQUAD_KICK_PLAYER);
 		string32 msgLP;
 		xr_sprintf(msgLP, CStringTable().translate("mp_squad_disbanded").c_str()); //"Отряд расформирован"
 		PLastPlayer.w_stringZ(msgLP);
@@ -320,7 +322,7 @@ void game_sv_freemp::find_new_squad_leader(u16 squad_id)
 	NET_Packet P1;
 	string64 msg;
 	GenerateGameMessage(P1);
-	P1.w_u16(GE_PDA_SQUAD_MAKE_LEADER);
+	P1.w_u32(GE_PDA_SQUAD_MAKE_LEADER);
 	xr_sprintf(msg, CStringTable().translate("mp_squad_new_leader_self").c_str()); //Вы назначены новым лидером отряда
 	P1.w_stringZ(msg);
 
@@ -335,7 +337,7 @@ void game_sv_freemp::SendMpSuqadToMembers(MP_Squad* squad)
 
 	NET_Packet P;
 	GenerateGameMessage(P);
-	P.w_u16(GE_PDA_SQUAD_RESPOND_INVITE);
+	P.w_u32(GE_PDA_SQUAD_RESPOND_INVITE);
 	P.w_clientID(squad->squad_leader_cid);
 	P.w_u16(squad->id);
 	P.w_u16(squad->current_map_point);
@@ -353,8 +355,9 @@ void game_sv_freemp::SendMpSuqadToMembers(MP_Squad* squad)
 		if (!src)
 			continue;
 
-		for (u32 o_it1 = 0; o_it1 < capacity; o_it1++) {
-			P.w_u16(squad->players[o_it1]->GameID);
+		for (u32 IDPL= 0; IDPL < capacity; IDPL++)
+		{
+			P.w_u16(squad->players[IDPL]->GameID);
 		};
 
 		m_server->SendTo(src->ID, P, net_flags(TRUE, TRUE));
@@ -395,7 +398,7 @@ void game_sv_freemp::make_player_squad_leader(NET_Packet& P, u16 id)
 
 	NET_Packet P_;
 	GenerateGameMessage(P_);
-	P_.w_u16(GE_PDA_SQUAD_MAKE_LEADER);
+	P_.w_u32(GE_PDA_SQUAD_MAKE_LEADER);
 	string64 msg;
 	xr_sprintf(msg, "%s %s %s", CStringTable().translate("mp_squad_make_leader_0").c_str(), psNewLeader->getName(), CStringTable().translate("mp_squad_make_leader_1").c_str()); //"Вы назначили %s лидером отряда"
 	P_.w_stringZ(msg);
@@ -403,7 +406,7 @@ void game_sv_freemp::make_player_squad_leader(NET_Packet& P, u16 id)
 
 	NET_Packet P1;
 	GenerateGameMessage(P1);
-	P1.w_u16(GE_PDA_SQUAD_MAKE_LEADER);
+	P1.w_u32(GE_PDA_SQUAD_MAKE_LEADER);
 	xr_sprintf(msg, CStringTable().translate("mp_squad_make_leader_self").c_str()); //"Вы назначены новым лидером отряда"
 	P1.w_stringZ(msg);
 

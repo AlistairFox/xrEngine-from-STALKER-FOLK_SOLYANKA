@@ -53,6 +53,7 @@ void CUIZoneMap::Init()
 	m_Counter_text.SetText( "" );
 	visible = true;
 
+	/*
 	Fvector2 sz_k				= m_clipFrame.GetWndSize();
 	Fvector2 sz					= sz_k;
 
@@ -104,7 +105,7 @@ void CUIZoneMap::Init()
 			m_Counter.SetWndPos			(rel_pos);
 		}
 	}
-
+	*/
 }
 
 void CUIZoneMap::Render			()
@@ -121,7 +122,7 @@ void CUIZoneMap::Update()
 	CActor* pActor = smart_cast<CActor*>( Level().CurrentViewEntity() );
 	if ( !pActor ) return;
 
-	if ( !( Device.dwFrame % 20 ) /* && IsGameTypeSingle() */)
+	if ( !( Device.dwFrame % 20 ) && IsGameTypeSingle() )
 	{
 		string16	text_str;
 		xr_strcpy( text_str, sizeof(text_str), "" );

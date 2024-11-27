@@ -346,7 +346,7 @@ void game_cl_freemp::GiveNews(LPCSTR caption, LPCSTR text, LPCSTR texture_name, 
 void game_cl_freemp::GiveNews(LPCSTR caption, LPCSTR text, LPCSTR texture_name, int delay, int show_time, int type, bool noSound)
 {
 	if (!Actor()) return;
-
+	Msg("Give News For Actor: %s, cap: %s, text: %s, texture: %s", Actor()->Name(), caption, text, texture_name);
 	GAME_NEWS_DATA				news_data;
 	news_data.m_type = (GAME_NEWS_DATA::eNewsType)type;
 	news_data.news_caption = caption;
@@ -440,6 +440,7 @@ void game_cl_freemp::TranslateGameMessage(u32 msg, NET_Packet& P)
 
 		case GE_PDA_SQUAD_RESPOND_INVITE:
 		{
+			Msg("Recive GE_PDA_SQUAD_RESPOND_INVITE");
 			u8 capacity;
 			u16 id;
 			P.r_clientID(local_squad->squad_leader_cid); //squad leader id
@@ -451,14 +452,28 @@ void game_cl_freemp::TranslateGameMessage(u32 msg, NET_Packet& P)
 			P.r_stringZ(message);
 
 			if (xr_strlen(message))
-			{
-				GiveNews("Отряд", message.c_str(), "ui_inGame2_PD_Lider", 0, 4000, 0, false);
-			}
-
-
-			if (local_squad->players.size())
+ 				GiveNews("Отряд", message.c_str(), "ui_inGame2_PD_Lider", 0, 4000, 0, false);
+ 
+ 			if (local_squad->players.size())
 				local_squad->players.clear(); //clear all playerstates because we refill this list
-  
+			
+			if (m_pVoiceChat->players_in_squad.size())
+				m_pVoiceChat->players_in_squad.clear();
+
+			for (u32 o_it = 0; o_it < capacity; o_it++) 
+			{
+				id = P.r_u16();
+				auto PlayerState = GetPlayerByGameID(id);
+				local_squad->players.push_back(PlayerState);
+
+				CVoiceChat::VoicePlayer player_data;
+				player_data.name		= PlayerState->getName();
+				player_data.distance	= 0;
+				player_data.PlayerState = PlayerState;
+				player_data.SquadID		= PlayerState->MPSquadID;
+				m_pVoiceChat->players_in_squad.push_back(player_data);
+			};
+
 			m_game_ui->UpdateHudSquad();
 			local_squad->need_update = true;
 
@@ -466,6 +481,7 @@ void game_cl_freemp::TranslateGameMessage(u32 msg, NET_Packet& P)
 
 		case GE_PDA_SQUAD_KICK_PLAYER:
 		{
+			Msg("Recive GE_PDA_SQUAD_KICK_PLAYER");
 			local_squad->id = 0;
 			local_squad->squad_leader_cid = 0;
 			local_squad->current_map_point = 0;
@@ -497,6 +513,7 @@ void game_cl_freemp::TranslateGameMessage(u32 msg, NET_Packet& P)
 		}break;
 		case GE_PDA_SQUAD_MAKE_LEADER:
 		{
+			Msg("Recive GE_PDA_SQUAD_MAKE_LEADER");
 			shared_str message;
 			P.r_stringZ(message);
 
@@ -504,6 +521,16 @@ void game_cl_freemp::TranslateGameMessage(u32 msg, NET_Packet& P)
 				GiveNews("Отряд", message.c_str(), "ui_inGame2_PD_Lider", 0, 4000, 0, false);
 		}break;
 		 
+		case GE_PDA_SQUAD_SEND_INVITE:
+		{
+ 			OnSquadInvniteReceived(P);
+		}break;
+
+		case GE_PDA_SQUAD_CANCEL_INVITE:
+		{
+			OnSquadCancelReceived(P);
+		}break;
+ 
 		default:
 			inherited::TranslateGameMessage(msg, P);
 			break;
@@ -622,4 +649,58 @@ void game_cl_freemp::RemoveInviteByInviterID(u16 ID)
 	}
 
 	return;
+}
+
+
+#include "string_table.h"
+#define MAX_INVITE_SIZE 30
+void game_cl_freemp::OnSquadInvniteReceived(NET_Packet& P)
+{
+	u16 SenderGameID = P.r_u16();
+	game_PlayerState* ps = Game().GetPlayerByGameID(SenderGameID);
+	if (!ps) return;
+
+ 	u32 size = mp_squad_invites.size();
+	if (size >= MAX_INVITE_SIZE)
+		return;
+
+#pragma todo("We must create CMPGameTask instance in game_cl_mp class")
+
+	string128 InviteMessage;
+	LPCSTR PlayerName;
+	PlayerName = ps->getName();
+
+	xr_sprintf(InviteMessage, "%s %s", PlayerName, CStringTable().translate("mp_squad_invite").c_str()); //приглашает Вас в отряд
+
+	// tasks->GiveNews(CStringTable().translate("mp_squad_title").c_str(), InviteMessage, "ui_inGame2_PD_Lider", 0, 4000, 0, false);
+
+	MP_SquadInvite* invite = xr_new<MP_SquadInvite>();
+	invite->InviteMessage = InviteMessage;
+	invite->InviterID = SenderGameID;
+	invite->ReceivedTime = Level().timeServer();
+
+	mp_squad_invites.push_back(invite);
+
+	m_bSwitchToNextInvite = true;
+}
+
+void game_cl_freemp::OnSquadCancelReceived(NET_Packet& P)
+{
+	u16 SenderGameID = P.r_u16();
+	game_PlayerState* ps = Game().GetPlayerByGameID(SenderGameID);
+	if (!ps) return;
+
+	MP_SquadInvite* invite = FindInviteByInviterID(SenderGameID);
+	if (!invite)
+		return;
+
+	RemoveInviteByInviterID(SenderGameID);
+	m_bSwitchToNextInvite = true;
+
+	string128 InviteMessage;
+	LPCSTR PlayerName;
+	PlayerName = ps->getName();
+	xr_sprintf(InviteMessage, "%s %s %s", CStringTable().translate("mp_squad_cancel_0").c_str(), PlayerName, CStringTable().translate("mp_squad_cancel_1").c_str()); //"Приглашение от игрока %s отменено, либо истекло"
+
+	// tasks->GiveNews(CStringTable().translate("mp_squad_title").c_str(), InviteMessage, "ui_inGame2_PD_Lider", 0, 4000, 0, false);
 }

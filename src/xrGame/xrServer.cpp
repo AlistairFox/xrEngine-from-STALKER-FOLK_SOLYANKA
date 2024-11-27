@@ -1333,12 +1333,15 @@ void xrServer::OnVoiceMessage(NET_Packet& P, ClientID sender)
 			if (!ps || ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD))
 				return;
 
-			float distanceSqr = CL->owner->Position().distance_to_sqr(m_from->owner->Position());
+			// se7kills (Отправляем всем игрокам)
+			//float distanceSqr = CL->owner->Position().distance_to_sqr(m_from->owner->Position());
+			//
+			//if (distanceSqr <= m_voiceDistanceSqr)
+			//{
+			//	m_server->SendTo(CL->ID, *m_packet, net_flags(FALSE, TRUE, TRUE, TRUE));
+			//}
 
-			if (distanceSqr <= m_voiceDistanceSqr)
-			{
-				m_server->SendTo(CL->ID, *m_packet, net_flags(FALSE, TRUE, TRUE, TRUE));
-			}
+			m_server->SendTo(CL->ID, *m_packet, net_flags(FALSE, TRUE, TRUE, TRUE));
 		}
 	};
 

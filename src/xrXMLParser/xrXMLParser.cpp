@@ -59,7 +59,7 @@ void ParseFile(LPCSTR path, CMemoryWriter& W, IReader *F, CXml* xml )
 void CXml::Load(LPCSTR path_alias, LPCSTR path, LPCSTR _xml_filename)
 {
 	shared_str fn			= correct_file_name(path, _xml_filename);
-
+//	Msg("XML: LoadFile: %s", fn.c_str());
 	string_path				str;
 	xr_sprintf					(str,"%s\\%s", path, *fn);
 	return Load				(path_alias, str);

@@ -183,11 +183,20 @@ void InitLog()
 void CreateLog			(BOOL nl)
 {
     no_log				= nl;
-	
-	strconcat			(sizeof(log_file_name), log_file_name, Core.ApplicationName,"_", Core.UserName, ".log");
+	no_log = nl;
 
+	string64 name_log;
+	snprintf(name_log, sizeof(name_log), "");
 
- 
+	string64 t_stemp;
+	timestamp(t_stemp);
+	xr_strcat(name_log, "_");
+	xr_strcat(name_log, t_stemp);
+	xr_strcat(name_log, ".log");
+  
+	strconcat(sizeof(log_file_name), log_file_name, Core.ApplicationName, "_", Core.UserName, name_log);
+	 
+  
 	if (strstr(Core.Params, "server(") )
 	{
 

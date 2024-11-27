@@ -53,6 +53,7 @@
 #include "game_cl_capture_the_artefact.h"
 #include "UIHudStatesWnd.h"
 #include "UIActorMenu.h"
+#include "UIArtefactPanel.h"
 
 void test_draw	();
 void test_key	(int dik);
@@ -80,6 +81,7 @@ CUIMainIngameWnd::CUIMainIngameWnd()
 :/*m_pGrenade(NULL),m_pItem(NULL),*/m_pPickUpItem(NULL),m_pMPChatWnd(NULL),UIArtefactIcon(NULL),m_pMPLogWnd(NULL)
 {
 	UIZoneMap					= xr_new<CUIZoneMap>();
+	m_artefactPanel             = xr_new<CUIArtefactPanel>();
 }
 
 #include "UIProgressShape.h"
@@ -94,6 +96,7 @@ CUIMainIngameWnd::~CUIMainIngameWnd()
 	xr_delete					(UIWeaponJammedIcon);
 	xr_delete					(UIInvincibleIcon);
 	xr_delete					(UIArtefactIcon);
+    xr_delete                   (m_artefactPanel);
 }
 
 void CUIMainIngameWnd::Init()
@@ -149,11 +152,14 @@ void CUIMainIngameWnd::Init()
 	m_ind_outfit_broken		= UIHelper::CreateStatic(uiXml, "indicator_outfit_broken", this);
 	m_ind_overweight		= UIHelper::CreateStatic(uiXml, "indicator_overweight", this);
 
+
 	if (!IsGameTypeSingle())
 	{
 		m_icon_microphone = UIHelper::CreateStatic(uiXml, "icon_microphone", this);
 		m_icon_microphone->Show(true);
+
 		m_voice_distance = UIHelper::CreateTextWnd(uiXml, "voice_distance", this);
+
 		SetActiveVoiceIcon(false);
 	}
 
@@ -172,10 +178,7 @@ void CUIMainIngameWnd::Init()
 	m_ind_boost_weight		->Show(false);
 	m_ind_boost_health		->Show(false);
 	m_ind_boost_power		->Show(false);
-	m_ind_boost_rad			->Show(false);	   
-
-
-
+	m_ind_boost_rad			->Show(false);
 	
 	// Загружаем иконки 
 /*	if ( IsGameTypeSingle() )
@@ -245,17 +248,12 @@ void CUIMainIngameWnd::Init()
 
 	uiXml.SetLocalRoot						(uiXml.GetRoot());
 	
-	UIMotionIcon = xr_new<CUIMotionIcon>();
-	UIMotionIcon->SetAutoDelete(true);
-	
-	if (false)
-	{
-		UIZoneMap->MapFrame().AttachChild(UIMotionIcon);
-	}
+	UIMotionIcon							= xr_new<CUIMotionIcon>(); UIMotionIcon->SetAutoDelete(true);
+	UIZoneMap->MapFrame().AttachChild		(UIMotionIcon);
+	UIMotionIcon->Init						(UIZoneMap->MapFrame().GetWndRect());
 
-	UIMotionIcon->Init(UIZoneMap->MapFrame().GetWndRect());
-
-
+	m_artefactPanel->InitFromXML(uiXml, "artefact_panel", 0);
+	this->AttachChild(m_artefactPanel);
 
 	UIStaticDiskIO							= UIHelper::CreateStatic(uiXml, "disk_io", this);
 
@@ -267,20 +265,18 @@ void CUIMainIngameWnd::Init()
 	for(int i=0; i<4; i++)
 	{
 		m_quick_slots_icons.push_back	(xr_new<CUIStatic>());
-		m_quick_slots_icons.back()->SetAutoDelete(true);
+		m_quick_slots_icons.back()	->SetAutoDelete(true);
 		AttachChild				(m_quick_slots_icons.back());
-
 		string32 path;
 		xr_sprintf				(path, "quick_slot%d", i);
 		CUIXmlInit::InitStatic	(uiXml, path, 0, m_quick_slots_icons.back());
 		xr_sprintf				(path, "%s:counter", path);
 		UIHelper::CreateStatic	(uiXml, path, m_quick_slots_icons.back());
 	}
-	
-	//m_QuickSlotText1				= UIHelper::CreateTextWnd(uiXml, "quick_slot0_text", this);
-	//m_QuickSlotText2				= UIHelper::CreateTextWnd(uiXml, "quick_slot1_text", this);
-	//m_QuickSlotText3				= UIHelper::CreateTextWnd(uiXml, "quick_slot2_text", this);
-	//m_QuickSlotText4				= UIHelper::CreateTextWnd(uiXml, "quick_slot3_text", this);
+	m_QuickSlotText1				= UIHelper::CreateTextWnd(uiXml, "quick_slot0_text", this);
+	m_QuickSlotText2				= UIHelper::CreateTextWnd(uiXml, "quick_slot1_text", this);
+	m_QuickSlotText3				= UIHelper::CreateTextWnd(uiXml, "quick_slot2_text", this);
+	m_QuickSlotText4				= UIHelper::CreateTextWnd(uiXml, "quick_slot3_text", this);
 
 	HUD_SOUND_ITEM::LoadSound				("maingame_ui", "snd_new_contact", m_contactSnd, SOUND_TYPE_IDLE);
 }
@@ -312,20 +308,17 @@ void CUIMainIngameWnd::Draw()
 		cur_lum = luminocity*0.01f + cur_lum*0.99f;
 		UIMotionIcon->SetLuminosity((s16)iFloor(cur_lum*100.0f));
 	}
-
 	if ( !pActor || !pActor->g_Alive() ) return;
 
 	UIMotionIcon->SetNoise((s16)(0xffff&iFloor(pActor->m_snd_noise*100)));
 
 	UIMotionIcon->Draw();
 
-	{
-		UIZoneMap->visible = true;
-		UIZoneMap->Render();
-	}
+
+	UIZoneMap->visible = true;
+	UIZoneMap->Render();
 
 	bool tmp = UIMotionIcon->IsShown();
-
 	UIMotionIcon->Show(false);
 	CUIWindow::Draw();
 	UIMotionIcon->Show(tmp);
@@ -333,6 +326,28 @@ void CUIMainIngameWnd::Draw()
 	RenderQuickInfos();		
 }
 
+
+void CUIMainIngameWnd::SetActiveVoiceIcon(bool active)
+{
+	R_ASSERT(m_icon_microphone || m_voice_distance);
+
+	u32 a = active ? 255 : 100;
+
+	u32 color = m_icon_microphone->GetTextureColor();
+	m_icon_microphone->SetTextureColor(subst_alpha(color, a));
+
+	color = m_voice_distance->GetTextColor();
+	m_voice_distance->SetTextColor(subst_alpha(color, a));
+}
+
+void CUIMainIngameWnd::SetVoiceDistance(u8 distance)
+{
+	R_ASSERT(m_voice_distance);
+
+	string16 text;
+	xr_sprintf(text, sizeof(text), "%u", distance);
+	m_voice_distance->SetText(text);
+}
 
 void CUIMainIngameWnd::SetMPChatLog(CUIWindow* pChat, CUIWindow* pLog){
 	m_pMPChatWnd = pChat;
@@ -368,11 +383,7 @@ void CUIMainIngameWnd::Update()
 	{
 		lookat_player = Game().lookat_player();
 	}
-
-	bool b_God = (GodMode() || lookat_player->testFlag(GAME_PLAYER_MP_GOD_MODE) || (!lookat_player))
-		? true
-		: lookat_player->testFlag(GAME_PLAYER_FLAG_INVINCIBLE);
-
+	bool b_God = ( GodMode() || ( !lookat_player ) )? true : lookat_player->testFlag(GAME_PLAYER_FLAG_INVINCIBLE);
 	if ( b_God )
 	{
 		SetWarningIconColor( ewiInvincible, 0xffffffff );
@@ -493,7 +504,8 @@ void CUIMainIngameWnd::SetWarningIconColor(EWarningIcons icon, const u32 cl)
 		SetWarningIconColorUI	(UIWeaponJammedIcon, cl);
 		if (bMagicFlag) break;
 
-/*	case ewiRadiation:
+/*	
+	case ewiRadiation:
 		SetWarningIconColorUI	(&UIRadiaitionIcon, cl);
 		if (bMagicFlag) break;
 	case ewiWound:
@@ -523,24 +535,6 @@ void CUIMainIngameWnd::SetWarningIconColor(EWarningIcons icon, const u32 cl)
 void CUIMainIngameWnd::TurnOffWarningIcon(EWarningIcons icon)
 {
 	SetWarningIconColor(icon, 0x00ffffff);
-}
-
-void CUIMainIngameWnd::SetActiveVoiceIcon(bool active)
-{
-	R_ASSERT(m_icon_microphone || m_voice_distance);
-	u32 a = active ? 255 : 100;
-	u32 color = m_icon_microphone->GetTextureColor();
-	m_icon_microphone->SetTextureColor(subst_alpha(color, a));
-	color = m_voice_distance->GetTextColor();
-	m_voice_distance->SetTextColor(subst_alpha(color, a));
-}
-
-void CUIMainIngameWnd::SetVoiceDistance(u8 distance)
-{
-	R_ASSERT(m_voice_distance);
-	string16 text;
-	xr_sprintf(text, sizeof(text), "%u", distance);
-	m_voice_distance->SetText(text);
 }
 
 void CUIMainIngameWnd::SetFlashIconState_(EFlashingIcons type, bool enable)
@@ -861,8 +855,6 @@ void CUIMainIngameWnd::UpdateMainIndicators()
 void CUIMainIngameWnd::UpdateQuickSlots()
 {
 	string32 tmp;
-	
-	/*
 	LPCSTR str = CStringTable().translate("quick_use_str_1").c_str();
 	strncpy_s(tmp, sizeof(tmp), str, 3);
 	if(tmp[2]==',')
@@ -886,8 +878,7 @@ void CUIMainIngameWnd::UpdateQuickSlots()
 	if(tmp[2]==',')
 		tmp[1] = '\0';
 	m_QuickSlotText4->SetTextST(tmp);
-	*/
-	 
+
 
 	CActor* pActor = smart_cast<CActor*>(Level().CurrentViewEntity());
 	if(!pActor)
@@ -896,45 +887,40 @@ void CUIMainIngameWnd::UpdateQuickSlots()
 	for(u8 i=0;i<4;i++)
 	{
 		CUIStatic* wnd = smart_cast<CUIStatic* >(m_quick_slots_icons[i]->FindChild("counter"));
-		
 		if(wnd)
 		{
 			shared_str item_name = g_quick_use_slots[i];
 			if(item_name.size())
 			{
-				//u32 count = pActor->inventory().dwfGetSameItemCount(item_name.c_str(), true);
-				//string32 str;
-				//xr_sprintf(str, "x%d", count);
-				//wnd->TextItemControl()->SetText(str);
-				wnd->Show(false);
+				u32 count = pActor->inventory().dwfGetSameItemCount(item_name.c_str(), true);
+				string32 str;
+				xr_sprintf(str, "x%d", count);
+				wnd->TextItemControl()->SetText(str);
+				wnd->Show(true);
 
 				CUIStatic* main_slot = m_quick_slots_icons[i];
 				main_slot->SetShader(InventoryUtilities::GetEquipmentIconsShader());
 				Frect texture_rect;
-
 				texture_rect.x1	= pSettings->r_float(item_name, "inv_grid_x")		*INV_GRID_WIDTH;
 				texture_rect.y1	= pSettings->r_float(item_name, "inv_grid_y")		*INV_GRID_HEIGHT;
 				texture_rect.x2	= pSettings->r_float(item_name, "inv_grid_width")	*INV_GRID_WIDTH;
-				texture_rect.y2	= pSettings->r_float(item_name, "inv_grid_height")  *INV_GRID_HEIGHT;
-
+				texture_rect.y2	= pSettings->r_float(item_name, "inv_grid_height")*INV_GRID_HEIGHT;
 				texture_rect.rb.add(texture_rect.lt);
 				main_slot->SetTextureRect(texture_rect);
 				main_slot->TextureOn();
 				main_slot->SetStretchTexture(true);
-				
-				/*if (!count)
+				if(!count)
 				{
 					wnd->SetTextureColor(color_rgba(255,255,255,0));
 					wnd->TextItemControl()->SetTextColor(color_rgba(255,255,255,0));
 					m_quick_slots_icons[i]->SetTextureColor(color_rgba(255,255,255,100));
 				}
-				else*/
+				else
 				{
 					wnd->SetTextureColor(color_rgba(255,255,255,255));
 					wnd->TextItemControl()->SetTextColor(color_rgba(255,255,255,255));
 					m_quick_slots_icons[i]->SetTextureColor(color_rgba(255,255,255,255));
 				}
-				 
 			}
 			else
 			{
@@ -944,7 +930,6 @@ void CUIMainIngameWnd::UpdateQuickSlots()
 			}
 		}
 	}
-	 
 }
 
 void CUIMainIngameWnd::DrawMainIndicatorsForInventory()
@@ -959,10 +944,10 @@ void CUIMainIngameWnd::DrawMainIndicatorsForInventory()
 	for(int i=0;i<4;i++)
 		m_quick_slots_icons[i]->Draw();
 
-	//m_QuickSlotText1->Draw();
-	//m_QuickSlotText2->Draw();
-	//m_QuickSlotText3->Draw();
-	//m_QuickSlotText4->Draw();
+	m_QuickSlotText1->Draw();
+	m_QuickSlotText2->Draw();
+	m_QuickSlotText3->Draw();
+	m_QuickSlotText4->Draw();
 
 	if(m_ind_boost_psy->IsShown())
 	{
