@@ -254,7 +254,7 @@ void SteamNetClient::PollIncomingMessages()
 {
 	while (true)
 	{
-		if (m_pInterface == nullptr)
+		if (m_pInterface == nullptr || m_hConnection == k_HSteamNetConnection_Invalid)
 			break;
 
 		ISteamNetworkingMessage *pIncomingMsg = nullptr;

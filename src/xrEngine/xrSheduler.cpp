@@ -17,8 +17,7 @@ void mtShedulerWorker(void* pSheduler, vec_items& items)
 	CSheduler* pTrySheduler = ((CSheduler*)(pSheduler));
 	u32		dwTime = Device.dwTimeGlobal;
 
-	//Msg("Thread Start Items[%d]", items.size());
-	u32 id;
+ 	u32 id;
 	for (auto item : items)
 	{
 		id += 1;
@@ -47,14 +46,9 @@ void mtShedulerWorker(void* pSheduler, vec_items& items)
 		float	scale = T.Object->shedule_Scale();
 		u32		dwUpdate = dwMin + iFloor(float(dwMax - dwMin) * scale);
 		clamp	(dwUpdate, u32(_max(dwMin, u32(20))), dwMax);
-
-		//Msg("Object [%s] / SheduleTimeNext [%d]", T.Object->shedule_Name().c_str(), dwUpdate);
-		
-		
+ 		
 		T.Object->shedule_Update(clampr(Elapsed, u32(1), u32( _max(u32(T.Object->shedule.t_max), u32(1000) ) )));
 
-		//Msg("After [%d] / size[%d]", id, items.size());
-	 
 		// Fill item structure
 		Item						TNext;
 		TNext.dwTimeForExecute = dwTime + dwUpdate;
@@ -62,11 +56,8 @@ void mtShedulerWorker(void* pSheduler, vec_items& items)
 		TNext.Object = T.Object;
 		TNext.scheduled_name = T.Object->shedule_Name();
 
-
-		//Msg("Pre Items Processed");
 		pTrySheduler->ItemsProcessed.push_back(TNext);
-		//Msg("Items Processed");
-
+ 
 		if (Device.dwPrecacheFrame == 0 && CPU::QPC() > pTrySheduler->cycles_limit)
 		{
 			// we have maxed out the load - increase heap
@@ -467,12 +458,8 @@ void CSheduler::ProcessStep			()
 		u32		dwMax				= (1000+T.Object->shedule.t_max)/2;
 		float	scale				= T.Object->shedule_Scale();
 		u32		dwUpdate			= dwMin+iFloor(float(dwMax-dwMin)*scale);
-		clamp	(dwUpdate,u32(_max(dwMin,u32(20))),dwMax);
-
-		if (scale > 1)
-		{
-			dwUpdate *= scale;
-		}
+		
+		clamp(dwUpdate, (u32)0, (u32)4000);
 
 		m_current_step_obj = T.Object;
 

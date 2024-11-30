@@ -110,22 +110,22 @@ void CActor::IR_OnKeyboardPress(int cmd)
 	{
 		case kAnimModeExit:
 		{
-			animation_extra_exit = true;
+			AnimExtraExit = true;
 		}break;
 
 		case kJUMP:		
-			{
-				mstate_wishful |= mcJump;
-			}break;
+		{
+			mstate_wishful |= mcJump;
+		}break;
 		case kSPRINT_TOGGLE:	
-			{
-				mstate_wishful ^= mcSprint;
-			}break;
+		{
+			mstate_wishful ^= mcSprint;
+		}break;
 		case kCROUCH:	
-			{
+		{
 			if( psActorFlags.test(AF_CROUCH_TOGGLE) )
 				mstate_wishful ^= mcCrouch;
-			}break;
+		}break;
 		case kCAM_1:	cam_Set			(eacFirstEye);				break;
 		case kCAM_2:	cam_Set			(eacLookAt);				break;
 		case kCAM_3:	cam_Set			(eacFreeLook);				break;

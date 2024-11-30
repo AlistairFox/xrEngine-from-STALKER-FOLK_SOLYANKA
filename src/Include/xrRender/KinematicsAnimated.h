@@ -105,6 +105,9 @@ public:
 	virtual IKinematics*	_BCL dcast_PKinematics() = 0;
 
 	virtual float						get_animation_length (MotionID motion_ID) = 0;
+	virtual bool						get_animation_valid(MotionID motion_ID) = 0;
+	virtual int							get_animation_size(int slot) = 0;
+
 //#ifdef DEBUG
 //	virtual	const BlendSVec			&blend_cycle	(const u32 &bone_part_id) const = 0;
 //#endif //	DEBUG

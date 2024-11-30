@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "actor_mp_state.h"
 
-#define USE_LOGIC_ACCELERATION
+// #define USE_LOGIC_ACCELERATION
+// #define USE_LOGIC_ACCELERATION
 
 enum {
 	physics_linear_velocity_x_flag		= u32(1) <<  0,

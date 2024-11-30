@@ -198,7 +198,7 @@ CActor::CActor() : CEntityAlive(),current_ik_cam_shift(0)
 	m_pUsableObject			= NULL;
 
 
-	m_anims					= xr_new<SActorMotions>();
+	m_anims					= xr_new<SActorMotions>(this);
 //.	m_vehicle_anims			= xr_new<SActorVehicleAnims>();
 	m_entity_condition		= NULL;
 	m_iLastHitterID			= u16(-1);
@@ -866,7 +866,8 @@ void CActor::Die	(CObject* who)
 	Msg("--- Actor [%s] dies !", this->Name());
 #endif // #ifdef DEBUG
 
-	StopAllSNDs();
+	StopExit();
+	SetfHealth(0);
 
 	inherited::Die		(who);
 
@@ -1965,6 +1966,11 @@ void CActor::OnItemDrop(CInventoryItem *inventory_item, bool just_before_destroy
 		if(grenade)
 			inventory().Slot(GRENADE_SLOT, grenade, true, true);
 	}
+
+	CArtefact* artefact = smart_cast<CArtefact*>(inventory_item);
+
+	if (artefact && artefact->m_ItemCurrPlace.type == eItemPlaceBelt)
+		MoveArtefactBelt(artefact, false);
 }
 
 
@@ -1984,11 +1990,37 @@ void CActor::OnItemDropUpdate ()
 void CActor::OnItemRuck		(CInventoryItem *inventory_item, const SInvItemPlace& previous_place)
 {
 	CInventoryOwner::OnItemRuck(inventory_item, previous_place);
+
+	CArtefact* artefact = smart_cast<CArtefact*>(inventory_item);
+
+	if (artefact && artefact->m_ItemCurrPlace.type == eItemPlaceBelt)
+		MoveArtefactBelt(artefact, false);
 }
 
 void CActor::OnItemBelt		(CInventoryItem *inventory_item, const SInvItemPlace& previous_place)
 {
 	CInventoryOwner::OnItemBelt(inventory_item, previous_place);
+
+	CArtefact* artefact = smart_cast<CArtefact*>(inventory_item);
+ 	if (artefact && artefact->m_ItemCurrPlace.type == eItemPlaceBelt)
+		MoveArtefactBelt(artefact, true);
+}
+
+void CActor::MoveArtefactBelt(const CArtefact* artefact, bool on_belt)
+{
+	if (on_belt)
+	{
+		VERIFY(m_ArtefactsOnBelt.end() == std::find(m_ArtefactsOnBelt.begin(), m_ArtefactsOnBelt.end(), artefact));
+		m_ArtefactsOnBelt.push_back(artefact);
+	}
+	else
+	{
+		xr_vector<const CArtefact*>::iterator it = std::remove(m_ArtefactsOnBelt.begin(), m_ArtefactsOnBelt.end(), artefact);
+		VERIFY(it != m_ArtefactsOnBelt.end());
+		m_ArtefactsOnBelt.erase(it);
+	}
+	if (Level().CurrentViewEntity() && Level().CurrentViewEntity() == this)
+		CurrentGameUI()->UIMainIngameWnd->m_artefactPanel->InitIcons(m_ArtefactsOnBelt);
 }
 
 #define ARTEFACTS_UPDATE_TIME 0.100f
@@ -2448,6 +2480,17 @@ void CActor::RenderSquadIndicator(LPCSTR Text, u32 color, Fvector dpos, float wi
 
 	pFont->SetAligment(CGameFont::alCenter);
 	pFont->SetColor(color);
+
+	if (x + (width / 2) > Device.dwWidth)
+		return;
+
+	if (y > Device.dwHeight)
+		return;
+
+	if (x < 0 || y < 0)
+		return;
+
+	// Msg("OUT X: %f, Y: %f", x + (width / 2.0f), y);
  	pFont->Out(x + (width / 2.0f), y, Text);
 	pFont->OnRender();
 }

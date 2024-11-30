@@ -120,10 +120,10 @@ void CVoiceChat::OnRender()
 			bool isCorrectSquad = false;
 			for (auto PL : players_in_squad)
 			{
-				if (PL.PlayerState->GameID == ps->GameID)
+				if (PL.PlayerState->MPSquadID == ps->MPSquadID)
 					isCorrectSquad = true;
 			}
-
+			
 			if (isCorrectSquad)
 				pActor->RenderIndicator(pos, 0.2, 0.2, GetVoiceIndicatorShader());
 		}
@@ -143,9 +143,7 @@ void CVoiceChat::ReceiveMessage(NET_Packet* P)
 {
 	game_PlayerState* local_player = Game().local_player;
 	if (!local_player || local_player->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD) || !Actor())
-	{
-		return;
-	}
+ 		return;
 
 	u8 voiceDistance = P->r_u8();
 
@@ -167,21 +165,21 @@ void CVoiceChat::ReceiveMessage(NET_Packet* P)
 	bool isCorrectSquad = false;
 	for (auto PL : players_in_squad)
 	{
-		if (PL.PlayerState->GameID == clientId)
+		if (PL.PlayerState->MPSquadID == local_player->MPSquadID)
 			isCorrectSquad = true;
 	}
 
-	if (!isCorrectSquad && distance > 30)
-	{
-		// Msg("Squad Is Not Correct");
-		return;
-	}
+//	if (!isCorrectSquad && distance > 30)
+//	{
+//		Msg("Squad Is Not Correct");
+//		return;
+//	}
 
 	// Msg("Recived Packet VoiceChat: try PlaySound!!!!");
 
 	IStreamPlayer* player = GetStreamPlayer(clientId);
 	player->SetPosition(obj->Position());
-	player->SetDistance(voiceDistance < 30.0f ? voiceDistance : 0); // voiceDistance
+	player->SetDistance(1); // voiceDistance
 
 	u8 packetsCount = P->r_u8();
 
@@ -190,6 +188,7 @@ void CVoiceChat::ReceiveMessage(NET_Packet* P)
 		u32 length = P->r_u32();
 		P->r(m_buffer, length);
 		player->PushToPlay(m_buffer, length);
+		Msg("Squad Is Correct PushToPlay to OpenAL (если вывело значит проблемма в OPENAL) ");
 	}
 
 	if (isValidDistance)

@@ -1,0 +1,777 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\src\opus.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\src\opus_decoder.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\src\opus_encoder.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\src\opus_multistream.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\src\opus_multistream_encoder.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\src\opus_multistream_decoder.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\src\repacketizer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\src\opus_projection_encoder.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\src\opus_projection_decoder.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\src\mapping_matrix.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\src\analysis.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\src\mlp.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\src\mlp_data.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\CNG.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\code_signs.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\init_decoder.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\decode_core.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\decode_frame.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\decode_parameters.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\decode_indices.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\decode_pulses.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\decoder_set_fs.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\dec_API.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\enc_API.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\encode_indices.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\encode_pulses.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\gain_quant.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\interpolate.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\LP_variable_cutoff.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\NLSF_decode.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\NSQ.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\NSQ_del_dec.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\PLC.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\shell_coder.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\tables_gain.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\tables_LTP.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\tables_NLSF_CB_NB_MB.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\tables_NLSF_CB_WB.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\tables_other.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\tables_pitch_lag.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\tables_pulses_per_block.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\VAD.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\control_audio_bandwidth.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\quant_LTP_gains.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\VQ_WMat_EC.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\HP_variable_cutoff.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\NLSF_encode.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\NLSF_VQ.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\NLSF_unpack.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\NLSF_del_dec_quant.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\process_NLSFs.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\stereo_LR_to_MS.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\stereo_MS_to_LR.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\check_control_input.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\control_SNR.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\init_encoder.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\control_codec.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\A2NLSF.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\ana_filt_bank_1.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\biquad_alt.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\bwexpander_32.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\bwexpander.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\debug.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\decode_pitch.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\inner_prod_aligned.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\lin2log.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\log2lin.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\LPC_analysis_filter.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\LPC_inv_pred_gain.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\table_LSF_cos.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\NLSF2A.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\NLSF_stabilize.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\NLSF_VQ_weights_laroia.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\pitch_est_tables.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\resampler.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\resampler_down2_3.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\resampler_down2.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\resampler_private_AR2.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\resampler_private_down_FIR.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\resampler_private_IIR_FIR.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\resampler_private_up2_HQ.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\resampler_rom.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\sigm_Q15.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\sort.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\sum_sqr_shift.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\stereo_decode_pred.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\stereo_encode_pred.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\stereo_find_predictor.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\stereo_quant_pred.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\LPC_fit.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\bands.c">
+      <Filter>celt</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\celt.c">
+      <Filter>celt</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\celt_encoder.c">
+      <Filter>celt</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\celt_decoder.c">
+      <Filter>celt</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\cwrs.c">
+      <Filter>celt</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\entcode.c">
+      <Filter>celt</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\entdec.c">
+      <Filter>celt</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\entenc.c">
+      <Filter>celt</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\kiss_fft.c">
+      <Filter>celt</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\laplace.c">
+      <Filter>celt</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\mathops.c">
+      <Filter>celt</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\mdct.c">
+      <Filter>celt</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\modes.c">
+      <Filter>celt</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\pitch.c">
+      <Filter>celt</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\celt_lpc.c">
+      <Filter>celt</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\quant_bands.c">
+      <Filter>celt</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\rate.c">
+      <Filter>celt</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\vq.c">
+      <Filter>celt</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\float\apply_sine_window_FLP.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\float\corrMatrix_FLP.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\float\encode_frame_FLP.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\float\find_LPC_FLP.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\float\find_LTP_FLP.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\float\find_pitch_lags_FLP.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\float\find_pred_coefs_FLP.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\float\LPC_analysis_filter_FLP.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\float\LTP_analysis_filter_FLP.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\float\LTP_scale_ctrl_FLP.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\float\noise_shape_analysis_FLP.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\float\process_gains_FLP.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\float\regularize_correlations_FLP.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\float\residual_energy_FLP.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\float\warped_autocorrelation_FLP.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\float\wrappers_FLP.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\float\autocorrelation_FLP.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\float\burg_modified_FLP.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\float\bwexpander_FLP.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\float\energy_FLP.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\float\inner_product_FLP.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\float\k2a_FLP.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\float\LPC_inv_pred_gain_FLP.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\float\pitch_analysis_core_FLP.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\float\scale_copy_vector_FLP.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\float\scale_vector_FLP.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\float\schur_FLP.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\float\sort_FLP.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\x86\x86cpu.c">
+      <Filter>celt</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\x86\x86_celt_map.c">
+      <Filter>celt</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\x86\x86_silk_map.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\x86\pitch_sse.c">
+      <Filter>celt</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\x86\pitch_sse2.c">
+      <Filter>celt</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\x86\vq_sse2.c">
+      <Filter>celt</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\x86\celt_lpc_sse4_1.c">
+      <Filter>celt</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\x86\pitch_sse4_1.c">
+      <Filter>celt</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\x86\NSQ_sse4_1.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\x86\NSQ_del_dec_sse4_1.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\x86\VAD_sse4_1.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\x86\VQ_WMat_EC_sse4_1.c">
+      <Filter>silk</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\include\opus.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\include\opus_multistream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\include\opus_projection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\src\opus_private.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\src\analysis.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\src\mapping_matrix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\src\mlp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\src\tansig_table.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\include\opus_defines.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\include\opus_types.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\debug.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\control.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\errors.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\API.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\typedef.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\define.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\main.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\x86\main_sse.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\PLC.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\structs.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\tables.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\tuning_parameters.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\Inlines.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\MacroCount.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\MacroDebug.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\macros.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\NSQ.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\pitch_est_defines.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\resampler_private.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\resampler_rom.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\resampler_structs.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\SigProc_FIX.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\x86\SigProc_FIX_sse.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\arm\biquad_alt_arm.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\arm\LPC_inv_pred_gain_arm.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\arm\macros_armv4.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\arm\macros_armv5e.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\arm\macros_arm64.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\arm\SigProc_FIX_armv4.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\arm\SigProc_FIX_armv5e.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\arm\NSQ_del_dec_arm.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\arm\NSQ_neon.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\fixed\main_FIX.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\fixed\structs_FIX.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\fixed\arm\warped_autocorrelation_FIX_arm.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\fixed\mips\noise_shape_analysis_FIX_mipsr1.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\fixed\mips\warped_autocorrelation_FIX_mipsr1.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\float\main_FLP.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\float\structs_FLP.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\float\SigProc_FLP.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\mips\macros_mipsr1.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\mips\NSQ_del_dec_mipsr1.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\silk\mips\sigproc_fix_mipsr1.h">
+      <Filter>silk</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\arch.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\bands.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\celt.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\cpu_support.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\include\opus_custom.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\cwrs.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\ecintrin.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\entcode.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\entdec.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\entenc.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\fixed_debug.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\fixed_generic.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\float_cast.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\_kiss_fft_guts.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\kiss_fft.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\laplace.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\mathops.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\mdct.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\mfrngcod.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\modes.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\os_support.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\pitch.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\celt_lpc.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\x86\celt_lpc_sse.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\quant_bands.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\rate.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\stack_alloc.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\vq.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\static_modes_float.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\static_modes_fixed.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\static_modes_float_arm_ne10.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\static_modes_fixed_arm_ne10.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\arm\armcpu.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\arm\fixed_armv4.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\arm\fixed_armv5e.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\arm\fixed_arm64.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\arm\kiss_fft_armv4.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\arm\kiss_fft_armv5e.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\arm\pitch_arm.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\arm\fft_arm.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\arm\mdct_arm.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\mips\celt_mipsr1.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\mips\fixed_generic_mipsr1.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\mips\kiss_fft_mipsr1.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\mips\mdct_mipsr1.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\mips\pitch_mipsr1.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\mips\vq_mipsr1.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\x86\pitch_sse.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\x86\vq_sse.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\celt\x86\x86cpu.h">
+      <Filter>celt</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{DADB7FF3-4CED-3815-89E9-E58B3CEC7529}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{2BD165C7-50E6-3C69-8DD5-574AB5A4F2AD}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="celt">
+      <UniqueIdentifier>{ADEF5FFE-6584-341B-8F57-BEE006D3388D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="silk">
+      <UniqueIdentifier>{5719EC73-63CB-35C1-B860-A7EDF7441767}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

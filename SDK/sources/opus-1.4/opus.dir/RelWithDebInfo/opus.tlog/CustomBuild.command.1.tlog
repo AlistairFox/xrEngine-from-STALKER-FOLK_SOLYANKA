@@ -1,0 +1,10 @@
+^D:\GITHUB\OMP1.3\SDK\SOURCES\OPUS-1.4\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Preview\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SD:/GitHub/omp1.3/SDK/sources/opus-1.4 -BD:/GitHub/omp1.3/SDK/sources/opus-1.4 --check-stamp-file D:/GitHub/omp1.3/SDK/sources/opus-1.4/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

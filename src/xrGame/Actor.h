@@ -79,47 +79,75 @@ private:
 
 	//SE7Kills
 public:
+	
+	// Камера со 2го вида в первый
+	bool wpn_camera = false;
+
+	bool						MpGodMode() const;
+	bool						MpNoClip() const;
+	bool						MpInvisibility() const;
 	bool						MpSafeMode() const;
 	bool						MpAnimationMode() const;
 	bool						Setuped_callbacks();
-	int							ANIM_SELECTED = 0;
 
-	void						StopAllSNDs();
-	void						EndAnimation(int anim);
-
-private:
-	bool wpn_camera = false;
-	bool animation_extra_exit = false;
-
+	// SCRIPT ANIMATION
+	bool CanChange = true;
+	bool NEED_EXIT = false;
+ 	bool CanUseAnimationsMenu = false;
+ 
+protected:
+	u32 InputAnim = 0;
+	u32 OutAnim = 0;
+	u32 MidAnim = 0;
+	u32 sSndID = 0;
 	ref_sound selected;
 
-	int oldAnim = 0;
-	int IntAnim = 0;
-	int OutAnim = 0;
-	int MidAnim = 0;
+public:
+	bool InPlay = true;
+	bool OutPlay = true;
+	bool MidPlay = true;
+	bool InitItems = false;
+
+	bool start_sel = false;
+
+	u32 oldAnim = 0;
+	u32 ANIM_SELECTED = 0;
+	u32 ANIM_CURRENT_PLAYED = 0;
+	bool ANIM_CAN_WALK = false;
+
+	bool AnimExtraExit = false;
+
+public:
+	void					SelectScriptAnimation(u32 mstate_rl);
+	bool					ActorAnimationBlockedUpdate(u32 mstate_rl);
+private:
+
+  
  
-	u32 sSndID = 0;
-																													   
- 	bool started_music_hand_item = false;
-	bool InPlay    = true;
-	bool OutPlay   = true;
-	bool MidPlay   = true;
+	// SCRIPT START
+	void					SelectScriptAnimation_Standing();
+	void					SelectScriptAnimation_Walking(u32 mstate_rl);
  
-	void					SelectScriptAnimation();
 	void					soundPlay();
-	void					script_anim(MotionID exit_animation, PlayCallback Callback, LPVOID CallbackParam);
-	
+	void					StopExit();
+	void					StartAnimItems();
+
 	void					ReciveSoundPlay(NET_Packet packet);
 	void					ReciveAnimationPacket(NET_Packet& packet);
 	void					ReciveActivateItem(NET_Packet& packet);
 
 	void					SendSoundPlay(u32 ID, bool Activate);
 	void					SendAnimationToServer(MotionID motion);
- 	void					SendActivateItem(u16 slot, bool activate);
+	void					SendActivateItem(shared_str item, bool activate);
+	void					SendActivateItemSlot(u8 type, u8 slot, bool activate);
+
+	void					script_anim(MotionID exit_animation, PlayCallback Callback, LPVOID CallbackParam);
+	void					script_animation_legs(u32 mstate_rl);
+
+	// SCRIPT END
 
 	void					UpdateDetectorTorsoState(MotionID& M_torso, MotionID& M_head, MotionID& M_legs, int moving_idx, bool standing);
-	
-	void					UpdateAnimWeaponState(MotionID& torso, MotionID& M_head, MotionID& M_legs, int moving_idx, u32 mstate_rl, bool is_standing);
+ 	void					UpdateAnimWeaponState(MotionID& torso, MotionID& M_head, MotionID& M_legs, int moving_idx, u32 mstate_rl, bool is_standing);
 
 	//ZOMBIED
 
@@ -133,15 +161,9 @@ public:
 	virtual								~CActor				();
 
 public:
-	
-	bool						MpGodMode					() const				;
-	bool						MpNoClip					() const				;
-	bool						MpInvisibility				() const				;
+
 				
 
- 
-	bool CanChange = true;
- 
 	virtual BOOL						AlwaysTheCrow				()						{ return TRUE; }
 
 	virtual CAttachmentOwner*			cast_attachment_owner		()						{return this;}
@@ -224,6 +246,10 @@ public:
 	
 	virtual void OnItemRuck		(CInventoryItem *inventory_item, const SInvItemPlace& previous_place);
 	virtual void OnItemBelt		(CInventoryItem *inventory_item, const SInvItemPlace& previous_place);
+
+
+	xr_vector<const CArtefact*> m_ArtefactsOnBelt;
+	void MoveArtefactBelt(const CArtefact* artefact, bool on_belt);
 	
 	virtual void OnItemDrop		(CInventoryItem *inventory_item, bool just_before_destroy);
 	virtual void OnItemDropUpdate ();

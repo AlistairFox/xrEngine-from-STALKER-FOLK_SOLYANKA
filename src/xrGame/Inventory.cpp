@@ -582,10 +582,10 @@ void CInventory::Activate(u16 slot, bool bForce)
 PIItem CInventory::ItemFromSlot(u16 slot) const
 {
 	VERIFY(NO_ACTIVE_SLOT != slot);
-	if (LAST_SLOT >= slot)
+//	if (LAST_SLOT >= slot)
 		return m_slots[slot].m_pIItem;
-	else
-		return nullptr;
+//	else
+//		return nullptr;
 }
 
 void CInventory::SendActionEvent(u16 cmd, u32 flags) 

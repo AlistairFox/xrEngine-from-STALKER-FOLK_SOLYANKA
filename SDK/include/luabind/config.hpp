@@ -27,7 +27,7 @@
 #ifndef LUA_DEBUG
 
 #	ifndef LUABIND_NO_ERROR_CHECKING
-#		define LUABIND_NO_ERROR_CHECKING
+// #		define LUABIND_NO_ERROR_CHECKING
 #	endif // LUABIND_NO_ERROR_CHECKING
 
 #	pragma warning(disable: 4251 577 297)

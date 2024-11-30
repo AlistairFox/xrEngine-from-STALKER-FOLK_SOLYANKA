@@ -794,7 +794,7 @@ bool is_dedicated()
 
 void print_msg(LPCSTR str)
 {
-	// Msg("[lua] %s", str);
+	Msg("[lua] %s", str);
 }
 
 

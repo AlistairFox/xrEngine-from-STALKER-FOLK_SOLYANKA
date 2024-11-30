@@ -1,0 +1,5 @@
+D:/GitHub/Kornelius/SDK/sources/opus-1.4/CMakeFiles/opus.dir
+D:/GitHub/Kornelius/SDK/sources/opus-1.4/CMakeFiles/PACKAGE.dir
+D:/GitHub/Kornelius/SDK/sources/opus-1.4/CMakeFiles/INSTALL.dir
+D:/GitHub/Kornelius/SDK/sources/opus-1.4/CMakeFiles/ALL_BUILD.dir
+D:/GitHub/Kornelius/SDK/sources/opus-1.4/CMakeFiles/ZERO_CHECK.dir

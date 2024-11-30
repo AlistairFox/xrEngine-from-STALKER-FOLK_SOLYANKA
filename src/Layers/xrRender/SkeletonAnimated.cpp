@@ -1019,3 +1019,21 @@ MotionID CKinematicsAnimated::ID_Motion(LPCSTR  N, u16 slot)
     return motion_ID;
 }
 #endif
+
+
+int	CKinematicsAnimated::get_animation_size(int SLOT)
+{
+	SMotionsSlot& slot = m_Motions[SLOT];
+	MotionVec* bone_motions = slot.bone_motions[LL_GetBoneRoot()];
+	return bone_motions->size();
+}
+
+bool  CKinematicsAnimated::get_animation_valid(MotionID motion_ID)
+{
+	if (motion_ID.slot > m_Motions.size() - 1)	// Нумерация с 0
+		return false;
+
+	SMotionsSlot& slot = m_Motions[motion_ID.slot];
+	MotionVec* bone_motions = slot.bone_motions[LL_GetBoneRoot()];
+	return motion_ID.idx < bone_motions->size();
+}

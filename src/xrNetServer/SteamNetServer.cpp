@@ -161,33 +161,48 @@ bool SteamNetServer::CreateConnection(GameDescriptionData & game_descr, ServerCo
 	return true;
 }
 
+#include "mutex"
+
+std::mutex mtx;
+
 void SteamNetServer::DestroyConnection()
 {
+	std::lock_guard lock(mtx);
+	// DebugBreak();
+
 	// Pavel: дисконнект не должен исполняться, во время обработки колбека
-	xrCriticalSection::raii lock(&csConnection);
+	// xrCriticalSection::raii lock(&csConnection);
 
 	m_server_password.clear();
 
-	if (m_pInterface == nullptr)
- 		return;
- 
-	DisconnectAll();
-
-	if (m_hListenSock != k_HSteamListenSocket_Invalid)
+	if (m_pInterface != nullptr)
 	{
-		m_pInterface->CloseListenSocket(m_hListenSock);
+		/// DisconnectAll();
+		Msg("AFTER CLEAR SteamInterface: %p", m_pInterface);
+
+
+		// if (m_hPollGroup != k_HSteamNetPollGroup_Invalid)
+		// {
+		// 	m_pInterface->DestroyPollGroup(m_hPollGroup);
+		// 	m_hPollGroup = k_HSteamNetPollGroup_Invalid;
+		// }
+		// 
+		// if (m_hListenSock != k_HSteamListenSocket_Invalid)
+		// {
+		// 	Msg("CLOSE SOCKET SteamInterface: %p", m_pInterface);
+		// 
+		// 	m_pInterface->CloseListenSocket(m_hListenSock);
+		// 	m_hListenSock = k_HSteamListenSocket_Invalid;
+		// }
+
+
+		m_hPollGroup = k_HSteamNetPollGroup_Invalid;
 		m_hListenSock = k_HSteamListenSocket_Invalid;
-	}
 
-	if (m_hPollGroup != k_HSteamListenSocket_Invalid)
-	{
-		m_pInterface->DestroyPollGroup(m_hPollGroup);
-		m_hPollGroup = k_HSteamListenSocket_Invalid;
-	}
+		GameNetworkingSockets_Kill();
 
-	m_pInterface = nullptr;
-
-	GameNetworkingSockets_Kill();
+		m_pInterface = nullptr;
+	} 
 }
 
 #pragma endregion
@@ -466,18 +481,28 @@ void SteamNetServer::DisconnectAll()
 {
 	if (!m_pInterface)
 		return; 
-
-	for (auto &connection : m_players)
+	Msg("SteamInterface: %p", m_pInterface);
+	for (auto connection : m_players)
 	{
-		m_pInterface->CloseConnection(connection, EServerShutdown, nullptr, false);
-		DestroyCleint(connection);
+		if (connection == SV_Client->ID.value())
+		{
+			DestroyCleint(connection);
+			continue;
+		}
+ 		m_pInterface->CloseConnection((HSteamNetConnection)connection, EServerShutdown, "server shutdown", false);
+ 		DestroyCleint(connection);
 	}
 	m_players.clear();
+
+	Msg("SteamInterface: %p", m_pInterface);
+
 
 	for (auto &cl_data : m_pending_clients)
 	{
 		m_pInterface->CloseConnection(cl_data.clientID.value(), EServerShutdown, nullptr, false);
 	}
+	Msg("SteamInterface: %p", m_pInterface);
+
 	m_pending_clients.clear();
 }
  
@@ -516,9 +541,7 @@ void SteamNetServer::CloseConnection(HSteamNetConnection connection, enmDisconne
 
 void SteamNetServer::DestroyCleint(ClientID clientId)
 {
-	IClient* tmp_client = net_players.GetFoundClient(
-		ClientIdSearchPredicate(clientId)
-	);
+	IClient* tmp_client = net_players.GetFoundClient( ClientIdSearchPredicate(clientId) );
 
 	if (tmp_client)
 	{

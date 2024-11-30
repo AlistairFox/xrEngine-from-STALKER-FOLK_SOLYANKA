@@ -73,6 +73,12 @@ CScriptIniFile *create_ini_file	(LPCSTR ini_string)
 }
 #pragma warning(pop)
 
+
+void w_string_script(CScriptIniFile* file, LPCSTR S, LPCSTR L, LPCSTR V)
+{
+	file->w_string(S, L, V);
+}
+
 #pragma optimize("s",on)
 void CScriptIniFile::script_register(lua_State *L)
 {
@@ -96,7 +102,7 @@ void CScriptIniFile::script_register(lua_State *L)
 			.def("r_float",			&CScriptIniFile::r_float)
 			.def("r_vector",		&CScriptIniFile::r_fvector3)
 
-			.def("w_string", &CScriptIniFile::w_string)
+			.def("w_string", &w_string_script)
 			.def("w_u32", &CScriptIniFile::w_u32)
 			.def("w_s32", &CScriptIniFile::w_s32)
 			.def("w_float", &CScriptIniFile::w_float)

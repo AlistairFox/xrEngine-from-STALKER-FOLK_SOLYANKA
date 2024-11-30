@@ -96,7 +96,6 @@ struct	hdrNODES
 #define _USE_VERSION_11
 
 #ifdef _USE_VERSION_11
-
 class NodePosition
 { 
 	u8	data[6];

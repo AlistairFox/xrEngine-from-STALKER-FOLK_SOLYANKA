@@ -627,19 +627,15 @@ void CEnvironment::SelectEnvsMPSync(float gt)
 	{
 		Current[0] = Current[1];
 		SelectEnv(CurrentWeather, Current[1], gt);
-
 #ifdef WEATHER_LOGGING
 		Msg("Weather: '%s' Desc: '%s' Time: %3.2f/%3.2f", CurrentWeatherName.c_str(), Current[1]->m_identifier.c_str(), Current[1]->exec_time, fGameTime);
 #endif
 	}
 }
 
- 
-
 LPCSTR CEnvironment::GetCurrentIdentifier()
 {
-	//Msg("CFG %s", Current[0]->m_cfg_file.c_str());
-	return Current[0]->m_cfg_file.c_str();
+ 	return Current[0]->m_cfg_file.c_str();
 }
 
 void CEnvironment::SelectEnvs(float gt)

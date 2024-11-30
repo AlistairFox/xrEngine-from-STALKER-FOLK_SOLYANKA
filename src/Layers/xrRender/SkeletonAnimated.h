@@ -205,6 +205,9 @@ public:
 	}
 
 	virtual float				get_animation_length (MotionID motion_ID);
+	virtual bool				get_animation_valid(MotionID motion_ID);
+	virtual int					get_animation_size(int slot);
+
 };
 //IC CKinematicsAnimated* PKinematicsAnimated(IRender_Visual* V) { return V?V->dcast_PKinematicsAnimated():0; }
 IC CKinematicsAnimated* PKinematicsAnimated(IRenderVisual* V) { return V?(CKinematicsAnimated*)V->dcast_PKinematicsAnimated():0; }

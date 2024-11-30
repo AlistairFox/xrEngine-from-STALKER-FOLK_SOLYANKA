@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="D:\GitHub\Kornelius\SDK\sources\opus-1.4\CMakeFiles\cde8852806e735ab6bcf78edcef30112\PACKAGE_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{F7B87B8C-C470-3194-8E6C-06355C9A8D68}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

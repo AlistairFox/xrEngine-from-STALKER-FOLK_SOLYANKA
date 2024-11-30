@@ -1021,43 +1021,25 @@ extern float Shedule_Scale_Objects;
 #include "Spectator.h"
 
 #include "CustomZone.h"
+#include "helicopter.h"
 
 float CGameObject::shedule_Scale()
 {
-	/*
-	if (Game().players.size() > 0)
-	{
-		bool finded = false;
-		for (auto pl : Game().players)
-		{
-			CObject* obj = Level().Objects.net_Find(pl.second->GameID);
-
-			if (smart_cast<CActorMP*>(obj) || smart_cast<CSpectator*>(obj))
-			{
-				float new_dist = obj->Position().distance_to(this->Position());
-				if (new_dist < 60)
-				{
-					finded = true;
-					break;
-				}
-			}
-		}
-
-		if (finded)
-			return 0;
-	}
-
-	return Shedule_Scale_Objects;
-	*/	
+ 	if (smart_cast<CActor*>(this) || smart_cast<CBolt*>(this) || smart_cast<CHelicopter*>(this))
+		return  Device.vCameraPosition.distance_to(Position()) / 200;
 
 	if (smart_cast<CPHDestroyable*>(this) || smart_cast<CPhysicObject*>(this) || smart_cast<CCustomZone*>(this) )
 	{
-		if (OnClient())
-			return Device.vCameraPosition.distance_to(Position()) / 50;
+ 		return Device.vCameraPosition.distance_to(Position()) / 50;
 	} 
 
+	if (smart_cast<CAI_Stalker*>(this) || smart_cast<CBaseMonster*>(this))
+	{
+		return Device.vCameraPosition.distance_to(Position()) / 50;
+	}
 
-	return Shedule_Scale_Objects;
+	return 3.5;
+	/// return Shedule_Scale_Objects;
 }
 		  
 #include "smart_zone.h"

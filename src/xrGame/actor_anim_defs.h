@@ -124,26 +124,41 @@ struct SActorVehicleAnims
 	void				Create							(IKinematicsAnimated* K);
 };
 
-#define MAX_ANIMS 256
-#define MAX_ANIMS_CYCLE 32
-#define MAX_SOUNDS 32
+
+// –ÂÊËÏ ¿Õ»Ã¿÷»»
+
+#define MAX_SLOTS 255
+#define MAX_SLOTS_PLAYING 255
+#define MAX_SLOTS_SOUND	255
 
 struct SScript_AnimInput
 {
-	MotionID m_animation_in[MAX_ANIMS][MAX_ANIMS_CYCLE];
-	u32 count[MAX_ANIMS];
+	MotionID m_animation_in[MAX_SLOTS][MAX_SLOTS_PLAYING];
+	u32 count[MAX_SLOTS];
 };
 
 struct SScript_AnimOut
 {
-	MotionID m_animation_out[MAX_ANIMS][MAX_ANIMS_CYCLE];
-	u32 count[MAX_ANIMS];
+	MotionID m_animation_out[MAX_SLOTS][MAX_SLOTS_PLAYING];
+	u32 count[MAX_SLOTS];
 };
 
 struct SScript_AnimMiddle
 {
-	MotionID m_animation[MAX_ANIMS][MAX_ANIMS_CYCLE];
-	u32 count[MAX_ANIMS];
+	MotionID m_animation[MAX_SLOTS][MAX_SLOTS_PLAYING];
+	u32 count[MAX_SLOTS];
+};
+
+struct SScript_AnimWalking
+{
+	MotionID m_animation_fwd[MAX_SLOTS];
+	MotionID m_animation_rs[MAX_SLOTS];
+	MotionID m_animation_ls[MAX_SLOTS];
+	MotionID m_animation_back[MAX_SLOTS];
+	MotionID m_animation_idle[MAX_SLOTS];
+
+	MotionID m_animation_torso_idle[MAX_SLOTS];
+	MotionID m_animation_torso_walk[MAX_SLOTS];
 };
 
 struct SActorStateAnimation
@@ -152,23 +167,41 @@ struct SActorStateAnimation
 	SScript_AnimOut    out_anims;
 	SScript_AnimMiddle middle_anims;
 
-	bool m_animation_loop[MAX_ANIMS];
-	u32	 m_rnd_snds[MAX_ANIMS];
-	ref_sound m_sound_Animation[MAX_ANIMS][MAX_SOUNDS];
- 	u16 m_animation_use_slot[MAX_ANIMS];
+	SScript_AnimWalking   walking_anims;
+
+	bool m_animation_loop[MAX_SLOTS];
+	bool m_animation_can_walk[MAX_SLOTS];
+
+	u32	 m_rnd_snds[MAX_SLOTS];
+	ref_sound m_sound_Animation[MAX_SLOTS][MAX_SLOTS_SOUND];
+
+	shared_str m_animation_attach[MAX_SLOTS];
+	u16 m_animation_use_slot[MAX_SLOTS];
 
 	void CreateAnimationsScripted(IKinematicsAnimated* K);
+
+public:
+	CActor* actor;
+	SActorStateAnimation(CActor* a) : actor(a) {};
+
 };
 
 struct SActorMotions
 {
+
+public:
+	SActorStateAnimation m_script;
+
+	SActorMotions(CActor* a) : m_script(a)
+	{
+
+	};
+
 	MotionID			 m_dead_stop;
 	SActorState			 m_normal;
 	SActorState			 m_crouch;
 	SActorState			 m_climb;
 	SActorSprintState	 m_sprint;
-
-	SActorStateAnimation m_script;
 
 	STorsoWpn			 m_detector;		 //0
 	STorsoWpn			 m_detector_knife;	 //1

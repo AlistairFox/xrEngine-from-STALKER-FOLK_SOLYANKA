@@ -409,9 +409,8 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 
 	}break;
 
-	case GE_DETECTOR_STATE:
- 	case GE_ACTOR_ANIMATIONS_EVENT:
-	{
+	case	GE_DETECTOR_STATE:
+ 	{
 		SendBroadcast(sender, P, net_flags(true, true));
 	}break;
  
@@ -523,6 +522,22 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
  		game->make_player_squad_leader(P, destination);
 	}break;
 
+	// ACTOR ANIMATION
+
+
+	case GE_ACTOR_ANIMATION_SCRIPT:
+	{
+		SendBroadcast(sender, P, net_flags(true, true));
+	}
+	break;
+
+	case GE_ACTOR_ANIMATION_MOTIONID:
+	case GE_ACTOR_ITEM_ACTIVATE:
+	case GE_ACTOR_SND_ACTIVATE:
+	{
+		SendTo(sender, P, net_flags(true, true));
+		SendBroadcast(sender, P, net_flags(true, true));
+	}break;
 	 
 	default:
 		R_ASSERT2	(0,"Game Event not implemented!!!");

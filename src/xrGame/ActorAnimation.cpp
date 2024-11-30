@@ -121,7 +121,7 @@ void STorsoWpn::Create(IKinematicsAnimated* K, LPCSTR base0, LPCSTR base1)
 	moving[eRun]	= K->ID_Cycle_Safe(strconcat(sizeof(buf),buf,base0,"_torso",base1,"_aim_3"));
 	moving[eSprint]	= K->ID_Cycle_Safe(strconcat(sizeof(buf),buf,base0,"_torso",base1,"_escape_0"));
  
-	if (base0 != "cr")
+	if (xr_strcmp(base0, "norm") == 0)
 	{
 		moving[eIdleSafe] = K->ID_Cycle_Safe(strconcat(sizeof(buf), buf, base0, "_torso", base1, "_idle_1"));
 		moving[eWalkSafe] = K->ID_Cycle_Safe(strconcat(sizeof(buf), buf, base0, "_torso", base1, "_walk_1"));
@@ -153,10 +153,20 @@ void SAnimState::Create(IKinematicsAnimated* K, LPCSTR base0, LPCSTR base1)
 	legs_ls			= K->ID_Cycle(strconcat(sizeof(buf),buf,base0,base1,"_ls_0"));
 	legs_rs			= K->ID_Cycle(strconcat(sizeof(buf),buf,base0,base1,"_rs_0"));
 
-	legs_fwd_safe = K->ID_Cycle(strconcat(sizeof(buf), buf, base0, base1, "_fwd_1"));
-	legs_back_safe = K->ID_Cycle(strconcat(sizeof(buf),buf, base0, base1, "_back_0"));
-	legs_ls_safe = K->ID_Cycle(strconcat(sizeof(buf), buf,  base0, base1, "_ls_0"));
-	legs_rs_safe = K->ID_Cycle(strconcat(sizeof(buf), buf,  base0, base1, "_rs_0"));
+	if (xr_strcmp(base0, "norm") == 0)
+	{
+		legs_fwd_safe = K->ID_Cycle(strconcat(sizeof(buf), buf, base0, base1, "_fwd_1"));
+		legs_back_safe = K->ID_Cycle(strconcat(sizeof(buf), buf, base0, base1, "_back_0"));
+		legs_ls_safe = K->ID_Cycle(strconcat(sizeof(buf), buf, base0, base1, "_ls_0"));
+		legs_rs_safe = K->ID_Cycle(strconcat(sizeof(buf), buf, base0, base1, "_rs_0"));
+	}
+	else
+	{
+		legs_fwd = K->ID_Cycle(strconcat(sizeof(buf), buf, base0, base1, "_fwd_0"));
+		legs_back = K->ID_Cycle(strconcat(sizeof(buf), buf, base0, base1, "_back_0"));
+		legs_ls = K->ID_Cycle(strconcat(sizeof(buf), buf, base0, base1, "_ls_0"));
+		legs_rs = K->ID_Cycle(strconcat(sizeof(buf), buf, base0, base1, "_rs_0"));
+	}
 	// xrmpe
 	//legs_back_safe = K->ID_Cycle(strconcat(sizeof(buf),buf, base0, base1, "_back_1"));
   	//legs_ls_safe = K->ID_Cycle(strconcat(sizeof(buf), buf,  base0, base1, "_ls_1"));
@@ -265,7 +275,7 @@ void SActorState::Create(IKinematicsAnimated* K, LPCSTR base)
 	{
 		legs_idle_safe = K->ID_Cycle(strconcat(sizeof(buf), buf, base, "_idle_0"));
 		legs_turn_safe = K->ID_Cycle(strconcat(sizeof(buf), buf, base, "_turn"));
-		m_head_idle_safe = K->ID_Cycle("head_idle_1");
+		m_head_idle_safe = K->ID_Cycle("head_idle_0"); // XRMPE is head_idle_1 !!!!
 	}	
 }
 
@@ -419,6 +429,15 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 		return;
 	}
 
+
+	// ÂÀÆÍÎÅ ÌÅÑÒÎ
+	// ÏÐÎÈÃÐÓÅÌ ÑÊÐÈÏÒÎÂÛÅ ÀÍÈÌÀÖÈÈ !!!
+	if (ActorAnimationBlockedUpdate(mstate_rl))
+		return;
+
+
+	// Îáû÷íûé êîä àíèìàöèè
+
 	STorsoWpn::eMovingState	moving_idx 		= STorsoWpn::eIdle;
 	SActorState*					ST 		= 0;
 	SAnimState*						AS 		= 0;
@@ -502,6 +521,7 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 		}
 	};
 
+
 	//-----------------------------------------------------------------------
 	// Torso
 	if(mstate_rl&mcClimb)
@@ -511,50 +531,8 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 		else if (mstate_rl&mcLStrafe)	M_torso	= AS->legs_ls;
 		else if (mstate_rl&mcRStrafe)	M_torso	= AS->legs_rs;
 	}
-  
-	bool need_use = false;
- 
-	if (!CanChange)
-	{
-		if (!OutPlay && Level().CurrentControlEntity() == this)
-			soundPlay();
-
-		if (animation_extra_exit)
-		{
-			StopAllSNDs();
-			animation_extra_exit = false;
- 		}
-
-		return;
-	}
-
-	if (!MpAnimationMode())
-	{
-		if (!OutPlay)
-		{
-			if (Level().CurrentControlEntity() == this)
-				SelectScriptAnimation();
-			
-			return;
-		}
-		else
-		{
-			if (OutPlay)
-			{
-				IntAnim = 0;
-				OutAnim = 0;
-				MidAnim = 0;
-			}
-		}
-	}
-	else
-	{
-		if (Level().CurrentControlEntity() == this)
-			SelectScriptAnimation();
-		
-		return;
-	}
 	
+
 	if(!M_torso)
 	{
 		CInventoryItem* _i = inventory().ActiveItem();

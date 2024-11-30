@@ -15,8 +15,8 @@ struct lua_State;
 class CScriptThread;
 
 #	define PRINT_CALL_STACK
-#	define USE_DEBUGGER
-//#	define USE_LUA_STUDIO
+// #	define USE_DEBUGGER
+// #	define USE_LUA_STUDIO
  
 
  

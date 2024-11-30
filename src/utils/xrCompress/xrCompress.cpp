@@ -354,13 +354,13 @@ void xrCompressor::OpenPack(LPCSTR tgt_folder, int num)
 	VERIFY			(0==fs_pack_writer);
 
 	string_path		fname;
+ 
 	string128		s_num;
-#ifdef MOD_COMPRESS
-	strconcat		(sizeof(fname),fname,tgt_folder,".xdb",itoa(num,s_num,10));
-#else
-	strconcat		(sizeof(fname),fname,tgt_folder,".pack_#",itoa(num,s_num,10));
-#endif
-	unlink			(fname);
+	sprintf_s		(fname, "compressed_archives\\%s.db%d", tgt_folder, num);
+ 	unlink			(fname);
+
+	Msg("Open Pack: %s", fname);
+
 	fs_pack_writer	= FS.w_open	(fname);
 	fs_desc.clear	();
 	aliases.clear	();

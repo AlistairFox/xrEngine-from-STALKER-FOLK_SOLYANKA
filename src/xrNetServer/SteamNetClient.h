@@ -34,10 +34,10 @@ public:
 	virtual ~SteamNetClient();
 
 private:
-	IC bool                 IsConnectionCreated() const { return m_pInterface != nullptr; }
-	IC bool									GameDescriptionReceived() const { return m_bGameDescriptionRecieved; }
+	IC bool                 IsConnectionCreated() const { return m_hConnection != k_HSteamNetConnection_Invalid; }
+	IC bool					GameDescriptionReceived() const { return m_bGameDescriptionRecieved; }
 
-	void										SendClientData();
+	void					SendClientData();
 
 	void                    Update();
 	void                    OnSteamNetConnectionStatusChanged(SteamNetConnectionStatusChangedCallback_t *pInfo);

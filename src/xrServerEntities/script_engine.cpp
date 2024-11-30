@@ -178,7 +178,7 @@ void CScriptEngine::lua_error			(lua_State *L)
 	print_output			(L,"",LUA_ERRRUN);
 	ai().script_engine().on_error	(L);
 
-#if !XRAY_EXCEPTIONS
+#if XRAY_EXCEPTIONS
 	Debug.fatal				(DEBUG_INFO,"LUA error: %s", lua_tostring(L,-1));
 #else
 	throw					lua_tostring(L,-1);
@@ -191,7 +191,7 @@ int  CScriptEngine::lua_pcall_failed	(lua_State *L)
 	print_output			(L,"",LUA_ERRRUN);
 	ai().script_engine().on_error	(L);
 
-#if !XRAY_EXCEPTIONS
+#if XRAY_EXCEPTIONS
 	Debug.fatal				(DEBUG_INFO,"LUA error: %s", lua_isstring(L,-1) ? lua_tostring(L,-1) : "");
 #endif
 	if (lua_isstring(L,-1))
@@ -209,31 +209,17 @@ void lua_cast_failed					(lua_State *L, LUABIND_TYPE_INFO info)
 
 void CScriptEngine::setup_callbacks		()
 {
-#ifdef USE_DEBUGGER
-#	ifndef USE_LUA_STUDIO
-		if( debugger() )
-			debugger()->PrepareLuaBind	();
-#	endif // #ifndef USE_LUA_STUDIO
-#endif
-
-#ifdef USE_DEBUGGER
-#	ifndef USE_LUA_STUDIO
-		if (!debugger() || !debugger()->Active() ) 
-#	endif // #ifndef USE_LUA_STUDIO
-#endif
 	{
 #if !XRAY_EXCEPTIONS
 		luabind::set_error_callback		(CScriptEngine::lua_error);
 #endif
-
-#ifndef MASTER_GOLD
-		luabind::set_pcall_callback		(CScriptEngine::lua_pcall_failed);
-#endif // MASTER_GOLD
-	}
+ 		luabind::set_pcall_callback		(CScriptEngine::lua_pcall_failed);
+ 	}
 
 #if !XRAY_EXCEPTIONS
 	luabind::set_cast_failed_callback	(lua_cast_failed);
 #endif
+
 	lua_atpanic							(lua(),CScriptEngine::lua_panic);
 }
 
@@ -305,8 +291,8 @@ void CScriptEngine::init				()
  
 	m_stack_is_ready					= true;
  
-	if( !debugger() || !debugger()->Active()  )
- 		lua_sethook					(lua(),lua_hook_call,	LUA_MASKLINE|LUA_MASKCALL|LUA_MASKRET,	0);
+//	if( !debugger() || !debugger()->Active()  )
+// 		lua_sethook					(lua(),lua_hook_call,	LUA_MASKLINE|LUA_MASKCALL|LUA_MASKRET,	0);
   
 	bool								save = m_reload_modules;
 	m_reload_modules					= true;
@@ -333,9 +319,6 @@ void CScriptEngine::remove_script_process	(const EScriptProcessors &process_id)
 
 void CScriptEngine::load_common_scripts()
 {
-#ifdef DBG_DISABLE_SCRIPTS
-	return;
-#endif
 	string_path		S;
 	FS.update_path	(S,"$game_config$","script.ltx");
 	CInifile		*l_tpIniFile = xr_new<CInifile>(S);
@@ -408,9 +391,6 @@ void CScriptEngine::process_file	(LPCSTR file_name, bool reload_modules)
 
 void CScriptEngine::register_script_classes		()
 {
-#ifdef DBG_DISABLE_SCRIPTS
-	return;
-#endif
 	string_path					S;
 	FS.update_path				(S,"$game_config$","script.ltx");
 	CInifile					*l_tpIniFile = xr_new<CInifile>(S);

@@ -71,7 +71,7 @@ void level_events::shedule_Update(u32 dt)
 			catch (...)
 			{
 				Msg("--- Crushed Update Event [%s]", name_f.c_str());
-				ai().script_engine().print_stack();
+				//ai().script_engine().print_stack();
 			}
 		}
 		else

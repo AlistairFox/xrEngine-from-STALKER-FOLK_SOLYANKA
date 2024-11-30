@@ -22,17 +22,13 @@ void CActorMP::net_Import	( NET_Packet &P)
 
 	if (OnClient())
 	{
-/*#ifdef DEBUG
-		if (GetfHealth() != m_state_holder.state().health)
-			Msg("net_Import: [%d][%s], is going to set health to %2.04f", this->ID(), Name(), m_state_holder.state().health);
-#endif*/
-		
 		game_PlayerState* ps = Game().GetPlayerByGameID(this->object_id());
 		float new_health = m_state_holder.state().health;
 		if (GetfHealth() < new_health)
 		{
 			SetfHealth(new_health);
-		} else
+		} 
+		else
 		{
 			if (!ps || !ps->testFlag(GAME_PLAYER_FLAG_INVINCIBLE))
 			{
@@ -46,8 +42,7 @@ void CActorMP::net_Import	( NET_Packet &P)
 		return;
 	}
 	
-
-	if (OnClient())
+ 	if (OnClient())
 		SetfRadiation	(m_state_holder.state().radiation*100.0f);
 
 	u16		ActiveSlot = m_state_holder.state().inventory_active_slot;

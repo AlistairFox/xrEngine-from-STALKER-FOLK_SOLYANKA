@@ -223,6 +223,9 @@
     <ClCompile Include="xrMemory_POOL.cpp">
       <Filter>Memory manager\POOL</Filter>
     </ClCompile>
+    <ClCompile Include="xrDebug_new_callstack.cpp">
+      <Filter>Debug core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FTimer.h">

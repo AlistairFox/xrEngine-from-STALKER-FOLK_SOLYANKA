@@ -9,7 +9,6 @@
 #include "UICursor.h"
 
 #include "Actor.h"
-//extern int ANIM_SELECTED = 0;
 
 bool CUIAMode::OnMouseAction(float x, float y, EUIMessages mouse_action)
 {
@@ -30,8 +29,7 @@ bool CUIAMode::OnMouseAction(float x, float y, EUIMessages mouse_action)
             {
                 if (wind == text[id])
                 {
-                   // Msg("Click Anim [%d] [%s] ", id, text[id]->GetText());
-                    Actor()->ANIM_SELECTED = id;
+                     Actor()->ANIM_SELECTED = id;
                 }
             }
             id += 1;
@@ -64,7 +62,7 @@ void CUIAMode::Init()
     frame_animations->AttachChild(list_anims);
 
     string_path file_path;
-    FS.update_path(file_path, "$game_config$", "actor_anims.ltx");
+    FS.update_path(file_path, "$game_config$", "alife\\actor_anims.ltx");
 
     if (FS.exist(file_path))
     {

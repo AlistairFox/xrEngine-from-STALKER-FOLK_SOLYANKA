@@ -197,17 +197,17 @@ void CreateLog			(BOOL nl)
 	strconcat(sizeof(log_file_name), log_file_name, Core.ApplicationName, "_", Core.UserName, name_log);
 	 
   
-	if (strstr(Core.Params, "server(") )
-	{
-
-		string128 name;
-		const char* s = strstr(Core.Params, "server(") + 7;
-			strncpy_s(name, s, strchr(Core.Params, '/') - s);
-			xr_strcat(name, ".log");
-			if (FS.path_exist("$logs$"))
-				FS.update_path(logFName, "$logs$", name);	   //
-	}
-	else
+	//if (strstr(Core.Params, "server(") )
+	//{
+	//
+	//	string128 name;
+	//	const char* s = strstr(Core.Params, "server(") + 7;
+	//		strncpy_s(name, s, strchr(Core.Params, '/') - s);
+	//		xr_strcat(name, ".log");
+	//		if (FS.path_exist("$logs$"))
+	//			FS.update_path(logFName, "$logs$", name);	   //
+	//}
+	//else
 	{
 		if (FS.path_exist("$logs$"))
 			FS.update_path(logFName, "$logs$", log_file_name);	   //

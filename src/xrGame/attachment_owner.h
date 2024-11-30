@@ -28,7 +28,7 @@ public:
 	virtual void			net_Destroy			();
 	virtual void			renderable_Render	();
 	virtual	void			attach(CInventoryItem* inventory_item, bool check_attaches = true);
-	//virtual	void			attach_no_check		(CInventoryItem* inventory_item);
+	virtual	void			attach_no_check		(CInventoryItem* inventory_item);
 
 
 

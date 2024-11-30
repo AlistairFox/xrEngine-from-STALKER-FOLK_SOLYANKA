@@ -330,29 +330,29 @@ void CActor::OnEvent(NET_Packet& P, u16 type)
 		*/
 	}break;
 
-	case GE_ACTOR_ANIMATIONS_EVENT:
-	{
-		u8 type = P.r_u8();
-		if (type == 1)
+		// ACTOR ANIMATION
+
+		case GE_ACTOR_ANIMATION_SCRIPT:
+		{
+ 			ANIM_CURRENT_PLAYED = P.r_u8();
+			ANIM_CAN_WALK = P.r_u8();
+			CanChange = P.r_u8();
+ 		} break;
+
+		case GE_ACTOR_ANIMATION_MOTIONID:
 		{
 			ReciveAnimationPacket(P);
-		}
-		else if (type == 2)
+		} break;
+
+		case GE_ACTOR_ITEM_ACTIVATE:
 		{
 			ReciveActivateItem(P);
-		}
-		else if (type == 3)
+		} break;
+
+		case GE_ACTOR_SND_ACTIVATE:
 		{
 			ReciveSoundPlay(P);
-		}
-		else if (type == 4)
-		{
-			u16 slot;
-			P.r_u16(slot);
-			inventory().SetActiveSlot(slot);
-		}
-	}break;
-    
+		} break;
 
 	}
 }

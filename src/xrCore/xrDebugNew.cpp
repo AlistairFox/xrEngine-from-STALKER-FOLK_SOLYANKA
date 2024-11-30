@@ -28,7 +28,7 @@ static BOOL bException = FALSE;
 
 
 # define USE_OWN_MINI_DUMP
-# define USE_OWN_ERROR_MESSAGE_WINDOW
+// # define USE_OWN_ERROR_MESSAGE_WINDOW
 
 XRCORE_API xrDebug Debug;
 
@@ -42,9 +42,7 @@ void LogStackTrace(LPCSTR header)
     Msg("%s", header);
 }
 
-void xrDebug::gather_info(const char* expression, const char* description, const char* argument0, const char* argument1,
-    const char* file, int line, const char* function, LPSTR assertion_info,
-    u32 const assertion_info_size)
+void xrDebug::gather_info(const char* expression, const char* description, const char* argument0, const char* argument1,const char* file, int line, const char* function, LPSTR assertion_info, u32 const assertion_info_size)
 {
     if (!expression)
         expression = "<no expression>";
@@ -55,6 +53,7 @@ void xrDebug::gather_info(const char* expression, const char* description, const
     LPCSTR endline = "\n";
     LPCSTR prefix = "[error]";
     bool extended_description = (description && !argument0 && strchr(description, '\n'));
+
     for (int i = 0; i < 2; ++i)
     {
         if (!i)
@@ -128,15 +127,14 @@ void xrDebug::gather_info(const char* expression, const char* description, const
 #ifdef USE_OWN_ERROR_MESSAGE_WINDOW
         buffer += xr_sprintf(buffer, assertion_size - u32(buffer - buffer_base), "stack trace:%s%s", endline, endline);
 #endif //-USE_OWN_ERROR_MESSAGE_WINDOW
-
+        
         if (shared_str_initialized)
             FlushLog();
-
-        //        Callstack();
-
-        //        os_clipboard::copy_to_clipboard(assertion_info);
     }
 }
+
+void  callstack_mdmp(_EXCEPTION_POINTERS* pExceptionInfo, bool skip = false);
+
 
 void xrDebug::do_exit(const std::string& message)
 {
@@ -159,8 +157,7 @@ void xrDebug::backend(const char* expression, const char* description, const cha
  //   Msg("Exception Backend: ");
 
     string4096 assertion_info;
-
- //   gather_info(expression, description, argument0, argument1, file, line, function, assertion_info, sizeof(assertion_info));
+    gather_info(expression, description, argument0, argument1, file, line, function, assertion_info, sizeof(assertion_info));
 
     LPCSTR endline = "\r\n";
     LPSTR buffer = assertion_info + xr_strlen(assertion_info);
@@ -170,7 +167,7 @@ void xrDebug::backend(const char* expression, const char* description, const cha
     if (handler)
         handler();
 
- //   Msg("Backend excpetion: %s", assertion_info);
+    Msg("Backend excpetion: %s", assertion_info);
 
     FlushLog();
  
@@ -480,8 +477,11 @@ LONG WINAPI UnhandledFilter(_EXCEPTION_POINTERS* pExceptionInfo)
     }
 
     FlushLog();
+    
     save_mini_dump(pExceptionInfo);
  
+    callstack_mdmp(pExceptionInfo);
+
     //    TerminateProcess(GetCurrentProcess(), 1);
     return (EXCEPTION_EXECUTE_HANDLER);
 }
@@ -504,8 +504,6 @@ static void handler_base(LPCSTR reason_string)
         DEBUG_INFO,
         ignore_always
     );
-
-
 }
 
 static void invalid_parameter_handler(
@@ -575,17 +573,10 @@ static void pure_call_handler()
 {
     handler_base("pure virtual function call");
 }
-
-#ifdef XRAY_USE_EXCEPTIONS
-static void unexpected_handler()
-{
-    handler_base("unexpected program termination");
-}
-#endif // XRAY_USE_EXCEPTIONS
-
+ 
 static void abort_handler(int signal)
 {
-    handler_base("application is aborting");
+     handler_base("application is aborting");
 }
 
 static void floating_point_handler(int signal)
@@ -605,8 +596,7 @@ static void termination_handler(int signal)
 
 static void storage_access_handler(int signal)
 {
-
-    // handler_base("storage access error");
+     // handler_base("storage access error");
 }
 
 void debug_on_thread_spawn()

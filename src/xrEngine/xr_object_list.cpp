@@ -93,86 +93,20 @@ void	CObjectList::o_sleep		( CObject*		O		)
 
 extern int updateCL_Rate;
 
-void	CObjectList::SingleUpdate	(CObject* O)
+void	CObjectList::SingleUpdate(CObject* O)
 {
- 
+
 	if (Device.dwFrame == O->dwFrame_UpdateCL)
-	{
 		return;
-	}
- 
-
-	if ( !O->processing_enabled() ) 
-	{
+ 	if (!O->processing_enabled())
 		return;
-	}
-
-	if (O->H_Parent())
-		SingleUpdate			(O->H_Parent());
-
-	Device.Statistic->UpdateClient_updated	++;
- 
-	O->dwFrame_UpdateCL = Device.dwFrame;
- 
-//	Msg							("[%d][0x%08x]IAmNotACrowAnyMore (CObjectList::SingleUpdate)", Device.dwFrame, dynamic_cast<void*>(O));
-
-	O->UpdateCL();
-
-	VERIFY3						(O->dbg_update_cl == Device.dwFrame, "Broken sequence of calls to 'UpdateCL'",*O->cName());
-#if 0//ndef DEBUG
-	__try
-	{
-#endif
-		if (O->H_Parent() && (O->H_Parent()->getDestroy() || O->H_Root()->getDestroy()) )	
-		{
-			// Push to destroy-queue if it isn't here already
-			Msg	("! ERROR: incorrect destroy sequence for object[%d:%s], section[%s], parent[%d:%s]",O->ID(),*O->cName(),*O->cNameSect(),O->H_Parent()->ID(),*O->H_Parent()->cName());
-		}
-#if 0//ndef DEBUG
-	}
-	__except (EXCEPTION_EXECUTE_HANDLER)
-	{
-		CObject* parent_obj = O->H_Parent();
-		CObject* root_obj	= O->H_Root();
-		Msg	("! ERROR: going to crush: [%d:%s], section[%s], parent_obj_addr[0x%08x], root_obj_addr[0x%08x]",O->ID(),*O->cName(),*O->cNameSect(), *((u32*)&parent_obj), *((u32*)&root_obj));
-		if (parent_obj)
-		{
-			__try
-			{
-				Msg("! Parent object: [%d:%s], section[%s]", 
-					parent_obj->ID(), 
-					parent_obj->cName().c_str(),
-					parent_obj->cNameSect().c_str());
-
-			}
-			__except (EXCEPTION_EXECUTE_HANDLER)
-			{
-				Msg("! Failed to get parent object info.");
-			}
-		}
-		if (root_obj)
-		{
-			__try
-			{
-				Msg("! Root object: [%d:%s], section[%s]", 
-					root_obj->ID(), 
-					root_obj->cName().c_str(),
-					root_obj->cNameSect().c_str());
-			}
-			__except (EXCEPTION_EXECUTE_HANDLER)
-			{
-				Msg("! Failed to get root object info.");
-			}
-		}
-		R_ASSERT(false);
-	} //end of __except
-#endif
-
-#ifdef DEBUG
-//	if (O->getDestroy())
-//		Msg						("- !!!processing_enabled ->destroy_queue.push_back %s[%d] frame [%d]",O->cName().c_str(), O->ID(), Device.dwFrame);
-#endif // #ifdef DEBUG
+ 	if (O->H_Parent())
+		SingleUpdate(O->H_Parent());
+ 	Device.Statistic->UpdateClient_updated++;
+ 	O->dwFrame_UpdateCL = Device.dwFrame;
+ 	O->UpdateCL();
 }
+
 
 void CObjectList::clear_crow_vec(Objects& o)
 {
