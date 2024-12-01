@@ -113,6 +113,10 @@ public:
 	virtual		float				GetEnvironmentGameTimeFactor();
 	virtual		void				SetEnvironmentGameTimeFactor(const float fTimeFactor);
 
+	virtual		shared_str			level_name(const shared_str& server_options) const;
+	virtual		shared_str			name_map_alife();
+
+	// SYNC ALIFE DATA
 	struct update_data 
 	{
 		Fvector3 pos; 
@@ -126,6 +130,9 @@ public:
 	virtual		void				UpdateAlifeObjectsPOS();
 
 	virtual		void				RegisterUpdateAlife(CSE_ALifeDynamicObject* object, bool reg);
+
+
+
  
 	IC			xrServer& server() const
 	{

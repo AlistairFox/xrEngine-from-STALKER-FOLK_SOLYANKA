@@ -251,7 +251,7 @@ void xrGameSpyServer::GetServerInfo( CServerInfo* si )
 
 	si->AddItem( "Server name", HostName.c_str(), RGB(128,128,255) );
 
-	si->AddItem( "Map", MapName.c_str(), RGB(255,0,128) );
+	si->AddItem( "Map", Level().Server->game->name_map_alife().c_str(), RGB(255, 0, 128));
 	
 	xr_strcpy( tmp, itoa( GetPlayersCount(), tmp2, 10 ) );
 	xr_strcat( tmp, " / ");

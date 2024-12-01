@@ -71,7 +71,7 @@ CALifeSimulator::CALifeSimulator		(xrServer *server, shared_str *command_line) :
 	}
 	else
 	{
-		Msg("CMD[%s]", command_line->c_str());
+		Msg("--- [ALIFE_SIMULATOR] CONSOLE: [%s]", command_line->c_str());
 	}
 	
 	LPCSTR						start_game_callback = pSettings->r_string(alife_section,"start_game_callback");
@@ -79,24 +79,23 @@ CALifeSimulator::CALifeSimulator		(xrServer *server, shared_str *command_line) :
 	R_ASSERT2					(ai().script_engine().functor(start_game_callback,functor),"failed to get start game callback");
 	functor						();
 
-	if (is_single || xr_strcmp(p.m_game_type, "rp") )
-	{
-		Msg("SINGLE PARAMS");
-		load(p.m_game_or_spawn, !xr_strcmp(p.m_new_or_load, "load") ? false : true, !xr_strcmp(p.m_new_or_load, "new"));
-	}
-	else
-	{
-		Msg("RP PARAMS");
-		load(p.m_game_or_spawn, false, true);
-	}
+	//if (is_single) // RP REMOVE
+  	//	load(p.m_game_or_spawn, !xr_strcmp(p.m_new_or_load, "load") ? false : true, !xr_strcmp(p.m_new_or_load, "new"));
+ 	//else
+  	//	load(p.m_game_or_spawn, false, true);
+ 	//if (xr_strcmp(p.m_game_type, "rp"))
+	//{
+	//	int	id = pApp->Level_ID(level_name().c_str(), "1.0", true);
+	//	Level().set_level_name(level_name());
+	//	Msg("Level == %s / ID == %d", level_name().c_str(), id);
+	//	Msg("SetsName == %s", Level().name().c_str());
+	//}
+	LPCSTR GameTypeToString(EGameIDs gt, bool bShort);
+	
+	Msg("--- [ALIFE SIMULATOR] Start PARRAMS: SPAWN: %s, GAMETYPE: %s, ALIFE: %s, NEW: %s",p.m_game_or_spawn, GameTypeToString(p.m_e_game_type, false), p.m_alife, p.m_new_or_load);
 
-	if (xr_strcmp(p.m_game_type, "rp"))
-	{
-		int	id = pApp->Level_ID(level_name().c_str(), "1.0", true);
-		Level().set_level_name(level_name());
-		Msg("Level == %s / ID == %d", level_name().c_str(), id);
-		Msg("SetsName == %s", Level().name().c_str());
-	}
+
+	load(p.m_game_or_spawn, !xr_strcmp(p.m_new_or_load, "load") ? false : true, !xr_strcmp(p.m_new_or_load, "new"));
 }
 
 CALifeSimulator::~CALifeSimulator		()

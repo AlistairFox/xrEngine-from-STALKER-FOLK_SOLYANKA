@@ -183,6 +183,8 @@ public:
 	virtual		bool				custom_sls_default		() {return false;};
 	virtual		void				sls_default				() {};
 	virtual		shared_str			level_name				(const shared_str &server_options) const;
+
+	virtual		shared_str			name_map_alife() { return "no_map"; };
 	
 	static		shared_str			parse_level_name		(const shared_str &server_options);	
 	static		shared_str			parse_level_version		(const shared_str &server_options);

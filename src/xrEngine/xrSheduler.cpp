@@ -462,15 +462,24 @@ void CSheduler::ProcessStep			()
 		clamp(dwUpdate, (u32)0, (u32)4000);
 
 		m_current_step_obj = T.Object;
-
-		T.Object->shedule_Update(clampr(Elapsed, u32(1), u32(_max(u32(T.Object->shedule.t_max), u32(1000)))));
- 
-
-		if (!m_current_step_obj)
+		
+		if (m_current_step_obj)
 		{
-			continue;
+			try {
+				m_current_step_obj->shedule_Update(clampr(Elapsed, u32(1), u32(_max(u32(T.Object->shedule.t_max), u32(1000)))));
+			}
+			catch (...)
+			{
+				Msg("Sheduler is Crushed on: %s", T.scheduled_name.c_str());
+			}
 		}
- 
+	 
+
+ 		if (!m_current_step_obj)
+ 			continue;
+  
+		// Msg("Object Updated: %s", T.Object->shedule_Name().c_str());
+
 		m_current_step_obj = NULL;
 
 		// Fill item structure

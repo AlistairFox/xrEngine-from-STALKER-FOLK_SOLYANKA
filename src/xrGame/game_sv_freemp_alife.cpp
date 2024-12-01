@@ -215,3 +215,17 @@ void game_sv_freemp::SetEnvironmentGameTimeFactor(const float fTimeFactor)
 {
 	return(inherited::SetGameTimeFactor(fTimeFactor));
 }
+
+shared_str game_sv_freemp::level_name(const shared_str& server_options) const
+{
+	if (!ai().get_alife())
+		return				(inherited::level_name(server_options));
+	return					(alife().level_name());
+}
+
+shared_str game_sv_freemp::name_map_alife()
+{
+	if (ai().get_alife())
+		return					(alife().level_name());
+	return "no_alife";
+}

@@ -110,7 +110,7 @@ void xrDebug::gather_info(const char* expression, const char* description, const
         {
             if (shared_str_initialized)
             {
-                Msg("%s", assertion_info);
+                // Msg("%s", assertion_info);
                 FlushLog();
             }
             buffer = assertion_info;
@@ -119,15 +119,14 @@ void xrDebug::gather_info(const char* expression, const char* description, const
         }
     }
 
-    if (!IsDebuggerPresent() && !strstr(GetCommandLine(), "-no_call_stack_assert"))
+    if (!IsDebuggerPresent())
     {
         if (shared_str_initialized)
             Msg("stack trace:\n");
 
-#ifdef USE_OWN_ERROR_MESSAGE_WINDOW
         buffer += xr_sprintf(buffer, assertion_size - u32(buffer - buffer_base), "stack trace:%s%s", endline, endline);
-#endif //-USE_OWN_ERROR_MESSAGE_WINDOW
-        
+        Msg("Stack: %s", buffer);
+
         if (shared_str_initialized)
             FlushLog();
     }
@@ -144,51 +143,6 @@ void xrDebug::do_exit(const std::string& message)
     //MessageBox(NULL, message.c_str(), "Error", MB_OK | MB_ICONERROR | MB_SYSTEMMODAL);
     TerminateProcess(GetCurrentProcess(), 1);
 }
-
-#ifdef NO_BUG_TRAP
-//AVO: simplified function
-void xrDebug::backend(const char* expression, const char* description, const char* argument0, const char* argument1,
-    const char* file, int line, const char* function, bool& ignore_always)
-{
-    static xrCriticalSection CS;
-
-    CS.Enter();
-
- //   Msg("Exception Backend: ");
-
-    string4096 assertion_info;
-    gather_info(expression, description, argument0, argument1, file, line, function, assertion_info, sizeof(assertion_info));
-
-    LPCSTR endline = "\r\n";
-    LPSTR buffer = assertion_info + xr_strlen(assertion_info);
-    buffer += xr_sprintf(buffer, sizeof(assertion_info) - u32(buffer - &assertion_info[0]),
-        "%sPress OK to abort execution%s", endline, endline);
-
-    if (handler)
-        handler();
-
-    Msg("Backend excpetion: %s", assertion_info);
-
-    FlushLog();
- 
-    /*
-    ShowCursor(true);
-    ShowWindow(GetActiveWindow(), SW_FORCEMINIMIZE);
-
-    MessageBox(
-        NULL,
-        assertion_info,
-        "Fatal Error",
-        MB_OK | MB_ICONERROR | MB_SYSTEMMODAL
-    );
-    */
-
-    //    Msg("Assertion: %s", assertion_info);
-
-    CS.Leave();
-}
-
-#endif
 
 LPCSTR xrDebug::error2string(long code)
 {
@@ -284,6 +238,7 @@ int out_of_memory_handler(size_t size)
     Debug.fatal(DEBUG_INFO, "Out of memory. Memory request: %lld K", size / 1024);
     return 1;
 }
+
 
 extern LPCSTR log_name();
 
@@ -411,6 +366,19 @@ void save_mini_dump(_EXCEPTION_POINTERS* pExceptionInfo)
     }
 }
 #endif //-USE_OWN_MINI_DUMP
+
+
+xrCriticalSection CS_backend;
+//AVO: simplified function
+void xrDebug::backend(const char* expression, const char* description, const char* argument0, const char* argument1, const char* file, int line, const char* function, bool& ignore_always)
+{
+    CS_backend.Enter();
+    Msg("Backend excpetion: File: %s, Line: %d, Function: %s, Arg1: %s, Arg2: %s, Descr: %s", file, line, function, argument0, argument1, description);
+    callstack_mdmp(0);
+    FlushLog();
+    CS_backend.Leave();
+}
+
 
 void format_message(LPSTR buffer, const u32& buffer_size)
 {

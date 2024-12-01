@@ -241,9 +241,18 @@ void SteamNetServer::PollConnectionStateChanges()
 
 void SteamNetServer::PollIncomingMessages()
 {
-	while (true && m_pInterface)
+	while (true)
 	{
- 		ISteamNetworkingMessage *pIncomingMsg = nullptr;
+		if (!IsConnectionCreated())
+			break;
+
+		auto Interface = m_pInterface; 
+		if (!m_pInterface)
+			continue;
+
+		// Msg("InterfacePTR: %p, GOUP: %p", m_pInterface, m_hPollGroup);
+
+ 		ISteamNetworkingMessage* pIncomingMsg = nullptr;
 
 		int numMsgs = m_pInterface->ReceiveMessagesOnPollGroup(m_hPollGroup, &pIncomingMsg, 1);
 		if (numMsgs <= 0)

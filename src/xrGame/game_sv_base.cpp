@@ -479,9 +479,7 @@ void game_sv_GameState::Create					(shared_str &options)
 		{
 			if (ai().get_alife())
 			{
-
-
-				CSE_ALifeCreatureActor* single_actor = ai().get_alife()->graph().actor();
+ 				CSE_ALifeCreatureActor* single_actor = ai().get_alife()->graph().actor();
 
 				if (single_actor)
 				{

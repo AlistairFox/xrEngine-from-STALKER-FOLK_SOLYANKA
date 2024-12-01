@@ -53,7 +53,7 @@ public:
 	typedef xr_vector<xrMasterServerClient> v_MS_servers;
 
 private:
-	ISteamNetworkingSockets* m_pInterface = nullptr;
+	ISteamNetworkingSockets*	  m_pInterface = nullptr;
 	HSteamListenSocket            m_hListenSock = k_HSteamListenSocket_Invalid;
 	HSteamNetPollGroup            m_hPollGroup = k_HSteamListenSocket_Invalid;
 
@@ -72,7 +72,7 @@ public:
 	virtual ~SteamNetServer();
 
 private:
-	IC bool					IsConnectionCreated() const { return m_pInterface != nullptr; }
+	bool					IsConnectionCreated() { return m_hListenSock != k_HSteamListenSocket_Invalid; }
 
 	void					ProcessConnection(SteamNetConnectionStatusChangedCallback_t* pInfo);
 	void					FinishConnection(SClientConnectData& cl_data);

@@ -89,7 +89,7 @@ xrServer::EConnect xrServer::Connect(shared_str &session_name, GameDescriptionDa
 
 	bool alife_off = Level().ClientData_AlifeOff();
 
-	xr_strcpy(game_descr.map_name, alife_off ? game->level_name(session_name.c_str()).c_str() : Level().name().c_str());   
+	xr_strcpy(game_descr.map_name, !alife_off ? game->name_map_alife().c_str() : game->level_name(session_name).c_str());
 	xr_strcpy(game_descr.map_version, game_sv_GameState::parse_level_version(session_name.c_str()).c_str());
 	xr_strcpy(game_descr.download_url, get_map_download_url(game_descr.map_name, game_descr.map_version));
 
@@ -100,6 +100,8 @@ xrServer::EConnect xrServer::Connect(shared_str &session_name, GameDescriptionDa
 		xr_strcpy(game_descr.spawn_name, "alife_off");
 	else
 		xr_strcpy(game_descr.spawn_name, p.m_game_or_spawn);
+
+	Msg("[xrServer] GameDescription: MAP: %s, VER: %s, URL: %s, SPAWN: %s", game_descr.map_name, game_descr.map_version, game_descr.download_url, game_descr.spawn_name);
 
 	return inherited::Connect(*session_name, game_descr);
 }
