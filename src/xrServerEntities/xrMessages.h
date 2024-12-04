@@ -136,6 +136,8 @@ enum
 	GE_GAME_EVENT,
 
 	GE_CHANGE_VISUAL,
+	GE_CHANGE_VISUAL_SS,
+
 	GE_MONEY,
 
 	GEG_PLAYER_ACTIVATE_SLOT,
@@ -291,7 +293,9 @@ enum EGameMessages {  //game_cl <----> game_sv messages
 	//ALIFE
 	M_ALIFE_OBJECTS_UPDATE,
 	M_ALIFE_OBJECTS_SPAWN,
-
+// GAME EVENT SPAWNER
+	GAME_EVENT_SPAWNER_SPAWN_ITEM,
+	GAME_EVENT_CHANGE_VISUAL_FROM_SKIN_SELECTOR,
 
 	//-----------------------------------------
 	GAME_EVENT_SCRIPT_BEGINS_FROM,		// don't add messages after this

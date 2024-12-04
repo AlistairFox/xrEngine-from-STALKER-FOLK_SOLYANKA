@@ -4127,10 +4127,24 @@ public:
 	}
 };
 
+extern void ExportSectionsItems();
+class CCC_SectionExport : public IConsole_Command
+{
+public:  
+	CCC_SectionExport(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; }
+
+	virtual void Execute(LPCSTR args)
+	{
+		ExportSectionsItems();
+	}
+};
+
 
 void register_mp_console_commands()
 {
 	// RELOAD UI 
+	CMD1(CCC_SectionExport, "export_game_sections");
+
 	CMD1(CCC_RealoadCFGS, "reload_configs");
 	CMD1(CCC_ReloadPlayerUI, "reload_ui_actor");
 	CMD1(CCC_ReloadMeinMenu, "reload_UI_main_in_game");

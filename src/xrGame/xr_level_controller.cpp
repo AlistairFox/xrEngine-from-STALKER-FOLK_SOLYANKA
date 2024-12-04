@@ -80,6 +80,12 @@ _action  actions[]		= {
 																
 	{ "vote_begin",			kVOTE_BEGIN				,_mp},		
 	{ "show_admin_menu",	kSHOW_ADMIN_MENU		,_mp},	
+
+	{ "show_skin_selector",	kSHOW_ADMIN_SKIN_SELECTOR,	_mp},
+	{ "show_admin_spawner",	kSHOW_ADMIN_SPAWNER		,	_mp},
+
+ 
+
 	{ "vote",				kVOTE					,_mp},		
 	{ "vote_yes",			kVOTEYES				,_mp},		
 	{ "vote_no",			kVOTENO					,_mp},		

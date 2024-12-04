@@ -399,7 +399,7 @@ void  dxRenderDeviceRender::OnAssetsChanged()
 
 void dxRenderDeviceRender::UpdateWindow(HWND hWnd, u32 X, u32 Y, u32 SizeX, u32 SizeY)
 {
-#if defined(USE_DX10) || defined(USE_DX11)
+ 
 	HW.updateWindowProps_Position(hWnd, X, Y, SizeX, SizeY);
-#endif
+ 
 }

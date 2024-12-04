@@ -374,8 +374,8 @@ void xrDebug::backend(const char* expression, const char* description, const cha
 {
     CS_backend.Enter();
     Msg("Backend excpetion: File: %s, Line: %d, Function: %s, Arg1: %s, Arg2: %s, Descr: %s", file, line, function, argument0, argument1, description);
-    callstack_mdmp(0);
-    FlushLog();
+    //  callstack_mdmp(0);
+    // FlushLog();
     CS_backend.Leave();
 }
 
@@ -447,7 +447,6 @@ LONG WINAPI UnhandledFilter(_EXCEPTION_POINTERS* pExceptionInfo)
     FlushLog();
     
     save_mini_dump(pExceptionInfo);
- 
     callstack_mdmp(pExceptionInfo);
 
     //    TerminateProcess(GetCurrentProcess(), 1);

@@ -280,6 +280,8 @@ void game_sv_freemp::OnPlayerKillPlayer(game_PlayerState* ps_killer, game_Player
 
 	signal_Syncronize();
 }
+
+#include "Actor.h"
  
 void game_sv_freemp::OnEvent(NET_Packet &P, u16 type, u32 time, ClientID sender)
 {
@@ -337,6 +339,42 @@ void game_sv_freemp::OnEvent(NET_Packet &P, u16 type, u32 time, ClientID sender)
 				signal_Syncronize();
 			}
 
+		}break;
+
+		// GAME SPAWNER, SKIN SELECTOR
+		case GAME_EVENT_SPAWNER_SPAWN_ITEM:
+		{
+			xrClientData* CL = m_server->ID_to_client(sender);
+			CActor* pActor = smart_cast<CActor*>(Level().Objects.net_Find(CL->ps->GameID)); R_ASSERT(pActor);
+
+			if (CL && CL->owner)
+			{
+				shared_str sect;
+				P.r_stringZ(sect);
+
+				SpawnItem(sect.c_str(), CL->owner->ID);
+			}
+			else
+				Msg("! Can't spawn item to player: %s", pActor->Name());
+		}break;
+	
+		case GAME_EVENT_CHANGE_VISUAL_FROM_SKIN_SELECTOR:
+		{
+			xrClientData* CL = m_server->ID_to_client(sender);
+			if (!CL) return;
+
+			CActor* pActor = smart_cast<CActor*>(Level().Objects.net_Find(CL->ps->GameID)); R_ASSERT(pActor);
+
+			string256 visual_name;
+			P.r_stringZ(visual_name);
+
+			pActor->u_EventGen(P, GE_CHANGE_VISUAL_SS, pActor->ID());
+			P.w_stringZ(visual_name);
+			pActor->u_EventSend(P);
+
+			pActor->u_EventGen(P, GE_CHANGE_VISUAL, pActor->ID());
+			P.w_stringZ(visual_name);
+			pActor->u_EventSend(P);
 		}break;
 
 		default:

@@ -154,6 +154,9 @@ game_cl_mp::~game_cl_mp()
 };
 
 
+#include "UIAdminSpawner.h"
+#include "UIAdminSkin.h"
+
 bool game_cl_mp::OnKeyboardPress(int key)
 {
 	if(inherited::OnKeyboardPress(key))	return true;
@@ -190,6 +193,35 @@ bool game_cl_mp::OnKeyboardPress(int key)
 				pChatWnd->ShowDialog		(false);
 				return						false;
 			}break;
+
+		case kSHOW_ADMIN_SKIN_SELECTOR:
+		{
+			if (!m_pAdminSkinSelectorWindow)
+				m_pAdminSkinSelectorWindow = xr_new<CUISkinSelector>();
+
+			if (local_player && local_player->testFlag(GAME_PLAYER_HAS_ADMIN_RIGHTS))
+			{
+				m_pAdminSkinSelectorWindow->Init();
+
+				if (!m_pAdminSkinSelectorWindow->IsShown())
+					m_pAdminSkinSelectorWindow->ShowDialog(true);
+			}
+		}break;
+		case kSHOW_ADMIN_SPAWNER:
+		{
+			if (!m_pAdminSpawnerWindow)
+				m_pAdminSpawnerWindow = xr_new<CUIAdminSpawner>();
+
+			if (local_player && local_player->testFlag(GAME_PLAYER_HAS_ADMIN_RIGHTS))
+			{
+				m_pAdminSpawnerWindow->Init();
+
+				if (!m_pAdminSpawnerWindow->IsShown())
+					m_pAdminSpawnerWindow->ShowDialog(true);
+			}
+		}break;
+
+
 		case kSHOW_ADMIN_MENU:
 			{
 				if(!m_pAdminMenuWindow)

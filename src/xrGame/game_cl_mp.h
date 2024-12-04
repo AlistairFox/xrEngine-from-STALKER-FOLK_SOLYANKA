@@ -112,6 +112,9 @@ class CUIVote;
 class CUIMessageBoxEx;
 class CUIMpAdminMenu;
 
+class CUISkinSelector;
+class CUIAdminSpawner;
+
 namespace award_system
 {
 class reward_event_generator;
@@ -148,6 +151,12 @@ protected:
 	bool							m_bVotingActive;
 	CUIVotingCategory*				m_pVoteStartWindow;
 	CUIMpAdminMenu*					m_pAdminMenuWindow;
+
+
+	CUISkinSelector* m_pAdminSkinSelectorWindow;
+	CUIAdminSpawner* m_pAdminSpawnerWindow;
+
+
 	CUIVote*						m_pVoteRespondWindow;
 	CUIMessageBoxEx*				m_pMessageBox;
 	BOOL							m_bSpectatorSelected;

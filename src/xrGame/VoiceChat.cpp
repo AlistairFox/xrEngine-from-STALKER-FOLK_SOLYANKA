@@ -147,6 +147,7 @@ void CVoiceChat::ReceiveMessage(NET_Packet* P)
 
 	u8 voiceDistance = P->r_u8();
 
+	// Кто говорит ID
 	u16 clientId = P->r_u16();
 	CObject* obj = Level().Objects.net_Find(clientId);
 	if (!obj)
@@ -160,6 +161,7 @@ void CVoiceChat::ReceiveMessage(NET_Packet* P)
 	//if (isValidDistance == false)
 	//	return;
 
+	// Дистанция до игрока
 	float distance = Actor()->Position().distance_to(obj->Position());
 
 	bool isCorrectSquad = false;
@@ -169,18 +171,17 @@ void CVoiceChat::ReceiveMessage(NET_Packet* P)
 			isCorrectSquad = true;
 	}
 
-//	if (!isCorrectSquad && distance > 30)
-//	{
-//		Msg("Squad Is Not Correct");
-//		return;
-//	}
+	if (!isCorrectSquad && distance > 30)
+	{
+		Msg("Squad Is Not Correct");
+		return;
+	}
 
-	// Msg("Recived Packet VoiceChat: try PlaySound!!!!");
-
-	IStreamPlayer* player = GetStreamPlayer(clientId);
+ 	IStreamPlayer* player = GetStreamPlayer(clientId);
 	player->SetPosition(obj->Position());
-	player->SetDistance(1); // voiceDistance
-
+	player->SetDistance(voiceDistance); // voiceDistance
+ 	player->SetSquad(isCorrectSquad);
+ 
 	u8 packetsCount = P->r_u8();
 
 	for (u32 i = 0; i < packetsCount; ++i)

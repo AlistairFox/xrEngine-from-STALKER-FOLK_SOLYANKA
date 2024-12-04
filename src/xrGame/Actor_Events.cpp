@@ -354,6 +354,14 @@ void CActor::OnEvent(NET_Packet& P, u16 type)
 			ReciveSoundPlay(P);
 		} break;
 
+		case GE_CHANGE_VISUAL_SS:
+		{
+			string256 vis;
+			P.r_stringZ(vis);
+
+			ChangeVisual(vis);
+		}break;
+
 	}
 }
 

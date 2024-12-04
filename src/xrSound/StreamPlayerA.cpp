@@ -66,6 +66,11 @@ void CStreamPlayerA::SetPosition(const Fvector& pos)
 	m_position = pos;
 }
 
+void CStreamPlayerA::SetSquad(bool value)
+{
+	m_isSquad = value;
+}
+
 void CStreamPlayerA::PushToPlay(const void* data, int count)
 {
 	R_ASSERT2(m_source != 0 && alIsSource(m_source), "Not initialized sound source");
@@ -91,13 +96,13 @@ void CStreamPlayerA::UpdateVolume()
 
 	float volume = 1.f;
 
-	if (!m_isRelative)
+	if (!m_isRelative && !m_isSquad)
 	{
 		float distance = SoundRender->listener_position().distance_to(m_position);
 
 		const float max_distance = m_distance;
 		const float min_distance = (m_distance / 3);
-
+		
 		if (distance <= min_distance)
 		{
 			volume = 1.f;
@@ -110,10 +115,10 @@ void CStreamPlayerA::UpdateVolume()
 		{
 			volume = (max_distance - distance) / (max_distance - min_distance);
 		}
-
+		
 		volume = volume * psSoundVPlayers;
 		clamp(volume, 0.01f, 1.f);
-	}
+ 	}
 
 	alSourcef(m_source, AL_GAIN, volume);
 }

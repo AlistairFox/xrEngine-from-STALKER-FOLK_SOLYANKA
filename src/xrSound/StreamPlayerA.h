@@ -18,6 +18,8 @@ public:
 
 	virtual void SetDistance(float value);
 	virtual void SetPosition(const Fvector& pos);
+	virtual void SetSquad(bool value);
+
 private:
 	void UpdateVolume();
 
@@ -40,6 +42,8 @@ private:
 	OpusDecoder* m_pOpusDecoder;
 
 	Fvector m_position {0, 0, 0};
+	
+	bool m_isSquad = false;
 
 	float m_distance = 0;
 	bool m_isRelative = false;

@@ -162,12 +162,17 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 		break;
 	}
 	case GE_CHANGE_VISUAL:
-		{
-			CSE_Visual* visual		= smart_cast<CSE_Visual*>(receiver); VERIFY(visual);
-			string256 tmp;
-			P.r_stringZ				(tmp);
-			visual->set_visual		(tmp);
-		}break;
+	{
+		CSE_Visual* visual		= smart_cast<CSE_Visual*>(receiver); VERIFY(visual);
+		string256 tmp;
+		P.r_stringZ				(tmp);
+		visual->set_visual		(tmp);
+	}break;
+	case GE_CHANGE_VISUAL_SS:
+	{
+		SendBroadcast(BroadcastCID, P, MODE);
+	}break;
+
 	case GE_DIE:
 		{
 			// Parse message

@@ -2581,6 +2581,12 @@
     <Filter Include="UI\Common\PDA\Statistics &amp; Rankings\OptionsItem">
       <UniqueIdentifier>{dc2fcf23-6325-4629-8cee-ba05e728b5a9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UI\ADMIN_SPAWNER">
+      <UniqueIdentifier>{008035d3-d29b-4caa-a658-fc403a25aead}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Se7Kills">
+      <UniqueIdentifier>{1db16abe-bbda-40a9-9257-1005ba73eaa0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mt_config.h">
@@ -7557,6 +7563,12 @@
     <ClInclude Include="UIArtefactPanel.h">
       <Filter>UI\Common\MainIngame</Filter>
     </ClInclude>
+    <ClInclude Include="UIAdminSpawner.h">
+      <Filter>UI\ADMIN_SPAWNER</Filter>
+    </ClInclude>
+    <ClInclude Include="UIAdminSkin.h">
+      <Filter>UI\ADMIN_SPAWNER</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="damage_manager.cpp">
@@ -11344,6 +11356,15 @@
     </ClCompile>
     <ClCompile Include="UIArtefactPanel.cpp">
       <Filter>UI\Common\MainIngame</Filter>
+    </ClCompile>
+    <ClCompile Include="UIAdminSpawner.cpp">
+      <Filter>UI\ADMIN_SPAWNER</Filter>
+    </ClCompile>
+    <ClCompile Include="UIAdminSkin.cpp">
+      <Filter>UI\ADMIN_SPAWNER</Filter>
+    </ClCompile>
+    <ClCompile Include="ExportSections.cpp">
+      <Filter>Se7Kills</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

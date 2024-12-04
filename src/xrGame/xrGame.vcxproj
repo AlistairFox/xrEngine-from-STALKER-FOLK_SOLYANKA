@@ -1326,6 +1326,8 @@
     <ClInclude Include="net_physics_state.h" />
     <ClInclude Include="script_event.h" />
     <ClInclude Include="SIniFileStream.h" />
+    <ClInclude Include="UIAdminSkin.h" />
+    <ClInclude Include="UIAdminSpawner.h" />
     <ClInclude Include="UIAnimMode.h" />
     <ClInclude Include="UIArtefactPanel.h" />
     <ClInclude Include="UIArtefactUpgradeWnd.h" />
@@ -4629,6 +4631,7 @@
     </ClCompile>
     <ClCompile Include="cta_game_artefact.cpp" />
     <ClCompile Include="cta_game_artefact_activation.cpp" />
+    <ClCompile Include="ExportSections.cpp" />
     <ClCompile Include="game_cl_freemp_alife.cpp" />
     <ClCompile Include="game_cl_roleplay.cpp" />
     <ClCompile Include="game_cl_tasks.cpp" />
@@ -4665,6 +4668,8 @@
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <ClCompile Include="SIniFileStream.cpp" />
+    <ClCompile Include="UIAdminSkin.cpp" />
+    <ClCompile Include="UIAdminSpawner.cpp" />
     <ClCompile Include="UIAnimMode.cpp" />
     <ClCompile Include="UIArtefactPanel.cpp" />
     <ClCompile Include="UIArtefactUpgradeWnd.cpp" />

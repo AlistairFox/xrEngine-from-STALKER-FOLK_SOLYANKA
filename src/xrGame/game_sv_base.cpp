@@ -942,6 +942,8 @@ void game_sv_GameState::AddDelayedEvent(NET_Packet &tNetPacket, u16 type, u32 ti
 	}
 	switch (type)
 	{
+	case GAME_EVENT_SPAWNER_SPAWN_ITEM:
+	case GAME_EVENT_CHANGE_VISUAL_FROM_SKIN_SELECTOR:
 	case GAME_EVENT_PLAYER_STARTED:
 	case GAME_EVENT_PLAYER_READY:
 	case GAME_EVENT_VOTE_START:
