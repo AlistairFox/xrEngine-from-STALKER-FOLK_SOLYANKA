@@ -247,11 +247,18 @@ bool enemy_inaccessible (CBaseMonster * const object)
 	float const xz_dist_to_vertex	=	enemy_vert_pos.distance_to_xz(enemy_pos);
 	float const y_dist_to_vertex	=	_abs(enemy_vert_pos.y - enemy_pos.y);
 
+
+	// se7Kills ќфнул »дти к врагу если его дистанци€ дальше 120м
+	if (enemy_vert_pos.distance_to(enemy_pos) > 120)	
+		return							true;
+
 	if ( xz_dist_to_vertex > 0.5f && y_dist_to_vertex > 3.f )
 		return							true;
 
 	if ( xz_dist_to_vertex > 1.2f )
 		return							true;
+ 
+
 
 	if ( !object->Home->at_home(enemy_pos) )
 		return							true;

@@ -430,8 +430,6 @@ void game_sv_freemp::Update()
 		map_alife_sended.erase(cl.first);
 	}
 	 
- 
-	
 	if (Device.dwTimeGlobal - old_update_alife > 1000)
 	{
 		old_update_alife = Device.dwTimeGlobal;

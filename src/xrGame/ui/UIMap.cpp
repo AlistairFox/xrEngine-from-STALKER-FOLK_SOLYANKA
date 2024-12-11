@@ -125,7 +125,7 @@ Fvector2 CUICustomMap::ConvertLocalToReal(const Fvector2& src, Frect const& boun
 
 	return res;
 }
-
+ 
 Fvector2 CUICustomMap::ConvertRealToLocal  (const Fvector2& src, bool for_drawing)// meters->pixels (relatively own left-top pos)
 {
 	Fvector2 res;
@@ -143,7 +143,7 @@ Fvector2 CUICustomMap::ConvertRealToLocal  (const Fvector2& src, bool for_drawin
 	
 		res						= ConvertRealToLocalNoTransform(src, BoundRect());
 		res.sub					(heading_pivot);
-		rotation_				(res.x, res.y, GetHeading(), res.x, res.y, 1.0f);
+		rotation_				(res.x, res.y, GetHeading(), res.x, res.y, for_drawing ? UI().get_current_kx() : 1.0f);
 		
 		res.add					(heading_pivot);
 	};
@@ -154,7 +154,7 @@ Fvector2 CUICustomMap::ConvertRealToLocalNoTransform  (const Fvector2& src, Frec
 {
 	Fvector2 res;
 	res.x = (src.x-bound_rect.lt.x) * GetCurrentZoom().x;
-	res.y = (bound_rect.height()-(src.y-bound_rect.lt.y)) * GetCurrentZoom().x;
+	res.y = (bound_rect.height()-(src.y-bound_rect.lt.y)) * GetCurrentZoom().y;
 
 	return res;
 }
@@ -339,7 +339,7 @@ Fvector2 CUIGlobalMap::ConvertRealToLocal(const Fvector2& src, bool for_drawing)
 {
 	Fvector2 res;
 	res.x = (src.x-BoundRect().lt.x) * GetCurrentZoom().x;
-	res.y = (src.y-BoundRect().lt.y) * GetCurrentZoom().x;
+	res.y = (src.y-BoundRect().lt.y) * GetCurrentZoom().y;
 	return res;
 }
 

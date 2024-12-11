@@ -187,10 +187,12 @@ void CSpaceRestrictionHolder::unregister_restrictor			(CSpaceRestrictor *space_r
 			on_default_restrictions_changed	();
 	}
 
-	CSpaceRestrictionBase	*composition = xr_new<CSpaceRestrictionComposition>(this,restrictor_id);
-	bridge->change_implementation	(composition);
-	m_restrictions.insert	(std::make_pair(restrictor_id,bridge));
-
+	if (bridge)
+	{
+		CSpaceRestrictionBase* composition = xr_new<CSpaceRestrictionComposition>(this, restrictor_id);
+		bridge->change_implementation(composition);
+		m_restrictions.insert(std::make_pair(restrictor_id, bridge));
+	}
 	collect_garbage			();
 }
 

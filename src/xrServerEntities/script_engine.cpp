@@ -165,35 +165,50 @@ void CScriptEngine::unload				()
 	*m_last_no_file			= 0;
 }
 
+void printLuaTraceback(lua_State* L)
+{
+	lua_Debug ar;
+	int level = 0;
+	Msg("--- [LuaTraceback] CallStack: ");
+
+	while (lua_getstack(L, level, &ar))
+	{
+		lua_getinfo(L, "Slnt", &ar);
+
+		std::string functionName = ar.name ? ar.name : "(unknown)";
+		std::string source = ar.source ? ar.source : "(unknown)";
+		int line = ar.currentline;
+
+		Msg("[%d] %s (%s : %d)", level, functionName.c_str(), source.c_str(), line);
+
+		level++;
+	}
+
+	Msg("--- Callstack End");
+}
+
+
+
 int CScriptEngine::lua_panic			(lua_State *L)
 {  
-	Msg("lua_panic");
-	print_output	(L,"PANIC",LUA_ERRRUN);
+ 	printLuaTraceback(L);
+	// print_output	(L,"PANIC",LUA_ERRRUN);
 	return			(0);
 }
 
 void CScriptEngine::lua_error			(lua_State *L)
 {
-	Msg("lua_error");
-	print_output			(L,"",LUA_ERRRUN);
-	ai().script_engine().on_error	(L);
-
-#if XRAY_EXCEPTIONS
-	Debug.fatal				(DEBUG_INFO,"LUA error: %s", lua_tostring(L,-1));
-#else
-	throw					lua_tostring(L,-1);
-#endif
+ 	printLuaTraceback(L);
+	// print_output(L, "", LUA_ERRRUN);
+	// ai().script_engine().on_error	(L);
 }
 
 int  CScriptEngine::lua_pcall_failed	(lua_State *L)
 {
-	Msg("lua_pcall_failed");
-	print_output			(L,"",LUA_ERRRUN);
-	ai().script_engine().on_error	(L);
-
-#if XRAY_EXCEPTIONS
-	Debug.fatal				(DEBUG_INFO,"LUA error: %s", lua_isstring(L,-1) ? lua_tostring(L,-1) : "");
-#endif
+	printLuaTraceback(L);
+	// print_output			(L,"",LUA_ERRRUN);
+	// ai().script_engine().on_error	(L);
+	
 	if (lua_isstring(L,-1))
 		lua_pop				(L,1);
 	return					(LUA_ERRRUN);
@@ -201,22 +216,20 @@ int  CScriptEngine::lua_pcall_failed	(lua_State *L)
 
 void lua_cast_failed					(lua_State *L, LUABIND_TYPE_INFO info)
 {
-	Msg("lua_cast_failed");
-	CScriptEngine::print_output	(L,"",LUA_ERRRUN);
-
-	Debug.fatal				(DEBUG_INFO,"LUA error: cannot cast lua value to %s",info->name());
+	printLuaTraceback(L);
+ 	CScriptEngine::print_output	(L,"",LUA_ERRRUN);
 }
 
 void CScriptEngine::setup_callbacks		()
 {
 	{
-#if !XRAY_EXCEPTIONS
+#if XRAY_EXCEPTIONS
 		luabind::set_error_callback		(CScriptEngine::lua_error);
 #endif
  		luabind::set_pcall_callback		(CScriptEngine::lua_pcall_failed);
  	}
 
-#if !XRAY_EXCEPTIONS
+#if XRAY_EXCEPTIONS
 	luabind::set_cast_failed_callback	(lua_cast_failed);
 #endif
 
@@ -261,8 +274,16 @@ void CScriptEngine::setup_auto_load		()
 
 extern void export_classes(lua_State *L);
 
+void printLuaCallstack()
+{
+	printLuaTraceback( ai().script_engine().lua() );
+}
+
+ 
 void CScriptEngine::init				()
 {
+	Debug.debug_calltack_lua = &printLuaCallstack;
+
 #ifdef USE_LUA_STUDIO
 	bool lua_studio_connected = !!m_lua_studio_world;
 	if (lua_studio_connected)

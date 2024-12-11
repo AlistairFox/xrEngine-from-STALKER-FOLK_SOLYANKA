@@ -13,7 +13,8 @@ bool IsInitalized = false;
 
 void  callstack_mdmp(_EXCEPTION_POINTERS* pExceptionInfo, bool skip = false)
 {
-	Msg("Start Callstack : pException: %p", pExceptionInfo);
+	/*
+ 	Msg("Start Callstack : pException: %p", pExceptionInfo);
 
 	if (!IsInitalized)
 	{
@@ -154,4 +155,5 @@ void  callstack_mdmp(_EXCEPTION_POINTERS* pExceptionInfo, bool skip = false)
 
 		}
 	}
+	*/
 }

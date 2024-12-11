@@ -319,28 +319,28 @@ const Fvector2& CMapLocation::CalcDirection()
 
 void CMapLocation::CalcLevelName()
 {
-	if(m_owner_se_object && ai().get_game_graph())
-	{
-		if (!ai().game_graph().valid_vertex_id(m_owner_se_object->m_tGraphID))
-			return;
-
-		u8 level_id = ai().game_graph().vertex(m_owner_se_object->m_tGraphID)->level_id();
-		int level_name_size = ai().game_graph().header().level(level_id).name().size();
-		
-		if (level_name_size > 0)
-		{
-			LPCSTR lpc = ai().game_graph().header().level(level_id).name().c_str();
-			shared_str name;
-			name._set(lpc);
-	    
-			if (m_cached.m_graphID != m_owner_se_object->m_tGraphID)
-			{
-				m_cached.m_LevelName = name;
-				m_cached.m_graphID = m_owner_se_object->m_tGraphID;
-			}
-		}
-	}
-	else
+	// if(m_owner_se_object && ai().get_game_graph())
+	// {
+	// 	if (!ai().game_graph().valid_vertex_id(m_owner_se_object->m_tGraphID))
+	// 		return;
+	// 
+	// 	u8 level_id = ai().game_graph().vertex(m_owner_se_object->m_tGraphID)->level_id();
+	// 	int level_name_size = ai().game_graph().header().level(level_id).name().size();
+	// 	
+	// 	if (level_name_size > 0)
+	// 	{
+	// 		LPCSTR lpc = ai().game_graph().header().level(level_id).name().c_str();
+	// 		shared_str name;
+	// 		name._set(lpc);
+	//     
+	// 		if (m_cached.m_graphID != m_owner_se_object->m_tGraphID)
+	// 		{
+	// 			m_cached.m_LevelName = name;
+	// 			m_cached.m_graphID = m_owner_se_object->m_tGraphID;
+	// 		}
+	// 	}
+	// }
+	//else
 	{
 		m_cached.m_LevelName = Level().name();
 	}

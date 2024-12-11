@@ -361,9 +361,7 @@ ID3DBaseTexture*	CRender::texture_load(LPCSTR fRName, u32& ret_msize, bool bStag
 
 	R_ASSERT(FS.exist(fn,"$game_textures$",	"ed\\ed_not_existing_texture",".dds"));
 	goto _DDS;
-
-	//	Debug.fatal(DEBUG_INFO,"Can't find texture '%s'",fname);
-
+  
 #endif
 
 _DDS:
@@ -423,14 +421,36 @@ _DDS_CUBE:
 			LoadInfo.pSrcInfo = &IMG;
 
 #ifdef USE_DX11
-			R_CHK(D3DX11CreateTextureFromMemory(
-				HW.pDevice,
-				S->pointer(),S->length(),
-				&LoadInfo,
-				0,
-				&pTexture2D,
-				0
-				));
+			// R_CHK(D3DX11CreateTextureFromMemory(
+			// 	HW.pDevice,
+			// 	S->pointer(),S->length(),
+			// 	&LoadInfo,
+			// 	0,
+			// 	&pTexture2D,
+			// 	0
+			// 	));
+ 
+			HRESULT hr = 0;
+
+			try
+			{
+				hr = D3DX11CreateTextureFromMemory
+				(
+					HW.pDevice,
+					S->pointer(), S->length(),
+					&LoadInfo,
+					0,
+					&pTexture2D,
+					0
+				);
+			}
+			catch (...)
+			{
+				Msg("--- Cant Load Texture: %s, error: 0x%s", fname, std::to_string(hr));
+				Msg("!!! Loading File: %s", fname);
+				Msg("!!! Loading Height: %u, Width: %u", LoadInfo.Height, LoadInfo.Width);
+				FS.r_close(S);   return 0;
+			}
 #else
 			R_CHK(D3DX10CreateTextureFromMemory(
 				HW.pDevice,
@@ -505,26 +525,44 @@ _DDS_2D:
 				LoadInfo.BindFlags = D3D_BIND_SHADER_RESOURCE;
 			}
 			LoadInfo.pSrcInfo = &IMG;
-
+			
+			 
 #ifdef USE_DX11
-			R_CHK2(D3DX11CreateTextureFromMemory
+			HRESULT hr = 0;
+
+			try
+			{
+				// Msg("!!! Loading File: %s", fname);
+
+				// Msg("Create D3DX11  SPTR: %p, datasize: %u LoadInfo: %p, pTexture2D: %p", S->pointer(), S->length(), &LoadInfo, pTexture2D);
+				hr = D3DX11CreateTextureFromMemory
 				(
-				HW.pDevice,S->pointer(),S->length(),
-				&LoadInfo,
-				0,
-				&pTexture2D,
-				0
-				), fn);
+					HW.pDevice,
+					S->pointer(), S->length(),
+					&LoadInfo,
+					0,
+					&pTexture2D,
+					0
+				);
+			}
+			catch (...)
+			{
+ 				Msg("--- Cant Load Texture: %s, error: 0x%s", fname, std::to_string(hr));
+				Msg("!!! Loading Height: %u, Width: %u", LoadInfo.Height, LoadInfo.Width);
+				FS.r_close(S);   return 0;
+ 			}
 #else
-			R_CHK2(D3DX10CreateTextureFromMemory
-				(
-				HW.pDevice,S->pointer(),S->length(),
+			D3DX10CreateTextureFromMemory
+			(
+				HW.pDevice, S->pointer(), S->length(),
 				&LoadInfo,
 				0,
 				&pTexture2D,
 				0
-				), fn);
+			);
 #endif
+			 
+
 			FS.r_close				(S);
 			mip_cnt					= IMG.MipLevels;
 			// OK

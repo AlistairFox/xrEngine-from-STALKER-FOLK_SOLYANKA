@@ -96,7 +96,13 @@ namespace GameGraph {
 		Fvector						tLocalPoint;
 		Fvector						tGlobalPoint;
 		u32							tLevelID:8;
+
+#ifndef _USE_NODE_POSITION_11
+		u32							tNodeID : 24;
+#else 
 		u32							tNodeID;
+#endif
+
 		u8							tVertexTypes[LOCATION_TYPE_COUNT];
 		u32							dwEdgeOffset;
 		u32							dwPointOffset;

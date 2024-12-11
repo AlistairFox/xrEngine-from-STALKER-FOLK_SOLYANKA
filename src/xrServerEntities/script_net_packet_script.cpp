@@ -40,6 +40,13 @@ ClientID r_clientID(NET_Packet *self)
 	return clientID;
 }
 
+Fvector r_vector3(NET_Packet* self)
+{
+	Fvector		vec;
+	self->r_vec3(vec);
+	return vec;
+}
+
 extern u16	script_server_object_version	();
 
 #pragma optimize("s",on)
@@ -89,7 +96,10 @@ void CScriptNetPacket::script_register(lua_State *L)
 //			.def("r",				&NET_Packet::r				)
 			.def("r_seek",			&NET_Packet::r_seek			)
 			.def("r_tell",			&NET_Packet::r_tell			)
-			.def("r_vec3",			(void (NET_Packet::*)(Fvector&))(&NET_Packet::r_vec3)			,pure_out_value<2>())
+
+			.def("r_vec3",			(void (NET_Packet::*)(Fvector&))(&NET_Packet::r_vec3), pure_out_value<2>()) // 
+			.def("r_vec3",			&r_vector3)
+
 			.def("r_float",			(void (NET_Packet::*)(float&))(&NET_Packet::r_float		))
 			.def("r_u64",			(void (NET_Packet::*)(u64&	))(&NET_Packet::r_u64		))
 			.def("r_s64",			(void (NET_Packet::*)(s64&	))(&NET_Packet::r_s64		))

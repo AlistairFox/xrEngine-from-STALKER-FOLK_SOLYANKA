@@ -404,6 +404,7 @@ void CActor::g_Orientate	(u32 mstate_rl, float dt)
 		r_torso_tgt_roll= angle_normalize_signed(r_torso_tgt_roll);
 	}
 }
+
 bool CActor::g_LadderOrient()
 {
 	Fvector leader_norm;

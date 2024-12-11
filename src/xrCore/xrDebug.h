@@ -4,14 +4,19 @@
 
 typedef	void		crashhandler		(void);
 typedef	void		on_dialog			(bool before);
-
+  
+typedef void (*DebugCallbackFunction) ();
+  
 class XRCORE_API	xrDebug
 {
 private:
+
 	crashhandler*	handler	;
 	on_dialog*		m_on_dialog;
 
 public:
+	DebugCallbackFunction debug_calltack_lua = 0;
+
 	void			_initialize			(const bool &dedicated);
 	void			_destroy			();
 	

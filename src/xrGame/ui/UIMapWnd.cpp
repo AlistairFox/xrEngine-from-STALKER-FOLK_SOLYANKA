@@ -181,6 +181,7 @@ void CUIMapWnd::Init(LPCSTR xml_name, LPCSTR start_from)
 
 	// initialize local maps
 	xr_string sect_name;
+ 
 	if( IsGameTypeSingle() )
 		sect_name = "level_maps_single";
 	else
@@ -194,6 +195,7 @@ void CUIMapWnd::Init(LPCSTR xml_name, LPCSTR start_from)
 		{
 			shared_str map_name = it->first;
 
+			Msg("Read Map sections : %s", map_name.c_str());
 			if (!pGameIni->line_exist(map_name, "global_rect"))
 				continue;
 			xr_strlwr				(map_name);

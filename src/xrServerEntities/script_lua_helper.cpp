@@ -44,7 +44,7 @@ void CDbgLuaHelper::PrepareLuaBind()
 {
 	luabind::set_pcall_callback	(hookLuaBind);
 #if !XRAY_EXCEPTIONS
-	luabind::set_error_callback (errormessageLuaBind);
+//	luabind::set_error_callback (errormessageLuaBind);
 #endif
 }
 

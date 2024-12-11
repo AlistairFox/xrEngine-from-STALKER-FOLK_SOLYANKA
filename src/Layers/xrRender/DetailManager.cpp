@@ -214,7 +214,8 @@ void CDetailManager::Unload		()
 }
 
 extern ECORE_API float r_ssaDISCARD;
-extern int sDET;
+extern float ps_r__Detail_scale = 1.f;
+ 
 
 void CDetailManager::UpdateVisibleM()
 {
@@ -289,8 +290,10 @@ void CDetailManager::UpdateVisibleM()
 				if (RDEVICE.dwFrame>S.frame){
 					// Calc fade factor	(per slot)
 					float	dist_sq		= EYE.distance_to_sqr	(S.vis.sphere.P);
-					if		(dist_sq>fade_limit)				continue;
-					float	alpha		= (dist_sq<fade_start)?0.f:(dist_sq-fade_start)/fade_range;
+					if		(dist_sq>fade_limit)	
+						continue;
+
+					float	alpha		= (dist_sq<fade_start) ? 0.f : (dist_sq-fade_start) / fade_range;
 					float	alpha_i		= 1.f - alpha;
 					float	dist_sq_rcp	= 1.f / dist_sq;
 
@@ -303,28 +306,33 @@ void CDetailManager::UpdateVisibleM()
 						sp.r_items[1].clear_not_free();
 						sp.r_items[2].clear_not_free();
 
+						float	rescale_distance = EYE.distance_to_xz(S.vis.sphere.P) / (dm_size * 0.75);
+						if (rescale_distance < 1)
+							rescale_distance = 1;
+						if (rescale_distance > 1.1f)
+							rescale_distance = 1.1f;
+
+
 						float				R		= objects	[sp.id]->bv_sphere.R;
 						float				Rq_drcp	= R*R*dist_sq_rcp;	// reordered expression for 'ssa' calc
 
 						SlotItem			**siIT=&(*sp.items.begin()), **siEND=&(*sp.items.end());
 						for (; siIT!=siEND; siIT++){
 							SlotItem& Item			= *(*siIT);
+							//float   scale			= Item.scale_calculated	= Item.scale*alpha_i;
+							float   m_scale = Item.scale_calculated = (Item.scale * ps_r__Detail_scale) * rescale_distance;
 
-							
-							
-							float   scale			= !sDET ? Item.scale_calculated = Item.scale : Item.scale_calculated = Item.scale*alpha_i;
-							float	ssa				= !sDET ? scale : scale*scale*Rq_drcp;
-							
+							float ssa = m_scale; 
+ 							
 							if (ssa < r_ssaDISCARD)
-							{
-								continue;
-							}
+ 								continue;
+ 
 							u32		vis_id			= 0;
-							if (ssa > r_ssaCHEAP)	vis_id = Item.vis_ID;
+							if (ssa > r_ssaCHEAP)
+								vis_id = Item.vis_ID;
 							
 							sp.r_items[vis_id].push_back	(*siIT);
-
-//2							visible[vis_id][sp.id].push_back(&Item);
+ 
 						}
 					}
 				}

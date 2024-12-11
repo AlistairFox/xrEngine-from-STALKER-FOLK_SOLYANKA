@@ -184,8 +184,4 @@ void CHUDCrosshair::OnRender ()
 		//here was crosshair innertion emulation
 		radius = target_radius;
 	};
-#ifdef DEBUG
-	if (g_bDrawFirstBulletCrosshair)
-		OnRenderFirstBulletDispertion();
-#endif
 }

@@ -652,23 +652,14 @@ extern int Render_OCC = 1;
 
 
 /// DETAILS NEW 
+int ps_render_detail_radius = 48;
 
-extern int dm_size			= 24;
+extern int dm_size			= 48;
 extern int dm_cache1_line	= dm_size * 2 / dm_cache1_count;
 extern int dm_cache_line	= dm_size + 1 + dm_size;
 extern int dm_cache_size	= dm_cache_line * dm_cache_line;
 extern float dm_fade		= float(2 * dm_size) - .5f;
-
-
-//const int		dm_size				= 24;	 
-//const int 	dm_cache1_line		= dm_size*2/dm_cache1_count;		//! dm_size*2 must be div dm_cache1_count
-//const int		dm_cache_line		= dm_size+1+dm_size;
-//const int		dm_cache_size		= dm_cache_line*dm_cache_line;
-//const float	dm_fade				= float(2*dm_size)-.5f;
-
-int ps_render_detail_radius = 48;
-extern int sDET = true;
-					
+ 					
 class CCC_DetailsRenderDIST : public CCC_Integer
 {
 public:
@@ -697,13 +688,14 @@ public:
 };
 
 extern int off_details;
-
+extern float ps_r__Detail_scale;
 //-----------------------------------------------------------------------
 void		xrRender_initconsole	()
 {
 	CMD4(CCC_DetailsRenderDIST, "r__detail_distance", &ps_render_detail_radius, 1, 128);
-	CMD4(CCC_Float,				"r__detail_density", &ps_r__Detail_density, .2f, 0.6f);
-	CMD4(CCC_Integer,			"r__detail_scale", &sDET, 0, 1);
+	CMD4(CCC_Float,				"r__detail_density", &ps_r__Detail_density, .05f, 0.6f);
+	CMD4(CCC_Float,				"r__detail_scale", &ps_r__Detail_scale, 0, 2.0f);
+	 
 	CMD4(CCC_Integer,			"r__detail_off", &off_details, 0, 1);
 
 	CMD4(CCC_Integer, "ren_occ", &Render_OCC, 0, 1);

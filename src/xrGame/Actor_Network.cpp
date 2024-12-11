@@ -726,7 +726,7 @@ BOOL CActor::net_Spawn		(CSE_Abstract* DC)
 	m_bWasHitted = false;
 	m_dwILastUpdateTime		= 0;
   
-	if (Local())
+    if (Local())
 	{
 		Level().MapManager().AddMapLocation("actor_location",ID());
 		Level().MapManager().AddMapLocation("actor_location_p",ID());

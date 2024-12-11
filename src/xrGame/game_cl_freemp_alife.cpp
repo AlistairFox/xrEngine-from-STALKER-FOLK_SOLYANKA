@@ -32,19 +32,17 @@ void game_cl_freemp::ReadSpawnAlife(NET_Packet* packet)
 
 	if (dynamic)
 	{
-		/*
-		u32 level = 0;
+ 		u32 level = 0;
 		shared_str name_level;
 		
-	
-		if (&ai().game_graph())
+ 		if (&ai().game_graph())
 		{
 			level = ai().game_graph().vertex(dynamic->m_tGraphID)->level_id();
 			name_level = ai().game_graph().header().level(level).name();
 		}
 
 		Msg("Recived id[%d], level[%d][%s], alife_object[%s], name_replace (%s), POS[%.0f][%.0f][%.0f]", id, level, name_level.c_str(), name.c_str(),  entity->name_replace(), entity->o_Position.x, entity->o_Position.y, entity->o_Position.z);
-		*/
+	 
 		alife_objects[id] = dynamic;
 	  
 		CSE_ALifeHumanStalker* stalker = smart_cast<CSE_ALifeHumanStalker*>(dynamic);

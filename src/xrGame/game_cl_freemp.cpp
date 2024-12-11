@@ -160,7 +160,8 @@ void game_cl_freemp::shedule_InventoryOwner()
 			pActor->ChangeTeam(community.team(), 0, 0);
 		}
 
-		if (local_player->GameID == ps->GameID)
+		// if (local_player->GameID == ps->GameID)
+		if (pActor->get_money() != ps->money_for_round) 
 		{
 			pActor->set_money((u32)ps->money_for_round, false);
 		}

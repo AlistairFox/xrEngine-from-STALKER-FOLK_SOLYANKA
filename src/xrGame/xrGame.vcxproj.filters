@@ -1909,9 +1909,6 @@
     <Filter Include="Core\Server\GameSpy\CdkeyDecode">
       <UniqueIdentifier>{09d6ad21-f307-44c4-ac3f-113b676c9111}</UniqueIdentifier>
     </Filter>
-    <Filter Include="SaveINIFILE">
-      <UniqueIdentifier>{1028b5a6-b51c-4c14-8f5d-e72d72982b58}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Core\Client">
       <UniqueIdentifier>{91242079-ab53-4b19-ba16-188d927415a2}</UniqueIdentifier>
     </Filter>
@@ -2586,6 +2583,9 @@
     </Filter>
     <Filter Include="Se7Kills">
       <UniqueIdentifier>{1db16abe-bbda-40a9-9257-1005ba73eaa0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Se7Kills\SaveINIFILE">
+      <UniqueIdentifier>{1028b5a6-b51c-4c14-8f5d-e72d72982b58}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -7510,7 +7510,7 @@
       <Filter>UI\Common\PDA\CONTACTS</Filter>
     </ClInclude>
     <ClInclude Include="SIniFileStream.h">
-      <Filter>SaveINIFILE</Filter>
+      <Filter>Se7Kills\SaveINIFILE</Filter>
     </ClInclude>
     <ClInclude Include="UIAnimMode.h">
       <Filter>UI\GameTypes\FreeMp</Filter>
@@ -11259,7 +11259,7 @@
       <Filter>Core\Server\Games\server\freemp</Filter>
     </ClCompile>
     <ClCompile Include="SIniFileStream.cpp">
-      <Filter>SaveINIFILE</Filter>
+      <Filter>Se7Kills\SaveINIFILE</Filter>
     </ClCompile>
     <ClCompile Include="UIAnimMode.cpp">
       <Filter>UI\GameTypes\FreeMp</Filter>

@@ -30,6 +30,8 @@ static BOOL bException = FALSE;
 # define USE_OWN_MINI_DUMP
 // # define USE_OWN_ERROR_MESSAGE_WINDOW
 
+
+
 XRCORE_API xrDebug Debug;
 
 static bool error_after_dialog = false;
@@ -444,13 +446,13 @@ LONG WINAPI UnhandledFilter(_EXCEPTION_POINTERS* pExceptionInfo)
         Msg("at address 0x%p", pExceptionInfo->ExceptionRecord->ExceptionAddress);
     }
 
-    FlushLog();
-    
-    save_mini_dump(pExceptionInfo);
-    callstack_mdmp(pExceptionInfo);
+  
 
-    //    TerminateProcess(GetCurrentProcess(), 1);
-    return (EXCEPTION_EXECUTE_HANDLER);
+    FlushLog();
+    save_mini_dump(pExceptionInfo);
+    // callstack_mdmp(pExceptionInfo);
+    // Debug.debug_calltack_lua();
+     return (EXCEPTION_EXECUTE_HANDLER);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -462,9 +464,10 @@ _CRTIMP int __cdecl _set_new_mode(int);
 static void handler_base(LPCSTR reason_string)
 {
     bool ignore_always = false;
-  
+    Debug.debug_calltack_lua();
+
     Debug.backend(
-        nullptr,
+        "handler_base",
         reason_string,
         0,
         0,
