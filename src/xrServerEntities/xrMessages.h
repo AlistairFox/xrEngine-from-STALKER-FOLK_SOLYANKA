@@ -296,7 +296,9 @@ enum EGameMessages {  //game_cl <----> game_sv messages
 // GAME EVENT SPAWNER
 	GAME_EVENT_SPAWNER_SPAWN_ITEM,
 	GAME_EVENT_CHANGE_VISUAL_FROM_SKIN_SELECTOR,
-
+// GAME EVENT SPEEAK
+	GAME_EVENT_SPEEAKING, 
+	GAME_EVENT_ADMIN_RIGHTS,
 	//-----------------------------------------
 	GAME_EVENT_SCRIPT_BEGINS_FROM,		// don't add messages after this
 	GAME_EVENT_FORCEDWORD				= u32(-1)

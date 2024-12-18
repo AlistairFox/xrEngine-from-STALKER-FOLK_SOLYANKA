@@ -100,6 +100,7 @@ void CUIMapWnd::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
 
 	if (pWnd == property_box && msg == PROPERTY_CLICKED && property_box->GetClickedItem())
 	{
+		Msg("Property box Clicked");
 		luabind::functor<void> funct;
 		if (ai().script_engine().functor("pda.property_box_clicked", funct))
 			funct(property_box);

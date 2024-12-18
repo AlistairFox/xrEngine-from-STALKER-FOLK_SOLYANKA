@@ -159,8 +159,7 @@ void CUIMainIngameWnd::Init()
 		m_icon_microphone->Show(true);
 
 		m_voice_distance = UIHelper::CreateTextWnd(uiXml, "voice_distance", this);
-
-		SetActiveVoiceIcon(false);
+ 		SetActiveVoiceIcon(false);
 	}
 
 	m_ind_boost_psy			= UIHelper::CreateStatic(uiXml, "indicator_booster_psy", this);

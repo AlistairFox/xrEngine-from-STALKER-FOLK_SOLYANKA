@@ -64,12 +64,9 @@ float CActor::GetWeaponAccuracy() const
 
 void CActor::g_fireParams	(const CHudItem* pHudItem, Fvector &fire_pos, Fvector &fire_dir)
 {
-	//if (cam_active == eacFirstEye)
-	{
-		fire_pos = Cameras().Position();
-		fire_dir = Cameras().Direction();
-	}
-
+	fire_pos = Cameras().Position();
+	fire_dir = Cameras().Direction();
+ 
 	const CMissile	*pMissile = smart_cast <const CMissile*> (pHudItem);
 	CWeapon* weapon = smart_cast<CWeapon*>(inventory().ActiveItem());
 
@@ -80,11 +77,11 @@ void CActor::g_fireParams	(const CHudItem* pHudItem, Fvector &fire_pos, Fvector 
 		fire_pos.add(offset);
 	}
 
-	if (false)
- 	if (weapon && cam_active != eacFirstEye)
+  	if (weapon)
 	{
 		fire_pos = weapon->get_LastFP();
-		//fire_dir = weapon->get_LastFD();
+		if (cam_active != eacFirstEye)
+			fire_dir = weapon->get_LastFD();	
 	}
 }
 

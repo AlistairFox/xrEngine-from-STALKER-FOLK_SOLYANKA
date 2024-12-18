@@ -20,7 +20,8 @@ public:
 	~CUIHudSquadWnd();
 
 	void	Init();
-	virtual void	Update();
+	virtual void Update();
+
 	void	UpdateMembers();
 
 private:

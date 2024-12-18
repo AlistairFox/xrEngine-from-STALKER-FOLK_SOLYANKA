@@ -11,7 +11,6 @@
 
 #include "restriction_space.h"
 
-
 bool game_sv_freemp::change_level(NET_Packet& net_packet, ClientID sender)
 {
 	if (ai().get_alife())
@@ -140,8 +139,6 @@ void game_sv_freemp::on_death(CSE_Abstract* e_dest, CSE_Abstract* e_src)
 	alife().on_death(e_dest, e_src);
 }
 
-
-
 ALife::_TIME_ID game_sv_freemp::GetStartGameTime()
 {
 	if (ai().get_alife() && ai().alife().initialized())
@@ -227,5 +224,6 @@ shared_str game_sv_freemp::name_map_alife()
 {
 	if (ai().get_alife())
 		return					(alife().level_name());
+
 	return "no_alife";
 }

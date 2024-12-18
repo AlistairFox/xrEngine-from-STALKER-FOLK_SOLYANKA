@@ -26,6 +26,7 @@ CUISquadWnd::~CUISquadWnd()
 	}
 }
 
+#include "UI/UIHelper.h"
 void CUISquadWnd::Init()
 {
 	CUIXml uiXml;
@@ -41,18 +42,19 @@ void CUISquadWnd::Init()
 	{
 		xr_sprintf(buff, "squad_wnd:frame_%d", i);
 
-		m_frame[i] = xr_new<CUIFrameWindow>();
-		AttachChild(m_frame[i]);
+		m_frame[i] = UIHelper::CreateFrameWindow(uiXml, buff, this);
+		//m_frame[i] = xr_new<CUIFrameWindow>();
+		//xml_init.InitFrameWindow(uiXml, buff, 0, m_frame[i]);
+		//AttachChild(m_frame[i]);
 
-		xml_init.InitFrameWindow(uiXml, buff, 0, m_frame[i]);
 
 		//---------------------------------------
 		xr_sprintf(buff, "squad_wnd:cap_%d", i);
 
-		m_cap[i] = xr_new<CUIStatic>();
-		AttachChild(m_cap[i]);
-
-		xml_init.InitStatic(uiXml, buff, 0, m_cap[i]);
+		m_cap[i] = UIHelper::CreateStatic(uiXml, buff, this);
+		// m_cap[i] = xr_new<CUIStatic>();
+		// xml_init.InitStatic(uiXml, buff, 0, m_cap[i]);
+		// AttachChild(m_cap[i]);
 	}
 
 	//---------------------------SQUAD LIST

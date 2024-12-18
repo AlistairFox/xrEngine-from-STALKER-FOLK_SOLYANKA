@@ -1026,7 +1026,7 @@ extern float Shedule_Scale_Objects;
 float CGameObject::shedule_Scale()
 {
  	if (smart_cast<CActor*>(this) || smart_cast<CBolt*>(this) || smart_cast<CHelicopter*>(this))
-		return  Device.vCameraPosition.distance_to(Position()) / 200;
+		return  0.1f; // Device.vCameraPosition.distance_to(Position()) / 200
 
 	if (smart_cast<CPHDestroyable*>(this) || smart_cast<CPhysicObject*>(this) || smart_cast<CCustomZone*>(this) )
 	{
@@ -1038,8 +1038,7 @@ float CGameObject::shedule_Scale()
 		return Device.vCameraPosition.distance_to(Position()) / 50;
 	}
 
-	return 3.5;
-	/// return Shedule_Scale_Objects;
+	return Shedule_Scale_Objects; 
 }
 		  
 #include "smart_zone.h"

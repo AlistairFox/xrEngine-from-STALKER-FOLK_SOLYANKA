@@ -43,11 +43,25 @@ bool CVoiceChat::CreateRecorder()
 void CVoiceChat::Start()
 {
 	m_pRecorder->Start();
+
+	NET_Packet packet;
+	Game().u_EventGen(packet, GE_GAME_EVENT, -1);
+	packet.w_u16(GAME_EVENT_SPEEAKING);
+	packet.w_clientID(Game().local_svdpnid);
+	packet.w_u8(1);
+	Game().u_EventSend(packet);
 }
 
 void CVoiceChat::Stop()
 {
 	m_pRecorder->Stop();
+
+	NET_Packet packet;
+	Game().u_EventGen(packet, GE_GAME_EVENT, -1);
+	packet.w_u16(GAME_EVENT_SPEEAKING);
+	packet.w_clientID(Game().local_svdpnid);
+	packet.w_u8(0);
+	Game().u_EventSend(packet);
 }
 
 bool CVoiceChat::IsStarted()
@@ -117,14 +131,8 @@ void CVoiceChat::OnRender()
 			CActor* pActor = smart_cast<CActor*>(pObject);
 			if (!pActor) continue;
 
-			bool isCorrectSquad = false;
-			for (auto PL : players_in_squad)
-			{
-				if (PL.PlayerState->MPSquadID == ps->MPSquadID)
-					isCorrectSquad = true;
-			}
-			
-			if (isCorrectSquad)
+			bool isCorrectSquad = ps->MPSquadID == local_player->MPSquadID;
+  			if (isCorrectSquad)
 				pActor->RenderIndicator(pos, 0.2, 0.2, GetVoiceIndicatorShader());
 		}
 	}
@@ -153,49 +161,55 @@ void CVoiceChat::ReceiveMessage(NET_Packet* P)
 	if (!obj)
  		return;
  
-	bool isValidDistance = true;
-
 	// Se7kills
-	//const bool isValidDistance = (Actor()->Position().distance_to(obj->Position()) <= voiceDistance);
-	//
-	//if (isValidDistance == false)
-	//	return;
-
 	// Дистанция до игрока
 	float distance = Actor()->Position().distance_to(obj->Position());
-
+	
+	// Проверяем сквад 
 	bool isCorrectSquad = false;
-	for (auto PL : players_in_squad)
+	for (auto PL : Game().players)
 	{
-		if (PL.PlayerState->MPSquadID == local_player->MPSquadID)
-			isCorrectSquad = true;
+		if (clientId == PL.second->GameID && local_player->MPSquadID != 0)
+		{
+  			isCorrectSquad = PL.second->MPSquadID == local_player->MPSquadID;
+			break;
+		}
 	}
 
 	if (!isCorrectSquad && distance > 30)
-	{
-		Msg("Squad Is Not Correct");
-		return;
-	}
-
+  		return;
+ 
  	IStreamPlayer* player = GetStreamPlayer(clientId);
-	player->SetPosition(obj->Position());
-	player->SetDistance(voiceDistance); // voiceDistance
- 	player->SetSquad(isCorrectSquad);
+	
+	// Se7kills
+	if (isCorrectSquad)	// Для отряда не делаем затухание
+	{
+  		player->SetPosition(Actor()->Position());	// Играем на себе звук
+		player->SetDistance(0);  
+		player->SetSquad(isCorrectSquad);
+ 	}
+	else // Если в не отряде делаем и говорим не от своего игрока
+	{
+		// Сломал переключайку растояния  поэтому 30 по дефолту (в OpenAL (xrSound) идет расщет на растояние до sound_player )
+		// тоесть от obj->position() до слушателя Actor() в целом если растояние маленькое задать  
+
+		player->SetPosition(obj->Position());
+		player->SetDistance(30);				
+		player->SetSquad(isCorrectSquad);
+	}
  
 	u8 packetsCount = P->r_u8();
-
+	
 	for (u32 i = 0; i < packetsCount; ++i)
 	{
 		u32 length = P->r_u32();
 		P->r(m_buffer, length);
 		player->PushToPlay(m_buffer, length);
-		Msg("Squad Is Correct PushToPlay to OpenAL (если вывело значит проблемма в OPENAL) ");
 	}
+  
+	m_voiceTimeMap[clientId] = SVoiceIconInfo(GetTickCount());
 
-	if (isValidDistance)
-	{
-		m_voiceTimeMap[clientId] = SVoiceIconInfo(GetTickCount());
-	}
+	Msg("Squad: %d, isCorrectSquad: %d, distance: %.1f => (player).PushToPlay", local_player->MPSquadID, isCorrectSquad, distance);
 }
 
 
@@ -203,7 +217,7 @@ const ui_shader& CVoiceChat::GetVoiceIndicatorShader()
 {
 	if (m_voiceIndicatorShader->inited()) return m_voiceIndicatorShader;
 
-	m_voiceIndicatorShader->create("friendly_indicator", "ui\\ui_voice");
+	m_voiceIndicatorShader->create("friendly_indicator", "ui\\ui_microphone");
 	return m_voiceIndicatorShader;
 }
 

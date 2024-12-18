@@ -4128,6 +4128,7 @@ public:
 };
 
 extern void ExportSectionsItems();
+
 class CCC_SectionExport : public IConsole_Command
 {
 public:  
@@ -4139,11 +4140,52 @@ public:
 	}
 };
 
+class CCC_GiveSelfAdmin : public IConsole_Command
+{
+public:
+	CCC_GiveSelfAdmin(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; }
+	virtual void Execute(LPCSTR args)
+	{
+		if (!Level().game)
+			return;
+		NET_Packet packet;
+		Game().u_EventGen(packet, GE_GAME_EVENT, -1);
+		packet.w_u16(GAME_EVENT_ADMIN_RIGHTS);
+		packet.w_u8(1);
+		packet.w_clientID(Level().game->local_svdpnid);
+		Game().u_EventSend(packet);
+	}
+};
+
+class CCC_RemoveSelfAdmin : public IConsole_Command
+{
+public:
+	CCC_RemoveSelfAdmin(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; }
+	virtual void Execute(LPCSTR args)
+	{
+		if (!Level().game)
+			return;
+		NET_Packet packet;
+		Game().u_EventGen(packet, GE_GAME_EVENT, -1);
+		packet.w_u16(GAME_EVENT_ADMIN_RIGHTS);
+		packet.w_u8(0);
+		packet.w_clientID(Level().game->local_svdpnid);
+		Game().u_EventSend(packet);
+	}
+};
+
+extern int use_debug_squads = 0;
 
 void register_mp_console_commands()
 {
+	// Se7kills 
+	// ADMIN RIGHTS GIVER (FOR TESTSS) // COMENT IN PLAY MODE RP
+	CMD1(CCC_GiveSelfAdmin, "ra_give_self");
+	CMD1(CCC_RemoveSelfAdmin, "ra_remove_self");
+
 	// RELOAD UI 
 	CMD1(CCC_SectionExport, "export_game_sections");
+//	CMD4(CCC_Integer, "use_debug_squad", &use_debug_squads, 0, 1);
 
 	CMD1(CCC_RealoadCFGS, "reload_configs");
 	CMD1(CCC_ReloadPlayerUI, "reload_ui_actor");

@@ -178,22 +178,24 @@ void CSpaceRestrictionHolder::unregister_restrictor			(CSpaceRestrictor *space_r
 	VERIFY					(I != m_restrictions.end());
 
 	CSpaceRestrictionBridge	*bridge	= (*I).second;
-	m_restrictions.erase	(I);
-
-	if (try_remove_string(m_default_out_restrictions,restrictor_id))
-		on_default_restrictions_changed		();
-	else {
-		if (try_remove_string(m_default_in_restrictions,restrictor_id))
-			on_default_restrictions_changed	();
-	}
 
 	if (bridge)
 	{
+		m_restrictions.erase(I);
+
+		if (try_remove_string(m_default_out_restrictions, restrictor_id))
+			on_default_restrictions_changed();
+		else {
+			if (try_remove_string(m_default_in_restrictions, restrictor_id))
+				on_default_restrictions_changed();
+		}
+ 
 		CSpaceRestrictionBase* composition = xr_new<CSpaceRestrictionComposition>(this, restrictor_id);
 		bridge->change_implementation(composition);
 		m_restrictions.insert(std::make_pair(restrictor_id, bridge));
+		collect_garbage();
 	}
-	collect_garbage			();
+
 }
 
 IC	void CSpaceRestrictionHolder::collect_garbage			()

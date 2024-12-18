@@ -325,7 +325,7 @@ game_PlayerState* game_cl_GameState::GetPlayerByGameID(u32 GameID)
 	for (auto pl : players)
 	{
 		game_PlayerState* P = pl.second;
-		if (P->GameID == GameID)
+ 		if (P != nullptr && P->GameID == GameID)
 		{
 			return P;
 		}

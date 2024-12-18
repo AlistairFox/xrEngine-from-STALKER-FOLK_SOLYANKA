@@ -1004,7 +1004,7 @@ void CActor::PH_B_CrPr		()	// actions & operations before physic correction-pred
 		}
 		else
 		{
-			if (!NET_A.empty()) 
+			if (!NET_A.empty() && !NET.empty())
 			{
 				net_update_A N_A = NET_A.back();
 				net_update N = NET.back();
@@ -1030,7 +1030,8 @@ void CActor::PH_B_CrPr		()	// actions & operations before physic correction-pred
 	}
 	else
 	{
-		if (PHGetSyncItemsNumber() != m_u16NumBones || m_States.empty()) return;
+		if (PHGetSyncItemsNumber() != m_u16NumBones || m_States.empty())
+			return;
 		CrPr_SetActivated(true);
 
 		PHUnFreeze();

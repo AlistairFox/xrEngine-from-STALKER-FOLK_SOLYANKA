@@ -182,9 +182,7 @@ void CUIPdaContactsWnd::Update()
 
 		CPda* pPda = tmp_actor->GetPDA();
 		if (!pPda) return;
-
-		// Msg("Updating PDA Contacts");
-
+ 
 		pPda->ActivePDAContacts(m_pda_list);
  
 		for (auto pda : m_pda_list)
@@ -194,7 +192,7 @@ void CUIPdaContactsWnd::Update()
 			if (A && MP)
  				AddContact(pda);
 		}
-		//m_bNeedUpdate = false;
+ 
 		m_flags.set(flNeedUpdate, FALSE);
 	}
 
@@ -226,8 +224,11 @@ void CUIPdaContactsWnd::Update()
 	{
 		m_squad_wnd->RemoveAll();
 
-		for (u32 o_it = 0; o_it < game->local_squad->players.size(); o_it++) {
-			m_squad_wnd->AddSquadMember(game->local_squad->players[o_it]);
+		for (u32 o_it = 0; o_it < game->local_squad->players.size(); o_it++) 
+		{
+			auto PS = smart_cast<game_PlayerState*> ( game->local_squad->players[o_it] );
+			if (PS != nullptr)
+				m_squad_wnd->AddSquadMember(PS);
 		};
 
 		game->local_squad->need_update = false;

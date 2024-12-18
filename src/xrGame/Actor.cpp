@@ -840,8 +840,7 @@ void CActor::HitSignal(float perc, Fvector& vLocalDir, CObject* who, s16 element
 {
 	if (g_Alive()) 
 	{
-
-		// check damage bone
+ 		// check damage bone
 		Fvector D;
 		XFORM().transform_dir(D,vLocalDir);
 
@@ -851,11 +850,14 @@ void CActor::HitSignal(float perc, Fvector& vLocalDir, CObject* who, s16 element
 		IKinematicsAnimated *tpKinematics = smart_cast<IKinematicsAnimated*>(pV);
 		IKinematics *pK = smart_cast<IKinematics*>(pV);
 		VERIFY(tpKinematics);
-#pragma todo("Dima to Dima : forward-back bone impulse direction has been determined incorrectly!")
+
+// #pragma todo("Dima to Dima : forward-back bone impulse direction has been determined incorrectly!")
 		MotionID motion_ID = m_anims->m_normal.m_damage[iFloor(pK->LL_GetBoneInstance(element).get_param(1) + (angle_difference(r_model_yaw + r_model_yaw_delta,yaw) <= PI_DIV_2 ? 0 : 1))];
 		float power_factor = perc/100.f; clamp(power_factor,0.f,1.f);
 		VERIFY(motion_ID.valid());
-		tpKinematics->PlayFX(motion_ID,power_factor);
+
+		if (motion_ID.valid())
+			tpKinematics->PlayFX(motion_ID,power_factor);
 	}
 }
 void start_tutorial(LPCSTR name);
@@ -1126,6 +1128,9 @@ float CActor::currentFOV()
 	}
 }
 
+float	NET_Jump = 0;
+
+
 void CActor::UpdateCL	()
 {
 	if(g_Alive() && Level().CurrentViewEntity() == this)
@@ -1142,6 +1147,26 @@ void CActor::UpdateCL	()
 		}
 	}
  
+	if (Level().CurrentControlEntity() != this) 
+	{
+		make_Interpolation();
+	
+		if (NET.size())
+		{
+			g_sv_Orientate				(mstate_real,				Device.fTimeDelta);
+			g_Orientate					(mstate_real,				Device.fTimeDelta);
+			g_Physics					(NET_SavedAccel,	NET_Jump,	Device.fTimeDelta);
+
+			if (!m_bInInterpolation)
+				g_cl_ValidateMState			(Device.fTimeDelta,		mstate_wishful);
+
+			g_SetAnimation				(mstate_real);
+			
+			set_state_box(NET_Last.mstate);
+		}	
+		mstate_old = mstate_real;
+		NET_Jump = 0;
+	}
 
 	UpdateInventoryOwner			(Device.dwTimeDelta);
 
@@ -1265,8 +1290,6 @@ void CActor::UpdateCL	()
 	m_bPickupMode=false;
 }
 
-float	NET_Jump = 0;
-
 void CActor::set_state_box(u32	mstate)
 {
 		if ( mstate & mcCrouch)
@@ -1330,28 +1353,11 @@ void CActor::shedule_Update	(u32 DT)
 
 	clamp					(DT,0u,100u);
 	float	dt	 			=  float(DT)/1000.f;
-
-	// Check controls, create accel, prelimitary setup "mstate_real"
-	
+ 
 	//----------- for E3 -----------------------------
-//	if (Local() && (OnClient() || Level().CurrentEntity()==this))
-	if (Level().CurrentControlEntity() == this && !Level().IsDemoPlay())
-	//------------------------------------------------
+	if (Level().CurrentControlEntity() == this)
 	{
 		g_cl_CheckControls		(mstate_wishful,NET_SavedAccel,NET_Jump,dt);
-		{
-			/*
-			if (mstate_real & mcJump)
-			{
-				NET_Packet	P;
-				u_EventGen(P, GE_ACTOR_JUMPING, ID());
-				P.w_sdir(NET_SavedAccel);
-				P.w_float(NET_Jump);
-				u_EventSend(P);
-			}
-			*/
-		}
-
 		if (!pInput->iGetAsyncKeyState(DIK_LALT) && !MpAnimationMode())
 			g_cl_Orientate			(mstate_real,dt);
 
@@ -1393,41 +1399,10 @@ void CActor::shedule_Update	(u32 DT)
 		if( !psActorFlags.test(AF_CROUCH_TOGGLE) )
 			mstate_wishful &=~mcCrouch;
 		}
-	}
-	else 
-	{
-		make_Interpolation();
-	
-		if (NET.size())
-		{
-			
-//			NET_SavedAccel = NET_Last.p_accel;
-//			mstate_real = mstate_wishful = NET_Last.mstate;
 
-			g_sv_Orientate				(mstate_real,dt			);
-			g_Orientate					(mstate_real,dt			);
-			g_Physics					(NET_SavedAccel,NET_Jump,dt	);		
-
-			if (!m_bInInterpolation)
-				g_cl_ValidateMState			(dt,mstate_wishful);
-
-			g_SetAnimation				(mstate_real);
-			
-			set_state_box(NET_Last.mstate);
-
-
-		}	
-
-		mstate_old = mstate_real;
+		NET_Jump = 0;
 	}
 
-/*
-	if (this == Level().CurrentViewEntity())
-	{
-		UpdateMotionIcon		(mstate_real);
-	};
-*/
-	NET_Jump = 0;
 
 
 	inherited::shedule_Update	(DT);
@@ -1605,8 +1580,6 @@ void CActor::shedule_Update	(u32 DT)
 		m_pVehicleWeLookingAt	= NULL;
 		m_pInvBoxWeLookingAt	= NULL;
 	}
-
-//	UpdateSleep									();
 
 	//для свойст артефактов, находящихся на поясе
 	UpdateArtefactsOnBeltAndOutfit				();

@@ -43,19 +43,29 @@ void level_events::shedule_Update(u32 dt)
     ISheduled::shedule_Update(dt);
  
 	game_cl_freemp* freemp = smart_cast<game_cl_freemp*>(Level().game);
-
+	 
 	//Апдейт Засинхреных AlifeObjects
-	if (freemp)
-	for (auto obj : freemp->alife_objects)
+	if (freemp && m_last_update_data < Device.dwTimeGlobal)
 	{
-		CSE_ALifeHumanStalker* stalker = smart_cast<CSE_ALifeHumanStalker*>(obj.second);
-		CSE_ALifeMonsterAbstract* monster = smart_cast<CSE_ALifeMonsterAbstract*>(obj.second);
-		CSE_ALifeLevelChanger* changer = smart_cast<CSE_ALifeLevelChanger*>(obj.second);
-		CSE_ALifeOnlineOfflineGroup* group = smart_cast<CSE_ALifeOnlineOfflineGroup*>(obj.second);
-		CSE_ALifeSmartZone* zone = smart_cast<CSE_ALifeSmartZone*>(obj.second);
+		m_last_update_data = Device.dwTimeGlobal + 500;
 
-		if (stalker || monster || changer || group || zone)
-			obj.second->update_CL();			  // Для вызова нужна функция в скрипте иле вылет	  (Поэтому чек на класс)
+		// Msg("[level_events] freemp is used mode");
+  		for (auto obj : freemp->alife_objects)
+		{
+			//CSE_ALifeHumanStalker* stalker = smart_cast<CSE_ALifeHumanStalker*>(obj.second);
+			//CSE_ALifeMonsterAbstract* monster = smart_cast<CSE_ALifeMonsterAbstract*>(obj.second);
+			//CSE_ALifeLevelChanger* changer = smart_cast<CSE_ALifeLevelChanger*>(obj.second);
+			CSE_ALifeOnlineOfflineGroup* group = smart_cast<CSE_ALifeOnlineOfflineGroup*>(obj.second);
+			CSE_ALifeSmartZone* zone = smart_cast<CSE_ALifeSmartZone*>(obj.second);
+
+			// if (obj.second != nullptr)
+			// 	Msg("[level_events] update object: %s", obj.second->name_replace());
+			// else
+			// 	Msg("[level_events] object %d, is dead: nullptr", obj.first);
+		
+			if (group || zone) // stalker || monster || changer || 
+				obj.second->update_CL();			  // Для вызова нужна функция в скрипте иле вылет	  (Поэтому чек на класс)
+		}
 	}
  
 	for (auto name_f : Level().event_functors)
@@ -71,8 +81,7 @@ void level_events::shedule_Update(u32 dt)
 			catch (...)
 			{
 				Msg("--- Crushed Update Event [%s]", name_f.c_str());
-				//ai().script_engine().print_stack();
-			}
+ 			}
 		}
 		else
 			Msg("--- Не найден скрипт (%s)", name_f.c_str());

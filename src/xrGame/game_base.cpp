@@ -32,7 +32,7 @@ game_PlayerState::game_PlayerState(NET_Packet* account_info)
 	m_bPayForSpawn		= false;
 
 	MPSquadID			= 0;
-
+	is_speaking			= false;
 
 	clear				();
 
@@ -117,11 +117,11 @@ void	game_PlayerState::net_Export(NET_Packet& P, BOOL Full)
 	P.w_u16			(	GameID	);
 	P.w_s8			(	skin	);
 	P.w_u8			(	m_bCurrentVoteAgreed	);
-	P.w_u32			(MPSquadID);
-
-
-
 	P.w_u32			(Device.dwTimeGlobal - DeathTime);
+	
+	// NEW 
+	P.w_u32(MPSquadID);
+	P.w_u8(is_speaking);
 
 
 	if (Full)
@@ -150,10 +150,13 @@ void	game_PlayerState::net_Import(NET_Packet& P)
 	P.r_u16			(	GameID	);
 	P.r_s8			(	skin	);
 	P.r_u8			(	m_bCurrentVoteAgreed	);
-	P.r_u32			(MPSquadID);
-
-
 	DeathTime = P.r_u32();
+	
+	// NEW 
+	P.r_u32			(MPSquadID);
+	is_speaking		= P.r_u8();
+
+
 	if (bFullUpdate)
 	{
 		m_account.net_Import(P);
@@ -180,11 +183,13 @@ void	game_PlayerState::skip_Import(NET_Packet& P)
 	P.r_u16			();//	GameID	);
 	P.r_s8			();//	skin	);
 	P.r_u8			();//	m_bCurrentVoteAgreed	);
-	P.r_u32			();
 
+	P.r_u32			(); //DeathTime
 
+	// NEW FOR SKIP 
+	P.r_u32();			// MP SQUAD
+	P.r_u8();			// isSpeaking
 
-	P.r_u32(); //DeathTime
 	if (bFullUpdate)
 	{
 		player_account::skip_Import(P);

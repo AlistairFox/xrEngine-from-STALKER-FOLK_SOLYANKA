@@ -11,9 +11,20 @@ class CGameTask;
 class game_cl_freemp : public game_cl_mp
 {
 private:
+
 	typedef game_cl_mp inherited;
 
 public:
+	u32 m_last_net_per_second;
+	u64 m_last_net_per_second_kb;
+	
+	struct UserDataNetworking {
+		u64 SpawnNetSpawn = 0;
+		u64 UpdateNet = 0;
+		u64 UpdateNet_ps = 0;
+	} data_networking_alife;
+
+	
 	bool alife_objects_synchronized;
  
 	xr_hash_map<u16, CSE_ALifeDynamicObject*> alife_objects;

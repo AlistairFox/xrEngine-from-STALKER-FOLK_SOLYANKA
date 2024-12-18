@@ -4,6 +4,55 @@
 #include "ai_space.h"
 #include "alife_simulator.h"
 #include "alife_object_registry.h"
+#include "Level.h"
+
+// Updater
+void game_sv_freemp::UpdateAlifeData()
+{
+	if (loaded_gametime)
+	{
+		u64 time = GetGameTime() - GetStartGameTime();
+		float factor = GetGameTimeFactor();
+
+		string_path filename;
+		FS.update_path(filename, "$mp_saves$", "alife.ltx");
+		CInifile* file = xr_new<CInifile>(filename, false, false);
+		file->w_u64("alife", "current_time", time);
+		file->w_float("alife", "time_factor", factor);
+		file->save_as(filename);
+	}
+	else
+	{
+		u64 time;
+		float factor;
+
+		string_path filename;
+		FS.update_path(filename, "$mp_saves$", "alife.ltx");
+		CInifile* file = xr_new<CInifile>(filename, true, true);
+
+		if (file->section_exist("alife"))
+		{
+			time = file->r_u64("alife", "current_time");
+			factor = file->r_float("alife", "time_factor");
+ 			if (Game().Type() == eGameIDRolePlay)
+				ChangeGameTime(time);
+		}
+
+		loaded_gametime = true;
+	}
+
+	if (!map_alife_sended.empty())
+	for (auto cl : map_alife_sended)
+	{
+		WriteAlifeObjectsToClient(cl.first);
+		map_alife_sended.erase(cl.first);
+	}
+ 
+	UpdateAlifeObjects();
+	UpdateAlifeObjectsPOS();
+}
+
+// Functions
 
 void game_sv_freemp::WriteAlifeObjectsToClient(ClientID client_id)
 {
@@ -36,15 +85,9 @@ void game_sv_freemp::WriteAlifeObjectsToClient(ClientID client_id)
 		u32 position_spawn_end = packet.w_tell() - packet_size;
 		object.second->UPDATE_Write(packet);
 		u32 position_update_end = packet.w_tell() - position_spawn_end;
-
-		//u8 level_id = ai().game_graph().vertex(object.second->m_tGraphID)->level_id();
-		//shared_str name = ai().game_graph().header().level(level_id).name();
-
-		//Msg("Object (%s) id (%d), level(%s), p_s(%u), p_u(%u)", object.second->name(), object.first, name.c_str(), position_spawn_end, position_update_end);
-
+ 		
 		server().SendTo(client_id, packet, net_flags(true));
 	}
-
 }
 
 void game_sv_freemp::UpdateAlifeObjects()
@@ -52,63 +95,32 @@ void game_sv_freemp::UpdateAlifeObjects()
 	if (!ai().get_alife())
 		return;
 
-	u32 packet_size = 0;
-	if (Device.dwTimeGlobal - last_alife_update_time > 1 * 1000)
+ 	if (last_alife_update_time < Device.dwTimeGlobal)
 	{
-		last_alife_update_time = Device.dwTimeGlobal;
+		last_alife_update_time = Device.dwTimeGlobal + 5000;
+
 		auto objects = &ai().alife().objects().objects();
 		u32 size_spawn = 0, size_updates = 0;
 
 		for (auto object : *objects)
 		{
-			if (!smart_cast<CSE_ALifeHumanStalker*>(object.second) &&
-				!smart_cast<CSE_ALifeMonsterAbstract*>(object.second) &&
-			//	!smart_cast<CSE_ALifeCreatureActor*>(object.second) &&
+			if (
 				!smart_cast<CSE_ALifeOnlineOfflineGroup*> (object.second) &&
 				!smart_cast<CSE_ALifeSmartZone*> (object.second)
 				)
-				continue;
+			continue;
 
-			if (old_export_pos[object.first].pos.distance_to(object.second->position()) > 10 || old_export_pos[object.first].time < Device.dwTimeGlobal)
-			{
-				NET_Packet packet;
-				packet.w_begin(M_GAMEMESSAGE);
-				packet.w_u32(M_ALIFE_OBJECTS_UPDATE);
-				packet.w_u8(3);
-				packet.w_u16(object.first);
-				packet.w_stringZ(object.second->s_name);
-				object.second->UPDATE_Write(packet);
-				object.second->UPDATE_WriteScript(packet);	  // Для вызова нужна функция в скрипте иле вылет
-			
-				update_data data;
-				data.pos = object.second->position();
-				data.time = Device.dwTimeGlobal + Random.randI(3000, 6400);  
-
-				old_export_pos[object.first] = data;
-	 
-				packet_size += packet.w_tell();
-				server().SendBroadcast(server().GetServerClient()->ID, packet, net_flags(false));
-			}
+			NET_Packet packet;
+			packet.w_begin(M_GAMEMESSAGE);
+			packet.w_u32(M_ALIFE_OBJECTS_UPDATE);
+			packet.w_u8(3);
+			packet.w_u16(object.first);
+			packet.w_stringZ(object.second->s_name);
+			object.second->UPDATE_Write(packet);
+			object.second->UPDATE_WriteScript(packet);	  // Для вызова нужна функция в скрипте иле вылет
+  			server().SendBroadcast(server().GetServerClient()->ID, packet, net_flags(false));
 		}
-		//DEBUG INFO 
-	 	/*
-	//	Msg("Update Size [%d]", packet_size);
-
-		NET_Packet packet;
-		GenerateGameMessage(packet);
-
-		string32 buf;
-		sprintf(buf, "%d", packet_size);
-
-		packet.w_u32(GAME_EVENT_NEWS_MESSAGE);
- 		packet.w_stringZ("КОЛ-ВО КБ:");
-		packet.w_stringZ(buf);
-		packet.w_stringZ("ui_inGame2_Predmet_otdan");
-		server().SendBroadcast(server().GetServerClient()->ID, packet, net_flags(true));
-		 */
 	}
-
-
 }
 
 void game_sv_freemp::UpdateAlifeObjectsPOS()
@@ -117,11 +129,10 @@ void game_sv_freemp::UpdateAlifeObjectsPOS()
 		return;
 
 	u32 packet_size = 0;
-
-	/*
-	if (Device.dwTimeGlobal - last_alife_update_time_pos > 1000)
+ 
+	if (last_alife_update_time_pos < Device.dwTimeGlobal)
 	{
-		last_alife_update_time_pos = Device.dwTimeGlobal;
+		last_alife_update_time_pos = Device.dwTimeGlobal + 5000;
 		auto objects = &ai().alife().objects().objects();
 
 		for (auto object : *objects)
@@ -148,8 +159,6 @@ void game_sv_freemp::UpdateAlifeObjectsPOS()
 
 		Msg("Update Size POS [%d]", packet_size);
 	}
-	*/
-
 }
 
 void game_sv_freemp::RegisterUpdateAlife(CSE_ALifeDynamicObject* object, bool reg)
@@ -158,8 +167,7 @@ void game_sv_freemp::RegisterUpdateAlife(CSE_ALifeDynamicObject* object, bool re
 		return;
 	if (!ai().get_alife())
 		return;
- 
-
+	 
 	if (reg)
 	{
 		NET_Packet packet;
@@ -210,7 +218,7 @@ void game_sv_freemp::GetServerInfo(CServerInfo* info)
 		for (auto l : monsters)
 		{
 			string128 level, value;
- 			sprintf(level, "level: %s, mon_c:%d, stl_c:%d, ph_c:%d", l.first, monsters[l.first], stalkers[l.first], physics[l.first]);
+ 			sprintf(level, "alife buffer: %s, mon_c:%d, stl_c:%d, ph_c:%d", l.first, monsters[l.first], stalkers[l.first], physics[l.first]);
 			info->AddItem(level, RGB(128, 128, 0));
 		}
 	}

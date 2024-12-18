@@ -3,7 +3,7 @@
 class level_events : public ISheduled
 { 
 public:
-	
+	u64 m_last_update_data;
    
 	level_events();
 	~level_events();

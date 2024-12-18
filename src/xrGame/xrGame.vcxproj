@@ -49,7 +49,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -4638,6 +4638,7 @@
     <ClCompile Include="game_cl_tasks.cpp" />
     <ClCompile Include="game_sv_freemp_alife.cpp" />
     <ClCompile Include="game_sv_freemp_alife_cl_sync.cpp" />
+    <ClCompile Include="game_sv_freemp_events.cpp" />
     <ClCompile Include="game_sv_freemp_PDA.cpp" />
     <ClCompile Include="game_sv_freemp_save.cpp" />
     <ClCompile Include="game_sv_freemp_squad.cpp" />

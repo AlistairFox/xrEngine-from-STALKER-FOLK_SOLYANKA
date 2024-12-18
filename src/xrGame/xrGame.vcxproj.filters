@@ -1768,9 +1768,6 @@
     <Filter Include="Core\Server\Games\server\capture_the_artefact">
       <UniqueIdentifier>{a58df264-1026-4011-a161-c1c769651a23}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core\Server\Games\server\roleplay">
-      <UniqueIdentifier>{275b40cc-c72b-4e31-9af8-bc1b0f0a7e86}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Core\Server\Games\PlayerAccounts">
       <UniqueIdentifier>{c8e2f403-688c-4c8d-aae4-e6bdf83d3df5}</UniqueIdentifier>
     </Filter>
@@ -2542,30 +2539,6 @@
     <Filter Include="Core\Server\Games\client\capture_the_artefact">
       <UniqueIdentifier>{6c5cfecb-bb84-4d16-8270-cef65928b53a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core\Server\Games\client\freemp">
-      <UniqueIdentifier>{00557b8e-492b-48c7-b4b0-332fc13aa87c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\Games\client\freemp\Voice">
-      <UniqueIdentifier>{bd359ad9-730f-4c26-b7ed-14d59f3269ee}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\Games\client\freemp\events">
-      <UniqueIdentifier>{4c229dbb-43af-46a4-8e29-a367a2646480}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\Games\client\freemp\alife">
-      <UniqueIdentifier>{69350e1a-60e6-4a1d-b1d0-62027fc7c4ec}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\Games\client\roleplay">
-      <UniqueIdentifier>{1c5daa59-a8c1-44b0-94b3-717b5321e1f7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\Games\server\freemp">
-      <UniqueIdentifier>{d08e08ef-3e2f-4791-9485-377179643799}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\Games\server\freemp\alife">
-      <UniqueIdentifier>{18675211-7ba7-442d-97b5-d5e37e054238}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Core\Server\Games\client\freemp\xrmpe">
-      <UniqueIdentifier>{a1a38545-9038-4dc0-a4bd-4b9028eee4c4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="UI\Common\PDA\XRMPE_FILE">
       <UniqueIdentifier>{cf225b5d-8801-4c49-97c7-7d4ae99d1a81}</UniqueIdentifier>
     </Filter>
@@ -2586,6 +2559,45 @@
     </Filter>
     <Filter Include="Se7Kills\SaveINIFILE">
       <UniqueIdentifier>{1028b5a6-b51c-4c14-8f5d-e72d72982b58}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Se7Kills\Gamemodes">
+      <UniqueIdentifier>{53041492-26e5-4029-b26c-88a5d7b79122}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Se7Kills\Gamemodes\client">
+      <UniqueIdentifier>{95ef3ba0-afc1-451c-b827-140843e7d82d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Se7Kills\Gamemodes\client\freemp">
+      <UniqueIdentifier>{00557b8e-492b-48c7-b4b0-332fc13aa87c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Se7Kills\Gamemodes\client\freemp\Voice">
+      <UniqueIdentifier>{bd359ad9-730f-4c26-b7ed-14d59f3269ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Se7Kills\Gamemodes\client\freemp\events">
+      <UniqueIdentifier>{4c229dbb-43af-46a4-8e29-a367a2646480}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Se7Kills\Gamemodes\client\freemp\alife">
+      <UniqueIdentifier>{69350e1a-60e6-4a1d-b1d0-62027fc7c4ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Se7Kills\Gamemodes\client\freemp\xrmpe">
+      <UniqueIdentifier>{a1a38545-9038-4dc0-a4bd-4b9028eee4c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Se7Kills\Gamemodes\client\roleplay">
+      <UniqueIdentifier>{1c5daa59-a8c1-44b0-94b3-717b5321e1f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Se7Kills\Gamemodes\server">
+      <UniqueIdentifier>{7dc53aff-7fb6-43a8-ae7f-991ea65c0533}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Se7Kills\Gamemodes\server\freemp">
+      <UniqueIdentifier>{d08e08ef-3e2f-4791-9485-377179643799}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Se7Kills\Gamemodes\server\freemp\alife">
+      <UniqueIdentifier>{18675211-7ba7-442d-97b5-d5e37e054238}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Se7Kills\Gamemodes\server\freemp\network">
+      <UniqueIdentifier>{8983c98f-a61b-4b8d-afbf-450d26488ebe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Se7Kills\Gamemodes\server\roleplay">
+      <UniqueIdentifier>{275b40cc-c72b-4e31-9af8-bc1b0f0a7e86}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -7465,10 +7477,10 @@
       <Filter>Physics\scripts</Filter>
     </ClInclude>
     <ClInclude Include="game_sv_freemp.h">
-      <Filter>Core\Server\Games\server\freemp</Filter>
+      <Filter>Se7Kills\Gamemodes\server\freemp</Filter>
     </ClInclude>
     <ClInclude Include="game_cl_freemp.h">
-      <Filter>Core\Server\Games\client\freemp</Filter>
+      <Filter>Se7Kills\Gamemodes\client\freemp</Filter>
     </ClInclude>
     <ClInclude Include="UIGameFMP.h">
       <Filter>UI\GameTypes\FreeMp</Filter>
@@ -7480,10 +7492,10 @@
       <Filter>Core\Server</Filter>
     </ClInclude>
     <ClInclude Include="game_cl_roleplay.h">
-      <Filter>Core\Server\Games\client\roleplay</Filter>
+      <Filter>Se7Kills\Gamemodes\client\roleplay</Filter>
     </ClInclude>
     <ClInclude Include="game_sv_roleplay.h">
-      <Filter>Core\Server\Games\server\roleplay</Filter>
+      <Filter>Se7Kills\Gamemodes\server\roleplay</Filter>
     </ClInclude>
     <ClInclude Include="UIGameRP.h">
       <Filter>UI\GameTypes\Roleplay</Filter>
@@ -7516,7 +7528,7 @@
       <Filter>UI\GameTypes\FreeMp</Filter>
     </ClInclude>
     <ClInclude Include="VoiceChat.h">
-      <Filter>Core\Server\Games\client\freemp\Voice</Filter>
+      <Filter>Se7Kills\Gamemodes\client\freemp\Voice</Filter>
     </ClInclude>
     <ClInclude Include="..\xrServerEntities\script_ini_file_inline.h">
       <Filter>AI\AScript\ScriptClasses\ScriptIniFile</Filter>
@@ -7528,7 +7540,7 @@
       <Filter>Core\Common\xr_INI_Ext</Filter>
     </ClInclude>
     <ClInclude Include="level_events.h">
-      <Filter>Core\Server\Games\client\freemp\events</Filter>
+      <Filter>Se7Kills\Gamemodes\client\freemp\events</Filter>
     </ClInclude>
     <ClInclude Include="MasterServerEvents.h">
       <Filter>Core</Filter>
@@ -7558,7 +7570,7 @@
       <Filter>UI\Common\PDA\XRMPE_FILE\MainInGame</Filter>
     </ClInclude>
     <ClInclude Include="VoiceSender.h">
-      <Filter>Core\Server\Games\client\freemp\Voice</Filter>
+      <Filter>Se7Kills\Gamemodes\client\freemp\Voice</Filter>
     </ClInclude>
     <ClInclude Include="UIArtefactPanel.h">
       <Filter>UI\Common\MainIngame</Filter>
@@ -11199,10 +11211,10 @@
       <Filter>AI\AMonsters\humans\stalker</Filter>
     </ClCompile>
     <ClCompile Include="game_sv_freemp.cpp">
-      <Filter>Core\Server\Games\server\freemp</Filter>
+      <Filter>Se7Kills\Gamemodes\server\freemp</Filter>
     </ClCompile>
     <ClCompile Include="game_cl_freemp.cpp">
-      <Filter>Core\Server\Games\client\freemp</Filter>
+      <Filter>Se7Kills\Gamemodes\client\freemp</Filter>
     </ClCompile>
     <ClCompile Include="UIGameFMP.cpp">
       <Filter>UI\GameTypes\FreeMp</Filter>
@@ -11214,10 +11226,10 @@
       <Filter>Core\Server</Filter>
     </ClCompile>
     <ClCompile Include="game_cl_roleplay.cpp">
-      <Filter>Core\Server\Games\client\roleplay</Filter>
+      <Filter>Se7Kills\Gamemodes\client\roleplay</Filter>
     </ClCompile>
     <ClCompile Include="game_sv_roleplay.cpp">
-      <Filter>Core\Server\Games\server\roleplay</Filter>
+      <Filter>Se7Kills\Gamemodes\server\roleplay</Filter>
     </ClCompile>
     <ClCompile Include="UIGameRP.cpp">
       <Filter>UI\GameTypes\Roleplay</Filter>
@@ -11226,16 +11238,16 @@
       <Filter>UI\Multiplayer\Roleplay</Filter>
     </ClCompile>
     <ClCompile Include="game_sv_roleplay_drop_items.cpp">
-      <Filter>Core\Server\Games\server\roleplay</Filter>
+      <Filter>Se7Kills\Gamemodes\server\roleplay</Filter>
     </ClCompile>
     <ClCompile Include="game_sv_freemp_trade.cpp">
-      <Filter>Core\Server\Games\server\freemp</Filter>
+      <Filter>Se7Kills\Gamemodes\server\freemp</Filter>
     </ClCompile>
     <ClCompile Include="..\jsonxx\jsonxx.cc">
       <Filter>jsonxx</Filter>
     </ClCompile>
     <ClCompile Include="game_sv_freemp_save.cpp">
-      <Filter>Core\Server\Games\server\freemp</Filter>
+      <Filter>Se7Kills\Gamemodes\server\freemp</Filter>
     </ClCompile>
     <ClCompile Include="ai_stalker_net_events.cpp">
       <Filter>AI\AMonsters\humans\stalker</Filter>
@@ -11255,9 +11267,6 @@
     <ClCompile Include="UIPda_Chat.cpp">
       <Filter>UI\Common\PDA\CONTACTS</Filter>
     </ClCompile>
-    <ClCompile Include="game_sv_freemp_PDA.cpp">
-      <Filter>Core\Server\Games\server\freemp</Filter>
-    </ClCompile>
     <ClCompile Include="SIniFileStream.cpp">
       <Filter>Se7Kills\SaveINIFILE</Filter>
     </ClCompile>
@@ -11265,10 +11274,10 @@
       <Filter>UI\GameTypes\FreeMp</Filter>
     </ClCompile>
     <ClCompile Include="VoiceChat.cpp">
-      <Filter>Core\Server\Games\client\freemp\Voice</Filter>
+      <Filter>Se7Kills\Gamemodes\client\freemp\Voice</Filter>
     </ClCompile>
     <ClCompile Include="VoiceSender.cpp">
-      <Filter>Core\Server\Games\client\freemp\Voice</Filter>
+      <Filter>Se7Kills\Gamemodes\client\freemp\Voice</Filter>
     </ClCompile>
     <ClCompile Include="..\xrServerEntities\script_json_file_script.cpp">
       <Filter>AI\AScript\ScriptClasses\ScriptIniFile\ScriptJSON</Filter>
@@ -11283,13 +11292,13 @@
       <Filter>Core\Common\xr_INI_Ext</Filter>
     </ClCompile>
     <ClCompile Include="level_events.cpp">
-      <Filter>Core\Server\Games\client\freemp\events</Filter>
+      <Filter>Se7Kills\Gamemodes\client\freemp\events</Filter>
     </ClCompile>
     <ClCompile Include="game_sv_freemp_alife.cpp">
-      <Filter>Core\Server\Games\server\freemp\alife</Filter>
+      <Filter>Se7Kills\Gamemodes\server\freemp\alife</Filter>
     </ClCompile>
     <ClCompile Include="game_sv_freemp_alife_cl_sync.cpp">
-      <Filter>Core\Server\Games\server\freemp\alife</Filter>
+      <Filter>Se7Kills\Gamemodes\server\freemp\alife</Filter>
     </ClCompile>
     <ClCompile Include="ui\UIActorMenuTrade.cpp">
       <Filter>UI\Common\Inventory\MENUS</Filter>
@@ -11307,7 +11316,7 @@
       <Filter>UI\Common\Inventory\MENUS</Filter>
     </ClCompile>
     <ClCompile Include="game_cl_freemp_alife.cpp">
-      <Filter>Core\Server\Games\client\freemp\alife</Filter>
+      <Filter>Se7Kills\Gamemodes\client\freemp\alife</Filter>
     </ClCompile>
     <ClCompile Include="xrMasterServer.cpp">
       <Filter>Core\Server\MasterServer</Filter>
@@ -11328,7 +11337,7 @@
       <Filter>UI\Common\InventoryWnd\ArtefactUpgrade</Filter>
     </ClCompile>
     <ClCompile Include="game_cl_tasks.cpp">
-      <Filter>Core\Server\Games\client\freemp</Filter>
+      <Filter>Se7Kills\Gamemodes\client\freemp</Filter>
     </ClCompile>
     <ClCompile Include="ActorAnimation_Zombied.cpp">
       <Filter>Core\Client\Objects\actor\base\ANIMS</Filter>
@@ -11351,9 +11360,6 @@
     <ClCompile Include="UIHudSquadWnd.cpp">
       <Filter>UI\Common\PDA\XRMPE_FILE\MainInGame</Filter>
     </ClCompile>
-    <ClCompile Include="game_sv_freemp_squad.cpp">
-      <Filter>Core\Server\Games\server\freemp\alife</Filter>
-    </ClCompile>
     <ClCompile Include="UIArtefactPanel.cpp">
       <Filter>UI\Common\MainIngame</Filter>
     </ClCompile>
@@ -11365,6 +11371,15 @@
     </ClCompile>
     <ClCompile Include="ExportSections.cpp">
       <Filter>Se7Kills</Filter>
+    </ClCompile>
+    <ClCompile Include="game_sv_freemp_events.cpp">
+      <Filter>Se7Kills\Gamemodes\server\freemp\network</Filter>
+    </ClCompile>
+    <ClCompile Include="game_sv_freemp_squad.cpp">
+      <Filter>Se7Kills\Gamemodes\server\freemp\network</Filter>
+    </ClCompile>
+    <ClCompile Include="game_sv_freemp_PDA.cpp">
+      <Filter>Se7Kills\Gamemodes\server\freemp\network</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

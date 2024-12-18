@@ -794,22 +794,17 @@ bool is_dedicated()
 
 void print_msg(LPCSTR str)
 {
-	Msg("[lua] %s", str);
+	if (psDeviceFlags.test(rsDebug))
+		Msg("[lua] %s", str);
 }
 
 
 void print_msg_clear(LPCSTR str)
 {
-	Msg("%s", str);
-}
-
-void print_msg_debug(LPCSTR str)
-{
 	if (psDeviceFlags.test(rsDebug))
-		Msg("[lua_debug] %s", str);
+		Msg("%s", str);
 }
-
-
+ 
 bool check_params(LPCSTR p)
 {
 	return strstr(Core.Params, p);
@@ -1194,6 +1189,13 @@ float get_elapsed(u16 id)
 	return float ( (double(timer_elapsed[id]) / CPU::qpc_freq) * 1000);
 }
 
+bool has_local_admin()
+{
+	if (Level().game && Level().game->local_player)
+		return Level().game->local_player->testFlag(GAME_PLAYER_HAS_ADMIN_RIGHTS);
+	else
+		return false;
+}
 
 #pragma optimize("s",on)
 void CLevel::script_register(lua_State *L)
@@ -1331,6 +1333,7 @@ void CLevel::script_register(lua_State *L)
 
 	module(L, "mp")
 	[
+		def("has_local_admin", &has_local_admin),
 		def("sv_teleport_player", &sv_teleport_player),
 		def("sv_teleport_player2", &sv_teleport_player2),
 		def("g_actor_team", &get_g_actor_team),
@@ -1373,8 +1376,7 @@ void CLevel::script_register(lua_State *L)
 		def("render_get_dx_level",				&render_get_dx_level),
 		def("IsImportantSave",					&IsImportantSave),
 		def("print_msg",						&print_msg),
-		def("print_msg_debug",					&print_msg_debug),
-		def("print_msg_clear",					&print_msg_clear),
+ 		def("print_msg_clear",					&print_msg_clear),
 		def("IsDedicated",						&is_dedicated),
 		def("OnClient",							&OnClient),
 		def("OnServer",							&OnServer),

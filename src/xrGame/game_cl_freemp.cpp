@@ -311,8 +311,6 @@ void game_cl_freemp::OnConnected()
 
 	if (m_game_ui)
 		Game().OnScreenResolutionChanged();
-
-
 }
 
 
@@ -435,8 +433,7 @@ void game_cl_freemp::TranslateGameMessage(u32 msg, NET_Packet& P)
 			}
 
 		}break;
-
-
+ 
 		/// xrMPE PDA events
 
 		case GE_PDA_SQUAD_RESPOND_INVITE:
@@ -463,25 +460,7 @@ void game_cl_freemp::TranslateGameMessage(u32 msg, NET_Packet& P)
 
 			for (u32 o_it = 0; o_it < capacity; o_it++) 
 			{
-				id = P.r_u16();
-  				auto PlayerState = GetPlayerByGameID(id);
-			
-
-				// if (PlayerState == nullptr)
-				// {
-				// 	CVoiceChat::VoicePlayer player_data;
-				// 	player_data.name = PlayerState->getName();
-				// 	player_data.distance = 0;
-				// 	player_data.PlayerState = PlayerState;
-				// 	player_data.SquadID = PlayerState->MPSquadID;
-				// 	m_pVoiceChat->players_in_squad.push_back(player_data);
-				// }
-				// else
-				// {
-				// 	Msg("--- PlayerID: %d dont Has PlayerState is Strage !!!", id);
-				// }
-
-				local_squad->players.push_back(PlayerState);
+  				local_squad->players.push_back(GetPlayerByGameID(P.r_u16())); //r_u16 GameID игрока
 			};
 
 			m_game_ui->UpdateHudSquad();
@@ -552,10 +531,13 @@ void game_cl_freemp::TranslateGameMessage(u32 msg, NET_Packet& P)
 
 extern bool caps_lock = false;
 
+extern int use_debug_squads;
+
 void game_cl_freemp::OnRender()
 {
+
 	inherited::OnRender();
-	
+ 
 	if (m_pVoiceChat)
 		m_pVoiceChat->OnRender();
  
@@ -590,43 +572,37 @@ void game_cl_freemp::OnRender()
 
 	}
  
-	//if (m_bSquadIndicators)
-	if (local_squad)
+ 	if (local_squad)
 	{
-		for (u32 o_it = 0; o_it < local_squad->players.size(); o_it++)
+ 		for (u32 o_it = 0; o_it < local_squad->players.size(); o_it++)
 		{
-			CObject* pObject = Level().Objects.net_Find(local_squad->players[o_it]->GameID);
-			if (!pObject) continue;
-
-			bool isFinded = false;
-			for (auto PL : Game().players)
-			{
-				if (!isFinded)
-				{
-					isFinded = PL.second->GameID == local_squad->players[o_it]->GameID;
-					break;
-				}
-			}
-
-			if (!isFinded)
+			game_PlayerState* player	= local_squad->players[o_it];
+			game_PlayerState* leader_ps = players[local_squad->squad_leader_cid];
+		
+			if (!player || !leader_ps || local_player == player)
+  				continue;
+ 
+			u16 GameID		= player->GameID;
+			u16 SquadID		= player->MPSquadID;
+			if (SquadID != local_player->MPSquadID)
+  				continue;
+ 
+ 			CActor* pActor = smart_cast<CActor*> (Level().Objects.net_Find(GameID));
+  			if (!pActor || pActor && !pActor->g_Alive())
 				continue;
-
-			CActor* pActor = smart_cast<CActor*>(pObject);
- 			if (!pActor) 
-				continue;
- 			if (!pActor->g_Alive())
-				continue;
- 			if (!local_squad->players[o_it]) 
-				continue;
- 			if (local_player == local_squad->players[o_it])
-				continue;
-
- 			if (players[local_squad->squad_leader_cid]->GameID == local_squad->players[o_it]->GameID)
-				pActor->RenderSquadIndicator(local_squad->players[o_it]->getName(), color_argb(225, 255, 241, 150), Fvector().set(0.0f, 0.35f, 0.0f), 32.0f, 32.0f, m_SquadLeaderShader);
+   
+ 			if (leader_ps->GameID == player->GameID)
+				pActor->RenderSquadIndicator(
+					player->getName(), color_argb(225, 255, 241, 150),
+					Fvector().set(0.0f, 0.35f, 0.0f), 32.0f, 32.0f, 
+					m_SquadLeaderShader);
 			else
-				pActor->RenderSquadIndicator(local_squad->players[o_it]->getName(), color_argb(225, 255, 241, 150), Fvector().set(0.0f, 0.35f, 0.0f), 32.0f, 32.0f, m_SquadMemberShader);
+				pActor->RenderSquadIndicator(
+					player->getName(), color_argb(225, 255, 241, 150), 
+					Fvector().set(0.0f, 0.35f, 0.0f), 32.0f, 32.0f,
+					m_SquadMemberShader);
 		}
-	}
+	} 
 }
 
 void game_cl_freemp::OnScreenResolutionChanged()

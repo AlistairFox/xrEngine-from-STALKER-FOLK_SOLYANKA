@@ -46,7 +46,7 @@ struct game_PlayerState
 	//money that player have at the current moment
 	s32			money_for_round;
 	u32								MPSquadID;
-
+	bool		is_speaking;
 
 	float		experience_Real;
 	float		experience_New;

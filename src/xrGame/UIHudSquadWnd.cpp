@@ -13,6 +13,7 @@ CUIHudSquadWnd::~CUIHudSquadWnd() {}
 
 void CUIHudSquadWnd::Init()
 {
+	Msg("CUIHudSquadWnd : Init() ");
 	CUIXml uiXRMPE;
 	uiXRMPE.Load(CONFIG_PATH, UI_PATH, "xrmpe\\gameui_xrmpe_squad.xml");
  	CUIXmlInit::InitWindow(uiXRMPE, "hud_squad", 0, this);
@@ -32,10 +33,13 @@ void CUIHudSquadWnd::Init()
 		AttachChild(m_pSquadMembers[i]);
 		m_pSquadMembers[i]->Show(false);
 	}
+
+	Show(true);
 }
 
 void CUIHudSquadWnd::Update()
 {
+//	Msg("[CUIHudSquadWnd] Update");
 	inherited::Update();
 }
 
@@ -53,19 +57,23 @@ void CUIHudSquadWnd::UpdateMembers()
 		return;
 	}
 
-	Msg("Size Players: %d", m_game->local_squad->players.size());
-  
-	int j = 0;
- 	for (auto& player : m_game->local_squad->players)
+ 	int IDX = 0;
+ 	for (auto player : m_game->local_squad->players)
 	{
-		if (player->GameID != m_game->local_player->GameID)
+		if (player == nullptr)
+			continue;
+		if (player->GameID == m_game->local_player->GameID)
+			continue;
+
+		if (IDX >= squad_size)
 		{
-			if (j < squad_size - 1)
-			{
-				m_pSquadMembers[j]->Add(player);
-				j++;
-			}
+			Msg("[CUIHudSquadWnd] IDX is Strange: %d > max", IDX);
+			continue;
 		}
+
+		Msg("[CUIHudSquadWnd] Update Member[%d]: %s", IDX, player->getName());
+ 		m_pSquadMembers[IDX]->Add(player);
+		IDX++;
 	}
 }
 
@@ -93,20 +101,29 @@ void CUIHudSquadMember::Init(CUIXml& xml_doc, LPCSTR path)
 
 void CUIHudSquadMember::Update()
 {
+	// Msg("[CUIHudSquadMember] Update");
 	inherited::Update();
 
 	//------Name
-	if (m_ps)
-	{
-		m_pName->TextItemControl()->SetText(m_ps->getName());
-
-		// m_ps->isSpeaking ? ShowVoiceIcon(true) : ShowVoiceIcon(false);
-
-		m_actor = smart_cast<CActor*>(Level().Objects.net_Find(m_ps->GameID));
-	}
-	else
+	if (!m_ps)
 		return;
 
+	if (m_ps)
+	{
+		try 
+		{
+ 			m_ps->is_speaking ? ShowVoiceIcon(true) : ShowVoiceIcon(false);
+ 			m_actor = smart_cast<CActor*>(Level().Objects.net_Find(m_ps->GameID));
+			const char* text = m_actor ? m_actor->Name() : "";
+ 			m_pName->TextItemControl()->SetText(text);
+		}
+		catch (...)
+		{
+			Msg("[CUIHudSquadMember::update] Mempory error PS: %p", m_ps);
+			return; // Выходим из обновлятора ибо пиздец какой то произошел
+		}		
+	}
+ 
 	if (m_actor)
 	{
 		//------Distance
@@ -114,8 +131,7 @@ void CUIHudSquadMember::Update()
 		{
 			string16 buf;
 			xr_sprintf(buf, "%.0f m", Actor()->Position().distance_to(m_actor->Position()));
-
-			m_pDistance->TextItemControl()->SetText(buf);
+ 			m_pDistance->TextItemControl()->SetText(buf);
 		}
 
 		//------StatusIcon
@@ -170,10 +186,9 @@ void CUIHudSquadMember::Update()
 void CUIHudSquadMember::Add(game_PlayerState* ps)
 {
 	m_ps = ps;
-
-	m_pName->TextItemControl()->SetText("");
-
-	Show(true);
+ 	m_pName->TextItemControl()->SetText("");
+	Update();
+ 	Show(true);
 }
 
 void CUIHudSquadMember::Clear()

@@ -4,6 +4,7 @@
 #include "string_table.h"
 
 #define SQUAD_CAPACITY 4
+
 //Squad
 void game_sv_freemp::join_player_in_squad(NET_Packet& P, u16 id)
 {
@@ -21,7 +22,8 @@ void game_sv_freemp::join_player_in_squad(NET_Packet& P, u16 id)
 	if (ps_first_member->MPSquadID != NULL)
 	{
 		squad = find_squad_by_squadid(ps_first_member->MPSquadID);
-		if (squad == NULL) {
+		if (squad == NULL) 
+		{
 			Msg("! SQUAD: Can't find your squad!");
 			return;
 		}
@@ -197,7 +199,8 @@ void game_sv_freemp::delete_player_from_squad(NET_Packet& P, u16 id)
 		if (!LastPlayer)
 			return;
 
-		if (!self_kick) {
+		if (!self_kick) 
+		{
 			NET_Packet P_;
 			GenerateGameMessage(P_);
 			P_.w_u32(GE_PDA_SQUAD_KICK_PLAYER);
@@ -235,6 +238,9 @@ void game_sv_freemp::delete_player_from_squad(NET_Packet& P, u16 id)
 
 void game_sv_freemp::delete_player_from_player_list(MP_Squad* squad, game_PlayerState* pPlayer)
 {
+	if (squad == nullptr)
+		return;
+
 	xr_vector<game_PlayerState*>::const_iterator it = squad->players.begin();
 	xr_vector<game_PlayerState*>::const_iterator it_e = squad->players.end();
 

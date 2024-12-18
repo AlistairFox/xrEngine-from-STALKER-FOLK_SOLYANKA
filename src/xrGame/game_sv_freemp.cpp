@@ -44,70 +44,6 @@ void game_sv_freemp::Create(shared_str & options)
 
 }
 
-// player connect #1
-void game_sv_freemp::OnPlayerConnect(ClientID id_who)
-{
-	inherited::OnPlayerConnect(id_who);
-
-	xrClientData* xrCData = m_server->ID_to_client(id_who);
-	game_PlayerState*	ps_who = get_id(id_who);
-
-	if (!xrCData->flags.bReconnect)
-	{
-		ps_who->clear();
-		ps_who->team = 0;
-		ps_who->skin = -1;
-	};
-
-	ps_who->setFlag(GAME_PLAYER_FLAG_SPECTATOR);
-
-	ps_who->resetFlag(GAME_PLAYER_FLAG_SKIP);
-
-	if (g_dedicated_server && (xrCData == m_server->GetServerClient()))
-	{
-		ps_who->setFlag(GAME_PLAYER_FLAG_SKIP);
-		return;
-	}
-
-	if (id_who != server().GetServerClient()->ID)
-		map_alife_sended[id_who] = Device.dwTimeGlobal;
-}
-
-// player connect #2
-void game_sv_freemp::OnPlayerConnectFinished(ClientID id_who)
-{
-	xrClientData* xrCData = m_server->ID_to_client(id_who);
-	SpawnPlayer(id_who, "spectator");
-
-	if (xrCData)
-	{
-		R_ASSERT2(xrCData->ps, "Player state not created yet");
-		NET_Packet					P;
-		GenerateGameMessage(P);
-		P.w_u32(GAME_EVENT_PLAYER_CONNECTED);
-		P.w_clientID(id_who);
-
-		int team = get_account_team(xrCData->ps->m_account.name_login().c_str(), xrCData->ps->m_account.password().c_str());
-		
-		if (team > 0)
-		{
-			xrCData->ps->setFlag(GAME_PLAYER_MP_SAVETEAM);
-			xrCData->ps->team = team;
-		}
-		else
-		{
-			xrCData->ps->team = 0;
-		}
-
-		xrCData->ps->setFlag(GAME_PLAYER_FLAG_SPECTATOR);
-		xrCData->ps->setFlag(GAME_PLAYER_FLAG_READY);
-		xrCData->ps->setFlag(GAME_PLAYER_MP_ON_CONNECTED);
-		
-		xrCData->ps->net_Export(P, TRUE);
-		u_EventSend(P);
-		xrCData->net_Ready = TRUE;
-	};
-}
 
 void game_sv_freemp::AddMoneyToPlayer(game_PlayerState * ps, s32 amount)
 {
@@ -264,124 +200,6 @@ void game_sv_freemp::OnPlayerReady(ClientID id_who)
 	};
 }
 
-// player disconnect
-void game_sv_freemp::OnPlayerDisconnect(ClientID id_who, LPSTR Name, u16 GameID)
-{
-	inherited::OnPlayerDisconnect(id_who, Name, GameID);		  
-}
-
-void game_sv_freemp::OnPlayerKillPlayer(game_PlayerState* ps_killer, game_PlayerState* ps_killed, KILL_TYPE KillType, SPECIAL_KILL_TYPE SpecialKillType, CSE_Abstract* pWeaponA)
-{
-	if (ps_killed)
-	{
-		ps_killed->setFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD);
-		ps_killed->DeathTime = Device.dwTimeGlobal;
-	}
-
-	signal_Syncronize();
-}
-
-#include "Actor.h"
- 
-void game_sv_freemp::OnEvent(NET_Packet &P, u16 type, u32 time, ClientID sender)
-{
-	switch (type)
-	{
-		case GAME_EVENT_PLAYER_KILL: // (g_kill)
-		{
-			u16 ID = P.r_u16();
-			xrClientData *l_pC = (xrClientData*)get_client(ID);
-			if (!l_pC) break;
-			KillPlayer(l_pC->ID, l_pC->ps->GameID);
-		}
-		break;
-
-		case GAME_EVENT_MP_TRADE:
-		{
-			OnPlayerTrade(P, sender);
-		}
-		break;
-	
-		case GAME_EVENT_TRANSFER_MONEY:
-		{
-			OnTransferMoney(P, sender);
-		}
-		break;
-	
-		case M_CHANGE_LEVEL:
-		{
- 			if (change_level(P, sender))
-			{
-				server().SendBroadcast(BroadcastCID, P, net_flags(TRUE, TRUE));
-			}
-		}break;
-
-		case GAME_EVENT_PLAYER_NAME_ACCAUNT:
-		{
- 			shared_str nick;  P.r_stringZ(nick);
-			u32 team;		  P.r_u32(team);
-
-			xrClientData* data = server().ID_to_client(sender);
-			if (data && data->ps)
-			{			
- 				data->name = nick.c_str();
-				data->ps->m_account.set_player_name(nick.c_str());
-				data->owner->set_name_replace(data->name.c_str());
-
-				set_account_nickname
-				(
-					data->ps->m_account.name_login().c_str(), 
-					data->ps->m_account.password().c_str(),
-					nick.c_str(),
-					team
-				);
- 
-				signal_Syncronize();
-			}
-
-		}break;
-
-		// GAME SPAWNER, SKIN SELECTOR
-		case GAME_EVENT_SPAWNER_SPAWN_ITEM:
-		{
-			xrClientData* CL = m_server->ID_to_client(sender);
-			CActor* pActor = smart_cast<CActor*>(Level().Objects.net_Find(CL->ps->GameID)); R_ASSERT(pActor);
-
-			if (CL && CL->owner)
-			{
-				shared_str sect;
-				P.r_stringZ(sect);
-
-				SpawnItem(sect.c_str(), CL->owner->ID);
-			}
-			else
-				Msg("! Can't spawn item to player: %s", pActor->Name());
-		}break;
-	
-		case GAME_EVENT_CHANGE_VISUAL_FROM_SKIN_SELECTOR:
-		{
-			xrClientData* CL = m_server->ID_to_client(sender);
-			if (!CL) return;
-
-			CActor* pActor = smart_cast<CActor*>(Level().Objects.net_Find(CL->ps->GameID)); R_ASSERT(pActor);
-
-			string256 visual_name;
-			P.r_stringZ(visual_name);
-
-			pActor->u_EventGen(P, GE_CHANGE_VISUAL_SS, pActor->ID());
-			P.w_stringZ(visual_name);
-			pActor->u_EventSend(P);
-
-			pActor->u_EventGen(P, GE_CHANGE_VISUAL, pActor->ID());
-			P.w_stringZ(visual_name);
-			pActor->u_EventSend(P);
-		}break;
-
-		default:
-			inherited::OnEvent(P, type, time, sender);
-	};
-}
-
 u32 old_update_alife = 0;
  
 void game_sv_freemp::Update()
@@ -397,6 +215,10 @@ void game_sv_freemp::Update()
 	if (!Level().game)
 		return;
  
+	// Update Alife
+	UpdateAlifeData(); // Send netwroking Packets to AlifeObjects
+
+
 	if (!loaded_inventory)
 	{
 		xrS_entities* entitys = server().GetEntitys();
@@ -416,19 +238,6 @@ void game_sv_freemp::Update()
 			}
 		}
 	}	
-
-	 
-	if (map_alife_sended.empty())
-	{
-		UpdateAlifeObjects();
-		UpdateAlifeObjectsPOS();
-	}
-	else  
-	for (auto cl : map_alife_sended)
-	{
-		WriteAlifeObjectsToClient(cl.first);
-		map_alife_sended.erase(cl.first);
-	}
 	 
 	if (Device.dwTimeGlobal - old_update_alife > 1000)
 	{
@@ -452,41 +261,10 @@ void game_sv_freemp::Update()
 					save_inventoryBox(box);
 			}
  		}
-   
-		if (loaded_gametime)
-		{
-			u64 time = GetGameTime() - GetStartGameTime();
-			float factor = GetGameTimeFactor();
-
-			string_path filename;
-			FS.update_path(filename, "$mp_saves$", "alife.ltx");
-			CInifile* file = xr_new<CInifile>(filename, false, false);
-			file->w_u64("alife", "current_time", time);
-			file->w_float("alife", "time_factor", factor);
-			file->save_as(filename);
-		}
-		else
-		{
-			u64 time;
-			float factor;
- 
-			string_path filename;
-			FS.update_path(filename, "$mp_saves$", "alife.ltx");
-			CInifile* file = xr_new<CInifile>(filename, true, true);
-			
-			if (file->section_exist("alife"))
-			{
-				time = file->r_u64("alife", "current_time");
-				factor = file->r_float("alife", "time_factor");
-
-				if (Game().Type() == eGameIDRolePlay)
-					ChangeGameTime(time);
-			}
-
-			loaded_gametime = true;
-		}	
 	} 
 }
+
+
 
 BOOL game_sv_freemp::OnTouch(u16 eid_who, u16 eid_what, BOOL bForced)
 {

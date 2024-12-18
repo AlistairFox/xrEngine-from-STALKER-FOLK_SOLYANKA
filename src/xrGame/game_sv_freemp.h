@@ -49,11 +49,11 @@ public:
 	void __stdcall					net_Relcase(CObject* O) {};
 
 	// helper functions
-	void									AddMoneyToPlayer(game_PlayerState* ps, s32 amount);
-	void									SetMoneyToPlayer(game_PlayerState* ps, s32 amount);
-	void									SpawnItemToActor(u16 actorId, LPCSTR name);
+	void							AddMoneyToPlayer(game_PlayerState* ps, s32 amount);
+	void							SetMoneyToPlayer(game_PlayerState* ps, s32 amount);
+	void							SpawnItemToActor(u16 actorId, LPCSTR name);
 
-	CSE_Abstract*							SpawnItemToActorReturn(u16 actorId, LPCSTR name);
+	CSE_Abstract*					SpawnItemToActorReturn(u16 actorId, LPCSTR name);
 
 	virtual		void				OnPlayerReady(ClientID id_who);
 	virtual		void				OnPlayerConnect(ClientID id_who);
@@ -65,6 +65,7 @@ public:
 	virtual		void				OnEvent(NET_Packet &tNetPacket, u16 type, u32 time, ClientID sender);
 
 	virtual		void				Update();
+ 	virtual		void				UpdateAlifeData();
 
 	virtual		BOOL				OnTouch(u16 eid_who, u16 eid_what, BOOL bForced = FALSE);
 
@@ -126,6 +127,7 @@ public:
 	xr_map<u16, update_data> old_export_pos;
 
 	virtual		void				WriteAlifeObjectsToClient(ClientID id);
+	
 	virtual		void				UpdateAlifeObjects();
 	virtual		void				UpdateAlifeObjectsPOS();
 
@@ -154,9 +156,7 @@ public:
 	virtual		void	delete_player_from_squad(NET_Packet& packet, u16 id);
 	virtual		void	delete_player_from_squad(u16 id);
 	virtual		void	make_player_squad_leader(NET_Packet& packet, u16 id);
-
-
-
+	 
 	struct MP_Squad
 	{
 		xr_vector<game_PlayerState*> players;

@@ -53,7 +53,7 @@ void CUIGameFMP::Init(int stage)
 
 		m_hud_squad = xr_new<CUIHudSquadWnd>();
 		m_hud_squad->SetAutoDelete(true);
-
+		 
 	}
 	else if (stage == 1)
 	{
@@ -65,14 +65,14 @@ void CUIGameFMP::Init(int stage)
 		//after
 		inherited::Init(stage);
 		m_window->AttachChild(m_stats);
-		//m_window->AttachChild(surge_background);
-		//m_window->AttachChild(surge_cap);
 
 		m_hud_squad->Init();
 	}
 	m_animation = xr_new<CUIAMode>();
 	m_animation->Init();
+
 	m_window->AttachChild(m_animation);
+	m_window->AttachChild(m_hud_squad);
 }
 
 void CUIGameFMP::SetClGame(game_cl_GameState * g)
@@ -91,11 +91,14 @@ void CUIGameFMP::HideShownDialogs()
 #include "Actor.h"
 #include "Inventory.h"
 #include "UI_UpgradesQuick.h"
+#include "game_cl_freemp.h"
 
 void _BCL CUIGameFMP::OnFrame()
 {
 	inherited::OnFrame();
  
+	game_cl_freemp* fmp = smart_cast<game_cl_freemp*>(Level().game);
+
 	if (g_cl_draw_mp_statistic && Level().game->local_player)
 	{
 		IClientStatistic& stats = Level().GetStatistic();
@@ -117,8 +120,17 @@ void _BCL CUIGameFMP::OnFrame()
 				stats.getRetriedCount()
 			);
 		}
-		else
+		else 
 		{
+			//string128 tmp;
+			//sprintf(tmp, "[ALIFE] Spawned: %u, UpdateNet: %u, UpdateNet_ps: %u",
+			//	(u32)(fmp->data_networking_alife.SpawnNetSpawn / 1024),
+			//	(u32)(fmp->data_networking_alife.UpdateNet / 1024),
+			//	(u32)(fmp->data_networking_alife.UpdateNet_ps)
+			//);
+
+			if (fmp)
+
 			xr_sprintf(
 				outstr,
 				"FPS: %.0f \\n"
@@ -131,7 +143,10 @@ void _BCL CUIGameFMP::OnFrame()
 				//"pending unreliable: %u\\n"
 				//"sent unacked reliable: %u\\n"
 				"quality local: %.2f\\n"
-				"quality remote: %.2f\\n",
+				"quality remote: %.2f\\n"
+				"[ALIFE]spawn:%u \\n" 
+				"[ALIFE]unet: %u \\n"  
+				"[ALIFE]ps:%u \\n",
 
 				Device.Statistic->fFPS,
 
@@ -147,8 +162,14 @@ void _BCL CUIGameFMP::OnFrame()
 				//stats.getPendingUnreliable(),
 				//stats.getSentUnackedReliable(),
 				stats.getQualityLocal(),
-				stats.getQualityRemote()
+				stats.getQualityRemote(),
+
+				(u32)(fmp->data_networking_alife.SpawnNetSpawn / 1024),
+				(u32)(fmp->data_networking_alife.UpdateNet / 1024),
+				(u32)(fmp->data_networking_alife.UpdateNet_ps / 1024)
 			);
+
+		
 		}
 
 		m_stats->SetTextST(outstr);
@@ -161,65 +182,7 @@ void _BCL CUIGameFMP::OnFrame()
 		m_stats->Enable(false);
 	}
 
-	if (m_game && m_game->local_squad->players.size())
-	{
-		if (!m_hud_squad->IsShown())
-			m_hud_squad->Show(true);
-	}
-	else
-	{
-		if (m_hud_squad->IsShown())
-			m_hud_squad->Show(false);
-	}
-
- 	/*
-	if (Device.dwFrame % 60 == 0)
-	{
-		if (!m_attach_quck)
-			m_attach_quck = xr_new<CUI_UpgradesQuick>();
-		else
-		{
-			m_attach_quck->Update();
-			m_attach_quck->Show(upgrades_activated);
-		}
-	
-	}
-	 */
-
-	/*
-	if (Device.dwTimeGlobal - oldTimer > 1000)
-	{
-		oldTimer = Device.dwTimeGlobal;
-
-		//Msg("LuaSurge time(%d) started(%s)", surge_time, surge_started ? "true" : "false");
-		if (surge_time > 30 && surge_started)
-		{
-			surge_background->Show(true);
-			surge_cap->Show(true);
-			 
-			//string32 timer, tmp;
-			//xr_strcpy(timer, itoa(surge_time,tmp, 10));	
-			//xr_strcat(timer, "\\");
-			//xr_strcat(timer, itoa(surge_time_end, tmp, 10));
-			 							  
-			LPCSTR timer = InventoryUtilities::GetTimeAsString((surge_time_end - surge_time) * 1000 * 60, InventoryUtilities::etpTimeToMinutes).c_str();
-			
-			surge_cap->SetText(timer);
-		}
-		else
-		{
-			if (surge_background->IsShown())
-				surge_background->Show(false);
-			
-			if (surge_cap->IsShown())
-				surge_cap->Show(false);
-		}
-	}	
-	*/
-
-
-
-	 
+ 
 }
 
 
@@ -246,8 +209,7 @@ bool CUIGameFMP::IR_UIOnKeyboardPress(int dik)
 
 	if (dik == DIK_CAPSLOCK)
 	{
-		Msg("DIK_CAPSLOCK");
-		if (caps_lock)
+ 		if (caps_lock)
 			caps_lock = false;
 		else
 			caps_lock = true;

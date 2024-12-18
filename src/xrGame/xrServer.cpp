@@ -1307,9 +1307,7 @@ void xrServer::OnVoiceMessage(NET_Packet& P, ClientID sender)
 	game_PlayerState* ps = pClient->ps;
 	if (!ps) return;
 	if (!pClient->owner) return;
-
-	// Msg("VoiceMessage size: %u", P.B.count);
-
+  
 	struct send_voice_message
 	{
 		xrServer* m_server;
@@ -1340,7 +1338,7 @@ void xrServer::OnVoiceMessage(NET_Packet& P, ClientID sender)
 			//{
 			//	m_server->SendTo(CL->ID, *m_packet, net_flags(FALSE, TRUE, TRUE, TRUE));
 			//}
-
+ 
 			m_server->SendTo(CL->ID, *m_packet, net_flags(FALSE, TRUE, TRUE, TRUE));
 		}
 	};

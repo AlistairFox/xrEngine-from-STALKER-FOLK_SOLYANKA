@@ -103,19 +103,27 @@ public:
 public:
 									game_sv_GameState		();
 	virtual							~game_sv_GameState		();
+
 	// Main accessors
+	// PLAYER STATE GETTERS
 	virtual		game_PlayerState*	get_eid					(u16 id);
-	virtual		void*				get_client				(u16 id); //if exist
-	//virtual		game_PlayerState*	get_it					(u32 it);
 	virtual		game_PlayerState*	get_id					(ClientID id);
-	
-	//virtual		LPCSTR				get_name_it				(u32 it);
+
+	// PLAYER CLIENT GETTER 
+	virtual		void* get_client(u16 id); //if exist
+
+	// PLAYER NAME
 	virtual		LPCSTR				get_name_id				(ClientID id);								
-				LPCSTR				get_player_name_id		(ClientID id);								
+				LPCSTR				get_player_name_id		(ClientID id);
+
+	// ID TO GAMEID
 	virtual		u16					get_id_2_eid			(ClientID id);
-	//virtual		ClientID			get_it_2_id				(u32 it);*/
 	virtual		u32					get_players_count		();
+
+	// CSE ENTITY FROM ID
 				CSE_Abstract*		get_entity_from_eid		(u16 id);
+
+
 				RPoint				getRP					(u16 team_idx, u32 rp_idx);
 				u32					getRPcount				(u16 team_idx);
 	// Signals
