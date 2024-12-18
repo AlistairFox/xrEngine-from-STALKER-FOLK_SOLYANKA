@@ -54,14 +54,14 @@ if(inistream)\
 	R_ASSERT3(0,#what_to_do,"not implemented");\
 }
 
-struct	NET_Buffer
+struct NET_Buffer
 {
 	BYTE	data[NET_PacketSizeLimit];
 	u32		count;
 	u32		max_buffer_size = NET_PacketSizeLimit;
 };
 
-struct	NET_BufferSteam
+struct NET_BufferSteam
 {
 	BYTE* data;	// 1MB
 	u32		count;
@@ -69,7 +69,7 @@ struct	NET_BufferSteam
 };
 
 template<typename Buffer>
-class XRCORE_API NET_PacketBase
+class NET_PacketBase
 {
 
 private:
