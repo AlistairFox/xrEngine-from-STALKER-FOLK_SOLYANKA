@@ -124,7 +124,7 @@ void ai_stalker_net_state::state_write(NET_Packet& packet)
 	{	
 		packet.w_u8(u_active_slot);
 		packet.w_u16(u_active_item);
-		packet.w_float_helf(u_health);						  //5
+		packet.w_float(u_health);						  //5
 
 #ifndef	HALF_FLOAT
 		// 4 BYTE or float all (4  * 4 ) = 16 BYTE
@@ -165,7 +165,7 @@ void ai_stalker_net_state::state_read(NET_Packet& packet)
 	{	
  		packet.r_u8(u_active_slot);   													 //5 BYTE
 		packet.r_u16(u_active_item);
-		packet.r_float_helf(u_health);
+		packet.r_float(u_health);
 
 #ifndef	HALF_FLOAT																		// 4 BYTE  
 		packet.r_angle8(torso_yaw);

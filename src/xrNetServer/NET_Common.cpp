@@ -16,7 +16,7 @@ struct MultipacketHeader
 //------------------------------------------------------------------------------
 
 static NET_Compressor   Compressor;
-static const unsigned   MaxMultipacketSize          = 32768;
+static const unsigned   MaxMultipacketSize          = NET_PacketSizeLimit - 64;
 
 XRNETSERVER_API int     psNET_GuaranteedPacketMode  = NET_GUARANTEEDPACKET_DEFAULT;
 

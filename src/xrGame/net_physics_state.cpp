@@ -21,17 +21,10 @@ void net_physics_state::fill(SPHNetState &state)
 
 void net_physics_state::write(NET_Packet& packet)
 {
-	// position
- 
-#ifdef	HALF_FLOAT 
-	packet.w_float_helf(physics_position.x);
-	packet.w_float_helf(physics_position.y);
-	packet.w_float_helf(physics_position.z);
-#else	
+	// position	
 	packet.w_float(physics_position.x);
 	packet.w_float(physics_position.y);
 	packet.w_float(physics_position.z);	
-#endif
 	// physics state enabled
 	packet.w_u8(physics_state_enabled ? 1 : 0);
 }
@@ -40,19 +33,9 @@ void net_physics_state::read(NET_Packet &packet)
 {
 	dwTimeStamp = Level().Objects.net_Import_Time();
  
-#ifdef	HALF_FLOAT 
-	{
-		packet.r_float_helf(physics_position.x);
-		packet.r_float_helf(physics_position.y);
-		packet.r_float_helf(physics_position.z);
-	}
-#else
-	{
-		packet.r_float(physics_position.x);
-		packet.r_float(physics_position.y);
-		packet.r_float(physics_position.z);
-	}
-#endif
+	packet.r_float(physics_position.x);
+	packet.r_float(physics_position.y);
+	packet.r_float(physics_position.z);
 	// physics state enabled
 	physics_state_enabled = static_cast<bool>(packet.r_u8());
 }
