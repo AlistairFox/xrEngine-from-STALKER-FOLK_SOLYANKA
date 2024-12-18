@@ -1,84 +1,46 @@
-#ifndef _INCDEF_NETUTILS_H_
-#define _INCDEF_NETUTILS_H_
 #pragma once
 
 #include "client_id.h"
 
 #pragma pack(push,1)
 
-const	u32			NET_PacketSizeLimit	= 16*1024;
+const	u32			NET_PacketSizeLimit = (48 * 1024) - 64;
 
 struct XRCORE_API IIniFileStream
 {
-	virtual void	 move_begin		()							= 0;
+	virtual void	 __stdcall 	move_begin() = 0;
 
-	virtual void		w_float			( float a)					= 0;
-	virtual void 	  	w_vec3			( const Fvector& a)			= 0;
-	virtual void 		w_vec4			( const Fvector4& a)		= 0;
-	virtual void 	  	w_u64			( u64 a)					= 0;
-	virtual void 	  	w_s64			( s64 a)					= 0;
-	virtual void 	  	w_u32			( u32 a)					= 0;
-	virtual void 	  	w_s32			( s32 a)					= 0;
-	virtual void 	  	w_u16			( u16 a)					= 0;
-	virtual void 		w_s16			( s16 a)					= 0;
-	virtual void		w_u8			( u8 a)						= 0;
-	virtual void		w_s8			( s8 a)						= 0;
-	virtual void		w_stringZ		( LPCSTR S)					= 0;
-					
-	virtual void		r_vec3			(Fvector&)					= 0;
-	virtual void		r_vec4			(Fvector4&)					= 0;
-	virtual void		r_float			(float&)					= 0;
-	virtual void		r_u8			(u8&)						= 0;
-	virtual void		r_u16			(u16&)						= 0;
-	virtual void		r_u32			(u32&)						= 0;
-	virtual void		r_u64			(u64&)						= 0;
-	virtual void		r_s8			(s8&)						= 0;
-	virtual void		r_s16			(s16&)						= 0;
-	virtual void		r_s32			(s32&)						= 0;
-	virtual void		r_s64			(s64&)						= 0;
+	virtual void	 __stdcall 	w_float(float a) = 0;
+	virtual void 	 __stdcall 	w_vec3(const Fvector& a) = 0;
+	virtual void 	 __stdcall 	w_vec4(const Fvector4& a) = 0;
+	virtual void 	 __stdcall 	w_u64(u64 a) = 0;
+	virtual void 	 __stdcall 	w_s64(s64 a) = 0;
+	virtual void 	 __stdcall 	w_u32(u32 a) = 0;
+	virtual void 	 __stdcall 	w_s32(s32 a) = 0;
+	virtual void 	 __stdcall 	w_u16(u16 a) = 0;
+	virtual void 	__stdcall	w_s16(s16 a) = 0;
+	virtual void	__stdcall	w_u8(u8 a) = 0;
+	virtual void	__stdcall	w_s8(s8 a) = 0;
+	virtual void	__stdcall	w_stringZ(LPCSTR S) = 0;
 
-	virtual void		r_string		(LPSTR dest, u32 dest_size)	= 0;
-//	virtual void		r_tell			()							= 0;
-//	virtual void		r_seek			(u32 pos)					= 0;
-	virtual void		skip_stringZ	()							= 0;
+	virtual void	__stdcall	r_vec3(Fvector&) = 0;
+	virtual void	__stdcall	r_vec4(Fvector4&) = 0;
+	virtual void	__stdcall	r_float(float&) = 0;
+	virtual void	__stdcall	r_u8(u8&) = 0;
+	virtual void	__stdcall	r_u16(u16&) = 0;
+	virtual void	__stdcall	r_u32(u32&) = 0;
+	virtual void	__stdcall	r_u64(u64&) = 0;
+	virtual void	__stdcall	r_s8(s8&) = 0;
+	virtual void	__stdcall	r_s16(s16&) = 0;
+	virtual void	__stdcall	r_s32(s32&) = 0;
+	virtual void	__stdcall	r_s64(s64&) = 0;
+
+	virtual void	__stdcall	r_string(LPSTR dest, u32 dest_size) = 0;
+	//	virtual void	__stdcall	r_tell			()							= 0;
+	//	virtual void	__stdcall	r_seek			(u32 pos)					= 0;
+	virtual void	__stdcall	skip_stringZ() = 0;
 };
 
-class HELF_FLOAT
-{
-	typedef unsigned short ushort;
-	typedef unsigned int uint;
-
-	uint as_uint(const float x) {
-		return *(uint*)&x;
-	}
-	float as_float(const uint x) {
-		return *(float*)&x;
-	}
-
-public:
-	float half_to_float(const ushort x)
-	{ // IEEE-754 16-bit floating-point format (without infinity): 1-5-10, exp-15, +-131008.0, +-6.1035156E-5, +-5.9604645E-8, 3.311 digits
-		const uint e = (x & 0x7C00) >> 10; // exponent
-		const uint m = (x & 0x03FF) << 13; // mantissa
-		const uint v = as_uint((float)m) >> 23; // evil log2 bit hack to count leading zeros in denormalized format
-		return as_float((x & 0x8000) << 16 |
-			(e != 0) * ((e + 112) << 23 | m) |
-			((e == 0) & (m != 0)) * ((v - 37) << 23 |
-				((m << (150 - v)) & 0x007FE000)));
-		// sign : normalized : denormalized
-	}
-
-	ushort float_to_half(const float x)
-	{ // IEEE-754 16-bit floating-point format (without infinity): 1-5-10, exp-15, +-131008.0, +-6.1035156E-5, +-5.9604645E-8, 3.311 digits
-		const uint b = as_uint(x) + 0x00001000; // round-to-nearest-even: add last bit after truncated mantissa
-		const uint e = (b & 0x7F800000) >> 23; // exponent
-		const uint m = b & 0x007FFFFF; // mantissa; in line below: 0x007FF000 = 0x00800000-0x00001000 = decimal indicator flag - initial rounding
-		return (b & 0x80000000) >> 16 |
-			(e > 112) * ((((e - 112) << 10) & 0x7C00) |
-				m >> 13) | ((e < 113) & (e > 101)) * ((((0x007FF000 + m) >> (125 - e)) + 1) >> 1) |
-			(e > 143) * 0x7FFF; // sign : normalized : denormalized : saturate
-	}
-};
 
 #define INI_W(what_to_do)\
 if(inistream)\
@@ -94,240 +56,590 @@ if(inistream)\
 
 struct	NET_Buffer
 {
-	BYTE	data	[NET_PacketSizeLimit];
+	BYTE	data[NET_PacketSizeLimit];
 	u32		count;
+	u32		max_buffer_size = NET_PacketSizeLimit;
 };
 
-class XRCORE_API NET_Packet
+struct	NET_BufferSteam
 {
+	BYTE* data;	// 1MB
+	u32		count;
+	u32		max_buffer_size;
+};
+
+template<typename Buffer>
+class XRCORE_API NET_PacketBase
+{
+
+private:
+	Qvector3 vectorQuantize_netutils(Fvector3 pos)
+	{
+		float normalizedX = (pos.x + 4096.0f) / 8192.0f;
+		float normalizedY = (pos.y + 4096.0f) / 8192.0f;
+		float normalizedZ = (pos.z + 4096.0f) / 8192.0f;
+
+		u16 quantizedX = static_cast<u16>(normalizedX * 65535.0f);
+		u16 quantizedY = static_cast<u16>(normalizedY * 65535.0f);
+		u16 quantizedZ = static_cast<u16>(normalizedZ * 65535.0f);
+
+		return Qvector3().set(quantizedX, quantizedY, quantizedZ);
+	}
+
+	Fvector3 vectorDeQuantize_netutils(Qvector3 pos)
+	{
+		float restoredX = (static_cast<float>(pos.x) / 65535.0f) * 8192.0f - 4096.0f;	// 255
+		float restoredY = (static_cast<float>(pos.y) / 65535.0f) * 8192.0f - 4096.0f;	// 255
+		float restoredZ = (static_cast<float>(pos.z) / 65535.0f) * 8192.0f - 4096.0f;	// 255
+
+		return Fvector3().set(restoredX, restoredY, restoredZ);
+	}
+
+
 public:
 	IIniFileStream* inistream;
-	HELF_FLOAT FLOAT_TO_u16;
 
-    void            construct( const void* data, unsigned size )
-                    {
-                        memcpy( B.data, data, size );
-                        B.count = size;
-                    }
-                    
-	NET_Buffer		B;
+	void            construct(const void* data, unsigned size)
+	{
+		memcpy(B.data, data, size);
+		B.count = size;
+	}
+
+	Buffer			B;
 	u32				r_pos;
 	u32				timeReceive;
 	bool			w_allow;
-public:
-	NET_Packet			():inistream(NULL),w_allow(true)	{}
-	// writing - main
-	IC void write_start	()				{	B.count=0;				INI_W(move_begin());}
-	IC void	w_begin		( u16 type	)	{	B.count=0;	w_u16(type);}
 
-	struct W_guard{
-		bool*	guarded;
-		W_guard(bool* b):guarded(b){*b=true;}
-		~W_guard(){*guarded=false;}
-	};
-	IC void	w		( const void* p, u32 count )
+
+	NET_PacketBase() :inistream(NULL), w_allow(true) {}
+
+	// BASE CALLS
+	void	w(const void* p, u32 count)
 	{
-		R_ASSERT	(inistream==NULL || w_allow);
-		VERIFY		(p && count);
-		VERIFY		(B.count + count < NET_PacketSizeLimit);
-		CopyMemory(&B.data[B.count],p,count);
-		B.count		+= count;
-		VERIFY		(B.count<NET_PacketSizeLimit);
+		R_ASSERT(B.count + count < B.max_buffer_size);
+		CopyMemory(&B.data[B.count], p, count);
+		B.count += count;
 	}
-	IC void w_seek	(u32 pos, const void* p, u32 count);
-	IC u32	w_tell	()						{ return B.count; }
+
+	void		r(void* p, u32 count)
+	{
+		R_ASSERT(r_pos + count < B.max_buffer_size);
+		CopyMemory(p, &B.data[r_pos], count);
+		r_pos += count;
+	}
+
+
+	// writing - main
+	void write_start() { B.count = 0;				INI_W(move_begin()); }
+	void	w_begin(u16 type) { B.count = 0;	w_u16(type); }
+
+	struct W_guard
+	{
+		bool* guarded;
+		W_guard(bool* b) :guarded(b) { *b = true; }
+		~W_guard() { *guarded = false; }
+	};
+
+	u32	w_tell() { return B.count; }
 
 	// writing - utilities
-	IC void	w_float		( float a       )	{ W_guard g(&w_allow); w(&a,4);				INI_W(w_float(a));		}			// float
-	IC void w_vec3		( const Fvector& a) { W_guard g(&w_allow);  w(&a,3*sizeof(float));INI_W(w_vec3(a));		}			// vec3
-	IC void w_vec4		( const Fvector4& a){ W_guard g(&w_allow);  w(&a,4*sizeof(float));INI_W(w_vec4(a));		}			// vec4
-	IC void w_u64		( u64 a			)	{ W_guard g(&w_allow);  w(&a,8);				INI_W(w_u64(a));		}			// qword (8b)
-	IC void w_s64		( s64 a			)	{ W_guard g(&w_allow);  w(&a,8);				INI_W(w_s64(a));		}			// qword (8b)
-	IC void w_u32		( u32 a			)	{ W_guard g(&w_allow);  w(&a,4);				INI_W(w_u32(a));		}			// dword (4b)
-	IC void w_s32		( s32 a			)	{ W_guard g(&w_allow);  w(&a,4);				INI_W(w_s32(a));		}			// dword (4b)
-	IC void w_u16		( u16 a			)	{ W_guard g(&w_allow);  w(&a,2);				INI_W(w_u16(a));		}			// word (2b)
-	IC void w_s16		( s16 a			)	{ W_guard g(&w_allow);  w(&a,2);				INI_W(w_s16(a));		}			// word (2b)
-	IC void	w_u8		( u8 a			)	{ W_guard g(&w_allow);  w(&a,1);				INI_W(w_u8(a));			}			// byte (1b)
-	IC void	w_s8		( s8 a			)	{ W_guard g(&w_allow);  w(&a,1);				INI_W(w_s8(a));			}			// byte (1b)
+	void	w_float(float a) { W_guard g(&w_allow); w(&a, 4);				INI_W(w_float(a)); }			// float
+	void w_vec3(const Fvector& a) { W_guard g(&w_allow);  w(&a, 3 * sizeof(float)); INI_W(w_vec3(a)); }			// vec3
+	void w_vec4(const Fvector4& a) { W_guard g(&w_allow);  w(&a, 4 * sizeof(float)); INI_W(w_vec4(a)); }			// vec4
+	void w_u64(u64 a) { W_guard g(&w_allow);  w(&a, 8);				INI_W(w_u64(a)); }			// qword (8b)
+	void w_s64(s64 a) { W_guard g(&w_allow);  w(&a, 8);				INI_W(w_s64(a)); }			// qword (8b)
+	void w_u32(u32 a) { W_guard g(&w_allow);  w(&a, 4);				INI_W(w_u32(a)); }			// dword (4b)
+	void w_s32(s32 a) { W_guard g(&w_allow);  w(&a, 4);				INI_W(w_s32(a)); }			// dword (4b)
+	void w_u16(u16 a) { W_guard g(&w_allow);  w(&a, 2);				INI_W(w_u16(a)); }			// word (2b)
+	void w_s16(s16 a) { W_guard g(&w_allow);  w(&a, 2);				INI_W(w_s16(a)); }			// word (2b)
+	void	w_u8(u8 a) { W_guard g(&w_allow);  w(&a, 1);				INI_W(w_u8(a)); }			// byte (1b)
+	void	w_s8(s8 a) { W_guard g(&w_allow);  w(&a, 1);				INI_W(w_s8(a)); }			// byte (1b)
 
-	IC void w_float_q16	( float a, float min, float max)
+	void w_float_q16(float a, float min, float max)
 	{
-		VERIFY		(a>=min && a<=max);
-		float q		= (a-min)/(max-min);
-		w_u16( u16(iFloor(q*65535.f+0.5f)));
+		VERIFY(a >= min && a <= max);
+		float q = (a - min) / (max - min);
+		w_u16(u16(iFloor(q * 65535.f + 0.5f)));
 	}
-
-	IC void w_float_q8	( float a, float min, float max)
+	void w_float_q8(float a, float min, float max)
 	{
-		VERIFY		(a>=min && a<=max);
-		float q		= (a-min)/(max-min);
-		w_u8( u8(iFloor(q*255.f+0.5f)));
+		VERIFY(a >= min && a <= max);
+		float q = (a - min) / (max - min);
+		w_u8(u8(iFloor(q * 255.f + 0.5f)));
 	}
-
-	IC void w_float_helf( float a)
-	{
- 		w_u16(FLOAT_TO_u16.float_to_half(a));
-	}
-
-	IC void r_float_helf( float& a)
-	{
-		a = FLOAT_TO_u16.half_to_float(r_u16());
- 	}
-
-	IC float r_float_helf()
-	{
-		float ret = FLOAT_TO_u16.half_to_float(r_u16());
-		return ret;
-	}
-
-
-	IC void w_angle16	( float a		)	{	w_float_q16	(angle_normalize(a), 0, PI_MUL_2);	}
-	IC void w_angle8	( float a		)	{	w_float_q8	(angle_normalize(a), 0, PI_MUL_2);	}
-
-
-
-
-	IC void w_dir		( const Fvector& D) {w_u16(pvCompress(D));							}
-	IC void w_sdir		( const Fvector& D) {
+	void w_angle16(float a) { w_float_q16(angle_normalize(a), 0, PI_MUL_2); }
+	void w_angle8(float a) { w_float_q8(angle_normalize(a), 0, PI_MUL_2); }
+	void w_dir(const Fvector& D) { w_u16(pvCompress(D)); }
+	void w_sdir(const Fvector& D) {
 		Fvector C;
-		float mag		= D.magnitude();
-		if (mag>EPS_S)	{
-			C.div		(D,mag);
-		} else {
-			C.set		(0,0,1);
-			mag			= 0;
+		float mag = D.magnitude();
+		if (mag > EPS_S) {
+			C.div(D, mag);
 		}
-		w_dir	(C);
-		w_float (mag);
+		else {
+			C.set(0, 0, 1);
+			mag = 0;
+		}
+		w_dir(C);
+		w_float(mag);
 	}
-	IC void w_stringZ			( LPCSTR S )	{ W_guard g(&w_allow); w(S,(u32)xr_strlen(S)+1);	INI_W(w_stringZ(S));		}
-	IC void w_stringZ			( const shared_str& p)
+
+	void w_stringZ(LPCSTR S) { W_guard g(&w_allow); w(S, (u32)xr_strlen(S) + 1);	INI_W(w_stringZ(S)); }
+	void w_stringZ(const shared_str& p)
 	{
-		W_guard g(&w_allow); 
-    	if (*p)	
-			w(*p,p.size()+1);
-		else{
+		W_guard g(&w_allow);
+		if (*p)
+			w(*p, p.size() + 1);
+		else {
 			IIniFileStream* tmp = inistream;
 			inistream = NULL;
 			w_u8(0);
 			inistream = tmp; //hack -(
 		}
 
-		INI_W		(w_stringZ(p.c_str()));
+		INI_W(w_stringZ(p.c_str()));
 	}
-	IC void w_matrix			(Fmatrix& M)
+	void w_matrix(Fmatrix& M)
 	{
-		w_vec3		(M.i);
-		w_vec3		(M.j);
-		w_vec3		(M.k);
-		w_vec3		(M.c);
+		w_vec3(M.i);
+		w_vec3(M.j);
+		w_vec3(M.k);
+		w_vec3(M.c);
 	}
-	
-	IC void w_clientID			(ClientID& C) {		w_u32(C.value());	}
-	
-	IC void	w_chunk_open8		(u32& position)
+
+	void w_clientID(ClientID& C) { w_u32(C.value()); }
+
+	void	w_chunk_open8(u32& position)
 	{
-		position	= w_tell();
-		w_u8		(0);
-		INI_ASSERT	(w_chunk_open8)
+		position = w_tell();
+		w_u8(0);
+		INI_ASSERT(w_chunk_open8)
 	}
-	
-	IC void w_chunk_close8		(u32 position)
+
+	void w_chunk_close8(u32 position)
 	{
-		u32 size	= u32(w_tell() - position) - sizeof(u8);
-		VERIFY		(size<256	);
+		u32 size = u32(w_tell() - position) - sizeof(u8);
+		VERIFY(size < 256);
 		u8			_size = (u8)size;
-		w_seek		(position,&_size,sizeof(_size));
-		INI_ASSERT	(w_chunk_close8)
+		w_seek(position, &_size, sizeof(_size));
+		INI_ASSERT(w_chunk_close8)
 	}
 
-	IC void	w_chunk_open16		(u32& position)
+	void	w_chunk_open16(u32& position)
 	{
-		position	= w_tell	();
-		w_u16		(0);
-		INI_ASSERT	(w_chunk_open16)
+		position = w_tell();
+		w_u16(0);
+		INI_ASSERT(w_chunk_open16)
 	}
 
-	IC void w_chunk_close16		(u32 position)
+	void w_chunk_close16(u32 position)
 	{
-		u32 size	= u32(w_tell() - position) - sizeof(u16);
-		VERIFY		(size < 65536);
+		u32 size = u32(w_tell() - position) - sizeof(u16);
+		VERIFY(size < 65536);
 		u16			_size = (u16)size;
-		w_seek		(position,&_size,sizeof(_size));
-		INI_ASSERT	(w_chunk_close16)
+		w_seek(position, &_size, sizeof(_size));
+		INI_ASSERT(w_chunk_close16)
 	}
 
 	// reading
-	void		read_start		();
-	u32			r_begin			( u16& type	);
-	void		r_seek			(u32 pos);
-	u32			r_tell			();
+	void read_start() { r_pos = 0; INI_W(move_begin()); }
 
-	IC void		r				( void* p, u32 count)
+	u32 r_begin(u16& type)	// returns time of receiving
 	{
-		R_ASSERT	(inistream==NULL);
-		VERIFY		(p && count);
-		CopyMemory	(p,&B.data[r_pos],count);
-		r_pos		+= count;
-		VERIFY		(r_pos<=B.count);
+		r_pos = 0;
+		if (!inistream)
+			r_u16(type);
+		else
+			inistream->r_u16(type);
+
+		return		timeReceive;
 	}
-	BOOL		r_eof			();
-	u32			r_elapsed		();
-	void		r_advance		(u32 size);
+
+	void w_seek(u32 pos, const void* p, u32 count)
+	{
+		CopyMemory(&B.data[pos], p, count);
+	}
+
+	void r_seek(u32 pos)
+	{
+		r_pos = pos;
+	}
+
+	u32 r_tell()
+	{
+		return			r_pos;
+	}
+
+	BOOL r_eof()
+	{
+		return			(r_pos >= B.count);
+	}
+
+	u32 r_elapsed()
+	{
+		return			(B.count - r_pos);
+	}
+
+	void r_advance(u32 size)
+	{
+		r_pos += size;
+		VERIFY(r_pos <= B.count);
+	}
 
 	// reading - utilities
-	void		r_vec3			(Fvector& A);
-	void		r_vec4			(Fvector4& A);
-	void		r_float			(float& A );
-	void 		r_u64			(u64& A);
-	void 		r_s64			(s64& A);
-	void 		r_u32			(u32& A);
-	void		r_s32			(s32& A);
-	void		r_u16			(u16& A);
-	void		r_s16			(s16& A);
-	void		r_u8			(u8&  A);
-	void		r_s8			(s8&  A);
+	void r_vec3(Fvector& A)
+	{
+		if (!inistream)
+			r(&A, sizeof(Fvector));
+		else
+			inistream->r_vec3(A);
+	} // vec3
+
+	void r_vec4(Fvector4& A)
+	{
+		if (!inistream)
+			r(&A, sizeof(Fvector4));
+		else
+			inistream->r_vec4(A);
+	} // vec4
+
+	void r_float(float& A)
+	{
+		if (!inistream)
+			r(&A, sizeof(float));
+		else
+			inistream->r_float(A);
+	} // float
+
+	void r_u64(u64& A)
+	{
+		if (!inistream)
+			r(&A, sizeof(u64));
+		else
+			inistream->r_u64(A);
+	} // qword (8b)
+
+	void r_s64(s64& A)
+	{
+		if (!inistream)
+			r(&A, sizeof(s64));
+		else
+			inistream->r_s64(A);
+	} // qword (8b)
+
+	void r_u32(u32& A)
+	{
+		if (!inistream)
+			r(&A, sizeof(u32));
+		else
+			inistream->r_u32(A);
+	} // dword (4b)
+
+	void r_s32(s32& A)
+	{
+		if (!inistream)
+			r(&A, sizeof(s32));
+		else
+			inistream->r_s32(A);
+	} // dword (4b)
+
+	void r_u16(u16& A)
+	{
+		if (!inistream)
+			r(&A, sizeof(u16));
+		else
+			inistream->r_u16(A);
+	} // word (2b)
+
+	void r_s16(s16& A)
+	{
+		if (!inistream)
+			r(&A, sizeof(s16));
+		else
+			inistream->r_s16(A);
+	} // word (2b)
+
+	void r_u8(u8& A)
+	{
+		if (!inistream)
+			r(&A, sizeof(u8));
+		else
+			inistream->r_u8(A);
+	} // byte (1b)
+
+	void r_s8(s8& A)
+	{
+		if (!inistream)
+			r(&A, sizeof(s8));
+		else
+			inistream->r_s8(A);
+	} // byte (1b)
 
 	// IReader compatibility
-	Fvector		r_vec3			();
-	Fvector4	r_vec4			();
-	float		r_float_q8		(float min,float max);
-	float		r_float_q16		(float min, float max);
-	float		r_float			();
-	u64 		r_u64			();
-	s64 		r_s64			();
-	u32 		r_u32			();
-	s32			r_s32			();
-	u16			r_u16			();
-	s16			r_s16			();
-	u8			r_u8			();
-	s8			r_s8			();
-
-	void		r_float_q16		(float& A, float min, float max);
-	void		r_float_q8		(float& A, float min, float max);
-	void		r_angle16		(float& A);
-	void		r_angle8		(float& A);
-	void		r_dir			(Fvector& A);
-
-	void		r_sdir			(Fvector& A);
-	void		r_stringZ		(LPSTR S );
-	void		r_stringZ		(xr_string& dest );
-	void 		r_stringZ		(shared_str& dest);
-	
-	void		skip_stringZ	();
-	
-	void		r_stringZ_s		(LPSTR string, u32 size);
-
-	template <u32 size>
-	inline void	r_stringZ_s		(char (&string)[size])
+	Fvector r_vec3()
 	{
-		r_stringZ_s	(string, size);
+		Fvector		A;
+		r_vec3(A);
+		return		(A);
 	}
 
-	void		r_matrix		(Fmatrix& M);
-	void		r_clientID		(ClientID& C);
+	Fvector4 r_vec4()
+	{
+		Fvector4	A;
+		r_vec4(A);
+		return		(A);
+	}
+
+	float r_float_q8(float min, float max)
+	{
+		float		A;
+		r_float_q8(A, min, max);
+		return		A;
+	}
+
+	float r_float_q16(float min, float max)
+	{
+		float		A;
+		r_float_q16(A, min, max);
+		return		A;
+	}
+
+	float r_float()
+	{
+		float		A;
+		r_float(A);
+		return		(A);
+	}
+
+	u64 r_u64()
+	{
+		u64 		A;
+		r_u64(A);
+		return		(A);
+	}
+
+	s64 r_s64()
+	{
+		s64 		A;
+		r_s64(A);
+		return		(A);
+	} // qword (8b)
+
+	u32 r_u32()
+	{
+		u32 		A;
+		r_u32(A);
+		return		(A);
+	} // dword (4b)
+
+	s32 r_s32()
+	{
+		s32			A;
+		r_s32(A);
+		return		(A);
+	} // dword (4b)
+
+	u16 r_u16()
+	{
+		u16			A;
+		r_u16(A);
+		return		(A);
+	} // word (2b)
+
+	s16 r_s16()
+	{
+		s16			A;
+		r_s16(A);
+		return		(A);
+	} // word (2b)
+
+	u8 r_u8()
+	{
+		u8			A;
+		r_u8(A);
+		return		(A);
+	} // byte (1b)
+
+	s8 r_s8()
+	{
+		s8			A;
+		r_s8(A);
+		return		(A);
+	}
+
+	void r_float_q16(float& A, float min, float max)
+	{
+		u16			val;
+		r_u16(val);
+		A = (float(val) * (max - min)) / 65535.f + min;		// floating-point-error possible
+		VERIFY((A >= min - EPS_S) && (A <= max + EPS_S));
+	}
+
+	void r_float_q8(float& A, float min, float max)
+	{
+		u8			val;
+		r_u8(val);
+		A = (float(val) / 255.0001f) * (max - min) + min;	// floating-point-error possible
+		VERIFY((A >= min) && (A <= max));
+	}
+
+	void r_angle16(float& A)
+	{
+		r_float_q16(A, 0, PI_MUL_2);
+	}
+
+	void r_angle8(float& A)
+	{
+		r_float_q8(A, 0, PI_MUL_2);
+	}
+
+	void r_dir(Fvector& A)
+	{
+		u16			t;
+		r_u16(t);
+		pvDecompress(A, t);
+	}
+
+	void r_sdir(Fvector& A)
+	{
+		u16				t;
+		float			s;
+		r_u16(t);
+		r_float(s);
+		pvDecompress(A, t);
+		A.mul(s);
+	}
+
+	void r_stringZ(LPSTR S)
+	{
+		if (!inistream)
+		{
+			LPCSTR	data = LPCSTR(&B.data[r_pos]);
+			size_t	len = xr_strlen(data);
+			r(S, (u32)len + 1);
+		}
+		else {
+			inistream->r_string(S, 4096);//???
+		}
+	}
+
+	void r_stringZ(xr_string& dest)
+	{
+		if (!inistream)
+		{
+			dest = LPCSTR(&B.data[r_pos]);
+			r_advance(u32(dest.size() + 1));
+		}
+		else {
+			string4096		buff;
+			inistream->r_string(buff, sizeof(buff));
+			dest = buff;
+		}
+	}
+
+	void r_stringZ(shared_str& dest)
+	{
+		if (!inistream)
+		{
+			dest = LPCSTR(&B.data[r_pos]);
+			r_advance(dest.size() + 1);
+		}
+		else {
+			string4096		buff;
+			inistream->r_string(buff, sizeof(buff));
+			dest = buff;
+		}
+	}
+
+	void skip_stringZ()
+	{
+		if (!inistream)
+		{
+			LPCSTR	data = LPCSTR(&B.data[r_pos]);
+			u32	len = xr_strlen(data);
+			r_advance(len + 1);
+		}
+		else {
+			inistream->skip_stringZ();
+		}
+	}
+
+	void r_matrix(Fmatrix& M)
+	{
+		r_vec3(M.i);	M._14_ = 0;
+		r_vec3(M.j);	M._24_ = 0;
+		r_vec3(M.k);	M._34_ = 0;
+		r_vec3(M.c);	M._44_ = 1;
+	}
+
+	void r_clientID(ClientID& C)
+	{
+		u32				tmp;
+		r_u32(tmp);
+		C.set(tmp);
+	}
+
+	void r_stringZ_s(LPSTR string, u32 const size)
+	{
+		if (inistream)
+		{
+			inistream->r_string(string, size);
+			return;
+		}
+
+		LPCSTR data = LPCSTR(B.data + r_pos);
+		u32 length = xr_strlen(data);
+		R_ASSERT2((length + 1) <= size, "buffer overrun");
+		r(string, length + 1);
+	}
+
+	template <u32 size>
+	void	r_stringZ_s(char(&string)[size])
+	{
+		r_stringZ_s(string, size);
+	}
+
+
+	// VECTOR 3 Qvector
+	Qvector		r_vec3Q() { Qvector A; r(&A, sizeof(A));	return A; };
+	void		w_vec3Q(Qvector& A) { w(&A, sizeof(A)); };
+
+	void		w_quantize3(Fvector3& A)
+	{
+		w_vec3Q(vectorQuantize_netutils(A));
+	};
+
+	void		r_quantize3(Fvector3& A)
+	{
+		A = vectorDeQuantize_netutils(r_vec3Q());
+		//	return A;
+	};
+
+};
+
+class XRCORE_API NET_Packet : public NET_PacketBase<NET_Buffer>
+{
+	//	~NET_Packet() { delete[](B.data); }
+};
+
+
+class XRCORE_API NET_PacketSteam : public NET_PacketBase<NET_BufferSteam>
+{
+	//	~NET_PacketSteam() { delete[](B.data); }
+public:
+	NET_PacketSteam(u32 max_packet)
+	{
+		B.data = xr_alloc<BYTE>(max_packet);
+		B.count = 0;
+		B.max_buffer_size = max_packet;
+
+		w_allow = true;
+	}
+
+	~NET_PacketSteam()
+	{
+		xr_delete(B.data);
+	}
 };
 
 #pragma pack(pop)
-
-#endif /*_INCDEF_NETUTILS_H_*/

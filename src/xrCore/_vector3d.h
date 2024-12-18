@@ -431,6 +431,10 @@ public:
 		}
 	}
 };
+
+typedef _vector3<u16>		Qvector;
+typedef _vector3<u16>		Qvector3;
+
 typedef _vector3<float>		Fvector;
 typedef _vector3<float>		Fvector3;
 typedef _vector3<double>	Dvector;
