@@ -16,7 +16,7 @@ struct MultipacketHeader
 //------------------------------------------------------------------------------
 
 static NET_Compressor   Compressor;
-static const unsigned   MaxMultipacketSize          = NET_PacketSizeLimit - 64;
+static const unsigned   MaxMultipacketSize          = NET_PacketSizeLimit;
 
 XRNETSERVER_API int     psNET_GuaranteedPacketMode  = NET_GUARANTEEDPACKET_DEFAULT;
 
@@ -90,8 +90,8 @@ void MultipacketSender::_FlushSendBuffer( u32 timeout, Buffer* buf )
         u8                  packet_data[MaxMultipacketSize];
         MultipacketHeader*  header      = (MultipacketHeader*) packet_data;
 
-        R_ASSERT(comp_sz < sizeof(packet_data)-sizeof(MultipacketHeader));
-        R_ASSERT(comp_sz < 65535);
+        if (comp_sz > MaxMultipacketSize)
+            Msg("Multipacket Size: %d Превышает размер буфера!!! : [%d]", comp_sz, MaxMultipacketSize);
 
         comp_sz = Compressor.Compress(  
             packet_data+sizeof(MultipacketHeader), 

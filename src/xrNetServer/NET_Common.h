@@ -15,7 +15,7 @@ struct GameDescriptionData
 #define NET_TAG_MERGED                  0xE1
 #define NET_TAG_NONMERGED               0xE0
 
-#define NET_USE_COMPRESSION             1
+#define NET_USE_COMPRESSION             0
 #define NET_TAG_COMPRESSED              0xC1
 #define NET_TAG_NONCOMPRESSED           0xC0
 
