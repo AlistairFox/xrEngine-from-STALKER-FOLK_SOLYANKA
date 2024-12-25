@@ -684,7 +684,7 @@ void CLevel::OnFrame	()
 	update_ticks += timer4.GetElapsed_ticks();
 
 	// Draw client/server stats
-	if ( !g_dedicated_server && psDeviceFlags.test(rsStatistic))
+	if ( !g_dedicated_server && psDeviceFlags.test(rsStatistic) && false)
 	{
 		CGameFont* F = UI().Font().pFontDI;
 		if (!psNET_direct_connect) 

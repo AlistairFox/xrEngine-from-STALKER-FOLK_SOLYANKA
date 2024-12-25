@@ -231,11 +231,11 @@ void CRenderDevice::on_idle()
 	}
 
 	u32 FrameStartTime = TimerGlobal.GetElapsed_ms();
-	if (psDeviceFlags.test(rsStatistic))
-		g_bEnableStatGather = TRUE;
-	else
-		g_bEnableStatGather = FALSE;
-
+	//if (psDeviceFlags.test(rsStatistic))
+	//	g_bEnableStatGather = TRUE;
+	//else
+	//	g_bEnableStatGather = FALSE;
+	g_bEnableStatGather = true;
 
 	if (g_loading_events.size())
 	{
@@ -340,13 +340,13 @@ void CRenderDevice::on_idle()
 	}
  
 	//FPS LOCK FOR CLIENT
- 	u32 FrameEndTime = TimerGlobal.GetElapsed_ms();
-	u32 FrameTime = (FrameEndTime - FrameStartTime);
-
-	u32 DSUpdateDelta = 1000 / fps_limit;
-	if (FrameTime < DSUpdateDelta)
-		Sleep(DSUpdateDelta - FrameTime);
- 
+// 	u32 FrameEndTime = TimerGlobal.GetElapsed_ms();
+//	u32 FrameTime = (FrameEndTime - FrameStartTime);
+//
+//	u32 DSUpdateDelta = 1000 / fps_limit;
+//	if (FrameTime < DSUpdateDelta)
+//		Sleep(DSUpdateDelta - FrameTime);
+// 
 	if (!b_is_Active)
 		Sleep(1);
 }
@@ -485,14 +485,14 @@ void CRenderDevice::FrameMove()
 	}
 
 	// Frame move
-	Statistic->EngineTOTAL.Begin();
+	Statistic->ThreadEngine.Begin();
 
 	//	TODO: HACK to test loading screen.
 	//if(!g_bLoaded) 
 	ProcessLoading(rp_Frame);
 	//else
 	//	seqFrame.Process			(rp_Frame);
-	Statistic->EngineTOTAL.End();
+	Statistic->ThreadEngine.End();
 }
 
 void ProcessLoading(RP_FUNC* f)

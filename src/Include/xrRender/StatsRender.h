@@ -14,6 +14,8 @@ public:
 	virtual void OutData2 (CGameFont &F) = 0;
 	virtual void OutData3 (CGameFont &F) = 0;
 	virtual void OutData4 (CGameFont &F) = 0;
+	virtual void OutDetails(CGameFont& F) = 0;
+
 	virtual void GuardVerts (CGameFont &F) = 0;
 	virtual void GuardDrawCalls (CGameFont &F) = 0;
 	virtual void SetDrawParams (IRenderDeviceRender *pRender) = 0;

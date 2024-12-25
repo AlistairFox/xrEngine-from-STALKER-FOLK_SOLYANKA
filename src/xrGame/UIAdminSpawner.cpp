@@ -67,7 +67,8 @@ CUIAdminSpawner::~CUIAdminSpawner()
 
 void CUIAdminSpawner::FillSpawnerList()
 {
-	if (!pSettings->section_exist(active_tab_dialog))	return;
+	if (!pSettings->section_exist(active_tab_dialog))
+		return;
 
 	//Drive: Очищаем
 	items_list_box->Clear();

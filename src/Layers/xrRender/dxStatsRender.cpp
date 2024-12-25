@@ -44,6 +44,11 @@ void dxStatsRender::OutData4 (CGameFont &F)
 	F.OutNext	("details:       %3.1f/%d",	RCache.stat.r.s_details.verts/1024.f,		RCache.stat.r.s_details.dips );
 }
 
+void dxStatsRender::OutDetails(CGameFont& F)
+{
+	F.OutNext("r_details:       %3.1f/%d", RCache.stat.r.s_details.verts / 1024.f, RCache.stat.r.s_details.dips);
+}
+
 void dxStatsRender::GuardVerts (CGameFont &F)
 {
 	if (RCache.stat.verts>500000)	F.OutNext	("Verts     > 500k: %d",	RCache.stat.verts);

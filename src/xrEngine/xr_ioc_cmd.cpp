@@ -735,6 +735,45 @@ public:
 	}
 
 };
+
+
+class CCC_RSStats : public IConsole_Command
+{
+public:
+	CCC_RSStats(LPCSTR N) : IConsole_Command(N)
+	{
+		bEmptyArgsHandled = false;
+	};
+
+	virtual void	Execute(LPCSTR args)
+	{
+		if (EQ(args, "1"))
+		{
+			psDeviceFlags.set(rsStatistic, TRUE);
+			psDeviceFlags.set(rsStatistic_Advanced, FALSE);
+			psDeviceFlags.set(rsStatistic_fps, FALSE);
+		}
+		else if (EQ(args, "2"))
+		{
+			psDeviceFlags.set(rsStatistic, FALSE);
+			psDeviceFlags.set(rsStatistic_Advanced, TRUE);
+			psDeviceFlags.set(rsStatistic_fps, FALSE);
+		}
+		else if (EQ(args, "3"))
+		{
+			psDeviceFlags.set(rsStatistic, FALSE);
+			psDeviceFlags.set(rsStatistic_Advanced, FALSE);
+			psDeviceFlags.set(rsStatistic_fps, TRUE);
+		}
+		else
+		{
+			psDeviceFlags.set(rsStatistic, FALSE);
+			psDeviceFlags.set(rsStatistic_Advanced, FALSE);
+			psDeviceFlags.set(rsStatistic_fps, FALSE);
+		}
+	}
+};
+
  
 extern int gAlvaysActive = 0;
 void CCC_Register()
@@ -807,7 +846,9 @@ void CCC_Register()
 //	CMD3(CCC_Mask,		"rs_disable_objects_as_crows",&psDeviceFlags,	rsDisableObjectsAsCrows	);
 	CMD3(CCC_Mask,		"rs_fullscreen",		&psDeviceFlags,		rsFullscreen			);
 	CMD3(CCC_Mask,		"rs_refresh_60hz",		&psDeviceFlags,		rsRefresh60hz			);
-	CMD3(CCC_Mask,		"rs_stats",				&psDeviceFlags,		rsStatistic				);
+	CMD1(CCC_RSStats,		"rs_stats" );
+ 
+
 	CMD4(CCC_Float,		"rs_vis_distance",		&psVisDistance,		0.1f,	3.0f			);
 
 	CMD3(CCC_Mask,		"rs_cam_pos",			&psDeviceFlags,		rsCameraPos				);
