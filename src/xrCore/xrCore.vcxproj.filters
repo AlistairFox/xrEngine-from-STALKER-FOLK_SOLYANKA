@@ -76,6 +76,9 @@
     <Filter Include="Memory manager\POOL">
       <UniqueIdentifier>{8c021fbe-4bde-4877-89c5-c29fd0b833aa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Debug core\StackTrace">
+      <UniqueIdentifier>{a87eb50f-d1e5-45cf-80e9-4df32b6b49e3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FTimer.cpp">
@@ -153,7 +156,7 @@
     <ClCompile Include="xrMemory.cpp">
       <Filter>Memory manager</Filter>
     </ClCompile>
-    <ClCompile Include="xrDebugNew.cpp">
+    <ClCompile Include="xrDebug.cpp">
       <Filter>Debug core</Filter>
     </ClCompile>
     <ClCompile Include="crc32.cpp">
@@ -222,9 +225,6 @@
     </ClCompile>
     <ClCompile Include="xrMemory_POOL.cpp">
       <Filter>Memory manager\POOL</Filter>
-    </ClCompile>
-    <ClCompile Include="xrDebug_new_callstack.cpp">
-      <Filter>Debug core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -492,6 +492,9 @@
     </ClInclude>
     <ClInclude Include="xrMemory_align.h">
       <Filter>Memory manager\POOL</Filter>
+    </ClInclude>
+    <ClInclude Include="StackTrace.h">
+      <Filter>Debug core\StackTrace</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
