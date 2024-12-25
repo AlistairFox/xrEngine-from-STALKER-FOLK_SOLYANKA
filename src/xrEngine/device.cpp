@@ -297,8 +297,7 @@ void CRenderDevice::on_idle()
 			Statistic->Show();
 			End();
 		}
-		MainThRender += t.GetElapsed_ticks();
-	}
+ 	}
 	Statistic->RenderTOTAL_Real.End();
 	Statistic->RenderTOTAL_Real.FrameEnd();
 	Statistic->RenderTOTAL.accum = Statistic->RenderTOTAL_Real.accum;
