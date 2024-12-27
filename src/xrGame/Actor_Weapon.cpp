@@ -79,9 +79,9 @@ void CActor::g_fireParams	(const CHudItem* pHudItem, Fvector &fire_pos, Fvector 
 
   	if (weapon)
 	{
-		fire_pos = weapon->get_LastFP();
-		if (cam_active != eacFirstEye)
-			fire_dir = weapon->get_LastFD();	
+		// fire_pos = weapon->get_LastFP();
+		//if (cam_active != eacFirstEye)
+		//	fire_dir = weapon->get_LastFD();	
 	}
 }
 

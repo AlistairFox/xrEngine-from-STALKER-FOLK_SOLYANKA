@@ -174,17 +174,7 @@ public:
 	template<typename ActionFunctor>
 	void					ForEachClientDo(ActionFunctor & action) { net_players.ForEachClientDo(action); }
 	template<typename SenderFunctor>
-	void					ForEachClientDoSender(SenderFunctor & action) {
-		csMessage.Enter();
-#ifdef DEBUG
-		sender_functor_invoked = true;
-#endif //#ifdef DEBUG
-		net_players.ForEachClientDo(action);
-#ifdef DEBUG
-		sender_functor_invoked = false;
-#endif //#ifdef DEBUG
-		csMessage.Leave();
-	}
+	void					ForEachClientDoSender(SenderFunctor & action) { net_players.ForEachClientDo(action); }
 
 #ifdef DEBUG
 	bool					    IsPlayersMonitorLockedByMe()	const { return net_players.IsCurrentThreadIteratingOnClients() && !sender_functor_invoked; };

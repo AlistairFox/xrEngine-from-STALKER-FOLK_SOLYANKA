@@ -44,9 +44,6 @@ static FILE*    CompressionDump         = NULL;
 //////////////////////////////////////////////////////////////////////
 
 NET_Compressor::NET_Compressor()
-#ifdef PROFILE_CRITICAL_SECTIONS
-	:CS(MUTEX_PROFILE_ID(NET_Compressor))
-#endif // PROFILE_CRITICAL_SECTIONS
 {
 }
 
@@ -66,20 +63,7 @@ NET_Compressor::~NET_Compressor()
 
 u16 NET_Compressor::compressed_size	(const u32 &count)
 {
-#if NET_USE_COMPRESSION
-
-    #if NET_USE_LZO_COMPRESSION
-		u32			result = rtc_csize(count) + 1;
-    #else // NET_USE_LZO_COMPRESSION
-		u32			result = 64 + (count/8 + 1)*10;
-    #endif // NET_USE_LZO_COMPRESSION
-
-	R_ASSERT(result <= u32(u16(-1)));
-
-	return ((u16)result);
-#else
 	return			((u16)count);
-#endif // #if NET_USE_COMPRESSION
 }
 
 XRNETSERVER_API BOOL g_net_compressor_enabled		= FALSE;
@@ -95,133 +79,16 @@ u16 NET_Compressor::Compress(BYTE* dest, const u32 &dest_size, BYTE* src, const 
 		_p->hit_count						+= 1;
 		m_stats.total_uncompressed_bytes	+= count;
 	}
-#if !NET_USE_COMPRESSION
+
 	CopyMemory(dest,src,count);
 	return (u16(count));
-#else // !NET_USE_COMPRESSION
-
-	Msg("dest: %d / cmpr: %d", dest_size, compressed_size(count));
-	R_ASSERT(dest_size >= compressed_size(count));
-
-	u32	compressed_size = count;
-	u32	offset          = 1;
-
-    #if NET_USE_COMPRESSION_CRC
-		offset += sizeof(u32);
-    #endif // NET_USE_COMPRESSION_CRC
-
-	if( !psNET_direct_connect  && g_net_compressor_enabled && b_compress_packet) 
-	{
-		CS.Enter							();
-		compressed_size = offset + ENCODE( dest+offset, dest_size-offset, src, count );
-
-		if(g_net_compressor_gather_stats)
-			m_stats.total_compressed_bytes		+= compressed_size;
-
-		CS.Leave();
-	}
-
-	if( compressed_size < count ) 
-	{
-		*dest = NET_TAG_COMPRESSED;
-		
-        #if NET_USE_COMPRESSION_CRC
-		boost::crc_32_type	temp; 
-		temp.process_block( dest+offset, dest+compressed_size );		
-		u32	                crc = temp.checksum();
-
-		*((u32*)(dest + 1))	= crc;
-        #endif // NET_USE_COMPRESSION_CRC
-	}
-	else 
-	{
-		if(g_net_compressor_gather_stats && b_compress_packet)
-			_p->unlucky_attempts	+=1;
-
-		*dest = NET_TAG_NONCOMPRESSED;
-		
-		compressed_size	= count + 1;
-		CopyMemory( dest+1, src, count );
-
-        #if NET_LOG_COMPRESSION
-        Msg( "#compress/as-is %u->%u  %02X", count, compressed_size, *dest );
-        #endif
-	}
-	if(g_net_compressor_gather_stats && b_compress_packet)
-		_p->compressed_size		+= compressed_size;
-
-	return (u16(compressed_size));
-	
-#endif // if !NET_USE_COMPRESSION
 }
 
 
 
 u16 NET_Compressor::Decompress	(BYTE* dest, const u32 &dest_size, BYTE* src, const u32 &count)
 {
-#if !NET_USE_COMPRESSION
 	CopyMemory(dest,src,count);
 	return (u16(count));
-#else
-	if( *src != NET_TAG_COMPRESSED ) 
-	{
-		if (count) {
-			CopyMemory	( dest, src+1, count-1 );
-			return		( u16(count-1) );
-		}
-
-		return			( 0 );
-	}
-
-	u32					offset = 1;
-	
-    #if NET_USE_COMPRESSION_CRC
-    offset += sizeof(u32);
-    #endif // NET_USE_COMPRESSION_CRC
-    
-    #if NET_USE_COMPRESSION_CRC
-	boost::crc_32_type	temp;
-	temp.process_block	(src + offset,src + count);
-	u32					crc = temp.checksum();
-    if( crc != *((u32*)(src + 1)) )
-        Msg( "!CRC mismatch" );
-        
-	R_ASSERT2(crc == *((u32*)(src + 1)),make_string("crc is different! (0x%08x != 0x%08x)",crc,*((u32*)(src + 1))));
-    #endif // NET_USE_COMPRESSION_CRC
-
-	CS.Enter();
-	u32 uncompressed_size = DECODE( dest, dest_size, src+offset, count-offset );
-	CS.Leave();
-	
-	return (u16(uncompressed_size));
-	
-#endif // !NET_USE_COMPRESSION
 }
-
-void NET_Compressor::DumpStats(bool brief)
-{
-	xr_map<u32,SCompressorStats::SStatPacket>::const_iterator it		= m_stats.m_packets.begin();
-	xr_map<u32,SCompressorStats::SStatPacket>::const_iterator it_e	= m_stats.m_packets.end();
-
-	Msg("---------NET_Compressor::DumpStats-----------");
-	
-	Msg("Active=[%s]",g_net_compressor_enabled?"yes":"no");
-
-	Msg("uncompressed [%d]",m_stats.total_uncompressed_bytes);
-	Msg("compressed   [%d]",m_stats.total_compressed_bytes);
-	
-	u32 total_hits		= 0;
-	u32 unlucky_hits	= 0;
-	
-	for(; it!=it_e; ++it)
-	{
-		total_hits		+= it->second.hit_count;
-		unlucky_hits	+= it->second.unlucky_attempts;
-		if(!brief)
-		{
-			Msg	("size[%d] count[%d] unlucky[%d] avg_c[%d]",it->first, it->second.hit_count, it->second.unlucky_attempts, iFloor(float(it->second.compressed_size)/float(it->second.hit_count)) );
-		}
-	}
-	Msg("total   [%d]",	total_hits);
-	Msg("unlucky [%d]",	unlucky_hits);
-}
+ 

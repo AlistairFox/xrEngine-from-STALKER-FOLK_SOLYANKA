@@ -4,7 +4,7 @@
 
 #pragma pack(push,1)
 
-const	u32			NET_PacketSizeLimit = (48 * 1024) - 64;
+const	u32			NET_PacketSizeLimit = (48 * 1024);
 
 struct XRCORE_API IIniFileStream
 {

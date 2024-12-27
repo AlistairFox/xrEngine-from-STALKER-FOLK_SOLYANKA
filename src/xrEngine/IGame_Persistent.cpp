@@ -131,7 +131,6 @@ void IGame_Persistent::Disconnect	()
 
 	if(g_hud)
 			DEL_INSTANCE			(g_hud);
-//.		g_hud->OnDisconnected			();
 #endif
 }
 
@@ -156,7 +155,7 @@ void IGame_Persistent::Prefetch()
 	ObjectPool.prefetch					();
 	Log				("Loading models...");
 	Render->models_Prefetch				();
-	//Device.Resources->DeferredUpload	();
+	 
 	Device.m_pRender->ResourcesDeferredUpload();
 
 	p_time				=			1000.f*Device.GetTimerGlobal()->GetElapsed_sec() - p_time;

@@ -9,46 +9,45 @@
 // Updater
 void game_sv_freemp::UpdateAlifeData()
 {
-	if (!loaded_gametime)
-	{
-		u64 time;
-		float factor;
-
-		string_path filename;
-		FS.update_path(filename, "$mp_saves$", "alife.ltx");
-		CInifile* file = xr_new<CInifile>(filename, true, true);
-
-		if (file->section_exist("alife"))
-		{
-			time = file->r_u64("alife", "current_time");
-			factor = file->r_float("alife", "time_factor");
-			if (Game().Type() == eGameIDRolePlay)
-				ChangeGameTime(time);
-		}
-		xr_delete(file);
-
-		loaded_gametime = true;
-	}
-
-	if (LastSaveFile < Device.dwTimeGlobal)
-	{
-		LastSaveFile = Device.dwTimeGlobal + 60000;
-
-		if (loaded_gametime)
-		{
-			u64 time = GetGameTime() - GetStartGameTime();
-			float factor = GetGameTimeFactor();
-
-			string_path filename;
-			FS.update_path(filename, "$mp_saves$", "alife.ltx");
-			CInifile* file = xr_new<CInifile>(filename, false, false);
-			file->w_u64("alife", "current_time", time);
-			file->w_float("alife", "time_factor", factor);
-			file->save_as(filename);
-			xr_delete(file);
-		}
-	}
-
+	// if (!loaded_gametime)
+	// {
+	// 	u64 time;
+	// 	float factor;
+	// 
+	// 	string_path filename;
+	// 	FS.update_path(filename, "$mp_saves$", "alife.ltx");
+	// 	CInifile* file = xr_new<CInifile>(filename, true, true);
+	// 
+	// 	if (file->section_exist("alife"))
+	// 	{
+	// 		time = file->r_u64("alife", "current_time");
+	// 		factor = file->r_float("alife", "time_factor");
+	// 		if (Game().Type() == eGameIDRolePlay)
+	// 			ChangeGameTime(time);
+	// 	}
+	// 	xr_delete(file);
+	// 
+	// 	loaded_gametime = true;
+	// }
+	// 
+	// if (LastSaveFile < Device.dwTimeGlobal)
+	// {
+	// 	LastSaveFile = Device.dwTimeGlobal + 60000;
+	// 
+	// 	if (loaded_gametime)
+	// 	{
+	// 		u64 time = GetGameTime() - GetStartGameTime();
+	// 		float factor = GetGameTimeFactor();
+	// 
+	// 		string_path filename;
+	// 		FS.update_path(filename, "$mp_saves$", "alife.ltx");
+	// 		CInifile* file = xr_new<CInifile>(filename, false, false);
+	// 		file->w_u64("alife", "current_time", time);
+	// 		file->w_float("alife", "time_factor", factor);
+	// 		file->save_as(filename);
+	// 		xr_delete(file);
+	// 	}
+	// }
 
 	if (!map_alife_sended.empty())
 	for (auto cl : map_alife_sended)
