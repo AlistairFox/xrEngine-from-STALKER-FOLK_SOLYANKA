@@ -9,9 +9,30 @@
 // Updater
 void game_sv_freemp::UpdateAlifeData()
 {
+	if (!loaded_gametime)
+	{
+		u64 time;
+		float factor;
+
+		string_path filename;
+		FS.update_path(filename, "$mp_saves$", "alife.ltx");
+		CInifile* file = xr_new<CInifile>(filename, true, true);
+
+		if (file->section_exist("alife"))
+		{
+			time = file->r_u64("alife", "current_time");
+			factor = file->r_float("alife", "time_factor");
+			if (Game().Type() == eGameIDRolePlay)
+				ChangeGameTime(time);
+		}
+		xr_delete(file);
+
+		loaded_gametime = true;
+	}
+
 	if (LastSaveFile < Device.dwTimeGlobal)
 	{
-		LastSaveFile = Device.dwTimeGlobal + 5000;
+		LastSaveFile = Device.dwTimeGlobal + 60000;
 
 		if (loaded_gametime)
 		{
@@ -25,26 +46,6 @@ void game_sv_freemp::UpdateAlifeData()
 			file->w_float("alife", "time_factor", factor);
 			file->save_as(filename);
 			xr_delete(file);
-		}
-		else
-		{
-			u64 time;
-			float factor;
-
-			string_path filename;
-			FS.update_path(filename, "$mp_saves$", "alife.ltx");
-			CInifile* file = xr_new<CInifile>(filename, true, true);
-
-			if (file->section_exist("alife"))
-			{
-				time = file->r_u64("alife", "current_time");
-				factor = file->r_float("alife", "time_factor");
-				if (Game().Type() == eGameIDRolePlay)
-					ChangeGameTime(time);
-			}
-			xr_delete(file);
-
-			loaded_gametime = true;
 		}
 	}
 
