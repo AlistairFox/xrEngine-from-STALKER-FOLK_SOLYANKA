@@ -25,7 +25,7 @@ class game_sv_freemp : public game_sv_mp, private pure_relcase
 	u32 last_alife_update_time_pos = 0;
 
 	xr_map<ClientID, u32> map_alife_sended;
-
+	u32 LastSaveFile = 0;
 
 protected:
 	CALifeSimulator* m_alife_simulator;
