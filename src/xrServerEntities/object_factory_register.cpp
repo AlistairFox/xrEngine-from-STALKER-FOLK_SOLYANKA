@@ -184,6 +184,7 @@
 #	include "actor_mp_server.h"
 #	include "actor_mp_client.h"
 #	include "smart_cover_object.h"
+#	include "CampFireSwitcher.h"
 #endif // NO_XR_GAME
 
 #ifndef NO_XR_GAME
@@ -352,6 +353,7 @@ void CObjectFactory::register_classes	()
 	ADD(CFoodItem				,CSE_ALifeItem					,CLSID_IITEM_FOOD				,"obj_food");
 	ADD(CBottleItem				,CSE_ALifeItem					,CLSID_IITEM_BOTTLE				,"obj_bottle");
 	ADD(CExplosiveItem			,CSE_ALifeItemExplosive			,CLSID_IITEM_EXPLOSIVE			,"obj_explosive");
+	ADD(CCampFireSwitcher		,CSE_ALifeItem					,CLSID_IITEM_CAMPSWITCHER		,"obj_campswitcher");
 	
 	//Info Document
 	ADD(CInfoDocument			,CSE_ALifeItemDocument			,CLSID_IITEM_DOCUMENT			,"obj_document");

@@ -52,7 +52,6 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 		}break;
 	case GE_INFO_TRANSFER:
 	case GE_WPN_STATE_CHANGE:
-	case GE_ZONE_STATE_CHANGE:
 	case GE_ACTOR_JUMPING:
 	case GEG_PLAYER_PLAY_HEADSHOT_PARTICLE:
 	case GEG_PLAYER_ATTACH_HOLDER:
@@ -64,6 +63,14 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 		{
 		SendBroadcast			(BroadcastCID,P,MODE);
 		}break;
+	case GE_ZONE_STATE_CHANGE:
+	{
+		SendBroadcast(BroadcastCID, P, MODE);
+	}break;
+	case GE_CAMPFIRES_UPDATE:
+	{
+		SendBroadcast(BroadcastCID, P, MODE);
+	}break;
 	case GEG_PLAYER_ACTIVATEARTEFACT:
 		{
 			Process_event_activate	(P,sender,timestamp,destination,P.r_u16(), true);

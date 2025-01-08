@@ -633,7 +633,6 @@ CSE_ALifeCustomZone::CSE_ALifeCustomZone	(LPCSTR caSection) : CSE_ALifeSpaceRest
 	m_enabled_time				= 0;
 	m_disabled_time				= 0;
 	m_start_time_shift			= 0;
-
 }
 
 CSE_ALifeCustomZone::~CSE_ALifeCustomZone	()
@@ -646,7 +645,6 @@ void CSE_ALifeCustomZone::STATE_Read		(NET_Packet	&tNetPacket, u16 size)
 	
 	float tmp;
 	tNetPacket.r_float			(tmp/*m_maxPower*/);
-
 	if (m_wVersion < 113) {
 		tNetPacket.r_float		();
 		tNetPacket.r_u32		();
@@ -666,7 +664,6 @@ void CSE_ALifeCustomZone::STATE_Read		(NET_Packet	&tNetPacket, u16 size)
 	if (m_wVersion > 106) {
 		tNetPacket.r_u32		(m_start_time_shift);
 	}
-
 }
 
 void CSE_ALifeCustomZone::STATE_Write	(NET_Packet	&tNetPacket)

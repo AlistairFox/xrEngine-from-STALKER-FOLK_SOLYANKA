@@ -125,6 +125,7 @@ enum
 	GE_INV_OWNER_STATUS,
 
 	GE_ZONE_STATE_CHANGE,
+	GE_CAMPFIRES_UPDATE,
 
 	GE_MOVE_ACTOR,				//move actor to desired position instantly
 	GE_ACTOR_JUMPING,			//actor press jump key

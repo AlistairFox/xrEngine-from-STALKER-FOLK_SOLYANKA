@@ -1285,6 +1285,7 @@
     <ClInclude Include="CameraFirstEye.h" />
     <ClInclude Include="cameralook.h" />
     <ClInclude Include="CameraRecoil.h" />
+    <ClInclude Include="CampFireSwitcher.h" />
     <ClInclude Include="CaptureBoneCallback.h" />
     <ClInclude Include="Car.h" />
     <ClInclude Include="CarDamageParticles.h" />
@@ -4497,6 +4498,7 @@
     <ClCompile Include="CameraEffector.cpp" />
     <ClCompile Include="CameraFirstEye.cpp" />
     <ClCompile Include="cameralook.cpp" />
+    <ClCompile Include="CampFireSwitcher.cpp" />
     <ClCompile Include="Car.cpp" />
     <ClCompile Include="CarCameras.cpp" />
     <ClCompile Include="CarDamageParticles.cpp" />

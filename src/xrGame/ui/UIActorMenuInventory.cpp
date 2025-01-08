@@ -35,6 +35,7 @@
 #include "../PDA.h"
 
 #include "../actor_defs.h"
+#include "../CampFireSwitcher.h"
 
 
 void move_item_from_to(u16 from_id, u16 to_id, u16 what_id);
@@ -773,8 +774,12 @@ bool CUIActorMenu::TryUseItem( CUICellItem* cell_itm )
 	CMedkit*		pMedkit			= smart_cast<CMedkit*>		(item);
 	CAntirad*		pAntirad		= smart_cast<CAntirad*>		(item);
 	CEatableItem*	pEatableItem	= smart_cast<CEatableItem*>	(item);
+	CCampFireSwitcher* pCampSwitcher = smart_cast<CCampFireSwitcher*>(item);
+	if (pCampSwitcher && !pCampSwitcher->GetNearestCampFire())
+		return false;
 
-	if ( !(pMedkit || pAntirad || pEatableItem || pBottleItem) )
+
+	if ( !(pMedkit || pAntirad || pEatableItem || pBottleItem || pCampSwitcher) )
 	{
 		return false;
 	}
@@ -1091,15 +1096,25 @@ void CUIActorMenu::PropertiesBoxForUsing( PIItem item, bool& b_show )
 	CAntirad*		pAntirad		= smart_cast<CAntirad*>		(item);
 	CEatableItem*	pEatableItem	= smart_cast<CEatableItem*>	(item);
 	CBottleItem*	pBottleItem		= smart_cast<CBottleItem*>	(item);
+	CCampFireSwitcher* pCampSwitcher = smart_cast<CCampFireSwitcher*>(item);
 
 	LPCSTR act_str = NULL;
-	if ( pMedkit || pAntirad )
+	if ( pMedkit || pAntirad)
 	{
 		act_str = "st_use";
 	}
 	else if ( pBottleItem )
 	{
 		act_str = "st_drink";
+	}
+	else if (pCampSwitcher)
+	{
+		if (pCampSwitcher->GetNearestCampFire())
+		{
+			shared_str str = CStringTable().translate("st_use");
+			m_UIPropertiesBox->AddItem(str.c_str(), (void*)pCampSwitcher, INVENTORY_CAMPSWITCH);
+			b_show = true;
+		}
 	}
 	else if ( pEatableItem )
 	{
@@ -1319,6 +1334,15 @@ void CUIActorMenu::ProcessPropertiesBoxClicked( CUIWindow* w, void* d )
 			pPda->PlayScriptFunction();
 			break;
 		}
+	case INVENTORY_CAMPSWITCH:
+	{
+		CCampFireSwitcher* campfireswitcher = smart_cast<CCampFireSwitcher*>(item);
+		if (!campfireswitcher)
+			break;
+
+		TryUseItem(cell_item);
+		break;
+	}
 	}//switch
 
 	SetCurrentItem( NULL );

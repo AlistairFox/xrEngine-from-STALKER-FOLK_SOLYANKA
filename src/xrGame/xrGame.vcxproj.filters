@@ -7581,6 +7581,7 @@
     <ClInclude Include="UIAdminSkin.h">
       <Filter>UI\ADMIN_SPAWNER</Filter>
     </ClInclude>
+    <ClInclude Include="CampFireSwitcher.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="damage_manager.cpp">
@@ -11381,6 +11382,7 @@
     <ClCompile Include="game_sv_freemp_PDA.cpp">
       <Filter>Se7Kills\Gamemodes\server\freemp\network</Filter>
     </ClCompile>
+    <ClCompile Include="CampFireSwitcher.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="ai\monsters\chimera\chimera_attack_state.h">
