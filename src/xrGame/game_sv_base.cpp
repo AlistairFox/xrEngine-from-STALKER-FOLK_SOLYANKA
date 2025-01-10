@@ -502,12 +502,25 @@ void game_sv_GameState::Create					(shared_str &options)
 				{
 					RPoint R;
 					R.P.set(0,0,0);
-					R.P.set(0,0,0);
+					R.A.set(0,0,0);
 					rpoints[i].push_back(R);
 				}					
 			}
 		}
 		FS.r_close	(F);
+
+
+		for (auto i = 0; i < TEAM_COUNT; i++)
+		{
+			if (rpoints[i].size() == 0)
+			{
+				RPoint R;
+				R.P.set(0,0,0);
+				R.A.set(0, 0, 0);
+				rpoints[i].push_back(R);
+			}
+		}
+
 	}
 
 	// loading scripts
