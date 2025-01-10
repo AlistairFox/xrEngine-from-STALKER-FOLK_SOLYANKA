@@ -164,8 +164,7 @@ void game_sv_freemp::UpdateAlifeObjectsPOS()
 			server().SendBroadcast(server().GetServerClient()->ID, packet, net_flags(false));
 			packet_size += packet.w_tell();
 		}
-
-		Msg("Update Size POS [%d]", packet_size);
+ 
 	}
 }
 

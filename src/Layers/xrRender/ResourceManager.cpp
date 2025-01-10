@@ -347,19 +347,14 @@ void CResourceManager::DeferredUpload()
 
 	CTimer timer;
 	timer.Start();
-	// Msg("Load textures sizes [%d] ", m_textures.size());
-	// for (map_TextureIt t=m_textures.begin(); t!=m_textures.end(); t++)
-	// {
-	// 	t->second->Load();
-	// }
- 
+	 
 	concurrency::parallel_for_each(m_textures.begin(), m_textures.end(), [&](std::pair<const char*, CTexture*> T)
 	{
 		T.second->Load();
 	});
 	
 
-	Msg("Loading End [%d] ", timer.GetElapsed_ms());
+	Msg("Textures Loading End [%u] ", timer.GetElapsed_ms());
  
 
 	/*

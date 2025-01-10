@@ -844,7 +844,7 @@ void game_sv_freemp::LoadParamsDeffaultFMP()
 	{
 		_GetItem(items_str, t, item_name);
 		
-		Msg("read_fmp_section [%s]",item_name);
+		// Msg("read_fmp_section [%s]",item_name);
 		
 		spawned_items.StartItems.push_back(item_name);
 	};

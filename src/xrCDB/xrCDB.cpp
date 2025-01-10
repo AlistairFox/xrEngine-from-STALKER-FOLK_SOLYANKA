@@ -109,38 +109,26 @@ int LOADED = 0;
 
 void	MODEL::build_internal	(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callback* bc, void* bcp)
 {
-	LOADED++;
-
+ 	LOADED++;
 
 	u32 used, free;
 	size_t total;
+
 	CTimer t; 
 	t.Start();
-
-	total = Memory.mem_usage(&used,&free);
-	
-	Msg("CFORM stage 1 xrMemory[64]: Used[%u], Free[%u], TOTAL[%u] MS[%u]", used, free, total, t.GetElapsed_ms());
-
+ 
 	// verts
 	verts_count	= Vcnt;
-	//Msg("Load Model %d, verts_count[%d], [%d], total [%d] mb", LOADED, verts_count, sizeof(Fvector), verts_count * sizeof(Fvector) / 1024 / 1024);
+ 
 	verts		= CALLOC(Fvector,verts_count);
 	CopyMemory	(verts,V,verts_count*sizeof(Fvector));
-	
- 	total = Memory.mem_usage(&used, &free);
-
-	Msg("CFORM stage 2 xrMemory[64]: Used[%u], Free[%u], TOTAL[%u] MS[%u]", used, free, total, t.GetElapsed_ms());
 
 	// tris
 	tris_count	= Tcnt;
-	//Msg("Load Model %d, tris_count[%d], [%d], total [%d] mb", LOADED, tris_count, sizeof(TRI), tris_count * sizeof(TRI) / 1024 / 1024);
+	 
 	tris		= CALLOC(TRI,tris_count);
 	CopyMemory	(tris,T,tris_count*sizeof(TRI));
-
- 	total = Memory.mem_usage(&used, &free);
-
-	Msg("CFORM stage 3 xrMemory[64]: Used[%u], Free[%u], TOTAL[%u] MS[%u]", used, free, total, t.GetElapsed_ms());
-
+  
 	// callback
 	if (bc)		bc	(verts,Vcnt,tris,Tcnt,bcp);
 
@@ -149,21 +137,14 @@ void	MODEL::build_internal	(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callba
 	
 	// Allocate temporary "OPCODE" tris + convert tris to 'pointer' form
 	u32*		temp_tris	= CALLOC(u32,tris_count*3);
-	
- 	total = Memory.mem_usage(&used, &free);
-
-	Msg("CFORM stage 4 xrMemory[64]: Used[%u], Free[%u], TOTAL[%u] MS[%u]", used, free, total, t.GetElapsed_ms());
-
+ 
 	if (0==temp_tris)	
 	{
 		CFREE		(verts);
 		CFREE		(tris);
 		return;
 	}
-
-	total = Memory.mem_usage(&used, &free);
-	Msg("CFORM stage 5 xrMemory[64]: Used[%u], Free[%u], TOTAL[%u] MS[%u]", used, free, total, t.GetElapsed_ms());
-	
+ 
 	u32*		temp_ptr	= temp_tris;
 
 	for (int i=0; i<tris_count; i++)
@@ -172,10 +153,7 @@ void	MODEL::build_internal	(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callba
 		*temp_ptr++	= tris[i].verts[1];
 		*temp_ptr++	= tris[i].verts[2];
 	}
-
-	total = Memory.mem_usage(&used, &free);
-	Msg("CFORM stage 6 xrMemory[64]: Used[%u], Free[%u], TOTAL[%u] MS[%u]", used, free, total, t.GetElapsed_ms());
-	
+ 
 	// Build a non quantized no-leaf tree
 	OPCODECREATE	OPCC;
 	OPCC.NbTris		= tris_count;
@@ -194,15 +172,13 @@ void	MODEL::build_internal	(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callba
 		CFREE		(temp_tris);
 		return;
 	};
-
-	total = Memory.mem_usage(&used, &free);
-	Msg("CFORM stage 7 xrMemory[64]: Used[%u], Free[%u], TOTAL[%u] MS[%u]", used, free, total, t.GetElapsed_ms());
-
+   
 	// Free temporary tris
 	CFREE			(temp_tris);
 
 	total = Memory.mem_usage(&used, &free);
-	Msg("CFORM stage 8 xrMemory[64]: Used[%u], Free[%u], TOTAL[%u] MS[%u]", used, free, total, t.GetElapsed_ms());
+
+	// Msg("CFORM Used[%u], Free[%u], TOTAL[%u] MS[%u]", used, free, total, t.GetElapsed_ms());
 
 	return;
 }

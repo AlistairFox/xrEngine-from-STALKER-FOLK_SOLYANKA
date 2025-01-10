@@ -195,11 +195,11 @@ void CRender::LoadBuffers		(CStreamReader *base_fs,	BOOL _alternative)
 		u32 TOTAL_VERTS = 0;
 		_DC.resize				(count);
 		_VB.resize				(count);
+  
 		for (u32 i=0; i<count; i++)
 		{
 			// decl
-//			D3DVERTEXELEMENT9*	dcl		= (D3DVERTEXELEMENT9*) fs().pointer();
-			u32					buffer_size = (MAXD3DDECLLENGTH+1)*sizeof(D3DVERTEXELEMENT9);
+ 			u32					buffer_size = (MAXD3DDECLLENGTH+1)*sizeof(D3DVERTEXELEMENT9);
 			D3DVERTEXELEMENT9	*dcl = (D3DVERTEXELEMENT9*)_alloca(buffer_size);
 			fs->r				(dcl,buffer_size);
 			fs->advance			(-(int)buffer_size);
@@ -211,25 +211,17 @@ void CRender::LoadBuffers		(CStreamReader *base_fs,	BOOL _alternative)
 			// count, size
 			u32 vCount			= fs->r_u32	();
 			u32 vSize			= D3DXGetDeclVertexSize	(dcl,0);
-			Msg	("* [Loading VB] %d verts, %d Kb",vCount,(vCount*vSize)/1024);
+			// Msg	("* [Loading VB] %d verts, %d Kb",vCount,(vCount*vSize)/1024);
+
 			TOTAL_VERTS += (vCount * vSize) / 1024;
-			// Create and fill
-			//BYTE*	pData		= 0;
-			//R_CHK				(HW.pDevice->CreateVertexBuffer(vCount*vSize,dwUsage,0,D3DPOOL_MANAGED,&_VB[i],0));
-			//R_CHK				(_VB[i]->Lock(0,0,(void**)&pData,0));
-//			CopyMemory			(pData,fs().pointer(),vCount*vSize);
-			//fs->r				(pData,vCount*vSize);
-			//_VB[i]->Unlock		();
-			//	TODO: DX10: Check fragmentation.
-			//	Check if buffer is less then 2048 kb
+		 
 			BYTE*	pData		= xr_alloc<BYTE>(vCount*vSize);
 			fs->r				(pData,vCount*vSize);
 			dx10BufferUtils::CreateVertexBuffer(&_VB[i], pData, vCount*vSize);
 			xr_free(pData);
-
-//			fs->advance			(vCount*vSize);
 		}
-		Msg("[Loading IB] TOTAL indices %d kb", TOTAL_VERTS);
+		
+		Msg("[Loading IB] TOTAL indices %d kb, count _VB, _DC: %u", TOTAL_VERTS, count);
 		fs->close				();
 	}
 
@@ -239,29 +231,22 @@ void CRender::LoadBuffers		(CStreamReader *base_fs,	BOOL _alternative)
 		u32 count				= fs->r_u32();
 		u32 TOTAL_INDEXS = 0;
 		_IB.resize				(count);
+
+		//	Msg("* [Loading IB] %d indices, %d Kb", iCount, (iCount * 2) / 1024);
 		for (u32 i=0; i<count; i++)
 		{
 			u32 iCount			= fs->r_u32	();
-			Msg("* [Loading IB] %d indices, %d Kb",iCount,(iCount*2)/1024);
+			
 			TOTAL_INDEXS += (iCount * 2) / 1024;
-			// Create and fill
-			//BYTE*	pData		= 0;
-			//R_CHK				(HW.pDevice->CreateIndexBuffer(iCount*2,dwUsage,D3DFMT_INDEX16,D3DPOOL_MANAGED,&_IB[i],0));
-			//R_CHK				(_IB[i]->Lock(0,0,(void**)&pData,0));
-//			CopyMemory			(pData,fs().pointer(),iCount*2);
-			//fs->r				(pData,iCount*2);
-			//_IB[i]->Unlock		();
-
+ 
 			//	TODO: DX10: Check fragmentation.
 			//	Check if buffer is less then 2048 kb
 			BYTE*	pData		= xr_alloc<BYTE>(iCount*2);
 			fs->r				(pData,iCount*2);
 			dx10BufferUtils::CreateIndexBuffer(&_IB[i], pData, iCount*2);
 			xr_free(pData);
-
-//			fs().advance		(iCount*2);
-		}
-		Msg("[Loading IB] TOTAL indices %d kb", TOTAL_INDEXS);
+  		}
+		Msg("[Loading IB] TOTAL indices %d kb, Triangles: %u", TOTAL_INDEXS, count);
 		fs->close				();
 	}
 }
