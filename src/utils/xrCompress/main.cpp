@@ -17,25 +17,10 @@ int __cdecl main	(int argc, char* argv[])
 	C.SetStoreFiles(NULL!=strstr(params,"-store"));
 	C.SetStoreDDS(NULL != strstr(params, "-dds_store"));
 
-#ifndef MOD_COMPRESS
-	if(strstr(params,"-diff"))
-	{
-		ProcessDifference	();
-	}
+	Core._initialize("xrCompress_Unpack", 0, TRUE, "fsgame.ltx");
 
 	if (strstr(params, "-unpack"))
 	{
-
-
-		LPCSTR						fsgame_ltx_name = "-fsltx ";
-		string_path					fsgame = "";
-		if (strstr(params, fsgame_ltx_name))
-		{
-			int						sz = xr_strlen(fsgame_ltx_name);
-			sscanf(strstr(params, fsgame_ltx_name) + sz, "%[^ ] ", fsgame);
-		}
-
-		Core._initialize("xrCompress_Unpack", 0, TRUE, fsgame[0] ? fsgame : "NULL");
 
 		FS_FileSet set;
 		FS.file_list(set, "$game_data$");
@@ -82,27 +67,8 @@ int __cdecl main	(int argc, char* argv[])
  
 	}
 	else
-#endif
-	{
-#ifndef MOD_COMPRESS
-		if (argc<2)	
-		{
-			printf("ERROR: u must pass folder name as parameter.\n");
-			printf("-diff /? option to get information about creating difference.\n");
-			printf("-fast	- fast compression.\n");
-			printf("-store	- store files. No compression.\n");
-			printf("-ltx <file_name.ltx> - pathes to compress.\n");
-			printf("\n");
-			printf("LTX format:\n");
-			printf("	[config]\n");
-			printf("	;<path>     = <recurse>\n");
-			printf("	.\\         = false\n");
-			printf("	textures    = true\n");
-			
-			Core._destroy();
-			return 3;
-		}
-#endif
+ 	{
+		
 
 		string_path		folder;		
 		strconcat		(sizeof(folder),folder,argv[1],"\\");

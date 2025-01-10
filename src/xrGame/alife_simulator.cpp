@@ -94,8 +94,20 @@ CALifeSimulator::CALifeSimulator		(xrServer *server, shared_str *command_line) :
 	
 	Msg("--- [ALIFE SIMULATOR] Start PARRAMS: SPAWN: %s, GAMETYPE: %s, ALIFE: %s, NEW: %s",p.m_game_or_spawn, GameTypeToString(p.m_e_game_type, false), p.m_alife, p.m_new_or_load);
 
+	if (server->game->Type() == eGameIDRolePlay)
+	{
+		int	id = pApp->Level_ID(p.m_game_or_spawn, "1.0", true);
+		Level().set_level_name(p.m_game_or_spawn);
+	
+		Msg("ID == %d == (LevelName:) %s", id, p.m_game_or_spawn); // level_name().c_str()
+		Msg("SetsName == %s", Level().name().c_str());
 
-	load(p.m_game_or_spawn, !xr_strcmp(p.m_new_or_load, "load") ? false : true, !xr_strcmp(p.m_new_or_load, "new"));
+		load("alife", false, true);
+	}
+	else
+	{
+		load(p.m_game_or_spawn, !xr_strcmp(p.m_new_or_load, "load") ? false : true, !xr_strcmp(p.m_new_or_load, "new"));
+	}	
 }
 
 CALifeSimulator::~CALifeSimulator		()

@@ -1425,11 +1425,15 @@ int CApplication::Level_ID(LPCSTR name, LPCSTR ver, bool bSet)
 	if( arch_res )
 		Level_Scan							();
 	
+	Msg("Levels Size: %d", Levels.size());
+
 	string256		buffer;
-	strconcat		(sizeof(buffer),buffer,name,"\\");
+	strconcat		(sizeof(buffer), buffer, name, "\\");
 	for (u32 I=0; I<Levels.size(); ++I)
 	{
-		if (0==stricmp(buffer,Levels[I].folder))	
+		Msg("Compare Folder: %s == %s", buffer, Levels[I].folder);
+
+		if (0==stricmp(buffer, Levels[I].folder))	
 		{
 			result = int(I);	
 			break;

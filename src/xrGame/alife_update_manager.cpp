@@ -305,9 +305,9 @@ void CALifeUpdateManager::load			(LPCSTR game_name, bool no_assert, bool new_onl
 #endif
 
 	xr_strcpy								(g_last_saved_game,game_name);
-	Msg("Spawn Is name: %s", game_name);
-
-	if (new_only || !CALifeStorageManager::load(game_name)) {
+ 
+	if (new_only || !CALifeStorageManager::load(game_name)) 
+	{
 		R_ASSERT3						(new_only || no_assert && xr_strlen(game_name),"Cannot find the specified saved game ",game_name);
 		new_game						(game_name);
 	}
@@ -318,7 +318,7 @@ void CALifeUpdateManager::load			(LPCSTR game_name, bool no_assert, bool new_onl
 #ifdef DEBUG
 	Msg									("* Loading alife simulator is successfully completed (%7.3f Mb)",float(Memory.mem_usage() - memory_usage)/1048576.0);
 #endif
-//	g_pGamePersistent->LoadTitle		("st_server_connecting");
+
 	g_pGamePersistent->LoadTitle		(true, g_pGameLevel->name());
 }
 

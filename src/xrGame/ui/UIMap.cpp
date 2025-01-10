@@ -41,7 +41,7 @@ void CUICustomMap::Initialize(shared_str name, LPCSTR sh_name)
 	else
 	{
 		Msg("! default LevelMap used for level[%s]",name.c_str());
-		Init_internal	(name, *pGameIni, "def_map", sh_name);
+		Init_internal_default(name, sh_name);
 		m_name			= name;
 	}
 	if(levelIni != g_pGameLevel->pLevel)
@@ -86,7 +86,7 @@ void CUICustomMap::Init_internal(const shared_str& name, CInifile& pLtx, const s
 {
 	m_name					= name;
 	Fvector4				tmp;
-
+ 
 	m_texture				= pLtx.r_string(sect_name,"texture");
 	m_shader_name			= sh_name;
 	tmp						= pLtx.r_fvector4(sect_name,"bound_rect");
@@ -106,6 +106,32 @@ void CUICustomMap::Init_internal(const shared_str& name, CInifile& pLtx, const s
 	CUIStatic::InitTextureEx(m_texture.c_str(), m_shader_name.c_str());
 	
 	SetStretchTexture		(true);
+}
+
+void CUICustomMap::Init_internal_default(shared_str name, LPCSTR sh_name)
+{
+	m_name = name;
+	Fvector4				tmp;
+
+	m_texture = "ui\\ui_nomap2";
+	m_shader_name = sh_name;
+	tmp = Fvector4{ -10000.0f, -10000.0f, 10000.0f, 10000.0f };
+
+	if (!Heading())
+	{
+		tmp.x *= UI().get_current_kx();
+		tmp.z *= UI().get_current_kx();
+	}
+
+	m_BoundRect_.set(tmp.x, tmp.y, tmp.z, tmp.w);
+
+	Fvector2 sz;
+	m_BoundRect_.getsize(sz);
+	CUIStatic::SetWndSize(sz);
+	CUIStatic::SetWndPos(Fvector2().set(0, 0));
+	CUIStatic::InitTextureEx(m_texture.c_str(), m_shader_name.c_str());
+
+	SetStretchTexture(true);
 }
 
 void rotation_(float x, float y, const float angle, float& x_, float& y_, float kx)

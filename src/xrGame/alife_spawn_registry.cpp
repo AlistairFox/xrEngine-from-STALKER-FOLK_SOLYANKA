@@ -71,8 +71,9 @@ void CALifeSpawnRegistry::load				(IReader &file_stream, LPCSTR game_name)
 
 	string_path					file_name;
 	
-	/*
-	if (g_pGamePersistent->GameType() == eGameIDSingle) {
+	 
+	if (g_pGamePersistent->GameType() == eGameIDSingle || g_pGamePersistent->GameType() == eGameIDFreeMp)
+	{
 		bool						file_exists = !!FS.exist(file_name, "$game_spawn$", *m_spawn_name, ".spawn");
 		R_ASSERT3(file_exists, "Can't find spawn file:", *m_spawn_name);
 	}
@@ -80,10 +81,11 @@ void CALifeSpawnRegistry::load				(IReader &file_stream, LPCSTR game_name)
 	{
 		bool						file_exists = !!FS.exist(file_name, "$level$", "alife", ".spawn");
 		R_ASSERT3(file_exists, "Can't find spawn file:", "alife.spawn");
-	}*/
+	} 
 
-	bool						file_exists = !!FS.exist(file_name, "$game_spawn$", *m_spawn_name, ".spawn");
-	R_ASSERT3(file_exists, "Can't find spawn file:", *m_spawn_name);
+
+//	bool						file_exists = !!FS.exist(file_name, "$game_spawn$", *m_spawn_name, ".spawn");
+//	R_ASSERT3(file_exists, "Can't find spawn file:", *m_spawn_name);
 	
 	VERIFY						(!m_file);
 	m_file						= FS.r_open(file_name);
@@ -97,16 +99,19 @@ void CALifeSpawnRegistry::load				(LPCSTR spawn_name)
 	Msg							("* Loading spawn registry... [%s]", spawn_name);
 	m_spawn_name				= spawn_name;
 	string_path					file_name;
-	/*
-	if (g_pGamePersistent->GameType() == eGameIDSingle) {
+	Msg("LevelPath: %s", FS.get_path("$level$")->m_Path);
+
+
+	if (g_pGamePersistent->GameType() == eGameIDSingle || g_pGamePersistent->GameType() == eGameIDFreeMp)
+	{
 		R_ASSERT3(FS.exist(file_name, "$game_spawn$", *m_spawn_name, ".spawn"), "Can't find spawn file:", *m_spawn_name);
 	}
 	else
 	{
 		R_ASSERT3(FS.exist(file_name, "$level$", "alife", ".spawn"), "Can't find spawn file:", "alife.spawn");
-	}*/
+	} 
 	
-	R_ASSERT3(FS.exist(file_name, "$game_spawn$", *m_spawn_name, ".spawn"), "Can't find spawn file:", *m_spawn_name);
+	// R_ASSERT3(FS.exist(file_name, "$game_spawn$", *m_spawn_name, ".spawn"), "Can't find spawn file:", *m_spawn_name);
 
 	VERIFY						(!m_file);
 	m_file						= FS.r_open(file_name);

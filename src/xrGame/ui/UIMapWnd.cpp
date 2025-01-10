@@ -686,7 +686,11 @@ void CUIMapWnd::Update()
 	if(m_GlobalMap)
 		m_GlobalMap->WorkingArea().set(ActiveMapRect());
 	inherited::Update			();
-	m_ActionPlanner->update		();
+
+	if (ai().get_game_graph())
+		m_ActionPlanner->update		();
+
+
 	UpdateNav					();
 }
 

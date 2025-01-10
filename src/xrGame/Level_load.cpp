@@ -20,55 +20,100 @@ BOOL CLevel::Load_GameSpecific_Before()
 	// AI space
 	g_pGamePersistent->LoadTitle("st_loading_ai_objects");
 	//	g_pGamePersistent->LoadTitle		();
-	string_path							fn_game;
+	
 	
 	
 	if (xr_strcmp(m_game_description.spawn_name, "alife_off") == 0)
 		return true;
  				    
-	if (GamePersistent().GameType() != eGameIDSingle && OnClient())
+	// if (GamePersistent().GameType() == eGameIDFreeMp  &&  OnClient())
+	// {
+ 	// 	if (!xr_strcmp(m_game_description.spawn_name, "autosave"))
+	// 		Msg("Load Autosave");
+	// 
+	// 	string_path							fn_game;
+	// 
+	// 	if (FS.exist(fn_game, "$game_spawn$", m_game_description.spawn_name, ".spawn"))
+	// 	{
+	// 		string_path	file;
+	// 		strconcat(sizeof(file), file, m_game_description.spawn_name, ".spawn");
+	// 
+	// 		FS.update_path(fn_game, "$game_spawn$", file);
+	// 	}
+	// 	else
+	// 	{
+	// 		FS.update_path(fn_game, "$game_spawn$", "all.spawn");
+	// 	}
+	// 	 
+	// 	Msg("spawn name[%s] ", fn_game);
+	// 
+	// 	spawn = FS.r_open(fn_game);
+	// 
+	// 	IReader* chunk;
+	// 
+	// 	chunk = spawn->open_chunk(3);
+	// 	R_ASSERT2(chunk, "Spawn version mismatch - REBUILD SPAWN!");
+	// 	ai().patrol_path_storage(*chunk);
+	// 	chunk->close();
+	// 
+	// 	m_chunk = spawn->open_chunk(4);
+	// 	R_ASSERT2(m_chunk, "Spawn version mismatch - REBUILD SPAWN!");
+	// 	ai().game_graph(xr_new<CGameGraph>(*m_chunk));
+	// }
+
+	if ( OnClient() )
 	{
-		//FS.exist(fn_game, "$game_spawn$", m_game_description.spawn_name, ".spawn");
-		if (!xr_strcmp(m_game_description.spawn_name, "autosave"))
-			Msg("Load Autosave");
+		string_path							fn_game;
 
-		if (FS.exist(fn_game, "$game_spawn$", m_game_description.spawn_name, ".spawn"))
+		if (FS.exist(fn_game, "$level$", "alife.spawn"))
 		{
-			string_path	file;
-			strconcat(sizeof(file), file, m_game_description.spawn_name, ".spawn");
+			spawn = FS.r_open(fn_game);
 
-			FS.update_path(fn_game, "$game_spawn$", file);
+			IReader* chunk;
+
+			chunk = spawn->open_chunk(3);
+			R_ASSERT2(chunk, "Spawn version mismatch - REBUILD SPAWN!");
+			ai().patrol_path_storage(*chunk);
+			chunk->close();
+
+			m_chunk = spawn->open_chunk(4);
+			R_ASSERT2(m_chunk, "Spawn version mismatch - REBUILD SPAWN!");
+			ai().game_graph(xr_new<CGameGraph>(*m_chunk));
 		}
 		else
 		{
-			/*
-			string_path	file;
-			strconcat(sizeof(file), file, m_game_description.spawn_name, ".scop");
+			Msg("[Roleplay][Client] Not Finded alife.spawn : %s", fn_game);
 
-			FS.update_path(fn_game, "$game_saves$", file);
-			*/
+			string_path test_path;
+			FS.update_path(test_path, "$level$", "");
 
-			FS.update_path(fn_game, "$game_spawn$", "all.spawn");
-
-		}
-
-
-		Msg("spawn name[%s] ", fn_game);
-
-		spawn = FS.r_open(fn_game);
-
-		IReader* chunk;
-
-		chunk = spawn->open_chunk(3);
-		R_ASSERT2(chunk, "Spawn version mismatch - REBUILD SPAWN!");
-		ai().patrol_path_storage(*chunk);
-		chunk->close();
-
-		m_chunk = spawn->open_chunk(4);
-		R_ASSERT2(m_chunk, "Spawn version mismatch - REBUILD SPAWN!");
-		ai().game_graph(xr_new<CGameGraph>(*m_chunk));
+			Msg("LevelFolder: %s", test_path);
+		}		
 	}
 
+	//if (GamePersistent().GameType() == eGameIDRolePlay && OnClient())
+	//{		
+	//	if (FS.exist(fn_game, "$level$", "alife.spawn"))
+	//	{
+	//		spawn = FS.r_open(fn_game);
+	//
+	//		IReader* chunk;
+	//		chunk = spawn->open_chunk(3);
+	//		R_ASSERT2(chunk, "Spawn version mismatch - REBUILD SPAWN!");
+	//		ai().patrol_path_storage(*chunk);
+	//		chunk->close();
+	//
+	//		m_chunk = spawn->open_chunk(4);
+	//		R_ASSERT2(m_chunk, "Spawn version mismatch - REBUILD SPAWN!");
+	//		ai().game_graph(xr_new<CGameGraph>(*m_chunk));
+	//	}
+	//	else
+	//	{
+	//		Msg("[Roleplay][Client] Not Finded alife.spawn : %s", fn_game);
+	//	}
+	//}
+
+	string_path	fn_game;
 	if (!ai().get_alife() && FS.exist(fn_game, "$level$", "level.ai") && HasSessionName())
 	{
 		ai().load(net_SessionName());

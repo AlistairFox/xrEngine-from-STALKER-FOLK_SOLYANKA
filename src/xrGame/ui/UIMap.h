@@ -56,6 +56,8 @@ public:
 			float	GetPointerDistance				()				{return m_pointer_dist;};
 protected:
 	virtual void	Init_internal					(const shared_str& name, CInifile& pLtx, const shared_str& sect_name, LPCSTR sh_name);
+	virtual void	Init_internal_default			(shared_str name, LPCSTR sh_name);
+
 	virtual void	UpdateSpots						() {};
 };
 
