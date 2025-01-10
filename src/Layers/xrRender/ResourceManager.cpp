@@ -336,39 +336,29 @@ void CResourceManager::Delete(const Shader* S)
 	Msg	("! ERROR: Failed to find complete shader");
 }
 
-xr_vector<CTexture*> tex_to_load;
-
-void TextureLoading(u16 thread_num)
-{
-	Msg("TextureLoading -> thread %d started!", thread_num);
-
-	u16 upperbound = thread_num * 100;
-	u32 lowerbound = upperbound - 100;
-
-	for (size_t i = lowerbound; i < upperbound; i++)
-	{
-		if (i < tex_to_load.size())
-			tex_to_load[i]->Load();
-		else
-			break;
-	}
-
-	Msg("TextureLoading -> thread %d finished!", thread_num);
-}
-
-#include <thread>
+ 
+#include <PPL.h>
 
 void CResourceManager::DeferredUpload()
 {
  
-	if (!RDEVICE.b_is_Ready) return;
+	if (!RDEVICE.b_is_Ready)
+		return;
+
 	CTimer timer;
 	timer.Start();
-	Msg("Load textures sizes [%d] ", m_textures.size());
-	for (map_TextureIt t=m_textures.begin(); t!=m_textures.end(); t++)
+	// Msg("Load textures sizes [%d] ", m_textures.size());
+	// for (map_TextureIt t=m_textures.begin(); t!=m_textures.end(); t++)
+	// {
+	// 	t->second->Load();
+	// }
+ 
+	concurrency::parallel_for_each(m_textures.begin(), m_textures.end(), [&](std::pair<const char*, CTexture*> T)
 	{
-		t->second->Load();
-	}
+		T.second->Load();
+	});
+	
+
 	Msg("Loading End [%d] ", timer.GetElapsed_ms());
  
 
@@ -411,7 +401,9 @@ void CResourceManager::DeferredUpload()
  
 void	CResourceManager::DeferredUnload	()
 {
-	if (!RDEVICE.b_is_Ready)				return;
+	if (!RDEVICE.b_is_Ready)	
+		return;
+
 	for (map_TextureIt t=m_textures.begin(); t!=m_textures.end(); t++)
 		t->second->Unload();
 }
