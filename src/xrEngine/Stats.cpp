@@ -332,6 +332,10 @@ void CStats::Show()
 			drawStatParamByMS(pFontGame, this, "Render Main:		%2.4fms", RenderMain.result);
 
 			drawStatParam(pFontGame, "----------------");
+			
+			drawStatParamByMS(pFontGame, this, "R_Main_RParticels    %2.4fms", Particles_render_Time.result);
+			drawStatParamByMS(pFontGame, this, "R_Main_UParticels    %2.4fms", Particles_update_Time.result);
+			
 			drawStatParamByMS(pFontGame, this, "R_Main_Sun:			%2.4fms", RenderSun.result);
 			drawStatParamByMS(pFontGame, this, "R_Main_Lights:		%2.4fms", RenderLights.result);
 			drawStatParamByMS(pFontGame, this, "R_Main_Shadow:		%2.4fms", Render_shadow_mp_process.result);

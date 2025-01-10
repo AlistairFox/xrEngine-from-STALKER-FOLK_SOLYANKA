@@ -6,7 +6,7 @@
 
 R_occlusion::R_occlusion(void)
 {
-	enabled = Render_OCC; //strstr(Core.Params,"-no_occq")?FALSE:TRUE;
+	enabled = TRUE; 
 }
 R_occlusion::~R_occlusion(void)
 {
@@ -40,8 +40,6 @@ void	R_occlusion::occq_destroy	(				)
 }
 u32		R_occlusion::occq_begin		(u32&	ID		)
 {
-	if (!Render_OCC)		return 0;
-
 	//	Igor: prevent release crash if we issue too many queries
 	if (pool.empty())
 	{
@@ -72,8 +70,6 @@ u32		R_occlusion::occq_begin		(u32&	ID		)
 }
 void	R_occlusion::occq_end		(u32&	ID		)
 {
-	if (!Render_OCC)		return;
-
 	//	Igor: prevent release crash if we issue too many queries
 	if (ID == iInvalidHandle) return;
 
@@ -84,8 +80,6 @@ void	R_occlusion::occq_end		(u32&	ID		)
 
 R_occlusion::occq_result R_occlusion::occq_get		(u32&	ID		)
 {
-	if (!Render_OCC)		return 0xffffffff;
-
 	//	Igor: prevent release crash if we issue too many queries
 	if (ID == iInvalidHandle) return 0xFFFFFFFF;
 

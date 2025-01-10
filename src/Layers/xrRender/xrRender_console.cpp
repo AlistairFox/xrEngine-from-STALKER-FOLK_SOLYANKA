@@ -647,10 +647,6 @@ public:
 #endif	//	DEBUG
 #endif	//	(RENDER == R_R3) || (RENDER == R_R4)
 		 
-extern int particles_disable = 0;
-extern int Render_OCC = 1;
-
-
 /// DETAILS NEW 
 int ps_render_detail_radius = 48;
 
@@ -689,18 +685,20 @@ public:
 
 extern int off_details;
 extern float ps_r__Detail_scale;
+extern int render_particle_distance = 0;
+
 //-----------------------------------------------------------------------
 void		xrRender_initconsole	()
 {
+
+	CMD4(CCC_Integer, "r__particle_distance", &render_particle_distance, 0, 1000);
+
 	CMD4(CCC_DetailsRenderDIST, "r__detail_distance", &ps_render_detail_radius, 1, 128);
 	CMD4(CCC_Float,				"r__detail_density", &ps_r__Detail_density, .05f, 0.6f);
 	CMD4(CCC_Float,				"r__detail_scale", &ps_r__Detail_scale, 0, 2.0f);
 	 
 	CMD4(CCC_Integer,			"r__detail_off", &off_details, 0, 1);
 
-	CMD4(CCC_Integer, "ren_occ", &Render_OCC, 0, 1);
-
-	CMD4(CCC_Integer, "particles_disabled", &particles_disable, 0, 1);
 
 	CMD3(CCC_Preset,	"_preset",				&ps_Preset,	qpreset_token	);
 
