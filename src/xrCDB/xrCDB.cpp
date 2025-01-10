@@ -114,10 +114,12 @@ void	MODEL::build_internal	(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callba
 
 	u32 used, free;
 	size_t total;
+	CTimer t; 
+	t.Start();
 
 	total = Memory.mem_usage(&used,&free);
 	
-	Msg("CFORM stage 1 xrMemory[64]: Used[%u], Free[%u], TOTAL[%u]", used, free, total);
+	Msg("CFORM stage 1 xrMemory[64]: Used[%u], Free[%u], TOTAL[%u] MS[%u]", used, free, total, t.GetElapsed_ms());
 
 	// verts
 	verts_count	= Vcnt;
@@ -127,7 +129,7 @@ void	MODEL::build_internal	(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callba
 	
  	total = Memory.mem_usage(&used, &free);
 
-	Msg("CFORM stage 2 xrMemory[64]: Used[%u], Free[%u], TOTAL[%u]", used, free, total);
+	Msg("CFORM stage 2 xrMemory[64]: Used[%u], Free[%u], TOTAL[%u] MS[%u]", used, free, total, t.GetElapsed_ms());
 
 	// tris
 	tris_count	= Tcnt;
@@ -137,7 +139,7 @@ void	MODEL::build_internal	(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callba
 
  	total = Memory.mem_usage(&used, &free);
 
-	Msg("CFORM stage 3 xrMemory[64]: Used[%u], Free[%u], TOTAL[%u]", used, free, total);
+	Msg("CFORM stage 3 xrMemory[64]: Used[%u], Free[%u], TOTAL[%u] MS[%u]", used, free, total, t.GetElapsed_ms());
 
 	// callback
 	if (bc)		bc	(verts,Vcnt,tris,Tcnt,bcp);
@@ -150,7 +152,7 @@ void	MODEL::build_internal	(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callba
 	
  	total = Memory.mem_usage(&used, &free);
 
-	Msg("CFORM stage 4 xrMemory[64]: Used[%u], Free[%u], TOTAL[%u]", used, free, total);
+	Msg("CFORM stage 4 xrMemory[64]: Used[%u], Free[%u], TOTAL[%u] MS[%u]", used, free, total, t.GetElapsed_ms());
 
 	if (0==temp_tris)	
 	{
@@ -160,7 +162,7 @@ void	MODEL::build_internal	(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callba
 	}
 
 	total = Memory.mem_usage(&used, &free);
-	Msg("CFORM stage 5 xrMemory[64]: Used[%u], Free[%u], TOTAL[%u]", used, free, total);
+	Msg("CFORM stage 5 xrMemory[64]: Used[%u], Free[%u], TOTAL[%u] MS[%u]", used, free, total, t.GetElapsed_ms());
 	
 	u32*		temp_ptr	= temp_tris;
 
@@ -172,7 +174,7 @@ void	MODEL::build_internal	(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callba
 	}
 
 	total = Memory.mem_usage(&used, &free);
-	Msg("CFORM stage 6 xrMemory[64]: Used[%u], Free[%u], TOTAL[%u]", used, free, total);
+	Msg("CFORM stage 6 xrMemory[64]: Used[%u], Free[%u], TOTAL[%u] MS[%u]", used, free, total, t.GetElapsed_ms());
 	
 	// Build a non quantized no-leaf tree
 	OPCODECREATE	OPCC;
@@ -183,9 +185,6 @@ void	MODEL::build_internal	(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callba
 	OPCC.Rules		= SPLIT_COMPLETE | SPLIT_SPLATTERPOINTS | SPLIT_GEOMCENTER;
 	OPCC.NoLeaf		= true;
 	OPCC.Quantized	= false;
-	// if (Memory.debug_mode) OPCC.KeepOriginal = true;
-
-
 
 	tree			= CNEW(OPCODE_Model) ();
 	if (!tree->Build(OPCC)) 
@@ -197,13 +196,13 @@ void	MODEL::build_internal	(Fvector* V, int Vcnt, TRI* T, int Tcnt, build_callba
 	};
 
 	total = Memory.mem_usage(&used, &free);
-	Msg("CFORM stage 7 xrMemory[64]: Used[%u], Free[%u], TOTAL[%u]", used, free, total);
+	Msg("CFORM stage 7 xrMemory[64]: Used[%u], Free[%u], TOTAL[%u] MS[%u]", used, free, total, t.GetElapsed_ms());
 
 	// Free temporary tris
 	CFREE			(temp_tris);
 
 	total = Memory.mem_usage(&used, &free);
-	Msg("CFORM stage 8 xrMemory[64]: Used[%u], Free[%u], TOTAL[%u]", used, free, total);
+	Msg("CFORM stage 8 xrMemory[64]: Used[%u], Free[%u], TOTAL[%u] MS[%u]", used, free, total, t.GetElapsed_ms());
 
 	return;
 }

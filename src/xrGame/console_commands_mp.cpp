@@ -2847,6 +2847,8 @@ public:
 	{
 		if (OnServer())
 		{
+			Msg("Start Fallout Storm");
+			 
 			NET_Packet		P;
 			P.w_begin(M_SCRIPT_EVENT);
 			P.w_u8(8);
@@ -2873,6 +2875,7 @@ public:
 	{
 		if (OnServer())
 		{
+			Msg("Start Psi Storm");
 			NET_Packet		P;
 			P.w_begin(M_SCRIPT_EVENT);
 			P.w_u8(8);
