@@ -20,6 +20,8 @@ void CRenderDevice::_Destroy	(BOOL bKeepTextures)
 	Memory.mem_compact			();
 }
 
+void ImGUI_DeviceDestroy();
+
 void CRenderDevice::Destroy	(void) {
 	if (!b_is_Ready)			return;
 
@@ -29,6 +31,8 @@ void CRenderDevice::Destroy	(void) {
 	m_pRender->ValidateHW();
 
 	_Destroy					(FALSE);
+
+	ImGUI_DeviceDestroy();
 
 	// real destroy
 	m_pRender->DestroyHW();

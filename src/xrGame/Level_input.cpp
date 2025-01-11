@@ -41,10 +41,22 @@ extern	float	g_fTimeFactor;
 
 #define CURRENT_ENTITY()	(game?((GameID() == eGameIDSingle) ? CurrentEntity() : CurrentControlEntity()):NULL)
 
+#include "ImGUI_Loader.h"
+
+/*
+bool Editor_KeyPress(int key);
+bool Editor_KeyRelease(int key);
+bool Editor_KeyHold(int key);
+bool Editor_MouseMove(int dx, int dy);
+bool Editor_MouseWheel(int direction);
+*/
+
 void CLevel::IR_OnMouseWheel( int direction )
 {
-	if(	g_bDisableAllInput	) return;
+	if (Editor_MouseWheel(direction)) return;
 
+	if(	g_bDisableAllInput	) return;
+	 
 	if (CurrentGameUI()->IR_UIOnMouseWheel(direction)) return;
 	if( Device.Paused()
 #ifdef DEBUG
@@ -70,6 +82,8 @@ void CLevel::IR_OnMouseHold(int btn)
 
 void CLevel::IR_OnMouseMove( int dx, int dy )
 {
+	if (Editor_MouseMove(dx, dy)) return;
+
 	if(g_bDisableAllInput)							return;
 	if (CurrentGameUI()->IR_UIOnMouseMove(dx,dy))		return;
 	if (Device.Paused() && !IsDemoPlay() 
@@ -99,6 +113,8 @@ void CLevel::IR_OnKeyboardPress	(int key)
 {
 	if(Device.dwPrecacheFrame)
 		return;
+
+	if (Editor_KeyPress(key)) return;
 
 #ifdef INGAME_EDITOR
 	if (Device.editor() && (pInput->iGetAsyncKeyState(DIK_LALT) || pInput->iGetAsyncKeyState(DIK_RALT)))
@@ -450,6 +466,8 @@ void CLevel::IR_OnKeyboardPress	(int key)
 
 void CLevel::IR_OnKeyboardRelease(int key)
 {
+	if (Editor_KeyRelease(key)) return;
+
 	if (!bReady || g_bDisableAllInput	)								return;
 	if ( CurrentGameUI() && CurrentGameUI()->IR_UIOnKeyboardRelease(key)) return;
 	if (game && game->OnKeyboardRelease(get_binded_action(key)) )		return;
@@ -468,6 +486,8 @@ void CLevel::IR_OnKeyboardRelease(int key)
 
 void CLevel::IR_OnKeyboardHold(int key)
 {
+	if (Editor_KeyHold(key)) return;
+
 	if(g_bDisableAllInput) return;
 
 #ifdef DEBUG

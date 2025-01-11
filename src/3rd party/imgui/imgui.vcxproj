@@ -50,7 +50,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IntDir>$(SolutionDir)\..\intermediate\$(Platform)-$(Configuration)\$(ProjectName)\</IntDir>
-    <OutDir>$(SolutionDir)..\binaries\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)\..\binares\$(Platform)-$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -117,7 +117,7 @@
       <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
     </Link>
     <Lib>
-      <OutputFile>$(OutDir)..\libs\$(TargetName)$(TargetExt)</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>

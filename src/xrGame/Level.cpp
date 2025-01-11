@@ -880,6 +880,8 @@ extern	Flags32	dbg_net_Draw_Flags;
 
 extern void draw_wnds_rects();
 
+#include "ImGUI_Loader.h"
+
 void CLevel::OnRender()
 {
 	inherited::OnRender	();
@@ -889,10 +891,8 @@ void CLevel::OnRender()
 
 	Game().OnRender();
 	//  
-	//Device.Statistic->TEST1.Begin();
-	BulletManager().Render();
-	//Device.Statistic->TEST1.End();
-	// c 
+ 	BulletManager().Render();
+ 	// c 
 	HUD().RenderUI();
 
 #ifdef DEBUG
@@ -1014,6 +1014,9 @@ void CLevel::OnRender()
 		}
 	}
 #endif
+
+
+	ShowEditor();
 }
 
 void CLevel::OnEvent(EVENT E, u64 P1, u64 /**P2/**/P2, u64 P3)

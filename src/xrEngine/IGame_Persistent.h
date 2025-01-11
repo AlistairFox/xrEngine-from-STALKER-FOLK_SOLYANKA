@@ -97,6 +97,8 @@ public:
 	virtual void					OnSectorChanged		(int sector){};
 	virtual void					OnAssetsChanged		();
 
+	virtual void					EditorOnFrame() {};
+
 	virtual void					RegisterModel		(IRenderVisual* V)
 #ifndef _EDITOR
      = 0;

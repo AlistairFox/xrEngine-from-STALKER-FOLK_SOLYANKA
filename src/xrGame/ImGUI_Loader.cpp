@@ -1,0 +1,248 @@
+#include "stdafx.h"
+#include "ImGUI_Loader.h"
+
+#include "Level.h"
+#include "xr_level_controller.h"
+#include "../xrEngine/xr_input.h"
+
+#include "imgui.h"
+
+static bool isAlt = false;
+ENGINE_API extern EditorStage imgui_stage;
+
+bool IsEditorActive()
+{
+    if (g_dedicated_server)
+        return false;
+
+    return imgui_stage == EditorStage::Full || (imgui_stage == EditorStage::Light && isAlt);
+}
+
+bool IsEditor() { return imgui_stage != EditorStage::None; }
+
+
+void ShowWeatherEditor(bool& show);
+
+bool showWeather = false;
+
+void ShowEditor()
+{
+    if (ImGui::Begin("Window"))
+    {
+        ImGui::Checkbox("Weather", &showWeather);
+        ShowWeatherEditor(showWeather);
+         ImGui::End();
+    }
+
+}
+
+bool isRControl = false, isLControl = false, isRShift = false, isLShift = false;
+bool Editor_KeyPress(int key)
+{
+    if (g_dedicated_server)
+        return false;
+
+    if (!Level().game || !Level().game->local_player)
+        return false;
+
+    switch (key)
+    {
+    case (DIK_ESCAPE):
+    {
+        imgui_stage = EditorStage::None;
+    }
+    break;
+
+    case (DIK_F12):
+    {
+        if (Level().game->local_player->testFlag(GAME_PLAYER_HAS_ADMIN_RIGHTS))
+        {
+            if (imgui_stage == EditorStage::Full)
+                imgui_stage = EditorStage::None;
+            else
+                imgui_stage = EditorStage::Full;
+        }
+    }break;
+    }
+
+    if (!IsEditorActive())
+        return false;
+
+    ImGuiIO& io = ImGui::GetIO();
+    io.MouseDrawCursor = true;
+
+    switch (key)
+    {
+
+    case DIK_RALT:
+    case DIK_LALT:
+    case DIK_F12:
+        break;
+    case DIK_RCONTROL:
+        isRControl = true;
+        io.KeyCtrl = true;
+        break;
+    case DIK_LCONTROL:
+        isLControl = true;
+        io.KeyCtrl = true;
+        break;
+    case DIK_RSHIFT:
+        isRShift = true;
+        io.KeyShift = true;
+        break;
+    case DIK_LSHIFT:
+        isLShift = true;
+        io.KeyShift = true;
+        break;
+    case MOUSE_1:
+        io.MouseDown[0] = true;
+        break;
+    case MOUSE_2:
+        io.MouseDown[1] = true;
+        break;
+    case MOUSE_3:
+        io.MouseDown[2] = true;
+        break;
+    case DIK_NUMPAD0:
+        io.AddInputCharacter('0');
+        break;
+    case DIK_NUMPAD1:
+        io.AddInputCharacter('1');
+        break;
+    case DIK_NUMPAD2:
+        io.AddInputCharacter('2');
+        break;
+    case DIK_NUMPAD3:
+        io.AddInputCharacter('3');
+        break;
+    case DIK_NUMPAD4:
+        io.AddInputCharacter('4');
+        break;
+    case DIK_NUMPAD5:
+        io.AddInputCharacter('5');
+        break;
+    case DIK_NUMPAD6:
+        io.AddInputCharacter('6');
+        break;
+    case DIK_NUMPAD7:
+        io.AddInputCharacter('7');
+        break;
+    case DIK_NUMPAD8:
+        io.AddInputCharacter('8');
+        break;
+    case DIK_NUMPAD9:
+        io.AddInputCharacter('9');
+        break;
+
+    default:
+        if (key < 512)
+            io.KeysDown[key] = true;
+        if (key == DIK_SPACE && (pInput->iGetAsyncKeyState(DIK_RWIN) || pInput->iGetAsyncKeyState(DIK_LWIN)))
+            ActivateKeyboardLayout((HKL)HKL_NEXT, 0);
+        else {
+            uint16_t ch[1];
+            int n = pInput->scancodeToChar(key, ch);
+            if (n > 0) {
+                wchar_t buf;
+                MultiByteToWideChar(CP_ACP, 0, (char*)ch, n, &buf, 1);
+                io.AddInputCharacter(buf);
+            }
+        }
+    }
+    return true;
+}
+
+bool Editor_KeyRelease(int key)
+{
+    if (g_dedicated_server)
+        return false;
+
+    /*
+    if (key == DIK_RALT || key == DIK_LALT)
+    {
+        isAlt = false;
+        stage = EditorStage::None;
+    }
+    */
+
+    bool active = IsEditorActive();
+
+    ImGuiIO& io = ImGui::GetIO();
+    if (!active)
+        io.MouseDrawCursor = false;
+
+    switch (key) {
+    case DIK_RCONTROL:
+        isRControl = false;
+        io.KeyCtrl = isRControl || isLControl;
+        break;
+    case DIK_LCONTROL:
+        isLControl = false;
+        io.KeyCtrl = isRControl || isLControl;
+        break;
+    case DIK_RSHIFT:
+        isRShift = false;
+        io.KeyShift = isRShift || isLShift;
+        break;
+    case DIK_LSHIFT:
+        isLShift = false;
+        io.KeyShift = isRShift || isLShift;
+        break;
+    case MOUSE_1:
+        io.MouseDown[0] = false;
+        break;
+    case MOUSE_2:
+        io.MouseDown[1] = false;
+        break;
+    case MOUSE_3:
+        io.MouseDown[2] = false;
+        break;
+    default:
+        if (key < 512)
+            io.KeysDown[key] = false;
+    }
+    return active;
+}
+
+bool Editor_KeyHold(int key)
+{
+    if (!IsEditorActive())
+        return false;
+    return true;
+}
+
+bool Editor_MouseMove(int dx, int dy)
+{
+    if (!IsEditorActive())
+        return false;
+
+    ImGuiIO& io = ImGui::GetIO();
+    POINT p;
+    GetCursorPos(&p);
+    io.MousePos.x = p.x;
+    io.MousePos.y = p.y;
+    return true;
+}
+
+static int s_direction{};
+
+bool Editor_MouseWheel(int direction)
+{
+    if (!IsEditorActive())
+        return false;
+
+    s_direction = direction;
+
+    return true;
+}
+
+void Editor_OnFrame()
+{
+    if (s_direction)
+    {
+        ImGuiIO& io = ImGui::GetIO();
+
+        io.MouseWheel += s_direction > 0 ? +1.0f : -1.0f;
+        s_direction = 0;
+    }
+}

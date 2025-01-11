@@ -31,23 +31,29 @@ void	fill_render_mode_list		()			{}
 void	free_render_mode_list		()			{}
 #endif
 
+
+#ifdef USE_DX11
+
+#pragma warning(disable:4995)
+// Imgui
+#include <imgui.h>
+#include "backends\imgui_impl_dx11.h"
+#include "backends\imgui_impl_win32.h"		 
+
+#pragma comment(lib, "imgui.lib")
+#pragma warning(default:4995)
+
+#endif
+
+
 CHW			HW;
 
 //	DX10: Don't neeed this?
-/*
-#ifdef DEBUG
-IDirect3DStateBlock9*	dwDebugSB = 0;
-#endif
-*/
 
 CHW::CHW() : 
-//	hD3D(NULL),
-	//pD3D(NULL),
 	m_pAdapter(0),
 	pDevice(NULL),
 	m_move_window(true)
-	//pBaseRT(NULL),
-	//pBaseZB(NULL)
 {
 	Device.seqAppActivate.Add(this);
 	Device.seqAppDeactivate.Add(this);
@@ -63,66 +69,16 @@ CHW::~CHW()
 //////////////////////////////////////////////////////////////////////
 void CHW::CreateD3D()
 {
-	/*	Partially implemented dynamic load
-	LPCSTR		_name			= "d3d10.dll";
-
-	hD3D            			= LoadLibrary(_name);
-
-	//	If library can't be loaded computer don't support DirectX 10 at all
-	if (!hD3D)					return;
-	//	check if adapter support Direc3D 10 interface
-
-	typedef HRESULT _CreateDXGIFactory( REFIID riid,	void **ppFactory);
-
-	_CreateDXGIFactory  *CreateFactory = (_CreateDXGIFactory*)GetProcAddress(hD3D,"CreateDXGIFactory");
-	R_ASSERT(CreateFactory);
-
-	IDXGIFactory * pFactory;
-	R_CHK( CreateFactory(__uuidof(IDXGIFactory), (void**)(&pFactory)) );
-	pFactory->EnumAdapters(0, &m_pAdapter);
-	pFactory->Release();
-	*/
-
 	IDXGIFactory * pFactory;
 	R_CHK( CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)(&pFactory)) );
 
 	m_pAdapter = 0;
 	m_bUsePerfhud = false;
 
-#ifndef	MASTER_GOLD
-	// Look for 'NVIDIA NVPerfHUD' adapter
-	// If it is present, override default settings
-	UINT i = 0;
-	while(pFactory->EnumAdapters(i, &m_pAdapter) != DXGI_ERROR_NOT_FOUND)
-	{
-		DXGI_ADAPTER_DESC desc;
-		m_pAdapter->GetDesc(&desc);
-		if(!wcscmp(desc.Description,L"NVIDIA PerfHUD"))
-		{
-			m_bUsePerfhud = true;
-			break;
-		}
-		else
-		{
-			m_pAdapter->Release();
-			m_pAdapter = 0;
-		}
-		++i;
-	}
-#endif	//	MASTER_GOLD
-
 	if (!m_pAdapter)
 		pFactory->EnumAdapters(0, &m_pAdapter);
 
 	pFactory->Release();
-
-	/*
-	R_ASSERT2	           	 	(hD3D,"Can't find 'd3d10.dll'\nPlease install latest version of DirectX before running this program");
-	typedef IDirect3D9 * WINAPI _Direct3DCreate9(UINT SDKVersion);
-	_Direct3DCreate9* createD3D	= (_Direct3DCreate9*)GetProcAddress(hD3D,"Direct3DCreate9");	R_ASSERT(createD3D);
-	this->pD3D 					= createD3D( D3D_SDK_VERSION );
-	R_ASSERT2					(this->pD3D,"Please install DirectX 9.0c");
-	*/
 }
 
 void CHW::DestroyD3D()
@@ -140,26 +96,6 @@ void CHW::CreateDevice( HWND m_hWnd, bool move_window )
 	m_move_window			= move_window;
 	CreateD3D();
 
-	/* Partially implemented dynamic load
-	typedef HRESULT _D3DxxCreateDeviceAndSwapChain(
-		IDXGIAdapter *pAdapter,
-		D3Dxx_DRIVER_TYPE DriverType,
-		HMODULE Software,
-		UINT Flags,
-		UINT SDKVersion,
-		DXGI_SWAP_CHAIN_DESC *pSwapChainDesc,
-		IDXGISwapChain **ppSwapChain,
-		ID3DxxDevice **ppDevice
-		);
-
-
-
-	_D3DxxCreateDeviceAndSwapChain *CreateDeviceAndSwapChain = 
-		(_D3DxxCreateDeviceAndSwapChain*)
-		GetProcAddress(hD3D,"D3DxxCreateDeviceAndSwapChain");
-	R_ASSERT(CreateDeviceAndSwapChain);
-	*/
-
 	// TODO: DX10: Create appropriate initialization
 
 	// General - select adapter and device
@@ -171,56 +107,15 @@ void CHW::CreateDevice( HWND m_hWnd, bool move_window )
 	if (m_bUsePerfhud)
 		m_DriverType = D3D_DRIVER_TYPE_REFERENCE;
 
-	//	For DirectX 10 adapter is already created in create D3D.
-	/*
-	//. #ifdef DEBUG
-	// Look for 'NVIDIA NVPerfHUD' adapter
-	// If it is present, override default settings
-	for (UINT Adapter=0;Adapter<pD3D->GetAdapterCount();Adapter++)	{
-		D3DADAPTER_IDENTIFIER9 Identifier;
-		HRESULT Res=pD3D->GetAdapterIdentifier(Adapter,0,&Identifier);
-		if (SUCCEEDED(Res) && (xr_strcmp(Identifier.Description,"NVIDIA PerfHUD")==0))
-		{
-			DevAdapter	=Adapter;
-			DevT		=D3DDEVTYPE_REF;
-			break;
-		}
-	}
-	//. #endif
-	*/
-
 	// Display the name of video board
 	DXGI_ADAPTER_DESC Desc;
 	R_CHK( m_pAdapter->GetDesc(&Desc) );
 	//	Warning: Desc.Description is wide string
 	Msg		("* GPU [vendor:%X]-[device:%X]: %S", Desc.VendorId, Desc.DeviceId, Desc.Description);
-	/*
-	// Display the name of video board
-	D3DADAPTER_IDENTIFIER9	adapterID;
-	R_CHK	(pD3D->GetAdapterIdentifier(DevAdapter,0,&adapterID));
-	Msg		("* GPU [vendor:%X]-[device:%X]: %s",adapterID.VendorId,adapterID.DeviceId,adapterID.Description);
-
-	u16	drv_Product		= HIWORD(adapterID.DriverVersion.HighPart);
-	u16	drv_Version		= LOWORD(adapterID.DriverVersion.HighPart);
-	u16	drv_SubVersion	= HIWORD(adapterID.DriverVersion.LowPart);
-	u16	drv_Build		= LOWORD(adapterID.DriverVersion.LowPart);
-	Msg		("* GPU driver: %d.%d.%d.%d",u32(drv_Product),u32(drv_Version),u32(drv_SubVersion), u32(drv_Build));
-	*/
-
-	/*
-	Caps.id_vendor	= adapterID.VendorId;
-	Caps.id_device	= adapterID.DeviceId;
-	*/
 
 	Caps.id_vendor	= Desc.VendorId;
 	Caps.id_device	= Desc.DeviceId;
 
-	/*
-	// Retreive windowed mode
-	D3DDISPLAYMODE mWindowed;
-	R_CHK(pD3D->GetAdapterDisplayMode(DevAdapter, &mWindowed));
-
-	*/
 	// Select back-buffer & depth-stencil format
 	D3DFORMAT&	fTarget	= Caps.fTarget;
 	D3DFORMAT&	fDepth	= Caps.fDepth;
@@ -228,52 +123,6 @@ void CHW::CreateDevice( HWND m_hWnd, bool move_window )
 	//	HACK: DX10: Embed hard target format.
 	fTarget = D3DFMT_X8R8G8B8;	//	No match in DX10. D3DFMT_A8B8G8R8->DXGI_FORMAT_R8G8B8A8_UNORM
 	fDepth = selectDepthStencil(fTarget);
-	/*
-	if (bWindowed)
-	{
-		fTarget = mWindowed.Format;
-		R_CHK(pD3D->CheckDeviceType	(DevAdapter,DevT,fTarget,fTarget,TRUE));
-		fDepth  = selectDepthStencil(fTarget);
-	} else {
-		switch (psCurrentBPP) {
-		case 32:
-			fTarget = D3DFMT_X8R8G8B8;
-			if (SUCCEEDED(pD3D->CheckDeviceType(DevAdapter,DevT,fTarget,fTarget,FALSE)))
-				break;
-			fTarget = D3DFMT_A8R8G8B8;
-			if (SUCCEEDED(pD3D->CheckDeviceType(DevAdapter,DevT,fTarget,fTarget,FALSE)))
-				break;
-			fTarget = D3DFMT_R8G8B8;
-			if (SUCCEEDED(pD3D->CheckDeviceType(DevAdapter,DevT,fTarget,fTarget,FALSE)))
-				break;
-			fTarget = D3DFMT_UNKNOWN;
-			break;
-		case 16:
-		default:
-			fTarget = D3DFMT_R5G6B5;
-			if (SUCCEEDED(pD3D->CheckDeviceType(DevAdapter,DevT,fTarget,fTarget,FALSE)))
-				break;
-			fTarget = D3DFMT_X1R5G5B5;
-			if (SUCCEEDED(pD3D->CheckDeviceType(DevAdapter,DevT,fTarget,fTarget,FALSE)))
-				break;
-			fTarget = D3DFMT_X4R4G4B4;
-			if (SUCCEEDED(pD3D->CheckDeviceType(DevAdapter,DevT,fTarget,fTarget,FALSE)))
-				break;
-			fTarget = D3DFMT_UNKNOWN;
-			break;
-		}
-		fDepth  = selectDepthStencil(fTarget);
-	}
-	
-
-	if ((D3DFMT_UNKNOWN==fTarget) || (D3DFMT_UNKNOWN==fTarget))	{
-		Msg					("Failed to initialize graphics hardware.\nPlease try to restart the game.");
-		FlushLog			();
-		MessageBox			(NULL,"Failed to initialize graphics hardware.\nPlease try to restart the game.","Error!",MB_OK|MB_ICONERROR);
-		TerminateProcess	(GetCurrentProcess(),0);
-	}
-
-	*/
 	
 	// Set up the presentation parameters
 	DXGI_SWAP_CHAIN_DESC	&sd	= m_ChainDesc;
@@ -282,10 +131,6 @@ void CHW::CreateDevice( HWND m_hWnd, bool move_window )
 	selectResolution	(sd.BufferDesc.Width, sd.BufferDesc.Height, bWindowed);
 
 	// Back buffer
-	//.	P.BackBufferWidth		= dwWidth;
-	//. P.BackBufferHeight		= dwHeight;
-	//	TODO: DX10: implement dynamic format selection
-	//sd.BufferDesc.Format		= fTarget;
 	sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	sd.BufferCount = 1;
 
@@ -294,23 +139,10 @@ void CHW::CreateDevice( HWND m_hWnd, bool move_window )
 	sd.SampleDesc.Quality = 0;
 
 	// Windoze
-	//P.SwapEffect			= bWindowed?D3DSWAPEFFECT_COPY:D3DSWAPEFFECT_DISCARD;
-	//P.hDeviceWindow			= m_hWnd;
-	//P.Windowed				= bWindowed;
 	sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 	sd.OutputWindow = m_hWnd;
 	sd.Windowed = bWindowed;
 
-	// Depth/stencil
-	// DX10 don't need this?
-	//P.EnableAutoDepthStencil= TRUE;
-	//P.AutoDepthStencilFormat= fDepth;
-	//P.Flags					= 0;	//. D3DPRESENTFLAG_DISCARD_DEPTHSTENCIL;
-
-	// Refresh rate
-	//P.PresentationInterval	= D3DPRESENT_INTERVAL_IMMEDIATE;
-	//if( !bWindowed )		P.FullScreen_RefreshRateInHz	= selectRefresh	(P.BackBufferWidth, P.BackBufferHeight,fTarget);
-	//else					P.FullScreen_RefreshRateInHz	= D3DPRESENT_RATE_DEFAULT;
 	if (bWindowed)
 	{
 		sd.BufferDesc.RefreshRate.Numerator = 60;
@@ -325,19 +157,15 @@ void CHW::CreateDevice( HWND m_hWnd, bool move_window )
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 
 	UINT createDeviceFlags = 0;
-#ifdef DEBUG
-	//createDeviceFlags |= D3Dxx_CREATE_DEVICE_DEBUG;
-#endif
-   HRESULT R;
+
+    HRESULT R;
 	// Create the device
 	//	DX10 don't need it?
 	//u32 GPU		= selectGPU();
 #ifdef USE_DX11
     D3D_FEATURE_LEVEL pFeatureLevels[] =
     {
-        D3D_FEATURE_LEVEL_11_0,
-//        D3D_FEATURE_LEVEL_10_1,
-//        D3D_FEATURE_LEVEL_10_0,
+        D3D_FEATURE_LEVEL_11_0
     };
 
    R =  D3D11CreateDeviceAndSwapChain(   0,//m_pAdapter,//What wrong with adapter??? We should use another version of DXGI?????
@@ -370,18 +198,7 @@ void CHW::CreateDevice( HWND m_hWnd, bool move_window )
    }
    pContext1 = pDevice1;
 #endif
-
-	/*
-	if (FAILED(R))	{
-		R	= HW.pD3D->CreateDevice(	DevAdapter,
-			DevT,
-			m_hWnd,
-			GPU | D3DCREATE_MULTITHREADED,	//. ? locks at present
-			&P,
-			&pDevice );
-	}
-	*/
-	//if (D3DERR_DEVICELOST==R)	{
+   
 	if (FAILED(R))
 	{
 		// Fatal error! Cannot create rendering device AT STARTUP !!!
@@ -396,44 +213,54 @@ void CHW::CreateDevice( HWND m_hWnd, bool move_window )
 	R_CHK(R);
 
 	_SHOW_REF	("* CREATE: DeviceREF:",HW.pDevice);
-	/*
-	switch (GPU)
-	{
-	case D3DCREATE_SOFTWARE_VERTEXPROCESSING:
-		Log	("* Vertex Processor: SOFTWARE");
-		break;
-	case D3DCREATE_MIXED_VERTEXPROCESSING:
-		Log	("* Vertex Processor: MIXED");
-		break;
-	case D3DCREATE_HARDWARE_VERTEXPROCESSING:
-		Log	("* Vertex Processor: HARDWARE");
-		break;
-	case D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_PUREDEVICE:
-		Log	("* Vertex Processor: PURE HARDWARE");
-		break;
-	}
-	*/
-
-	// Capture misc data
-//	DX10: Don't neeed this?
-//#ifdef DEBUG
-//	R_CHK	(pDevice->CreateStateBlock			(D3DSBT_ALL,&dwDebugSB));
-//#endif
+ 
 	//	Create render target and depth-stencil views here
 	UpdateViews();
 
-	//u32	memory									= pDevice->GetAvailableTextureMem	();
-	size_t	memory									= Desc.DedicatedVideoMemory;
-	Msg		("*     Texture memory: %d M",		memory/(1024*1024));
-	//Msg		("*          DDI-level: %2.1f",		float(D3DXGetDriverLevel(pDevice))/100.f);
+ 	size_t	memory									= Desc.DedicatedVideoMemory;
+	Msg		("*     Texture memory: %d M",			memory/(1024*1024));
+ 
 #ifndef _EDITOR
 	updateWindowProps							(m_hWnd);
 	fill_vid_mode_list							(this);
+#endif
+
+	/// IMGUI LOADER
+#ifdef USE_DX11
+	   // Setup Dear ImGui context
+	IMGUI_CHECKVERSION();
+	ImGui::SetAllocatorFunctions(
+		[](size_t size, void* /*user_data*/)
+		{
+			return xr_malloc(size);
+		},
+		[](void* ptr, void* /*user_data*/)
+		{
+			xr_free(ptr);
+		}
+	);
+
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+	// Setup Dear ImGui style
+	ImGui::StyleColorsDark();
+ 
+	// Setup Platform/Renderer backends
+	ImGui_ImplDX11_Init(pDevice, pContext);
+	ImGui_ImplWin32_Init(m_hWnd);
 #endif
 }
 
 void CHW::DestroyDevice()
 {
+	// ImGUI Destroy
+#ifdef USE_DX11
+	// Cleanup
+	ImGui_ImplDX11_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
+#endif
 	//	Destroy state managers
 	StateManager.Reset();
 	RSManager.ClearStateArray();

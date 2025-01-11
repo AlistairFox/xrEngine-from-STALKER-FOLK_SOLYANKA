@@ -687,6 +687,7 @@ int get_ref_count(IUnknown* ii)
 	return 0;
 }
 
+extern int CurrentEditing = 0;
 
 void CEnvironment::lerp		(float& current_weight)
 {
@@ -734,7 +735,7 @@ void CEnvironment::lerp		(float& current_weight)
 		mpower				+= EM.sum(*mit,view);
 
 	// final lerp
-	if (Current[0] && Current[1])
+	if (Current[0] && Current[1] && !CurrentEditing)
 		CurrentEnv->lerp		(this,*Current[0],*Current[1],current_weight,EM,mpower);
 }
 

@@ -2599,6 +2599,9 @@
     <Filter Include="Se7Kills\Gamemodes\server\roleplay">
       <UniqueIdentifier>{275b40cc-c72b-4e31-9af8-bc1b0f0a7e86}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ImGUI">
+      <UniqueIdentifier>{1d469b99-f6f6-41c6-80fc-413cb39dee50}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mt_config.h">
@@ -7582,6 +7585,9 @@
       <Filter>UI\ADMIN_SPAWNER</Filter>
     </ClInclude>
     <ClInclude Include="CampFireSwitcher.h" />
+    <ClInclude Include="ImGUI_Loader.h">
+      <Filter>ImGUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="damage_manager.cpp">
@@ -11383,6 +11389,12 @@
       <Filter>Se7Kills\Gamemodes\server\freemp\network</Filter>
     </ClCompile>
     <ClCompile Include="CampFireSwitcher.cpp" />
+    <ClCompile Include="ImGUI_Loader.cpp">
+      <Filter>ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="WeatherEditor.cpp">
+      <Filter>ImGUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="ai\monsters\chimera\chimera_attack_state.h">

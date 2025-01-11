@@ -962,6 +962,9 @@
     <ClCompile Include="xrSASH.cpp">
       <Filter>OpenAutomate</Filter>
     </ClCompile>
+    <ClCompile Include="device_imgui.cpp">
+      <Filter>RenderRef\Execution &amp; 3D\Device</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc">

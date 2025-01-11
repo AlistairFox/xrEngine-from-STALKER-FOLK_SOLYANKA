@@ -222,6 +222,9 @@ extern int g_svDedicateServerUpdateReate = 100;
 ENGINE_API xr_list<LOADING_EVENT>			g_loading_events;
 extern int fps_limit;
 
+extern void ImGui_NewFrame();
+extern void ImGui_EndFrame();
+
 void CRenderDevice::on_idle()
 {
 	if (!b_is_Ready)
@@ -244,14 +247,14 @@ void CRenderDevice::on_idle()
 		pApp->LoadDraw();
 		return;
 	}
-	else
-	{
-		if ((!Device.dwPrecacheFrame) && (!g_SASH.IsBenchmarkRunning())
-			&& g_bLoaded)
-			g_SASH.StartBenchmark();
-
-		FrameMove();
-	}
+ 	
+	
+	if ((!Device.dwPrecacheFrame) && (!g_SASH.IsBenchmarkRunning()) && g_bLoaded)
+		g_SASH.StartBenchmark();
+#ifndef DEDICATED_SERVER
+	ImGui_NewFrame();
+#endif 
+	FrameMove();
 
 	// Precache
 	if (dwPrecacheFrame)
@@ -292,10 +295,11 @@ void CRenderDevice::on_idle()
 		CTimer t; t.Start();
 		if (Begin())
 		{
-
-			seqRender.Process(rp_Render);
+ 			seqRender.Process(rp_Render);
 			Statistic->Show();
+			
 			End();
+			ImGui_EndFrame();
 		}
  	}
 	Statistic->RenderTOTAL_Real.End();

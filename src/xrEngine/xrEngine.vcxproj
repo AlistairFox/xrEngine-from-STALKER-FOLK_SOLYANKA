@@ -592,7 +592,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>../../sdk/include/;$(DXSDK_DIR)Include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../sdk/include/;$(DXSDK_DIR)Include/;$(SolutionDir)3rd party\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG;WIN32;_WINDOWS;ENGINE_BUILD;_SECURE_SCL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>Sync</ExceptionHandling>
@@ -624,7 +624,7 @@
       <Culture>0x0422</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>vfw32.lib;libogg_static.lib;libtheora_static.lib;oalib.lib;xrScripts.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>vfw32.lib;libogg_static.lib;libtheora_static.lib;oalib.lib;xrScripts.lib;imgui.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <IgnoreSpecificDefaultLibraries>libcmt;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -1056,7 +1056,7 @@
       <Culture>0x0422</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>vfw32.lib;libogg_static.lib;libtheora_static.lib;oalib.lib;xrScripts.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>vfw32.lib;libogg_static.lib;libtheora_static.lib;oalib.lib;xrScripts.lib;imgui.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <IgnoreSpecificDefaultLibraries>libcmt;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -1327,6 +1327,7 @@
     <ClCompile Include="device.cpp" />
     <ClCompile Include="Device_create.cpp" />
     <ClCompile Include="Device_destroy.cpp" />
+    <ClCompile Include="device_imgui.cpp" />
     <ClCompile Include="Device_Initialize.cpp" />
     <ClCompile Include="Device_Misc.cpp" />
     <ClCompile Include="Device_overdraw.cpp" />

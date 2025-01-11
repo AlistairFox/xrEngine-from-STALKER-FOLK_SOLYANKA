@@ -83,6 +83,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "opus", "..\SDK\sources\opus
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "oalib", "..\SDK\sources\OpenAutomate\oalib\oalib.vcxproj", "{61D4856F-FA82-4F02-BB88-909DDFB1FE74}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imgui", "3rd party\imgui\imgui.vcxproj", "{C8FBC3CE-D6DE-4FC3-BC15-7B647614DB09}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Release_Dedicated|x64 = Release_Dedicated|x64
@@ -339,6 +341,14 @@ Global
 		{61D4856F-FA82-4F02-BB88-909DDFB1FE74}.Release|x64.Build.0 = Release|x64
 		{61D4856F-FA82-4F02-BB88-909DDFB1FE74}.Release|x86.ActiveCfg = Release|Win32
 		{61D4856F-FA82-4F02-BB88-909DDFB1FE74}.Release|x86.Build.0 = Release|Win32
+		{C8FBC3CE-D6DE-4FC3-BC15-7B647614DB09}.Release_Dedicated|x64.ActiveCfg = Release|x64
+		{C8FBC3CE-D6DE-4FC3-BC15-7B647614DB09}.Release_Dedicated|x64.Build.0 = Release|x64
+		{C8FBC3CE-D6DE-4FC3-BC15-7B647614DB09}.Release_Dedicated|x86.ActiveCfg = Release|Win32
+		{C8FBC3CE-D6DE-4FC3-BC15-7B647614DB09}.Release_Dedicated|x86.Build.0 = Release|Win32
+		{C8FBC3CE-D6DE-4FC3-BC15-7B647614DB09}.Release|x64.ActiveCfg = Release|x64
+		{C8FBC3CE-D6DE-4FC3-BC15-7B647614DB09}.Release|x64.Build.0 = Release|x64
+		{C8FBC3CE-D6DE-4FC3-BC15-7B647614DB09}.Release|x86.ActiveCfg = Release|Win32
+		{C8FBC3CE-D6DE-4FC3-BC15-7B647614DB09}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -360,6 +370,7 @@ Global
 		{03207781-0D1C-4DB3-A71D-45C608F28DBD} = {935E04BC-A28D-49BB-A07F-EDE7E069D22B}
 		{219EC965-228A-1824-174D-96449D05F88A} = {935E04BC-A28D-49BB-A07F-EDE7E069D22B}
 		{61D4856F-FA82-4F02-BB88-909DDFB1FE74} = {935E04BC-A28D-49BB-A07F-EDE7E069D22B}
+		{C8FBC3CE-D6DE-4FC3-BC15-7B647614DB09} = {2BFC806B-CE92-4EA4-8FE8-5F2EA54BA348}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {01F84216-DBE6-4BCB-A2D6-7E6E456BF3B9}

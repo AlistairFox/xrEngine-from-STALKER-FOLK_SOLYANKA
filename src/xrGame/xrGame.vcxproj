@@ -469,7 +469,7 @@
       <TypeLibraryName>x:\xrGame.tlb</TypeLibraryName>
     </Midl>
     <ClCompile>
-      <AdditionalIncludeDirectories>./;../xrServerEntities;../../sdk/include/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./;../xrServerEntities;../../sdk/include/;$(SolutionDir)3rd party\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;XRGAME_EXPORTS;dSINGLE;MSVC;_SECURE_SCL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>Sync</ExceptionHandling>
@@ -521,7 +521,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
-      <AdditionalDependencies>xrScripts.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>xrScripts.lib;imgui.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='LUAJIT_2|Win32'">
@@ -1323,6 +1323,7 @@
     <ClInclude Include="cta_game_artefact_activation.h" />
     <ClInclude Include="game_cl_roleplay.h" />
     <ClInclude Include="game_sv_roleplay.h" />
+    <ClInclude Include="ImGUI_Loader.h" />
     <ClInclude Include="level_events.h" />
     <ClInclude Include="MasterServerEvents.h" />
     <ClInclude Include="net_physics_state.h" />
@@ -4647,6 +4648,7 @@
     <ClCompile Include="game_sv_freemp_trade.cpp" />
     <ClCompile Include="game_sv_roleplay.cpp" />
     <ClCompile Include="game_sv_roleplay_drop_items.cpp" />
+    <ClCompile Include="ImGUI_Loader.cpp" />
     <ClCompile Include="level_events.cpp" />
     <ClCompile Include="net_physics_state.cpp" />
     <ClCompile Include="script_event.cpp">
@@ -9584,6 +9586,7 @@
     <ClCompile Include="weapon_ammo_dump_impl.cpp" />
     <ClCompile Include="weapon_dump_impl.cpp" />
     <ClCompile Include="Weapon_State_Network.cpp" />
+    <ClCompile Include="WeatherEditor.cpp" />
     <ClCompile Include="Wound.cpp" />
     <ClCompile Include="xrClientsPool.cpp" />
     <ClCompile Include="xrGame.cpp" />

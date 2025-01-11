@@ -18,6 +18,19 @@
  
 extern ENGINE_API float VIEWPORT_NEAR;
 
+enum class EditorStage
+{
+	None,
+	Light,
+	Full,
+
+	Count,
+};
+
+extern ENGINE_API EditorStage imgui_stage;
+
+extern ENGINE_API int CurrentEditing;
+
 #define DEVICE_RESET_PRECACHE_FRAME_COUNT 10
 
 #include "../Include/xrRender/FactoryPtr.h"
