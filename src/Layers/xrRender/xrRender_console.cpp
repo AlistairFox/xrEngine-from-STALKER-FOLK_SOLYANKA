@@ -685,7 +685,7 @@ public:
 
 extern int off_details;
 extern float ps_r__Detail_scale;
-extern int render_particle_distance = 0;
+extern int render_particle_distance = 200;
 
 //-----------------------------------------------------------------------
 void		xrRender_initconsole	()

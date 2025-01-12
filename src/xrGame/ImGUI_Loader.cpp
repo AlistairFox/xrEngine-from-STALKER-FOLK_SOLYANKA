@@ -4,9 +4,7 @@
 #include "Level.h"
 #include "xr_level_controller.h"
 #include "../xrEngine/xr_input.h"
-
-#include "imgui.h"
-
+ 
 static bool isAlt = false;
 ENGINE_API extern EditorStage imgui_stage;
 
@@ -23,16 +21,32 @@ bool IsEditor() { return imgui_stage != EditorStage::None; }
 
 void ShowWeatherEditor(bool& show);
 
-bool showWeather = false;
+bool show_weather_window = false;
 
 void ShowEditor()
-{
-    if (ImGui::Begin("Window"))
-    {
-        ImGui::Checkbox("Weather", &showWeather);
-        ShowWeatherEditor(showWeather);
-         ImGui::End();
-    }
+{ 
+    if (g_dedicated_server)
+        return;
+
+    ImguiWnd wnd("Main");
+
+    if (wnd.Collapsed)
+        return;
+
+    ImGui::Text(u8"Advanced X-Ray Editor");
+ 
+    auto io = ImGui::GetIO();
+    
+    if (ImGui::Button("Weather Editor"))
+         show_weather_window = !show_weather_window;
+      
+    if (show_weather_window)
+        ShowWeatherEditor(show_weather_window);
+
+    bool full = imgui_stage == EditorStage::Full;
+    if (ImGui::Checkbox("Active", &full))
+        imgui_stage = full ? EditorStage::Full : EditorStage::None;
+    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
 }
 

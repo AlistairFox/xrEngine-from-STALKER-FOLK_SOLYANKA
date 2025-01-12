@@ -4216,8 +4216,8 @@ void register_mp_console_commands()
 	CMD1(CCC_GetStatMemory, "ms_stats");
 
 	// MP GLOBAL ALIFE SETTINGS
-	CMD4(CCC_Integer, "mp_alife_simulation_location", &ALIFE_ALL_LOCATION, 0, 2);		 
-	CMD4(CCC_Integer, "mp_alife_path_graph_distance", &MAX_DISTANCE_FIND_GRAPH, 1, 3000);
+	// CMD4(CCC_Integer, "mp_alife_simulation_location", &ALIFE_ALL_LOCATION, 0, 2);		 
+	// CMD4(CCC_Integer, "mp_alife_path_graph_distance", &MAX_DISTANCE_FIND_GRAPH, 1, 3000);
 
 	//ADMIN		(SE7kILLS)
 

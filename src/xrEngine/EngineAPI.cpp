@@ -78,6 +78,8 @@ void CEngineAPI::InitializeNotDedicated()
 			Msg			("! ...Failed - incompatible hardware/pre-Vista OS.");
 			psDeviceFlags.set	(rsR2,TRUE);
 		}
+		else 
+			g_current_renderer = 4;
 	}
 
 	if (psDeviceFlags.test(rsR3))

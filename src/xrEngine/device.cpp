@@ -115,6 +115,11 @@ void CRenderDevice::End(void)
 	//	Present goes here, so call OA Frame end.
 	if (g_SASH.IsBenchmarkRunning())
 		g_SASH.DisplayFrame(Device.fTimeGlobal);
+
+	extern void ImGUI_OnRender();
+
+	ImGUI_OnRender();
+
 	m_pRender->End();
 #endif
 }
@@ -251,9 +256,11 @@ void CRenderDevice::on_idle()
 	
 	if ((!Device.dwPrecacheFrame) && (!g_SASH.IsBenchmarkRunning()) && g_bLoaded)
 		g_SASH.StartBenchmark();
+
 #ifndef DEDICATED_SERVER
 	ImGui_NewFrame();
 #endif 
+
 	FrameMove();
 
 	// Precache

@@ -76,18 +76,10 @@ Index of this file:
 #ifndef IMGUI_API
 
     #ifdef IMGUI_EXPORTS
-        #ifdef DLL_LIB
-        #define IMGUI_API _declspec(dllexport)
-        #else
-        #define IMGUI_API
-        #endif
+         #define IMGUI_API _declspec(dllexport)
 
     #else
-        #ifdef DLL_LIB
-        #define IMGUI_API _declspec(dllimport)
-        #else
-        #define IMGUI_API
-        #endif    
+        #define IMGUI_API _declspec(dllimport)  
     #endif
 
 #endif

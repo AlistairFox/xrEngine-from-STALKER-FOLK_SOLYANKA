@@ -1,12 +1,12 @@
 #include "stdafx.h"
 #include "device.h"
 
-
+extern ENGINE_API EditorStage imgui_stage = EditorStage::None;
 
   
 #ifndef DEDICATED_SERVER
 #include "IGame_Persistent.h"
-extern ENGINE_API EditorStage imgui_stage = EditorStage::None;
+
 
 
 // need for imgui
@@ -27,6 +27,9 @@ extern int g_current_renderer;
 
 void ImGui_NewFrame()
 {
+	if (g_current_renderer != 4)
+		return;
+
 	ImGuiIO& io = ImGui::GetIO();
 
 	// Setup display size (every frame to accommodate for window resizing)
@@ -34,7 +37,8 @@ void ImGui_NewFrame()
 	GetClientRect(Device.m_hWnd, &rect);
 	io.DisplaySize = ImVec2((float)(rect.right - rect.left), (float)(rect.bottom - rect.top));
 
-	if (g_TicksPerSecond == 0) {
+	if (g_TicksPerSecond == 0)
+	{
 		QueryPerformanceFrequency((LARGE_INTEGER*)&g_TicksPerSecond);
 		QueryPerformanceCounter((LARGE_INTEGER*)&g_Time);
 	}
@@ -45,10 +49,9 @@ void ImGui_NewFrame()
 	g_Time = current_time;
 
 	// Start the frame
-	if (g_current_renderer == 4)
-		ImGui_ImplDX11_NewFrame();
-	else
-		ImGui_ImplDX9_NewFrame();
+	ImGui_ImplDX11_NewFrame();
+	//else
+	//	ImGui_ImplDX9_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 
 	g_pGamePersistent->EditorOnFrame();
@@ -58,11 +61,17 @@ void ImGui_NewFrame()
  
 void ImGui_EndFrame()
 {
+	if (g_current_renderer != 4)
+		return;
+
 	ImGui::EndFrame();
 }
 
 void ImGUI_DeviceCreate()
 {
+	if (g_current_renderer != 4)
+		return;
+
 	string_path path;
 	FS.update_path(path, "$app_data_root$", "imgui.ini");
 
@@ -71,8 +80,26 @@ void ImGUI_DeviceCreate()
 
 void ImGUI_DeviceDestroy()
 {
+	if (g_current_renderer != 4)
+		return;
+
 	xr_free(ImGui::GetIO().IniFilename);
 }
+
+void ImGUI_OnRender()
+{
+	if (g_current_renderer != 4)
+		return;
+
+	extern BOOL g_appLoaded;
+
+	if (g_appLoaded && imgui_stage != EditorStage::None)
+	{
+		ImGui::Render();
+			ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	}
+}
+
 #else 
 void ImGui_NewFrame()
 {
