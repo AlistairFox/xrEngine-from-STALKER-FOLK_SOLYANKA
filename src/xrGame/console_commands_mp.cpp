@@ -3932,8 +3932,8 @@ public:
 	}
 };
 
-extern int		MAX_DISTANCE_FIND_GRAPH = 3000;
-extern int		ALIFE_ALL_LOCATION = 0;
+extern int		MAX_DISTANCE_FIND_GRAPH = 350;
+ 
 extern float	Shedule_Scale_AI_Stalker = 0;
 extern float	Shedule_Scale_Objects = 0;
 extern float	Shedule_Events = 0.1f;
