@@ -57,8 +57,14 @@ class xrCompressor
 	u32						XRP_MAX_SIZE;
 
 	bool skip_cform = false;
+	shared_str				ArchiveName, OutFolder;
 
 public:
+
+
+	void	SetArchiveName(LPCSTR n) { ArchiveName._set(n); }
+	void	SetOutFolder(LPCSTR v) { OutFolder._set(v); }
+
 			xrCompressor		();
 			~xrCompressor		();
 	void	SetFastMode			(bool b)					{bFast=b;}

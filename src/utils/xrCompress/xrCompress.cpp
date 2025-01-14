@@ -3,10 +3,7 @@
 
 
 #define CFS_ARCHIVE_SE7	2610
-
-
-
-
+ 
 //typedef void DUMMY_STUFF (const void*,const u32&,void*);
 //XRCORE_API DUMMY_STUFF	*g_temporary_stuff;
 //XRCORE_API DUMMY_STUFF	*g_dummy_stuff;
@@ -353,11 +350,17 @@ void xrCompressor::OpenPack(LPCSTR tgt_folder, int num)
 {
 	VERIFY			(0==fs_pack_writer);
 
-	string_path		fname;
- 
-	string128		s_num;
-	sprintf_s		(fname, "compressed_archives\\%s.db%d", tgt_folder, num);
- 	unlink			(fname);
+	string_path		fname = { 0 };
+	string128		s_num = { 0 };
+
+	xr_strcat(fname, OutFolder.c_str());
+	xr_strcat(fname, "\\");
+
+	string64				c_name = { 0 };
+	xr_strcat(fname, ArchiveName.c_str());
+
+	xr_strcat(fname, ".db");
+	xr_strcat(fname, itoa(num, s_num, 10));
 
 	Msg("Open Pack: %s", fname);
 
@@ -375,9 +378,7 @@ void xrCompressor::OpenPack(LPCSTR tgt_folder, int num)
 	dwTimeStart		= timeGetTime();
 
 	//write pack header without compression
-//	DUMMY_STUFF* _dummy_stuff_subst		= NULL;
-//	_dummy_stuff_subst					= g_dummy_stuff;
-//	g_dummy_stuff						= NULL;
+ 
 
 	if(config_ltx && config_ltx->section_exist("header"))
 	{
