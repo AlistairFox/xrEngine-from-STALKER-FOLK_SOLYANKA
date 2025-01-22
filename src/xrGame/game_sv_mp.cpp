@@ -722,13 +722,6 @@ void game_sv_mp::OnPlayerDisconnect		(ClientID id_who, LPSTR Name, u16 GameID)
 	u_EventSend					(P);
 	//---------------------------------------------------
 	KillPlayer					(id_who, GameID);
-	
-	AllowDeadBodyRemove			(id_who, GameID);
-	
-	CSE_Abstract* pSObject = get_entity_from_eid(GameID);
-	if (pSObject)
-		m_CorpseList.push_back(GameID);
-
 	inherited::OnPlayerDisconnect (id_who, Name, GameID);
 }
 

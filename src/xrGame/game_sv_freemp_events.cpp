@@ -2,6 +2,7 @@
 #include "game_sv_freemp.h"
 
 #include "Actor.h"
+#include "actor_mp_client.h"
 
 /* base class accessors
 * 
@@ -38,6 +39,10 @@ void game_sv_freemp::OnPlayerDisconnect(ClientID id_who, LPSTR Name, u16 GameID)
 	}
 
  	inherited::OnPlayerDisconnect(id_who, Name, GameID);
+	CActorMP* pActor = smart_cast<CActorMP*>(Level().Objects.net_Find(GameID));
+
+	if (pActor)
+		pActor->DestroyObject();
 }
 
 void game_sv_freemp::OnPlayerKillPlayer(game_PlayerState* ps_killer, game_PlayerState* ps_killed, KILL_TYPE KillType, SPECIAL_KILL_TYPE SpecialKillType, CSE_Abstract* pWeaponA)
