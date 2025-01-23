@@ -587,6 +587,26 @@ CCustomOutfit* CInventoryOwner::GetOutfit() const
 {
     return smart_cast<CCustomOutfit*>(inventory().ItemFromSlot(OUTFIT_SLOT));
 }
+#include "ActorHelmet.h"
+CInventoryItem* CInventoryOwner::GetOutfitOrHelmet()
+{
+	CHelmet* helm = smart_cast<CHelmet*>(inventory().ItemFromSlot(HELMET_SLOT));
+	CCustomOutfit* outfit = smart_cast<CCustomOutfit*>(inventory().ItemFromSlot(OUTFIT_SLOT));
+	if (helm)
+	{
+		return helm;
+	}
+
+	if (outfit)
+	{
+		return outfit;
+	}
+
+
+	return nullptr;
+}
+
+
 
 void CInventoryOwner::on_weapon_shot_start		(CWeapon *weapon)
 {
