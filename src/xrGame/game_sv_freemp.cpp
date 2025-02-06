@@ -5,6 +5,27 @@
 #include "xr_time.h"
 #include "alife_object_registry.h"
  
+void game_sv_freemp::OnAlifeCreate(CSE_Abstract* E)
+{
+
+	CSE_ALifeInventoryBox* CSEBOX = smart_cast<CSE_ALifeInventoryBox*>(E);
+	if (CSEBOX)
+	{
+		InvBoxEntityS SBox;
+		SBox.E = E;
+
+		CInifile IniFile(&IReader((void*)(CSEBOX->m_ini_string.c_str()), xr_strlen(CSEBOX->m_ini_string.c_str())), FS.get_path("$game_config$")->m_Path);
+
+
+		if (IniFile.section_exist("saving_box"))
+		{
+			SBox.NeedToSave = true;
+		}
+
+		ServerInventoryBoxes[E->ID] = SBox;
+	}
+}
+
 game_sv_freemp::game_sv_freemp() : pure_relcase(&game_sv_freemp::net_Relcase)
 {
 	if (g_dedicated_server)
@@ -24,6 +45,7 @@ game_sv_freemp::~game_sv_freemp()
 	loaded_inventory = false;
 	loaded_gametime = false;
 	delete_data(m_alife_simulator);
+	ServerInventoryBoxes.clear();
 }
 
 void game_sv_freemp::Create(shared_str & options)
@@ -201,7 +223,8 @@ void game_sv_freemp::OnPlayerReady(ClientID id_who)
 }
 
 u32 old_update_alife = 0;
- 
+u32 InvBoxesSaveTimer = 0;
+
 void game_sv_freemp::Update()
 {
 	inherited::Update();
@@ -218,26 +241,6 @@ void game_sv_freemp::Update()
 	// Update Alife
 	UpdateAlifeData(); // Send netwroking Packets to AlifeObjects
 
-
-	if (!loaded_inventory)
-	{
-		xrS_entities* entitys = server().GetEntitys();
-		auto begin = entitys->begin();
-		auto end = entitys->end();
-
-		for (auto iter = begin; iter != end; iter++)
-		{
-			CSE_Abstract* E = server().ID_to_entity((*iter).first);
-			CSE_ALifeInventoryBox* box = smart_cast<CSE_ALifeInventoryBox*>(E);
-
-			if (box)
-			{
-				load_inventoryBox(box);
-				
-				loaded_inventory = true;
-			}
-		}
-	}	
 	 
 	if (Device.dwTimeGlobal - old_update_alife > 1000)
 	{
@@ -245,23 +248,34 @@ void game_sv_freemp::Update()
 
 		for (auto cl : Game().players)
 			SavePlayer(cl.second);
- 
-		if (loaded_inventory)
-		{
-			xrS_entities* entitys = server().GetEntitys();
-			auto begin = entitys->begin();
-			auto end = entitys->end();
-
-			for (auto iter = begin; iter != end; iter++)
-			{
-				CSE_Abstract* E = server().ID_to_entity((*iter).first);
-				CSE_ALifeInventoryBox* box = smart_cast<CSE_ALifeInventoryBox*>(E);
-
-				if (box)
-					save_inventoryBox(box);
-			}
- 		}
 	} 
+
+
+	if (Device.dwTimeGlobal >= InvBoxesSaveTimer)
+	{
+		InvBoxesSaveTimer = Device.dwTimeGlobal + 5000;
+		for (const auto& SBox : ServerInventoryBoxes)
+		{
+			CSE_Abstract* AbstractBox = SBox.second.E;
+			CSE_ALifeInventoryBox* CSEBox = smart_cast<CSE_ALifeInventoryBox*>(AbstractBox);
+
+			if (!SBox.second.BeLoaded)
+			{
+				load_inventoryBox(CSEBox);
+				ServerInventoryBoxes[SBox.first].BeLoaded = true;
+			}
+			else
+			{
+				if (SBox.second.NeedToSave)
+				{
+					save_inventoryBox(CSEBox);
+				}
+				else
+					continue;
+			}
+		}
+	}
+
 }
 
 

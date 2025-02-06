@@ -34,6 +34,16 @@ protected:
 
 
 public:
+
+
+	struct InvBoxEntityS
+	{
+		CSE_Abstract* E = nullptr;
+		bool BeLoaded = false;
+		bool NeedToSave = false;
+	};
+	std::map<u16, InvBoxEntityS> ServerInventoryBoxes;
+	virtual		void				OnAlifeCreate(CSE_Abstract* E);
  	bool surge_started;
 	
 	
