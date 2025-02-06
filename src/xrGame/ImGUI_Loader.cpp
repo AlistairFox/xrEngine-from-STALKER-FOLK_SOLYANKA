@@ -10,6 +10,8 @@ ENGINE_API extern EditorStage imgui_stage;
 
 bool IsEditorActive()
 {
+    return false;
+
     if (g_dedicated_server)
         return false;
 
@@ -25,8 +27,7 @@ bool show_weather_window = false;
 
 void ShowEditor()
 { 
-    if (g_dedicated_server)
-        return;
+    return;
 
     ImguiWnd wnd("Main");
 
@@ -53,6 +54,8 @@ void ShowEditor()
 bool isRControl = false, isLControl = false, isRShift = false, isLShift = false;
 bool Editor_KeyPress(int key)
 {
+    return false;
+
     if (g_dedicated_server)
         return false;
 
@@ -168,6 +171,9 @@ bool Editor_KeyPress(int key)
 
 bool Editor_KeyRelease(int key)
 {
+
+    return false;
+
     if (g_dedicated_server)
         return false;
 
@@ -220,6 +226,8 @@ bool Editor_KeyRelease(int key)
 
 bool Editor_KeyHold(int key)
 {
+    return false;
+
     if (!IsEditorActive())
         return false;
     return true;
@@ -227,6 +235,8 @@ bool Editor_KeyHold(int key)
 
 bool Editor_MouseMove(int dx, int dy)
 {
+    return false;
+
     if (!IsEditorActive())
         return false;
 
@@ -242,6 +252,8 @@ static int s_direction{};
 
 bool Editor_MouseWheel(int direction)
 {
+    return false;
+
     if (!IsEditorActive())
         return false;
 
@@ -252,6 +264,8 @@ bool Editor_MouseWheel(int direction)
 
 void Editor_OnFrame()
 {
+    return;
+
     if (s_direction)
     {
         ImGuiIO& io = ImGui::GetIO();

@@ -13,6 +13,7 @@ CCampFireSwitcher::CCampFireSwitcher()
 
 CCampFireSwitcher::~CCampFireSwitcher()
 {
+
 }
 
 void CCampFireSwitcher::Load(LPCSTR section)
@@ -89,7 +90,7 @@ CZoneCampfire* CCampFireSwitcher::GetNearestCampFire()
 			continue;
 	}
 
-	if (CheckDistance > 1.f)
+	if (CheckDistance > 2.f)
 		return nullptr;
 
 	CZoneCampfire* TargetCamp = smart_cast<CZoneCampfire*>(Level().Objects.net_Find(TargetObjectID));

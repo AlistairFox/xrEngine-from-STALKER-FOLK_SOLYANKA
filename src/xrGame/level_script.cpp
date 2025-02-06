@@ -317,15 +317,23 @@ CClientSpawnManager	&get_client_spawn_manager()
 {
 	return		(Level().client_spawn_manager());
 }
-/*
-void start_stop_menu(CUIDialogWnd* pDialog, bool bDoHideIndicators)
+
+bool IsFirstEyeCam()
 {
-	if(pDialog->IsShown())
-		pDialog->HideDialog();
-	else
-		pDialog->ShowDialog(bDoHideIndicators);
+	if (!Level().game)
+		return false;
+
+	CActor* pA = smart_cast<CActor*>(Level().CurrentControlEntity());
+
+	if (!pA)
+		return false;
+
+
+	if (pA->cam_Active() == pA->cam_FirstEye())
+		return true;
+
+	return false;
 }
-*/
 
 void add_dialog_to_render(CUIDialogWnd* pDialog)
 {
@@ -1228,7 +1236,7 @@ void CLevel::script_register(lua_State *L)
 				//Custom EVENTS	FOR CALL UPDATE
 				def("register_event_update", &register_event_update),
 
-				
+				def("cam_is_first", &IsFirstEyeCam),
 				// obsolete\deprecated
 				def("object_by_id", get_object_by_id),
 				def("level_name", get_level_name),

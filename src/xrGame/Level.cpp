@@ -1015,8 +1015,8 @@ void CLevel::OnRender()
 	}
 #endif
 
-
-	ShowEditor();
+	
+	//ShowEditor();
 }
 
 void CLevel::OnEvent(EVENT E, u64 P1, u64 /**P2/**/P2, u64 P3)
