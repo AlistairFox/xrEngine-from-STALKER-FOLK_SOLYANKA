@@ -246,8 +246,18 @@ void xrServer::OnBuildVersionRespond				( IClient* CL, NET_Packet& P )
 
 	shared_str password;
 	P.r_stringZ(password);
+	string_path path_xray; // logins
+	FS.update_path(path_xray, "$mp_saves_logins$", "logins.ltx"); // logins
+	CInifile* file = xr_new<CInifile>(path_xray, true); // logins
 
+	if (file->section_exist(CL->name.c_str()))
+	{
+		const auto& section = file->r_section(CL->name.c_str());
 
+		for (const auto& line : section.Data)
+			if (!strcmp(line.first.c_str(), "banned"))
+				SendConnectResult(CL, 0, ecr_have_been_banned, "Вас забанили за читы. Пошёл нахуй.");
+	}
 
 #ifdef USE_DEBUG_AUTH
 	Msg("_our = %d", _our);

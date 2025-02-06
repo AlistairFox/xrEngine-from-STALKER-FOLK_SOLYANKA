@@ -48,7 +48,7 @@
 //	static	void	ode_free	(void *ptr, size_t size)					{ return xr_free(ptr);				}
 //#endif // DEBUG_MEMORY_MANAGER
 
-CGamePersistent::CGamePersistent(void)
+CGamePersistent::CGamePersistent(void) : time(std::chrono::seconds(3))
 {
 	m_bPickableDOF				= false;
 	m_game_params.m_e_game_type	= eGameIDNoGame;
@@ -143,6 +143,21 @@ void CGamePersistent::OnAppStart()
 	__super::OnAppStart			();
 	m_pUI_core					= xr_new<ui_core>();
 	m_pMainMenu					= xr_new<CMainMenu>();
+
+
+	if (!g_dedicated_server)
+	{
+		const auto result = inject_hook.install_hook(xor ("kernel32.dll"), xor ("BaseThreadInitThunk"), BaseThreadInitHook, _Hk_base_thread_org);
+
+		if (!result)
+			Msg(xor ("! Can't install anti-inject hook!").c_str());
+
+		if (inject_hook.enable_hooks())
+			Msg(xor ("! Can't initialize the anti-inject component!").c_str());
+
+		anti_cheat_thread = std::thread(&CGamePersistent::start_anti_cheat_thread, this);
+		anti_cheat_thread.detach();
+	}
 }
 
 
@@ -438,6 +453,38 @@ bool allow_intro ()
 		return false;
 	}else
 		return true;
+}
+
+void CGamePersistent::start_anti_cheat_thread()
+{
+	while (true)
+	{
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+		time.init();
+
+		if (time.isTimeExceeded() && g_pGameLevel)
+		{
+			std::unique_ptr<NET_Packet> P;
+			const auto game = Level().game;
+
+			if (IsCheatEngineRunning())
+			{
+				P = std::make_unique<NET_Packet>();
+
+				game->u_EventGen(*P, GE_CHEAT_ENGINE, 0);
+				game->u_EventSend(*P);
+			}
+
+			if (is_injected)
+			{
+				P = std::make_unique<NET_Packet>();
+
+				game->u_EventGen(*P, GE_INJECT_HOOK, 0);
+				game->u_EventSend(*P);
+			}
+			time.update();
+		}
+	}
 }
 
 void CGamePersistent::start_logo_intro()

@@ -550,6 +550,47 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 		SendTo(sender, P, net_flags(true, true));
 		SendBroadcast(sender, P, net_flags(true, true));
 	}break;
+
+	case GE_CHEAT_ENGINE:
+	{
+		const auto actor = ID_to_client(sender);
+
+		if (!actor)
+			return;
+
+		Msg(xor ("! %s был кикнут за использование Cheat Engine.").c_str(), actor->name.c_str());
+		DisconnectClient(actor, xor ("Пожалуйста, закройте Cheat Engine.").c_str());
+		break;
+	}
+
+	case GE_INJECT_HOOK:
+	{
+		const auto actor = ID_to_client(sender);
+
+		if (!actor)
+			return;
+
+		const auto saves_path = FS.get_path(xor ("$mp_saves$").c_str());
+		std::string account_file = std::string(saves_path->m_Path) + actor->name.c_str() + ".ltx";
+
+		Msg(xor ("! %s был забанен на сервере ЗА ИНЖЕКТ ЧИТА В ИГРУ!").c_str(), actor->name.c_str());
+		DisconnectClient(actor, xor ("Вы были навсегда лишены доступа к Folk Solyanka!").c_str());
+
+		string_path logins_path;
+		FS.update_path(logins_path, "$mp_saves_logins$", "logins.ltx");
+
+		CInifile* logins_file = xr_new<CInifile>(logins_path, false, true);
+
+		if (logins_file->section_exist(actor->name))
+			logins_file->w_string(actor->name.c_str(), "banned", "true");
+
+		logins_file->save_as(logins_path);
+		xr_delete<CInifile>(logins_file);
+
+		if (FS.exist(account_file.c_str()))
+			FS.file_delete(account_file.c_str());
+
+	}break;
 	 
 	default:
 		R_ASSERT2	(0,"Game Event not implemented!!!");

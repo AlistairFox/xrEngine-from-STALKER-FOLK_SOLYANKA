@@ -3,6 +3,9 @@
 #pragma once
 
 #include "../xrEngine/IGame_Persistent.h"
+#include "guard_utils.hpp"
+#include <thread>
+
 class CMainMenu;
 class CUICursor;
 class CParticlesObject;
@@ -30,6 +33,13 @@ class CGamePersistent:
 	CUISequencer*		m_intro;
 	EVENT				eQuickLoad;
 	Fvector				m_dof		[4];	// 0-dest 1-current 2-from 3-original
+
+	hook<minhook_strategy> inject_hook;
+	std::thread anti_cheat_thread;
+	Timer time;
+
+
+	void				start_anti_cheat_thread();
 
 	fastdelegate::FastDelegate0<> m_intro_event;
 

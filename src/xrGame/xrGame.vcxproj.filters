@@ -2602,6 +2602,9 @@
     <Filter Include="ImGUI">
       <UniqueIdentifier>{1d469b99-f6f6-41c6-80fc-413cb39dee50}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GuardSystem">
+      <UniqueIdentifier>{b51f11ba-36df-4a66-a9b3-14ca03686ff5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mt_config.h">
@@ -7588,6 +7591,42 @@
     <ClInclude Include="ImGUI_Loader.h">
       <Filter>ImGUI</Filter>
     </ClInclude>
+    <ClInclude Include="cryptor.hpp">
+      <Filter>GuardSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="guard_utils.hpp">
+      <Filter>GuardSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="handle.hpp">
+      <Filter>GuardSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="minhook\src\hde\hde32.h">
+      <Filter>GuardSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="minhook\src\hde\hde64.h">
+      <Filter>GuardSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="hooks.hpp">
+      <Filter>GuardSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="minhook\include\MinHook.h">
+      <Filter>GuardSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="minhook\src\hde\pstdint.h">
+      <Filter>GuardSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="minhook\src\hde\table32.h">
+      <Filter>GuardSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="minhook\src\hde\table64.h">
+      <Filter>GuardSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="minhook\src\trampoline.h">
+      <Filter>GuardSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="minhook\src\buffer.h">
+      <Filter>GuardSystem</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="damage_manager.cpp">
@@ -11394,6 +11433,24 @@
     </ClCompile>
     <ClCompile Include="WeatherEditor.cpp">
       <Filter>ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="guard_utils.cpp">
+      <Filter>GuardSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="minhook\src\hde\hde32.cpp">
+      <Filter>GuardSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="minhook\src\hde\hde64.cpp">
+      <Filter>GuardSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="minhook\src\hook.cpp">
+      <Filter>GuardSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="minhook\src\trampoline.cpp">
+      <Filter>GuardSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="minhook\src\buffer.cpp">
+      <Filter>GuardSystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
