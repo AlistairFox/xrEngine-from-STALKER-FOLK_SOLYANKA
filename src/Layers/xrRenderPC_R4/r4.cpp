@@ -499,14 +499,10 @@ void CRender::OnFrame()
 void CRender::OnFrame()
 {
 	Models->DeleteQueue			();
-	if (ps_r2_ls_flags.test(R2FLAG_EXP_MT_CALC))	{
-		// MT-details (@front)
-		Device.seqParallel.insert	(Device.seqParallel.begin(),
-			fastdelegate::FastDelegate0<>(Details,&CDetailManager::MT_CALC));
-
-		// MT-HOM (@front)
-		Device.seqParallel.insert	(Device.seqParallel.begin(),
-			fastdelegate::FastDelegate0<>(&HOM,&CHOM::MT_RENDER));
+	if (ps_r2_ls_flags.test(R2FLAG_EXP_MT_CALC))
+	{
+ 		// MT-HOM (@front)
+		Device.seqParallel.insert	(Device.seqParallel.begin(), fastdelegate::FastDelegate0<>(&HOM,&CHOM::MT_RENDER));
 	}
 }
 
@@ -1448,36 +1444,38 @@ HRESULT	CRender::shader_compile			(
 	}
 
 	HRESULT		_result = E_FAIL;
-
+ 
 	string_path	folder_name, folder;
-	xr_strcpy		( folder, "r3\\objects\\r4\\" );
-	xr_strcat		( folder, name );
-	xr_strcat		( folder, "." );
+	xr_strcpy(folder, "r3\\objects\\r4\\");
+	xr_strcat(folder, name);
+	xr_strcat(folder, ".");
 
 	char extension[3];
-	strncpy_s		( extension, pTarget, 2 );
-	xr_strcat		( folder, extension );
+	strncpy_s(extension, pTarget, 2);
+	xr_strcat(folder, extension);
 
-	FS.update_path	( folder_name, "$game_shaders$", folder );
-	xr_strcat		( folder_name, "\\" );
-	
-	m_file_set.clear( );
-	FS.file_list	( m_file_set, folder_name, FS_ListFiles | FS_RootOnly, "*");
+	FS.update_path(folder_name, "$game_shaders$", folder);
+	xr_strcat(folder_name, "\\");
+
+	m_file_set.clear();
+	FS.file_list(m_file_set, folder_name, FS_ListFiles | FS_RootOnly, "*");
 
 	string_path temp_file_name, file_name;
-	if ( !match_shader_id(name, sh_name, m_file_set, temp_file_name) ) {
+	if (!match_shader_id(name, sh_name, m_file_set, temp_file_name))
+	{
 		string_path file;
-		xr_strcpy		( file, "shaders_cache\\r4\\" );
-		xr_strcat		( file, name );
-		xr_strcat		( file, "." );
-		xr_strcat		( file, extension );
-		xr_strcat		( file, "\\" );
-		xr_strcat		( file, sh_name );
-		FS.update_path	( file_name, "$app_data_root$", file);
+		xr_strcpy(file, "shaders_cache\\r4\\");
+		xr_strcat(file, name);
+		xr_strcat(file, ".");
+		xr_strcat(file, extension);
+		xr_strcat(file, "\\");
+		xr_strcat(file, sh_name);
+		FS.update_path(file_name, "$app_data_root$", file);
 	}
-	else {
-		xr_strcpy		( file_name, folder_name );
-		xr_strcat		( file_name, temp_file_name );
+	else 
+	{
+		xr_strcpy(file_name, folder_name);
+		xr_strcat(file_name, temp_file_name);
 	}
 
 	if (FS.exist(file_name))

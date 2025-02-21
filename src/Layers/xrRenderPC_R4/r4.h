@@ -9,7 +9,7 @@
 #include "r4_rendertarget.h"
 
 #include "../xrRender/hom.h"
-#include "../xrRender/detailmanager.h"
+#include "details/detailmanager.h"
 #include "../xrRender/modelpool.h"
 #include "../xrRender/wallmarksengine.h"
 

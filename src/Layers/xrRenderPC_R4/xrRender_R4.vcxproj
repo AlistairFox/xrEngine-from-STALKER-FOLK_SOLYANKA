@@ -221,6 +221,7 @@
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>dxguid.lib;d3dx11.lib;d3d11.lib;dxgi.lib;D3DCompiler.lib;nvapi.lib;dxerr.lib;d3d10.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -573,8 +574,6 @@
     <ClInclude Include="..\xrRender\Blender_tree.h" />
     <ClInclude Include="..\xrRender\ColorMapManager.h" />
     <ClInclude Include="..\xrRender\D3DUtils.h" />
-    <ClInclude Include="..\xrRender\DetailManager.h" />
-    <ClInclude Include="..\xrRender\DetailModel.h" />
     <ClInclude Include="..\xrRender\du_box.h" />
     <ClInclude Include="..\xrRender\du_cone.h" />
     <ClInclude Include="..\xrRender\du_cylinder.h" />
@@ -678,7 +677,9 @@
     <ClInclude Include="cl_intersect.h" />
     <ClInclude Include="ComputeShader.h" />
     <ClInclude Include="CSCompiler.h" />
-    <ClInclude Include="DetailFormat.h" />
+    <ClInclude Include="Details\DetailFormat.h" />
+    <ClInclude Include="Details\DetailManager.h" />
+    <ClInclude Include="Details\DetailModel.h" />
     <ClInclude Include="dx11HDAOCSBlender.h" />
     <ClInclude Include="dx11MinMaxSMBlender.h" />
     <ClInclude Include="light.h" />
@@ -709,7 +710,6 @@
     <ClCompile Include="..\xrRenderDX10\DX10 Rain\dx10RainBlender.cpp" />
     <ClCompile Include="..\xrRenderDX10\dx10BufferUtils.cpp" />
     <ClCompile Include="..\xrRenderDX10\dx10ConstantBuffer.cpp" />
-    <ClCompile Include="..\xrRenderDX10\dx10DetailManager_VS.cpp" />
     <ClCompile Include="..\xrRenderDX10\dx10HW.cpp" />
     <ClCompile Include="..\xrRenderDX10\dx10ResourceManager_Resources.cpp" />
     <ClCompile Include="..\xrRenderDX10\dx10ResourceManager_Scripting.cpp" />
@@ -743,12 +743,6 @@
     <ClCompile Include="..\xrRender\Blender_tree.cpp" />
     <ClCompile Include="..\xrRender\ColorMapManager.cpp" />
     <ClCompile Include="..\xrRender\D3DUtils.cpp" />
-    <ClCompile Include="..\xrRender\DetailManager.cpp" />
-    <ClCompile Include="..\xrRender\DetailManager_CACHE.cpp" />
-    <ClCompile Include="..\xrRender\DetailManager_Decompress.cpp" />
-    <ClCompile Include="..\xrRender\DetailManager_soft.cpp" />
-    <ClCompile Include="..\xrRender\DetailManager_VS.cpp" />
-    <ClCompile Include="..\xrRender\DetailModel.cpp" />
     <ClCompile Include="..\xrRender\du_box.cpp" />
     <ClCompile Include="..\xrRender\du_cone.cpp" />
     <ClCompile Include="..\xrRender\du_cylinder.cpp" />
@@ -867,6 +861,11 @@
     <ClCompile Include="blender_ssao.cpp" />
     <ClCompile Include="ComputeShader.cpp" />
     <ClCompile Include="CSCompiler.cpp" />
+    <ClCompile Include="Details\DetailManager.cpp" />
+    <ClCompile Include="Details\DetailManager_CACHE.cpp" />
+    <ClCompile Include="Details\DetailManager_Decompress.cpp" />
+    <ClCompile Include="Details\DetailManager_VSDX11.cpp" />
+    <ClCompile Include="Details\DetailModel.cpp" />
     <ClCompile Include="dx11HDAOCSBlender.cpp" />
     <ClCompile Include="dx11MinMaxSMBlender.cpp" />
     <ClCompile Include="light_GI.cpp" />

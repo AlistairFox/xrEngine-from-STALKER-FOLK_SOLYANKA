@@ -15,6 +15,9 @@ float			OLES_SUN_LIMIT_27_01_07			= 100.f		;
 const	float	MAP_SIZE_START					= 6.f		;
 const	float	MAP_GROW_FACTOR					= 4.f		;
  
+
+extern int RenderDetailsSunLighting;
+
 //////////////////////////////////////////////////////////////////////////
 // tables to calculate view-frustum bounds in world space
 // note: D3D uses [0..1] range for Z
@@ -963,8 +966,8 @@ void CRender::render_sun_near	()
 			RCache.set_xform_view				(Fidentity					);
 			RCache.set_xform_project			(fuckingsun->X.D.combine	);	
 			r_dsgraph_render_graph				(0)	;
-			if (ps_r2_ls_flags.test(R2FLAG_SUN_DETAILS))	
-				Details->Render					()	;
+			if (RenderDetailsSunLighting)
+				Details->hw_Render					()	;
 			fuckingsun->X.D.transluent			= FALSE;
 			if (bSpecial)						{
 				fuckingsun->X.D.transluent			= TRUE;
@@ -1297,8 +1300,11 @@ void CRender::render_sun_cascade ( u32 cascade_ind )
 			RCache.set_xform_view				(Fidentity					);
 			RCache.set_xform_project			(fuckingsun->X.D.combine	);	
 			r_dsgraph_render_graph				(0)	;
-			if (ps_r2_ls_flags.test(R2FLAG_SUN_DETAILS))	
-				Details->Render					()	;
+			
+			if (RenderDetailsSunLighting)	
+				Details->hw_Render();
+
+
 			fuckingsun->X.D.transluent			= FALSE;
 			if (bSpecial)						{
 				fuckingsun->X.D.transluent			= TRUE;

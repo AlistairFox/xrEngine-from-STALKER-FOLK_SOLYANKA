@@ -79,15 +79,13 @@ void CRender::level_Load(IReader* fs)
 
 		// Visuals
 		g_pGamePersistent->LoadTitle("st_loading_spatial_db");
-//		g_pGamePersistent->LoadTitle();
-		chunk						= fs->open_chunk(fsL_VISUALS);
+ 		chunk						= fs->open_chunk(fsL_VISUALS);
 		LoadVisuals					(chunk);
 		chunk->close				();
 
 		// Details
 		g_pGamePersistent->LoadTitle("st_loading_details");
-//		g_pGamePersistent->LoadTitle();
-		Details->Load				();
+ 		Details->Load				();
 	}
 
 	// Sectors

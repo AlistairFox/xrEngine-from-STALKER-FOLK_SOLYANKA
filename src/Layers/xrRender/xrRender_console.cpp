@@ -628,34 +628,90 @@ public:
 		dxRenderDeviceRender::Instance().Resources->Dump(false);
 	}
 };
-
-//	Allow real-time fog config reload
-#if	(RENDER == R_R3) || (RENDER == R_R4)
-#ifdef	DEBUG
-
-#include "../xrRenderDX10/3DFluid/dx103DFluidManager.h"
-
-class CCC_Fog_Reload : public IConsole_Command
-{
-public:
-	CCC_Fog_Reload(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = TRUE; };
-	virtual void Execute(LPCSTR args) 
-	{
-		FluidManager.UpdateProfiles();
-	}
-};
-#endif	//	DEBUG
-#endif	//	(RENDER == R_R3) || (RENDER == R_R4)
 		 
 /// DETAILS NEW 
-int ps_render_detail_radius = 48;
 
-extern int dm_size			= 48;
-extern int dm_cache1_line	= dm_size * 2 / dm_cache1_count;
-extern int dm_cache_line	= dm_size + 1 + dm_size;
-extern int dm_cache_size	= dm_cache_line * dm_cache_line;
-extern float dm_fade		= float(2 * dm_size) - .5f;
- 					
+extern int render_particle_distance = 200;
+
+float ps_r__detail_radius = 60;
+
+extern int hw_BatchSize = 768;
+
+
+extern int   RenderDetailsSunLighting = 0;
+extern float PlayerDetailsResize = 1.0;
+
+#ifdef USE_DX11
+
+class CCC_DetailRadius : public CCC_Float
+{
+public:
+	CCC_DetailRadius(LPCSTR N, float* V, float _min = 0, float _max = 5000) : CCC_Float(N, V, _min, _max)
+	{
+	};
+
+	virtual void Execute(LPCSTR args) 
+	{
+		CCC_Float::Execute(args);
+
+		ps_current_detail_density = ps_r__Detail_density;
+		dm_current_size = iFloor((float)ps_r__detail_radius / 4) * 2;
+		dm_current_cache1_line = dm_current_size * 2 / 4;		// assuming cache1_count = 4
+		dm_current_cache_line = dm_current_size + 1 + dm_current_size;
+		dm_current_cache_size = dm_current_cache_line * dm_current_cache_line;
+		dm_current_fade = float(2 * dm_current_size) - .5f;
+
+		if (RImplementation.b_loaded && (dm_current_size != dm_size))
+		{
+			RImplementation.Details->hw_Unload();
+			RImplementation.Details->hw_Load();
+
+			RImplementation.Details->StopThread();
+
+			RImplementation.Details->cache_task.clear();
+
+			RImplementation.Details->cache_Free();
+			RImplementation.Details->cache_Alloc();
+			RImplementation.Details->cache_Initialize();
+		}
+	}
+
+	virtual void Status(TStatus& S) {
+		CCC_Float::Status(S);
+	}
+};
+
+class CCC_DetailButhing : public IConsole_Command
+{
+public:
+	CCC_DetailButhing(LPCSTR N) : IConsole_Command(N)
+	{
+		bEmptyArgsHandled = false;
+	};
+
+	virtual void Execute(LPCSTR args)
+	{
+		hw_BatchSize = atoi(args);
+		Msg("SetDetails Buthes: %u", hw_BatchSize);
+		if (RImplementation.b_loaded)
+		{
+			RImplementation.Details->hw_Unload();
+			RImplementation.Details->hw_Load();
+		}
+	}
+	virtual void	Info(TInfo& I)
+	{
+		string32 tmp;
+		xr_strcpy(I, itoa(hw_BatchSize, tmp, 10));
+	}
+
+	virtual void Status(TStatus& S)
+	{
+		string32 tmp;
+		xr_strcpy(S, itoa(hw_BatchSize, tmp, 10));
+	}
+};
+#else 	
 class CCC_DetailsRenderDIST : public CCC_Integer
 {
 public:
@@ -668,7 +724,7 @@ public:
 
 	void Apply()
 	{
-		dm_size = ps_render_detail_radius;
+		dm_size = ps_r__Detail_density;
 		dm_fade = float(2 * dm_size) - .5f;
 	}
 
@@ -682,24 +738,26 @@ public:
 		CCC_Integer::Status(S);
 	}
 };
+#endif 
 
-extern int off_details;
-extern float ps_r__Detail_scale;
-extern int render_particle_distance = 200;
+
 
 //-----------------------------------------------------------------------
 void		xrRender_initconsole	()
 {
-
 	CMD4(CCC_Integer, "r__particle_distance", &render_particle_distance, 0, 1000);
-
-	CMD4(CCC_DetailsRenderDIST, "r__detail_distance", &ps_render_detail_radius, 1, 128);
-	CMD4(CCC_Float,				"r__detail_density", &ps_r__Detail_density, .05f, 0.6f);
-	CMD4(CCC_Float,				"r__detail_scale", &ps_r__Detail_scale, 0, 2.0f);
 	 
-	CMD4(CCC_Integer,			"r__detail_off", &off_details, 0, 1);
+#ifdef USE_DX11
+	CMD4(CCC_Float,			"r__details_density", &ps_r__Detail_density, .05f, 0.9f);
+ 	CMD4(CCC_Integer,		"r__details_sun", &RenderDetailsSunLighting, 0, 1);
+ 	CMD4(CCC_Float,			"r__details_scale", &PlayerDetailsResize, 0.5, 2);
+ 	CMD4(CCC_DetailRadius,	"r__details_radius", &ps_r__detail_radius, 0, 250);
+	CMD1(CCC_DetailButhing, "r__details_buthing");
+#else 
+	// CMD4(CCC_DetailsRenderDIST, "r__detail_distance", &ps_render_detail_radius, 1, 128);
+#endif
 
-
+ 
 	CMD3(CCC_Preset,	"_preset",				&ps_Preset,	qpreset_token	);
 
 	CMD4(CCC_Integer,	"rs_skeleton_update",	&psSkeletonUpdate,	2,		128	);

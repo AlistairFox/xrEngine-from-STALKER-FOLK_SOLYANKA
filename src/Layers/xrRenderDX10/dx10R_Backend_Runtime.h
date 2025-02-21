@@ -366,6 +366,19 @@ IC void CBackend::set_Geometry(SGeometry* _geom)
 	set_Indices			(_geom->ib);
 }
 
+ICF void CBackend::set_Geometry_32BIT(ref_geom& _geom)
+{
+	set_Format	(&* _geom->dcl);
+	set_Vertices(_geom->vb, _geom->vb_stride);
+	// 32 BIT Indexes
+	if (ib != _geom->ib)
+	{
+		ib = _geom->ib;
+		HW.pContext->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
+	}
+}
+
+
 IC void	CBackend::set_Scissor(Irect*	R)
 {
 	if (R)			

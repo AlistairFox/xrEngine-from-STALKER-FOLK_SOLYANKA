@@ -5,7 +5,7 @@
 #include "../xrRender/PSLibrary.h"
 
 #include "../xrRender/hom.h"
-#include "../xrRender/detailmanager.h"
+#include "Details/DetailManager.h"
 #include "glowmanager.h"
 #include "../xrRender/wallmarksengine.h"
 #include "fstaticrender_rendertarget.h"
