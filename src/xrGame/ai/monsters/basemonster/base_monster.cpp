@@ -407,36 +407,12 @@ bool CBaseMonster::HavePlayersNearby(float distance) const
 
 	return have;
 }
-
-u32 TimerGlobal = 0;
-
-u64 shedule_inherted = 0;
-u64 shedule_auras = 0;
-u64 shedule_all = 0;
-
-u64 monster_timers = 0;
-u64 monster_update_groop = 0;
-u64 monster_update_control = 0;
-
  
 #include "actor_mp_client.h"
 
-extern u64 UpdateCLTime;
 
 void CBaseMonster::UpdateCL()
 {
-#ifdef DEBUG
-	if ( Level().CurrentEntity() == this )
-	{
-		DBG().get_text_tree().clear();
-		add_debug_info(DBG().get_text_tree());
-	}
-	if ( is_paused () )
-	{
-		return;
-	}
-#endif
-
 	if (OnClient())
 	{
 		float d = Device.vCameraPosition.distance_to_xz(Position());
@@ -449,34 +425,7 @@ void CBaseMonster::UpdateCL()
 			return;
 		}
 	}
-
-	/*
-	bool need_update = false;
-
- 	for (auto pl : Game().players)
-	{
-		if (u32 id = pl.second->GameID)
-		{
-			CObject* obj = Level().Objects.net_Find(id);
-
-			if (smart_cast<CActorMP*>(obj))
-			if (obj->Position().distance_to(this->Position()) < Shedule_Radius_Players)
-			{
-				need_update = true;
-				break;
-			}
-		}
-	}
-
-	if (!need_update)  
-		return;
- 	*/
-
-	LastUpdate = Device.dwTimeGlobal;
-
-	CTimer time;
-	time.Start();
-
+	
 	if ((IsGameTypeSingle() || OnServer()) && EatedCorpse && !CorpseMemory.is_valid_corpse(EatedCorpse) )
 	{
 		EatedCorpse = NULL;
@@ -484,8 +433,6 @@ void CBaseMonster::UpdateCL()
 
 
 	inherited::UpdateCL();
-
-//	monster_timers += time.GetElapsed_ticks();
     
 	if (g_Alive() && Remote() && !IsGameTypeSingle())
 	{
@@ -495,46 +442,21 @@ void CBaseMonster::UpdateCL()
 	if ( g_Alive() ) 
 	{
 		//time.Start();
-		update_enemy_accessible_and_at_home_info();
+		if (OnServer())
+			update_enemy_accessible_and_at_home_info();
 		
 		CStepManager::update(false);
  
 		if (IsGameTypeSingle() || OnServer())
 			update_pos_by_grouping_behaviour();
-
-		//monster_update_groop += time.GetElapsed_ticks();
 	}
 
 	//time.Start();
 	if(IsGameTypeSingle() || OnServer())
 		control().update_frame();
 
-	//monster_update_control += time.GetElapsed_ticks();
-
 	if (OnClient())
- 		m_pPhysics_support->in_UpdateCL();
-
-	/*
-	if (Device.dwTimeGlobal - TimerGlobal > 1000 && OnServer())
-	{
-		Msg("inherted [%u]", (monster_timers * 1000) / CPU::qpc_freq);
-		Msg("groop	  [%u]", (monster_update_groop * 1000) / CPU::qpc_freq);
-		Msg("control  [%u]", (monster_update_control * 1000) / CPU::qpc_freq);
-		Msg("shedule  [%u]", (shedule_inherted * 1000) / CPU::qpc_freq);
-		Msg("auras    [%u]", (shedule_auras * 1000) / CPU::qpc_freq);
-		Msg("sh_all   [%u]", (shedule_all * 1000) / CPU::qpc_freq);
-		TimerGlobal = Device.dwTimeGlobal;
-		monster_timers = 0;
-		monster_update_groop = 0;
-		monster_update_control = 0;
-		shedule_inherted = 0;
-		shedule_auras = 0;
-		shedule_all = 0;
-	}
-	*/
-
-	UpdateCLTime += time.GetElapsed_ticks();
-	
+ 		m_pPhysics_support->in_UpdateCL();	
 }
 
 
@@ -587,30 +509,13 @@ float CBaseMonster::shedule_Scale()
 
 void CBaseMonster::shedule_Update(u32 dt)
 {
-
-#ifdef DEBUG
-	if ( is_paused () )
-	{
-		dbg_update_cl	= Device.dwFrame;
-		return;
-	}
-#endif
-
-	CTimer time;
-	time.Start();
-
 	if (OnClient())
 	{
 		inherited::shedule_Update(dt);
-		shedule_inherted += time.GetElapsed_ticks();
 		return;
 	}
  
 	inherited::shedule_Update(dt);
-	shedule_inherted += time.GetElapsed_ticks();
-
-
-	time.Start();
 	update_eyes_visibility		();
 
 	if ( m_anti_aim )
@@ -623,9 +528,6 @@ void CBaseMonster::shedule_Update(u32 dt)
 	m_base_aura.update_schedule();
 	m_radiation_aura.update_schedule();
 
-	shedule_auras += time.GetElapsed_ticks();
-
-	time.Start();
 	if (IsGameTypeSingle() || OnServer())
 	{
 		control().update_schedule();
@@ -634,11 +536,6 @@ void CBaseMonster::shedule_Update(u32 dt)
 	}
 	
 	m_pPhysics_support->in_shedule_Update(dt);
-	shedule_all += time.GetElapsed_ticks();
-
-#ifdef DEBUG	
-	show_debug_info();
-#endif
 }
 
 

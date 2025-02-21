@@ -537,18 +537,6 @@ BOOL CAI_Stalker::net_Spawn			(CSE_Abstract* DC)
 	CSE_ALifeHumanStalker			*tpHuman = smart_cast<CSE_ALifeHumanStalker*>(e);
 	R_ASSERT						(tpHuman);
 		
-#pragma todo("Se7Kills COMMENT THIS")
-	//Msg("Net_spawn %s, special_ch %s", DC->name_replace(), tpHuman->m_SpecificCharacter.c_str());
- 
-
-
-	//static bool first_time			= true;
-	//if ( first_time ) {
-	//	tpHuman->o_Position.z		-= 3.f;
-	//	first_time					= false;
-	//}
-	
-	
 	m_group_behaviour				= !!tpHuman->m_flags.test(CSE_ALifeObject::flGroupBehaviour);
 
 	if (!CObjectHandler::net_Spawn(DC) || !inherited::net_Spawn(DC))
@@ -556,26 +544,14 @@ BOOL CAI_Stalker::net_Spawn			(CSE_Abstract* DC)
 	
 	set_money						(tpHuman->m_dwMoney, false);
 
-#ifdef DEBUG_MEMORY_MANAGER
-	u32									_start = 0;
-	if (g_bMEMO)
-		_start							= Memory.mem_usage();
-#endif // DEBUG_MEMORY_MANAGER
-
 	animation().reload				();
-
-#ifdef DEBUG_MEMORY_MANAGER
-	if (g_bMEMO)
-		Msg					("CStalkerAnimationManager::reload() : %d",Memory.mem_usage() - _start);
-#endif // DEBUG_MEMORY_MANAGER
 
 	movement().m_head.current.yaw	= movement().m_head.target.yaw = movement().m_body.current.yaw = movement().m_body.target.yaw	= angle_normalize_signed(-tpHuman->o_torso.yaw);
 	movement().m_body.current.pitch	= movement().m_body.target.pitch	= 0;
 
 	if (ai().get_alife())
 	{
-
-		if (ai().game_graph().valid_vertex_id(tpHuman->m_tGraphID))
+ 		if (ai().game_graph().valid_vertex_id(tpHuman->m_tGraphID))
 			ai_location().game_vertex(tpHuman->m_tGraphID);
 
 		if (ai().game_graph().valid_vertex_id(tpHuman->m_tNextGraphID) && movement().restrictions().accessible(ai().game_graph().vertex(tpHuman->m_tNextGraphID)->level_point()))

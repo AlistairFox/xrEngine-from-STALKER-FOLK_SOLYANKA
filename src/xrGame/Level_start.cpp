@@ -338,7 +338,9 @@ bool CLevel::net_start6				()
 			if	(!g_dedicated_server)
 			{
 				MainMenu()->SwitchToMultiplayerMenu();
-				MainMenu()->Show_DownloadMPMap(dialog_string, download_url);
+				// MainMenu()->Show_DownloadMPMap(dialog_string, download_url);
+
+				R_ASSERT2(false, "MAP IS NO CORRECTED");
 			}
 		}
 		else 

@@ -712,10 +712,10 @@ public:
 	}
 };
 #else 	
-class CCC_DetailsRenderDIST : public CCC_Integer
+class CCC_DetailsRenderDIST : public CCC_Float
 {
 public:
-	CCC_DetailsRenderDIST(LPCSTR N, int* v, int min, int max) : CCC_Integer(N, v, min, max) 
+	CCC_DetailsRenderDIST(LPCSTR N, float* v, int min, int max) : CCC_Float(N, v, min, max)
 	{
 		dm_cache1_line = max * 2 / dm_cache1_count;
 		dm_cache_line = max + 1 + max;
@@ -730,12 +730,12 @@ public:
 
 	virtual void Execute(LPCSTR args)
 	{	
-		CCC_Integer::Execute(args);
+		CCC_Float::Execute(args);
 		Apply();
 	}
  	virtual void	Status(TStatus & S)
 	{
-		CCC_Integer::Status(S);
+		CCC_Float::Status(S);
 	}
 };
 #endif 
@@ -746,15 +746,15 @@ public:
 void		xrRender_initconsole	()
 {
 	CMD4(CCC_Integer, "r__particle_distance", &render_particle_distance, 0, 1000);
-	 
+	CMD4(CCC_Float, "r__details_density", &ps_r__Detail_density, .05f, 0.9f);
+	
 #ifdef USE_DX11
-	CMD4(CCC_Float,			"r__details_density", &ps_r__Detail_density, .05f, 0.9f);
  	CMD4(CCC_Integer,		"r__details_sun", &RenderDetailsSunLighting, 0, 1);
  	CMD4(CCC_Float,			"r__details_scale", &PlayerDetailsResize, 0.5, 2);
- 	CMD4(CCC_DetailRadius,	"r__details_radius", &ps_r__detail_radius, 0, 250);
+ 	CMD4(CCC_DetailRadius,	"r__details_radius", &ps_r__detail_radius, 10, 250);
 	CMD1(CCC_DetailButhing, "r__details_buthing");
 #else 
-	// CMD4(CCC_DetailsRenderDIST, "r__detail_distance", &ps_render_detail_radius, 1, 128);
+	// CMD4(CCC_DetailsRenderDIST, "r__details_radius", &ps_r__detail_radius, 10, 250);
 #endif
 
  

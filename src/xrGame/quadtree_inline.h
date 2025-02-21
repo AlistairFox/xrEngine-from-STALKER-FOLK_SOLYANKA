@@ -231,7 +231,7 @@ TEMPLATE_SPECIALIZATION
 IC	_object_type *CSQuadTree::remove		(const _object_type *object)
 {
 	START_PROFILE("Covers/remove")
-	_object_type	*_object = remove(object,m_root,m_center,m_radius,0);
+		_object_type	*_object = remove(object,m_root,m_center,m_radius,0);
 	return			(_object);
 	STOP_PROFILE
 }

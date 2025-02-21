@@ -121,15 +121,8 @@ public:
 	DetailVec						objects;
 	vis_list						m_visibles	[3];	// 0=still, 1=Wave1, 2=Wave2
 
-#ifndef _EDITOR    
-	xrXRC							xrc;
-#endif    
-
-//	CacheSlot1 						cache_level1[dm_cache1_line][dm_cache1_line];
-//	Slot*							cache		[dm_cache_line][dm_cache_line];	// grid-cache itself
-//	svector<Slot*,dm_cache_size>	cache_task;									// non-unpacked slots
-//	Slot							cache_pool	[dm_cache_size];				// just memory for slots
-	
+ 	xrXRC							xrc;
+ 
 	CacheSlot1** cache_level1;
 	Slot*** cache;
 	svector<Slot*, dm_cache_max_size> cache_task;
@@ -143,10 +136,7 @@ public:
 	void							UpdateVisibleM	();
 	void							UpdateVisibleS	();
 public:
-#ifdef _EDITOR
-	virtual ObjectList* 			GetSnapList		()=0;
-#endif
-
+ 
 	IC bool							UseVS			()		{ return HW.Caps.geometry_major >= 1; }
 
 	// Software processor
@@ -172,11 +162,8 @@ public:
 	void							hw_Load_Shaders	();
 	void							hw_Unload		();
 	void							hw_Render		();
-#if defined(USE_DX10) || defined(USE_DX11)
-	void							hw_Render_dump	(const Fvector4 &consts, const Fvector4 &wave, const Fvector4 &wind, u32 var_id, u32 lod_id);
-#else	//	USE_DX10
+ 
 	void							hw_Render_dump	(ref_constant array, u32 var_id, u32 lod_id, u32 c_base);
-#endif	//	USE_DX10
 
 public:
 	// get unpacked slot

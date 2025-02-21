@@ -59,6 +59,7 @@ void CBaseMonster::net_Export(NET_Packet& P)
 		//	P.w						(&m_fGoingSpeed,			sizeof(m_fGoingSpeed));
 		//	P.w						(&m_fGoingSpeed,			sizeof(m_fGoingSpeed));
 		float					f1 = 0;
+	
 		if (ai().game_graph().valid_vertex_id(l_game_vertex_id)) {
 			f1 = Position().distance_to(ai().game_graph().vertex(l_game_vertex_id)->level_point());
 			P.w(&f1, sizeof(f1));

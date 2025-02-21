@@ -283,10 +283,6 @@ void CUIPdaWnd::DrawHint()
 	{
 		pUITaskWnd->DrawHint();
 	}
-//-	else if ( m_pActiveDialog == pUIFactionWarWnd )
-//-	{
-//		m_hint_wnd->Draw();
-//-	}
 	else if ( m_pActiveDialog == pUIRankingWnd )
 	{
 		pUIRankingWnd->DrawHint();
