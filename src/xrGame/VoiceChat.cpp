@@ -111,29 +111,32 @@ void CVoiceChat::OnRender()
 		for (auto it = players.begin(); it != players.end(); ++it)
 		{
 			game_PlayerState* ps = it->second;
-			u16 id = ps->GameID;
+			if (ps != nullptr)
+			{
+				u16 id = ps->GameID;
 
-			if (ps == local_player || ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD) || ps->testFlag(GAME_PLAYER_MP_INVIS))
-				continue;
+				if (ps == local_player || ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD) || ps->testFlag(GAME_PLAYER_MP_INVIS))
+					continue;
 
-			auto voiceTimeIt = m_voiceTimeMap.find(id);
-			if (voiceTimeIt == m_voiceTimeMap.end())
-				continue;
+				auto voiceTimeIt = m_voiceTimeMap.find(id);
+				if (voiceTimeIt == m_voiceTimeMap.end())
+					continue;
 
-			auto& voiceIconInfo = voiceTimeIt->second;
+				auto& voiceIconInfo = voiceTimeIt->second;
 
-			if (voiceIconInfo.time + 200 < GetTickCount())
-				continue;
+				if (voiceIconInfo.time + 200 < GetTickCount())
+					continue;
 
-			CObject* pObject = Level().Objects.net_Find(id);
-			if (!pObject) continue;
+				CObject* pObject = Level().Objects.net_Find(id);
+				if (!pObject) continue;
 
-			CActor* pActor = smart_cast<CActor*>(pObject);
-			if (!pActor) continue;
+				CActor* pActor = smart_cast<CActor*>(pObject);
+				if (!pActor) continue;
 
-			bool isCorrectSquad = ps->MPSquadID == local_player->MPSquadID;
-  			if (isCorrectSquad)
-				pActor->RenderIndicator(pos, 0.2, 0.2, GetVoiceIndicatorShader());
+				bool isCorrectSquad = ps->MPSquadID == local_player->MPSquadID;
+				if (isCorrectSquad)
+					pActor->RenderIndicator(pos, 0.2, 0.2, GetVoiceIndicatorShader());
+			}		
 		}
 	}
 

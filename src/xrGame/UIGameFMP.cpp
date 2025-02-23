@@ -23,11 +23,14 @@ CUIGameFMP::CUIGameFMP()
 {
 	m_game = NULL;
 	m_animation = NULL;
+	m_hud_squad = nullptr;
 }
 
 CUIGameFMP::~CUIGameFMP()
 {
 	xr_delete(m_animation);
+	xr_delete(m_hud_squad);
+	
 }
 
 u32 oldTimer;
@@ -52,7 +55,8 @@ void CUIGameFMP::Init(int stage)
 		//surge_cap = UIHelper::CreateTextWnd(uiXml, "surge_cap", 0);
 
 		m_hud_squad = xr_new<CUIHudSquadWnd>();
-		m_hud_squad->SetAutoDelete(true);
+		m_hud_squad->Init();
+		m_hud_squad->SetAutoDelete(false);
 		 
 	}
 	else if (stage == 1)
@@ -65,8 +69,6 @@ void CUIGameFMP::Init(int stage)
 		//after
 		inherited::Init(stage);
 		m_window->AttachChild(m_stats);
-
-		m_hud_squad->Init();
 	}
 	m_animation = xr_new<CUIAMode>();
 	m_animation->Init();

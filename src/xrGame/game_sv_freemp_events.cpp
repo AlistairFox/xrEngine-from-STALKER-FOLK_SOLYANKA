@@ -30,6 +30,9 @@
 // player disconnect
 void game_sv_freemp::OnPlayerDisconnect(ClientID id_who, LPSTR Name, u16 GameID)
 {
+	delete_player_from_squad(GameID);
+
+
 	game_PlayerState* ps = get_eid(GameID);
 	
 	if (ps != nullptr)
@@ -37,6 +40,7 @@ void game_sv_freemp::OnPlayerDisconnect(ClientID id_who, LPSTR Name, u16 GameID)
  		delete_player_from_player_list( find_squad_by_squadid(ps->MPSquadID), ps);
 		Msg("Remove Player[%d] By PlayerState from Squad[%d]", ps->GameID, ps->MPSquadID);
 	}
+
 
  	inherited::OnPlayerDisconnect(id_who, Name, GameID);
 	CActorMP* pActor = smart_cast<CActorMP*>(Level().Objects.net_Find(GameID));

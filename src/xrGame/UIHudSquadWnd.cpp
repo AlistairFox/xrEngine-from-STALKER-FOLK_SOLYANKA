@@ -101,7 +101,7 @@ void CUIHudSquadMember::Init(CUIXml& xml_doc, LPCSTR path)
 
 void CUIHudSquadMember::Update()
 {
-	// Msg("[CUIHudSquadMember] Update");
+//	Msg("[CUIHudSquadMember] Update: actor sel: %p", m_actor);
 	inherited::Update();
 
 	//------Name
@@ -129,9 +129,15 @@ void CUIHudSquadMember::Update()
 		//------Distance
 		if (Actor())
 		{
+			float Distance = Actor()->Position().distance_to(m_actor->Position());
 			string16 buf;
-			xr_sprintf(buf, "%.0f m", Actor()->Position().distance_to(m_actor->Position()));
+			xr_sprintf(buf, "%.0f m", Distance);
  			m_pDistance->TextItemControl()->SetText(buf);
+			//Msg("[CUIHudSquadMember] Update distance: %f", Distance);
+		}
+		else
+		{
+			//Msg("[CUIHudSquadMember] Cant Update Distance");
 		}
 
 		//------StatusIcon
