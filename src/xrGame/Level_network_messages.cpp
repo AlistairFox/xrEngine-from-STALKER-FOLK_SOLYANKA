@@ -86,6 +86,15 @@ void CLevel::ClientReceive()
 		P->r_begin	(m_type);
 		switch (m_type)
 		{
+			case M_EVENT_CMD_SYNC:
+			{
+				if (OnClient())
+				{
+					void ReadCMDCommands(NET_Packet & P);
+					ReadCMDCommands(*P);
+				}
+			}break;
+
 			case M_SPAWN:			
 				{
 					if (!bReady) //!m_bGameConfigStarted || 

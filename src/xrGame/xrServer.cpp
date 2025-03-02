@@ -805,6 +805,10 @@ u32 xrServer::OnMessage	(NET_Packet& P, ClientID sender)			// Non-Zero means bro
 
 	switch (type)
 	{
+		case M_EVENT_CMD_SYNC:
+		{
+			SendBroadcast(sender, P, net_flags(true, true));
+		}break;
 		case M_UPDATE:	
 			{
 				Process_update			(P,sender);						// No broadcast

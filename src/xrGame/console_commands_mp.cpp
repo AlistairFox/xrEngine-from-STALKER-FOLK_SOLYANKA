@@ -4177,12 +4177,208 @@ public:
 	}
 };
 
+#include "../xrEngine/Fmesh.h"
+class CCC_OMFS : public IConsole_Command
+{
+public:
+	CCC_OMFS(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; }
+	virtual void Execute(LPCSTR args)
+	{
+		FS_FileSet files;
+		FS.file_list(files, "$game_meshes$");
+
+		string_path file_folder_userdata;
+		FS.update_path(file_folder_userdata, "$app_data_root$", "");
+
+		for (auto file : files)
+		{
+			string_path filep;
+			FS.update_path(filep, "$game_meshes$", file.name.c_str());
+			
+
+
+ 			if (strstr( file.name.c_str(), ".ogf") != 0)
+			{
+				string_path file_exp;
+				xr_strcpy(file_exp, file_folder_userdata);
+
+				xr_strcat(file_exp, "ogf_refferences\\");
+
+				xr_strcat( file_exp, file.name.c_str() );
+
+
+				IWriter* write = FS.w_open(file_exp);
+
+ 				IReader* R = FS.r_open(filep);
+				if (R)
+				{
+					Msg("Reading File: %s", filep);
+					if (R->find_chunk(OGF_S_MOTION_REFS2))
+					{
+						u32 set_cnt = R->r_u32();
+
+						string_path		nm;
+						for (u32 k = 0; k < set_cnt; ++k)
+						{
+							R->r_stringZ(nm, sizeof(nm));
+							xr_strcat(nm, ".omf");
+							
+							string128 tmp;
+							sprintf_s(tmp, "[%u] OMF: %s", k, nm);
+							write->w_string(tmp);
+							//Msg("[%u] OMF: %s", k, nm);
+						}
+					}
+				}
+				FS.r_close(R);
+
+				FS.w_close(write);
+			}		
+			
+		}
+	}
+};
+
+class CCC_OMFS_HANDS : public IConsole_Command
+{
+public:
+	CCC_OMFS_HANDS(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; }
+	virtual void Execute(LPCSTR args)
+	{
+		FS_FileSet files;
+		FS.file_list(files, "$game_meshes$");
+
+		string_path file_folder_userdata;
+		FS.update_path(file_folder_userdata, "$app_data_root$", "");
+
+		for (auto file : files)
+		{
+			string_path filep;
+			FS.update_path(filep, "$game_meshes$", file.name.c_str());
+
+
+
+			if (strstr(file.name.c_str(), "dynamics\\weapons\\wpn_hand") != 0)
+			{
+				string_path file_exp;
+				xr_strcpy(file_exp, file_folder_userdata);
+ 				xr_strcat(file_exp, "hands_refferences\\");
+ 				xr_strcat(file_exp, file.name.c_str());
+ 
+				
+ 				IReader* R = FS.r_open(filep);
+				if (R)
+				{
+					Msg("Reading File: %s", filep);
+					
+
+					if (R->find_chunk(OGF_S_MOTION_REFS2))
+					{
+						u32 set_cnt = R->r_u32();
+ 						string_path		nm;
+						xr_vector<shared_str> names;
+						bool Finded = false;
+						for (u32 k = 0; k < set_cnt; ++k)
+						{
+							R->r_stringZ(nm, sizeof(nm));
+							xr_strcat(nm, ".omf");
+							names.push_back(nm);
+ 							if (strstr(nm, "wpn_protecta") != 0)
+								Finded = true;
+ 						}
+
+						if (!Finded)
+						{
+							IWriter* write = FS.w_open(file_exp);
+							for (auto S : names)
+							{
+								string128 tmp;
+								sprintf_s(tmp, "[%u] OMF: %s", k, *S);
+								write->w_string(tmp);
+							}
+							FS.w_close(write);
+						}
+					}
+				}
+				FS.r_close(R);
+
+				
+			}
+
+		}
+	}
+};
+
+class CCC_ExportConfigMP : public IConsole_Command
+{
+public:
+	CCC_ExportConfigMP(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; }
+	virtual void Execute(LPCSTR args)
+	{
+		NET_Packet packet;
+		packet.w_begin(M_EVENT_CMD_SYNC);
+
+		CMemoryWriter oc_writer;
+		for (auto cmd : Console->Commands)
+		{
+			Msg("Pack[CMD]: %s", cmd.first);
+ 			cmd.second->Save(&oc_writer);
+		}
+		packet.w_u32(oc_writer.size());
+		packet.w(oc_writer.pointer(), oc_writer.size());
+
+		Msg("Packet Size: %u", packet.B.count);
+		Level().Send(packet);
+ 	}
+};
+
+bool isAllowed(string256& s)
+{
+	if (strstr(s, "r2_"))
+		return true;
+ 	if (strstr(s, "r3_"))
+		return true;
+	if (strstr(s, "r4_"))
+		return true;
+	if (strstr(s, "r__"))
+		return true;
+	if (strstr(s, "rs_"))
+		return true;
+
+	return false;
+}
+
+void ReadCMDCommands(NET_Packet& P)
+{
+  	u32 allocated_size = P.r_u32();
+	u8 data[16*1024];
+ 	P.r(data, allocated_size);
+ 	
+	IReader F(data, allocated_size);
+  	while (!F.eof())
+	{
+		string256 str;
+		F.r_string(str, sizeof(str));
+		
+		if (isAllowed(str))
+		{
+			Msg("cmd: %s", str);
+			Console->Execute(str);
+		}
+	}
+  
+}
+
 extern int use_debug_squads = 0;
 
 void register_mp_console_commands()
 {
 	// Se7kills 
 	// ADMIN RIGHTS GIVER (FOR TESTSS) // COMENT IN PLAY MODE RP
+	CMD1(CCC_ExportConfigMP, "mp_sync_console");
+	CMD1(CCC_OMFS, "ogf_refs");
+	CMD1(CCC_OMFS_HANDS, "ogfs_refs_hands");
+
 	CMD1(CCC_GiveSelfAdmin, "ra_give_self");
 	CMD1(CCC_RemoveSelfAdmin, "ra_remove_self");
 
