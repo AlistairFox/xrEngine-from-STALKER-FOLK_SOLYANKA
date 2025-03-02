@@ -59,11 +59,11 @@ BEGIN
     BEGIN
         BLOCK "000004b0"
         BEGIN
-            VALUE "CompanyName", "DEAD EDGE (GSC Game World)"
-            VALUE "FileDescription", "X-Ray 1.6 Engine (DEAD EDGE)"
+            VALUE "CompanyName", ""
+            VALUE "FileDescription", "X-Ray OMP (Folk Solyanka)"
             VALUE "FileVersion", "1.0.0.0"
             VALUE "InternalName", "xrEngine"
-            VALUE "LegalCopyright", "Copyright © 2023 DEAD EDGE (GSC Game World)"
+            VALUE "LegalCopyright", "Copyright © 2023"
             VALUE "OriginalFilename", "xrEngine.exe"
             VALUE "ProductName", "S.T.A.L.K.E.R.: DEAD EDGE"
             VALUE "ProductVersion", "1.0.0.0"
