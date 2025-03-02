@@ -76,10 +76,12 @@ BOOL motions_value::load		(LPCSTR N, IReader *data, vecBones* bones)
 {
 
 	m_id						= N;
+	
+ 	Msg("Loading Name: %s", N);
 
 	bool bRes					= true;
 	// Load definitions
-	U16Vec rm_bones				(bones->size(),BI_NONE);
+	U16Vec rm_bones				(bones->size(), BI_NONE);
 	IReader* MP 				= data->open_chunk(OGF_S_SMPARAMS);
 
 	if (MP)
@@ -118,9 +120,11 @@ BOOL motions_value::load		(LPCSTR N, IReader *data, vecBones* bones)
 					Msg			("!Can't load: '%s' invalid bones count", N);
 				}
 #else
-				VERIFY3			(*b_it!=BI_NONE,"Can't find bone:", buf);
+				R_ASSERT3			(*b_it!=BI_NONE, "Can't find bone:", buf);
 #endif
-				if (bRes)		rm_bones[m_idx] = u16(*b_it);
+				
+				if (bRes)	
+					rm_bones[m_idx] = u16(*b_it);
 			}
 			part_bone_cnt		= u16(part_bone_cnt + (u16)PART.bones.size());
 		}
@@ -131,7 +135,7 @@ BOOL motions_value::load		(LPCSTR N, IReader *data, vecBones* bones)
 			Msg("!Different bone count[%s] [Object: '%d' <-> Motions: '%d']", N, bones->size(),part_bone_cnt);
 		}
 #else
-		VERIFY3(part_bone_cnt==(u16)bones->size(),"Different bone count '%s'",N);
+		R_ASSERT3(part_bone_cnt==(u16)bones->size(),"Different bone count '%s'",N);
 #endif
 		if (bRes)
 		{
@@ -176,21 +180,30 @@ BOOL motions_value::load		(LPCSTR N, IReader *data, vecBones* bones)
 		m_motions[bones->at(i)->name].resize(dwCNT);
 
 	// load motions
-	for (u16 m_idx=0; m_idx<(u16)dwCNT; m_idx++){
+	for (u16 m_idx=0; m_idx<(u16)dwCNT; m_idx++)
+	{
 		string128			mname;
 		R_ASSERT			(MS->find_chunk(m_idx+1));             
 		MS->r_stringZ		(mname,sizeof(mname));
-#ifdef _DEBUG        
+        
 		// sanity check
 		xr_strlwr			(mname);
-        accel_map::iterator I= m_motion_map.find(mname); 
-        VERIFY3				(I!=m_motion_map.end(),"Can't find motion:",mname);
-        VERIFY3				(I->second==m_idx,"Invalid motion index:",mname);
-#endif
+        accel_map::iterator I = m_motion_map.find(mname); 
+        R_ASSERT3	(I!=m_motion_map.end(),"Can't find motion:",mname);
+		R_ASSERT3	(I->second==m_idx,"Invalid motion index:",mname);
+ 
 		u32 dwLen			= MS->r_u32();
-		for (u32 i=0; i<bones->size(); i++){
+		for (u32 i=0; i < bones->size(); i++){
 			u16 bone_id		= rm_bones[i];
-			VERIFY2			(bone_id!=BI_NONE,"Invalid remap index.");
+			R_ASSERT2			(bone_id!=BI_NONE,"Invalid remap index.");
+
+			// Msg("bone ID: %u, bones: %u", bone_id, bones->size());
+ 			//if (bone_id == u16(-1))
+			//{
+			//	Msg("bone ID : %s", rm_bones[i].);
+			//	return;
+			//}
+			 
 			CMotion&		M	= m_motions[bones->at(bone_id)->name][m_idx];
 			M.set_count			(dwLen);
 			M.set_flags			(MS->r_u8());
@@ -220,14 +233,14 @@ BOOL motions_value::load		(LPCSTR N, IReader *data, vecBones* bones)
                 
                 MS->r_fvector3	(M._sizeT);
                 MS->r_fvector3	(M._initT);
-            }else
+            }
+			else
             {
                 MS->r_fvector3	(M._initT);
             }
 		}
 	}
-//	Msg("Motions %d/%d %4d/%4d/%d, %s",p_cnt,m_cnt, m_load,m_total,m_r,N);
-	MS->close();
+ 	MS->close();
 
 	return bRes;
 }
