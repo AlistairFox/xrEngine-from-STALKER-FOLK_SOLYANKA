@@ -8,6 +8,22 @@ void dxStatsRender::Copy(IStatsRender&_in)
 	*this = *((dxStatsRender*)&_in);
 }
 
+
+void dxStatsRender::DrawCalls(u32& value)
+{
+	value = RCache.stat.calls;
+}
+
+void dxStatsRender::DrawVerticy(u32& value)
+{
+	value = RCache.stat.verts;
+}
+
+void dxStatsRender::DrawPoly(u32& value)
+{
+	value = RCache.stat.polys;
+}
+
 void dxStatsRender::OutData1 (CGameFont &F)
 {
 	F.OutNext	("VERT:        %d/%d",		RCache.stat.verts,RCache.stat.calls?RCache.stat.verts/RCache.stat.calls:0);

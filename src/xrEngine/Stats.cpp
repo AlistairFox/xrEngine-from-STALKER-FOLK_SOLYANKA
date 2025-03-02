@@ -79,6 +79,13 @@ void drawStatParam(CGameFont* F, LPCSTR text)
 	F->OutNext(text);
 }
 
+
+void drawStatParam_Calls(CGameFont* F, CStats* stats, LPCSTR text, u32 stat)
+{
+	F->SetColor(color_argb(255, 128, 255, 0));
+	F->OutNext(text, stat);
+};
+
 void drawStatParamByMS(CGameFont* F, CStats* stats, LPCSTR text, float stat)
 {
 	if (stat < 3.0f)
@@ -310,39 +317,51 @@ void CStats::Show()
 	else
 		if (psDeviceFlags.test(rsStatistic_fps))
 		{
+			F.SetColor(color_rgba(255, 0, 0, 255));
+ 			F.SetColor(color_rgba(128, 128, 192, 255));
 			F.OutNext("FPS:   %3.0f", fFPS);
- 
+
 			drawStatParamByMS(pFontGame, this, "ThreadMain:			%2.4fms", ThreadEngine.result);
 			drawStatParamByMS(pFontGame, this, "ThreadSecond:		%2.4fms", ThreadSecond.result);
 			drawStatParam(pFontGame, "----------------");
 
 			drawStatParamByMS(pFontGame, this, "EngineFrame:		%2.4fms", EngineFrame.result);
-			drawStatParamByMS(pFontGame, this, "EngineMTFrame1Core:	%2.4fms", EngineMTFrame.result);
-			drawStatParamByMS(pFontGame, this, "EngineMTFrame2Core:	%2.4fms", EngineMTFrameSCore.result);
 
 			drawStatParam(pFontGame, "----------------");
 			drawStatParamByMS(pFontGame, this, "uUpdateCL:			%2.4fms | %2.4fms(relcase)", UpdateClient.result, NetworkRelcase.result);
 			drawStatParamByMS(pFontGame, this, "uShedule:			%2.4fms | %2.4fms(low)", Sheduler.result, ShedulerLow.result);
- 
+
 			drawStatParam(pFontGame, "----------------");
 			drawStatParamByMS(pFontGame, this, "Render:				%2.4fms", RenderTOTAL_Real.result);
 
 			drawStatParam(pFontGame, "----------------");
 			drawStatParamByMS(pFontGame, this, "Render Wait Gpus:	%2.4fms", RenderDUMP_Wait_S.result);
-			drawStatParamByMS(pFontGame, this, "Render Main:		%2.4fms", RenderMain.result);
+			drawStatParamByMS(pFontGame, this, "Render Build Graph:	%2.4fms", RenderMain.result);
+			drawStatParamByMS(pFontGame, this, "Render GPU Draw:	%2.4fms", RenderDUMP.result);
+			// drawStatParamByMS(pFontGame, this, "Render GPU DrawFwd:	%2.4fms", RenderDUMP_Second.result);
 
 			drawStatParam(pFontGame, "----------------");
-			
-			drawStatParamByMS(pFontGame, this, "R_Main_RParticels    %2.4fms", Particles_render_Time.result);
-			drawStatParamByMS(pFontGame, this, "R_Main_UParticels    %2.4fms", Particles_update_Time.result);
-			
 			drawStatParamByMS(pFontGame, this, "R_Main_Sun:			%2.4fms", RenderSun.result);
 			drawStatParamByMS(pFontGame, this, "R_Main_Lights:		%2.4fms", RenderLights.result);
 			drawStatParamByMS(pFontGame, this, "R_Main_Shadow:		%2.4fms", Render_shadow_mp_process.result);
 			drawStatParamByMS(pFontGame, this, "R_Postprocess:		%2.4fms", Render_postprocess.result);
 
-			drawStatParamByMS(pFontGame, this, "R_Detail: %2.4fms| V: %2.4fms| C: %2.4fms", RenderDUMP_DT_Render.result, RenderDUMP_DT_VIS.result, RenderDUMP_DT_Cache.result);
+			drawStatParamByMS(pFontGame, this, "RDT_Ren:   %2.4fms", RenderDUMP_DT_Render.result);
+			drawStatParamByMS(pFontGame, this, "RDT_Vis:   %2.4fms", RenderDUMP_DT_VIS.result);
+			drawStatParamByMS(pFontGame, this, "RDT_Cache: %2.4fms", RenderDUMP_DT_Cache.result);
+
+
+			drawStatParam(pFontGame, "----------------");
+			u32 dcalls; u32 verts; u32 polys;
+			m_pRender->DrawCalls(dcalls);
+			m_pRender->DrawVerticy(verts);
+			m_pRender->DrawPoly(polys);
+
+			drawStatParam_Calls(pFontGame, this, "Draw Calls(DPI):		%u", dcalls);
+			drawStatParam_Calls(pFontGame, this, "Draw Vertex:			%u", verts);
+			drawStatParam_Calls(pFontGame, this, "Draw Pollys:			%u", polys);
 		}
+		 
 		else
 			if (psDeviceFlags.test(rsStatistic))
 			{
