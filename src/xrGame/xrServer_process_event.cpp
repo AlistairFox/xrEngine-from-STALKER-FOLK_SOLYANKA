@@ -593,7 +593,9 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 	}break;
 	 
 	default:
-		R_ASSERT2	(0,"Game Event not implemented!!!");
+		Msg("ClientID: [%u] Not support event: %u (Kick player if many times print)", sender, type);
+		
+		//	R_ASSERT2	(0,"Game Event not implemented!!!");
 		break;
 	}
 }
