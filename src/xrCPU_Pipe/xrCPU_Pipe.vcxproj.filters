@@ -10,9 +10,6 @@
     <Filter Include="Skinning">
       <UniqueIdentifier>{ab8a64d8-8e35-4226-aff2-a5a75b210b0c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resources">
-      <UniqueIdentifier>{44392779-11a1-474c-ae0e-d589f742cad0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="TTAPI">
       <UniqueIdentifier>{35c81203-8acd-4007-a97c-16ab5cdfa2a7}</UniqueIdentifier>
     </Filter>
@@ -50,16 +47,8 @@
     <ClInclude Include="xrCPU_Pipe.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Resources</Filter>
-    </ClInclude>
     <ClInclude Include="ttapi.h">
       <Filter>TTAPI</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="xrCPU_Pipe.rc">
-      <Filter>Resources</Filter>
-    </ResourceCompile>
   </ItemGroup>
 </Project>
