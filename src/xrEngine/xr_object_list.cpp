@@ -65,14 +65,9 @@ CObject*	CObjectList::FindObjectByCLS_ID	( CLASS_ID cls )
 
 void	CObjectList::o_remove		( Objects&	v,  CObject* O)
 {
-//.	if(O->ID()==1026)
-//.	{
-//.		Log("ahtung");
-//.	}
 	Objects::iterator _i	= std::find(v.begin(),v.end(),O);
 	VERIFY					(_i!=v.end());
 	v.erase					(_i);
-//.	Msg("---o_remove[%s][%d]", O->cName().c_str(), O->ID() );
 }
 
 void	CObjectList::o_activate		( CObject*		O		)
@@ -91,17 +86,15 @@ void	CObjectList::o_sleep		( CObject*		O		)
 }
 #include "../xrServerEntities/clsid_game.h"
 
-extern int updateCL_Rate;
-
 void	CObjectList::SingleUpdate(CObject* O)
 {
-
 	if (Device.dwFrame == O->dwFrame_UpdateCL)
 		return;
  	if (!O->processing_enabled())
 		return;
  	if (O->H_Parent())
 		SingleUpdate(O->H_Parent());
+
  	Device.Statistic->UpdateClient_updated++;
  	O->dwFrame_UpdateCL = Device.dwFrame;
  	O->UpdateCL();
@@ -110,14 +103,12 @@ void	CObjectList::SingleUpdate(CObject* O)
 
 void CObjectList::clear_crow_vec(Objects& o)
 {
-	for (u32 _it=0; _it<o.size(); _it++) {
-//		Msg				("[%d][0x%08x]IAmNotACrowAnyMore (clear_crow_vec)", Device.dwFrame, dynamic_cast<void*>(o[_it]));
-		o[_it]->IAmNotACrowAnyMore();
+	for (u32 _it=0; _it<o.size(); _it++) 
+	{
+ 		o[_it]->IAmNotACrowAnyMore();
 	}
 	o.clear_not_free();
 }
-
-extern u32 updataCL_time_ms;
 
 void CObjectList::Update		(bool bForce)
 {
@@ -128,74 +119,19 @@ void CObjectList::Update		(bool bForce)
 		{
 			// Select Crow-Mode
 			Device.Statistic->UpdateClient_updated	= 0;
-
-			Objects& crows				= m_crows[0];
-
-			{
-				Objects& crows1			= m_crows[1];
-				crows.insert			(crows.end(), crows1.begin(), crows1.end());
-				crows1.clear_not_free	();
-			}
-
-#if 0
-			std::sort					(crows.begin(), crows.end());
-			crows.erase					(
-				std::unique(
-					crows.begin(),
-					crows.end()
-				),
-				crows.end()
-			);
-#else
-#	ifdef DEBUG
-			std::sort					(crows.begin(), crows.end());
-			VERIFY						(
-				std::unique(
-					crows.begin(),
-					crows.end()
-				) == crows.end()
-			);
-#	endif // ifdef DEBUG
-#endif
-
-			Device.Statistic->UpdateClient_crows	= crows.size	();
-			Objects* workload			= 0;
-			if (!psDeviceFlags.test(rsDisableObjectsAsCrows))	
-				workload				= &crows;
-			else 
-			{
-				workload				= &objects_active;
-				clear_crow_vec			(crows);
-			}
+ 			Device.Statistic->UpdateClient_active = objects_active.size();
 
 			Device.Statistic->UpdateClient.Begin	();
-			Device.Statistic->UpdateClient_active	= objects_active.size();
-			Device.Statistic->UpdateClient_total	= objects_active.size() + objects_sleeping.size();
-
-			u32 const objects_count		= workload->size();
-			CObject** objects			= (CObject**)_alloca(objects_count*sizeof(CObject*));
-			std::copy					( workload->begin(), workload->end(), objects );
-
-			crows.clear_not_free		();
-
-			CObject** b					= objects;
-			CObject** e					= objects + objects_count;
-			for (CObject** i = b; i != e; ++i)
+ 
+  			for (auto& O : objects_active)
 			{
-				(*i)->IAmNotACrowAnyMore();
-				(*i)->dwFrame_AsCrow	= u32(-1);
+				O->IAmNotACrowAnyMore();
+				O->dwFrame_AsCrow	= u32(-1);
 			}
+ 			for (auto & O : objects_active)
+				SingleUpdate			(O);
 
-			CTimer time;
-
-			time.Start();
-
-			for (CObject** i = b; i != e; ++i)
-				SingleUpdate			(*i);
-
-			updataCL_time_ms += time.GetElapsed_ms();
-			
-			Device.Statistic->UpdateClient.End		();
+ 			Device.Statistic->UpdateClient.End		();
 		}
 	}
 
@@ -203,24 +139,24 @@ void CObjectList::Update		(bool bForce)
 	if (!destroy_queue.empty()) 
 	{
 		// Info
-		for (Objects::iterator oit=objects_active.begin(); oit!=objects_active.end(); oit++)
-			for (int it = destroy_queue.size()-1; it>=0; it--){	
-				(*oit)->net_Relcase		(destroy_queue[it]);
-			}
-		for (Objects::iterator oit=objects_sleeping.begin(); oit!=objects_sleeping.end(); oit++)
-			for (int it = destroy_queue.size()-1; it>=0; it--)	(*oit)->net_Relcase	(destroy_queue[it]);
+		for (auto& O : objects_active)
+		for (int it = destroy_queue.size()-1; it>=0; it--)
+			O->net_Relcase		(destroy_queue[it]);
 
-		for (int it = destroy_queue.size()-1; it>=0; it--)	Sound->object_relcase	(destroy_queue[it]);
+ 		//for (auto& O : objects_sleeping)
+		//for (int it = destroy_queue.size()-1; it>=0; it--)
+		//	O->net_Relcase	(destroy_queue[it]);
+
+		for (int it = destroy_queue.size()-1; it>=0; it--)
+			Sound->object_relcase	(destroy_queue[it]);
 		
-		RELCASE_CALLBACK_VEC::iterator It	= m_relcase_callbacks.begin();
-		RELCASE_CALLBACK_VEC::iterator Ite	= m_relcase_callbacks.end();
-		for(;It!=Ite; ++It)	{
-			VERIFY			(*(*It).m_ID==(It-m_relcase_callbacks.begin()));
-			Objects::iterator dIt	= destroy_queue.begin();
-			Objects::iterator dIte	= destroy_queue.end();
-			for (;dIt!=dIte; ++dIt) {
-				(*It).m_Callback(*dIt);
-				g_hud->net_Relcase	(*dIt);
+		 
+		for(auto& O : m_relcase_callbacks)
+		{
+			for (auto& D : destroy_queue)
+			{
+				O.m_Callback(D);
+				g_hud->net_Relcase	(D);
 			}
 		}
 
@@ -228,14 +164,10 @@ void CObjectList::Update		(bool bForce)
 		for (int it = destroy_queue.size()-1; it>=0; it--)
 		{
 			CObject*		O	= destroy_queue[it];
-//			Msg				("Object [%x]", O);
-#ifdef DEBUG
-			if( debug_destroy )
-				Msg			("Destroying object[%x][%x] [%d][%s] frame[%d]",dynamic_cast<void*>(O), O, O->ID(),*O->cName(), Device.dwFrame);
-#endif // DEBUG
 			O->net_Destroy	( );
 			Destroy			(O);
 		}
+
 		destroy_queue.clear	();
 	}
 }
@@ -244,27 +176,13 @@ void CObjectList::net_Register		(CObject* O)
 {
 	R_ASSERT		(O);
 	R_ASSERT		(O->ID() < 0xffff);
-
-	map_NETID[O->ID()] = O;
-	
-	
-
-//.	map_NETID.insert(mk_pair(O->ID(),O));
-	//Msg			("-------------------------------- Register: %s",O->cName());
+ 	map_NETID[O->ID()] = O;
 }
 
 void CObjectList::net_Unregister	(CObject* O)
 {
-	//R_ASSERT		(O->ID() < 0xffff);
-	if (O->ID() < 0xffff)				//demo_spectator can have 0xffff
+	if (O->ID() < 0xffff)
 		map_NETID[O->ID()] = NULL;
-/*
-	xr_map<u32,CObject*>::iterator	it = map_NETID.find(O->ID());
-	if ((it!=map_NETID.end()) && (it->second == O))	{
-		// Msg			("-------------------------------- Unregster: %s",O->cName());
-		map_NETID.erase(it);
-	}
-*/
 }
 
 int	g_Dump_Export_Obj = 0;
@@ -282,22 +200,14 @@ u32	CObjectList::net_Export			(NET_Packet* _Packet,	u32 start, u32 max_object_si
 			Packet.w_chunk_open8	(position);
 			//Msg						("cl_export: %d '%s'",P->ID(),*P->cName());
 			P->net_Export			(Packet);
-
-#ifdef DEBUG
-			u32 size				= u32		(Packet.w_tell()-position)-sizeof(u8);
-			if				(size>=256)			{
-				Debug.fatal	(DEBUG_INFO,"Object [%s][%d] exceed network-data limit\n size=%d, Pend=%d, Pstart=%d",
-					*P->cName(), P->ID(), size, Packet.w_tell(), position);
-			}
-#endif
+ 
 			if (g_Dump_Export_Obj)
 			{
 				u32 size				= u32		(Packet.w_tell()-position)-sizeof(u8);
 				Msg("* %s : %d", *(P->cNameSect()), size);
 			}
 			Packet.w_chunk_close8	(position);
-//			if (0==(--count))		
-//				break;
+ 
 			if (max_object_size >= (NET_PacketSizeLimit - Packet.w_tell()))
 				break;
 		}
@@ -339,18 +249,10 @@ u32 CObjectList::net_Import_Time()
 {
 	return m_update_time;
 }
-
-/*
-CObject* CObjectList::net_Find(u16 ID)
-{
-
-	xr_map<u32,CObject*>::iterator	it = map_NETID.find(ID);
-	return (it==map_NETID.end())?0:it->second;
-}
-*/
+ 
 void CObjectList::Load		()
 {
-	R_ASSERT				(/*map_NETID.empty() &&*/ objects_active.empty() && destroy_queue.empty() && objects_sleeping.empty());
+	R_ASSERT				(objects_active.empty() && destroy_queue.empty() && objects_sleeping.empty());
 }
 
 void CObjectList::Unload	( )
