@@ -128,6 +128,14 @@ public:
 	virtual bool			shedule_Needed		();
 	virtual	float			shedule_Scale();
 	virtual shared_str		shedule_clsid();
+
+	virtual bool			IsStalker()		;
+	virtual bool			IsMonster()		;
+	virtual bool			IsItem()		;
+	virtual bool			IsCustomZone()	;
+	virtual bool			IsActor()		;
+	virtual bool			IsPhysicObject();
+	virtual bool			IsHelicopter()	;
  
 	virtual void			renderable_Render	();
 	virtual void			OnEvent				(NET_Packet& P, u16 type);

@@ -1022,23 +1022,25 @@ extern float Shedule_Scale_Objects;
 
 #include "CustomZone.h"
 #include "helicopter.h"
+#include "Actor.h"
 
 float CGameObject::shedule_Scale()
 {
- 	if (smart_cast<CActor*>(this) || smart_cast<CBolt*>(this) || smart_cast<CHelicopter*>(this))
-		return  0.1f; // Device.vCameraPosition.distance_to(Position()) / 200
-
-	if (smart_cast<CPHDestroyable*>(this) || smart_cast<CPhysicObject*>(this) || smart_cast<CCustomZone*>(this) )
+	float MaxDistance = 9999.0f;
+	for (auto PL : Game().players)
 	{
- 		return Device.vCameraPosition.distance_to(Position()) / 50;
-	} 
-
-	if (smart_cast<CAI_Stalker*>(this) || smart_cast<CBaseMonster*>(this))
-	{
-		return Device.vCameraPosition.distance_to(Position()) / 50;
+		CObject* O = Level().Objects.net_Find(PL.second->GameID);
+		CActor* A = smart_cast<CActor*>(O);
+		if (A)
+		{
+			float D = A->Position().distance_to(Position());
+			if (D < MaxDistance)
+			{
+				MaxDistance = D;
+			}
+		}
 	}
-
-	return Shedule_Scale_Objects; 
+ 	return MaxDistance / 200;
 }
 		  
 #include "smart_zone.h"
@@ -1082,6 +1084,41 @@ shared_str CGameObject::shedule_clsid()
 
 	return shared_str(text);
 
+}
+
+bool CGameObject::IsStalker()
+{
+	return smart_cast<CAI_Stalker*>(this);
+}
+
+bool CGameObject::IsMonster()
+{
+	return  smart_cast<CBaseMonster*>(this);
+}
+
+bool CGameObject::IsItem()
+{
+	return  smart_cast<CInventoryItem*>(this);
+}
+
+bool CGameObject::IsCustomZone()
+{
+	return  smart_cast<CCustomZone*>(this);
+}
+
+bool CGameObject::IsActor()
+{
+	return  smart_cast<CActor*>(this);
+}
+
+bool CGameObject::IsPhysicObject()
+{
+	return  smart_cast<CPhysicObject*>(this);
+}
+
+bool CGameObject::IsHelicopter()
+{
+	return  smart_cast<CHelicopter*>(this);
 }
 
 void CGameObject::create_anim_mov_ctrl	( CBlend *b, Fmatrix *start_pose, bool local_animation )

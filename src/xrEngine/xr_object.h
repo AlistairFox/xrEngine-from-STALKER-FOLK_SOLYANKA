@@ -91,6 +91,15 @@ public:
 	virtual BOOL						AlwaysTheCrow		()					{ return FALSE;				}
 	ICF	bool							AmICrow				() const			{ return !!Props.crow;		}
 
+	// GameTypes
+	virtual bool						IsStalker() { return false; };
+	virtual bool						IsMonster() { return false; };
+	virtual bool						IsItem() { return false; };
+	virtual bool						IsCustomZone() { return false; };
+	virtual bool						IsActor() { return false; };
+	virtual bool						IsPhysicObject() { return false; };
+	virtual bool						IsHelicopter() { return false; };
+
 	// Network
 	ICF BOOL							Local				()			const	{ return Props.net_Local;	}
 	ICF BOOL							Remote				()			const	{ return !Props.net_Local;	}

@@ -691,8 +691,7 @@ ENGINE_API int			ps_r__Supersample			= 1;
 #ifdef DEDICATED_SERVER
 extern int updateCL_Rate = 30;
 #endif // !DEDICATE
-
-extern int stop_sheduler = 0;
+ 
 extern int fps_limit = 60;
 
 class CCC_UpdateWindowPos : public IConsole_Command
@@ -813,8 +812,7 @@ void CCC_Register()
 	CMD1(CCC_UpdateWindowPos, "r__update_window");
 
 	CMD4(CCC_Integer, "fps_limit", &fps_limit, 1, 600);
-	CMD4(CCC_Integer, "stop_shedule", &stop_sheduler, 0, 1);
-	CMD4(CCC_Float, "r__viewport_near", &VIEWPORT_NEAR, 0.05f, 1.0f);
+ 	CMD4(CCC_Float, "r__viewport_near", &VIEWPORT_NEAR, 0.05f, 1.0f);
 
 #ifdef DEDICATED_SERVER
 	CMD4(CCC_Integer, "shedule_updateCL", &updateCL_Rate, 1, 500);

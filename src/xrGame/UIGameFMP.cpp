@@ -127,54 +127,24 @@ void _BCL CUIGameFMP::OnFrame()
 		}
 		else 
 		{
-			//string128 tmp;
-			//sprintf(tmp, "[ALIFE] Spawned: %u, UpdateNet: %u, UpdateNet_ps: %u",
-			//	(u32)(fmp->data_networking_alife.SpawnNetSpawn / 1024),
-			//	(u32)(fmp->data_networking_alife.UpdateNet / 1024),
-			//	(u32)(fmp->data_networking_alife.UpdateNet_ps)
-			//);
-
-			if (fmp)
-
 			xr_sprintf(
 				outstr,
 				"FPS: %.0f \\n"
 				"ping: %u/%u\\n"
 				"in/out: %.1f/%.2f KB/s\\n"
 				"packets in/out: %.0f/%.0f\\n"
-				//"queue time: %u\\n"
-				//"send rate: %u bps\\n"
-				//"pending reliable: %u\\n"
-				//"pending unreliable: %u\\n"
-				//"sent unacked reliable: %u\\n"
 				"quality local: %.2f\\n"
-				"quality remote: %.2f\\n"
-				"[ALIFE]spawn:%u \\n" 
-				"[ALIFE]unet: %u \\n"  
-				"[ALIFE]ps:%u \\n",
-
+				"quality remote: %.2f\\n",
 				Device.Statistic->fFPS,
-
-				Level().game->local_player->ping,
+ 				Level().game->local_player->ping,
 				stats.getPing(),
 				stats.getReceivedPerSec() / 1000.0f,
 				stats.getSendedPerSec() / 1000.0f,
 				stats.getPacketsInPerSec(),
 				stats.getPacketsOutPerSec(),
-				//stats.getQueueTime(),
-				//stats.getPendingReliable(),
-				//stats.getSendRateBytesPerSecond(),
-				//stats.getPendingUnreliable(),
-				//stats.getSentUnackedReliable(),
 				stats.getQualityLocal(),
-				stats.getQualityRemote(),
-
-				(u32)(fmp->data_networking_alife.SpawnNetSpawn / 1024),
-				(u32)(fmp->data_networking_alife.UpdateNet / 1024),
-				(u32)(fmp->data_networking_alife.UpdateNet_ps / 1024)
+				stats.getQualityRemote()
 			);
-
-		
 		}
 
 		m_stats->SetTextST(outstr);

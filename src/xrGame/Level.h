@@ -272,6 +272,7 @@ public:
 	virtual void				OnEvent					( EVENT E, u64 P1, u64 P2, u64 P3 );
 	virtual void	_BCL		OnFrame					( void );
 	virtual void				OnRender				( );
+	virtual void				OnStatsNetwork(CGameFont* F);
 
 	virtual	shared_str			OpenDemoFile			(LPCSTR demo_file_name);
 	virtual void				net_StartPlayDemo		();

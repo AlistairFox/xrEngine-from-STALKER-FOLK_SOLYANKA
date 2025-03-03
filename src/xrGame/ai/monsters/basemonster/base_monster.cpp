@@ -468,39 +468,7 @@ extern float Shedule_Scale_AI_Stalker;
 
 float CBaseMonster::shedule_Scale()
 {
-	if (OnClient())
-	{
-		if (Level().CurrentControlEntity())
-			return 	Level().CurrentControlEntity()->Position().distance_to_xz(this->Position()) / 200;
-		else
-			return 5.0f;
-	}
-
-	if (Game().players.size() > 0)
-	{
- 		float old_dist = 1000;
- 		for (auto pl : Game().players)
-		{
-			CObject* obj = Level().Objects.net_Find(pl.second->GameID);
-
-			if (smart_cast<CActorMP*>(obj) || smart_cast<CSpectator*>(obj) )
-			{
-				float new_dist = obj->Position().distance_to(this->Position());
-				if (new_dist < 80 && old_dist > new_dist)
-					old_dist = new_dist;
-			}
-		}
-
-		if (old_dist < 80)
-			//return old_dist / 50;
-			return 0;
-
-		//if (memory().enemy().selected())
-		//	return memory().enemy().selected()->Position().distance_to(this->Position()) / 50;
- 
-	}
-
-	return Shedule_Scale_AI_Stalker;
+	return inherited::shedule_Scale();
 }
 
 

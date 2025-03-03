@@ -8,6 +8,7 @@
 #include "xr_object.h"
 
 #include "../Include/xrRender/DrawUtils.h"
+#include "IGame_Level.h"
 
 int		g_ErrorLineCount	= 15;
 Flags32 g_stats_flags		= {0};
@@ -329,7 +330,7 @@ void CStats::Show()
 
 			drawStatParam(pFontGame, "----------------");
 			drawStatParamByMS(pFontGame, this, "uUpdateCL:			%2.4fms | %2.4fms(relcase)", UpdateClient.result, NetworkRelcase.result);
-			drawStatParamByMS(pFontGame, this, "uShedule:			%2.4fms | %2.4fms(low)", Sheduler.result, ShedulerLow.result);
+			drawStatParamByMS(pFontGame, this, "uShedule:			%2.4fms | %2.4fms|(%.3f)", Sheduler.result, ShedulerLow.result, fShedulerLoad);
 
 			drawStatParam(pFontGame, "----------------");
 			drawStatParamByMS(pFontGame, this, "Render:				%2.4fms", RenderTOTAL_Real.result);
@@ -360,14 +361,22 @@ void CStats::Show()
 			drawStatParam_Calls(pFontGame, this, "Draw Calls(DPI):		%u", dcalls);
 			drawStatParam_Calls(pFontGame, this, "Draw Vertex:			%u", verts);
 			drawStatParam_Calls(pFontGame, this, "Draw Pollys:			%u", polys);
+
+			drawStatParam(pFontGame, "----------------");
+			pFontGame->OutNext("UpdateCL by Objects:");
+			pFontGame->OutNext("PH:   %.2fms, NPC:   %.2fms, Monster: %.2fms", UpdateClientPH.result, UpdateClientAI.result, UpdateClientAI_mutant.result);
+			pFontGame->OutNext("Item: %.2fms, Actor: %.2fms, Other:   %.2fms", UpdateClientInv.result, UpdateClientA.result, UpdateClientUnsorted.result);
+
+
+			drawStatParam(pFontGame, "----------------");
+			if (g_pGameLevel != nullptr)
+				g_pGameLevel->OnStatsNetwork(pFontGame);
 		}
 		 
 		else
 			if (psDeviceFlags.test(rsStatistic))
 			{
-
-
-				F.OutNext("FPS:   %3.0f", fFPS);
+ 				F.OutNext("FPS:   %3.0f", fFPS);
 
 				drawStatParamByMS(pFontGame, this, "EngineMTFrame: %2.4fms", EngineMTFrame.result);
 				drawStatParamByMS(pFontGame, this, "EngineFrame:		%2.4fms", EngineFrame.result);

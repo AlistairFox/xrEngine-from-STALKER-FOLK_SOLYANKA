@@ -97,6 +97,7 @@ public:
 
 	virtual void	_BCL		OnFrame					( void );
 	virtual void				OnRender				( void );
+	virtual void				OnStatsNetwork			(CGameFont* F) = 0;
 
 	virtual	shared_str			OpenDemoFile			(LPCSTR demo_file_name) = 0;
 	virtual void				net_StartPlayDemo		() = 0;

@@ -229,11 +229,7 @@ void CTextConsole::OnPaint()
 */
 	EndPaint( m_hLogWnd, &ps );
 }
-
-extern u32 shedule_time_ms = 0;
-// extern u32 updataCL_time_ms = 0;
-extern u32 shedule_count = 0;
-
+  
 u32 time_update = 0;
 string128 updateCL;
 string128 updateSH;
@@ -388,30 +384,6 @@ void CTextConsole::DrawLog( HDC hDC, RECT* pRect )
 			}
 		}
 
-
-		if (g_pGameLevel && (Device.dwTimeGlobal - time_update > 1000))
-		{
-			string64 tmp = { 0 };
-			// xr_strcpy(updateCL, "[");
-			// xr_strcat(updateCL, itoa(updataCL_time_ms, tmp, 10));
-			// xr_strcat(updateCL, "]");
-
-			xr_strcpy(updateSH, "[");
-			xr_strcat(updateSH, itoa(shedule_time_ms, tmp, 10));
-			xr_strcat(updateSH, "]");
-
-			xr_strcpy(updateSH_count, "[");
-			xr_strcat(updateSH_count, itoa(shedule_count, tmp, 10));
-			xr_strcat(updateSH_count, "]");
-
-			time_update = Device.dwTimeGlobal;
-			// updataCL_time_ms = 0;
-			shedule_time_ms = 0;
-			shedule_count = 0;
-		}
-		 
-
-
 		bool right = false;
 		ypos = 25;
 		for (u32 i = 0; i < m_server_info.Size(); ++i)
@@ -428,7 +400,6 @@ void CTextConsole::DrawLog( HDC hDC, RECT* pRect )
 			{
 				right = true;
 				ypos = 25;
-				//break;
 			}
 		}
 	}

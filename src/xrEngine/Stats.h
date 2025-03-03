@@ -47,6 +47,16 @@ public:
 	CStatTimer	OnFrame4;
 
 	CStatTimer	UpdateClient;			// 
+
+	CStatTimer	UpdateClientPH;			// 
+	CStatTimer	UpdateClientUnsorted;	// 
+	CStatTimer	UpdateClientA;			// 
+
+	CStatTimer	UpdateClientAI_mutant;	// 
+	CStatTimer	UpdateClientAI;			// 
+	CStatTimer	UpdateClientInv;		// 
+
+
 	u32			UpdateClient_updated;	//
 	u32			UpdateClient_crows;		//
 	u32			UpdateClient_active;	//

@@ -95,9 +95,47 @@ void	CObjectList::SingleUpdate(CObject* O)
  	if (O->H_Parent())
 		SingleUpdate(O->H_Parent());
 
+
+	if (O->IsItem())
+	{
+		Device.Statistic->UpdateClientInv.Begin();
+		O->UpdateCL();
+		Device.Statistic->UpdateClientInv.End();
+	}
+	else if (O->IsActor())
+	{
+		Device.Statistic->UpdateClientA.Begin();
+		O->UpdateCL();
+		Device.Statistic->UpdateClientA.End();
+	}
+	else if (O->IsStalker())
+	{
+		Device.Statistic->UpdateClientAI.Begin();
+		O->UpdateCL();
+		Device.Statistic->UpdateClientAI.End();
+	}
+	else if (O->IsMonster())
+	{
+		Device.Statistic->UpdateClientAI_mutant.Begin();
+		O->UpdateCL();
+		Device.Statistic->UpdateClientAI_mutant.End();
+	}
+	else if (O->IsPhysicObject())
+	{
+		Device.Statistic->UpdateClientPH.Begin();
+		O->UpdateCL();
+		Device.Statistic->UpdateClientPH.End();
+	}
+	else
+	{
+		Device.Statistic->UpdateClientUnsorted.Begin();
+		O->UpdateCL();
+		Device.Statistic->UpdateClientUnsorted.Begin();
+	}
+
  	Device.Statistic->UpdateClient_updated++;
  	O->dwFrame_UpdateCL = Device.dwFrame;
- 	O->UpdateCL();
+ 
 }
 
 
@@ -139,37 +177,47 @@ void CObjectList::Update		(bool bForce)
 	// Destroy
 	if (!destroy_queue.empty()) 
 	{
-		OPTICK_EVENT("Destroy_queue");
-		// Info
-		for (auto& O : objects_active)
-		for (int it = destroy_queue.size()-1; it>=0; it--)
-			O->net_Relcase		(destroy_queue[it]);
+		{
+			OPTICK_EVENT("Destroy_queue (active)");
+			// Info
+			for (auto& O : objects_active)
+				for (int it = destroy_queue.size() - 1; it >= 0; it--)
+					O->net_Relcase(destroy_queue[it]);
+		}
 
  		//for (auto& O : objects_sleeping)
 		//for (int it = destroy_queue.size()-1; it>=0; it--)
 		//	O->net_Relcase	(destroy_queue[it]);
 
-		for (int it = destroy_queue.size()-1; it>=0; it--)
-			Sound->object_relcase	(destroy_queue[it]);
-		
-		 
-		for(auto& O : m_relcase_callbacks)
 		{
-			for (auto& D : destroy_queue)
+			OPTICK_EVENT("Destroy_queue (sounds)");
+			for (int it = destroy_queue.size() - 1; it >= 0; it--)
+				Sound->object_relcase(destroy_queue[it]);
+		}
+		 
+		{
+			OPTICK_EVENT("Destroy_queue (relcase)");
+			for (auto& O : m_relcase_callbacks)
 			{
-				O.m_Callback(D);
-				g_hud->net_Relcase	(D);
+				for (auto& D : destroy_queue)
+				{
+					O.m_Callback(D);
+					g_hud->net_Relcase(D);
+				}
 			}
 		}
 
-		// Destroy
-		for (int it = destroy_queue.size()-1; it>=0; it--)
 		{
-			CObject*		O	= destroy_queue[it];
-			O->net_Destroy	( );
-			Destroy			(O);
-		}
-
+			OPTICK_EVENT("Destroy_queue (net_Destroy)");
+			// Destroy
+			for (int it = destroy_queue.size() - 1; it >= 0; it--)
+			{
+				CObject* O = destroy_queue[it];
+				O->net_Destroy();
+				Destroy(O);
+			}
+ 		}
+		
 		destroy_queue.clear	();
 	}
 }

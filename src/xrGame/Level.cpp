@@ -1022,6 +1022,17 @@ void CLevel::OnRender()
 	ShowEditor();
 }
 
+void CLevel::OnStatsNetwork(CGameFont* F)
+{
+	IClientStatistic& stats = GetStatistic();
+	 
+ 	F->OutNext("ping: %u", stats.getPing());
+	F->OutNext("in/out: %.1f/%.2f KB/s", stats.getReceivedPerSec() / 1000.0f, stats.getSendedPerSec() / 1000.0f);
+	F->OutNext("packets in/out: %.0f/%.0f", stats.getPacketsInPerSec(), stats.getPacketsOutPerSec());
+	F->OutNext("quality local: %.2f", stats.getQualityLocal());
+	F->OutNext("quality remote: %.2f", stats.getQualityRemote());
+}
+
 void CLevel::OnEvent(EVENT E, u64 P1, u64 /**P2/**/P2, u64 P3)
 {
 	if (E==eEntitySpawn)	{

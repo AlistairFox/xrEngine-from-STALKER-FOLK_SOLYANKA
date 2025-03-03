@@ -9,118 +9,6 @@ float			psShedulerTarget		= 10.f	;
 const	float	psShedulerReaction		= 0.1f	;
 BOOL			g_bSheduleInProgress	= FALSE	;
 
-BOOL mt_shedule_end = false;
-typedef xr_vector<Item> vec_items;
-
-void mtShedulerWorker(void* pSheduler, vec_items& items)
-{
-	CSheduler* pTrySheduler = ((CSheduler*)(pSheduler));
-	u32		dwTime = Device.dwTimeGlobal;
-
- 	u32 id;
-	for (auto item : items)
-	{
-		id += 1;
-		Item T = pTrySheduler->Top();
-
-		bool condition = (NULL == T.Object || !T.Object->shedule_Needed());
-
-		if (condition)
-		{
-			pTrySheduler->Pop();
-			continue;
-		}
-
-		pTrySheduler->Pop();
-
-		if (!T.Object)
-			return;
-
-		// Update
- 		u32		delta_ms = dwTime - T.dwTimeForExecute;
-		u32		Elapsed = dwTime - T.dwTimeOfLastExecute;
- 
-		// Calc next update interval
-		u32		dwMin = _max(u32(30), T.Object->shedule.t_min);
-		u32		dwMax = (1000 + T.Object->shedule.t_max) / 2;
-		float	scale = T.Object->shedule_Scale();
-		u32		dwUpdate = dwMin + iFloor(float(dwMax - dwMin) * scale);
-		clamp	(dwUpdate, u32(_max(dwMin, u32(20))), dwMax);
- 		
-		T.Object->shedule_Update(clampr(Elapsed, u32(1), u32( _max(u32(T.Object->shedule.t_max), u32(1000) ) )));
-
-		// Fill item structure
-		Item						TNext;
-		TNext.dwTimeForExecute = dwTime + dwUpdate;
-		TNext.dwTimeOfLastExecute = dwTime;
-		TNext.Object = T.Object;
-		TNext.scheduled_name = T.Object->shedule_Name();
-
-		pTrySheduler->ItemsProcessed.push_back(TNext);
- 
-		if (Device.dwPrecacheFrame == 0 && CPU::QPC() > pTrySheduler->cycles_limit)
-		{
-			// we have maxed out the load - increase heap
-			psShedulerTarget += (psShedulerReaction * 3);
-			//Msg("!!!Break");
-			break;
-		}
-		//Msg("END");
-	}	
-
-	// Push "processed" back
-	while (pTrySheduler->ItemsProcessed.size())
-	{
-		pTrySheduler->Push(pTrySheduler->ItemsProcessed.back());
-		pTrySheduler->ItemsProcessed.pop_back();
-	}
-
-	// always try to decrease target
-	psShedulerTarget -= psShedulerReaction;
-
-  
-	mt_shedule_end = true;
-}
-   /*
-#include <thread>
-
-void mtShedulerThread(void* pSheduler)
-{
-
-	// Normal priority
-	CSheduler* pTrySheduler = ((CSheduler*)(pSheduler));
-	
-	u32		dwTime = Device.dwTimeGlobal;
-	vec_items items_to_thread;
-	u32 size = pTrySheduler->Items.size();
-	
-	//Msg("SizeToProcess[%d]", size);
-	
-	std::thread thr = std::thread(mtShedulerWorker, pSheduler, pTrySheduler->Items);
-	thr.detach();
- 	
-	/*
-	for (int i = 0; !pTrySheduler->Items.empty() && pTrySheduler->Top().dwTimeForExecute < dwTime; ++i)
-	{	
-		Item item = pTrySheduler->Top();
-		items_to_thread.push_back(item);
-		
-		if (items_to_thread.size() > 500 || items_to_thread.size() == size)
-		{
- 			std::thread thr = std::thread(mtShedulerWorker, pSheduler, items_to_thread);
-			//thr.join();
-			thr.detach();
-			
-			items_to_thread.clear();
-		}
-	}
-	*
- 
-
-
-}
-*/
-
 //-------------------------------------------------------------------------------------
 void CSheduler::Initialize		()
 {
@@ -140,16 +28,7 @@ void CSheduler::Destroy			()
 			it	--;
 		}
 	}
-#ifdef DEBUG	
-	if (!Items.empty())
-	{
-		string1024		_objects; _objects[0]=0;
 
-		Msg				("! Sheduler work-list is not empty");
-		for (u32 it=0; it<Items.size(); it++)
-			Msg("%s", Items[it].Object->shedule_Name().c_str());
-	}
-#endif // DEBUG
 	ItemsRT.clear		();
 	Items.clear			();
 	ItemsProcessed.clear();
@@ -161,7 +40,8 @@ void	CSheduler::internal_Registration()
 	for (u32 it=0; it<Registration.size(); it++)
 	{
 		ItemReg&	R	= Registration	[it];
-		if (R.OP)	{
+		if (R.OP)	
+		{
 			// register
 			// search for paired "unregister"
 			BOOL	bFoundAndErased		= FALSE;
@@ -176,16 +56,10 @@ void	CSheduler::internal_Registration()
 			}
 
 			// register if non-paired
-			if (!bFoundAndErased)		{
-#ifdef DEBUG_SCHEDULER
-				Msg						("SCHEDULER: internal register [%s][%x][%s]",*R.Object->shedule_Name(),R.Object,R.RT ? "true" : "false");
-#endif // DEBUG_SCHEDULER
+			if (!bFoundAndErased)	
+			{
 				internal_Register		(R.Object,R.RT);
 			}
-#ifdef DEBUG_SCHEDULER
-			else 
-				Msg						("SCHEDULER: internal register skipped, because unregister found [%s][%x][%s]","unknown",R.Object,R.RT ? "true" : "false");
-#endif // DEBUG_SCHEDULER
 		}
 		else		{
 			// unregister
@@ -226,26 +100,23 @@ void CSheduler::internal_Register	(ISheduled* O, BOOL RT)
 bool CSheduler::internal_Unregister	(ISheduled* O, BOOL RT, bool warn_on_not_found)
 {
 	//the object may be already dead
-	//VERIFY	(!O->shedule.b_locked)	;
-	if (RT)
+ 	if (RT)
 	{
 		for (u32 i=0; i<ItemsRT.size(); i++)
 		{
-			if (ItemsRT[i].Object==O) {
-#ifdef DEBUG_SCHEDULER
-				Msg					("SCHEDULER: internal unregister [%s][%x][%s]","unknown",O,"true");
-#endif // DEBUG_SCHEDULER
+			if (ItemsRT[i].Object==O)
+			{
 				ItemsRT.erase(ItemsRT.begin()+i);
 				return				(true);
 			}
 		}
-	} else {
+	}
+	else 
+	{
 		for (u32 i=0; i<Items.size(); i++)
 		{
-			if (Items[i].Object==O) {
-#ifdef DEBUG_SCHEDULER
-				Msg					("SCHEDULER: internal unregister [%s][%x][%s]",*Items[i].scheduled_name,O,"false");
-#endif // DEBUG_SCHEDULER
+			if (Items[i].Object==O)
+			{
 				Items[i].Object	= NULL;
 				return				(true);
 			}
@@ -253,89 +124,11 @@ bool CSheduler::internal_Unregister	(ISheduled* O, BOOL RT, bool warn_on_not_fou
 	}
 	if (m_current_step_obj == O)
 	{
-#ifdef DEBUG_SCHEDULER
-		Msg					("SCHEDULER: internal unregister (self unregistering) [%x][%s]",O,"false");
-#endif // DEBUG_SCHEDULER
-
 		m_current_step_obj = NULL;
 		return true;
 	}
-
-#ifdef DEBUG
-	if (warn_on_not_found)
-		Msg							("! scheduled object %s tries to unregister but is not registered",*O->shedule_Name());
-#endif // DEBUG
-
 	return							(false);
 }
-
-#ifdef DEBUG
-bool CSheduler::Registered		(ISheduled *object) const
-{
-	u32							count = 0;
-	typedef xr_vector<Item>		ITEMS;
-
-	{
-		ITEMS::const_iterator	I = ItemsRT.begin();
-		ITEMS::const_iterator	E = ItemsRT.end();
-		for ( ; I != E; ++I)
-			if ((*I).Object == object) {
-//				Msg				("0x%8x found in RT",object);
-				count			= 1;
-				break;
-			}
-	}
-	{
-		ITEMS::const_iterator	I = Items.begin();
-		ITEMS::const_iterator	E = Items.end();
-		for ( ; I != E; ++I)
-			if ((*I).Object == object) {
-//				Msg				("0x%8x found in non-RT",object);
-				VERIFY			(!count);
-				count			= 1;
-				break;
-			}
-	}
-
-	{
-		ITEMS::const_iterator	I = ItemsProcessed.begin();
-		ITEMS::const_iterator	E = ItemsProcessed.end();
-		for ( ; I != E; ++I)
-			if ((*I).Object == object) {
-//				Msg				("0x%8x found in process items",object);
-				VERIFY			(!count);
-				count			= 1;
-				break;
-			}
-	}
-
-	typedef xr_vector<ItemReg>	ITEMS_REG;
-	ITEMS_REG::const_iterator	I = Registration.begin();
-	ITEMS_REG::const_iterator	E = Registration.end();
-	for ( ; I != E; ++I) {
-		if ((*I).Object == object) {
-			if ((*I).OP) {
-//				Msg				("0x%8x found in registration on register",object);
-				VERIFY			(!count);
-				++count;
-			}
-			else {
-//				Msg				("0x%8x found in registration on UNregister",object);
-				VERIFY			(count == 1);
-				--count;
-			}
-		}
-	}
-
-	if (!count && (m_current_step_obj == object))
-	{
-		VERIFY2(m_processing_now, "trying to unregister self unregistering object while not processing now");
-		count = 1;
-	}
-	VERIFY						(!count || (count == 1));
-	return						(count == 1);
-}
-#endif // DEBUG
 
 void	CSheduler::Register		(ISheduled* A, BOOL RT				)
 {
@@ -346,22 +139,11 @@ void	CSheduler::Register		(ISheduled* A, BOOL RT				)
 	R.RT		= RT				;
 	R.Object	= A					;
 	R.Object->shedule.b_RT	= RT	;
-
-#ifdef DEBUG_SCHEDULER
-	Msg			("SCHEDULER: register [%s][%x]",*A->shedule_Name(),A);
-#endif // DEBUG_SCHEDULER
-
 	Registration.push_back	(R);
 }
 
 void	CSheduler::Unregister	(ISheduled* A						)
 {
-	VERIFY		(Registered(A));
-
-#ifdef DEBUG_SCHEDULER
-	Msg			("SCHEDULER: unregister [%s][%x]",*A->shedule_Name(),A);
-#endif // DEBUG_SCHEDULER
-
 	if (m_processing_now) 
 	{
 		if (internal_Unregister(A,A->shedule.b_RT,false))
@@ -378,8 +160,6 @@ void	CSheduler::Unregister	(ISheduled* A						)
 
 void CSheduler::EnsureOrder		(ISheduled* Before, ISheduled* After)
 {
-	VERIFY(Before->shedule.b_RT && After->shedule.b_RT);
-
 	for (u32 i=0; i<ItemsRT.size(); i++)
 	{
 		if (ItemsRT[i].Object==After) 
@@ -435,52 +215,28 @@ void CSheduler::ProcessStep			()
 	// Normal priority
 	u32		dwTime					= Device.dwTimeGlobal;
 	
-	for (int i=0;!Items.empty() && Top().dwTimeForExecute < dwTime; ++i)
+	for (int i=0; !Items.empty() && Top().dwTimeForExecute < dwTime; ++i)
 	{
-		//u32		delta_ms			= dwTime - Top().dwTimeForExecute;
-
 		// Update
-		Item	T					= Top	();
+		Item	T					= Top	();	Pop();
 		u32		Elapsed				= dwTime-T.dwTimeOfLastExecute;
-		bool	condition					= (NULL==T.Object || !T.Object->shedule_Needed());
-	
-		if (condition) 
-		{ 
-			Pop						();
+		bool	condition			= (NULL==T.Object || !T.Object->shedule_Needed());
+		if (condition)
 			continue;
-		}
-
-		// Insert into priority Queue
-		Pop							();
+		m_current_step_obj = T.Object;
+		if (!m_current_step_obj)
+			continue;
 
 		// Calc next update interval
 		u32		dwMin				= _max(u32(30),T.Object->shedule.t_min);
 		u32		dwMax				= (1000+T.Object->shedule.t_max)/2;
 		float	scale				= T.Object->shedule_Scale();
 		u32		dwUpdate			= dwMin+iFloor(float(dwMax-dwMin)*scale);
-		
-		clamp(dwUpdate, (u32)0, (u32)4000);
+ 		clamp(dwUpdate, (u32)0, (u32)5000);
 
-		m_current_step_obj = T.Object;
-		
-		if (m_current_step_obj)
-		{
-			try {
-				m_current_step_obj->shedule_Update(clampr(Elapsed, u32(1), u32(_max(u32(T.Object->shedule.t_max), u32(1000)))));
-			}
-			catch (...)
-			{
-				Msg("Sheduler is Crushed on: %s", T.scheduled_name.c_str());
-			}
-		}
-	 
-
- 		if (!m_current_step_obj)
- 			continue;
-  
-		// Msg("Object Updated: %s", T.Object->shedule_Name().c_str());
-
-		m_current_step_obj = NULL;
+		u32 delta = clampr(Elapsed, u32(1), u32( _max(u32(T.Object->shedule.t_max), u32(1000)) ));
+ 		m_current_step_obj->shedule_Update(delta);
+ 		m_current_step_obj = NULL;
 
 		// Fill item structure
 		Item						TNext;
@@ -490,9 +246,6 @@ void CSheduler::ProcessStep			()
 		TNext.scheduled_name		= T.Object->shedule_Name();
 
 		ItemsProcessed.push_back	(TNext);
- 
-		if ((i % 3) != (3 - 1))
-			continue;
 
 		if (Device.dwPrecacheFrame==0 && CPU::QPC() > cycles_limit)		
 		{
@@ -513,21 +266,6 @@ void CSheduler::ProcessStep			()
 	psShedulerTarget	-= psShedulerReaction;
 }
 
-/*
-void CSheduler::Switch				()
-{
-	if (fibered)	
-	{
-		fibered						= FALSE;
-		SwitchToFiber				(fiber_main);
-	}
-}
-*/
-
-extern int stop_sheduler;
-extern u32 shedule_time_ms;
-extern u32 shedule_count; 
-
 void CSheduler::Update				()
 {			 
 	R_ASSERT						(Device.Statistic);
@@ -541,8 +279,7 @@ void CSheduler::Update				()
 	// Realtime priority
 	m_processing_now				= true;
 	u32	dwTime						= Device.dwTimeGlobal;
-
-
+ 
 	Device.Statistic->ShedulerLow.Begin();
 	for (u32 it=0; it<ItemsRT.size(); it++)
 	{
@@ -566,9 +303,7 @@ void CSheduler::Update				()
 	Device.Statistic->Sheduler.Begin();
  	ProcessStep						();
 	Device.Statistic->Sheduler.End();
-
-
-
+	 
 	m_processing_now				= false;
 
 	clamp							(psShedulerTarget,3.f,66.f);
@@ -578,8 +313,6 @@ void CSheduler::Update				()
 	// Finalize
 	g_bSheduleInProgress			= FALSE;
 	internal_Registration			();
- 
-	shedule_count += 1;
 }
 
 
