@@ -496,8 +496,12 @@ void CRender::OnFrame()
 			fastdelegate::FastDelegate0<>(&HOM,&CHOM::MT_RENDER));
 	}
 }*/
+
+#pragma comment(lib, "OptickCore")
+
 void CRender::OnFrame()
 {
+	OPTICK_EVENT("CRender::OnFrame");
 	Models->DeleteQueue			();
 	if (ps_r2_ls_flags.test(R2FLAG_EXP_MT_CALC))
 	{

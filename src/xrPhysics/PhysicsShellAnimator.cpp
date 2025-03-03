@@ -74,7 +74,7 @@ void	CPhysicsShellAnimator::				CreateJoint( CPHElement *e )
 }
 void CPhysicsShellAnimator::OnFrame()
 {
-
+	// se7kills (Было указано что нужно сделать reset callback)
 	
 	m_pPhysicsShell->Enable();
 	
@@ -82,9 +82,6 @@ void CPhysicsShellAnimator::OnFrame()
 	{
 		Fmatrix target_obj_posFmatrixS;
 		CBoneInstance& B=m_pPhysicsShell->PKinematics()->LL_GetBoneInstance(i->m_element->m_SelfID);
-		//B.Callback_overwrite = FALSE;
-		//B.Callback = 0;
-		#pragma todo("reset callback?")
 		B.set_callback(B.callback_type(),0,B.callback_param(),FALSE);
 
 		m_pPhysicsShell->PKinematics()->CalculateBones_Invalidate();
@@ -99,5 +96,4 @@ void CPhysicsShellAnimator::OnFrame()
 		i->m_element->CPHGeometryOwner::get_mc_vs_transform(mc,target_obj_posFmatrixS);
 		dJointSetFixedQuaternionPos(i->m_anim_fixed_dJointID,target_obj_quat_dQuaternionS,&mc.x);
 	}
-	//(*(m_pPhysicsShell->Elements().begin()))->PhysicsRefObject()->XFORM().set(m_pPhysicsShell->mXFORM);
 }

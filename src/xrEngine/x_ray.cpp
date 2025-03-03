@@ -1294,6 +1294,8 @@ void CApplication::LoadSwitch	()
 // Sequential
 void CApplication::OnFrame	( )
 {
+	OPTICK_EVENT("CApplication::OnFrame");
+
 	Engine.Event.OnFrame			();
 	g_SpatialSpace->update			();
 	g_SpatialSpacePhysic->update	();

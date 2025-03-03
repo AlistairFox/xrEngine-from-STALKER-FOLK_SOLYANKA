@@ -588,6 +588,7 @@ extern CUISequencer * g_tutorial2;
 
 void CGamePersistent::OnFrame	()
 {
+	OPTICK_EVENT("CGamePersistent::OnFrame");
 	if(Device.dwPrecacheFrame==5 && m_intro_event.empty())
 	{
 		m_intro_event.bind			(this,&CGamePersistent::game_loaded);
@@ -685,6 +686,7 @@ void CGamePersistent::OnFrame	()
 			}
 		}
 #else // MASTER_GOLD
+
 		if (g_actor && IsGameTypeSingle())
 		{
 			CCameraBase* C = NULL;
@@ -698,6 +700,7 @@ void CGamePersistent::OnFrame	()
 
 		}
 #endif // MASTER_GOLD
+
 	}
 	__super::OnFrame			();
 

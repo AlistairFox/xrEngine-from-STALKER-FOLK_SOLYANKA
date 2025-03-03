@@ -266,27 +266,16 @@ void CPHWorld::SetGravity(float g)
 	dWorldSetGravity		(phWorld, 0,-m_gravity, 0);//-2.f*9.81f
 
 }
-
+#include "optick/optick.h"
+#pragma comment(lib, "OptickCore.lib")
 void CPHWorld::OnFrame()
 {
-	// Msg									("------------- physics: %d / %d",u32(Device.dwFrame),u32(m_steps_num));
-	//просчитать полет пуль
-	/*
-	Device.Statistic->TEST0.Begin		();
-	Level().BulletManager().Update		();
-	Device.Statistic->TEST0.End			();
-	*/
-#ifdef DEBUG 
-	//DBG_DrawFrameStart();
-	//DBG_DrawStatBeforeFrameStep();
-#endif
+	OPTICK_EVENT("CPHWorld::OnFrame");
+
+
 	Device().StatPhysics()->Physics.Begin		();
 	FrameStep							(Device().fTimeDelta);
 	Device().StatPhysics()->Physics.End		();
-#ifdef DEBUG
-	//DBG_DrawStatAfterFrameStep();
-
-#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -27,6 +27,7 @@
 
 #include "xrSash.h"
 #include "igame_persistent.h"
+#pragma comment( lib, "OptickCore.lib")
 
 #pragma comment( lib, "d3dx9.lib"		)
 
@@ -123,48 +124,15 @@ void CRenderDevice::End(void)
 	m_pRender->End();
 #endif
 }
-
-void detached_Thread(void* ptr)
-{
-	while (true)
-	{
-
-		Device.mt_csEnter.Enter();
-
-		if (Device.mt_bMustExit)
-		{
-			Device.mt_bMustExit = FALSE;				// Important!!!
-			Device.mt_csEnter.Leave();					// Important!!!
-			return;
-		}
-
-		for (u32 pit = 0; pit < Device.seqParallel.size(); pit++)
-			Device.seqParallel[pit]();
-
-		Device.seqParallel.clear_not_free();
-
-		Device.mt_csEnter.Leave();					// Important!!!
-
-	}
-};
-
-
+ 
 volatile u32	mt_Thread_marker = 0x12345678;
 void 			mt_Thread(void* ptr)
 {
-	u32 TimerOLD = 0;
-	u32 timer_ms = 0;
-	CTimer t;
+	OPTICK_THREAD("X-RAY SECONDARY THREAD");
 
 	while (true)
 	{
-		if (TimerOLD + 1000 < Device.dwTimeGlobal)
-		{
-			//Msg("SecondTH: %d", timer_ms);
-			timer_ms = 0;
-			TimerOLD = Device.dwTimeGlobal;
-		}
-
+		OPTICK_FRAME("X-RAY SECONDARY FRAME");
 		// waiting for Device permission to execute
 		Device.mt_csEnter.Enter();
 
@@ -174,20 +142,24 @@ void 			mt_Thread(void* ptr)
 			Device.mt_csEnter.Leave();					// Important!!!
 			return;
 		}
+
 		// we has granted permission to execute
 		mt_Thread_marker = Device.dwFrame;
 
-		t.Start();
+		{
+			OPTICK_EVENT("seqParralel (MT)");
+			for (u32 pit = 0; pit < Device.seqParallel.size(); pit++)
+				Device.seqParallel[pit]();
+		}
 
-		for (u32 pit = 0; pit < Device.seqParallel.size(); pit++)
-			Device.seqParallel[pit]();
 
 		Device.seqParallel.clear_not_free();
 
-
-		Device.seqFrameMT.Process(rp_Frame);
-		timer_ms += t.GetElapsed_ticks();
-
+		{
+			OPTICK_EVENT("OnFrame (MT)");
+			Device.seqFrameMT.Process(rp_Frame);
+		}
+ 
 		// now we give control to device - signals that we are ended our work
 		Device.mt_csEnter.Leave();
 		// waits for device signal to continue - to start again
@@ -230,8 +202,34 @@ extern int fps_limit;
 extern void ImGui_NewFrame();
 extern void ImGui_EndFrame();
 
+void CRenderDevice::UpdateCamera()
+{
+ 	// Precache
+	if (dwPrecacheFrame)
+	{
+		float factor = float(dwPrecacheFrame) / float(dwPrecacheTotal);
+		float angle = PI_MUL_2 * factor;
+		vCameraDirection.set(_sin(angle), 0, _cos(angle));	vCameraDirection.normalize();
+		vCameraTop.set(0, 1, 0);
+		vCameraRight.crossproduct(vCameraTop, vCameraDirection);
+
+		mView.build_camera_dir(vCameraPosition, vCameraDirection, vCameraTop);
+	}
+
+	// Matrices
+	mFullTransform.mul(mProject, mView);
+	m_pRender->SetCacheXform(mView, mProject);
+	D3DXMatrixInverse((D3DXMATRIX*)&mInvFullTransform, 0, (D3DXMATRIX*)&mFullTransform);
+
+	vCameraPosition_saved = vCameraPosition;
+	mFullTransform_saved = mFullTransform;
+	mView_saved = mView;
+	mProject_saved = mProject;
+}
+
 void CRenderDevice::on_idle()
 {
+	OPTICK_FRAME("X-RAY MAIN FRAME");
 	if (!b_is_Ready)
 	{
 		Sleep(100);
@@ -239,10 +237,6 @@ void CRenderDevice::on_idle()
 	}
 
 	u32 FrameStartTime = TimerGlobal.GetElapsed_ms();
-	//if (psDeviceFlags.test(rsStatistic))
-	//	g_bEnableStatGather = TRUE;
-	//else
-	//	g_bEnableStatGather = FALSE;
 	g_bEnableStatGather = true;
 
 	if (g_loading_events.size())
@@ -262,30 +256,8 @@ void CRenderDevice::on_idle()
 #endif 
 
 	FrameMove();
-
-	// Precache
-	if (dwPrecacheFrame)
-	{
-		float factor = float(dwPrecacheFrame) / float(dwPrecacheTotal);
-		float angle = PI_MUL_2 * factor;
-		vCameraDirection.set(_sin(angle), 0, _cos(angle));	vCameraDirection.normalize();
-		vCameraTop.set(0, 1, 0);
-		vCameraRight.crossproduct(vCameraTop, vCameraDirection);
-
-		mView.build_camera_dir(vCameraPosition, vCameraDirection, vCameraTop);
-	}
-
-	// Matrices
-	mFullTransform.mul(mProject, mView);
-	m_pRender->SetCacheXform(mView, mProject);
-	//RCache.set_xform_view		( mView				);
-	//RCache.set_xform_project	( mProject			);
-	D3DXMatrixInverse((D3DXMATRIX*)&mInvFullTransform, 0, (D3DXMATRIX*)&mFullTransform);
-
-	vCameraPosition_saved = vCameraPosition;
-	mFullTransform_saved = mFullTransform;
-	mView_saved = mView;
-	mProject_saved = mProject;
+	//se7kills Refactory Camera
+	UpdateCamera();
 
 	// *** Resume threads
 	// Capture end point - thread must run only ONE cycle
@@ -299,8 +271,8 @@ void CRenderDevice::on_idle()
 	Statistic->RenderTOTAL_Real.Begin();
 	if (b_is_Active)
 	{
-		CTimer t; t.Start();
-		if (Begin())
+		OPTICK_EVENT("Render");
+ 		if (Begin())
 		{
  			seqRender.Process(rp_Render);
 			Statistic->Show();
@@ -321,17 +293,14 @@ void CRenderDevice::on_idle()
 	if (Device.fTimeDelta > EPS_S)
 	{
 		float fps = 1.f / Device.fTimeDelta;
-		//if (Engine.External.tune_enabled)	vtune.update	(fps);
-		float fOne = 0.3f;
+ 		float fOne = 0.3f;
 		float fInv = 1.f - fOne;
 		Statistic->fFPS = fInv * Statistic->fFPS + fOne * fps;
 
 		if (Statistic->RenderTOTAL.result > EPS_S)
 		{
-			u32	rendered_polies = Device.m_pRender->GetCacheStatPolys();
-			Statistic->fTPS = fInv * Statistic->fTPS + fOne * float(rendered_polies) / (Statistic->RenderTOTAL.result * 1000.f);
-			//fTPS = fInv*fTPS + fOne*float(RCache.stat.polys)/(RenderTOTAL.result*1000.f);
-			Statistic->fRFPS = fInv * Statistic->fRFPS + fOne * 1000.f / Statistic->RenderTOTAL.result;
+ 			Statistic->fTPS = fInv * Statistic->fTPS + fOne * float(Device.m_pRender->GetCacheStatPolys()) / (Statistic->RenderTOTAL.result * 1000.f);
+ 			Statistic->fRFPS = fInv * Statistic->fRFPS + fOne * 1000.f / Statistic->RenderTOTAL.result;
 		}
 	}
 
@@ -344,6 +313,7 @@ void CRenderDevice::on_idle()
 	// Ensure, that second thread gets chance to execute anyway
  	if (dwFrame != mt_Thread_marker)
 	{
+		OPTICK_EVENT("seqParralel (MAIN)")
 		for (u32 pit = 0; pit < Device.seqParallel.size(); pit++)
 			Device.seqParallel[pit]();
 		Device.seqParallel.clear_not_free();
@@ -351,35 +321,12 @@ void CRenderDevice::on_idle()
 	}
  
 	//FPS LOCK FOR CLIENT
-// 	u32 FrameEndTime = TimerGlobal.GetElapsed_ms();
-//	u32 FrameTime = (FrameEndTime - FrameStartTime);
-//
-//	u32 DSUpdateDelta = 1000 / fps_limit;
-//	if (FrameTime < DSUpdateDelta)
-//		Sleep(DSUpdateDelta - FrameTime);
-// 
 	if (!b_is_Active)
 		Sleep(1);
 }
 
-#ifdef INGAME_EDITOR
-void CRenderDevice::message_loop_editor()
-{
-	m_editor->run();
-	m_editor_finalize(m_editor);
-	xr_delete(m_engine);
-}
-#endif // #ifdef INGAME_EDITOR
-
 void CRenderDevice::message_loop()
 {
-#ifdef INGAME_EDITOR
-	if (editor()) {
-		message_loop_editor();
-		return;
-	}
-#endif // #ifdef INGAME_EDITOR
-
 	MSG						msg;
 
 	PeekMessage(&msg, NULL, 0U, 0U, PM_NOREMOVE);
@@ -403,7 +350,7 @@ void CRenderDevice::Run()
 	g_bLoaded = FALSE;
 	Log("Starting engine...");
 	thread_name("X-RAY Primary thread");
-
+	OPTICK_THREAD("Xray Primary Thread");
 	// Startup timers and calculate timer delta
 	dwTimeGlobal = 0;
 	Timer_MM_Delta = 0;
@@ -416,16 +363,12 @@ void CRenderDevice::Run()
 	}
 
 	// Start all threads
-//	InitializeCriticalSection	(&mt_csEnter);
-//	InitializeCriticalSection	(&mt_csLeave);
 	mt_csEnter.Enter();
 	mt_bMustExit = FALSE;
 	thread_spawn(mt_Thread, "X-RAY Secondary thread", 0, 0);
-	//thread_spawn				(detached_Thread, "X-Ray Path Finding Thread", 0, 0);
+
 	// Message cycle
 	seqAppStart.Process(rp_AppStart);
-
-	//CHK_DX(HW.pDevice->Clear(0,0,D3DCLEAR_TARGET,D3DCOLOR_XRGB(0,0,0),1,0));
 	m_pRender->ClearTarget();
 
 	message_loop();
@@ -435,15 +378,14 @@ void CRenderDevice::Run()
 	// Stop Balance-Thread
 	mt_bMustExit = TRUE;
 	mt_csEnter.Leave();
-	while (mt_bMustExit)	Sleep(0);
-	//	DeleteCriticalSection	(&mt_csEnter);
-	//	DeleteCriticalSection	(&mt_csLeave);
+
+	while (mt_bMustExit)	
+		Sleep(0);
 }
 
 u32 app_inactive_time = 0;
 u32 app_inactive_time_start = 0;
 
-void ProcessLoading(RP_FUNC* f);
 void CRenderDevice::FrameMove()
 {
 	dwFrame++;
@@ -454,24 +396,11 @@ void CRenderDevice::FrameMove()
 
 	if (psDeviceFlags.test(rsConstantFPS))
 	{
-		// 20ms = 50fps
-		//fTimeDelta		=	0.020f;			
-		//fTimeGlobal		+=	0.020f;
-		//dwTimeDelta		=	20;
-		//dwTimeGlobal	+=	20;
-
-		// 33ms = 30fps
-		//fTimeDelta		=	0.033f;			
-		//fTimeGlobal		+=	0.033f;
-		//dwTimeDelta		=	33;
-		//dwTimeGlobal	+=	33;
-
 		// 40 FPS 
 		fTimeDelta = 0.016f;
 		fTimeGlobal += 0.016f;
 		dwTimeDelta = 16;
 		dwTimeGlobal += 16;
-
 	}
 	else
 	{
@@ -499,19 +428,15 @@ void CRenderDevice::FrameMove()
 	Statistic->ThreadEngine.Begin();
 
 	//	TODO: HACK to test loading screen.
-	//if(!g_bLoaded) 
-	ProcessLoading(rp_Frame);
-	//else
-	//	seqFrame.Process			(rp_Frame);
-	Statistic->ThreadEngine.End();
-}
 
-void ProcessLoading(RP_FUNC* f)
-{
+	OPTICK_EVENT("OnFrame (MAIN)")
 	Device.seqFrame.Process(rp_Frame);
 	g_bLoaded = TRUE;
-}
+ 
 
+	Statistic->ThreadEngine.End();
+}
+ 
 ENGINE_API BOOL bShowPauseString = TRUE;
 #include "IGame_Persistent.h"
 
@@ -519,41 +444,23 @@ void CRenderDevice::Pause(BOOL bOn, BOOL bTimer, BOOL bSound, LPCSTR reason)
 {
 	static int snd_emitters_ = -1;
 
-	if (g_bBenchmark)	return;
-
-
-#ifdef DEBUG
-	//	Msg("pause [%s] timer=[%s] sound=[%s] reason=%s",bOn?"ON":"OFF", bTimer?"ON":"OFF", bSound?"ON":"OFF", reason);
-#endif // DEBUG
+	if (g_bBenchmark)	
+		return;
 
 #ifndef DEDICATED_SERVER	
 
 	if (bOn)
 	{
 		if (!Paused())
-			bShowPauseString =
-#ifdef INGAME_EDITOR
-			editor() ? FALSE :
-#endif // #ifdef INGAME_EDITOR
-#ifdef DEBUG
-			!xr_strcmp(reason, "li_pause_key_no_clip") ? FALSE :
-#endif // DEBUG
-			TRUE;
+			bShowPauseString = TRUE;
 
 		if (bTimer && (!g_pGamePersistent || g_pGamePersistent->CanBePaused()))
 		{
 			g_pauseMngr.Pause(TRUE);
-#ifdef DEBUG
-			if (!xr_strcmp(reason, "li_pause_key_no_clip"))
-				TimerGlobal.Pause(FALSE);
-#endif // DEBUG
 		}
 
 		if (bSound && ::Sound) {
 			snd_emitters_ = ::Sound->pause_emitters(true);
-#ifdef DEBUG
-			//			Log("snd_emitters_[true]",snd_emitters_);
-#endif // DEBUG
 		}
 	}
 	else
@@ -569,9 +476,6 @@ void CRenderDevice::Pause(BOOL bOn, BOOL bTimer, BOOL bSound, LPCSTR reason)
 			if (snd_emitters_ > 0) //avoid crash
 			{
 				snd_emitters_ = ::Sound->pause_emitters(false);
-#ifdef DEBUG
-				//				Log("snd_emitters_[false]",snd_emitters_);
-#endif // DEBUG
 			}
 			else {
 #ifdef DEBUG

@@ -305,6 +305,7 @@ public:
 	}
 
 public:
+			void UpdateCamera();
 			void xr_stdcall		on_idle				();
 			bool xr_stdcall		on_message			(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT &result);
 

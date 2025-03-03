@@ -114,6 +114,7 @@ void CObjectList::Update		(bool bForce)
 {
 	if ( !Device.Paused() || bForce )
 	{
+		OPTICK_EVENT("UpdateCL");
 		// Clients
 		if (Device.fTimeDelta>EPS_S || bForce)			
 		{
@@ -138,6 +139,7 @@ void CObjectList::Update		(bool bForce)
 	// Destroy
 	if (!destroy_queue.empty()) 
 	{
+		OPTICK_EVENT("Destroy_queue");
 		// Info
 		for (auto& O : objects_active)
 		for (int it = destroy_queue.size()-1; it>=0; it--)

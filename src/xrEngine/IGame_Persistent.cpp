@@ -177,9 +177,9 @@ void IGame_Persistent::OnGameEnd	()
 
 void IGame_Persistent::OnFrame		()
 {
-#ifndef _EDITOR
+	OPTICK_EVENT("IGame_Persistent::OnFrame");
 
-	if(!Device.Paused() || Device.dwPrecacheFrame)
+  	if(!Device.Paused() || Device.dwPrecacheFrame)
 		Environment().OnFrame	();
 
 
@@ -194,21 +194,17 @@ void IGame_Persistent::OnFrame		()
 		ps_needtoplay.pop_back	();
 		psi->Play				(false);
 	}
+
 	// Destroy inactive particle systems
 	while (ps_destroy.size())
 	{
-//		u32 cnt					= ps_destroy.size();
 		CPS_Instance*	psi		= ps_destroy.back();
 		VERIFY					(psi);
 		if (psi->Locked())
-		{
-			Log("--locked");
-			break;
-		}
-		ps_destroy.pop_back		();
+  			break;
+ 		ps_destroy.pop_back		();
 		psi->PSI_internal_delete();
 	}
-#endif
 }
 
 void IGame_Persistent::destroy_particles		(const bool &all_particles)

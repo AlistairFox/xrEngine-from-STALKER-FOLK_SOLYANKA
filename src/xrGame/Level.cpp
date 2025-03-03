@@ -604,6 +604,8 @@ CGameObject* old_select_obj;
 
 void CLevel::OnFrame	()
 {
+	OPTICK_EVENT("CLevel::OnFrame");
+
 	CTimer timer, timer2, timer3, timer4, timer5;
 	timer.Start();
 

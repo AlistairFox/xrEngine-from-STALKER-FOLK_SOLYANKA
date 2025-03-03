@@ -180,20 +180,25 @@ void	IGame_Level::OnRender		( )
 
 void	IGame_Level::OnFrame		( ) 
 {
-	// Log				("- level:on-frame: ",u32(Device.dwFrame));
-//	if (_abs(Device.fTimeDelta)<EPS_S) return;
+	OPTICK_EVENT("IGame_Level::OnFrame");
 
 	// Update all objects
-	VERIFY						(bReady);
-	Objects.Update				(false);
+	{
+		OPTICK_EVENT("IGame_Level::Update ALL Objects");
+		VERIFY(bReady);
+		Objects.Update(false);
+	}
+
 	g_hud->OnFrame				();
 
 	// Ambience
 	if (Sounds_Random.size() && (Device.dwTimeGlobal > Sounds_Random_dwNextTime))
 	{
+		OPTICK_EVENT("IGame_Level::Sounds_Random");
 		Sounds_Random_dwNextTime		= Device.dwTimeGlobal + ::Random.randI	(10000,20000);
 		Fvector	pos;
 		pos.random_dir().normalize().mul(::Random.randF(30,100)).add	(Device.vCameraPosition);
+
 		int		id						= ::Random.randI(Sounds_Random.size());
 		if (Sounds_Random_Enabled)		{
 			Sounds_Random[id].play_at_pos	(0,pos,0);

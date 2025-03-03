@@ -97,6 +97,9 @@ void CUIGameFMP::HideShownDialogs()
 
 void _BCL CUIGameFMP::OnFrame()
 {
+	OPTICK_EVENT("CUIGameFMP::OnFrame");
+
+
 	inherited::OnFrame();
  
 	game_cl_freemp* fmp = smart_cast<game_cl_freemp*>(Level().game);

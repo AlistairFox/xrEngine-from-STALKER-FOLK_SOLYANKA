@@ -741,53 +741,18 @@ void CEnvironment::lerp		(float& current_weight)
 
 void CEnvironment::OnFrame()
 {
-	 
-#ifdef _EDITOR
-	SetGameTime				(fGameTime+Device.fTimeDelta*fTimeFactor,fTimeFactor);
-    if (fsimilar(ed_to_time,DAY_LENGTH)&&fsimilar(ed_from_time,0.f)){
-	    if (fGameTime>DAY_LENGTH)	fGameTime-=DAY_LENGTH;
-    }else{
-	    if (fGameTime>ed_to_time){	
-        	fGameTime=fGameTime-ed_to_time+ed_from_time;
-            Current[0]=Current[1]=0;
-        }
-    	if (fGameTime<ed_from_time){	
-        	fGameTime=ed_from_time;
-            Current[0]=Current[1]=0;
-        }
-    }
-	if (!psDeviceFlags.is(rsEnvironment))		return;
-#else
-	if (!g_pGameLevel)		return;
-#endif
+	OPTICK_EVENT("CEnvironment::OnFrame");
 
-//	if (pInput->iGetAsyncKeyState(DIK_O))		SetWeatherFX("surge_day"); 
-	
-	float					current_weight;
+	if (!g_pGameLevel)		return;
+ 
+ 	float					current_weight;
 	lerp					(current_weight);
 
-
-
-	//	Igor. Dynamic sun position. 
-	
+	//	Igor. Dynamic sun position. 	
 	if (false)
 	if ( !::Render->is_sun_static())
 		calculate_dynamic_sun_dir();
-
-#ifndef MASTER_GOLD
-	if(CurrentEnv->sun_dir.y>0)
-	{
-		Log("CurrentEnv->sun_dir", CurrentEnv->sun_dir);
-//		Log("current_weight", current_weight);
-//		Log("mpower", mpower);
-
-		Log("Current[0]->sun_dir", Current[0]->sun_dir);
-		Log("Current[1]->sun_dir", Current[1]->sun_dir);
-
-	}
-	VERIFY2						(CurrentEnv->sun_dir.y<0,"Invalid sun direction settings in lerp");
-#endif // #ifndef MASTER_GOLD
-
+ 
 	PerlinNoise1D->SetFrequency		(wind_gust_factor*MAX_NOISE_FREQ);
 	wind_strength_factor			= clampr(PerlinNoise1D->GetContinious(Device.fTimeGlobal)+0.5f,0.f,1.f); 
 	 

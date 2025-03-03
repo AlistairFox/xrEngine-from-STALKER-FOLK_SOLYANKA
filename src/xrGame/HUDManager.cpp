@@ -145,6 +145,7 @@ CHUDManager::~CHUDManager()
 //--------------------------------------------------------------------
 void CHUDManager::OnFrame()
 {
+	OPTICK_EVENT("CHUDManager::OnFrame");
 	if (!psHUD_Flags.is(HUD_DRAW_RT2))	
 		return;
 

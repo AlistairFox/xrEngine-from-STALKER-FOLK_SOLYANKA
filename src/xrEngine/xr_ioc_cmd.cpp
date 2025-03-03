@@ -772,10 +772,43 @@ public:
 	}
 };
 
+class CCC_OptickStart : public IConsole_Command
+{
+public:
+	CCC_OptickStart(LPCSTR N) : IConsole_Command(N)
+	{
+		bEmptyArgsHandled = true;
+	};
+
+	virtual void	Execute(LPCSTR args)
+	{
+		OPTICK_START_CAPTURE();
+	}
+};
+
+class CCC_OptickSave : public IConsole_Command
+{
+public:
+	CCC_OptickSave(LPCSTR N) : IConsole_Command(N)
+	{
+		bEmptyArgsHandled = true;
+	};
+
+	virtual void	Execute(LPCSTR args)
+	{
+		OPTICK_STOP_CAPTURE();
+		OPTICK_SAVE_CAPTURE("optick_save.opt");		
+	}
+};
+
  
 extern int gAlvaysActive = 0;
 void CCC_Register()
 {	 
+	CMD1(CCC_OptickStart, "optick_start");
+	CMD1(CCC_OptickSave, "optick_save");
+
+
 	CMD4(CCC_Integer, "r__always_active", &gAlvaysActive, 0, 1);
 	CMD1(CCC_UpdateWindowPos, "r__update_window");
 

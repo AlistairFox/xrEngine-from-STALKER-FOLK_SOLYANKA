@@ -17,6 +17,8 @@
 
 //#pragma comment(lib,"ode.lib")
 #pragma comment(lib,"xrEngine.lib")
+#pragma comment(lib,"OptickCore.lib")
+
 
 extern "C" {
 	DLL_API DLL_Pure*	__cdecl xrFactory_Create		(CLASS_ID clsid)
