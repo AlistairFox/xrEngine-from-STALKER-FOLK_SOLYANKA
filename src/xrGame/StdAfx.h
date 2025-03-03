@@ -13,6 +13,7 @@
 #	define	THROW2					VERIFY2
 #	define	THROW3					VERIFY3
  
+#	define USE_CLIENT_SIDE_WEAPONS
 
 #include "../xrEngine/gamefont.h"
 #include "../xrEngine/xr_object.h"

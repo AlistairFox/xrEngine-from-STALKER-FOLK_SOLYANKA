@@ -15,13 +15,7 @@ public:
 	{
 		shared_str	first;
 		shared_str	second;
-//#ifdef DEBUG
-//		shared_str	comment;
-//#endif
 		Item() : first(0), second(0)
-//#ifdef DEBUG
-//			, comment(0)
-//#endif
 		{};
 	};
 	typedef xr_vector<Item>				Items;
@@ -161,5 +155,5 @@ public:
 // Main configuration file
 extern XRCORE_API CInifile const * pSettings;
 extern XRCORE_API CInifile const * pSettingsAuth;
-
+extern XRCORE_API CInifile const*  pSettingsSe7kills;
 #endif //__XR_INI_H__

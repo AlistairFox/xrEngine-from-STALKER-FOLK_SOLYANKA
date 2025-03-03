@@ -535,63 +535,44 @@ u32	CSE_ALifeItemWeapon::ef_weapon_type() const
 	VERIFY	(m_ef_weapon_type != u32(-1));
 	return	(m_ef_weapon_type);
 }
-
-void CSE_ALifeItemWeapon::UPDATE_Read(NET_Packet	&tNetPacket)
-{
-	inherited::UPDATE_Read		(tNetPacket);
-	
-	/*
-	tNetPacket.r_float_q8		(m_fCondition,0.0f,1.0f);
-	tNetPacket.r_u8				(wpn_flags);
-	tNetPacket.r_u16			(a_elapsed);
-	tNetPacket.r_u8				(m_addon_flags.flags);
-	tNetPacket.r_u8				(ammo_type);
-	tNetPacket.r_u8				(wpn_state);
-	tNetPacket.r_u8				(m_bZoom);
-	tNetPacket.r_u8				(m_cur_scope);
-	*/
-
-	m_state.read_state(tNetPacket);
-
-	m_fCondition = m_state.m_fCondition;
-	a_elapsed = m_state.a_elapsed;
-	m_addon_flags = m_state.m_addon_flags;
-	wpn_flags = m_state.need_to_update;
-	//m_cur_slot = m_state.m_cur_slot;
-}
-
 void CSE_ALifeItemWeapon::clone_addons(CSE_ALifeItemWeapon* parent)
 {
 	m_addon_flags = parent->m_addon_flags;
 }
 
-void CSE_ALifeItemWeapon::UPDATE_Write(NET_Packet	&tNetPacket)
-{	
-	
-	inherited::UPDATE_Write(tNetPacket);
 
-	m_state.write_state(tNetPacket);
-	 
-	//	Msg("Condition: %.4f", m_state.m_fCondition);
+void CSE_ALifeItemWeapon::UPDATE_Read(NET_Packet& tNetPacket)
+{
+	inherited::UPDATE_Read(tNetPacket);
 
-	//	Msg("wpn_flags[%s] [%d]", this->s_name.c_str(), this->ID_Parent);
+	tNetPacket.r_float_q8(m_fCondition, 0.0f, 1.0f);
+	tNetPacket.r_u8(wpn_flags);
+	tNetPacket.r_u16(a_elapsed);
+	tNetPacket.r_u8(m_addon_flags.flags);
+	tNetPacket.r_u8(ammo_type);
+	tNetPacket.r_u8(wpn_state);
+	tNetPacket.r_u8(m_bZoom);
+	tNetPacket.r_u8(m_cur_scope);
 
-	/*
-	tNetPacket.w_float_q8		(m_fCondition,0.0f,1.0f);
-	tNetPacket.w_u8				(wpn_flags);
-	tNetPacket.w_u16			(a_elapsed);
-	tNetPacket.w_u8				(m_addon_flags.get());
-	tNetPacket.w_u8				(ammo_type);
-	tNetPacket.w_u8				(wpn_state);
-	tNetPacket.w_u8				(m_bZoom);
-	tNetPacket.w_u8				(m_cur_scope);
-	*/
-
-	//Msg("Cond[%.3f], elapsed[%d], addon[%d], wpn_flags[%d]", m_fCondition, a_elapsed, m_addon_flags.get(), wpn_flags);
-	//Msg("ammo_type[%d], wpn_state[%d], zoom[%d], scope[%d] ", m_state.need_to_update, m_state.wpn_state, m_state.m_bZoom, m_state.m_cur_scope);
-	//Msg("Items[%d]", m_u8NumItems);
+	// tNetPacket.r_u8				(bWeaponMisfire);
 }
 
+void CSE_ALifeItemWeapon::UPDATE_Write(NET_Packet& tNetPacket)
+{
+	inherited::UPDATE_Write(tNetPacket);
+
+	tNetPacket.w_float_q8(m_fCondition, 0.0f, 1.0f);
+	tNetPacket.w_u8(wpn_flags);
+	tNetPacket.w_u16(a_elapsed);
+	tNetPacket.w_u8(m_addon_flags.get());
+	tNetPacket.w_u8(ammo_type);
+	tNetPacket.w_u8(wpn_state);
+	tNetPacket.w_u8(m_bZoom);
+	tNetPacket.w_u8(m_cur_scope);
+
+	// tNetPacket.w_u8				(bWeaponMisfire);
+}
+ 
 void CSE_ALifeItemWeapon::STATE_Read(NET_Packet	&tNetPacket, u16 size)
 {
 	inherited::STATE_Read		(tNetPacket, size);
@@ -636,7 +617,7 @@ void CSE_ALifeItemWeapon::OnEvent			(NET_Packet	&tNetPacket, u16 type, u32 time,
 		case GE_WPN_STATE_CHANGE:
 			{			
 				tNetPacket.r_u8	(wpn_state);	
-				m_state.wpn_state = wpn_state;
+				wpn_state = wpn_state;
 
 //				u8 sub_state = 
 					tNetPacket.r_u8();		

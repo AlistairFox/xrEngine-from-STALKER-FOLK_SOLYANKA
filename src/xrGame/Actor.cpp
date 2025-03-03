@@ -99,32 +99,13 @@ int				psActorSleepTime = 1;
 
 CActor::CActor() : CEntityAlive(),current_ik_cam_shift(0)
 {
+	fFPCamYawMagnitude = 0;
+	fFPCamPitchMagnitude = 0;
+
 	game_news_registry		= xr_new<CGameNewsRegistryWrapper		>();
 	// Cameras
 	cameras[eacFirstEye]	= xr_new<CCameraFirstEye>				(this);
 	cameras[eacFirstEye]->Load("actor_firsteye_cam");
-	
-	/*
-		if(strstr(Core.Params,"-psp"))
-			psActorFlags.set(AF_PSP, TRUE);
-		else
-			psActorFlags.set(AF_PSP, FALSE);
-
-		if( psActorFlags.test(AF_PSP) )
-		{
-			cameras[eacLookAt]		= xr_new<CCameraLook2>				(this);
-			cameras[eacLookAt]->Load("actor_look_cam_psp");
-	
-		}
-		else
-		{
-			cameras[eacLookAt]		= xr_new<CCameraLook>				(this);
-			cameras[eacLookAt]->Load("actor_look_cam");
-		}
-	*/
-
-	//cameras[eacLookAt] = xr_new<CCameraLook2>(this);
-	//cameras[eacLookAt]->Load("actor_look_cam_psp");
 
 	cameras[eacLookAt] = xr_new<CCameraLook2>(this);
 	cameras[eacLookAt]->Load("actor_look_cam_psp");

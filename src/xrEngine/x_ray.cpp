@@ -250,6 +250,14 @@ PROTECT_API void InitSettings	()
 	CHECK_OR_EXIT				(0!=pGameIni->section_count(), make_string("Cannot find file %s.\nReinstalling application may fix this problem.",fname));
 }
 
+PROTECT_API void InitSettings_xray()
+{
+	string_path					fname;
+	FS.update_path(fname, "$game_config$", "xray_settings.ltx");
+
+	pSettingsSe7kills = xr_new<CInifile>(fname, TRUE);
+	CHECK_OR_EXIT(0 != pSettingsSe7kills->section_count(), make_string("Cannot find file %s.\nReinstalling application may fix this problem.", fname));
+}
 
 
 PROTECT_API void InitConsole	()
@@ -830,6 +838,7 @@ int APIENTRY WinMain_impl(HINSTANCE hInstance,
 	Core._initialize			("xray",NULL, TRUE, fsgame[0] ? fsgame : NULL);
 
 	InitSettings				();
+	InitSettings_xray();
 
 	// Adjust player & computer name for Asian
 	if ( pSettings->line_exist( "string_table" , "no_native_input" ) ) {

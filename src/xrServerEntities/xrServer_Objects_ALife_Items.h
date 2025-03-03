@@ -16,8 +16,6 @@
 #include "character_info_defs.h"
 #include "infoportiondefs.h"
 
-#include "Weapon_State_Network.h"
-
 #pragma warning(push)
 #pragma warning(disable:4005)
 
@@ -146,11 +144,19 @@ SERVER_ENTITY_DECLARE_BEGIN(CSE_ALifeItemWeapon,CSE_ALifeItem)
 	typedef	ALife::EWeaponAddonStatus	EWeaponAddonStatus;
 	
 	//текущее состояние аддонов
-	enum EWeaponAddonState 
+	//текущее состояние аддонов
+	enum EWeaponAddonState
 	{
-		eWeaponAddonScope = 0x01,
-		eWeaponAddonGrenadeLauncher = 0x02,
-		eWeaponAddonSilencer = 0x04
+		//	eWeaponAddonScope = 0x01,
+		//	eWeaponAddonGrenadeLauncher = 0x02,
+		//	eWeaponAddonSilencer = 0x04
+		eWeaponAddonScope = 1 << 0,
+		eWeaponAddonGrenadeLauncher = 1 << 1,
+		eWeaponAddonSilencer = 1 << 2,
+		eWeaponAddonLaserOn = 1 << 3,
+		eWeaponAddonFlashlightOn = 1 << 4,
+		eWeaponAddonLaserDesignator = 1 << 5,
+		eWeaponAddonTacticalTorch = 1 << 6,
 	};
 
 	EWeaponAddonStatus				m_scope_status;
@@ -165,9 +171,7 @@ SERVER_ENTITY_DECLARE_BEGIN(CSE_ALifeItemWeapon,CSE_ALifeItem)
 	u16								a_elapsed;
 	u8								m_cur_scope;
 	u8								m_cur_slot;
-
-	Weapon_State_Network            m_state;
-
+ 
 	//count of grenades to spawn in grenade launcher [ttcccccc]
 	//WARNING! hight 2 bits (tt bits) indicate type of grenade, so maximum grenade count is 2^6 = 64
 	struct grenade_count_t

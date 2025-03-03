@@ -2319,6 +2319,7 @@
     <ClInclude Include="Weapon.h" />
     <ClInclude Include="WeaponAK74.h" />
     <ClInclude Include="WeaponAmmo.h" />
+    <ClInclude Include="WeaponAttaches.h" />
     <ClInclude Include="WeaponAutomaticShotgun.h" />
     <ClInclude Include="WeaponBinoculars.h" />
     <ClInclude Include="WeaponBinocularsVision.h" />
@@ -2344,7 +2345,6 @@
     <ClInclude Include="WeaponVal.h" />
     <ClInclude Include="WeaponVintorez.h" />
     <ClInclude Include="WeaponWalther.h" />
-    <ClInclude Include="Weapon_State_Network.h" />
     <ClInclude Include="Wound.h" />
     <ClInclude Include="wrapper_abstract.h" />
     <ClInclude Include="wrapper_abstract_inline.h" />
@@ -9192,6 +9192,7 @@
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='LUAJIT_2|x64'">$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <ClCompile Include="WeaponAmmo.cpp" />
+    <ClCompile Include="WeaponAttaches.cpp" />
     <ClCompile Include="WeaponAutomaticShotgun.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">stdafx.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdafx.h</PrecompiledHeaderFile>
@@ -9267,8 +9268,8 @@
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='LUAJIT_2|x64'">$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <ClCompile Include="WeaponCustomPistol.cpp" />
-    <ClCompile Include="WeaponDispersion.cpp" />
-    <ClCompile Include="WeaponFire.cpp" />
+    <ClCompile Include="Weapon_Dispersion.cpp" />
+    <ClCompile Include="Weapon_Fire.cpp" />
     <ClCompile Include="WeaponFN2000.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">pch_script.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch_script.h</PrecompiledHeaderFile>
@@ -9530,7 +9531,7 @@
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='LUAJIT_2|Win32'">$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='LUAJIT_2|x64'">$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>
     </ClCompile>
-    <ClCompile Include="WeaponUpgrade.cpp" />
+    <ClCompile Include="Weapon_Upgrade.cpp" />
     <ClCompile Include="WeaponUSP45.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">pch_script.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch_script.h</PrecompiledHeaderFile>
@@ -9605,7 +9606,14 @@
     </ClCompile>
     <ClCompile Include="weapon_ammo_dump_impl.cpp" />
     <ClCompile Include="weapon_dump_impl.cpp" />
-    <ClCompile Include="Weapon_State_Network.cpp" />
+    <ClCompile Include="Weapon_Inertion.cpp" />
+    <ClCompile Include="Weapon_Load.cpp" />
+    <ClCompile Include="Weapon_Network.cpp" />
+    <ClCompile Include="Weapon_PH.cpp" />
+    <ClCompile Include="Weapon_Reload.cpp" />
+    <ClCompile Include="Weapon_States.cpp" />
+    <ClCompile Include="Weapon_XFORM.cpp" />
+    <ClCompile Include="Weapon_Zoming.cpp" />
     <ClCompile Include="WeatherEditor.cpp" />
     <ClCompile Include="Wound.cpp" />
     <ClCompile Include="xrClientsPool.cpp" />

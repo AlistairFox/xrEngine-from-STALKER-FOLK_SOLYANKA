@@ -103,6 +103,10 @@ protected:
 	ref_sound selected;
 
 public:
+	float					fFPCamYawMagnitude;			//--#SM+#--
+	float					fFPCamPitchMagnitude;		//--#SM+#--
+
+
 	bool InPlay = true;
 	bool OutPlay = true;
 	bool MidPlay = true;
@@ -385,6 +389,7 @@ public:
 	virtual const SRotation	Orientation			()	const	{ return r_torso; };
 	SRotation				&Orientation		()			 { return r_torso; };
 
+	IC u32 get_state() const { return this->mstate_real; };
 	void					g_SetAnimation		(u32 mstate_rl);
 	void					g_SetSprintAnimation(u32 mstate_rl,MotionID &head,MotionID &torso,MotionID &legs);
 
@@ -400,9 +405,15 @@ public:
 	CActorCameraManager&	Cameras				() 	{VERIFY(m_pActorEffector); return *m_pActorEffector;}
 	IC CCameraBase*			cam_Active			()	{return cameras[cam_active];}
 	IC CCameraBase*			cam_FirstEye		()	{return cameras[eacFirstEye];}
+	virtual	void			cam_Set(EActorCameras style);
+	IC EActorCameras		active_cam() { return cam_active; }
+	void StopSprint()
+	{
+		mstate_wishful &= ~mcSprint;
+	}
 
 protected:
-	virtual	void			cam_Set					(EActorCameras style);
+	
 	void					cam_Update				(float dt, float fFOV);
 	void					cam_Lookout				( const Fmatrix &xform, float camera_height );
 	void					camUpdateLadder			(float dt);
