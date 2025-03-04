@@ -1541,15 +1541,15 @@ void xrServer::GetServerInfo( CServerInfo* si )
 		si->AddItem("KBS", tmp256, RGB(128, 255, 255));
 	} 
 
-	{
-		u32		_crt_heap = mem_usage_impl((HANDLE)_get_heap_handle(), 0, 0);
-		u32		_process_heap = mem_usage_impl(GetProcessHeap(), 0, 0);
-
-		string32 tmp_fps = { 0 };
-
- 		si->AddItem("Mem", itoa(_crt_heap/1024 / 1024, tmp_fps, 10), RGB(128, 128, 0));
-		si->AddItem("MemP", itoa(_process_heap/1024 / 1024, tmp_fps, 10), RGB(128, 128, 0));
-	}
+	//{
+	//	u32		_crt_heap = mem_usage_impl((HANDLE)_get_heap_handle(), 0, 0);
+	//	u32		_process_heap = mem_usage_impl(GetProcessHeap(), 0, 0);
+	//
+	//	string32 tmp_fps = { 0 };
+	//
+ 	//	si->AddItem("Mem", itoa(_crt_heap/1024 / 1024, tmp_fps, 10), RGB(128, 128, 0));
+	//	si->AddItem("MemP", itoa(_process_heap/1024 / 1024, tmp_fps, 10), RGB(128, 128, 0));
+	//}
 
 	u32 stalkers = 0;
 	u32 stalkersAlive = 0;
