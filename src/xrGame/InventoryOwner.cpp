@@ -169,6 +169,8 @@ BOOL CInventoryOwner::net_Spawn		(CSE_Abstract* DC)
 
 void CInventoryOwner::net_Destroy()
 {
+	OPTICK_EVENT("CInventoryOwner::net_Destroy");
+
 	if (!g_dedicated_server)
 	{
 		if (CurrentGameUI())

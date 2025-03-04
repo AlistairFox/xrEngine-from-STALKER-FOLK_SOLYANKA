@@ -20,6 +20,5 @@ public:
 	virtual	bool		Disable				();
 
 	// Lain: added
-	virtual bool        light_in_slow_mode  ();
-	virtual BOOL        AlwaysTheCrow       ();
+	virtual bool        light_in_slow_mode  (); 
 };

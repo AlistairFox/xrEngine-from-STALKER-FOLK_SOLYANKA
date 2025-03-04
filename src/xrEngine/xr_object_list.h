@@ -61,8 +61,7 @@ public:
 
 	void						UpdateProcessing	(CObject* O);
 	void						SingleUpdate		( CObject*		O		);
-	void						SingleUpdate_Stats	(CObject* O);
-
+ 
 	void						Update				( bool bForce );
 
 	void						net_Register		( CObject*		O		);
@@ -81,8 +80,7 @@ public:
 		return					( map_NETID[ID] );
 	}
 
-			void				o_crow				(CObject*	O);
-	void						o_remove			( Objects&	v,  CObject*	O);
+ 	void						o_remove			( Objects&	v,  CObject*	O);
 	void						o_activate			( CObject*		O		);
 	void						o_sleep				( CObject*		O		);
 	IC u32						o_count				()	{ return objects_active.size()+objects_sleeping.size(); };
@@ -107,8 +105,7 @@ private:
 		return					(m_crows[1]);
 	}
 
-	static	void				clear_crow_vec		(Objects& o);
-	static	void				dump_list			(Objects& v, LPCSTR reason);
+ 	static	void				dump_list			(Objects& v, LPCSTR reason);
 };
 
 #endif //__XR_OBJECT_LIST_H__

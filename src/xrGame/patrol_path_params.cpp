@@ -16,7 +16,7 @@ CPatrolPathParams::CPatrolPathParams	(LPCSTR caPatrolPathToGo, const PatrolPathM
 	m_path_name			= caPatrolPathToGo;
 	m_path				= ai().patrol_paths().path(m_path_name,true);
 	
-	THROW3				(m_path,"There is no patrol path",caPatrolPathToGo);
+	R_ASSERT3			(m_path,"There is no patrol path",caPatrolPathToGo);
 	
 	m_tPatrolPathStart	= tPatrolPathStart;
 	m_tPatrolPathStop	= tPatrolPathStop;
@@ -30,14 +30,14 @@ CPatrolPathParams::~CPatrolPathParams	()
 
 u32	CPatrolPathParams::count			() const
 {
-	VERIFY				(m_path);
+	R_ASSERT			(m_path);
 	return				(m_path->vertices().size());
 }
 
 const Fvector &CPatrolPathParams::point	(u32 index) const
 {
-	VERIFY				(m_path);
-	VERIFY				(!m_path->vertices().empty());
+	R_ASSERT				(m_path);
+	R_ASSERT				(!m_path->vertices().empty());
 	if (!m_path->vertex(index)) {
 		ai().script_engine().script_log(eLuaMessageTypeError,"Can't get information about patrol point number %d in the patrol way %s",index,*m_path_name);
 		index			= (*m_path->vertices().begin()).second->vertex_id();
@@ -48,13 +48,13 @@ const Fvector &CPatrolPathParams::point	(u32 index) const
 
 u32	CPatrolPathParams::level_vertex_id	(u32 index) const
 {
-	VERIFY				(m_path->vertex(index));
+	R_ASSERT			(m_path->vertex(index));
 	return				(m_path->vertex(index)->data().level_vertex_id());
 }
 
 GameGraph::_GRAPH_ID CPatrolPathParams::game_vertex_id	(u32 index) const
 {
-	VERIFY				(m_path->vertex(index));
+	R_ASSERT			(m_path->vertex(index));
 	return				(m_path->vertex(index)->data().game_vertex_id());
 }
 
@@ -72,26 +72,25 @@ u32	CPatrolPathParams::point			(const Fvector &point) const
 
 bool CPatrolPathParams::flag			(u32 index, u8 flag_index) const
 {
-	VERIFY				(m_path->vertex(index));
+	R_ASSERT			(m_path->vertex(index));
 	return				(!!(m_path->vertex(index)->data().flags() & (u32(1) << flag_index)));
 }
 
 Flags32 CPatrolPathParams::flags		(u32 index) const
 {
-	VERIFY				(m_path->vertex(index));
+	R_ASSERT			(m_path->vertex(index));
 	return				(Flags32().assign(m_path->vertex(index)->data().flags()));
 }
 
 LPCSTR	CPatrolPathParams::name	(u32 index) const
 {
-	VERIFY				(m_path->vertex(index));
+	R_ASSERT			(m_path->vertex(index));
 	return				(*m_path->vertex(index)->data().name());
 }
 
 bool CPatrolPathParams::terminal (u32 index) const
 {
-	VERIFY				(m_path->vertex(index));
-
+	R_ASSERT			(m_path->vertex(index));
 	return				(m_path->vertex(index)->edges().size() == 0);
 }
 

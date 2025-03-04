@@ -120,6 +120,7 @@ BOOL CWeaponAmmo::net_Spawn(CSE_Abstract* DC)
 
 void CWeaponAmmo::net_Destroy() 
 {
+	OPTICK_EVENT("CWeaponAmmo::net_destroy");
 	inherited::net_Destroy	();
 }
 

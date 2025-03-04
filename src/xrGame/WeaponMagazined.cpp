@@ -62,6 +62,7 @@ CWeaponMagazined::~CWeaponMagazined()
 
 void CWeaponMagazined::net_Destroy()
 {
+	OPTICK_EVENT("CWeaponMagazined::net_destroy");
 	inherited::net_Destroy();
 }
 

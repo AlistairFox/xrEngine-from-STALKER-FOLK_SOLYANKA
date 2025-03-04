@@ -670,6 +670,8 @@ BOOL CWeapon::net_Spawn		(CSE_Abstract* DC)
 
 void CWeapon::net_Destroy	()
 {
+	OPTICK_EVENT("CWeapon::net_destroy");
+
 	inherited::net_Destroy	();
 
 	//удалить объекты партиклов
@@ -678,7 +680,8 @@ void CWeapon::net_Destroy	()
 	StopLight			();
 	Light_Destroy		();
 
-	while (m_magazine.size()) m_magazine.pop_back();
+	while (m_magazine.size())
+		m_magazine.pop_back();
 }
 
 BOOL CWeapon::IsUpdating()

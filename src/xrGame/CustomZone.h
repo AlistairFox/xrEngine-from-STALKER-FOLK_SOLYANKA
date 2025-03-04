@@ -317,8 +317,7 @@ public:
 
 	// optimization FAST/SLOW mode
 public:	
-	virtual BOOL			AlwaysTheCrow				();
-	void					o_switch_2_fast				();
+ 	void					o_switch_2_fast				();
 	void					o_switch_2_slow				();
 
 // Lain: adde

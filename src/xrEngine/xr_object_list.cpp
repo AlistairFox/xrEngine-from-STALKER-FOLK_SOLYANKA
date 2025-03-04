@@ -18,8 +18,7 @@ public:
 	IC bool operator() (CObject* O) { return cls==O->CLS_ID; }
 };
 
-CObjectList::CObjectList	( ) :
-	m_owner_thread_id		(GetCurrentThreadId())
+CObjectList::CObjectList	( ) : m_owner_thread_id		(GetCurrentThreadId())
 {
 	ZeroMemory				(map_NETID, 0xffff*sizeof(CObject*));
 }
@@ -39,6 +38,7 @@ CObject*	CObjectList::FindObjectByName	( shared_str name )
 		if ((*I)->cName().equal(name))	return (*I);
 	return	NULL;
 }
+
 CObject*	CObjectList::FindObjectByName	( LPCSTR name )
 {
 	return	FindObjectByName				(shared_str(name));
@@ -71,26 +71,14 @@ void	CObjectList::o_activate		( CObject*		O		)
 	o_remove					(objects_sleeping,O);
 
 	objects_active.push_back	(O);
-	
-	//if (O->IsPhysicObject() || O->IsItem() || O->IsCustomZone())
-	//	objects_mt.push_back(O);
-	//else
-	//	objects_updates.push_back(O);
-
-	O->MakeMeCrow				();
 }
+
 void	CObjectList::o_sleep		( CObject*		O		)
 {
 	VERIFY	(O && !O->processing_enabled());
 	
 	o_remove(objects_active,O);
- 	// if (O->IsPhysicObject() || O->IsItem() || O->IsCustomZone())
-	// 	o_remove(objects_mt, O);
-	// else 
-	// 	o_remove(objects_updates, O);
-
 	objects_sleeping.push_back	(O);
-	O->MakeMeCrow				();
 }
 
 #include "../xrServerEntities/clsid_game.h"
@@ -108,57 +96,12 @@ void	CObjectList::SingleUpdate(CObject* O)
 { 
 	if (!O->processing_enabled() || Device.dwFrame == O->dwFrame_UpdateCL)
 		return;
-
- 	if (O->H_Parent())
+  	if (O->H_Parent())
 		SingleUpdate(O->H_Parent());
 	O->UpdateCL();
  	Device.Statistic->UpdateClient_updated++;
  	O->dwFrame_UpdateCL = Device.dwFrame;
-}
-
-CStatTimer* UpdateStats(CObject* O)
-{
- 	if (O->IsItem())
-		return &Device.Statistic->UpdateClientInv;
-	else if (O->IsActor())
-		return &Device.Statistic->UpdateClientA;
-	else if (O->IsStalker())
-		return &Device.Statistic->UpdateClientAI;
-	else if (O->IsMonster())
-		return &Device.Statistic->UpdateClientAI_mutant;
-	else if (O->IsPhysicObject())
-		return &Device.Statistic->UpdateClientPH;
-	else if (O->IsCustomZone())
-		return &Device.Statistic->UpdateClientZones;
-	else 
-		return &Device.Statistic->UpdateClientUnsorted;
-}
-
-void CObjectList::SingleUpdate_Stats(CObject* O)
-{
-	if (!O->processing_enabled() || Device.dwFrame == O->dwFrame_UpdateCL)
-		return;
-
-	if (O->H_Parent())
-		SingleUpdate(O->H_Parent());
-
-	UpdateStats(O)->Begin();
-	O->UpdateCL();
-	UpdateStats(O)->End();
-	 
-	Device.Statistic->UpdateClient_updated++;
-	O->dwFrame_UpdateCL = Device.dwFrame;
-}
-
-
-void CObjectList::clear_crow_vec(Objects& o)
-{
-	for (u32 _it=0; _it<o.size(); _it++) 
-	{
- 		o[_it]->IAmNotACrowAnyMore();
-	}
-	o.clear_not_free();
-}
+} 
  
 void CObjectList::Update		(bool bForce)
 {
@@ -187,22 +130,16 @@ void CObjectList::Update		(bool bForce)
 				{
 					return O->dwFrame_UpdateCL < O2->dwFrame_UpdateCL && !O->EnabledMP_Processing;
 				});
-
+			
 				u32 CurrentObjects = 0;
 				for (auto& O : objects_processed)
 				{	 
 					if (O->EnabledMP_Processing || CurrentObjects > 100)
 						continue; 	
- 
-					O->IAmNotACrowAnyMore();
-					O->dwFrame_AsCrow = u32(-1);
-					if (!MT_Work)
- 						SingleUpdate(O);
- 					else
- 						SingleUpdate_Stats(O);
+   					SingleUpdate(O);
 					CurrentObjects++;
   				}
-
+			
 				LastUpdateTime = Device.dwTimeGlobal + 100;
 			}
 
@@ -210,15 +147,8 @@ void CObjectList::Update		(bool bForce)
 			for (auto& O : objects_active)
 			{
 				if (!O->EnabledMP_Processing)
-					continue;
-
-				O->IAmNotACrowAnyMore();
-				O->dwFrame_AsCrow = u32(-1);
-
-				if (!MT_Work)
-					SingleUpdate(O);
-				else
-					SingleUpdate_Stats(O);
+				 	continue;
+ 				SingleUpdate(O);
 			}
 			Device.Statistic->UpdateClient.End();
 		}
@@ -231,13 +161,13 @@ void CObjectList::Update		(bool bForce)
 			OPTICK_EVENT("Destroy_queue (active)");
 			// Info
 			for (auto& O : objects_active)
-				for (int it = destroy_queue.size() - 1; it >= 0; it--)
-					O->net_Relcase(destroy_queue[it]);
+			for (int it = destroy_queue.size() - 1; it >= 0; it--)
+				O->net_Relcase(destroy_queue[it]);
 		}
 
- 		//for (auto& O : objects_sleeping)
-		//for (int it = destroy_queue.size()-1; it>=0; it--)
-		//	O->net_Relcase	(destroy_queue[it]);
+ 		for (auto& O : objects_sleeping)
+		for (int it = destroy_queue.size()-1; it>=0; it--)
+			O->net_Relcase	(destroy_queue[it]);
 
 		{
 			OPTICK_EVENT("Destroy_queue (sounds)");
@@ -258,14 +188,14 @@ void CObjectList::Update		(bool bForce)
 		}
 
 		{
-			OPTICK_EVENT("Destroy_queue (net_Destroy)");
+			OPTICK_EVENT("Destroy_from_list");
 			// Destroy
 			for (int it = destroy_queue.size() - 1; it >= 0; it--)
 			{
 				CObject* O = destroy_queue[it];
-				O->net_Destroy();
+ 				O->net_Destroy();
 				Destroy(O);
-			}
+ 			}
  		}
 		
 		destroy_queue.clear	();
@@ -372,6 +302,7 @@ void CObjectList::Unload	( )
 		O->net_Destroy	(   );
 		Destroy			( O );
 	}
+
 	while (objects_active.size())
 	{
 		CObject*	O	= objects_active.back	();
@@ -392,61 +323,33 @@ CObject* CObjectList::Create				( LPCSTR	name	)
 	return						O;
 }
 
-void CObjectList::Destroy			( CObject*	O		)
+void CObjectList::Destroy(CObject* O)
 {
-	if (0==O)						
+	if (0 == O)
 		return;
 
-	net_Unregister							(O);
-
-	if ( !Device.Paused() ) 
-	{
-		if ( !m_crows[1].empty() ) 
-		{
-			Msg								( "assertion !m_crows[1].empty() failed: %d", m_crows[1].size() );
- 			Objects::const_iterator i		= m_crows[1].begin( );
-			Objects::const_iterator	const e	= m_crows[1].end( );
-			for (u32 j=0; i != e; ++i, ++j )
-				Msg							( "%d %s", j, (*i)->cName().c_str() );
- 			m_crows[1].clear_not_free		();
-		}
-	}
-	else 
-	{
-		Objects& crows				= m_crows[1];
-		auto const itCrow	= std::find(crows.begin(),crows.end(),O);
-		if	(itCrow != crows.end() )
-		{
-			crows.erase				(itCrow);
- 		}
-	}
-
-	Objects& crows				= m_crows[0];
-	auto itCrow = std::find(crows.begin(),crows.end(),O);
-	if	(itCrow !=crows.end())
-	{
-		crows.erase				(itCrow);
- 	}
+	net_Unregister(O);
 
 	// active/inactive
-	auto itActive  = std::find(objects_active.begin(),objects_active.end(),O);
-	if	(itActive != objects_active.end())
+	bool isActive = false;
 	{
-		objects_active.erase				(itActive);
-	}
-	else 
-	{
-		auto itSleep	= std::find(objects_sleeping.begin(),objects_sleeping.end(),O);
-		if	(itSleep !=objects_sleeping.end())
+		OPTICK_EVENT("Finding Active");
+ 		auto itActive	= std::find(objects_active.begin(), objects_active.end(), O);
+		if (itActive	!= objects_active.end())
 		{
-			objects_sleeping.erase			(itSleep);
- 		}
-		else
-			FATAL							("! Unregistered object being destroyed");
+			objects_active.erase(itActive); isActive = true;
+		}
 	}
 
-	//o_remove(objects_mt, O);
-	//o_remove(objects_updates, O);
+	if (!isActive)
+	{
+		OPTICK_EVENT("Finding Sleeping");
+		auto itSleep	= std::find(objects_sleeping.begin(),objects_sleeping.end(),O);
+		if	(itSleep	!=objects_sleeping.end())
+		{
+			objects_sleeping.erase			(itSleep);
+ 		}	 
+	}
 
 	g_pGamePersistent->ObjectPool.destroy	(O);
 }
@@ -486,8 +389,7 @@ bool CObjectList::dump_all_objects()
 	dump_list(destroy_queue,"destroy_queue");
 	dump_list(objects_active,"objects_active");
 	dump_list(objects_sleeping,"objects_sleeping");
-	dump_list(m_crows[0],"m_crows[0]");
-	dump_list(m_crows[1],"m_crows[1]");
+ 
 	return false;
 }
 
@@ -513,17 +415,4 @@ void CObjectList::register_object_to_destroy(CObject *object_to_destroy)
 		}
 	}
 }
-
-#ifdef DEBUG
-bool CObjectList::registered_object_to_destroy	(const CObject *object_to_destroy) const
-{
-	return					(
-		std::find(
-			destroy_queue.begin(),
-			destroy_queue.end(),
-			object_to_destroy
-		) != 
-		destroy_queue.end()
-	);
-}
-#endif // DEBUG
+ 

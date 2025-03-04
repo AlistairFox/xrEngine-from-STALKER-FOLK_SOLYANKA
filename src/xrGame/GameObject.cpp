@@ -241,7 +241,6 @@ void CGameObject::OnEvent		(NET_Packet& P, u16 type)
 #endif // MP_LOGGING
 
 			setDestroy		(TRUE);
-//			MakeMeCrow		();
 		}
 		break;
 	}

@@ -21,41 +21,7 @@
 #pragma warning(pop)
 
 #pragma intrinsic(_InterlockedCompareExchange)
-
-inline void CObjectList::o_crow		(CObject*	O)
-{
-	Objects& crows				= get_crows();
-	VERIFY						( std::find(crows.begin(),crows.end(),O) == crows.end() );
-	crows.push_back				( O );
-
-	O->dwFrame_AsCrow			= Device.dwFrame;
-}
-
-void CObject::MakeMeCrow			()
-{
-	if ( Props.crow )
-		return;
-
-	if ( !processing_enabled() )
-		return;
-
-	u32 const device_frame_id		= Device.dwFrame;
-	u32 const object_frame_id		= dwFrame_AsCrow;
-	if (
-			(u32)_InterlockedCompareExchange(
-				(long*)&dwFrame_AsCrow,
-				device_frame_id,
-				object_frame_id
-			) == device_frame_id
-		)
-		return;
-
-	VERIFY							( dwFrame_AsCrow == device_frame_id );
-
-	Props.crow						= 1;
-	g_pGameLevel->Objects.o_crow	(this);
-}
-
+  
 void CObject::cName_set			(shared_str N)
 { 
 	NameObject	=	N; 
@@ -64,12 +30,9 @@ void CObject::cNameSect_set		(shared_str N)
 { 
 	NameSection	=	N; 
 }
-//#include "SkeletonCustom.h"
+ 
 void CObject::cNameVisual_set	(shared_str N)
 { 
-
- 	//Msg("cNameVisual set [%s] id[%d], SectName[%s], NameObj[%s]", N.c_str(), this->ID(), this->cNameSect_str(), this->NameObject.c_str());
-
 	// check if equal
 	if (*N && *NameVisual)
 		if (N==NameVisual)		return;
@@ -116,13 +79,15 @@ void CObject::processing_activate	()
 {
 	VERIFY3	(255!= Props.bActiveCounter, "Invalid sequence of processing enable/disable calls: overflow",*cName());
 	Props.bActiveCounter			++;
-	if (0==(Props.bActiveCounter-1))	g_pGameLevel->Objects.o_activate	(this);
+	if (0==(Props.bActiveCounter-1))	
+		g_pGameLevel->Objects.o_activate	(this);
 }
 void CObject::processing_deactivate	()
 {
 	VERIFY3	(0	!= Props.bActiveCounter, "Invalid sequence of processing enable/disable calls: underflow",*cName());
 	Props.bActiveCounter			--;
-	if (0==Props.bActiveCounter)		g_pGameLevel->Objects.o_sleep		(this);
+	if (0==Props.bActiveCounter)
+		g_pGameLevel->Objects.o_sleep		(this);
 }
 
 void CObject::setEnabled			(BOOL _enabled)
@@ -176,9 +141,7 @@ const	Fbox&	CObject::BoundingBox	()				const	{
 // Class	: CXR_Object
 // Purpose	:
 //----------------------------------------------------------------------
-CObject::CObject		( )		:
-	ISpatial					(g_SpatialSpace),
-	dwFrame_AsCrow				(u32(-1))
+CObject::CObject		( )		: ISpatial					(g_SpatialSpace) 
 {
 	// Transform
 	Props.storage				= 0;
@@ -254,9 +217,7 @@ BOOL CObject::net_Spawn			(CSE_Abstract* data)
 	// reinitialize flags
 	processing_activate			();
 	setDestroy					(false);
-
-	MakeMeCrow					();
-
+ 
 	return TRUE					;
 }
 
@@ -339,37 +300,13 @@ void CObject::UpdateCL			()
 #endif
  
 	spatial_update				(base_spu_epsP*5,base_spu_epsR*5);
-
-	// crow
-	if (Parent == g_pGameLevel->CurrentViewEntity())										
-		MakeMeCrow	();
-	else if (AlwaysTheCrow())																
-		MakeMeCrow	();
-	else
-	{
-		float dist = Device.vCameraPosition.distance_to_sqr(Position());
-		if (dist < CROW_RADIUS*CROW_RADIUS)	
-			MakeMeCrow	();
-		else 
-		if( (Visual() && Visual()->getVisData().hom_frame+2 > Device.dwFrame) && (dist < CROW_RADIUS2*CROW_RADIUS2) )
-			MakeMeCrow	();
-	}
 }
 
 void CObject::shedule_Update	( u32 T )
 {
 	// consistency check
-	// Msg						("-SUB-:[%x][%s] CObject::shedule_Update",dynamic_cast<void*>(this),*cName());
-	ISheduled::shedule_Update	(T);
+ 	ISheduled::shedule_Update	(T);
 	spatial_update				(base_spu_epsP*1,base_spu_epsR*1);
-
-	// Always make me crow on shedule-update 
-	// Makes sure that update-cl called at least with freq of shedule-update
-	MakeMeCrow					();	
-	/*
-	if (AlwaysTheCrow())																	MakeMeCrow	();
-	else if (Device.vCameraPosition.distance_to_sqr(Position()) < CROW_RADIUS*CROW_RADIUS)	MakeMeCrow	();
-	*/
 }
 
 void	CObject::spatial_register	()
@@ -399,7 +336,6 @@ CObject::SavedPosition CObject::ps_Element(u32 ID) const
 
 void CObject::renderable_Render	()
 {
-	MakeMeCrow	();
 }
 
 CObject* CObject::H_SetParent	(CObject* new_parent, bool just_before_destroy)
@@ -418,8 +354,8 @@ CObject* CObject::H_SetParent	(CObject* new_parent, bool just_before_destroy)
 	Parent				= new_parent;
 	if (0==old_parent)	OnH_A_Chield		();	// after attach
 	else				OnH_A_Independent	(); // after detach
-	// if (Parent)	Parent->H_ChildAdd		(this);
-	MakeMeCrow			();
+ 
+	 
 	return				old_parent;
 }
 

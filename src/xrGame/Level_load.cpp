@@ -21,32 +21,35 @@ BOOL CLevel::Load_GameSpecific_Before()
 	g_pGamePersistent->LoadTitle("st_loading_ai_objects");
   	if (xr_strcmp(m_game_description.spawn_name, "alife_off") == 0)
 		return true;
-  
-	string_path							fn_game;
-	
-	//if (!OnServer()  && FS.exist(fn_game, "$level$", "alife.spawn"))
-	//{
-	//	spawn = FS.r_open(fn_game);
-	//
-	//	IReader* chunk;
-	//
-	//	chunk = spawn->open_chunk(3);
-	//	R_ASSERT2(chunk, "Spawn version mismatch - REBUILD SPAWN!");
-	//	ai().patrol_path_storage(*chunk);
-	//	chunk->close();
-	//
-	//	m_chunk = spawn->open_chunk(4);
-	//	R_ASSERT2(m_chunk, "Spawn version mismatch - REBUILD SPAWN!");
-	//	ai().game_graph(xr_new<CGameGraph>(*m_chunk));
-	//}
 
-	// string_path	fn_game;
-	// if (!ai().get_alife() && FS.exist(fn_game, "$level$", "level.ai") && HasSessionName())
+	string_path current_level;
+	FS.update_path(current_level, "$level$", "");
+	Msg("Current Level: %s", current_level);
+
+	string_path							fn_game;
+ 	if (OnClient()  && FS.exist(fn_game, "$level$", "alife.spawn"))
+	{
+		spawn = FS.r_open(fn_game);
+	
+		IReader* chunk;
+	
+		chunk = spawn->open_chunk(3);
+		R_ASSERT2(chunk, "Spawn version mismatch - REBUILD SPAWN!");
+		ai().patrol_path_storage(*chunk);
+		chunk->close();
+	
+		m_chunk = spawn->open_chunk(4);
+		R_ASSERT2(m_chunk, "Spawn version mismatch - REBUILD SPAWN!");
+		ai().game_graph(xr_new<CGameGraph>(*m_chunk));
+	}
+	 
+
+	// if (!ai().get_alife() && FS.exist(fn_game, "$level$", "level.ai") && net_SessionName())
 	// {
 	// 	ai().load(net_SessionName());
 	// }
- 
-	// if (!g_dedicated_server && !ai().get_alife() && ai().get_game_graph() && FS.exist(fn_game, "$level$", "level.game")) 
+  	// 
+	// if (! ai().get_alife() && FS.exist(fn_game, "$level$", "level.game"))
 	// {
 	// 	IReader* stream = FS.r_open(fn_game);
 	// 	ai().patrol_path_storage_raw(*stream);

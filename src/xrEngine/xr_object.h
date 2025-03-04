@@ -75,23 +75,13 @@ public:
 #endif
 	u32									dwFrame_UpdateCL;
 	u32									old_dwFrame_UpdateCL;
-	u32									dwFrame_AsCrow;
-
+ 
 	bool								EnabledMP_Processing;
-	// Crow-MODE
-	// if (object_is_visible)
-	// if (object_is_near)
-	// if (object_is_crow_always)
 
 #ifdef	DEBUG
 		void							DBGGetProps			(ObjectProperties &p ) const { p = Props; }
 #endif
-		void							MakeMeCrow			();
-
-	ICF	void							IAmNotACrowAnyMore	()					{ Props.crow = false;		}
-	virtual BOOL						AlwaysTheCrow		()					{ return FALSE;				}
-	ICF	bool							AmICrow				() const			{ return !!Props.crow;		}
-
+  
 	// GameTypes
 	virtual bool						IsStalker() { return false; };
 	virtual bool						IsMonster() { return false; };

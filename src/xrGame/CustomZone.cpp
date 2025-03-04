@@ -1421,16 +1421,7 @@ BOOL CCustomZone::feel_touch_on_contact	(CObject *O)
 
 	return				(inherited::feel_touch_on_contact(O));
 }
-
-BOOL CCustomZone::AlwaysTheCrow()
-{
-	bool b_idle = ZoneState()==eZoneStateIdle || ZoneState()==eZoneStateDisabled;
- 	if(!b_idle || (m_zone_flags.test(eAlwaysFastmode) && IsEnabled()) )
-		return TRUE;
- 	else
- 		return inherited::AlwaysTheCrow();
-}
-
+ 
 void CCustomZone::CalcDistanceTo(const Fvector& P, float& dist, float& radius)
 {
 	R_ASSERT			(CFORM()->Type()==cftShape);
@@ -1444,18 +1435,7 @@ void CCustomZone::CalcDistanceTo(const Fvector& P, float& dist, float& radius)
 		radius			= sr;
 		return;
 	}
-/*
-	//2nd quick test
-	Fvector				SC;
-	float				dist2;
-	XF.transform_tiny	(SC,CFORM()->getSphere().P);
-	dist2				= P.distance_to(SC);
-	if(dist2>sr)
-	{
-		radius		= sr;
-		return;
-	}
-*/
+ 
 	//full test
 	const Fmatrix& XF	= XFORM();
 	xr_vector<CCF_Shape::shape_def>& Shapes = Sh->Shapes();

@@ -263,9 +263,13 @@ void CRenderDevice::on_idle()
 	// *** Resume threads
 	// Capture end point - thread must run only ONE cycle
 	// Release start point - allow thread to run
-	mt_csLeave.Enter();
-	mt_csEnter.Leave();
-	Sleep(0);
+ 	if (!g_dedicated_server)
+	{
+		mt_csLeave.Enter();
+		mt_csEnter.Leave();
+		Sleep(0);
+	}
+
 
 #ifndef DEDICATED_SERVER
 	Statistic->RenderTOTAL_Real.FrameStart();
@@ -308,8 +312,12 @@ void CRenderDevice::on_idle()
 	// *** Suspend threads
 	// Capture startup point
 	// Release end point - allow thread to wait for startup point
-	mt_csEnter.Enter();
-	mt_csLeave.Leave();
+	
+	if (!g_dedicated_server)
+	{
+		mt_csEnter.Enter();
+		mt_csLeave.Leave();
+	}
 
 	// Ensure, that second thread gets chance to execute anyway
  	if (dwFrame != mt_Thread_marker)
@@ -369,7 +377,9 @@ void CRenderDevice::Run()
 	// Start all threads
 	mt_csEnter.Enter();
 	mt_bMustExit = FALSE;
-	thread_spawn(mt_Thread, "X-RAY Secondary thread", 0, 0);
+
+	if (!g_dedicated_server)
+		thread_spawn(mt_Thread, "X-RAY Secondary thread", 0, 0);
 
 	// Message cycle
 	seqAppStart.Process(rp_AppStart);
@@ -382,6 +392,9 @@ void CRenderDevice::Run()
 	// Stop Balance-Thread
 	mt_bMustExit = TRUE;
 	mt_csEnter.Leave();
+
+	if (g_dedicated_server)
+		mt_bMustExit = FALSE;
 
 	while (mt_bMustExit)	
 		Sleep(0);

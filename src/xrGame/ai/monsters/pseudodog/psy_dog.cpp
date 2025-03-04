@@ -159,6 +159,8 @@ void CPsyDog::Think()
 
 void CPsyDog::net_Destroy()
 {
+	OPTICK_EVENT("CPsyDog::net_Destroy");
+
 	delete_all_phantoms	();
 	inherited::net_Destroy();
 }

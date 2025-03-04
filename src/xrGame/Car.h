@@ -608,8 +608,7 @@ protected:
 public:
 	CCar(void);
 	virtual ~CCar(void);
-	virtual BOOL					AlwaysTheCrow						();
-
+ 
 public:
 	virtual CEntity*					cast_entity				()						{return this;}
 private:

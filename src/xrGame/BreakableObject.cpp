@@ -188,6 +188,8 @@ void CBreakableObject::ActivateBroken()
 
 void CBreakableObject::net_Destroy()
 {
+	OPTICK_EVENT("CBreakableObject::net_Destroy");
+
 	DestroyUnbroken();
 	if(m_Shell)
 	{

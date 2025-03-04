@@ -17,8 +17,7 @@ public:
 							CMissile					();
 	virtual					~CMissile					();
 
-	virtual BOOL			AlwaysTheCrow				()				{ return TRUE; }
-	virtual void			render_item_ui					();
+ 	virtual void			render_item_ui					();
 	virtual bool			render_item_ui_query					();
 
 	virtual void			reinit						();

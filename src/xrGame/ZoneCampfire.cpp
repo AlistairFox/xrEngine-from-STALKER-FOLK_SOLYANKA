@@ -263,15 +263,7 @@ void CZoneCampfire::StopIdleParticles(bool bIdleLight)
 	if(m_turn_time==0 || m_turn_time-Device.dwTimeGlobal<(OVL_TIME-500))
 		inherited::StopIdleParticles(bIdleLight);
 }
-
-BOOL CZoneCampfire::AlwaysTheCrow()
-{
-	if(m_turn_time)
-		return TRUE;
-	else
-		return inherited::AlwaysTheCrow();
-}
-
+ 
 void CZoneCampfire::UpdateWorkload(u32 dt)
 {
 	inherited::UpdateWorkload(dt);

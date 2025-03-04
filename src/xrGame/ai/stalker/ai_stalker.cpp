@@ -652,6 +652,8 @@ BOOL CAI_Stalker::net_Spawn			(CSE_Abstract* DC)
 
 void CAI_Stalker::net_Destroy()
 {
+	OPTICK_EVENT("CAI_Stalker::net_destroy");
+
 	inherited::net_Destroy				();
 	CInventoryOwner::net_Destroy		();
 	m_pPhysics_support->in_NetDestroy	();
@@ -662,14 +664,7 @@ void CAI_Stalker::net_Destroy()
 			&CAI_Stalker::update_object_handler
 		)
 	);
-
-#ifdef DEBUG
-	fastdelegate::FastDelegate0<>	f = fastdelegate::FastDelegate0<>(this,&CAI_Stalker::update_object_handler);
-	xr_vector<fastdelegate::FastDelegate0<> >::const_iterator	I;
-	I	= std::find(Device.seqParallel.begin(),Device.seqParallel.end(),f);
-	VERIFY							(I == Device.seqParallel.end());
-#endif // DEBUG
-
+ 
 	xr_delete						(m_ce_close);
 	xr_delete						(m_ce_far);
 	xr_delete						(m_ce_best);
@@ -1304,12 +1299,6 @@ void CAI_Stalker::aim_target					(Fvector &result, const CGameObject *object)
 	VERIFY					(m_aim_bone_id.size());
 
 	::aim_target			( m_aim_bone_id, result, object );
-}
-
-BOOL CAI_Stalker::AlwaysTheCrow					()
-{
-	VERIFY					( character_physics_support	()	);
-	return					(character_physics_support()->interactive_motion());
 }
 
 smart_cover::cover const* CAI_Stalker::get_current_smart_cover	( )
