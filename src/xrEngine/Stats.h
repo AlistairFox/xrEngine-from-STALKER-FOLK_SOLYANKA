@@ -47,7 +47,9 @@ public:
 	CStatTimer	OnFrame4;
 
 	CStatTimer	UpdateClient;			// 
+	CStatTimer	UpdateClientReal;		// 
 
+	CStatTimer	UpdateClientZones;			//
 	CStatTimer	UpdateClientPH;			// 
 	CStatTimer	UpdateClientUnsorted;	// 
 	CStatTimer	UpdateClientA;			// 

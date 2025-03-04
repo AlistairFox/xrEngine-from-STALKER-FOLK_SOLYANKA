@@ -88,6 +88,8 @@ void	CObjectList::o_sleep		( CObject*		O		)
 
 void	CObjectList::SingleUpdate(CObject* O)
 {
+	Device.Statistic->UpdateClientReal.Begin();
+
 	if (Device.dwFrame == O->dwFrame_UpdateCL)
 		return;
  	if (!O->processing_enabled())
@@ -126,16 +128,23 @@ void	CObjectList::SingleUpdate(CObject* O)
 		O->UpdateCL();
 		Device.Statistic->UpdateClientPH.End();
 	}
+	else if (O->IsCustomZone())
+	{
+		Device.Statistic->UpdateClientZones.Begin();
+		O->UpdateCL();
+		Device.Statistic->UpdateClientZones.End();
+	}
 	else
 	{
 		Device.Statistic->UpdateClientUnsorted.Begin();
 		O->UpdateCL();
-		Device.Statistic->UpdateClientUnsorted.Begin();
+		Device.Statistic->UpdateClientUnsorted.End();
 	}
 
  	Device.Statistic->UpdateClient_updated++;
  	O->dwFrame_UpdateCL = Device.dwFrame;
  
+	Device.Statistic->UpdateClientReal.End();
 }
 
 
@@ -161,15 +170,12 @@ void CObjectList::Update		(bool bForce)
  			Device.Statistic->UpdateClient_active = objects_active.size();
 
 			Device.Statistic->UpdateClient.Begin	();
- 
-  			for (auto& O : objects_active)
+			for (auto& O : objects_active)
 			{
-				O->IAmNotACrowAnyMore();
-				O->dwFrame_AsCrow	= u32(-1);
+ 				O->IAmNotACrowAnyMore();
+				O->dwFrame_AsCrow = u32(-1);
+				SingleUpdate(O);
 			}
- 			for (auto & O : objects_active)
-				SingleUpdate			(O);
-
  			Device.Statistic->UpdateClient.End		();
 		}
 	}
@@ -239,7 +245,8 @@ int	g_Dump_Export_Obj = 0;
 
 u32	CObjectList::net_Export			(NET_Packet* _Packet,	u32 start, u32 max_object_size	)
 {
-	if (g_Dump_Export_Obj) Msg("---- net_export --- ");
+	if (g_Dump_Export_Obj)
+		Msg("---- net_export --- ");
 
 	NET_Packet& Packet	= *_Packet;
 	u32			position;
@@ -248,7 +255,6 @@ u32	CObjectList::net_Export			(NET_Packet* _Packet,	u32 start, u32 max_object_si
 		if (P->net_Relevant() && !P->getDestroy())	{			
 			Packet.w_u16			(u16(P->ID())	);
 			Packet.w_chunk_open8	(position);
-			//Msg						("cl_export: %d '%s'",P->ID(),*P->cName());
 			P->net_Export			(Packet);
  
 			if (g_Dump_Export_Obj)
@@ -262,7 +268,8 @@ u32	CObjectList::net_Export			(NET_Packet* _Packet,	u32 start, u32 max_object_si
 				break;
 		}
 	}
-	if (g_Dump_Export_Obj) Msg("------------------- ");
+	if (g_Dump_Export_Obj)
+		Msg("------------------- ");
 	return	start+1;
 }
 
@@ -270,7 +277,8 @@ int	g_Dump_Import_Obj = 0;
 
 void CObjectList::net_Import		(NET_Packet* Packet)
 {
-	if (g_Dump_Import_Obj) Msg("---- net_import --- ");
+	if (g_Dump_Import_Obj) 
+		Msg("---- net_import --- ");
 
 	while (!Packet->r_eof())
 	{
@@ -292,7 +300,8 @@ void CObjectList::net_Import		(NET_Packet* Packet)
 		else		Packet->r_advance(size);
 	}
 
-	if (g_Dump_Import_Obj) Msg("------------------- ");
+	if (g_Dump_Import_Obj) 
+		Msg("------------------- ");
 }
 
 u32 CObjectList::net_Import_Time()
@@ -316,11 +325,6 @@ void CObjectList::Unload	( )
 		CObject*	O	= objects_sleeping.back	();
 		Msg				("! [%x] s[%4d]-[%s]-[%s]", O, O->ID(), *O->cNameSect(), *O->cName());
 		O->setDestroy	( true );
-		
-#ifdef DEBUG
-		if( debug_destroy )
-			Msg				("Destroying object [%d][%s]",O->ID(),*O->cName());
-#endif
 		O->net_Destroy	(   );
 		Destroy			( O );
 	}
@@ -329,11 +333,6 @@ void CObjectList::Unload	( )
 		CObject*	O	= objects_active.back	();
 		Msg				("! [%x] a[%4d]-[%s]-[%s]", O, O->ID(), *O->cNameSect(), *O->cName());
 		O->setDestroy	( true );
-
-#ifdef DEBUG
-		if( debug_destroy )
-			Msg				("Destroying object [%d][%s]",O->ID(),*O->cName());
-#endif
 		O->net_Destroy	(   );
 		Destroy			( O );
 	}
@@ -342,8 +341,7 @@ void CObjectList::Unload	( )
 CObject*	CObjectList::Create				( LPCSTR	name	)
 {
 	CObject*	O				= g_pGamePersistent->ObjectPool.create(name);
-	//Msg("CObjectList::Create [%x] %s, ", O, name);
-	objects_sleeping.push_back	(O);
+ 	objects_sleeping.push_back	(O);
 	return						O;
 }
 
@@ -408,12 +406,6 @@ void		CObjectList::Destroy			( CObject*	O		)
 
 void CObjectList::relcase_register		(RELCASE_CALLBACK cb, int *ID)
 {
-#ifdef DEBUG
-	RELCASE_CALLBACK_VEC::iterator It = std::find(	m_relcase_callbacks.begin(),
-													m_relcase_callbacks.end(),
-													cb);
-	VERIFY(It==m_relcase_callbacks.end());
-#endif
 	*ID								= m_relcase_callbacks.size();
 	m_relcase_callbacks.push_back	(SRelcasePair(ID,cb));
 }
@@ -455,8 +447,7 @@ bool CObjectList::dump_all_objects()
 void CObjectList::register_object_to_destroy(CObject *object_to_destroy)
 {
 	VERIFY					(!registered_object_to_destroy(object_to_destroy));
-//	Msg("CObjectList::register_object_to_destroy [%x]", object_to_destroy);
-	destroy_queue.push_back	(object_to_destroy);
+ 	destroy_queue.push_back	(object_to_destroy);
 
 	Objects::iterator it	= objects_active.begin();
 	Objects::iterator it_e	= objects_active.end();
