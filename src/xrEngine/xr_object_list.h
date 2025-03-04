@@ -4,7 +4,7 @@
 // refs
 class	ENGINE_API	CObject;
 class	NET_Packet	;
-
+#include <ppl.h>
 class	ENGINE_API 				CObjectList
 {
 private:
@@ -16,7 +16,14 @@ private:
 	typedef xr_vector<CObject*>	Objects;
 
 private:
+	concurrency::task_group		thread_task;
+
 	Objects						destroy_queue;
+
+	u64 LastUpdateTime			= 0;
+ 	// Objects						objects_mt;
+	// Objects						objects_updates;
+
 	Objects						objects_active;
 	Objects						objects_sleeping;
 	Objects						m_crows[2];
@@ -52,7 +59,10 @@ public:
 	CObject*					Create				( LPCSTR		name	);
 	void						Destroy				( CObject*		O		);
 
+	void						UpdateProcessing	(CObject* O);
 	void						SingleUpdate		( CObject*		O		);
+	void						SingleUpdate_Stats	(CObject* O);
+
 	void						Update				( bool bForce );
 
 	void						net_Register		( CObject*		O		);

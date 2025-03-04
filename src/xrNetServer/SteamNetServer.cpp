@@ -18,6 +18,8 @@ void SvSteamNetConnectionStatusChangedCallback(SteamNetConnectionStatusChangedCa
 
 void steam_net_update_server(void* P)
 {
+	SetThreadDescription(GetCurrentThread(), L"X-RAY server thread");
+
 	Msg("- [SteamNetServer] Thread for steam network server is started");
 	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_BELOW_NORMAL);
 	SteamNetServer*	C = (SteamNetServer*)P;
@@ -147,6 +149,7 @@ bool SteamNetServer::CreateConnection(GameDescriptionData & game_descr, ServerCo
 
 	Msg("- [SteamNetServer] created on port %d", bindServerAddress.m_port);
 	thread_spawn(steam_net_update_server, "snetwork-update-server", 0, this);
+	
 
 //	PollConnectionStateChanges();
 

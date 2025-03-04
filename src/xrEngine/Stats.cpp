@@ -266,8 +266,7 @@ void CStats::Show()
 		OnFrame4.FrameEnd();
 
 		// UpdateCL DATA !!!!
-		UpdateClientReal.FrameEnd();
-		UpdateClientPH.FrameEnd();
+ 		UpdateClientPH.FrameEnd();
 		UpdateClientUnsorted.FrameEnd();
 		UpdateClientA.FrameEnd();
 		UpdateClientAI_mutant.FrameEnd();
@@ -372,9 +371,9 @@ void CStats::Show()
 			drawStatParam_Calls(pFontGame, this, "Draw Pollys:			%u", polys);
 
 			drawStatParam(pFontGame, "----------------");
-			pFontGame->OutNext("UpdateCL Real: %.2fms", UpdateClientReal.result);
-			pFontGame->OutNext("PH:   %.2fms, NPC:   %.2fms, Monster: %.2fms", UpdateClientPH.result, UpdateClientAI.result, UpdateClientAI_mutant.result);
-			pFontGame->OutNext("Item: %.2fms, Actor: %.2fms, Zones: %.2fms| OTHER: %.2fms", UpdateClientInv.result, UpdateClientA.result, UpdateClientZones.result, UpdateClientUnsorted.result);
+ 			pFontGame->OutNext("PH:   %.2fms, NPC:   %.2fms, Monster: %.2fms", UpdateClientPH.result, UpdateClientAI.result, UpdateClientAI_mutant.result);
+			pFontGame->OutNext("Item: %.2fms, Actor: %.2fms, Zones: %.2fms", UpdateClientInv.result, UpdateClientA.result, UpdateClientZones.result);
+			pFontGame->OutNext("OTHER: %.2fms", UpdateClientUnsorted.result);
 
 
 			drawStatParam(pFontGame, "----------------");
@@ -566,8 +565,7 @@ void CStats::Show()
 		OnFrame4.FrameStart();
 
 		// UpdateCL DATA !!!!
-		UpdateClientReal.FrameStart();
-		UpdateClientPH.FrameStart();
+ 		UpdateClientPH.FrameStart();
 		UpdateClientUnsorted.FrameStart();
 		UpdateClientA.FrameStart();
 		UpdateClientAI_mutant.FrameStart();

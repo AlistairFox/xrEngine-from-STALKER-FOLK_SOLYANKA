@@ -385,6 +385,7 @@ void	__cdecl			thread_entry(void* _params) {
 	xr_delete(startup);
 	_initialize_cpu_thread();
 
+
 	// call
 	entry(arglist);
 }

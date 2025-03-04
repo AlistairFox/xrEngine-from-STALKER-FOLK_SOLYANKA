@@ -29,6 +29,8 @@ void CLSteamSessionFailed(SteamNetworkingMessagesSessionFailed_t *pInfo)
 
 void steam_net_update_client(void* P)
 {
+	SetThreadDescription(GetCurrentThread(), L"X-RAY client thread");
+
 	Msg("- [SteamNetClient] Thread for steam network client is started");
 	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_BELOW_NORMAL);
 	SteamNetClient*	C = (SteamNetClient*)P;

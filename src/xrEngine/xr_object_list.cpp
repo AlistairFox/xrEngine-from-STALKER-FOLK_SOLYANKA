@@ -17,9 +17,6 @@ public:
 	fClassEQ(CLASS_ID C) : cls(C) {};
 	IC bool operator() (CObject* O) { return cls==O->CLS_ID; }
 };
-#ifdef	DEBUG
-	BOOL debug_destroy = TRUE;
-#endif
 
 CObjectList::CObjectList	( ) :
 	m_owner_thread_id		(GetCurrentThreadId())
@@ -32,7 +29,6 @@ CObjectList::~CObjectList	( )
 	R_ASSERT				( objects_active.empty()	);
 	R_ASSERT				( objects_sleeping.empty()	);
 	R_ASSERT				( destroy_queue.empty()		);
-//.	R_ASSERT				( map_NETID.empty()			);
 }
 
 CObject*	CObjectList::FindObjectByName	( shared_str name )
@@ -50,101 +46,108 @@ CObject*	CObjectList::FindObjectByName	( LPCSTR name )
 
 CObject*	CObjectList::FindObjectByCLS_ID	( CLASS_ID cls )
 {
-	{
-		Objects::iterator O	= std::find_if(objects_active.begin(),objects_active.end(),fClassEQ(cls));
-		if (O!=objects_active.end())	return *O;
-	}
-	{
-		Objects::iterator O	= std::find_if(objects_sleeping.begin(),objects_sleeping.end(),fClassEQ(cls));
-		if (O!=objects_sleeping.end())	return *O;
-	}
-
+ 	auto itActive = std::find_if(objects_active.begin(),objects_active.end(),fClassEQ(cls));
+	if (itActive != objects_active.end())
+		return *itActive;
+ 
+	auto itSleep = std::find_if(objects_sleeping.begin(),objects_sleeping.end(),fClassEQ(cls));
+	if (itSleep != objects_sleeping.end())
+		return *itSleep;
+	  
 	return	NULL;
 }
 
 
 void	CObjectList::o_remove		( Objects&	v,  CObject* O)
 {
-	Objects::iterator _i	= std::find(v.begin(),v.end(),O);
-	VERIFY					(_i!=v.end());
-	v.erase					(_i);
+	auto iterator	= std::find(v.begin(),v.end(),O);
+	if (iterator != v.end())
+		v.erase					(iterator);
 }
 
 void	CObjectList::o_activate		( CObject*		O		)
 {
 	VERIFY						(O && O->processing_enabled());
 	o_remove					(objects_sleeping,O);
+
 	objects_active.push_back	(O);
+	
+	//if (O->IsPhysicObject() || O->IsItem() || O->IsCustomZone())
+	//	objects_mt.push_back(O);
+	//else
+	//	objects_updates.push_back(O);
+
 	O->MakeMeCrow				();
 }
 void	CObjectList::o_sleep		( CObject*		O		)
 {
 	VERIFY	(O && !O->processing_enabled());
-	o_remove					(objects_active,O);
+	
+	o_remove(objects_active,O);
+ 	// if (O->IsPhysicObject() || O->IsItem() || O->IsCustomZone())
+	// 	o_remove(objects_mt, O);
+	// else 
+	// 	o_remove(objects_updates, O);
+
 	objects_sleeping.push_back	(O);
 	O->MakeMeCrow				();
 }
+
 #include "../xrServerEntities/clsid_game.h"
+extern int MT_Work = 0;
+extern int WorkDistance = 0;
+void CObjectList::UpdateProcessing(CObject* O)
+{
+	if (!g_dedicated_server && WorkDistance)
+		O->EnabledMP_Processing = O->Position().distance_to(Device.vCameraPosition) < 200;
+	else
+		O->EnabledMP_Processing = true;
+}
 
 void	CObjectList::SingleUpdate(CObject* O)
-{
-	Device.Statistic->UpdateClientReal.Begin();
+{ 
+	if (!O->processing_enabled() || Device.dwFrame == O->dwFrame_UpdateCL)
+		return;
 
-	if (Device.dwFrame == O->dwFrame_UpdateCL)
-		return;
- 	if (!O->processing_enabled())
-		return;
  	if (O->H_Parent())
 		SingleUpdate(O->H_Parent());
-
-
-	if (O->IsItem())
-	{
-		Device.Statistic->UpdateClientInv.Begin();
-		O->UpdateCL();
-		Device.Statistic->UpdateClientInv.End();
-	}
-	else if (O->IsActor())
-	{
-		Device.Statistic->UpdateClientA.Begin();
-		O->UpdateCL();
-		Device.Statistic->UpdateClientA.End();
-	}
-	else if (O->IsStalker())
-	{
-		Device.Statistic->UpdateClientAI.Begin();
-		O->UpdateCL();
-		Device.Statistic->UpdateClientAI.End();
-	}
-	else if (O->IsMonster())
-	{
-		Device.Statistic->UpdateClientAI_mutant.Begin();
-		O->UpdateCL();
-		Device.Statistic->UpdateClientAI_mutant.End();
-	}
-	else if (O->IsPhysicObject())
-	{
-		Device.Statistic->UpdateClientPH.Begin();
-		O->UpdateCL();
-		Device.Statistic->UpdateClientPH.End();
-	}
-	else if (O->IsCustomZone())
-	{
-		Device.Statistic->UpdateClientZones.Begin();
-		O->UpdateCL();
-		Device.Statistic->UpdateClientZones.End();
-	}
-	else
-	{
-		Device.Statistic->UpdateClientUnsorted.Begin();
-		O->UpdateCL();
-		Device.Statistic->UpdateClientUnsorted.End();
-	}
-
+	O->UpdateCL();
  	Device.Statistic->UpdateClient_updated++;
  	O->dwFrame_UpdateCL = Device.dwFrame;
- 
-	Device.Statistic->UpdateClientReal.End();
+}
+
+CStatTimer* UpdateStats(CObject* O)
+{
+ 	if (O->IsItem())
+		return &Device.Statistic->UpdateClientInv;
+	else if (O->IsActor())
+		return &Device.Statistic->UpdateClientA;
+	else if (O->IsStalker())
+		return &Device.Statistic->UpdateClientAI;
+	else if (O->IsMonster())
+		return &Device.Statistic->UpdateClientAI_mutant;
+	else if (O->IsPhysicObject())
+		return &Device.Statistic->UpdateClientPH;
+	else if (O->IsCustomZone())
+		return &Device.Statistic->UpdateClientZones;
+	else 
+		return &Device.Statistic->UpdateClientUnsorted;
+}
+
+void CObjectList::SingleUpdate_Stats(CObject* O)
+{
+	if (!O->processing_enabled() || Device.dwFrame == O->dwFrame_UpdateCL)
+		return;
+
+	if (O->H_Parent())
+		SingleUpdate(O->H_Parent());
+
+	UpdateStats(O)->Begin();
+	O->UpdateCL();
+	UpdateStats(O)->End();
+	 
+	Device.Statistic->UpdateClient_updated++;
+	O->dwFrame_UpdateCL = Device.dwFrame;
 }
 
 
@@ -156,7 +159,7 @@ void CObjectList::clear_crow_vec(Objects& o)
 	}
 	o.clear_not_free();
 }
-
+ 
 void CObjectList::Update		(bool bForce)
 {
 	if ( !Device.Paused() || bForce )
@@ -169,14 +172,55 @@ void CObjectList::Update		(bool bForce)
 			Device.Statistic->UpdateClient_updated	= 0;
  			Device.Statistic->UpdateClient_active = objects_active.size();
 
-			Device.Statistic->UpdateClient.Begin	();
+			Device.Statistic->UpdateClient.Begin();
+
+			if (LastUpdateTime < Device.dwTimeGlobal)
+			{
+  				Objects objects_processed;
+ 				for (auto& O : objects_active)
+				{
+					UpdateProcessing(O);
+ 					objects_processed.push_back(O);
+				}
+ 				
+				std::sort(objects_processed.begin(), objects_processed.end(), [&](CObject* O, CObject* O2)
+				{
+					return O->dwFrame_UpdateCL < O2->dwFrame_UpdateCL && !O->EnabledMP_Processing;
+				});
+
+				u32 CurrentObjects = 0;
+				for (auto& O : objects_processed)
+				{	 
+					if (O->EnabledMP_Processing || CurrentObjects > 100)
+						continue; 	
+ 
+					O->IAmNotACrowAnyMore();
+					O->dwFrame_AsCrow = u32(-1);
+					if (!MT_Work)
+ 						SingleUpdate(O);
+ 					else
+ 						SingleUpdate_Stats(O);
+					CurrentObjects++;
+  				}
+
+				LastUpdateTime = Device.dwTimeGlobal + 100;
+			}
+
+			
 			for (auto& O : objects_active)
 			{
- 				O->IAmNotACrowAnyMore();
+				if (!O->EnabledMP_Processing)
+					continue;
+
+				O->IAmNotACrowAnyMore();
 				O->dwFrame_AsCrow = u32(-1);
-				SingleUpdate(O);
+
+				if (!MT_Work)
+					SingleUpdate(O);
+				else
+					SingleUpdate_Stats(O);
 			}
- 			Device.Statistic->UpdateClient.End		();
+			Device.Statistic->UpdateClient.End();
 		}
 	}
 
@@ -336,70 +380,73 @@ void CObjectList::Unload	( )
 		O->net_Destroy	(   );
 		Destroy			( O );
 	}
+
+	// objects_mt.clear();
+	// objects_updates.clear();
 }
 
-CObject*	CObjectList::Create				( LPCSTR	name	)
+CObject* CObjectList::Create				( LPCSTR	name	)
 {
 	CObject*	O				= g_pGamePersistent->ObjectPool.create(name);
  	objects_sleeping.push_back	(O);
 	return						O;
 }
 
-void		CObjectList::Destroy			( CObject*	O		)
+void CObjectList::Destroy			( CObject*	O		)
 {
-	if (0==O)								return;
+	if (0==O)						
+		return;
+
 	net_Unregister							(O);
 
-	if ( !Device.Paused() ) {
-		if ( !m_crows[1].empty() ) {
+	if ( !Device.Paused() ) 
+	{
+		if ( !m_crows[1].empty() ) 
+		{
 			Msg								( "assertion !m_crows[1].empty() failed: %d", m_crows[1].size() );
-
-			Objects::const_iterator i		= m_crows[1].begin( );
+ 			Objects::const_iterator i		= m_crows[1].begin( );
 			Objects::const_iterator	const e	= m_crows[1].end( );
 			for (u32 j=0; i != e; ++i, ++j )
 				Msg							( "%d %s", j, (*i)->cName().c_str() );
-			VERIFY							( Device.Paused() || m_crows[1].empty() );
-			m_crows[1].clear_not_free		();
+ 			m_crows[1].clear_not_free		();
 		}
 	}
-	else {
+	else 
+	{
 		Objects& crows				= m_crows[1];
-		Objects::iterator const i	= std::find(crows.begin(),crows.end(),O);
-		if	( i != crows.end() ) {
-			crows.erase				( i);
-			VERIFY					( std::find(crows.begin(), crows.end(),O) == crows.end() );
-		}
+		auto const itCrow	= std::find(crows.begin(),crows.end(),O);
+		if	(itCrow != crows.end() )
+		{
+			crows.erase				(itCrow);
+ 		}
 	}
 
 	Objects& crows				= m_crows[0];
-	Objects::iterator _i0		= std::find(crows.begin(),crows.end(),O);
-	if	(_i0!=crows.end()) {
-		crows.erase				(_i0);
-		VERIFY					( std::find(crows.begin(), crows.end(),O) == crows.end() );
-	}
+	auto itCrow = std::find(crows.begin(),crows.end(),O);
+	if	(itCrow !=crows.end())
+	{
+		crows.erase				(itCrow);
+ 	}
 
 	// active/inactive
-	Objects::iterator _i		= std::find(objects_active.begin(),objects_active.end(),O);
-	if	(_i!=objects_active.end()) {
-		objects_active.erase				(_i);
-		VERIFY								( std::find(objects_active.begin(),objects_active.end(),O) == objects_active.end() );
-		VERIFY								(
-			std::find(
-				objects_sleeping.begin(),
-				objects_sleeping.end(),
-				O
-			) == objects_sleeping.end()
-		);
+	auto itActive  = std::find(objects_active.begin(),objects_active.end(),O);
+	if	(itActive != objects_active.end())
+	{
+		objects_active.erase				(itActive);
 	}
-	else {
-		Objects::iterator _ii	= std::find(objects_sleeping.begin(),objects_sleeping.end(),O);
-		if	(_ii!=objects_sleeping.end()) {
-			objects_sleeping.erase			(_ii);
-			VERIFY							( std::find(objects_sleeping.begin(),objects_sleeping.end(),O) == objects_sleeping.end() );
-		}
+	else 
+	{
+		auto itSleep	= std::find(objects_sleeping.begin(),objects_sleeping.end(),O);
+		if	(itSleep !=objects_sleeping.end())
+		{
+			objects_sleeping.erase			(itSleep);
+ 		}
 		else
 			FATAL							("! Unregistered object being destroyed");
 	}
+
+	//o_remove(objects_mt, O);
+	//o_remove(objects_updates, O);
 
 	g_pGamePersistent->ObjectPool.destroy	(O);
 }
@@ -420,9 +467,9 @@ void CObjectList::relcase_unregister	(int* ID)
 
 void CObjectList::dump_list(Objects& v, LPCSTR reason)
 {
+#ifdef DEBUG
 	Objects::iterator it = v.begin();
 	Objects::iterator it_e = v.end();
-#ifdef DEBUG
 	Msg("----------------dump_list [%s]",reason);
 	for(;it!=it_e;++it)
 		Msg("%x - name [%s] ID[%d] parent[%s] getDestroy()=[%s]", 
@@ -448,25 +495,18 @@ void CObjectList::register_object_to_destroy(CObject *object_to_destroy)
 {
 	VERIFY					(!registered_object_to_destroy(object_to_destroy));
  	destroy_queue.push_back	(object_to_destroy);
-
-	Objects::iterator it	= objects_active.begin();
-	Objects::iterator it_e	= objects_active.end();
-	for(;it!=it_e;++it)
+	for(auto& O : objects_active)
 	{
-		CObject* O = *it;
-		if(!O->getDestroy() && O->H_Parent()==object_to_destroy)
+ 		if(!O->getDestroy() && O->H_Parent()==object_to_destroy)
 		{
 			Msg("setDestroy called, but not-destroyed child found parent[%d] child[%d]",object_to_destroy->ID(), O->ID(), Device.dwFrame);
 			O->setDestroy(TRUE);
 		}
 	}
-
-	it		= objects_sleeping.begin();
-	it_e	= objects_sleeping.end();
-	for(;it!=it_e;++it)
+ 
+	for(auto& O : objects_sleeping)
 	{
-		CObject* O = *it;
-		if(!O->getDestroy() && O->H_Parent()==object_to_destroy)
+ 		if(!O->getDestroy() && O->H_Parent()==object_to_destroy)
 		{
 			Msg("setDestroy called, but not-destroyed child found parent[%d] child[%d]",object_to_destroy->ID(), O->ID(), Device.dwFrame);
 			O->setDestroy(TRUE);

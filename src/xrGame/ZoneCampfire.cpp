@@ -104,15 +104,15 @@ void CZoneCampfire::shedule_Update(u32	dt)
 		}
 	}
 
-	if (!m_turned_on)
-	{
-		m_idle_sound.stop();
-		m_awaking_sound.stop();
-		m_accum_sound.stop();
-		m_blowout_sound.stop();
-		m_hit_sound.stop();
-		m_entrance_sound.stop();
-	}
+	// if (!m_turned_on)
+	// {
+	// 	m_idle_sound.stop();
+	// 	m_awaking_sound.stop();
+	// 	m_accum_sound.stop();
+	// 	m_blowout_sound.stop();
+	// 	m_hit_sound.stop();
+	// 	m_entrance_sound.stop();
+	// }
 
 
 	if (!IsEnabled() && m_turn_time)

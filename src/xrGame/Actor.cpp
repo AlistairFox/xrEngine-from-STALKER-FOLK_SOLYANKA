@@ -1205,6 +1205,7 @@ void CActor::UpdateCL	()
 		psHUD_Flags.set( HUD_CROSSHAIR_RT2, true );
 		psHUD_Flags.set( HUD_DRAW_RT, true );
 	}
+
 	if(pWeapon )
 	{
 		if(pWeapon->IsZoomed())
@@ -1277,12 +1278,7 @@ void CActor::UpdateCL	()
 			xr_delete(m_sndShockEffector);
 	}
 	Fmatrix							trans;
-
-	//if(cam_Active() == cam_FirstEye())
-	//{
-		Cameras().hud_camera_Matrix		(trans);
-	//}else
-	//	Cameras().camera_Matrix			(trans);
+ 	Cameras().hud_camera_Matrix		(trans);
 	
 	if(IsFocused())
 		g_player_hud->update			(trans);

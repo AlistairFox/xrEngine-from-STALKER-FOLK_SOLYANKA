@@ -77,6 +77,7 @@ public:
 	u32									old_dwFrame_UpdateCL;
 	u32									dwFrame_AsCrow;
 
+	bool								EnabledMP_Processing;
 	// Crow-MODE
 	// if (object_is_visible)
 	// if (object_is_near)
