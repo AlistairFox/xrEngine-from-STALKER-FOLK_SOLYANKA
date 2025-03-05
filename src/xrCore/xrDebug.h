@@ -19,7 +19,8 @@ public:
 
 	void			_initialize			(const bool &dedicated);
 	void			_destroy			();
-	
+	void			Callstack();
+
 public:
 	crashhandler*	get_crashhandler	()							{ return handler;	};
 	void			set_crashhandler	(crashhandler* _handler)	{ handler=_handler;	};

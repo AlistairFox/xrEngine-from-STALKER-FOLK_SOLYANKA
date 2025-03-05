@@ -553,3 +553,46 @@ void xrDebug::_initialize(const bool& dedicated)
 	previous_filter = ::SetUnhandledExceptionFilter(UnhandledFilter);	// exception handler to all "unhandled" exceptions
 #endif
 }
+
+ 
+typedef USHORT(WINAPI* CaptureStackBackTraceType)(__in ULONG, __in ULONG, __out PVOID*, __out_opt PULONG);
+
+void xrDebug::Callstack()
+{
+	CaptureStackBackTraceType func_callstack = (CaptureStackBackTraceType)(GetProcAddress(LoadLibrary("kernel32.dll"), "RtlCaptureStackBackTrace"));
+
+	if (func_callstack != nullptr)
+	{
+		const int max_frames = 64;
+		void* callstack[max_frames];
+
+		USHORT frames = func_callstack(0, max_frames, callstack, NULL);
+		SYMBOL_INFO* symbol = (SYMBOL_INFO*)calloc(sizeof(SYMBOL_INFO) + 256 * sizeof(char), 1);
+
+		if (symbol != 0)
+		{
+			symbol->MaxNameLen = 255;
+			symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+
+
+			for (USHORT i = 0; i < frames; ++i)
+			{
+				SymFromAddr(GetCurrentProcess(), (DWORD64)(callstack[i]), 0, symbol);
+
+				IMAGEHLP_LINE64 data;
+
+				DWORD dwDisplacement;
+				SymGetLineFromAddr(GetCurrentProcess(), (DWORD64)(callstack[i]), &dwDisplacement, &data);
+
+				DWORD_PTR displacement = 0;
+				const DWORD max_name_len = 1024;
+				char nameBuffer[max_name_len];
+				UnDecorateSymbolName(symbol->Name, nameBuffer, max_name_len, UNDNAME_COMPLETE);
+
+				Msg("callstack[%d]: SYMVOL:%s, LINE: %d, File: %s", i, nameBuffer, data.LineNumber, data.FileName != nullptr ? data.FileName : "no file");
+			}
+
+			free(symbol);
+		}
+	}
+}
