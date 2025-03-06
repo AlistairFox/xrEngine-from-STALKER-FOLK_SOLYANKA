@@ -86,11 +86,7 @@ class CPhysicStorage
 			return state;
 		}
 	};
-
-	bool prev_freezed;
-	bool freezed;
-	u32 m_freeze_time;
-
+	
 	//virtual void						make_Interpolation	(); // interpolation from last visible to corrected position/rotation
 	struct net_update_PItem
 	{
@@ -115,7 +111,8 @@ class CPhysicStorage
 public:
 	// DOOR
 	bool DoorState = false;
-
+	bool freezed   = false;
+ 
 	NET_Packet door_packet;
 
 	Fvector door_axis;

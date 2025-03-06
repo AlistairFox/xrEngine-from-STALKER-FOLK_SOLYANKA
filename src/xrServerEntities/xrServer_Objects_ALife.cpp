@@ -1073,17 +1073,14 @@ static inline bool check (const u8 &mask, const u8 &test)
 	return							(!!(mask & test));
 }
 
-const	u32		CSE_ALifeObjectPhysic::m_freeze_delta_time		= 1000;
-const	u32		CSE_ALifeObjectPhysic::random_limit				= 40;		
+const	u32		CSE_ALifeObjectPhysic::m_freeze_delta_time		= 5000;
  
 //if TRUE, then object sends update packet
 BOOL CSE_ALifeObjectPhysic::Net_Relevant()
 {
 	if (!freezed)
-	{
-		return		TRUE;
-	}
-
+ 		return		TRUE;
+ 
 	if (Device.dwTimeGlobal >= (m_freeze_time + m_freeze_delta_time))
 		return		FALSE;
 
@@ -1093,10 +1090,7 @@ BOOL CSE_ALifeObjectPhysic::Net_Relevant()
 		return		TRUE;
 	}
 
-	if (m_relevent_random.randI(random_limit))
-		return		FALSE;
-
-	return			TRUE;
+	return			FALSE;
 }
 
 void CSE_ALifeObjectPhysic::UPDATE_Read(NET_Packet& tNetPacket)
