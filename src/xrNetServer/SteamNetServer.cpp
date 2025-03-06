@@ -111,6 +111,8 @@ bool SteamNetServer::CreateConnection(GameDescriptionData & game_descr, ServerCo
 	SteamNetworkingConfigValue_t opt;
 	opt.SetPtr(k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged, (void*)SvSteamNetConnectionStatusChangedCallback);
 
+	SteamNetworkingUtils()->SetGlobalConfigValueInt32(k_ESteamNetworkingConfig_SendRateMax, 1024 * 1024 * 10);
+
 	SteamNetworkingUtils()->SetGlobalConfigValueInt32(k_ESteamNetworkingConfig_SendBufferSize, 1024 * 1024 * 10);
 	SteamNetworkingUtils()->SetGlobalConfigValueInt32(k_ESteamNetworkingConfig_TimeoutInitial, 30000);
 	SteamNetworkingUtils()->SetGlobalConfigValueInt32(k_ESteamNetworkingConfig_TimeoutConnected, 30000);

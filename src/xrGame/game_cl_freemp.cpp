@@ -533,8 +533,19 @@ extern bool caps_lock = false;
 
 extern int use_debug_squads;
 
+//u64 LastUpdateDebug = 0;
+//xr_vector<shared_str> text_to_render;
 void game_cl_freemp::OnRender()
 {
+	//if (LastUpdateDebug < Device.dwTimeGlobal)
+	//{
+	//	LastUpdateDebug = Device.dwTimeGlobal + 1000;
+	//	text_to_render.clear();
+	//	if (OnServer())
+	//	{
+	//		Level().Server->GetDataNetwork(text_to_render);
+	//	}
+	//}
 
 	inherited::OnRender();
  

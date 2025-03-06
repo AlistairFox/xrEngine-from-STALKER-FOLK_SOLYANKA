@@ -466,7 +466,8 @@ void CBurer::StartGraviPrepare()
 	const CEntityAlive *enemy = EnemyMan.get_enemy();
 	if (!enemy) return;
 	
-	CActor *pA									=	const_cast<CActor *>(smart_cast<const CActor*>(enemy));
+	CActor* pA	 = const_cast<CActor*>(dynamic_cast<const CActor*>(enemy));
+	//CActor *pA =	const_cast<CActor *>(smart_cast<const CActor*>(enemy));
 	if (!pA) return;
 
 	if (IsGameTypeSingle())
@@ -497,7 +498,7 @@ void CBurer::StopGraviPrepare()
 		const CEntityAlive *enemy = m_gravi_object.enemy;
 		if (!enemy) return;
 
-		const CActor *pA = smart_cast<const CActor *>(enemy);
+		CActor *pA = const_cast<CActor*>( dynamic_cast<const CActor*>( enemy ));
 		if (!pA) return;
 
 		NET_Packet	tmp_packet;
@@ -516,6 +517,7 @@ void CBurer::StartTeleObjectParticle(CGameObject *pO)
 													 Fvector().set(0.0f, 0.1f, 0.0f),
 													 pO->ID());
 }
+
 void CBurer::StopTeleObjectParticle(CGameObject *pO) 
 {
 	CParticlesPlayer* PP						=	smart_cast<CParticlesPlayer*>(pO);

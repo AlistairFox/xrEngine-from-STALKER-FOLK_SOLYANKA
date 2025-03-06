@@ -339,27 +339,25 @@ void CTextConsole::DrawLog( HDC hDC, RECT* pRect )
 			{
 				SetTextColor(hDC, RGB(255, 0, 0));
 				TextOut(hDC, 10, 5, full_fps, xr_strlen(full_fps));
-				//m_server_info.AddItem("FPS: ", fps, RGB(255, 0, 0));
 			}
 			else
 			{
 				SetTextColor(hDC, RGB(0, 255, 0));
 				TextOut(hDC, 10, 5, full_fps, xr_strlen(full_fps));
-				//m_server_info.AddItem("FPS: ", fps, RGB(0, 255, 0));
 			}	
 		}
 
 
-		if (g_pGameLevel && (Device.dwTimeGlobal - m_last_time > 500))
+		if (g_pGameLevel && (Device.dwTimeGlobal - m_last_time > 1000))
 		{
 			m_last_time = Device.dwTimeGlobal;
 
 			m_server_info.ResetData();
 			g_pGameLevel->GetLevelInfo(&m_server_info);
 
-			m_server_info.AddItem("updateCL", updateCL, RGB(0, 255, 255));
-			m_server_info.AddItem("updateSH", updateSH, RGB(0, 255, 255));
-			m_server_info.AddItem("updateSH_count", updateSH_count, RGB(0, 255, 255));
+			// m_server_info.AddItem("updateCL", updateCL, RGB(0, 255, 255));
+			// m_server_info.AddItem("updateSH", updateSH, RGB(0, 255, 255));
+			// m_server_info.AddItem("updateSH_count", updateSH_count, RGB(0, 255, 255));
 
 			if (g_pGamePersistent && &g_pGamePersistent->Environment())
 			{

@@ -38,7 +38,7 @@ void CHairsZone::Load(LPCSTR section)
 	inherited::Load				(section);
 	m_min_speed_to_react		= pSettings->r_float(section,			"min_speed_to_react");
 }
-
+extern int DebugHitZones;
 void CHairsZone::Affect(SZoneObjectInfo* O) 
 {
 	CPhysicsShellHolder *pGameObject = smart_cast<CPhysicsShellHolder*>(O->object);
@@ -68,6 +68,9 @@ void CHairsZone::Affect(SZoneObjectInfo* O)
 		position_in_bone_space.set(0.f,0.f,0.f);
 
 		CreateHit(pGameObject->ID(),ID(),hit_dir,power,0,position_in_bone_space,impulse,m_eHitTypeBlowout);
+		
+		if  (DebugHitZones)
+			Msg("[CHairsZone] dwFrame[%u] Anomaly [%s] is Hit Sended Event[9] [40] Byte", Device.dwFrame, this->cName().c_str());
 
 		PlayHitParticles(pGameObject);
 	}

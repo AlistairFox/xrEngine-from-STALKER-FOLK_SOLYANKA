@@ -26,6 +26,7 @@ bool  CRadioactiveZone::BlowoutState	()
 	return result;
 }
 
+extern int DebugHitZones;
 void CRadioactiveZone::Affect(SZoneObjectInfo* O) 
 {
 	float one				= 0.1f;
@@ -51,6 +52,7 @@ void CRadioactiveZone::Affect(SZoneObjectInfo* O)
 	
 	float send_power		= power*one;
 
+	u32 Hits = 0;
 	while(O->f_time_affected+one < tg)
 	{
 		CreateHit	(	O->object->ID(),
@@ -61,18 +63,11 @@ void CRadioactiveZone::Affect(SZoneObjectInfo* O)
 						Fvector().set(0.0f,0.0f,0.0f),
 						impulse,
 						m_eHitTypeBlowout);
-#ifdef DEBUG
-//		if(bDebug)
-/*		Msg			(	"Zone[%s]-hit->[%s] Power=%3.3f Frame=%d Time=%3.3f", 
-						cName().c_str(), 
-						O->object->cName().c_str(), 
-						send_power, 
-						Device.dwFrame, 
-						tg);*/
-///		Msg( "Zone hit ___   damage = %.4f    Frame=%d ", send_power, Device.dwFrame );
-#endif
 		O->f_time_affected += one;
-	}//while
+	}
+
+	if (DebugHitZones)
+		Msg("[CRadioactiveZone] dwFrame[%u] Anomaly [%s] Hits[%u] is Hit Sended Event[9] [40] Byte", Device.dwFrame, this->cName().c_str(), Hits);
 }
 
 void CRadioactiveZone::feel_touch_new					(CObject* O	)

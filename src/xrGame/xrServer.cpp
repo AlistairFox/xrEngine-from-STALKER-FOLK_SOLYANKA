@@ -403,8 +403,8 @@ void xrServer::SendUpdatePacketsToAll()
 
 			bool need_to_update_15 = Device.dwTimeGlobal - CL->m_last_update_time_15 >= u32(1000 / psNET_ServerUpdate); // 30 per sec
 			bool need_to_update_10 = Device.dwTimeGlobal - CL->m_last_update_time_10 >= u32(1000 / psNET_ServerUpdate / 3); // 10 per sec
-			bool need_to_update_5 = Device.dwTimeGlobal - CL->m_last_update_time_5 >= u32(1000 / psNET_ServerUpdate / 5);    // 5 per sec
-			bool need_to_update_1 = Device.dwTimeGlobal - CL->m_last_update_time_1 >= u32(1000);        // 1 per sec
+			bool need_to_update_5  = Device.dwTimeGlobal - CL->m_last_update_time_5 >= u32(1000 / psNET_ServerUpdate / 5);    // 5 per sec
+			bool need_to_update_1  = Device.dwTimeGlobal - CL->m_last_update_time_1 >= u32(1000);        // 1 per sec
 			bool need_to_update_05 = Device.dwTimeGlobal - CL->m_last_update_time_05 >= u32(2000);       // 1 per 2 sec
 			
 			constexpr float distance_30 = 30.f * 30.f;
@@ -646,8 +646,7 @@ void xrServer::SendUpdatePacketsToAll()
 }
 
 u32 xrServerExportKBS = 0;
-
-
+ 
 u32 ai_stalker_cons = 0;
 u32 ai_monster_cons = 0;
 u32 item_cons = 0;
@@ -1076,31 +1075,78 @@ bool xrServer::CheckAdminRights(const shared_str& user, const shared_str& pass, 
 	return				res;
 }
 
-void xrServer::SendTo_LL			(ClientID ID, void* data, u32 size, u32 dwFlags, u32 dwTimeout)
+// Server sending data
+
+
+xr_map<int, u32> dump_network;
+xr_map<int, u32> dump_total_network;
+
+void xrServer::GetDataNetwork(xr_vector<shared_str>& datavec)
 {
-	if ((SV_Client && SV_Client->ID==ID) || (psNET_direct_connect))
+	for (auto data : dump_network)
+	{
+		string128 tmp;
+		sprintf(tmp, "Sended : EventID[%u] : Size: %u", data.first, data.second);
+		datavec.push_back(tmp);
+ 	}
+
+	for (auto data : dump_total_network)
+	{
+		string128 tmp;
+		sprintf(tmp, "[TOTAL] Sended : EventID[%u] : Size: %u", data.first, data.second);
+		datavec.push_back(tmp);
+	}
+	dump_network.clear();
+}
+
+void xrServer::SendTo(ClientID ID, NET_Packet& P, u32 dwFlags, u32 dwTimeout)
+{
+	u16 IDVal;
+	P.r_begin(IDVal);
+	dump_network[IDVal] += P.B.count;
+	dump_total_network[IDVal] += P.B.count;
+	SendTo_LL(ID, P.B.data, P.B.count, dwFlags, dwTimeout);
+}
+ 
+void xrServer::SendTo_LL(ClientID ID, void* data, u32 size, u32 dwFlags, u32 dwTimeout)
+{
+	if ((SV_Client && SV_Client->ID == ID) || (psNET_direct_connect))
 	{
 		// optimize local traffic
-		Level().OnMessage			(data,size);
+		Level().OnMessage(data, size);
 	}
-	else 
+	else
 	{
 		IClient* pClient = ID_to_client(ID);
 		VERIFY2(pClient && pClient->flags.bConnected, "trying to send packet to disconnected client");
 		if (!pClient || !pClient->flags.bConnected)
 			return;
 
-		inherited::SendTo_Buf(ID,data,size,dwFlags,dwTimeout);
+		inherited::SendTo_Buf(ID, data, size, dwFlags, dwTimeout);
 	}
 }
+
+
 void xrServer::SendBroadcast(ClientID exclude, NET_Packet& P, u32 dwFlags)
 {
+ 	u16 IDVal;
+	P.r_begin(IDVal);
+	dump_network[IDVal] += P.B.count;
+	dump_total_network[IDVal] += P.B.count;
+
+	//if (IDVal == 9 && P.B.count == 40)
+	//{
+	//	Debug.Callstack();
+	//	Msg("Strange Event: %u", P.B.count);
+	//}
+
 	struct ClientExcluderPredicate
 	{
 		ClientID id_to_exclude;
 		ClientExcluderPredicate(ClientID exclude) :
 			id_to_exclude(exclude)
-		{}
+		{
+		}
 		bool operator()(IClient* client)
 		{
 			xrClientData* tmp_client = static_cast<xrClientData*>(client);
@@ -1115,21 +1161,23 @@ void xrServer::SendBroadcast(ClientID exclude, NET_Packet& P, u32 dwFlags)
 	};
 	struct ClientSenderFunctor
 	{
-		xrServer*		m_owner;
-		void*			m_data;
+		xrServer* m_owner;
+		void* m_data;
 		u32				m_size;
 		u32				m_dwFlags;
 		ClientSenderFunctor(xrServer* owner, void* data, u32 size, u32 dwFlags) :
 			m_owner(owner), m_data(data), m_size(size), m_dwFlags(dwFlags)
-		{}
+		{
+		}
 		void operator()(IClient* client)
 		{
-			m_owner->SendTo_LL(client->ID, m_data, m_size, m_dwFlags);			
+			m_owner->SendTo_LL(client->ID, m_data, m_size, m_dwFlags);
 		}
 	};
 	ClientSenderFunctor temp_functor(this, P.B.data, P.B.count, dwFlags);
 	net_players.ForFoundClientsDo(ClientExcluderPredicate(exclude), temp_functor);
 }
+
 //--------------------------------------------------------------------
 CSE_Abstract*	xrServer::entity_Create		(LPCSTR name)
 {
@@ -1473,85 +1521,46 @@ u64 UpdateCLStalker_temp = 0;
 
 
 u32 clearTime = 0;
+extern u32 SendedBytes;
 
 #include "game_sv_freemp.h"
 
+extern int debug_networking;
+
 void xrServer::GetServerInfo( CServerInfo* si )
 {
+	if (debug_networking)
+	{
+		xr_vector<shared_str> text_to_draw;
+		GetDataNetwork(text_to_draw);
+		for (auto text : text_to_draw)
+		{
+			si->AddItem("S", text.c_str(), RGB(128, 128, 255));
+		}
+		return;
+	}
+
 	string32  tmp;
 	string256 tmp256;
-
 	si->AddItem( "Server port", itoa( GetPort(), tmp, 10 ), RGB(128,128,255) );
 	
-	LPCSTR time = InventoryUtilities::GetTimeAsString( Device.dwTimeGlobal, InventoryUtilities::etpTimeToSecondsAndDay ).c_str();
-	
+	LPCSTR time = InventoryUtilities::GetTimeAsString( Device.dwTimeGlobal, InventoryUtilities::etpTimeToSecondsAndDay ).c_str();	
 	si->AddItem( "Uptime", time, RGB(255,228,0) );
 
 	xr_strcpy( tmp256, GameTypeToString( game->Type(), true ) );
-
-	if ( game->Type() == eGameIDDeathmatch || game->Type() == eGameIDTeamDeathmatch )
-	{
-		xr_strcat( tmp256, " [" );
-		xr_strcat( tmp256, itoa( g_sv_dm_dwFragLimit, tmp, 10 ) );
-		xr_strcat( tmp256, "] " );
-	}
-	else 
-	if ( game->Type() == eGameIDArtefactHunt || game->Type() == eGameIDCaptureTheArtefact )
-	{
-		xr_strcat( tmp256, " [" );
-		xr_strcat( tmp256, itoa( g_sv_ah_dwArtefactsNum, tmp, 10 ) );
-		xr_strcat( tmp256, "] " );
-		g_sv_ah_iReinforcementTime;
-	}
-
 	si->AddItem("Game type", tmp256, RGB(128, 255, 255));
+
+ 	sprintf(tmp256, "%u kbs", SendedBytes / 1024);
+	si->AddItem("AlifeSync", tmp256, RGB(128, 255, 255));
+	SendedBytes = 0;
 
 	tmp256[0] = NULL;
  
-	{
-		xr_strcat(tmp256, "s[");
-		xr_strcat(tmp256, itoa(ai_stalker_cons, tmp, 10));
-		xr_strcat(tmp256, "]");
+ 	sprintf_s(tmp256, "st[%u], m[%u], item[%u], arts[%u], wpn[%u], other[%u]", 
+		ai_stalker_cons, ai_monster_cons, item_cons, arts_cons, item_weapon_cons, others_cons);
+	si->AddItem("KBS", tmp256, RGB(128, 255, 255));
 
-		xr_strcat(tmp256, " m[");
-		xr_strcat(tmp256, itoa(ai_monster_cons, tmp, 10));
-		xr_strcat(tmp256, "]");
-
-		xr_strcat(tmp256, " i[");
-		xr_strcat(tmp256, itoa(item_cons, tmp, 10));
-		xr_strcat(tmp256, "]");
-
-		xr_strcat(tmp256, " a[");
-		xr_strcat(tmp256, itoa(arts_cons, tmp, 10));
-		xr_strcat(tmp256, "]");
-
-		//xr_strcat(tmp256, " pl[");
-		//xr_strcat(tmp256, itoa(actors_cons, tmp, 10));
-		//xr_strcat(tmp256, "]");
-
-		xr_strcat(tmp256, " w[");
-		xr_strcat(tmp256, itoa(item_weapon_cons, tmp, 10));
-		xr_strcat(tmp256, "]");
-
-		xr_strcat(tmp256, " o[");
-		xr_strcat(tmp256, itoa(others_cons, tmp, 10));
-		xr_strcat(tmp256, "]");
-
-
-		si->AddItem("KBS", tmp256, RGB(128, 255, 255));
-	} 
-
-	//{
-	//	u32		_crt_heap = mem_usage_impl((HANDLE)_get_heap_handle(), 0, 0);
-	//	u32		_process_heap = mem_usage_impl(GetProcessHeap(), 0, 0);
-	//
-	//	string32 tmp_fps = { 0 };
-	//
- 	//	si->AddItem("Mem", itoa(_crt_heap/1024 / 1024, tmp_fps, 10), RGB(128, 128, 0));
-	//	si->AddItem("MemP", itoa(_process_heap/1024 / 1024, tmp_fps, 10), RGB(128, 128, 0));
-	//}
-
-	u32 stalkers = 0;
+ 	u32 stalkers = 0;
 	u32 stalkersAlive = 0;
 	u32 mosters = 0;
 	u32 mostersAlive = 0;
@@ -1565,60 +1574,28 @@ void xrServer::GetServerInfo( CServerInfo* si )
 		CSE_ALifeMonsterBase* monster = smart_cast<CSE_ALifeMonsterBase*>(abs);
 		CSE_ALifeItem* item = smart_cast<CSE_ALifeItem*>(abs);
 		CSE_ALifeItemArtefact* artefact = smart_cast<CSE_ALifeItemArtefact*>(abs);
-
-
-		if (stalker)
+  		if (stalker)
 		{
 			if (stalker->g_Alive())
 				stalkersAlive += 1;
-
-			stalkers += 1;
+ 			stalkers += 1;
 		}
-
-		if (monster)
+ 		if (monster)
 		{
 			if (monster->g_Alive())
 				mostersAlive += 1;
-
-			mosters += 1;
+ 			mosters += 1;
 		}
-
-		if (item)
-		{
-			items += 1;
-		}
-
-		if (artefact)
-		{
-			arts += 1;
-		}
-	}
+ 		if (item)
+ 			items += 1;
+ 		if (artefact)
+ 			arts += 1;
+ 	}
  
-	string32 stalker = { 0 };	
- 	xr_strcat(stalker, itoa(stalkers, tmp, 10));
-	xr_strcat(stalker, "/");
-	xr_strcat(stalker, itoa(stalkersAlive, tmp, 10));
-	si->AddItem("stalkers", stalker, RGB(0, 255, 0));
-
-	string64 monster_str = {0};
-	xr_strcat(monster_str, itoa(mosters, tmp, 10));
-	xr_strcat(monster_str, "/");
-	xr_strcat(monster_str, itoa(mostersAlive, tmp, 10));
-	si->AddItem("monsters", monster_str, RGB(0, 255, 0));
-	 
-	/*
-	string32 items_str = { 0 };
-	xr_strcat(items_str, itoa(items, tmp, 10));
-	si->AddItem("items", items_str, RGB(0, 128, 0));
-
-	string32 artefacts = { 0 };
-	xr_strcat(artefacts, itoa(arts, tmp, 10));
-	si->AddItem("artefacts", artefacts, RGB(0, 128, 0));
-
-	si->AddItem("ClientObjects", itoa(Level().Objects.o_count(), tmp, 10), RGB(255,0,0));
-	si->AddItem("ServerObjects", itoa(entities.size(), tmp, 10), RGB(255, 0, 0));
-	*/
-
+	string128 tmpINFO = { 0 };	
+	sprintf(tmpINFO, "stalkers: %u/%u, monsters: %u/%u", stalkers, stalkersAlive, mosters, mostersAlive);
+	si->AddItem("Info", tmpINFO, RGB(0, 255, 0));
+	 	 
 	if (clearTime + 1000 < Device.dwTimeGlobal)
 	{
 		UpdateCLMonster_temp = UpdateCLTime;
@@ -1629,49 +1606,9 @@ void xrServer::GetServerInfo( CServerInfo* si )
 		clearTime = Device.dwTimeGlobal;
 	}
 
-	//si->AddItem("UpdateCL_Monsters", itoa(UpdateCLMonster_temp * 1000 / CPU::qpc_freq, tmp, 10), RGB(0, 255, 0));
-	//si->AddItem("UpdateCL_Stalkers", itoa(UpdateCLStalker_temp * 1000 / CPU::qpc_freq, tmp, 10), RGB(0, 255, 0));
- 
 	game_sv_freemp* freemp = smart_cast<game_sv_freemp*>(game);
 	if (freemp)
 		freemp->GetServerInfo(si);
-
-	/*
-	if ( g_sv_dm_dwTimeLimit > 0 )
-	{
-		xr_strcat(tmp256, " time limit [");
-		xr_strcat(tmp256, itoa(g_sv_dm_dwTimeLimit, tmp, 10));
-		xr_strcat(tmp256, "] ");
-	}
-	
-	if ( game->Type() == eGameIDArtefactHunt || game->Type() == eGameIDCaptureTheArtefact )
-	{
-		xr_strcat( tmp256, " RT [" );
-		xr_strcat( tmp256, itoa( g_sv_ah_iReinforcementTime, tmp, 10 ) );
-		xr_strcat( tmp256, "]" );
-	}
-	si->AddItem( "Game type", tmp256, RGB(128,255,255) );
-
-	if ( g_pGameLevel )
-	{
-		time = InventoryUtilities::GetGameTimeAsString( InventoryUtilities::etpTimeToMinutes ).c_str();
-		
-		xr_strcpy( tmp256, time );
-		if ( g_sv_mp_iDumpStatsPeriod > 0 )
-		{
-			xr_strcat( tmp256, " statistic [" );
-			xr_strcat( tmp256, itoa( g_sv_mp_iDumpStatsPeriod, tmp, 10 ) );
-			xr_strcat( tmp256, "]" );
-			if ( g_bCollectStatisticData )
-			{
-				xr_strcat( tmp256, "[weapons]" );
-			}
-			
-		}
-		si->AddItem( "Game time", tmp256, RGB(205,228,178) );
-	}
-
-	*/
 }
 
 void xrServer::AddCheater			(shared_str const & reason, ClientID const & cheaterID)

@@ -2102,12 +2102,12 @@ public:
 
 		u16 tmp_id;
 		string256 section;
-		u32 counts;
+		u32 counts = 1;
 
 		string1024 buff;
 		exclude_raid_from_args(arguments, buff, sizeof(buff));
 
-		if (sscanf_s(buff, "%hu %s %u", &tmp_id, &section, sizeof(section), &counts) != 3)
+		if (sscanf_s(buff, "%u %s %u", &tmp_id, &section, &counts) != 3)
 		{
 			Msg("! ERROR: bad command parameters.");
 			Msg("Spawn item by ID. Format: \"sv_spawn_to_obj_with_id <player id> <item section> <counts>\"");
@@ -2163,12 +2163,13 @@ public:
 			return;
 		}
 
-		if (counts > 10)
+		if (counts > 50)
 		{
-			counts = 1;
+			counts = 50;
 		}
 
 		if (pSettings->section_exist(section))
+		for (auto I =0; I < counts; I++)
  			srv->SpawnItemToPos(section, vec);
 
 	}
@@ -2270,8 +2271,10 @@ public:
 			return;
 		}
 
-		if (counts > 200)
-			counts = 1;
+		if (counts > 50)
+			counts = 50;
+
+		Msg("Spawn: %s, Size: %u", section, counts);
  
 		NET_Packet		P;
 		P.w_begin(M_REMOTE_CONTROL_CMD);
@@ -4370,9 +4373,14 @@ void ReadCMDCommands(NET_Packet& P)
 }
 
 extern int use_debug_squads = 0;
+extern int debug_networking = 0;
+extern int DebugHitZones    = 0; 
 
 void register_mp_console_commands()
 {
+	CMD4(CCC_Integer, "debug_network", &debug_networking, 0, 1);
+	CMD4(CCC_Integer, "debug_hit_zones", &DebugHitZones, 0, 1);
+
 	// Se7kills 
 	// ADMIN RIGHTS GIVER (FOR TESTSS) // COMENT IN PLAY MODE RP
 	CMD1(CCC_ExportConfigMP, "mp_sync_console");

@@ -115,6 +115,8 @@ void CMincer ::Center	(Fvector& C) const
 	C.set(Position());
 }
 
+
+extern int DebugHitZones;
 void CMincer::NotificateDestroy			(CPHDestroyableNotificate *dn)
 {
 	Fvector dir;
@@ -139,6 +141,10 @@ void CMincer::NotificateDestroy			(CPHDestroyableNotificate *dn)
 		Fvector position_in_bone_space, throw_in_dir;
 		position_in_bone_space.set(0.0f, 0.0f, 0.0f);
 		throw_in_dir.set(1.0f, 0.0f, 1.0f);
+		
+
+		if (DebugHitZones)
+		Msg("[CMincer] dwFrame[%u] Anomaly [%s] is Hit Sended Event[9] [40] Byte", Device.dwFrame, this->cName().c_str());
 		CreateHit(obj->ID(), ID(), throw_in_dir, power, 0, position_in_bone_space, impulse, ALife::eHitTypeExplosion);
 	}
 }
@@ -152,6 +158,9 @@ void CMincer::AffectPullAlife(CEntityAlive* EA,const Fvector& throw_in_dir,float
 	{
 		Fvector pos_in_bone_space;
 		pos_in_bone_space.set(0,0,0);
+
+		if (DebugHitZones)
+		Msg("[CMincer] dwFrame[%u] Anomaly [%s] is Hit Sended Event[9] [40] Byte", Device.dwFrame, this->cName().c_str());
 		CreateHit(EA->ID(),ID(),throw_in_dir,power,0,pos_in_bone_space,0.0f,m_eHitTypeBlowout);
 	}
 	inherited::AffectPullAlife(EA,throw_in_dir,dist);

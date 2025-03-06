@@ -255,6 +255,11 @@ public:
 	virtual void			OnCL_Connected		(IClient* CL);
 	virtual void			OnCL_Disconnected	(IClient* CL);
 	virtual bool			OnCL_QueryHost		();
+
+	// Send Data
+	virtual void			GetDataNetwork(xr_vector<shared_str>& datavec);
+
+	virtual void			SendTo(ClientID ID, NET_Packet& P, u32 dwFlags = DPNSEND_GUARANTEED, u32 dwTimeout = 0);
 	virtual void			SendTo_LL			(ClientID ID, void* data, u32 size, u32 dwFlags=DPNSEND_GUARANTEED, u32 dwTimeout=0);
 			void			SecureSendTo		(xrClientData* xrCL, NET_Packet& P, u32 dwFlags=DPNSEND_GUARANTEED, u32 dwTimeout=0);
 	virtual	void			SendBroadcast		(ClientID exclude, NET_Packet& P, u32 dwFlags=DPNSEND_GUARANTEED);

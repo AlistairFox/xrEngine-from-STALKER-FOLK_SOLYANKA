@@ -303,7 +303,16 @@ extern					BOOL		g_SV_Disable_Auth_Check;
 
 void CLevel::Send		(NET_Packet& P, u32 dwFlags, u32 dwTimeout)
 {
-	if (IsDemoPlayStarted() || IsDemoPlayFinished()) return;
+	if (IsDemoPlayStarted() || IsDemoPlayFinished())
+		return;
+
+//	u16 type;
+//	P.r_begin(type);
+//	if (type == 9 && P.B.count == 40)
+//	{
+//		Debug.Callstack();
+//	}
+	
 	// optimize the case when server located in our memory
 	if(psNET_direct_connect)
 	{
@@ -313,9 +322,6 @@ void CLevel::Send		(NET_Packet& P, u32 dwFlags, u32 dwTimeout)
 	}
 	else if (Server && game_configured && OnServer() )
 	{
-#ifdef DEBUG
-		VERIFY2(Server->IsPlayersMonitorLockedByMe() == false, "potential deadlock detected");
-#endif
 		Server->OnMessageSync	(P,Game().local_svdpnid	);
 	}
 	else

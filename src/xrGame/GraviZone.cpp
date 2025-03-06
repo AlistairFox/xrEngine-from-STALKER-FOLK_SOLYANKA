@@ -202,6 +202,7 @@ void CBaseGraviZone::AffectPullDead(CPhysicsShellHolder* GO,const Fvector& throw
 	GO->PPhysicsShell()->applyImpulse(throw_in_dir,dist * m_fThrowInImpulse*GO->GetMass()/100.f);
 }
 
+extern int DebugHitZones;
 void CBaseGraviZone::AffectThrow(SZoneObjectInfo* O, CPhysicsShellHolder* GO,const Fvector& throw_in_dir,float dist)
 {
 	Fvector position_in_bone_space;
@@ -212,7 +213,10 @@ void CBaseGraviZone::AffectThrow(SZoneObjectInfo* O, CPhysicsShellHolder* GO,con
 	if(power > 0.01f) 
 	{
 		position_in_bone_space.set(0.f,0.f,0.f);
-		CreateHit(GO->ID(),ID(),throw_in_dir,power,0,position_in_bone_space,impulse,m_eHitTypeBlowout);
+
+		if (DebugHitZones)
+ 		Msg("[CBaseGraviZone] dwFrame[%u] Anomaly [%s] is Hit Sended Event[9] [40] Byte", Device.dwFrame, this->cName().c_str());
+ 		CreateHit(GO->ID(),ID(),throw_in_dir,power,0,position_in_bone_space,impulse,m_eHitTypeBlowout);
 		PlayHitParticles(GO);
 	}
 }

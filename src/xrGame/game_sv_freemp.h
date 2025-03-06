@@ -23,16 +23,21 @@ class game_sv_freemp : public game_sv_mp, private pure_relcase
 	bool loaded_gametime = false;
 	u32 last_alife_update_time = 0;
 	u32 last_alife_update_time_pos = 0;
+	
+	struct AlifeData
+	{
+		CSE_ALifeObject* alife_object;
+		u32 dwTime;
+		u32 ID;
+	};
 
+	xr_vector<AlifeData> objects_active;
 	xr_map<ClientID, u32> map_alife_sended;
 	u32 LastSaveFile = 0;
 
 protected:
 	CALifeSimulator* m_alife_simulator;
-
-
-
-
+ 
 public:
 
 
@@ -42,7 +47,7 @@ public:
 		bool BeLoaded = false;
 		bool NeedToSave = false;
 	};
-	std::map<u16, InvBoxEntityS> ServerInventoryBoxes;
+	std::map<u16, InvBoxEntityS>	ServerInventoryBoxes;
 	virtual		void				OnAlifeCreate(CSE_Abstract* E);
  	bool surge_started;
 	

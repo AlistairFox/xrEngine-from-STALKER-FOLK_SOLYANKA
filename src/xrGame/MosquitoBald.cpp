@@ -46,6 +46,7 @@ bool CMosquitoBald::BlowoutState()
 //	return result;
 //}
 
+extern int DebugHitZones;
 void CMosquitoBald::Affect(SZoneObjectInfo* O) 
 {
 	CPhysicsShellHolder *pGameObject = smart_cast<CPhysicsShellHolder*>(O->object);
@@ -73,29 +74,42 @@ void CMosquitoBald::Affect(SZoneObjectInfo* O)
 	if(power > 0.01f) 
 	{
 		position_in_bone_space.set(0.f,0.f,0.f);
+
+		if (DebugHitZones)
+		Msg("[CMosquitoBald] dwFrame[%u] Anomaly [%s] is Hit Sended Event[9] [40] Byte", Device.dwFrame, this->cName().c_str());
+
 		CreateHit(pGameObject->ID(),ID(),hit_dir,power,0,position_in_bone_space,impulse,m_eHitTypeBlowout);
 		PlayHitParticles(pGameObject);
 	}
 }
 
+#include <Actor.h>
 void CMosquitoBald::UpdateSecondaryHit()
 {
+	if (!OnServer())
+		return;
+
 	if(m_dwAffectFrameNum == Device.dwFrame)	
 		return;
 
 	m_dwAffectFrameNum	= Device.dwFrame;
 	if(Device.dwPrecacheFrame)					
 		return;
-
+ 
 	OBJECT_INFO_VEC_IT it;
+	bool isSendedHit = false;
+ 
 	for(it = m_ObjectInfoMap.begin(); m_ObjectInfoMap.end() != it; ++it) 
 	{
 		if(!(*it).object->getDestroy())
 		{
 			CPhysicsShellHolder *pGameObject = smart_cast<CPhysicsShellHolder*>((&(*it))->object);
-			if(!pGameObject) return;
+			if(!pGameObject)
+				return;
 
-			if((&(*it))->zone_ignore) return;
+			if((&(*it))->zone_ignore)
+				return;
+			 
 			Fvector P; 
 			XFORM().transform_tiny(P,CFORM()->getSphere().P);
 
@@ -116,7 +130,35 @@ void CMosquitoBald::UpdateSecondaryHit()
 
 			float impulse = m_fHitImpulseScale*power*pGameObject->GetMass();
 			position_in_bone_space.set(0.f,0.f,0.f);
-			CreateHit(pGameObject->ID(),ID(),hit_dir,power,0,position_in_bone_space,impulse,m_eHitTypeBlowout);
-		}
+			 
+			if (!smart_cast<CActor*>(pGameObject))
+			{
+				auto CL = Level().Server->GetServerClient()->ID;
+ 				u16		id_to	 = pGameObject->ID();
+				u16     id_from  = ID();
+				
+			
+				SHit Hit = SHit(power, hit_dir, this, 0, position_in_bone_space, impulse, m_eHitTypeBlowout, 0.0f, false);
+				Hit.GenHeader(GE_HIT, id_to);
+				Hit.whoID = id_from;
+				Hit.weaponID = this->ID();
+
+
+				NET_Packet			Packet;
+				Hit.Write_Packet(Packet);				
+				Level().Server->SendTo(CL, Packet);
+  			}
+			else
+			{
+				CreateHit(pGameObject->ID(), ID(), hit_dir, power, 0, position_in_bone_space, impulse, m_eHitTypeBlowout);
+			}
+ 
+			isSendedHit = true;
+  		}
+	}
+
+	if (isSendedHit && DebugHitZones)
+	{
+		Msg("[MosquitoBald] [SecondHit] dwFrame[%u] Anomaly [%s] is Hit Sended Event[9] [40] Byte", Device.dwFrame, this->cName().c_str());
 	}
 }

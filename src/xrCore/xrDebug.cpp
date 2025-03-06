@@ -557,8 +557,18 @@ void xrDebug::_initialize(const bool& dedicated)
  
 typedef USHORT(WINAPI* CaptureStackBackTraceType)(__in ULONG, __in ULONG, __out PVOID*, __out_opt PULONG);
 
+bool isInitialized = false;
+
 void xrDebug::Callstack()
 {
+	if (!isInitialized)
+	{
+		SymSetOptions(SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS);
+		SymInitialize(GetCurrentProcess(), 0, TRUE);
+		isInitialized = true;
+	}
+
+ 
 	CaptureStackBackTraceType func_callstack = (CaptureStackBackTraceType)(GetProcAddress(LoadLibrary("kernel32.dll"), "RtlCaptureStackBackTrace"));
 
 	if (func_callstack != nullptr)
