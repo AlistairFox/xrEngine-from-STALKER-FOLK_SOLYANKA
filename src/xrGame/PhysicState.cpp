@@ -300,8 +300,7 @@ void CPhysicStorage::GetStateServer(void* ptr)
 		// m_freeze_time = physic->prev_freezed;
 	}
 }
-u32 CurrentFrame = 0;
-u32 CountFreezed = 0;
+
 void CPhysicStorage::SetStateServer(void* ptr)
 {
 	CSE_ALifeObjectPhysic* physic = (CSE_ALifeObjectPhysic*)ptr;
@@ -313,23 +312,6 @@ void CPhysicStorage::SetStateServer(void* ptr)
 		}
 		physic->freezed = freezed;
 		physic->isDoor = DoorState;
-
-		if (freezed)
-		{
-			CountFreezed++;
-		}
-
-
-		if (CurrentFrame != Device.dwFrame)
-		{
-			CurrentFrame = Device.dwFrame;
-			Msg("Find Freezed: %u", CountFreezed);
-			CountFreezed = 0;
-		}
-
-		//physic->prev_freezed = prev_freezed;
-		//physic->m_freeze_time = m_freeze_time;
-
 	}
 }
 
