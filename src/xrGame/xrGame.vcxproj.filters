@@ -2605,6 +2605,9 @@
     <Filter Include="GuardSystem">
       <UniqueIdentifier>{b51f11ba-36df-4a66-a9b3-14ca03686ff5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Se7Kills\StateHoldersMP">
+      <UniqueIdentifier>{6424e79c-3244-44c5-bedd-3281279c82a0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mt_config.h">
@@ -7627,6 +7630,9 @@
     <ClInclude Include="minhook\src\buffer.h">
       <Filter>GuardSystem</Filter>
     </ClInclude>
+    <ClInclude Include="PhysicState.h">
+      <Filter>Se7Kills\StateHoldersMP</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="damage_manager.cpp">
@@ -11451,6 +11457,9 @@
     </ClCompile>
     <ClCompile Include="minhook\src\buffer.cpp">
       <Filter>GuardSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicState.cpp">
+      <Filter>Se7Kills\StateHoldersMP</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

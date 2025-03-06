@@ -1075,36 +1075,21 @@ static inline bool check (const u8 &mask, const u8 &test)
 
 const	u32		CSE_ALifeObjectPhysic::m_freeze_delta_time		= 1000;
 const	u32		CSE_ALifeObjectPhysic::random_limit				= 40;		
-
-#ifdef DEBUG
-const	u32		CSE_ALifeObjectPhysic::m_update_delta_time		= 0;
-#endif // #ifdef DEBUG
-
+ 
 //if TRUE, then object sends update packet
 BOOL CSE_ALifeObjectPhysic::Net_Relevant()
 {
-	if (freezed)
-		return false;
-	return true;
-
 	if (!freezed)
 	{
-#ifdef XRGAME_EXPORTS
-#ifdef DEBUG	//this block of code is only for test
-		if (Device.dwTimeGlobal < (m_last_update_time + m_update_delta_time))
-			return FALSE;
-#endif
-#endif
 		return		TRUE;
 	}
 
-#ifdef XRGAME_EXPORTS
 	if (Device.dwTimeGlobal >= (m_freeze_time + m_freeze_delta_time))
 		return		FALSE;
-#endif
+
 	if (!prev_freezed)
 	{
-		prev_freezed = true;	//i.e. freezed
+		prev_freezed = true;	 
 		return		TRUE;
 	}
 
@@ -1114,159 +1099,31 @@ BOOL CSE_ALifeObjectPhysic::Net_Relevant()
 	return			TRUE;
 }
 
-void CSE_ALifeObjectPhysic::UPDATE_Read		(NET_Packet	&tNetPacket)
+void CSE_ALifeObjectPhysic::UPDATE_Read(NET_Packet& tNetPacket)
 {
-	inherited1::UPDATE_Read		(tNetPacket);
-	inherited2::UPDATE_Read		(tNetPacket);
+	inherited1::UPDATE_Read(tNetPacket);
+	inherited2::UPDATE_Read(tNetPacket);
 
-	if (tNetPacket.r_eof())		//backward compatibility
+	if (tNetPacket.r_eof()) //backward compatibility
 		return;
 
-//////////////////////////////////////////////////////////////////////////
-	tNetPacket.r_u8					(m_u8NumItems);
-	if (!m_u8NumItems) {
-		return;
-	}
-
-	mask_num_items					num_items;
-	num_items.common				= m_u8NumItems;
-	m_u8NumItems					= num_items.num_items;
-
-	R_ASSERT2						(
-		m_u8NumItems < (u8(1) << 5),
-		make_string("%d",m_u8NumItems)
-		);
-	
-	/*if (check(num_items.mask,animated))
-	{
-		tNetPacket.r_float(m_blend_timeCurrent);
-		anim_use=true;
-	}
-	else
-	{
-	anim_use=false;
-	}*/
-
-	{
-		tNetPacket.r_vec3				(State.force);
-		tNetPacket.r_vec3				(State.torque);
-
-		tNetPacket.r_vec3				(State.position);
-
-		tNetPacket.r_float			(State.quaternion.x);
-		tNetPacket.r_float			(State.quaternion.y);
-		tNetPacket.r_float			(State.quaternion.z);
-		tNetPacket.r_float			(State.quaternion.w);	
-
-		State.enabled					= check(num_items.mask,inventory_item_state_enabled);
-
-		if (!check(num_items.mask,inventory_item_angular_null)) {
-			tNetPacket.r_float		(State.angular_vel.x);
-			tNetPacket.r_float		(State.angular_vel.y);
-			tNetPacket.r_float		(State.angular_vel.z);
-		}
-		else
-			State.angular_vel.set		(0.f,0.f,0.f);
-
-		if (!check(num_items.mask,inventory_item_linear_null)) {
-			tNetPacket.r_float		(State.linear_vel.x);
-			tNetPacket.r_float		(State.linear_vel.y);
-			tNetPacket.r_float		(State.linear_vel.z);
-		}
-		else
-			State.linear_vel.set		(0.f,0.f,0.f);
-
-		/*if (check(num_items.mask,animated))
-		{
-			anim_use=true;
-		}*/
-	}
-	prev_freezed = freezed;
-	if (tNetPacket.r_eof())		// in case spawn + update 
-	{
-		freezed = false;
-		return;
-	}
-	if (tNetPacket.r_u8())
-	{
-		freezed = false;
-	}
-	else {
-		if (!freezed)
-#ifdef XRGAME_EXPORTS
-			m_freeze_time	= Device.dwTimeGlobal;
-#else
-			m_freeze_time	= 0;
-#endif
-		freezed = true;
-	}
+	// Se7kills NEW SYNC Storage
+	physic_state_manager.ReadData(tNetPacket);
+	physic_state_manager.SetStateServer(this);
 }
 
-void CSE_ALifeObjectPhysic::UPDATE_Write	(NET_Packet	&tNetPacket)
+
+
+void CSE_ALifeObjectPhysic::UPDATE_Write(NET_Packet& tNetPacket)
 {
-	inherited1::UPDATE_Write		(tNetPacket);
-	inherited2::UPDATE_Write		(tNetPacket);
-//////////////////////////////////////////////////////////////////////////
-	if (!m_u8NumItems) {
-		tNetPacket.w_u8				(0);
-		return;
-	}
+	inherited1::UPDATE_Write(tNetPacket);
+	inherited2::UPDATE_Write(tNetPacket);
+	//////////////////////////////////////////////////////////////////////////
 
-	mask_num_items					num_items;
-	num_items.mask					= 0;
-	num_items.num_items				= m_u8NumItems;
-
-	R_ASSERT2						(
-		num_items.num_items < (u8(1) << 5),
-		make_string("%d",num_items.num_items)
-		);
-
-	if (State.enabled)									num_items.mask |= inventory_item_state_enabled;
-	if (fis_zero(State.angular_vel.square_magnitude()))	num_items.mask |= inventory_item_angular_null;
-	if (fis_zero(State.linear_vel.square_magnitude()))	num_items.mask |= inventory_item_linear_null;
-	//if (anim_use)										num_items.mask |= animated;
-
-	tNetPacket.w_u8					(num_items.common);
-
-	/*if(check(num_items.mask,animated))
-	{
-		tNetPacket.w_float				(m_blend_timeCurrent);
-	}*/
-
-	{
-		tNetPacket.w_vec3				(State.force);
-		tNetPacket.w_vec3				(State.torque);
-
-		tNetPacket.w_vec3				(State.position);
-
-		tNetPacket.w_float			(State.quaternion.x);
-		tNetPacket.w_float			(State.quaternion.y);
-		tNetPacket.w_float			(State.quaternion.z);
-		tNetPacket.w_float			(State.quaternion.w);	
-
-		if (!check(num_items.mask,inventory_item_angular_null)) {
-			tNetPacket.w_float		(State.angular_vel.x);
-			tNetPacket.w_float		(State.angular_vel.y);
-			tNetPacket.w_float		(State.angular_vel.z);
-		}
-
-		if (!check(num_items.mask,inventory_item_linear_null)) {
-			tNetPacket.w_float		(State.linear_vel.x);
-			tNetPacket.w_float		(State.linear_vel.y);
-			tNetPacket.w_float		(State.linear_vel.z);
-		}
-
-	}
-//.	Msg("--- Sync PH [%d].", ID);
-	tNetPacket.w_u8(1);	//not freezed - doesn't mean anything..
-
-#ifdef XRGAME_EXPORTS
-#ifdef DEBUG
-	m_last_update_time			= Device.dwTimeGlobal;
-#endif
-#endif
+	// Se7kills NEW SYNC Storage
+	physic_state_manager.GetStateServer(this);
+	physic_state_manager.WriteData(tNetPacket);
 }
-
 
 
 

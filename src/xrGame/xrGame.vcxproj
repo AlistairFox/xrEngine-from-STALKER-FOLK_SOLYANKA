@@ -1339,6 +1339,7 @@
     <ClInclude Include="minhook\src\hde\table64.h" />
     <ClInclude Include="minhook\src\trampoline.h" />
     <ClInclude Include="net_physics_state.h" />
+    <ClInclude Include="PhysicState.h" />
     <ClInclude Include="script_event.h" />
     <ClInclude Include="SIniFileStream.h" />
     <ClInclude Include="UIAdminSkin.h" />
@@ -4669,6 +4670,7 @@
     <ClCompile Include="minhook\src\hook.cpp" />
     <ClCompile Include="minhook\src\trampoline.cpp" />
     <ClCompile Include="net_physics_state.cpp" />
+    <ClCompile Include="PhysicState.cpp" />
     <ClCompile Include="script_event.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">pch_script.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch_script.h</PrecompiledHeaderFile>

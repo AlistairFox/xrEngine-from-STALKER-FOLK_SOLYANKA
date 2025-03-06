@@ -17,6 +17,8 @@
 #include "alife_smart_terrain_task.h"
 #endif //#ifdef XRGAME_EXPORTS
 
+#include "PhysicState.h"
+
 #pragma warning(push)
 #pragma warning(disable:4005)
 
@@ -405,48 +407,30 @@ add_to_type_list(CSE_ALifeSmartZone)
 #define script_type_list save_type_list(CSE_ALifeSmartZone)
 
 SERVER_ENTITY_DECLARE_BEGIN2(CSE_ALifeObjectPhysic,CSE_ALifeDynamicObjectVisual,CSE_PHSkeleton)
-	u32 							type;
-	f32 							mass;
-    shared_str 						fixed_bones;
-									CSE_ALifeObjectPhysic	(LPCSTR caSection);
-    virtual 						~CSE_ALifeObjectPhysic	();
-	virtual bool					used_ai_locations		() const;
-	virtual bool					can_save				() const;
-	virtual	void					load					(NET_Packet &tNetPacket);
-	virtual CSE_Abstract			*cast_abstract			() {return this;}
-//	virtual	void					load					(IReader& r){inherited::load(r);}
-//	using inherited::load(IReader&);
 private:
-					u32			m_freeze_time;
-	static const	u32			m_freeze_delta_time;
-#ifdef DEBUG	//only for testing interpolation
-					u32			m_last_update_time;
-	static const	u32			m_update_delta_time;
-#endif
-	static const	u32			random_limit;
-					CRandom		m_relevent_random;
-
+	CRandom m_relevent_random;
+	static const u32 random_limit;
+	static const u32 m_freeze_delta_time;
 public:
-	enum {
-		inventory_item_state_enabled	= u8(1) << 0,
-		inventory_item_angular_null		= u8(1) << 1,
-		inventory_item_linear_null		= u8(1) << 2//,
-		//animated						= u8(1) << 3
-	};
-	union mask_num_items {
-		struct {
-			u8	num_items : 5;
-			u8	mask      : 3;
-		};
-		u8		common;
-	};
-	/////////// network ///////////////
-	u8								m_u8NumItems;
-	bool							prev_freezed;
-	bool							freezed;
-	SPHNetState						State;
-	
-	virtual BOOL					Net_Relevant			();
+	bool isDoor = 0;
+
+	u32 type;
+	f32 mass;
+	shared_str fixed_bones;
+	u32 m_freeze_time;
+	bool freezed;
+	bool prev_freezed;
+
+	CPhysicStorage physic_state_manager;
+
+	CSE_ALifeObjectPhysic(LPCSTR caSection);
+	virtual ~CSE_ALifeObjectPhysic();
+	virtual bool used_ai_locations() const;
+	virtual bool can_save() const;
+	virtual void load(NET_Packet& tNetPacket);
+	virtual CSE_Abstract* cast_abstract() { return this; }
+
+	virtual BOOL Net_Relevant();
 
 SERVER_ENTITY_DECLARE_END
 add_to_type_list(CSE_ALifeObjectPhysic)

@@ -12,40 +12,6 @@ class CSE_ALifeObjectPhysic;
 class CPhysicsElement;
 class moving_bones_snd_player;
 
-class CSE_ALifeObjectPhysic;
-struct SPHNetState;
-typedef CSE_ALifeObjectPhysic::mask_num_items	mask_num_items;
-
-struct net_update_PItem
-{
-	u32					dwTimeStamp;
-	SPHNetState			State;
-};
-
-struct net_updatePhData{
-	xr_deque<net_update_PItem>	NET_IItem;
-	/// spline coeff /////////////////////
-	//float			SCoeff[3][4];
-	/*Fvector			IStartPos;
-	Fquaternion		IStartRot;
-
-	Fvector			IRecPos;
-	Fquaternion		IRecRot;
-
-	Fvector			IEndPos;
-	Fquaternion		IEndRot;	*/
-
-//	SPHNetState		LastState;
-//	SPHNetState		RecalculatedState;
-
-//	SPHNetState		PredictedState;
-
-	u32				m_dwIStartTime;
-	u32				m_dwIEndTime;
-	//u32				m_dwILastUpdateTime;
-};
-
-
 class CPhysicObject : 
 	public CPhysicsShellHolder,
 	public CPHSkeleton
@@ -78,11 +44,9 @@ public:
 public:
 			CPhysicObject(void);
 	virtual ~CPhysicObject(void);
-	//virtual void						make_Interpolation	(); // interpolation from last visible to corrected position/rotation
-	virtual	void						Interpolate();
-			float						interpolate_states(net_update_PItem const & first, net_update_PItem const & last, SPHNetState & current);
 
-	virtual BOOL						net_Spawn						( CSE_Abstract* DC)																	;
+ 
+ 	virtual BOOL						net_Spawn						( CSE_Abstract* DC)																	;
 	virtual void						CreatePhysicsShell				(CSE_Abstract* e)																;
 	virtual void						net_Destroy						()																				;
 	virtual void						Load							(LPCSTR section)																;
@@ -108,13 +72,7 @@ protected:
 	virtual CPHSkeleton					*PHSkeleton						()																	{return this;}
 	virtual	void						InitServerObject				(CSE_Abstract	*po)															;
 	virtual void						PHObjectPositionUpdate			()																				;
-
-	void								net_Export_PH_Params			(NET_Packet& P, SPHNetState& State, mask_num_items&	num_items);
-	void								net_Import_PH_Params			(NET_Packet& P, net_update_PItem& N, mask_num_items& num_items);
-	net_updatePhData*						NetSync							();
-	net_updatePhData*						m_net_updateData;
-	void								CalculateInterpolationParams	();
-	
+  	
 	enum EIIFlags{				Fdrop				=(1<<0),
 		FCanTake			=(1<<1),
 		FCanTrade			=(1<<2),
@@ -130,7 +88,13 @@ protected:
 	};
 	Flags16								m_flags;
 	bool								m_just_after_spawn;
+
+	// se7kills new
+public:
 	bool								m_activated;
+	virtual bool			IsPhysicObject() override { return true; }
+
+	CPhysicStorage state_sync;
 
 	DECLARE_SCRIPT_REGISTER_FUNCTION
 };
