@@ -340,7 +340,7 @@ void xrServer::MakeUpdatePackets()
 	m_updator.end_updates			(m_update_begin, m_update_end);
 }
 
-u32 ai_stalker, ai_mutants, items, actors, arts, others;
+u32 ai_stalker, ai_mutants, items, actors, arts, physics, others;
 u32 item_weapon;
 
 void xrServer::SendUpdatePacketsToAll()
@@ -602,6 +602,12 @@ void xrServer::SendUpdatePacketsToAll()
 							item_weapon += packet.B.count;
 					}
 				}
+				
+				else if (smart_cast<CSE_ALifeObjectPhysic*>(entity))
+				{
+ 					m_updator->write_update_for(entity->ID, packet);
+					physics += packet.B.count;
+				}
 				else
 				{
 					m_updator->write_update_for(entity->ID, packet);
@@ -653,6 +659,7 @@ u32 item_cons = 0;
 u32 arts_cons = 0;
 u32 actors_cons = 0;
 u32 others_cons = 0;
+u32 physic_cons = 0;
 
 u32 item_weapon_cons = 0;
 
@@ -703,6 +710,9 @@ void xrServer::SendUpdatesToAll()
 
 		others_cons = others;
 		others = 0;
+
+		physic_cons = physics;
+		physics = 0;
 
 		item_weapon_cons = item_weapon;
 		item_weapon = 0;
@@ -1522,6 +1532,8 @@ u64 UpdateCLStalker_temp = 0;
 
 u32 clearTime = 0;
 extern u32 SendedBytes;
+extern u32 SyncAlifeObjects;
+extern int SyncAlifeCount;
 
 #include "game_sv_freemp.h"
 
@@ -1550,14 +1562,14 @@ void xrServer::GetServerInfo( CServerInfo* si )
 	xr_strcpy( tmp256, GameTypeToString( game->Type(), true ) );
 	si->AddItem("Game type", tmp256, RGB(128, 255, 255));
 
- 	sprintf(tmp256, "%u kbs", SendedBytes / 1024);
+	sprintf(tmp256, "%u kbs | AlifeObjets: %u | SendRateO: %u", SendedBytes / 1024, SyncAlifeObjects, SyncAlifeCount);
 	si->AddItem("AlifeSync", tmp256, RGB(128, 255, 255));
 	SendedBytes = 0;
 
 	tmp256[0] = NULL;
  
- 	sprintf_s(tmp256, "st[%u], m[%u], item[%u], arts[%u], wpn[%u], other[%u]", 
-		ai_stalker_cons, ai_monster_cons, item_cons, arts_cons, item_weapon_cons, others_cons);
+ 	sprintf_s(tmp256, "st[%u], m[%u], item[%u], arts[%u], wpn[%u], PH[%u], other[%u]", 
+		ai_stalker_cons, ai_monster_cons, item_cons, arts_cons, item_weapon_cons, physic_cons, others_cons);
 	si->AddItem("KBS", tmp256, RGB(128, 255, 255));
 
  	u32 stalkers = 0;

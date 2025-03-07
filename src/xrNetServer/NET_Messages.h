@@ -37,12 +37,12 @@ IC int convert_flags_for_steam(u32 flags)
 
 	if (bReliable)
 	{
-		steam_flags = (!bHighPriority) ? k_nSteamNetworkingSend_Reliable : k_nSteamNetworkingSend_ReliableNoNagle;
+		steam_flags = (!bHighPriority) ? k_nSteamNetworkingSend_Reliable : k_nSteamNetworkingSend_ReliableNoNagle | k_nSteamNetworkingSend_NoDelay;
 	}
 	else
 	{
-		steam_flags = k_nSteamNetworkingSend_UnreliableNoDelay; // k_nSteamNetworkingSend_Unreliable|k_nSteamNetworkingSend_NoDelay|k_nSteamNetworkingSend_NoNagle;
-	}
+		steam_flags = k_nSteamNetworkingSend_UnreliableNoDelay;
+ 	}
 
 	// Ignore
 	//bool bSequental = !(flags & DPNSEND_NONSEQUENTIAL);

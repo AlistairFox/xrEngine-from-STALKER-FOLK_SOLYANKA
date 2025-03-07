@@ -4375,11 +4375,14 @@ void ReadCMDCommands(NET_Packet& P)
 extern int use_debug_squads = 0;
 extern int debug_networking = 0;
 extern int DebugHitZones    = 0; 
+extern int SyncAlifeCount;
 
 void register_mp_console_commands()
 {
 	CMD4(CCC_Integer, "debug_network", &debug_networking, 0, 1);
-	CMD4(CCC_Integer, "debug_hit_zones", &DebugHitZones, 0, 1);
+//	CMD4(CCC_Integer, "debug_hit_zones", &DebugHitZones, 0, 1);
+	CMD4(CCC_Integer, "sync_alife_objects", &SyncAlifeCount, 10, 1000);
+
 
 	// Se7kills 
 	// ADMIN RIGHTS GIVER (FOR TESTSS) // COMENT IN PLAY MODE RP

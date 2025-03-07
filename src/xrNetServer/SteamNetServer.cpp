@@ -621,14 +621,10 @@ bool SteamNetServer::GetClientPendingMessagesCount(ClientID ID, DWORD & dwPendin
 void SteamNetServer::UpdateClientStatistic(IClient* C)
 {
 	if (C->flags.bLocal)
-	{
-		return;
-	}
-
+ 		return;
+ 
 	SteamNetConnectionRealTimeStatus_t status;
 	if (!m_pInterface->GetConnectionRealTimeStatus(C->ID.value(), &status, 0, 0))
-	{
-		return;
-	}
-	C->stats.Update(status);
+ 		return;
+ 	C->stats.Update(status);
 }
