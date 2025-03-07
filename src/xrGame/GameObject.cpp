@@ -1039,7 +1039,8 @@ float CGameObject::shedule_Scale()
 			}
 		}
 	}
- 	return MaxDistance / 200;
+	float scale = MaxDistance / 200;
+	return scale < Shedule_Scale_Objects ? scale : Shedule_Scale_Objects;
 }
 		  
 #include "smart_zone.h"
