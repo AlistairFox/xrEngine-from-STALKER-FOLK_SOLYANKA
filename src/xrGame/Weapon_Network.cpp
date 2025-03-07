@@ -117,12 +117,8 @@ void CWeapon::net_Destroy()
 void CWeapon::net_Export(NET_Packet& P)
 {
 	inherited::net_Export(P);
-
-	P.w_float_q8(GetCondition(), 0.0f, 1.0f);
-
-
-	u8 need_upd = IsUpdating() ? 1 : 0;
-	P.w_u8(need_upd);
+ 	P.w_float_q8(GetCondition(), 0.0f, 1.0f);
+  	P.w_u8(IsUpdating());
 	P.w_u16(u16(iAmmoElapsed));
 	P.w_u8(m_flagsAddOnState);
 	P.w_u8(m_ammoType);

@@ -553,8 +553,6 @@ void CSE_ALifeItemWeapon::UPDATE_Read(NET_Packet& tNetPacket)
 	tNetPacket.r_u8(wpn_state);
 	tNetPacket.r_u8(m_bZoom);
 	tNetPacket.r_u8(m_cur_scope);
-
-	// tNetPacket.r_u8				(bWeaponMisfire);
 }
 
 void CSE_ALifeItemWeapon::UPDATE_Write(NET_Packet& tNetPacket)
@@ -569,8 +567,6 @@ void CSE_ALifeItemWeapon::UPDATE_Write(NET_Packet& tNetPacket)
 	tNetPacket.w_u8(wpn_state);
 	tNetPacket.w_u8(m_bZoom);
 	tNetPacket.w_u8(m_cur_scope);
-
-	// tNetPacket.w_u8				(bWeaponMisfire);
 }
  
 void CSE_ALifeItemWeapon::STATE_Read(NET_Packet	&tNetPacket, u16 size)
@@ -786,13 +782,13 @@ void CSE_ALifeItemWeaponMagazined::UPDATE_Read		(NET_Packet& P)
 {
 	inherited::UPDATE_Read(P);
 
-	m_u8CurFireMode = P.r_u8();
+	// m_u8CurFireMode = P.r_u8();
 }
 void CSE_ALifeItemWeaponMagazined::UPDATE_Write	(NET_Packet& P)
 {
 	inherited::UPDATE_Write(P);
 
-	P.w_u8(m_u8CurFireMode);	
+	// P.w_u8(m_u8CurFireMode);	
 }
 void CSE_ALifeItemWeaponMagazined::STATE_Read		(NET_Packet& P, u16 size)
 {
