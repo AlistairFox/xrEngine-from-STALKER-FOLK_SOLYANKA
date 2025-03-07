@@ -197,29 +197,29 @@ void CWeapon::EnableActorNVisnAfterZoom()
 #include "WeaponBinocularsVision.h"
 void CWeapon::UpdateNightVision()
 {
-	if (m_zoom_params.m_pNight_vision && !need_renderable())
-	{
-		//if (!m_zoom_params.m_pNight_vision->IsActiveWeapon())
-		//{
-		//	CActor* pA = smart_cast<CActor*>(H_Parent());
-		//	R_ASSERT(pA);
-		//	if (pA->GetNightVisionStatus())
-		//	{
-		//		m_bRememberActorNVisnStatus = pA->GetNightVisionStatus();
-		//		pA->SwitchNightVision(false, false, false);
-		//	}
-		//	m_zoom_params.m_pNight_vision->StartForScope(m_zoom_params.m_sUseZoomPostprocess, pA, false);
-		//}
-
-	}
-	else if (m_bRememberActorNVisnStatus)
-	{
-		m_bRememberActorNVisnStatus = false;
-		EnableActorNVisnAfterZoom();
-	}
-
-	if (m_zoom_params.m_pVision)
-		m_zoom_params.m_pVision->Update();
+	// if (m_zoom_params.m_pNight_vision && !need_renderable())
+	// {
+	// 	if (!m_zoom_params.m_pNight_vision->IsActiveWeapon())
+	// 	{
+	// 		CActor* pA = smart_cast<CActor*>(H_Parent());
+	// 		R_ASSERT(pA);
+	// 		if (pA->GetNightVisionStatus())
+	// 		{
+	// 			m_bRememberActorNVisnStatus = pA->GetNightVisionStatus();
+	// 			pA->SwitchNightVision(false, false, false);
+	// 		}
+	// 		m_zoom_params.m_pNight_vision->StartForScope(m_zoom_params.m_sUseZoomPostprocess, pA, false);
+	// 	}
+	// 
+	// }
+	// else if (m_bRememberActorNVisnStatus)
+	// {
+	// 	m_bRememberActorNVisnStatus = false;
+	// 	EnableActorNVisnAfterZoom();
+	// }
+	// 
+	// if (m_zoom_params.m_pVision)
+	// 	m_zoom_params.m_pVision->Update();
 }
 
 extern u32 hud_adj_mode;

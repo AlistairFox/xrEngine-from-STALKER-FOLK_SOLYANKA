@@ -3650,14 +3650,14 @@ public:
 						Msg("Anim[%d]", anim);
 					}
  
-					ypr.mul(PI / 180.f);
-					w->m_Offset.setHPB(ypr.x, ypr.y, ypr.z);
-					w->m_Offset.translate_over(pos);
- 
-					if (anim && type == 3)
-					{
-						w->set_animation_slot(anim);
-					}
+					// ypr.mul(PI / 180.f);
+					// w->m_Offset.setHPB(ypr.x, ypr.y, ypr.z);
+					// w->m_Offset.translate_over(pos);
+ 					// 
+					// if (anim && type == 3)
+					// {
+					// 	w->set_animation_slot(anim);
+					// }
 
 				}
 			}

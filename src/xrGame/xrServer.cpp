@@ -1051,6 +1051,10 @@ u32 xrServer::OnMessage	(NET_Packet& P, ClientID sender)			// Non-Zero means bro
 			OnVoiceMessage(P, sender);
 		}break;
 
+		case M_CL_UPDATE_ACTIVE_SLOT:
+		{
+			SendBroadcast(sender, P, net_flags(true, true));
+		}break;
 
 	}
 

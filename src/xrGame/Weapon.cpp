@@ -31,7 +31,7 @@ CWeapon::CWeapon()
 	m_zoom_params.m_fCurrentZoomFactor = GameConstants::GetOGSE_WpnZoomSystem() ? 1.f : g_fov;
 	m_zoom_params.m_fZoomRotationFactor = 0.f;
 	m_zoom_params.m_pVision = NULL;
-	m_zoom_params.m_pNight_vision = NULL;
+//	m_zoom_params.m_pNight_vision = NULL;
 	m_zoom_params.m_fSecondVPFovFactor = 0.0f;
 	m_zoom_params.m_f3dZoomFactor = 0.0f;
 

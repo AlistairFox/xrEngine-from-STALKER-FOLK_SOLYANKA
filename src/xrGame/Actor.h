@@ -90,6 +90,9 @@ public:
 	bool						MpAnimationMode() const;
 	bool						Setuped_callbacks();
 
+	void						SyncActiveSlot(NET_Packet& P);
+	void						SyncPacketSlot();
+
 	// SCRIPT ANIMATION
 	bool CanChange = true;
 	bool NEED_EXIT = false;

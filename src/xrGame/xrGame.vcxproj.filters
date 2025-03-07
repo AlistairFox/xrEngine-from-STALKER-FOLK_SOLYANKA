@@ -11485,6 +11485,9 @@
     <ClCompile Include="WeaponMagazined.cpp">
       <Filter>Se7Kills\Weapons\Custom Weapon\WeaponBase\Automatic</Filter>
     </ClCompile>
+    <ClCompile Include="ActorNetwork_ActiveSlot.cpp">
+      <Filter>Core\Client\Objects\actor\base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="ai\monsters\chimera\chimera_attack_state.h">

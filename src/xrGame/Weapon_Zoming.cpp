@@ -113,13 +113,13 @@ void CWeapon::OnZoomIn()
 		// 		}
 		// }
 		// else 
-		if (m_zoom_params.m_sUseZoomPostprocess.size())
-		{
-			if (NULL == m_zoom_params.m_pNight_vision)
-			{
-				m_zoom_params.m_pNight_vision = xr_new<CNightVisionEffector>(m_zoom_params.m_sUseZoomPostprocess);
-			}
-		}
+		// if (m_zoom_params.m_sUseZoomPostprocess.size())
+		// {
+		// 	if (NULL == m_zoom_params.m_pNight_vision)
+		// 	{
+		// 		m_zoom_params.m_pNight_vision = xr_new<CNightVisionEffector>(m_zoom_params.m_sUseZoomPostprocess);
+		// 	}
+		// }
 	}
 	g_player_hud->updateMovementLayerState();
 }

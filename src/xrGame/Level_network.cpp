@@ -185,7 +185,9 @@ void CLevel::net_Stop		()
 #endif // DEBUG
 }
 
-
+#include "Actor.h"
+#include "Weapon.h"
+#include "Inventory.h"
 void CLevel::ClientSend()
 {
 	if (GameID() != eGameIDSingle || OnClient())
@@ -196,12 +198,13 @@ void CLevel::ClientSend()
 	NET_Packet				P;
 	u32						start	= 0;
 	//----------- for E3 -----------------------------
-//	if () 
 	{
-//		if (!(Game().local_player) || Game().local_player->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD)) return;
 		if (CurrentControlEntity()) 
 		{
 			CObject* pObj = CurrentControlEntity();
+			CActor* a = smart_cast<CActor*> (CurrentControlEntity());
+			if (a)
+				a->SyncPacketSlot();
 			if (!pObj->getDestroy() && pObj->net_Relevant())
 			{				
 				P.w_begin		(M_CL_UPDATE);
@@ -218,8 +221,10 @@ void CLevel::ClientSend()
 						Send	(P, net_flags(FALSE));
 				}				
 			}			
-		}		
+  		}
 	};
+
+
 	if (m_file_transfer)
 	{
 		m_file_transfer->update_transfer();

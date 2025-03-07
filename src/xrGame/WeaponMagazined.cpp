@@ -16,7 +16,7 @@
 #include "Level.h"
 #include "object_saver.h"
 #include "object_loader.h"
- 
+
 extern ENGINE_API bool	g_dedicated_server;
 
 CWeaponMagazined::CWeaponMagazined(ESoundTypes eSoundType) : CWeapon()
@@ -138,7 +138,7 @@ void CWeaponMagazined::FireEnd()
 	if (m_bAutoreloadEnabled)
 	{
 		CActor* actor = smart_cast<CActor*>(H_Parent());
- 		if (Actor()->get_state() & mcSprint && !GameConstants::GetReloadIfSprint())
+		if (Actor()->get_state() & mcSprint && !GameConstants::GetReloadIfSprint())
 			return;
 
 		if (m_pInventory && !iAmmoElapsed && actor && GetState() != eReload)
@@ -543,10 +543,10 @@ void CWeaponMagazined::Load(LPCSTR section)
 	}
 }
 
- 
+
 // RELOADING MAGAZINE
 
- 
+
 void CWeaponMagazined::Reload()
 {
 	inherited::Reload();
@@ -1376,22 +1376,22 @@ bool CWeaponMagazined::Attach(PIItem pIItem, bool b_send_event)
 		m_flagsAddOnState |= CSE_ALifeItemWeapon::eWeaponAddonGrenadeLauncher;
 		result = true;
 	}
-//	else if (pLaser &&
-//		m_eLaserDesignatorStatus == ALife::eAddonAttachable &&
-//		(m_flagsAddOnState & CSE_ALifeItemWeapon::eWeaponAddonLaserDesignator) == 0 &&
-//		(m_sLaserName == pIItem->object().cNameSect()))
-//	{
-//		m_flagsAddOnState |= CSE_ALifeItemWeapon::eWeaponAddonLaserDesignator;
-//		result = true;
-//	}
-//	else if (pTacticalTorch &&
-//		m_eTacticalTorchStatus == ALife::eAddonAttachable &&
-//		(m_flagsAddOnState & CSE_ALifeItemWeapon::eWeaponAddonTacticalTorch) == 0 &&
-//		(m_sTacticalTorchName == pIItem->object().cNameSect()))
-//	{
-//		m_flagsAddOnState |= CSE_ALifeItemWeapon::eWeaponAddonTacticalTorch;
-//		result = true;
-//	}
+	//	else if (pLaser &&
+	//		m_eLaserDesignatorStatus == ALife::eAddonAttachable &&
+	//		(m_flagsAddOnState & CSE_ALifeItemWeapon::eWeaponAddonLaserDesignator) == 0 &&
+	//		(m_sLaserName == pIItem->object().cNameSect()))
+	//	{
+	//		m_flagsAddOnState |= CSE_ALifeItemWeapon::eWeaponAddonLaserDesignator;
+	//		result = true;
+	//	}
+	//	else if (pTacticalTorch &&
+	//		m_eTacticalTorchStatus == ALife::eAddonAttachable &&
+	//		(m_flagsAddOnState & CSE_ALifeItemWeapon::eWeaponAddonTacticalTorch) == 0 &&
+	//		(m_sTacticalTorchName == pIItem->object().cNameSect()))
+	//	{
+	//		m_flagsAddOnState |= CSE_ALifeItemWeapon::eWeaponAddonTacticalTorch;
+	//		result = true;
+	//	}
 
 	if (result)
 	{

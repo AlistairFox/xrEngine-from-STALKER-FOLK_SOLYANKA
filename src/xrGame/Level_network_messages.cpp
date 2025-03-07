@@ -169,6 +169,17 @@ void CLevel::ClientReceive()
 					u8 compression_type = P->r_u8();
 					ProcessCompressedUpdate(*P, compression_type);
 				}break;
+
+			// SERVER UPDATE ACTOR SLOT (and Actor)
+			case M_CL_UPDATE_ACTIVE_SLOT:
+			{
+				u16 ActorID;
+				P->r_u16(ActorID);
+				CActor* actor = smart_cast<CActor*> (Level().Objects.net_Find(ActorID));
+ 				if (actor)
+					actor->SyncActiveSlot(*P);
+			}break;
+
 			case M_CL_UPDATE:
 				{
 					/*if (!game_configured)
