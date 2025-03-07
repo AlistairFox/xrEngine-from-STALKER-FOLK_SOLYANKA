@@ -25,7 +25,7 @@ class CWeaponMagazined;
 class CParticlesObject;
 
 class CBinocularsVision;
-class CNightVisionEffector;
+// class CNightVisionEffector;
 class CLAItem;
 class WeaponAttach;
 
@@ -369,7 +369,7 @@ protected:
 		shared_str		m_sUseZoomPostprocess;
 		shared_str		m_sUseBinocularVision;
 		CBinocularsVision* m_pVision;
-		CNightVisionEffector* m_pNight_vision;
+	//	CNightVisionEffector* m_pNight_vision;
 
 	} m_zoom_params;
 
@@ -461,11 +461,7 @@ public:
 	virtual const Fvector& get_CurrentFirePoint2() { return get_LastFP2(); }
 	virtual const Fmatrix& get_ParticlesXFORM() { UpdateFireDependencies(); return m_current_firedeps.m_FireParticlesXForm; }
 	virtual void			ForceUpdateFireParticles();
-
-#ifdef DEBUG
-	virtual void			debug_draw_firedeps();
-#endif
-
+ 
 private:
 	string64 guns_aim_anm;
 protected:

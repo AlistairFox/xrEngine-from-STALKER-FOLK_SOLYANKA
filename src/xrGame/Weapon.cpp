@@ -196,35 +196,10 @@ BOOL CWeapon::ParentIsActor()
 		return EA->cast_actor() != 0;
 	else
 		return false;
-}
-
-#ifdef DEBUG
-#include "debug_renderer.h"
-void CWeapon::debug_draw_firedeps()
-{
-
-	if (hud_adj_mode == 5 || hud_adj_mode == 6 || hud_adj_mode == 7)
-	{
-		CDebugRenderer& render = Level().debug_renderer();
-
-		if (hud_adj_mode == 5)
-			render.draw_aabb(get_LastFP(), 0.005f, 0.005f, 0.005f, color_xrgb(255, 0, 0));
-
-		if (hud_adj_mode == 6)
-			render.draw_aabb(get_LastFP2(), 0.005f, 0.005f, 0.005f, color_xrgb(0, 0, 255));
-
-		if (hud_adj_mode == 7)
-			render.draw_aabb(get_LastSP(), 0.005f, 0.005f, 0.005f, color_xrgb(0, 255, 0));
-	}
-
-}
-#endif
+} 
 
 void CWeapon::OnBulletHit()
 {
 	if (!fis_zero(conditionDecreasePerShotOnHit))
 		ChangeCondition(-conditionDecreasePerShotOnHit);
 }
-
-
-

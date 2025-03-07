@@ -49,6 +49,14 @@ void CRocketLauncher::SpawnRocket(const shared_str& rocket_section, CGameObject*
 	F_entity_Destroy	(D);
 }
 
+void CRocketLauncher::SpawnRocketSend(const shared_str& rocket_section, CGameObject* parent_rocket_launcher)
+{
+	NET_Packet packet;
+	Game().u_EventGen(packet, GE_WPN_SPAWNGRENADE, parent_rocket_launcher->ID());
+	packet.w_stringZ(rocket_section);
+	Game().u_EventSend(packet);
+}
+
 void CRocketLauncher::AttachRocket(u16 rocket_id, CGameObject* parent_rocket_launcher)
 {
 	CCustomRocket * pRocket = smart_cast<CCustomRocket*>(Level().Objects.net_Find(rocket_id));

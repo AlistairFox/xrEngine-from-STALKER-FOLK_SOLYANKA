@@ -389,7 +389,11 @@ public:
 	virtual const SRotation	Orientation			()	const	{ return r_torso; };
 	SRotation				&Orientation		()			 { return r_torso; };
 
+	// PLAYER STATE CHANGE
 	IC u32 get_state() const { return this->mstate_real; };
+	IC u32 get_state_wishful() const { return this->mstate_wishful; }
+ 	IC void set_state_wishful(u32 state) { mstate_wishful = state; }
+
 	void					g_SetAnimation		(u32 mstate_rl);
 	void					g_SetSprintAnimation(u32 mstate_rl,MotionID &head,MotionID &torso,MotionID &legs);
 
