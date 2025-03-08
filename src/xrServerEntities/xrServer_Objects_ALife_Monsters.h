@@ -394,6 +394,9 @@ SERVER_ENTITY_DECLARE_BEGIN(CSE_ALifeCreaturePhantom,CSE_ALifeCreatureAbstract)
 									CSE_ALifeCreaturePhantom	(LPCSTR caSection);
 	virtual							~CSE_ALifeCreaturePhantom	();
 	virtual bool					used_ai_locations			() const;
+	
+	virtual BOOL					Net_Relevant();
+
 SERVER_ENTITY_DECLARE_END
 add_to_type_list(CSE_ALifeCreaturePhantom)
 #define script_type_list save_type_list(CSE_ALifeCreaturePhantom)
@@ -505,6 +508,7 @@ SERVER_ENTITY_DECLARE_BEGIN(CSE_ALifePsyDogPhantom,CSE_ALifeMonsterBase)
 	virtual							~CSE_ALifePsyDogPhantom	();
 	virtual CSE_Abstract			*cast_abstract			() {return this;}
 	virtual bool					bfActive				() {return false;}
+	virtual BOOL					Net_Relevant();
 SERVER_ENTITY_DECLARE_END
 add_to_type_list(CSE_ALifePsyDogPhantom)
 #define script_type_list save_type_list(CSE_ALifePsyDogPhantom)

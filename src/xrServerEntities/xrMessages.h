@@ -220,6 +220,8 @@ enum
 	GE_WPN_SWITCH_FIREMODE,
 	GE_WPN_STATE_CHANGE,
 
+	// Phantoms
+	GE_PHANTOM_MODE,
 
 	GE_FORCEDWORD				= u32(-1)
 };

@@ -51,8 +51,7 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 			game->AddDelayedEvent(P,game_event_type,timestamp,sender);
 		}break;
 	case GE_INFO_TRANSFER:
-	case GE_WPN_STATE_CHANGE:
-	case GE_ACTOR_JUMPING:
+ 	case GE_ACTOR_JUMPING:
 	case GEG_PLAYER_PLAY_HEADSHOT_PARTICLE:
 	case GEG_PLAYER_ATTACH_HOLDER:
 	case GEG_PLAYER_DETACH_HOLDER:
@@ -254,12 +253,7 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 			VERIFY					(verify_entities());
 		}
 		break;
-	case GE_ADDON_ATTACH:
-	case GE_ADDON_DETACH:
-		{
-			SendBroadcast	(BroadcastCID, P, net_flags(TRUE, TRUE));
-		}break;
-	
+ 	
 	case GE_PSEUDO_GIGANT_KICK:
 	case GE_BURER_GRAVI_PARTICLES:
 	case GE_BURER_GRAVI_WAVE:
@@ -591,7 +585,27 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 			FS.file_delete(account_file.c_str());
 
 	}break;
-	 
+	
+
+	// Weapon Attaches
+	case GE_ADDON_ATTACH:
+	case GE_ADDON_DETACH:		 
+	// Weapon States
+	case GE_WPN_UNLOAD_AMMO:
+	case GE_WPN_UPDATE_AMMO:
+	case GE_WPN_STARTGRENADE:
+	case GE_WPN_SPAWNGRENADE:
+	case GE_WPN_SWITCH_FIREMODE:
+	case GE_WPN_STATE_CHANGE:
+	{
+		SendBroadcast(BroadcastCID, P, net_flags(true, true));
+	}break;
+
+	case GE_PHANTOM_MODE:
+	{
+		SendBroadcast(BroadcastCID, P, net_flags(true, true));
+	}break;
+
 	default:
 		Msg("ClientID: [%u] Not support event: %u (Kick player if many times print)", sender, type);
 		

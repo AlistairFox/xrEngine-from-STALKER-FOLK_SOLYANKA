@@ -1610,14 +1610,42 @@ void CSE_ALifeCreaturePhantom::STATE_Write		(NET_Packet	&tNetPacket)
 	inherited::STATE_Write		(tNetPacket);
 }
 
-void CSE_ALifeCreaturePhantom::UPDATE_Read		(NET_Packet	&tNetPacket)
+void CSE_ALifeCreaturePhantom::UPDATE_Read(NET_Packet& tNetPacket)
 {
-	inherited::UPDATE_Read		(tNetPacket);
+	if (IsGameTypeSingle())
+	{
+		inherited::UPDATE_Read(tNetPacket);
+		tNetPacket.r_vec3(o_Position);
+	}
+	else
+	{
+		tNetPacket.r_angle8(o_torso.yaw);
+		tNetPacket.r_angle8(o_torso.pitch);
+		tNetPacket.r_vec3(o_Position);
+		set_health(tNetPacket.r_float_q8(0, 1));
+		o_model = o_torso.yaw;
+	}
 }
 
-void CSE_ALifeCreaturePhantom::UPDATE_Write		(NET_Packet	&tNetPacket)
+void CSE_ALifeCreaturePhantom::UPDATE_Write(NET_Packet& tNetPacket)
 {
-	inherited::UPDATE_Write		(tNetPacket);
+	if (IsGameTypeSingle())
+	{
+		inherited::UPDATE_Write(tNetPacket);
+		tNetPacket.w_vec3(o_Position);
+	}
+	else
+	{
+		tNetPacket.w_angle8(o_torso.yaw);
+		tNetPacket.w_angle8(o_torso.pitch);
+		tNetPacket.w_vec3(o_Position);
+		tNetPacket.w_float_q8(get_health(), 0, 1);
+	}
+}
+
+BOOL CSE_ALifeCreaturePhantom::Net_Relevant()
+{
+	return true;
 }
 
 #ifndef XRGAME_EXPORTS
@@ -2096,6 +2124,11 @@ void CSE_ALifePsyDogPhantom::UPDATE_Read	(NET_Packet	&tNetPacket)
 void CSE_ALifePsyDogPhantom::UPDATE_Write	(NET_Packet	&tNetPacket)
 {
 	inherited::UPDATE_Write		(tNetPacket);
+}
+
+BOOL CSE_ALifePsyDogPhantom::Net_Relevant()
+{
+	return TRUE;
 }
 
 #ifndef XRGAME_EXPORTS
