@@ -38,25 +38,17 @@ BOOL CLevel::net_Start	( LPCSTR op_server, LPCSTR op_client, LPCSTR op_auth)
 
 	if (op_auth != 0)
 	{
-//		string64 nickname;
 		string64 login_name;
 		string64 password_name;
 
-//		_GetItem(op_auth, 0, nickname, '/');
 		_GetItem(op_auth, 0, login_name, '/');
 		_GetItem(op_auth, 1, password_name, '/');
 	
 		if (login_name != 0)
 			xr_strcpy(Core.UserLogin, login_name);
  
-//		if (nickname != 0)
-//			xr_strcpy(Core.UserName, nickname);
-
 		if (password_name != 0)
 			xr_strcpy(Core.UserPassword, password_name);
-  
-		//if (login_name != 0 && /*nickname != 0 && */ password_name != 0)
-		//	Msg("Login[%s] Nick[%s] Pass[%s]", login_name, nickname, password_name);
 	}
 
 	VERIFY( xr_strlen(player_name) );
@@ -94,13 +86,12 @@ BOOL CLevel::net_Start	( LPCSTR op_server, LPCSTR op_client, LPCSTR op_auth)
 		};		
 	};
 	m_caServerOptions			    = op_server;
+	
 	//---------------------------------------------------------------------
 	if (!IsDemoPlay())
 	{
 		LPCSTR pdemosave = strstr(op_client, "/mpdemosave=");
-		bool is_single = m_caServerOptions.size() != 0 ? 
-			(strstr(m_caServerOptions.c_str(), "single") != NULL) :
-			false;
+		bool is_single = m_caServerOptions.size() != 0 ? (strstr(m_caServerOptions.c_str(), "single") != NULL) : false;
 		int save_demo = g_cl_save_demo;
 		if (pdemosave != NULL)
 		{
@@ -124,13 +115,12 @@ BOOL CLevel::net_Start	( LPCSTR op_server, LPCSTR op_client, LPCSTR op_auth)
 
 shared_str level_version(const shared_str &server_options);
 shared_str level_name(const shared_str &server_options);
+
 bool CLevel::net_start1				()
 {
 	// Start client and server if need it
 	if (m_caServerOptions.size())
 	{
-//		g_pGamePersistent->LoadTitle("st_server_starting");
-
 		typedef IGame_Persistent::params params;
 		params							&p = g_pGamePersistent->m_game_params;
 		// Connect
@@ -146,7 +136,6 @@ bool CLevel::net_start1				()
 
 		Msg("Params [%s] [%s] [%s] [%s]", p.m_game_or_spawn, p.m_game_type, p.m_alife, p.m_new_or_load);
 		
-		 
 		if (xr_strcmp(p.m_alife,"alife")  )
 		{
 			shared_str l_ver			= game_sv_GameState::parse_level_version(m_caServerOptions);
@@ -199,7 +188,9 @@ bool CLevel::net_start2				()
 
 bool CLevel::net_start3				()
 {
-	if(!net_start_result_total) return true;
+	if(!net_start_result_total)
+		return true;
+
 	//add server port if don't have one in options
 	if (!strstr(m_caClientOptions.c_str(), "port=") && Server)
 	{
@@ -212,6 +203,7 @@ bool CLevel::net_start3				()
 		
 		m_caClientOptions = tmp;
 	}
+
 	//add password string to client, if don't have one
 	if(m_caServerOptions.size()){
 		if (strstr(m_caServerOptions.c_str(), "psw=") && !strstr(m_caClientOptions.c_str(), "psw="))
@@ -228,6 +220,7 @@ bool CLevel::net_start3				()
 			m_caClientOptions = tmp;
 		};
 	};
+	
 	//setting players GameSpy CDKey if it comes from command line
 	if (strstr(m_caClientOptions.c_str(), "/cdkey="))
 	{
@@ -338,9 +331,6 @@ bool CLevel::net_start6				()
 			if	(!g_dedicated_server)
 			{
 				MainMenu()->SwitchToMultiplayerMenu();
-				// MainMenu()->Show_DownloadMPMap(dialog_string, download_url);
-
-				R_ASSERT2(false, "MAP IS NO CORRECTED");
 			}
 		}
 		else 
