@@ -28,8 +28,6 @@ IGame_Level::IGame_Level	()
 	Device.DumpResourcesMemoryUsage();
 }
 
-//#include "resourcemanager.h"
-
 IGame_Level::~IGame_Level	()
 {
 	if(strstr(Core.Params,"-nes_texture_storing") )
@@ -44,7 +42,8 @@ IGame_Level::~IGame_Level	()
 	Device.seqRender.Remove		(this);
 	Device.seqFrame.Remove		(this);
 	CCameraManager::ResetPP		();
-///////////////////////////////////////////
+
+	//////////////////////////////////////////
 	Sound->set_geometry_occ		(NULL);
 	Sound->set_handler			(NULL);
 	Device.DumpResourcesMemoryUsage();
@@ -69,11 +68,11 @@ void IGame_Level::net_Stop			()
 }
 
 //-------------------------------------------------------------------------------------------
-//extern CStatTimer				tscreate;
 void __stdcall _sound_event		(ref_sound_data_ptr S, float range)
 {
 	if ( g_pGameLevel && S && S->feedback )	g_pGameLevel->SoundEvent_Register	(S,range);
 }
+
 static void __stdcall	build_callback	(Fvector* V, int Vcnt, CDB::TRI* T, int Tcnt, void* params)
 {
 	g_pGameLevel->Load_GameSpecific_CFORM( T, Tcnt );
@@ -103,7 +102,6 @@ BOOL IGame_Level::Load			(u32 dwNum)
 
 	// CForms
 	g_pGamePersistent->LoadTitle	("st_loading_cform");
-	//	g_pGamePersistent->LoadTitle	();
 	ObjectSpace.Load			( build_callback );
 
 	Sound->set_geometry_occ		(ObjectSpace.GetStaticModel	());
@@ -146,16 +144,6 @@ int		psNET_DedicatedSleep	= 5;
 void	IGame_Level::OnRender		( ) 
 {
 #ifndef DEDICATED_SERVER
-//	if (_abs(Device.fTimeDelta)<EPS_S) return;
-
-	#ifdef _GPA_ENABLED	
-		TAL_ID rtID = TAL_MakeID( 1 , Core.dwFrame , 0);	
-		TAL_CreateID( rtID );
-		TAL_BeginNamedVirtualTaskWithID( "GameRenderFrame" , rtID );
-		TAL_Parami( "Frame#" , Device.dwFrame );
-		TAL_EndVirtualTask();
-	#endif // _GPA_ENABLED
-
 	// Level render, only when no client output required
 	if (!g_dedicated_server)	{
 		Render->Calculate			();
@@ -163,14 +151,6 @@ void	IGame_Level::OnRender		( )
 	} else {
 		Sleep						(psNET_DedicatedSleep);
 	}
-
-	#ifdef _GPA_ENABLED	
-		TAL_RetireID( rtID );
-	#endif // _GPA_ENABLED
-
-	// Font
-//	pApp->pFontSystem->SetSizeI(0.023f);
-//	pApp->pFontSystem->OnRender	();
 #endif
 }
 
@@ -225,18 +205,13 @@ void CServerInfo::AddItem(LPCSTR value, u32 color_)
 void CServerInfo::AddItem( shared_str& name_, LPCSTR value_, u32 color_ )
 {
 	SItem_ServerInfo it;
-	//	shared_str s_name = CStringTable().translate( name_ );
-
-	//	xr_strcpy( it.name, s_name.c_str() );
 	xr_strcpy( it.name, name_.c_str() );
 	xr_strcat( it.name, " = " );
 	xr_strcat( it.name, value_ );
 	it.color = color_;
 
 	if ( data.size() < max_item )
-	{
 		data.push_back( it );
-	}
 }
 
 void IGame_Level::SetEntity( CObject* O  )
