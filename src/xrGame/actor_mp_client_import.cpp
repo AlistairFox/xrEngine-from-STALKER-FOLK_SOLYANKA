@@ -45,15 +45,12 @@ void CActorMP::net_Import	( NET_Packet &P)
  	if (OnClient())
 		SetfRadiation	(m_state_holder.state().radiation*100.0f);
 
-	u16		ActiveSlot = m_state_holder.state().inventory_active_slot;
-
-	if (OnClient() && (inventory().GetActiveSlot()!=ActiveSlot) )
-	{
-#ifdef DEBUG
-		Msg("Client-SetActiveSlot[%d][%d]",ActiveSlot, Device.dwFrame);
-#endif // #ifdef DEBUG
-		inventory().SetActiveSlot(ActiveSlot);
-	}
+//	u16		ActiveSlot = m_state_holder.state().inventory_active_slot;
+//
+//	if (OnClient() && (inventory().GetActiveSlot()!=ActiveSlot) )
+//	{
+//		inventory().SetActiveSlot(ActiveSlot);
+//	}
 
 	N.mstate			= m_state_holder.state().body_state_flags;
 
