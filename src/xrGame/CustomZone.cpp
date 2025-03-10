@@ -1302,7 +1302,8 @@ void CCustomZone::net_Relcase(CObject* O)
 		exit_Zone				(*it);
 		m_ObjectInfoMap.erase	(it);
 	}
-	if(GO->ID()==m_owner_id)	m_owner_id = u32(-1);
+	if(GO->ID()==m_owner_id)	
+		m_owner_id = u32(-1);
 
 	if(m_actor_effector && m_actor_effector->m_pActor && m_actor_effector->m_pActor->ID() == GO->ID())
 		m_actor_effector->Stop();

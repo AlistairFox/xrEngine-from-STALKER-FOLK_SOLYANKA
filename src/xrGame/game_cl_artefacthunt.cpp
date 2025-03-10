@@ -52,89 +52,23 @@ game_cl_ArtefactHunt::game_cl_ArtefactHunt()
 
 void game_cl_ArtefactHunt::Init ()
 {
-//	pInventoryMenu	= xr_new<CUIInventoryWnd>();	
-//	pPdaMenu = xr_new<CUIPdaWnd>();
-//	pMapDesc = xr_new<CUIMapDesc>();
-
 	LoadTeamData(TEAM1_MENU);
 	LoadTeamData(TEAM2_MENU);
 
 	old_artefactBearerID = 0;
 	old_artefactID = 0;
 	old_teamInPossession = 0;
-	//---------------------------------------------------
-/*	string_path	fn_game;
-	if (FS.exist(fn_game, "$level$", "level.game")) 
-	{
-		IReader *F = FS.r_open	(fn_game);
-		IReader *O = 0;
-
-		// Load RPoints
-		if (0!=(O = F->open_chunk	(RPOINT_CHUNK)))
-		{ 
-			for (int id=0; O->find_chunk(id); ++id)
-			{
-				RPoint					R;
-				u8						RP_team;
-				u8						RP_type;
-				u16						RP_GameType;
-
-				O->r_fvector3			(R.P);
-				O->r_fvector3			(R.A);
-				RP_team					= O->r_u8	();	VERIFY(RP_team>=0 && RP_team<4);
-				RP_type					= O->r_u8	();
-				RP_GameType				= O->r_u16	();
-				//u16 res					= 
-				//O->r_u8	();
-
-				if (RP_GameType != GAME_ANY && RP_GameType != GAME_ARTEFACTHUNT)
-				{
-					continue;					
-				};
-				switch (RP_type)
-				{
-				case rptTeamBaseParticle:
-					{
-						string256 ParticleStr;
-						xr_sprintf(ParticleStr, "teambase_particle_%d", RP_team);
-						if (pSettings->line_exist("artefacthunt_gamedata", ParticleStr))
-						{
-							Fmatrix			transform;
-							transform.identity();
-							transform.setXYZ(R.A);
-							transform.translate_over(R.P);
-							CParticlesObject* pStaticParticles			= CParticlesObject::Create(pSettings->r_string("artefacthunt_gamedata", ParticleStr),FALSE,false);
-							pStaticParticles->UpdateParent	(transform,zero_vel);
-							pStaticParticles->Play			();
-							Level().m_StaticParticles.push_back		(pStaticParticles);
-						};
-					}break;
-				};
-			};
-			O->close();
-		}
-
-		FS.r_close	(F);
-	}*/
+ 
 	//-------------------------------------------------------
 	if (pSettings->line_exist("artefacthunt_gamedata", "artefact_spawn_effect"))
 		m_Eff_Af_Spawn = pSettings->r_string("artefacthunt_gamedata", "artefact_spawn_effect");
+
 	if (pSettings->line_exist("artefacthunt_gamedata", "artefact_disappear_effect"))
 		m_Eff_Af_Disappear = pSettings->r_string("artefacthunt_gamedata", "artefact_disappear_effect");
 };
 
 game_cl_ArtefactHunt::~game_cl_ArtefactHunt()
 {
-	/*
-	pMessageSounds[0].destroy();
-	pMessageSounds[1].destroy();
-	pMessageSounds[2].destroy();
-	pMessageSounds[3].destroy();
-	pMessageSounds[4].destroy();
-	pMessageSounds[5].destroy();
-	pMessageSounds[6].destroy();
-	pMessageSounds[7].destroy();
-	*/
 }
 
 
@@ -458,8 +392,7 @@ void game_cl_ArtefactHunt::shedule_Update			(u32 dt)
 				s16 lt = local_player->team;
 				if (lt>=0)
 				{
-//					if(m_game_ui) m_game_ui->SetScoreCaption	(teams[0].score, teams[1].score);
-				};				
+ 				};				
 			};
 			SetScore();
 		}break;
@@ -486,13 +419,11 @@ void game_cl_ArtefactHunt::shedule_Update			(u32 dt)
 			m_game_ui->m_pBuySpawnMsgBox->HideDialog();
 		};
 	};
-	//-------------------------------------------
-
 }
 void game_cl_ArtefactHunt::SetScore				()
 {
 	game_cl_TeamDeathmatch::SetScore();
-//	game_cl_Deathmatch::SetScore();
+
 	if (Level().CurrentViewEntity() && m_game_ui)
 	{
 		game_PlayerState* ps = GetPlayerByGameID(Level().CurrentViewEntity()->ID());
@@ -524,10 +455,6 @@ BOOL game_cl_ArtefactHunt::CanCallBuyMenu			()
 	{
 		return FALSE;
 	}
-	/*if (m_game_ui->m_pInventoryMenu && m_game_ui->m_pInventoryMenu->IsShown())
-	{
-		return FALSE;
-	};*/
 
 	CActor* pCurActor = smart_cast<CActor*> (Level().CurrentEntity());
 	if (!pCurActor || !pCurActor->g_Alive()) return FALSE;
@@ -537,7 +464,8 @@ BOOL game_cl_ArtefactHunt::CanCallBuyMenu			()
 
 bool game_cl_ArtefactHunt::CanBeReady				()
 {
-	if (!local_player) return false;
+	if (!local_player) 
+		return false;
 	m_bMenuCalledFromReady = TRUE;
 
 	SetCurrentSkinMenu();
@@ -569,20 +497,17 @@ char*	game_cl_ArtefactHunt::getTeamSection(int Team)
 {
 	switch (Team)
 	{
-	case 1:
-		{
-			return "artefacthunt_team1";
-		}break;
-	case 2:
-		{
-			return "artefacthunt_team2";
-		}break;
-	default:
-		NODEFAULT;
+		case 1:
+			{
+				return "artefacthunt_team1";
+			}break;
+		case 2:
+			{
+				return "artefacthunt_team2";
+			}break;
+		default:
+			NODEFAULT;
 	};
-#ifdef DEBUG
-	return NULL;
-#endif
 };
 
 bool	game_cl_ArtefactHunt::PlayerCanSprint			(CActor* pActor)
@@ -633,26 +558,7 @@ void	game_cl_ArtefactHunt::UpdateMapLocations		()
 					{
 						Level().MapManager().RemoveMapLocationByObjectID(artefactID);
 					};
-
-					/*bool OutfitWorkDown = false;
-
-					CActor* pActor = smart_cast<CActor*>(Level().Objects.net_Find(artefactBearerID));
-					if (pActor)
-					{
-						CCustomOutfit* pOutfit			= pActor->GetOutfit();
-						if (pOutfit && pOutfit->CLS_ID == CLSID_EQUIPMENT_SCIENTIFIC)
-						{
-							if (!pActor->AnyAction())
-							{
-								if (Level().MapManager().HasMapLocation(ARTEFACT_ENEMY, artefactID))
-								{
-									Level().MapManager().RemoveMapLocationByObjectID(artefactID);									
-								}
-								OutfitWorkDown = true;
-							}
-						}
-					}
-					if (!OutfitWorkDown && */
+ 
 					if (!Level().MapManager().HasMapLocation(ARTEFACT_ENEMY, artefactID))
 					{
 						(Level().MapManager().AddMapLocation(ARTEFACT_ENEMY, artefactID))->EnablePointer();
@@ -701,7 +607,9 @@ bool game_cl_ArtefactHunt::NeedToSendReady_Spectator(int key, game_PlayerState* 
 void game_cl_ArtefactHunt::OnSpawn(CObject* pObj)
 {
 	inherited::OnSpawn(pObj);
+
 	if (!pObj) return;
+	
 	CArtefact* pArtefact = smart_cast<CArtefact*>(pObj);
 	if (pArtefact)
 	{
@@ -739,7 +647,9 @@ void game_cl_ArtefactHunt::LoadSndMessages()
 void	game_cl_ArtefactHunt::OnBuySpawnMenu_Ok		()
 {
 	CObject* curr = Level().CurrentEntity();
-	if (!curr) return;
+	if (!curr) 
+		return;
+
 	CGameObject* GO = smart_cast<CGameObject*>(curr);
 	NET_Packet			P;
 	GO->u_EventGen		(P,GE_GAME_EVENT,GO->ID()	);
@@ -749,7 +659,9 @@ void	game_cl_ArtefactHunt::OnBuySpawnMenu_Ok		()
 
 void	game_cl_ArtefactHunt::OnSellItemsFromRuck		()
 {
-	if (!local_player || local_player->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD) || !local_player->testFlag(GAME_PLAYER_FLAG_ONBASE)) return;
+	if (!local_player || local_player->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD) || !local_player->testFlag(GAME_PLAYER_FLAG_ONBASE))
+		return;
+
 	CActor* pCurActor = smart_cast<CActor*> (Level().Objects.net_Find	(local_player->GameID));
 	if (!pCurActor) return;
 	

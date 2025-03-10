@@ -9269,6 +9269,10 @@
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='LUAJIT_2|x64'">$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>
     </ClCompile>
     <ClCompile Include="WeaponCustomPistol.cpp" />
+    <ClCompile Include="WeaponMagazinedWGrenade_Addons.cpp" />
+    <ClCompile Include="WeaponMagazinedWGrenade_Animations.cpp" />
+    <ClCompile Include="WeaponMagazinedWGrenade_States.cpp" />
+    <ClCompile Include="WeaponMagazinedWGrenade_Upgrades.cpp" />
     <ClCompile Include="Weapon_Dispersion.cpp" />
     <ClCompile Include="Weapon_Fire.cpp" />
     <ClCompile Include="WeaponFN2000.cpp">

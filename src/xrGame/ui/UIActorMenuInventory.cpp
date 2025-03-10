@@ -59,7 +59,6 @@ void CUIActorMenu::InitInventoryMode()
 
 	VERIFY( CurrentGameUI() );
 	CurrentGameUI()->UIMainIngameWnd->ShowZoneMap(true);
-//	m_clock_value->Show					(true);
 
 //	m_pInventoryKnifeList->Show(true);
 }
@@ -67,7 +66,6 @@ void CUIActorMenu::InitInventoryMode()
 void CUIActorMenu::DeInitInventoryMode()
 {
 	m_pTrashList->Show				(false);
-//	m_clock_value->Show					(false);
 }
 
 void CUIActorMenu::SendEvent_ActivateSlot(u16 slot, u16 recipient)
@@ -134,7 +132,7 @@ void CUIActorMenu::SendEvent_Item_Drop(PIItem pItem, u16 recipient)
 	R_ASSERT(pItem->parent_id()==recipient);
 	if (!IsGameTypeSingle())
 		pItem->DenyTrade();
-	//pItem->SetDropManual			(TRUE);
+
 	NET_Packet					P;
 	pItem->object().u_EventGen	(P,GE_OWNERSHIP_REJECT,pItem->parent_id());
 	P.w_u16						(pItem->object().ID());
@@ -414,14 +412,6 @@ void CUIActorMenu::InitCellForSlot( u16 slot_idx )
 	curr_list->SetItem( cell_item );
 	if ( m_currMenuMode == mmTrade && m_pPartnerInvOwner )
 		ColorizeItem( cell_item, !CanMoveToPartner( item ) );
-
-	//CCustomOutfit* outfit = smart_cast<CCustomOutfit*>(item);
-	//if(outfit)
-	//	outfit->ReloadBonesProtection();
-
-	//CHelmet* helmet = smart_cast<CHelmet*>(item);
-	//if(helmet)
-	//	helmet->ReloadBonesProtection();
 }
 
 void CUIActorMenu::InitInventoryContents(CUIDragDropListEx* pBagList)
@@ -775,6 +765,16 @@ bool CUIActorMenu::TryUseItem( CUICellItem* cell_itm )
 	CAntirad*		pAntirad		= smart_cast<CAntirad*>		(item);
 	CEatableItem*	pEatableItem	= smart_cast<CEatableItem*>	(item);
 	CCampFireSwitcher* pCampSwitcher = smart_cast<CCampFireSwitcher*>(item);
+	CArtefact* pArtefact			= smart_cast<CArtefact*>(item);
+	
+	if (pArtefact)
+	{
+		pArtefact->ActivateArtefactFast();
+		//Actor()->inventory().Slot(ARTEFACT_SLOT, pArtefact, false, true);
+		//Actor()->inventory().Activate(ARTEFACT_SLOT);
+		return true;
+	}
+
 	if (pCampSwitcher && !pCampSwitcher->GetNearestCampFire())
 		return false;
 
@@ -1097,9 +1097,15 @@ void CUIActorMenu::PropertiesBoxForUsing( PIItem item, bool& b_show )
 	CEatableItem*	pEatableItem	= smart_cast<CEatableItem*>	(item);
 	CBottleItem*	pBottleItem		= smart_cast<CBottleItem*>	(item);
 	CCampFireSwitcher* pCampSwitcher = smart_cast<CCampFireSwitcher*>(item);
+	CArtefact* pArtefact			= smart_cast<CArtefact*>(item);
 
 	LPCSTR act_str = NULL;
-	if ( pMedkit || pAntirad)
+
+	if (pArtefact)
+	{
+		act_str = "st_activate";
+	}
+	else if ( pMedkit || pAntirad)
 	{
 		act_str = "st_use";
 	}
@@ -1133,6 +1139,8 @@ void CUIActorMenu::PropertiesBoxForUsing( PIItem item, bool& b_show )
 			act_str = "st_use";
 		}
 	}
+
+
 	if ( act_str )
 	{
 		m_UIPropertiesBox->AddItem( act_str,  NULL, INVENTORY_EAT_ACTION );

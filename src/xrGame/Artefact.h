@@ -9,8 +9,7 @@
 class SArtefactActivation;
 struct SArtefactDetectorsSupport;
 
-class CArtefact :	public CHudItemObject, 
-					public CPHUpdateObject 
+class CArtefact :	public CHudItemObject, public CPHUpdateObject 
 {
 	typedef			CHudItemObject	inherited;
 public:
@@ -43,6 +42,7 @@ protected:
 	virtual void					UpdateCLChild					()		{};
 	virtual void					CreateArtefactActivation			();
 
+
 	SArtefactActivation*			m_activationObj;
 	SArtefactDetectorsSupport*		m_detectorObj;
 
@@ -58,6 +58,8 @@ protected:
 
 	virtual void					UpdateLights					();
 public:
+	bool isActivating = false;
+
 	IC u8							GetAfRank						() const		{return m_af_rank;}
 	IC bool							CanBeActivated					()				{return m_bCanSpawnZone;};
 	void							ActivateArtefact				();
@@ -96,8 +98,14 @@ public:
 	virtual void					Show				();
 	virtual	void					UpdateXForm			();
 	virtual bool					Action				(u16 cmd, u32 flags);
+
+
+	virtual void					SwitchState(u32 S);
 	virtual void					OnStateSwitch		(u32 S);
 	virtual void					OnAnimationEnd		(u32 state);
+	virtual void					ActivateArtefactFast();
+
+
 	virtual bool					IsHidden			()	const	{return GetState()==eHidden;}
 
 	// optimization FAST/SLOW mode

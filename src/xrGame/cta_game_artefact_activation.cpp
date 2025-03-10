@@ -23,8 +23,7 @@
 #include "restriction_space.h"
 #include "../xrEngine/IGame_Persistent.h"
 
-CtaArtefactActivation::CtaArtefactActivation(CArtefact* af, u32 owner_id) :
-	SArtefactActivation(af, owner_id)
+CtaArtefactActivation::CtaArtefactActivation(CArtefact* af, u32 owner_id) : SArtefactActivation(af, owner_id)
 {
 }
 
@@ -42,11 +41,10 @@ void CtaArtefactActivation::UpdateActivation()
 	if(m_cur_state_time				>=	m_activation_states[int(m_cur_activation_state)].m_time){
 		m_cur_activation_state		=	(EActivationStates)(int)(m_cur_activation_state+1);
 		
-		if(m_cur_activation_state == eMax){
+		if(m_cur_activation_state == eMax)
+		{
 			m_cur_activation_state = eNone;
-			//m_af->processing_deactivate			();
-			//m_af->DestroyObject();
-		}
+ 		}
 
 		m_cur_state_time	= 0.0f;
 		ChangeEffects				();

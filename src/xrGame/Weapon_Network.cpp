@@ -332,18 +332,18 @@ void CWeapon::SwitchState(u32 S)
 		SetNextState(S);
 
 	if (OnServer() || Level().CurrentControlEntity() == H_Parent())
-		if (!CHudItem::object().getDestroy() && m_pInventory)
-		{
-			// !!! Just single entry for given state !!!
-			NET_Packet		P;
-			CHudItem::object().u_EventGen(P, GE_WPN_STATE_CHANGE, CHudItem::object().ID());
-			P.w_u8(u8(S));
-			P.w_u8(u8(m_sub_state));
-			P.w_u8(m_ammoType);
-			P.w_u8(u8(iAmmoElapsed & 0xff));
-			P.w_u8(m_set_next_ammoType_on_reload);
-			CHudItem::object().u_EventSend(P, net_flags(TRUE, TRUE, FALSE, TRUE));
-		}
+	if (!CHudItem::object().getDestroy() && m_pInventory)
+	{
+		// !!! Just single entry for given state !!!
+		NET_Packet		P;
+		CHudItem::object().u_EventGen(P, GE_WPN_STATE_CHANGE, CHudItem::object().ID());
+		P.w_u8(u8(S));
+		P.w_u8(u8(m_sub_state));
+		P.w_u8(m_ammoType);
+		P.w_u8(u8(iAmmoElapsed & 0xff));
+		P.w_u8(m_set_next_ammoType_on_reload);
+		CHudItem::object().u_EventSend(P, net_flags(TRUE, TRUE, FALSE, TRUE));
+	}
 
 }
 

@@ -13,8 +13,7 @@
 #include "game_base.h"
 
 class game_cl_CaptureTheArtefact;
-class	CtaGameArtefact :
-		public	CArtefact
+class	CtaGameArtefact : public	CArtefact
 {
 public:
 						CtaGameArtefact				();

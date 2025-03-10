@@ -88,10 +88,12 @@ void SArtefactActivation::UpdateActivation()
 
 	VERIFY(!physics_world()->Processing());
 	m_cur_state_time				+=	Device.fTimeDelta;
-	if(m_cur_state_time				>=	m_activation_states[int(m_cur_activation_state)].m_time){
+	if(m_cur_state_time				>=	m_activation_states[int(m_cur_activation_state)].m_time)
+	{
 		m_cur_activation_state		=	(EActivationStates)(int)(m_cur_activation_state+1);
 		
-		if(m_cur_activation_state == eMax){
+		if(m_cur_activation_state == eMax)
+		{
 			m_cur_activation_state = eNone;
 
 			m_af->processing_deactivate			();
@@ -101,12 +103,12 @@ void SArtefactActivation::UpdateActivation()
 
 		m_cur_state_time	= 0.0f;
 		ChangeEffects				();
-
-
-	if(m_cur_activation_state==eSpawnZone && OnServer())
-		SpawnAnomaly	();
+ 
+		if(m_cur_activation_state==eSpawnZone && OnServer())
+			SpawnAnomaly	();
 
 	}
+
 	UpdateEffects				();
 }
 
@@ -117,12 +119,20 @@ void SArtefactActivation::PhDataUpdate(float step)
 	if (!m_af->m_pPhysicsShell)
 		return;
 	
-	if (m_cur_activation_state==eFlying) {
+	if (m_cur_activation_state==eFlying)
+	{
 		Fvector dir	= {0, -1.f, 0};
-		if(Level().ObjectSpace.RayTest(m_af->Position(), dir, 1.0f, collide::rqtBoth,NULL,m_af) ){
-			dir.y = physics_world()->Gravity()*1.1f; 
+		
+		if( Level().ObjectSpace.RayTest(m_af->Position(), dir, 1.0f, collide::rqtBoth,NULL,m_af) )
+		{
+			dir.y = physics_world()->Gravity() * 5.0f; 
 			m_af->m_pPhysicsShell->applyGravityAccel(dir);
 		}
+	}
+	else 
+	{
+		Fvector dir = { 0, -1.f, 0 };
+		m_af->m_pPhysicsShell->applyGravityAccel(dir);
 	}
 
 }
@@ -144,7 +154,8 @@ void SArtefactActivation::ChangeEffects()
 								state_def.m_light_color.g,
 								state_def.m_light_color.b);
 	
-	if(state_def.m_particle.size()){
+	if(state_def.m_particle.size())
+	{
 		Fvector dir;
 		dir.set(0,1,0);
 
@@ -153,7 +164,9 @@ void SArtefactActivation::ChangeEffects()
 												m_af->ID(),
 												iFloor(state_def.m_time*1000) );
 	};
-	if(state_def.m_animation.size()){
+
+	if(state_def.m_animation.size())
+	{
 		IKinematicsAnimated	*K=smart_cast<IKinematicsAnimated*>(m_af->Visual());
 		if(K)K->PlayCycle(*state_def.m_animation);
 	}
@@ -171,45 +184,75 @@ void SArtefactActivation::UpdateEffects()
 
 void SArtefactActivation::SpawnAnomaly()
 {
-	VERIFY(!physics_world()->Processing());
-	string128 tmp;
-	LPCSTR str			= pSettings->r_string("artefact_spawn_zones",*m_af->cNameSect());
+ 	string128 tmp;
+	LPCSTR str			= pSettings->r_string("artefact_spawn_zones", *m_af->cNameSect());
 	VERIFY3(3==_GetItemCount(str),"Bad record format in artefact_spawn_zones",str);
+
 	float zone_radius	= (float)atof(_GetItem(str,1,tmp));
 	LPCSTR zone_sect	= _GetItem(str,0,tmp); //must be last call of _GetItem... (LPCSTR !!!)
 
-		Fvector pos;
-		m_af->Center(pos);
-		CSE_Abstract		*object = Level().spawn_item(	zone_sect,
-															pos,
-															(g_dedicated_server)?u32(-1):m_af->ai_location().level_vertex_id(),
-															0xffff,
-															true
-		);
-		CSE_ALifeAnomalousZone*		AlifeZone = smart_cast<CSE_ALifeAnomalousZone*>(object);
-		VERIFY(AlifeZone);
-		CShapeData::shape_def		_shape;
-		_shape.data.sphere.P.set	(0.0f,0.0f,0.0f);
-		_shape.data.sphere.R		= zone_radius;
-		_shape.type					= CShapeData::cfSphere;
-		AlifeZone->assign_shapes	(&_shape,1);
-//		AlifeZone->m_maxPower		= zone_power;
-		AlifeZone->m_owner_id		= m_owner_id;
-		AlifeZone->m_space_restrictor_type	= RestrictionSpace::eRestrictorTypeNone;
+	Fvector pos;
+	m_af->Center(pos);
 
-		NET_Packet					P;
-		object->Spawn_Write			(P,TRUE);
-		Level().Send				(P,net_flags(TRUE));
-		F_entity_Destroy			(object);
-//. #ifdef DEBUG
-		Msg("artefact [%s] spawned a zone [%s] at [%f]", *m_af->cName(), zone_sect, Device.fTimeGlobal);
-//. #endif
+	CSE_Abstract* object = Level().spawn_item(zone_sect, pos, m_af->ai_location().level_vertex_id(), 0xffff, true);
+	CSE_ALifeAnomalousZone* AlifeZone = smart_cast<CSE_ALifeAnomalousZone*>(object);
+	VERIFY(AlifeZone);
+
+	CShapeData::shape_def		_shape;
+	_shape.data.sphere.P.set(0.0f, 0.0f, 0.0f);
+	_shape.data.sphere.R = zone_radius;
+	_shape.type = CShapeData::cfSphere;
+
+	AlifeZone->assign_shapes(&_shape, 1);
+	AlifeZone->m_owner_id = u32(-1); // m_owner_id
+	AlifeZone->m_space_restrictor_type = RestrictionSpace::eRestrictorTypeNone;
+
+	NET_Packet					P;
+	object->Spawn_Write(P, TRUE);
+	Level().Send(P, net_flags(TRUE));
+	F_entity_Destroy(object);
+
+	Msg("artefact [%s] spawned a zone [%s] at [%f]", *m_af->cName(), zone_sect, Device.fTimeGlobal);
+
+	// xr_vector<Fvector> anomaly_zones;
+	//for (auto i = 0; i < 25; i++)
+	//{
+	//	Fvector pos_new = { pos.x + Random.randI(-10, 10), pos.y, pos.z + Random.randI(-10, 10) };
+	//	anomaly_zones.push_back(pos_new);
+	//}
+	// 
+	//for (auto zone_ps : anomaly_zones)
+	//{
+	//	CSE_Abstract* object = Level().spawn_item(zone_sect, zone_ps, m_af->ai_location().level_vertex_id(), 0xffff, true);
+	//	CSE_ALifeAnomalousZone* AlifeZone = smart_cast<CSE_ALifeAnomalousZone*>(object);
+	//	VERIFY(AlifeZone);
+	//
+	//	CShapeData::shape_def		_shape;
+	//	_shape.data.sphere.P.set(0.0f, 0.0f, 0.0f);
+	//	_shape.data.sphere.R = zone_radius;
+	//	_shape.type = CShapeData::cfSphere;
+	//
+	//	AlifeZone->assign_shapes(&_shape, 1);
+	//	AlifeZone->m_owner_id = u32(-1); // m_owner_id
+	//	AlifeZone->m_space_restrictor_type = RestrictionSpace::eRestrictorTypeNone;
+	//
+	//	NET_Packet					P;
+	//	object->Spawn_Write(P, TRUE);
+	//	Level().Send(P, net_flags(TRUE));
+	//	F_entity_Destroy(object);
+	//
+	//	Msg("artefact [%s] spawned a zone [%s] at [%f]", *m_af->cName(), zone_sect, Device.fTimeGlobal);
+	//}
+
 }
+
 shared_str clear_brackets(LPCSTR src)
 {
-	if	(0==src)					return	shared_str(0);
+	if	(0==src)			
+		return	shared_str(0);
 	
-	if( NULL == strchr(src,'"') )	return	shared_str(src);
+	if( NULL == strchr(src,'"') )	
+		return	shared_str(src);
 
 	string512						_original;	
 	xr_strcpy						(_original,src);

@@ -79,8 +79,6 @@ void CArtefact::Load(LPCSTR section)
 
 BOOL CArtefact::net_Spawn(CSE_Abstract* DC) 
 {
-	//Msg("net_spawn: %s", DC->s_name.c_str());
-
 	if(pSettings->r_bool(cNameSect(),"can_be_controlled") )
 		m_detectorObj				= xr_new<SArtefactDetectorsSupport>(this);
 
@@ -192,20 +190,21 @@ void CArtefact::Interpolate()
 
 void CArtefact::UpdateWorkload		(u32 dt) 
 {
-
-	VERIFY(!physics_world()->Processing());
+ 	VERIFY(!physics_world()->Processing());
 	// particles - velocity
 	Fvector vel = {0, 0, 0};
 	if (H_Parent()) 
 	{
 		CPhysicsShellHolder* pPhysicsShellHolder = smart_cast<CPhysicsShellHolder*>(H_Parent());
-		if(pPhysicsShellHolder) pPhysicsShellHolder->PHGetLinearVell(vel);
+		if(pPhysicsShellHolder)
+			pPhysicsShellHolder->PHGetLinearVell(vel);
 	}
 	CParticlesPlayer::SetParentVel	(vel);
 
 	// 
 	UpdateLights					();
-	if(m_activationObj && m_activationObj->IsInProgress())	{
+	if(m_activationObj && m_activationObj->IsInProgress())	
+	{
 		CPHUpdateObject::Activate			();
 		m_activationObj->UpdateActivation	();
 		return;
@@ -223,15 +222,19 @@ void CArtefact::shedule_Update		(u32 dt)
 
 	//////////////////////////////////////////////////////////////////////////
 	// check "fast-mode" border
-	if (H_Parent())			o_switch_2_slow	();
-	else					{
+	if (H_Parent())		
+		o_switch_2_slow	();
+	else			
+	{
 		Fvector	center;			Center(center);
 		BOOL	rendering		= (Device.dwFrame==o_render_frame);
 		float	cam_distance	= Device.vCameraPosition.distance_to(center)-Radius();
 		if (rendering || (cam_distance < FASTMODE_DISTANCE))	o_switch_2_fast	();
 		else													o_switch_2_slow	();
 	}
-	if (!o_fastmode)		UpdateWorkload	(dt);
+	
+	if (!o_fastmode)	
+		UpdateWorkload	(dt);
 
 	if(!H_Parent() && m_detectorObj)
 	{
@@ -282,13 +285,10 @@ void CArtefact::UpdateLights()
 
 void CArtefact::ActivateArtefact	()
 {
-	VERIFY(m_bCanSpawnZone);
-	VERIFY( H_Parent() );
 	CreateArtefactActivation();
 	if (!m_activationObj)
 		return;
 	m_activationObj->Start();
-
 }
 
 void CArtefact::PhDataUpdate	(float step)
@@ -326,7 +326,6 @@ void CArtefact::MoveTo(Fvector const &  position)
 	Fmatrix	M = XFORM();
 	M.translate(position);
 	ForceTransform(M);
-	//m_bInInterpolation = false;	
 }
 
 
@@ -338,12 +337,13 @@ void CArtefact::UpdateXForm()
 	{
 		dwXF_Frame			= Device.dwFrame;
 
-		if (0==H_Parent())	return;
+		if (0==H_Parent())
+			return;
 
 		// Get access to entity and its visual
 		CEntityAlive*		E		= smart_cast<CEntityAlive*>(H_Parent());
-        
-		if(!E)				return	;
+ 		if(!E)				
+			return;
 
 		const CInventoryOwner	*parent = smart_cast<const CInventoryOwner*>(E);
 		if (parent && parent->use_simplified_visual())
@@ -374,7 +374,7 @@ void CArtefact::UpdateXForm()
 		N.crossproduct		(D,R);			N.normalize_safe();
 		mRes.set			(R,N,D,mR.c);
 		mRes.mulA_43		(E->XFORM());
-//		UpdatePosition		(mRes);
+
 		XFORM().mul			(mRes,offset());
 	}
 }
@@ -383,13 +383,14 @@ bool CArtefact::Action(u16 cmd, u32 flags)
 {
 	switch (cmd)
 	{
-	case kWPN_FIRE:
+		case kWPN_FIRE:
 		{
-			if (flags&CMD_START && m_bCanSpawnZone){
+			if (flags&CMD_START && m_bCanSpawnZone)
+			{
 				SwitchState(eActivating);
 				return true;
 			}
-			if (flags&CMD_STOP && m_bCanSpawnZone && GetState()==eActivating)
+ 			if (flags&CMD_STOP && m_bCanSpawnZone && GetState()==eActivating)
 			{
 				SwitchState(eIdle);
 				return true;
@@ -401,23 +402,31 @@ bool CArtefact::Action(u16 cmd, u32 flags)
 	return inherited::Action(cmd,flags);
 }
 
+void CArtefact::SwitchState(u32 S)
+{
+	inherited::SwitchState(S);
+}
+
 void CArtefact::OnStateSwitch(u32 S)
 {
+	Msg("On State Switch: %u", S);
 	inherited::OnStateSwitch	(S);
-	switch(S){
-	case eShowing:
+
+	switch(S)
+	{
+		case eShowing:
 		{
 			PlayHUDMotion("anm_show", FALSE, this, S);
 		}break;
-	case eHiding:
+		case eHiding:
 		{
 			PlayHUDMotion("anm_hide", FALSE, this, S);
 		}break;
-	case eActivating:
+		case eActivating:
 		{
 			PlayHUDMotion("anm_activate", FALSE, this, S);
 		}break;
-	case eIdle:
+		case eIdle:
 		{
 			PlayAnimIdle();
 		}break;
@@ -427,6 +436,14 @@ void CArtefact::OnStateSwitch(u32 S)
 void CArtefact::PlayAnimIdle()
 {
 	PlayHUDMotion("anm_idle", FALSE, NULL, eIdle);
+}
+
+void CArtefact::ActivateArtefactFast()
+{
+	NET_Packet		P;
+	u_EventGen(P, GEG_PLAYER_ACTIVATEARTEFACT, H_Parent()->ID());
+	P.w_u16(ID());
+	u_EventSend(P);
 }
 
 void CArtefact::OnAnimationEnd(u32 state)
@@ -443,8 +460,9 @@ void CArtefact::OnAnimationEnd(u32 state)
 		}break;
 	case eActivating:
 		{
-			if(Local())
+ 			if(Local())
 			{
+				isActivating = true;
 				SwitchState		(eHiding);
 				NET_Packet		P;
 				u_EventGen		(P, GEG_PLAYER_ACTIVATEARTEFACT, H_Parent()->ID());
@@ -475,9 +493,9 @@ void CArtefact::SwitchVisibility(bool b)
 
 void CArtefact::StopActivation()
 {
-	//VERIFY2(m_activationObj, "activation object not initialized");
-	if (!m_activationObj)
+ 	if (!m_activationObj)
 		return;
+
 	m_activationObj->Stop();
 }
 
@@ -490,14 +508,13 @@ void CArtefact::ForceTransform(const Fmatrix& m)
 
 void CArtefact::CreateArtefactActivation()
 {
-	if (m_activationObj) {
-		return;
-	}
+	if (m_activationObj)
+ 		return;
+ 
 	m_activationObj = xr_new<SArtefactActivation>(this, H_Parent()->ID());
 }
 
-SArtefactDetectorsSupport::SArtefactDetectorsSupport(CArtefact* A)
-:m_parent(A),m_currPatrolPath(NULL),m_currPatrolVertex(NULL),m_switchVisTime(0)
+SArtefactDetectorsSupport::SArtefactDetectorsSupport(CArtefact* A) :m_parent(A),m_currPatrolPath(NULL),m_currPatrolVertex(NULL),m_switchVisTime(0)
 {	
 }
 
@@ -581,7 +598,10 @@ void SArtefactDetectorsSupport::UpdateOnFrame()
 		}
 	}
 
-	if(m_parent->getVisible() && m_parent->GetAfRank()!=0 && m_switchVisTime+5000 < Device.dwTimeGlobal)
+	if (m_parent->isActivating && !m_parent->getVisible())
+		SetVisible(true);
+	
+	if( !m_parent->isActivating && m_parent->getVisible() && m_parent->GetAfRank()!=0 && m_switchVisTime+5000 < Device.dwTimeGlobal)
 		SetVisible(false);
 
 	u32 dwDt = 2*3600*1000/10; //2 hour of game time

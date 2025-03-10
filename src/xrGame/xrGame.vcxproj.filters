@@ -11488,6 +11488,18 @@
     <ClCompile Include="ActorNetwork_ActiveSlot.cpp">
       <Filter>Core\Client\Objects\actor\base</Filter>
     </ClCompile>
+    <ClCompile Include="WeaponMagazinedWGrenade_Addons.cpp">
+      <Filter>Se7Kills\Weapons\Custom Weapon\WeaponBase\AutoWG</Filter>
+    </ClCompile>
+    <ClCompile Include="WeaponMagazinedWGrenade_Animations.cpp">
+      <Filter>Se7Kills\Weapons\Custom Weapon\WeaponBase\AutoWG</Filter>
+    </ClCompile>
+    <ClCompile Include="WeaponMagazinedWGrenade_States.cpp">
+      <Filter>Se7Kills\Weapons\Custom Weapon\WeaponBase\AutoWG</Filter>
+    </ClCompile>
+    <ClCompile Include="WeaponMagazinedWGrenade_Upgrades.cpp">
+      <Filter>Se7Kills\Weapons\Custom Weapon\WeaponBase\AutoWG</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="ai\monsters\chimera\chimera_attack_state.h">
