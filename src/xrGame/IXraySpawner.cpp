@@ -16,6 +16,7 @@
 #include "../../xrCore/xr_ini.h"
 
 #include "ImUtils.h"
+#include "ImGUI_Loader.h"
 #include "string_table.h"
 // #include "embedded_editor_helper.h"
 #include "HUDManager.h"

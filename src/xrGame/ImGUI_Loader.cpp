@@ -286,3 +286,20 @@ void Editor_OnFrame()
         s_direction = 0;
     }
 }
+
+
+xr_string toUtf8(const char* s)
+{
+    // TO ACP
+    static xr_vector<wchar_t> buf;
+    int n = MultiByteToWideChar(CP_ACP, 0, s, -1, nullptr, 0);
+    buf.resize(n);
+    MultiByteToWideChar(CP_ACP, 0, s, -1, &buf[0], buf.size());
+
+    // TO UTF8
+    xr_string result;
+    n = WideCharToMultiByte(CP_UTF8, 0, &buf[0], buf.size(), nullptr, 0, nullptr, nullptr);
+    result.resize(n);
+    n = WideCharToMultiByte(CP_UTF8, 0, &buf[0], buf.size(), &result[0], result.size(), nullptr, nullptr);
+    return result;
+}
