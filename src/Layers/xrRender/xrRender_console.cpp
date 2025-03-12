@@ -740,11 +740,16 @@ public:
 };
 #endif 
 
+extern int opt_static  = 0;
+extern int opt_dynamic = 0;
 
 
 //-----------------------------------------------------------------------
 void		xrRender_initconsole	()
 {
+//	CMD4(CCC_Integer, "r__optimize_dynamic_geom", &opt_dynamic, 0, 4);
+	CMD4(CCC_Integer, "r__optimize_static_geom", &opt_static, 0, 4);
+
 	CMD4(CCC_Integer, "r__particle_distance", &render_particle_distance, 0, 1000);
 	CMD4(CCC_Float, "r__details_density", &ps_r__Detail_density, .05f, 0.9f);
 

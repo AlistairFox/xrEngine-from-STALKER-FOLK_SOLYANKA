@@ -854,6 +854,7 @@
     <ClCompile Include="r2_R_sun.cpp" />
     <ClCompile Include="r2_sector_detect.cpp" />
     <ClCompile Include="r2_test_hw.cpp" />
+    <ClCompile Include="r__dshgraph_optimize.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

@@ -1001,6 +1001,9 @@
     <ClCompile Include="Details\DetailModel.cpp">
       <Filter>Details</Filter>
     </ClCompile>
+    <ClCompile Include="r__dshgraph_optimize.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Pipeline.txt" />

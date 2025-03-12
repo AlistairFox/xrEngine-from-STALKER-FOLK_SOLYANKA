@@ -32,11 +32,15 @@ ICF	float	CalcSSA				(float& distSQ, Fvector& C, float R)
 	return	R/distSQ;
 }
 
+bool IsValuableToRender(dxRender_Visual* pVisual, bool isStatic, bool sm, Fmatrix& transform_matrix, bool ignore = false);
+
 void R_dsgraph_structure::r_dsgraph_insert_dynamic	(dxRender_Visual *pVisual, Fvector& Center)
 {
 	CRender&	RI			=	RImplementation;
 
-	if (pVisual->vis.marker	==	RI.marker)	return	;
+	if (pVisual->vis.marker	==	RI.marker)
+		return	;
+	 
 	pVisual->vis.marker		=	RI.marker			;
 
 #if RENDER==R_R1
@@ -464,8 +468,12 @@ void CRender::add_leafs_Dynamic	(dxRender_Visual *pVisual)
 
 void CRender::add_leafs_Static(dxRender_Visual *pVisual)
 {
+	if (!IsValuableToRender(pVisual, true, phase == 1, *val_pTransform))
+		return;
+
 	if (!HOM.visible(pVisual->vis))		return;
 
+	 
 	// Visual is 100% visible - simply add it
 	xr_vector<dxRender_Visual*>::iterator I,E;	// it may be usefull for 'hierrarhy' visuals
 
@@ -643,6 +651,9 @@ BOOL CRender::add_Dynamic(dxRender_Visual *pVisual, u32 planes)
 
 void CRender::add_Static(dxRender_Visual *pVisual, u32 planes)
 {
+	if (!IsValuableToRender(pVisual, true, phase == 1, *val_pTransform))
+		return;
+
 	// Check frustum visibility and calculate distance to visual's center
 	EFC_Visible	VIS;
 	vis_data&	vis			= pVisual->vis;
