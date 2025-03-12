@@ -1001,7 +1001,8 @@ void SpawnManager_HandleButtonPress(CInifile::Sect* section)
 		madPos.mad(pos, dir, range);
 
 		NET_Packet P;
-		Game().u_EventGen(P, GE_SPAWN_ITEM, -1);
+		Game().u_EventGen(P, GE_GAME_EVENT, -1);
+		P.w_u16(GE_SPAWN_ITEM);
 		P.w_u8(1);
  		P.w_vec3(madPos);
 
@@ -1012,7 +1013,8 @@ void SpawnManager_HandleButtonPress(CInifile::Sect* section)
 	else
 	{
 		NET_Packet P;
-		Game().u_EventGen(P, GE_SPAWN_ITEM, -1);
+		Game().u_EventGen(P, GE_GAME_EVENT, -1);
+		P.w_u16(GE_SPAWN_ITEM);
 		P.w_u8(2);
  
 		P.w_stringZ(section->Name);

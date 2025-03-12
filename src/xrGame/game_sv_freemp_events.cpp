@@ -131,6 +131,27 @@ void game_sv_freemp::OnEvent(NET_Packet& P, u16 type, u32 time, ClientID sender)
 {
 	switch (type)
 	{
+	case GE_SPAWN_ITEM:
+	{
+		u8 type = P.r_u8();
+		if (get_id(sender))
+		{
+			u32   GameID_Send = get_id(sender)->GameID;
+
+			Fvector pos;
+			if (type == 1)
+				pos = P.r_vec3();
+			shared_str name; P.r_stringZ(name);
+			u32 count = P.r_u32();
+			Msg("[GSpawn] %s : %u", *name, count);
+			if (type == 2)
+				SpawnItem(name.c_str(), GameID_Send);
+			else if (type == 1)
+				SpawnItemToPos(name.c_str(), pos);
+		}
+
+	}break;
+
 	case GAME_EVENT_PLAYER_KILL: // (g_kill)
 	{
 		u16 ID = P.r_u16();
