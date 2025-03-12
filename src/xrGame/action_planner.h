@@ -55,6 +55,14 @@ public:
 	typedef _world_operator							_world_operator;
 
 protected:
+
+	using _condition_type = typename inherited::_condition_type;
+	using _edge_type = typename inherited::_edge_type;
+	using _operator_ptr = typename inherited::_operator_ptr;
+	using _value_type = typename inherited::_value_type;
+	using CConditionEvaluator = typename inherited::CConditionEvaluator;
+	using COperator = typename inherited::COperator;
+
 	bool						m_initialized;
 	_action_id_type				m_current_action_id;
 
