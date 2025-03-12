@@ -4,7 +4,8 @@
 #include "Level.h"
 #include "xr_level_controller.h"
 #include "../xrEngine/xr_input.h"
- 
+#include "ImUtils.h"
+
 static bool isAlt = false;
 ENGINE_API extern EditorStage imgui_stage;
 
@@ -25,6 +26,7 @@ bool IsEditor() { return imgui_stage != EditorStage::None; }
 void ShowWeatherEditor(bool& show);
 
 bool show_weather_window = false;
+bool show_spawn_window = false;
 
 void ShowEditor()
 { 
@@ -32,7 +34,6 @@ void ShowEditor()
         return;
     
     ImguiWnd wnd("Main");
-
     if (wnd.Collapsed)
         return;
 
@@ -40,9 +41,9 @@ void ShowEditor()
  
     auto io = ImGui::GetIO();
     
-    if (ImGui::Button("Weather Editor"))
-         show_weather_window = !show_weather_window;
-      
+    ImGui::Checkbox("Weather Editor", &show_weather_window );
+    ImGui::Checkbox("Weather Editor", &show_weather_window);
+       
     if (show_weather_window)
         ShowWeatherEditor(show_weather_window);
 

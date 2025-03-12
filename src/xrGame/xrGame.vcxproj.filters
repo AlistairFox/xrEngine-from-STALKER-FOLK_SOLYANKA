@@ -7633,6 +7633,9 @@
     <ClInclude Include="WeaponMagazined.h">
       <Filter>Se7Kills\Weapons\Custom Weapon\WeaponBase\Automatic</Filter>
     </ClInclude>
+    <ClInclude Include="ImUtils.h">
+      <Filter>ImGUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="damage_manager.cpp">
@@ -11499,6 +11502,12 @@
     </ClCompile>
     <ClCompile Include="WeaponMagazinedWGrenade_Upgrades.cpp">
       <Filter>Se7Kills\Weapons\Custom Weapon\WeaponBase\AutoWG</Filter>
+    </ClCompile>
+    <ClCompile Include="IXraySpawner.cpp">
+      <Filter>ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="ImUtils.cpp">
+      <Filter>ImGUI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

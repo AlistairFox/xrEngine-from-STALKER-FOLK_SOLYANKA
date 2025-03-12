@@ -36,6 +36,7 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 	P.r_u16		(destination);
 
 	CSE_Abstract*	receiver	= game->get_entity_from_eid	(destination);
+
 	if (receiver)	
 	{
 		R_ASSERT(receiver->owner);
@@ -697,6 +698,31 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 	case GE_PHANTOM_MODE:
 	{
 		SendBroadcast(BroadcastCID, P, net_flags(true, true));
+	}break;
+
+	case GE_SPAWN_ITEM:
+	{
+		u8 type = P.r_u8();
+		if (game->get_id(sender))
+		{
+			u32   GameID_Send = game->get_id(sender)->GameID;
+
+			Fvector pos;
+			if (type == 1)
+ 				pos = P.r_vec3();
+ 			shared_str name; P.r_stringZ(name);
+			u32 count = P.r_u32();
+
+			game_sv_freemp* fgame = smart_cast<game_sv_freemp*>(game);
+			if (fgame)
+			{
+				if (type == 2)
+					fgame->SpawnItem(name.c_str(), GameID_Send);
+				else if (type == 1)
+					fgame->SpawnItemToPos(name.c_str(),  pos);
+			}
+		}
+		
 	}break;
 
 	default:

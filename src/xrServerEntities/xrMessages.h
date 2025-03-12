@@ -84,6 +84,8 @@ enum {
 	M_EVENT_CMD_SYNC,
 	M_CL_UPDATE_ACTIVE_SLOT,
 
+
+
 	MSG_FORCEDWORD				= u32(-1)
 };
 
@@ -225,6 +227,7 @@ enum
 
 	// Phantoms
 	GE_PHANTOM_MODE,
+	GE_SPAWN_ITEM,
 
 	GE_FORCEDWORD				= u32(-1)
 };

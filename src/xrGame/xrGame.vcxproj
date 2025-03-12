@@ -496,7 +496,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <FloatingPointModel>Precise</FloatingPointModel>
-      <LanguageStandard>stdcpp14</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
       <SDLCheck>true</SDLCheck>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
     </ClCompile>
@@ -1328,6 +1328,7 @@
     <ClInclude Include="handle.hpp" />
     <ClInclude Include="hooks.hpp" />
     <ClInclude Include="ImGUI_Loader.h" />
+    <ClInclude Include="ImUtils.h" />
     <ClInclude Include="level_events.h" />
     <ClInclude Include="MasterServerEvents.h" />
     <ClInclude Include="minhook\include\MinHook.h" />
@@ -4664,6 +4665,8 @@
     <ClCompile Include="game_sv_roleplay_drop_items.cpp" />
     <ClCompile Include="guard_utils.cpp" />
     <ClCompile Include="ImGUI_Loader.cpp" />
+    <ClCompile Include="ImUtils.cpp" />
+    <ClCompile Include="IXraySpawner.cpp" />
     <ClCompile Include="level_events.cpp" />
     <ClCompile Include="minhook\src\buffer.cpp" />
     <ClCompile Include="minhook\src\hde\hde32.cpp" />

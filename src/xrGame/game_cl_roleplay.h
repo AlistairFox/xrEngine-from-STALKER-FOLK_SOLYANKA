@@ -40,6 +40,6 @@ public:
 
 	virtual void							OnSetCurrentControlEntity(CObject *O);
 
-	//virtual void							OnRender();
+	virtual void							OnRender();
 };
 

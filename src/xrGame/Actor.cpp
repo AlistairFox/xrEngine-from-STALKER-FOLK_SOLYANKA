@@ -1231,7 +1231,7 @@ void CActor::UpdateCL	()
 			SetZoomAimingMode		(true);
 		}
 
-		if(Level().CurrentEntity() && this->ID()==Level().CurrentEntity()->ID() )
+		if(Level().CurrentEntity() && ID() == Level().CurrentEntity()->ID() )
 		{
 			float fire_disp_full = pWeapon->GetFireDispersion(true, true);
 			m_fdisp_controller.SetDispertion(fire_disp_full);
@@ -1259,7 +1259,7 @@ void CActor::UpdateCL	()
 
 				bool bUseMark = !!pWeapon->bMarkCanShow();
 				bool bNVEnbl = !!pWeapon->bNVsecondVPstatus;
-
+ 
 				g_pGamePersistent->m_pGShaderConstants->hud_params.x = pWeapon->GetZRotatingFactor();	 //--#SM+#--
 				g_pGamePersistent->m_pGShaderConstants->hud_params.y = pWeapon->GetSecondVPFov();		 //--#SM+#--
 				g_pGamePersistent->m_pGShaderConstants->hud_params.z = bUseMark;						 //--#SM+#--
@@ -1269,13 +1269,12 @@ void CActor::UpdateCL	()
 			//g_pGamePersistent->m_pGShaderConstants->hud_params.x = pWeapon->bInZoomRightNow();  //--#SM+#--
 			//g_pGamePersistent->m_pGShaderConstants->hud_params.y = false; //--#SM+#--
 			//g_pGamePersistent->m_pGShaderConstants->hud_params.z = pWeapon->bInZoomRightNow(); //--#SM+#--
-			//g_pGamePersistent->m_pGShaderConstants->m_blender_mode.x = false;  //--#SM+#--
-			
+			//g_pGamePersistent->m_pGShaderConstants->m_blender_mode.x = false;  //--#SM+#--			
 		}
 	}
 	else
 	{
-		if(Level().CurrentEntity() && this->ID()==Level().CurrentEntity()->ID() )
+		if(Level().CurrentEntity() && ID() == Level().CurrentEntity()->ID() )
 		{
 			HUD().SetCrosshairDisp(0.f);
 			HUD().ShowCrosshair(false);
