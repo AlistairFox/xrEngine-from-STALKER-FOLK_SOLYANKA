@@ -112,11 +112,9 @@ IC float GetDistFromCamera(const Fvector& from_position)
 
 	return adjusted_distane;
 }
-
+ 
 bool IsValuableToRender(dxRender_Visual* pVisual, bool isStatic, bool sm, Fmatrix& transform_matrix, bool ignore = false)
 {
-	//	if (ignore)
-	//		return true;
 
 	if ((isStatic && opt_static >= 1) || (!isStatic && opt_dynamic >= 1))
 	{

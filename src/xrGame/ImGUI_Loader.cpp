@@ -43,7 +43,15 @@ void ShowEditor()
     
     ImGui::Checkbox("Weather Editor", &show_weather_window );
     ImGui::Checkbox("Spawn Meny", &show_spawn_window);
-       
+    
+
+    if (ImGui::Button("Atmosfear 3 Options (Server)"))
+    {
+        luabind::functor<void>	funct;
+        ai().script_engine().functor("atmosfear.OnButton_af_options_clicked", funct);
+        funct();
+     }
+
     if (show_weather_window)
         ShowWeatherEditor(show_weather_window);
 

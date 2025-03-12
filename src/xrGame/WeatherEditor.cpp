@@ -325,15 +325,6 @@ void ShowWeatherEditor(bool& show)
 
 	ImGui::Text(u8"Main parameters");
 
-	if (ImGui::Button("Atmosfear 3 Options (Server)"))
-	{
-		luabind::functor<void>	funct;
-		ai().script_engine().functor("atmosfear.OnButton_af_options_clicked", funct);
-		funct();
-		//	CallLuabindFunctor("atmosfear.OnButton_af_options_clicked");
-	}
-
-
 	bool lerps = CurrentEditing;
 	ImGui::Checkbox("lerp_update", &lerps);
 	CurrentEditing = lerps;

@@ -491,26 +491,11 @@ void CPHWorld::FrameStep(dReal step)
 	
 	VERIFY		(_valid(step))	;
 	step	*=	phTimefactor	;
-	// compute contact joints and forces
-
-	//step+=astep;
-
-	//const  dReal k_p=24000000.f;//550000.f;///1000000.f;
-	//const dReal k_d=400000.f;
+ 
 	u32 it_number;
 	float frame_time=m_frame_time;
 	frame_time+=step;
-	//m_frame_sum+=step;
-#ifdef DEBUG
-	if(debug_output().ph_dbg_draw_mask().test(phDbgDrawObjectStatistics))
-	{
-		static float dbg_iterations=0.f;
-		dbg_iterations=dbg_iterations*0.9f+step/fixed_step*0.1f;
-		b_processing=true;
-		debug_output().DBG_OutText("phys steps per frame %2.1f",dbg_iterations);
-		b_processing=false;
-	}
-#endif
+ 
 	if(!(frame_time<fixed_step))
 	{
 		it_number				=	iFloor	(frame_time/fixed_step);
@@ -524,22 +509,20 @@ void CPHWorld::FrameStep(dReal step)
 		m_frame_time=	frame_time;
 		return		;
 	}
-	//for(UINT i=0;i<(m_reduce_delay+1);++i)
-#ifdef DEBUG 
-	debug_output().DBG_DrawFrameStart();
-	debug_output().DBG_DrawStatBeforeFrameStep();
-#endif
+ 
 	b_processing=true;
-
-	start_time = Device().dwTimeGlobal;// - u32(m_frame_time*1000);
-	if( ph_console::g_bDebugDumpPhysicsStep && it_number > 20 )
-		Msg("!!!TOO MANY PHYSICS STEPS PER FRAME = %d !!!",it_number);
-	for( UINT i=0; i < it_number;++i )	
-		Step();
+ 	start_time = Device().dwTimeGlobal; 
+ 
+	CTimer t;
+	t.Start();
+	for (UINT i = 0; i < it_number; ++i)
+	{
+ 		Step();
+		if (t.GetElapsed_ms() > 500)
+			break;		
+	}
 	b_processing=false;
-#ifdef DEBUG
-	debug_output().DBG_DrawStatAfterFrameStep();
-#endif
+ 
 }
 
 void CPHWorld::AddObject(CPHObject* object){
