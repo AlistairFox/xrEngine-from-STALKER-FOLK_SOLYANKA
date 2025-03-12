@@ -310,9 +310,15 @@ void CEntityAlive::Die	(CObject* who)
 	RELATION_REGISTRY().Action(smart_cast<CEntityAlive*>(who), this, RELATION_REGISTRY::KILL);
 	inherited::Die(who);
 	
-	const CGameObject *who_object = smart_cast<const CGameObject*>(who);
-	callback(GameObject::eDeath)(lua_game_object(), who_object ? who_object->lua_game_object() : 0);
+	// Msg("Die [%s][%u] Who[%s][%u]", this->Name(), this->ID(), who->cName(), who->ID());
+	// Msg("clsid Die[%u] Who[%u]",   this->clsid(), smart_cast<CGameObject*>(who)->clsid());
 
+	if (OnServer())
+	{
+		const CGameObject* who_object = smart_cast<const CGameObject*>(who);
+		callback(GameObject::eDeath)(lua_game_object(), who_object ? who_object->lua_game_object() : 0);
+ 	}
+	
 	if (!getDestroy() && (GameID() == eGameIDSingle)) {
 		NET_Packet		P;
 		u_EventGen		(P,GE_ASSIGN_KILLER,ID());

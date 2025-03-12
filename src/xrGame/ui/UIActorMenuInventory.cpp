@@ -37,6 +37,7 @@
 #include "../actor_defs.h"
 #include "../CampFireSwitcher.h"
 
+#pragma optimize(off, "")
 
 void move_item_from_to(u16 from_id, u16 to_id, u16 what_id);
 
@@ -565,21 +566,41 @@ bool CUIActorMenu::ToSlot(CUICellItem* itm, bool force_place, u16 slot_id)
 		if ( slot_id == INV_SLOT_3 && m_pActorInvOwner->inventory().CanPutInSlot(iitem, INV_SLOT_2))
 			return ToSlot(itm, force_place, INV_SLOT_2);
 
-		PIItem	_iitem						= m_pActorInvOwner->inventory().ItemFromSlot(slot_id);
-		CUIDragDropListEx* slot_list		= GetSlotList(slot_id);
-		VERIFY								(slot_list->ItemsCount()==1);
+		bool result = false;
 
-		CUICellItem* slot_cell				= slot_list->GetItemIdx(0);
-		VERIFY								(slot_cell && ((PIItem)slot_cell->m_pData)==_iitem);
-
-		bool result							= ToBag(slot_cell, false);
-		VERIFY								(result);
-
-		result								= ToSlot(itm, false, slot_id);
-		if(b_own_item && result && slot_id==DETECTOR_SLOT)
+		if (slot_id <= LAST_SLOT)
 		{
-			CCustomDetector* det			= smart_cast<CCustomDetector*>(iitem);
-			det->ToggleDetector				(g_player_hud->attached_item(0)!=NULL);
+			PIItem	_iitem = m_pActorInvOwner->inventory().ItemFromSlot(slot_id);
+			CUIDragDropListEx* slot_list = GetSlotList(slot_id);
+			
+			if (slot_list != nullptr)
+			{
+				// Msg("Try move to slot: %u item: %s", slot_id, _iitem->NameItem());
+				VERIFY(slot_list->ItemsCount() == 1);
+
+				CUICellItem* slot_cell = slot_list->GetItemIdx(0);
+				VERIFY(slot_cell && ((PIItem)slot_cell->m_pData) == _iitem);
+
+				result = ToBag(slot_cell, false);
+				VERIFY(result);
+
+				result = ToSlot(itm, false, slot_id);
+				if (b_own_item && result && slot_id == DETECTOR_SLOT)
+				{
+					CCustomDetector* det = smart_cast<CCustomDetector*>(iitem);
+					det->ToggleDetector(g_player_hud->attached_item(0) != NULL);
+				}
+			}
+			else
+			{
+				Debug.Callstack();
+				Msg("[ERROR] UI Dragdrop list is nullptr");
+			}
+		}
+		else
+		{
+			Debug.Callstack();
+			Msg("[ERROR] Slot ID: %u > max: %u", slot_id, LAST_SLOT);
 		}
 
 		return result;
@@ -769,9 +790,9 @@ bool CUIActorMenu::TryUseItem( CUICellItem* cell_itm )
 	
 	if (pArtefact)
 	{
-		pArtefact->ActivateArtefactFast();
-		//Actor()->inventory().Slot(ARTEFACT_SLOT, pArtefact, false, true);
-		//Actor()->inventory().Activate(ARTEFACT_SLOT);
+		//pArtefact->ActivateArtefactFast();
+		Actor()->inventory().Slot(ARTEFACT_SLOT, pArtefact, false, true);
+		Actor()->inventory().Activate(ARTEFACT_SLOT);
 		return true;
 	}
 
@@ -1105,7 +1126,8 @@ void CUIActorMenu::PropertiesBoxForUsing( PIItem item, bool& b_show )
 	{
 		act_str = "st_activate";
 	}
-	else if ( pMedkit || pAntirad)
+	else 
+	if ( pMedkit || pAntirad)
 	{
 		act_str = "st_use";
 	}

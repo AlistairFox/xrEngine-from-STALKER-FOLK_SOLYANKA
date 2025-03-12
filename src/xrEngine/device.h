@@ -17,6 +17,8 @@
 //#include "R_Backend.h"
  
 extern ENGINE_API float VIEWPORT_NEAR;
+extern ENGINE_API float VIEWPORT_NEAR_HUD;
+
 
 enum class EditorStage
 {

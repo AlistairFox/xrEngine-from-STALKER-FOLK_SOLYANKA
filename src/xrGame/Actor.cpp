@@ -1070,8 +1070,29 @@ void CActor::g_Physics			(Fvector& _accel, float jump, float dt)
 	}
 }
 
-float g_fov = 73.0f;
+float g_fov = 80.0f;
 
+float CActor::currentFOV()
+{
+	if (!psHUD_Flags.is(HUD_WEAPON | HUD_WEAPON_RT | HUD_WEAPON_RT2))
+		return g_fov;
+
+	CWeapon* pWeapon = smart_cast<CWeapon*>(inventory().ActiveItem());
+
+	if (eacFirstEye == cam_active && pWeapon && pWeapon->IsZoomed() && (!pWeapon->ZoomTexture() || (!pWeapon->IsRotatingToZoom() && pWeapon->ZoomTexture())))
+	{
+		if (GameConstants::GetOGSE_WpnZoomSystem())
+			return atanf(tanf(g_fov * (0.5f * PI / 180)) / pWeapon->GetZoomFactor()) / (0.5f * PI / 180);
+		else
+			return pWeapon->GetZoomFactor() * 0.75f;
+	}
+	else
+	{
+		return g_fov;
+	}
+}
+
+/*
 float CActor::currentFOV()
 {
 	if (!psHUD_Flags.is(HUD_WEAPON|HUD_WEAPON_RT|HUD_WEAPON_RT2))
@@ -1096,7 +1117,7 @@ float CActor::currentFOV()
 		}
 	}
 
-	if (/*eacFirstEye == cam_active && */ pWeapon && pWeapon->IsZoomed() && (!pWeapon->ZoomTexture() || (!pWeapon->IsRotatingToZoom() && pWeapon->ZoomTexture())))
+	if ( pWeapon && pWeapon->IsZoomed() && (!pWeapon->ZoomTexture() || (!pWeapon->IsRotatingToZoom() && pWeapon->ZoomTexture())))
 	{
 		if (eacFirstEye == cam_active)
 			pWeapon->GetZoomFactor()* (0.75f);
@@ -1108,12 +1129,21 @@ float CActor::currentFOV()
 		return g_fov;
 	}
 }
+*/
 
 float	NET_Jump = 0;
 
 
 void CActor::UpdateCL	()
 {
+	//if (auto item = inventory().ItemFromSlot(ARTEFACT_SLOT))
+	//{
+	//	if (inventory().GetActiveSlot() != ARTEFACT_SLOT)
+	//	{
+	//		inventory().Activate(ARTEFACT_SLOT);
+	//	}
+	//}
+
 	if(g_Alive() && Level().CurrentViewEntity() == this)
 	{
 		if(CurrentGameUI() && NULL==CurrentGameUI()->TopInputReceiver())
@@ -1220,10 +1250,25 @@ void CActor::UpdateCL	()
 			psHUD_Flags.set( HUD_DRAW_RT, pWeapon->show_indicators() );
 
 			
-			g_pGamePersistent->m_pGShaderConstants->hud_params.x = pWeapon->bInZoomRightNow();  //--#SM+#--
-			g_pGamePersistent->m_pGShaderConstants->hud_params.y = false; //--#SM+#--
-			g_pGamePersistent->m_pGShaderConstants->hud_params.z = pWeapon->bInZoomRightNow(); //--#SM+#--
-			g_pGamePersistent->m_pGShaderConstants->m_blender_mode.x = false;  //--#SM+#--
+
+
+			if (g_pGamePersistent && g_pGamePersistent->m_pGShaderConstants)
+			{
+				bool is_zoomeed = !!pWeapon->IsZoomed();
+
+				bool bUseMark = !!pWeapon->bMarkCanShow();
+				bool bNVEnbl = !!pWeapon->bNVsecondVPstatus;
+
+				g_pGamePersistent->m_pGShaderConstants->hud_params.x = pWeapon->GetZRotatingFactor();	 //--#SM+#--
+				g_pGamePersistent->m_pGShaderConstants->hud_params.y = pWeapon->GetSecondVPFov();		 //--#SM+#--
+				g_pGamePersistent->m_pGShaderConstants->hud_params.z = bUseMark;						 //--#SM+#--
+				g_pGamePersistent->m_pGShaderConstants->m_blender_mode.x = bNVEnbl;						 //--#SM+#--
+			}
+
+			//g_pGamePersistent->m_pGShaderConstants->hud_params.x = pWeapon->bInZoomRightNow();  //--#SM+#--
+			//g_pGamePersistent->m_pGShaderConstants->hud_params.y = false; //--#SM+#--
+			//g_pGamePersistent->m_pGShaderConstants->hud_params.z = pWeapon->bInZoomRightNow(); //--#SM+#--
+			//g_pGamePersistent->m_pGShaderConstants->m_blender_mode.x = false;  //--#SM+#--
 			
 		}
 	}

@@ -4258,9 +4258,7 @@ public:
 		{
 			string_path filep;
 			FS.update_path(filep, "$game_meshes$", file.name.c_str());
-
-
-
+			 
 			if (strstr(file.name.c_str(), "dynamics\\weapons\\wpn_hand") != 0)
 			{
 				string_path file_exp;
@@ -4270,39 +4268,28 @@ public:
  
 				
  				IReader* R = FS.r_open(filep);
+				
 				if (R)
 				{
-					Msg("Reading File: %s", filep);
-					
-
 					if (R->find_chunk(OGF_S_MOTION_REFS2))
 					{
 						u32 set_cnt = R->r_u32();
  						string_path		nm;
 						xr_vector<shared_str> names;
-						bool Finded = false;
-						for (u32 k = 0; k < set_cnt; ++k)
-						{
-							R->r_stringZ(nm, sizeof(nm));
-							xr_strcat(nm, ".omf");
-							names.push_back(nm);
- 							if (strstr(nm, "wpn_protecta") != 0)
-								Finded = true;
- 						}
 
-						if (!Finded)
+
+						CInifile* write = xr_new<CInifile>(file_exp);
+						for (auto S : names)
 						{
-							IWriter* write = FS.w_open(file_exp);
-							for (auto S : names)
-							{
-								string128 tmp;
-								sprintf_s(tmp, "[%u] OMF: %s", k, *S);
-								write->w_string(tmp);
-							}
-							FS.w_close(write);
+							string128 tmp;
+							sprintf_s(tmp, "%s", *S);
+							write->w_string("OMF_REFS", "", tmp);
 						}
-					}
+						write->save_as();
+						xr_delete(write);
+  					}
 				}
+
 				FS.r_close(R);
 
 				

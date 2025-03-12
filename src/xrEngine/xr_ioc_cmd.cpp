@@ -663,9 +663,10 @@ public		:
 	}
 };
 
-ENGINE_API float    psHUD_FOV_def = 0.45f;
+ENGINE_API float    psHUD_FOV_def = 0.7f;
 ENGINE_API float	psHUD_FOV     = psHUD_FOV_def;
-ENGINE_API float	VIEWPORT_NEAR = 0.05f;
+ENGINE_API float	VIEWPORT_NEAR	  = 0.2f;
+ENGINE_API float	VIEWPORT_NEAR_HUD = 0.01f;
 
 //extern int			psSkeletonUpdate;
 extern int			rsDVB_Size;
@@ -817,7 +818,9 @@ void CCC_Register()
 	CMD1(CCC_UpdateWindowPos, "r__update_window");
 
 	CMD4(CCC_Integer, "fps_limit", &fps_limit, 1, 600);
- 	CMD4(CCC_Float, "r__viewport_near", &VIEWPORT_NEAR, 0.05f, 1.0f);
+
+	CMD4(CCC_Float, "r__nearplane_hud", &VIEWPORT_NEAR_HUD, 0, 1);
+ 	CMD4(CCC_Float, "r__nearplane", &VIEWPORT_NEAR, 0.05f, 1.0f);
 
 #ifdef DEDICATED_SERVER
 	CMD4(CCC_Integer, "shedule_updateCL", &updateCL_Rate, 1, 500);

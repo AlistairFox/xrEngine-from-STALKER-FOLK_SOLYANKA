@@ -790,12 +790,15 @@ void CKinematicsAnimated::Load(const char* N, IReader *data, u32 dwFlags)
 				create_res = m_Motions.back().motions.create	(nm,MS,bones);
 				FS.r_close						(MS);
 			}
-            if(create_res)
-				m_Motions.back().motions.create	(nm,NULL,bones);
-            else{
+			if (create_res)
+			{
+				m_Motions.back().motions.create(nm, NULL, bones);
+			}
+			else
+			{
             	m_Motions.pop_back	();
                 Msg					("! error in model [%s]. Unable to load motion file '%s'.", N, nm);
-                }
+            }
     	}
     }
 	else    

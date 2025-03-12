@@ -89,6 +89,7 @@ BOOL motions_value::load		(LPCSTR N, IReader *data, vecBones* bones)
 		u16 vers 				= MP->r_u16();
 		u16 part_bone_cnt		= 0;
 		string128 				buf;
+	
 		R_ASSERT3				(vers<=xrOGF_SMParamsVersion,"Invalid OGF/OMF version:",N);
 		
 		// partitions
@@ -186,12 +187,14 @@ BOOL motions_value::load		(LPCSTR N, IReader *data, vecBones* bones)
 		R_ASSERT			(MS->find_chunk(m_idx+1));             
 		MS->r_stringZ		(mname,sizeof(mname));
         
+#ifdef _DEBUG        
 		// sanity check
-		xr_strlwr			(mname);
-        accel_map::iterator I = m_motion_map.find(mname); 
-        R_ASSERT3	(I!=m_motion_map.end(),"Can't find motion:",mname);
-		R_ASSERT3	(I->second==m_idx,"Invalid motion index:",mname);
- 
+		xr_strlwr(mname);
+		accel_map::iterator I = m_motion_map.find(mname);
+		VERIFY3(I != m_motion_map.end(), "Can't find motion:", mname);
+		VERIFY3(I->second == m_idx, "Invalid motion index:", mname);
+#endif
+
 		u32 dwLen			= MS->r_u32();
 		for (u32 i=0; i < bones->size(); i++){
 			u16 bone_id		= rm_bones[i];

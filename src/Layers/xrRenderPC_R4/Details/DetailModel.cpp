@@ -82,7 +82,7 @@ void CDetail::Load(IReader* S)
 	S->r_stringZ(fnT, sizeof(fnT));
 	shader.create(fnS, fnT);
 
-	Msg("CDetail Slot Shader[%s] Texture[%s]", fnS, fnT);
+	//Msg("CDetail Slot Shader[%s] Texture[%s]", fnS, fnT);
 
 	// Params
 	m_Flags.assign(S->r_u32());
@@ -103,7 +103,7 @@ void CDetail::Load(IReader* S)
 	indices = xr_alloc<u16>(number_indices);
 	S->r(indices, size_indices);
 
-	Msg("CDetail Slot SizeVertex[%u], SizeIndexes[%u]", size_vertices, size_indices);
+	//Msg("CDetail Slot SizeVertex[%u], SizeIndexes[%u]", size_vertices, size_indices);
 	 
 	// Calc BB & SphereRadius
 	bv_bb.invalidate();
