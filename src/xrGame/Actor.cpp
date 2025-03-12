@@ -99,6 +99,7 @@ int				psActorSleepTime = 1;
 
 CActor::CActor() : CEntityAlive(),current_ik_cam_shift(0)
 {
+	is_player = false;
 	fFPCamYawMagnitude = 0;
 	fFPCamPitchMagnitude = 0;
 

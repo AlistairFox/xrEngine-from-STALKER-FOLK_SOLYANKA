@@ -97,7 +97,7 @@ public:
 	bool CanChange = true;
 	bool NEED_EXIT = false;
  	bool CanUseAnimationsMenu = false;
- 
+	bool is_player;
 protected:
 	u32 InputAnim = 0;
 	u32 OutAnim = 0;

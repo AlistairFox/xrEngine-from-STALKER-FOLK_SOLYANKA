@@ -15,7 +15,8 @@
 #include "game_sv_freemp.h"
 #include "WeaponMagazined.h"
 #include "game_sv_mp.h"
- 
+#include "Actor.h"
+
 void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 {
 #	ifdef SLOW_VERIFY_ENTITIES
@@ -536,6 +537,98 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 		SendBroadcast(sender, P, net_flags(true, true));
 	}
 	break;
+
+	case GE_ACTOR_GIFT_ITEM:
+ 	{
+ 		u16 who_give;
+ 		P.r_u16(who_give);
+ 		u16 to_give;
+ 		P.r_u16(to_give);
+ 		u16 pitem;
+ 		P.r_u16(pitem);
+ 
+ 		CInventoryItem* inv_item = smart_cast<CInventoryItem*>(Level().Objects.net_Find(pitem));
+ 
+ 		if (!inv_item)
+ 			break;
+ 
+ 		game_sv_freemp* fmp = smart_cast<game_sv_freemp*>(game);
+ 		if (!fmp)
+ 			break;
+ 
+ 
+ 		xrClientData* data = (xrClientData*)game->get_client(who_give);
+ 		xrClientData* data2 = (xrClientData*)game->get_client(to_give);
+ 
+ 		if (!data || !data->ps)
+ 			break;
+ 
+ 		if (!data2 || !data2->ps)
+ 			break;
+ 
+ 		CSE_Abstract* E = fmp->spawn_begin(inv_item->m_section_id.c_str());
+ 
+ 		E->ID_Parent = to_give;
+ 		CSE_ALifeItem* item = smart_cast<CSE_ALifeItem*>(E);
+ 		CSE_ALifeItemWeapon* wpn = smart_cast<CSE_ALifeItemWeapon*>(item);
+ 		CSE_ALifeItemAmmo* ammo = smart_cast<CSE_ALifeItemAmmo*>(item);
+ 		if (item)
+ 			item->m_fCondition = inv_item->GetCondition();
+ 		if (wpn)
+ 		{
+ 			CWeapon* wpna = smart_cast<CWeapon*>(inv_item);
+ 			wpn->a_elapsed = wpna->GetAmmoElapsed();
+ 			wpn->ammo_type = wpna->m_ammoType;
+ 			wpn->m_addon_flags.flags = wpna->GetAddonsState();
+ 			wpn->m_cur_scope = wpna->m_cur_scope;
+ 		}
+ 		else if (ammo)
+ 		{
+ 			CWeaponAmmo* ammos = smart_cast<CWeaponAmmo*>(inv_item);
+ 			ammo->a_elapsed = ammos->m_boxCurr;;
+ 		}
+ 		if (inv_item->has_any_upgrades())
+ 		{
+ 			string2048 upgs;
+ 			inv_item->get_upgrades(upgs);
+ 			u32 count = _GetItemCount(upgs, ',');
+ 			for (u32 id = 0; id != count; id++)
+ 			{
+ 				string64 upgrade;
+ 				_GetItem(upgs, id, upgrade, ',');
+ 				item->m_upgrades.emplace_back(upgrade);
+ 			}
+ 		}
+ 		CSE_Abstract* end = fmp->spawn_end(E, Level().Server->GetServerClient()->ID);
+ 
+ 		NET_Packet P;
+ 		P.w_begin(M_EVENT);
+ 		P.w_u32(Device.dwTimeGlobal - 2 * NET_Latency);
+ 		P.w_u16(GE_DESTROY);
+ 		P.w_u16(pitem);
+ 		Level().Send(P, net_flags(TRUE, TRUE));
+ 
+ 		{
+ 			CActor* act = smart_cast<CActor*>(Level().Objects.net_Find(who_give));
+ 
+ 			NET_Packet Pack;
+ 			act->u_EventGen(Pack, GE_ACTOR_GIFT_RECIEVE, who_give);
+ 			Pack.w_u8(1);
+ 			Pack.w_u16(end->ID);
+ 			Level().Server->SendTo(data->ID, Pack, net_flags(TRUE, TRUE));
+ 		}
+ 
+ 		{
+ 			CActor* act = smart_cast<CActor*>(Level().Objects.net_Find(to_give));
+ 
+ 			NET_Packet Pack;
+ 			act->u_EventGen(Pack, GE_ACTOR_GIFT_RECIEVE, to_give);
+ 			Pack.w_u8(0);
+ 			Pack.w_u16(end->ID);
+ 			Level().Server->SendTo(data2->ID, Pack, net_flags(TRUE, TRUE));
+ 		}
+ 
+ 	}break;
 
 	case GE_ACTOR_ANIMATION_MOTIONID:
 	case GE_ACTOR_ITEM_ACTIVATE:

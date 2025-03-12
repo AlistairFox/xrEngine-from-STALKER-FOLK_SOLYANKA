@@ -20,6 +20,7 @@ const float	CActorMP::cam_inert_value = 0.7f;
 
 CActorMP::CActorMP			()
 {
+	is_player = true;
 	//m_i_am_dead				= false;
 }
 

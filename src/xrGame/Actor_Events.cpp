@@ -18,6 +18,8 @@
 #include "holder_custom.h"
 //.#include "ui/uiinventoryWnd.h"
 #include "game_base_space.h"
+#include "game_news.h"
+#include "string_table.h"
 #ifdef DEBUG
 #include "PHDebug.h"
 #endif
@@ -363,6 +365,43 @@ void CActor::OnEvent(NET_Packet& P, u16 type)
 			ChangeVisual(vis);
 		}break;
 
+		case GE_ACTOR_GIFT_RECIEVE:
+ 		{
+ 			u8 is_whogive = P.r_u8();
+ 			u16 item_id = P.r_u16();
+ 
+ 			CInventoryItem* inv_itm = smart_cast<CInventoryItem*>(Level().Objects.net_Find(item_id));
+ 
+ 			if (!inv_itm)
+ 				break;
+ 
+ 			GAME_NEWS_DATA news_data;
+ 			news_data.m_type = (GAME_NEWS_DATA::eNewsType)0;
+ 
+ 			ref_sound snd;
+ 			snd.create("device\\pda\\pda_news", st_Effect, SOUND_TYPE_ITEM);
+ 			snd.play(NULL, sm_2D);
+ 			Msg("CL: event processing in Actor_Events. status: [%d]", is_whogive);
+ 			string128 tmp;
+ 
+ 			if (is_whogive == 1)
+ 			{
+ 				xr_sprintf(tmp, "%s", inv_itm->NameItem());
+ 				news_data.news_caption = CStringTable().translate("general_out_item").c_str();
+ 				news_data.news_text = tmp;
+ 				news_data.texture_name = "ui_inGame2_Predmet_otdan";
+ 				news_data.show_time = 3000;
+ 			}
+ 			else if (is_whogive == 0)
+ 			{
+ 				xr_sprintf(tmp, "%s", inv_itm->NameItem());
+ 				news_data.news_caption = CStringTable().translate("general_in_item").c_str();
+ 				news_data.news_text = tmp;
+ 				news_data.texture_name = "ui_inGame2_Predmet_poluchen";
+ 				news_data.show_time = 3000;
+ 			}
+ 			AddGameNews(news_data);
+ 		}break;
 	}
 }
 
