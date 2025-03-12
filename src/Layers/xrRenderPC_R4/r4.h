@@ -274,6 +274,9 @@ public:
 		DWORD                           Flags,
 		void*&							result);
 
+
+	virtual	CRender::SurfaceParams			getSurface(const char* nameTexture) override;
+
 	// Information
 	virtual void					Statistics					(CGameFont* F);
 	virtual LPCSTR					getShaderPath				()									{ return "r3\\";	}

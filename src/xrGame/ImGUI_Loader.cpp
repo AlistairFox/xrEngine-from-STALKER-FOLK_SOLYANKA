@@ -42,16 +42,18 @@ void ShowEditor()
     auto io = ImGui::GetIO();
     
     ImGui::Checkbox("Weather Editor", &show_weather_window );
-    ImGui::Checkbox("Weather Editor", &show_weather_window);
+    ImGui::Checkbox("Spawn Meny", &show_spawn_window);
        
     if (show_weather_window)
         ShowWeatherEditor(show_weather_window);
 
-    bool full = imgui_stage == EditorStage::Full;
-    if (ImGui::Checkbox("Active", &full))
-        imgui_stage = full ? EditorStage::Full : EditorStage::None;
-    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+    if (show_spawn_window)
+        RenderSpawnManagerWindow(show_spawn_window);
 
+    bool full = imgui_stage == EditorStage::Full;
+    //if (ImGui::Checkbox("Active", &full))
+    //    imgui_stage = full ? EditorStage::Full : EditorStage::None;
+    //ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 }
 
 bool isRControl = false, isLControl = false, isRShift = false, isLShift = false;

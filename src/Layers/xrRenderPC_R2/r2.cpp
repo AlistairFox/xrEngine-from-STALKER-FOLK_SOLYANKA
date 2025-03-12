@@ -524,6 +524,18 @@ CRender::~CRender()
 {
 }
 
+CRender::SurfaceParams CRender::getSurface(const char* nameTexture)
+{
+	auto texture = DEV->_CreateTexture(nameTexture);
+
+	SurfaceParams surface = {};
+	surface.Surface = texture->surface_get();
+	surface.w = texture->get_Width();
+	surface.h = texture->get_Height();
+
+	return surface;
+}
+
 #include "../../xrEngine/GameFont.h"
 void	CRender::Statistics	(CGameFont* _F)
 {
