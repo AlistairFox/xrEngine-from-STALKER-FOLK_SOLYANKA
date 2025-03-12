@@ -41,6 +41,10 @@ extern "C" {
 void CCC_RegisterCommands	();
 void setup_luabind_allocator();
 
+
+void RegisterImGuiInGame();
+void DestroyImGuiInGame();
+
 BOOL APIENTRY DllMain(HANDLE hModule, u32 ul_reason_for_call, LPVOID lpReserved)
 {
 	switch (ul_reason_for_call) {
@@ -51,13 +55,17 @@ BOOL APIENTRY DllMain(HANDLE hModule, u32 ul_reason_for_call, LPVOID lpReserved)
 			CCC_RegisterInput	();
 
 			setup_luabind_allocator	();
- 
+			
 			g_profiler			= xr_new<CProfiler>();
  
+			RegisterImGuiInGame();
+
 			break;
 		}
 
-		case DLL_PROCESS_DETACH: {
+		case DLL_PROCESS_DETACH: 
+		{
+			DestroyImGuiInGame();
 			break;
 		}
 	}
