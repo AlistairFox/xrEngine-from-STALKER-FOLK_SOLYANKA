@@ -82,6 +82,19 @@ xr_token							qminmax_sm_token					[ ]={
 	{ 0,							0												}
 };
 
+u32			ps_clr_preset = 2;
+xr_token							qclrdrag_token[] = {
+   { "Default_clr",				0											},
+   { "Sepia",						1											},
+   { "Gray_moss",					2											},
+   { "Graphite_gray",				3											},
+   { "Zone",						4											},
+   { "Misery",						5											},
+   { "Warm_tone",					6											},
+   { "Blue",						7											},
+   { 0,							0											}
+};
+
 //	“Off”
 //	“DX10.0 style [Standard]”
 //	“DX10.1 style [Higher quality]”
@@ -228,6 +241,12 @@ int			ps_r3_dyn_wet_surf_sm_res	= 256;				// 256
 //- Mad Max
 float		ps_r2_gloss_factor			= 4.0f;
 //- Mad Max
+
+float 		ps_rcol = 1;
+float 		ps_gcol = 1;
+float 		ps_bcol = 1;
+float 		ps_saturation = 0;
+
 #ifndef _EDITOR
 #include	"../../xrEngine/xr_ioconsole.h"
 #include	"../../xrEngine/xr_ioc_cmd.h"
@@ -424,6 +443,31 @@ public:
 	}
 };
 
+class	CCC_ps_clr_preset		: public CCC_Token
+ {
+ public:
+ 	CCC_ps_clr_preset(LPCSTR N, u32* V, xr_token* T) : CCC_Token(N,V,T)	{}	;
+ 
+ 	virtual void	Execute	(LPCSTR args)	{
+ 		CCC_Token::Execute	(args);
+ 		string_path		_cfg;
+ 		string_path		cmd;
+ 		
+ 		switch	(*value)	{
+ 			case 0:		xr_strcpy(_cfg, "clr_default.ltx");			break;
+ 			case 1:		xr_strcpy(_cfg, "clr_sepia.ltx");			break;
+ 			case 2:		xr_strcpy(_cfg, "clr_gray_moss.ltx");		break;
+ 			case 3:		xr_strcpy(_cfg, "clr_graphite_gray.ltx");	break;
+ 			case 4:		xr_strcpy(_cfg, "clr_zone.ltx");			break;
+ 			case 5:		xr_strcpy(_cfg, "clr_misery.ltx");			break;
+ 			case 6:		xr_strcpy(_cfg, "clr_warm_tone.ltx");		break;
+ 			case 7:		xr_strcpy(_cfg, "clr_blue.ltx");			break;
+ 		}
+ 		FS.update_path			(_cfg,"$game_config$",_cfg);
+ 		strconcat				(sizeof(cmd),cmd,"cfg_load", " ", _cfg);
+ 		Console->Execute		(cmd);
+ 	}
+ };
 
 class CCC_memory_stats : public IConsole_Command
 {
@@ -769,6 +813,7 @@ void		xrRender_initconsole	()
 
  
 	CMD3(CCC_Preset,	"_preset",				&ps_Preset,	qpreset_token	);
+	CMD3(CCC_ps_clr_preset,	"r2_clr_preset",	&ps_clr_preset,	qclrdrag_token	);
 
 	CMD4(CCC_Integer,	"rs_skeleton_update",	&psSkeletonUpdate,	2,		128	);
 
@@ -840,6 +885,10 @@ void		xrRender_initconsole	()
 	CMD4(CCC_Float,		"r2_zfill_depth",		&ps_r2_zfill,				.001f,	.5f		);
 	CMD3(CCC_Mask,		"r2_allow_r1_lights",	&ps_r2_ls_flags,			R2FLAG_R1LIGHTS	);
 
+	CMD4(CCC_Float,		"r_color_r",			&ps_rcol,					0.0f,	2.55f	);
+ 	CMD4(CCC_Float,		"r_color_g",			&ps_gcol,					0.0f,	2.55f	);
+ 	CMD4(CCC_Float,		"r_color_b",			&ps_bcol,					0.0f,	2.55f	);
+	CMD4(CCC_Float,		"r_saturation",			&ps_saturation,				-1.0f,	+1.0f	);
 	//- Mad Max
 	CMD4(CCC_Float,		"r2_gloss_factor",		&ps_r2_gloss_factor,		.0f,	10.f	);
 	//- Mad Max
