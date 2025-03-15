@@ -13,6 +13,7 @@ void	CBlender_combine::Compile(CBlender_Compile& C)
 	switch (C.iElement)
 	{
 	case 0:	// combine
+		// Msg("Combine 1");
 		C.r_Pass			("combine_1",		"combine_1",		FALSE,	FALSE,	FALSE, TRUE, D3DBLEND_INVSRCALPHA, D3DBLEND_SRCALPHA);	//. MRT-blend?
 		C.r_Sampler_rtf		("s_position",		r2_RT_P				);
 		C.r_Sampler_rtf		("s_normal",		r2_RT_N				);
@@ -31,6 +32,8 @@ void	CBlender_combine::Compile(CBlender_Compile& C)
 		C.r_End				();
 		break;
 	case 1:	// aa-edge-detection + AA :)
+		// Msg("Combine 2AA");
+
 		C.r_Pass			("null",			"combine_2_AA",		FALSE,	FALSE,	FALSE);
 		C.r_Sampler_rtf		("s_position",		r2_RT_P);
 		C.r_Sampler_rtf		("s_normal",		r2_RT_N);
@@ -41,6 +44,8 @@ void	CBlender_combine::Compile(CBlender_Compile& C)
 		C.r_End				();
 		break;
 	case 2:	// non-AA
+		// Msg("Combine 2NAA");
+
 		C.r_Pass			("null",			"combine_2_NAA",	FALSE,	FALSE,	FALSE);
 		C.r_Sampler_rtf		("s_position",		r2_RT_P);
 		C.r_Sampler_rtf		("s_normal",		r2_RT_N);

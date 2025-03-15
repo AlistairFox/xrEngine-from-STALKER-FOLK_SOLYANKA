@@ -31,7 +31,8 @@ void xrServer::Process_event_ownership(NET_Packet& P, ClientID sender, u32 time,
 		Msg( "! ERROR on ownership: parent not found. parent_id = [%d], entity_id = [%d], frame = [%d].", id_parent, id_entity, Device.dwFrame );
 		return;
 	}
-	if ( !e_entity ) {
+	if ( !e_entity )
+	{
 //		Msg( "! ERROR on ownership: entity not found. parent_id = [%d], entity_id = [%d], frame = [%d].", id_parent, id_entity, Device.dwFrame );
 		return;
 	}
@@ -57,15 +58,16 @@ void xrServer::Process_event_ownership(NET_Packet& P, ClientID sender, u32 time,
 	if (game->Type() == eGameIDSingle && (GetServerClient() != c_from) && (c_parent != c_from) )
 	{
 		// trust only ServerClient or new_ownerClient
+
 		return;
 	}
 
 	//	CSE_ALifeCreatureAbstract* alife_entity = smart_cast<CSE_ALifeCreatureAbstract*>(e_parent);
-	//	if (alife_entity && !alife_entity->g_Alive() /*&& game->Type()!=eGameIDSingle*/)
+	//	if (alife_entity && !alife_entity->g_Alive())
 	//	{
 	//#ifdef MP_LOGGING
 	//		Msg("--- SV: WARNING: dead player [%d] tries to take item [%d]", id_parent, id_entity);
-	//#endif //#ifdef MP_LOGGING
+	//#endif 
 	//		return;
 	//	};
 	//	
@@ -73,6 +75,7 @@ void xrServer::Process_event_ownership(NET_Packet& P, ClientID sender, u32 time,
 	// Game allows ownership of entity
 	if (game->OnTouch	(id_parent,id_entity, bForced))
 	{
+		Msg("On Touch: Parrent: %u, Ent: %u", id_parent, id_entity);
 		// Perform migration if needed
 		if (c_parent != c_entity)		PerformMigration(e_entity,c_entity,c_parent);
 

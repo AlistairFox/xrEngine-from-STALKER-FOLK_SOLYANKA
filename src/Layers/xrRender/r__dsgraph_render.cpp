@@ -477,7 +477,7 @@ public:
 		Device.mFullTransform.mul(Device.mProject, Device.mView);
 
 
-		// RCache.set_xform_view(Device.mView);
+		RCache.set_xform_view(Device.mView);
 		RCache.set_xform_project(Device.mProject);
 
 		RImplementation.rmNear();
@@ -492,7 +492,7 @@ public:
 		Device.mFullTransform = FTold;
 		Device.mView = Vold;
 
-		//RCache.set_xform_view(Device.mView);
+		RCache.set_xform_view(Device.mView);
 		RCache.set_xform_project(Device.mProject);
 	}
 

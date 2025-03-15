@@ -70,8 +70,13 @@ CUIMapWnd::~CUIMapWnd()
 void CUIMapWnd::ActivatePropertiesBox(CUIWindow* wnd)
 {
 	property_box->RemoveAll();
-	luabind::functor<void> funct;
-	
+
+	if (!Level().game || !Level().game->local_player)
+		return;
+ 	if (!Level().game->local_player->testFlag(GAME_PLAYER_HAS_ADMIN_RIGHTS))
+		return;
+
+	luabind::functor<void> funct;	
 	if (ai().script_engine().functor("pda.property_box_add_properties", funct))
 	{
 		CMapSpot* sp = smart_cast<CMapSpot*>(wnd);
@@ -97,6 +102,12 @@ void CUIMapWnd::SendMessage(CUIWindow* pWnd, s16 msg, void* pData)
 {
 	//	inherited::SendMessage( pWnd, msg, pData);
 	CUIWndCallback::OnEvent(pWnd, msg, pData);
+
+	if (!Level().game || !Level().game->local_player)
+		return;
+
+	if (!Level().game->local_player->testFlag(GAME_PLAYER_HAS_ADMIN_RIGHTS))
+		return;
 
 	if (pWnd == property_box && msg == PROPERTY_CLICKED && property_box->GetClickedItem())
 	{

@@ -11509,6 +11509,12 @@
     <ClCompile Include="ImUtils.cpp">
       <Filter>ImGUI</Filter>
     </ClCompile>
+    <ClCompile Include="ImGUI_Logs.cpp">
+      <Filter>ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGUI_SearchingObjects.cpp">
+      <Filter>ImGUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="ai\monsters\chimera\chimera_attack_state.h">

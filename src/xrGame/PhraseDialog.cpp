@@ -194,7 +194,8 @@ LPCSTR CPhraseDialog::GetPhraseText	(const shared_str& phrase_id, bool current_s
 		bool functor_exists		= ai().script_engine().functor(ph->m_script_text_id.c_str() ,lua_function);
 		THROW3(functor_exists, "Cannot find function", ph->m_script_text_id.c_str());
 		 
-		ph->m_script_text_val = lua_function((pSpeakerGO) ? pSpeakerGO->lua_game_object() : NULL, m_DialogId.c_str(), phrase_id.c_str());
+		LPCSTR Text = lua_function((pSpeakerGO) ? pSpeakerGO->lua_game_object() : NULL, m_DialogId.c_str(), phrase_id.c_str());
+ 		ph->m_script_text_val = Text;
 		 
 		
 		return ph->m_script_text_val.c_str		();

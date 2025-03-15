@@ -4665,6 +4665,8 @@
     <ClCompile Include="game_sv_roleplay_drop_items.cpp" />
     <ClCompile Include="guard_utils.cpp" />
     <ClCompile Include="ImGUI_Loader.cpp" />
+    <ClCompile Include="ImGUI_Logs.cpp" />
+    <ClCompile Include="ImGUI_SearchingObjects.cpp" />
     <ClCompile Include="ImUtils.cpp" />
     <ClCompile Include="IXraySpawner.cpp" />
     <ClCompile Include="level_events.cpp" />

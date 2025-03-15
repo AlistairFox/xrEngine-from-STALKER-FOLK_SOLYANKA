@@ -282,7 +282,6 @@ BOOL CGameObject::net_Spawn		(CSE_Abstract*	DC)
 		R_ASSERT(Level().Objects.net_Find(E->ID) == NULL);
 	}
 
-
 	setID							(E->ID);
 //	if (GameID() != eGameIDSingle)
 //		Msg ("CGameObject::net_Spawn -- object %s[%x] setID [%d]", *(E->s_name), this, E->ID);
@@ -518,12 +517,19 @@ void CGameObject::spawn_supplies()
 
 	for (u32 k = 0, j; spawn_ini()->r_line("spawn",k,&N,&V); k++)
 	{
+		if (!pSettings->section_exist(N))
+		{
+			Msg("[CGameObject] Cant spawn [spawn]: %s", N);
+			continue;
+		}
+
 		VERIFY				(xr_strlen(N));
 		j					= 1;
 		p					= 1.f;
 		
 		float f_cond						= 1.0f;
-		if (V && xr_strlen(V)) {
+		if (V && xr_strlen(V))
+		{
 			int				n = _GetItemCount(V);
 			string16		temp;
 			if (n > 0)

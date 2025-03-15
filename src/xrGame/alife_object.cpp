@@ -39,19 +39,26 @@ void CSE_ALifeObject::spawn_supplies		(LPCSTR ini_string)
 	{
 		LPCSTR					N,V;
 		float					p;
-		for (u32 k = 0, j; ini.r_line("spawn",k,&N,&V); k++) {
+		for (u32 k = 0, j; ini.r_line("spawn",k,&N,&V); k++) 
+		{
 			VERIFY				(xr_strlen(N));
+
+			if (!pSettings->section_exist(N))
+			{
+				Msg("[CGameObject] Cant spawn [spawn]: %s", N);
+				continue;
+			}
 	
 			float f_cond						= 1.0f;
 			bool bScope							= false;
 			bool bSilencer						= false;
 			bool bLauncher						= false;
-
-			
+ 			
 			j					= 1;
 			p					= 1.f;
 			
-			if (V && xr_strlen(V)) {
+			if (V && xr_strlen(V)) 
+			{
 				string64			buf;
 				j					= atoi(_GetItem(V, 0, buf));
 				if (!j)		j		= 1;
@@ -62,16 +69,22 @@ void CSE_ALifeObject::spawn_supplies		(LPCSTR ini_string)
 				//probability
 				if(NULL!=strstr(V,"prob="))
 					p				= (float)atof(strstr(V,"prob=")+5);
-				if (fis_zero(p)) p	= 1.0f;
+				
+				if (fis_zero(p))
+					p	= 1.0f;
 				if(NULL!=strstr(V,"cond="))
 					f_cond			= (float)atof(strstr(V,"cond=")+5);
 			}
-			for (u32 i=0; i<j; ++i) {
+
+			for (u32 i=0; i<j; ++i) 
+			{
 				if (randF(1.f) < p) {
 					CSE_Abstract* E = alife().spawn_item	(N,o_Position,m_tNodeID,m_tGraphID,ID);
+
 					//подсоединить аддоны к оружию, если включены соответствующие флажки
 					CSE_ALifeItemWeapon* W =  smart_cast<CSE_ALifeItemWeapon*>(E);
-					if (W) {
+					if (W)
+					{
 						if (W->m_scope_status == ALife::eAddonAttachable)
 							W->m_addon_flags.set(CSE_ALifeItemWeapon::eWeaponAddonScope, bScope);
 						if (W->m_silencer_status == ALife::eAddonAttachable)

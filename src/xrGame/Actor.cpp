@@ -1093,59 +1093,12 @@ float CActor::currentFOV()
 	}
 }
 
-/*
-float CActor::currentFOV()
-{
-	if (!psHUD_Flags.is(HUD_WEAPON|HUD_WEAPON_RT|HUD_WEAPON_RT2))
-		return g_fov;
-
-	CWeapon* pWeapon = smart_cast<CWeapon*>(inventory().ActiveItem());	
-
-	if (pWeapon)
-	{
-		if (pWeapon->IsZoomed() && eacFirstEye != cam_active)
-		{
-			cam_Set(eacFirstEye);
-			wpn_camera = true;
-			setVisible(false);
-		}
-		else
-		if (wpn_camera && !pWeapon->IsZoomed())
-		{
-			cam_Set(eacLookAt);
-			wpn_camera = false;	 
-			setVisible(true);
-		}
-	}
-
-	if ( pWeapon && pWeapon->IsZoomed() && (!pWeapon->ZoomTexture() || (!pWeapon->IsRotatingToZoom() && pWeapon->ZoomTexture())))
-	{
-		if (eacFirstEye == cam_active)
-			pWeapon->GetZoomFactor()* (0.75f);
-
-		return pWeapon->GetZoomFactor() * (1.0f);
-	}
-	else
-	{
-		return g_fov;
-	}
-}
-*/
-
 float	NET_Jump = 0;
 
 
 void CActor::UpdateCL	()
 {
-	//if (auto item = inventory().ItemFromSlot(ARTEFACT_SLOT))
-	//{
-	//	if (inventory().GetActiveSlot() != ARTEFACT_SLOT)
-	//	{
-	//		inventory().Activate(ARTEFACT_SLOT);
-	//	}
-	//}
-
-	if(g_Alive() && Level().CurrentViewEntity() == this)
+ 	if(g_Alive() && Level().CurrentViewEntity() == this)
 	{
 		if(CurrentGameUI() && NULL==CurrentGameUI()->TopInputReceiver())
 		{
@@ -1303,11 +1256,18 @@ void CActor::UpdateCL	()
 		else
 			xr_delete(m_sndShockEffector);
 	}
-	Fmatrix							trans;
- 	Cameras().hud_camera_Matrix		(trans);
 	
-	if(IsFocused())
-		g_player_hud->update			(trans);
+	Fmatrix						trans;
+	Cameras().hud_camera_Matrix(trans);
+	if (IsFocused())
+	{
+		//Msg("Pre sub HUD: {%f, %f, %f}", VPUSH(trans.c) );
+
+ 		trans.c.sub(Device.vCameraPosition);
+ 		g_player_hud->update(trans);
+
+		// Msg("Update HUD: {%f, %f, %f}", VPUSH( trans.c ) );
+	}
 
 	m_bPickupMode=false;
 }

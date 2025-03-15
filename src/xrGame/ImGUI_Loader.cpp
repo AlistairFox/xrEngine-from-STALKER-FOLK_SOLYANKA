@@ -24,9 +24,11 @@ bool IsEditor() { return imgui_stage != EditorStage::None; }
 
 
 void ShowWeatherEditor(bool& show);
+void ShowLog(bool& show);
 
 bool show_weather_window = false;
 bool show_spawn_window = false;
+bool show_logs = false;
 
 void ShowEditor()
 { 
@@ -43,20 +45,23 @@ void ShowEditor()
     
     ImGui::Checkbox("Weather Editor", &show_weather_window );
     ImGui::Checkbox("Spawn Meny", &show_spawn_window);
-    
+    ImGui::Checkbox("Logs", &show_logs);
 
     if (ImGui::Button("Atmosfear 3 Options (Server)"))
     {
         luabind::functor<void>	funct;
         ai().script_engine().functor("atmosfear.OnButton_af_options_clicked", funct);
         funct();
-     }
+    }
 
     if (show_weather_window)
         ShowWeatherEditor(show_weather_window);
 
     if (show_spawn_window)
         RenderSpawnManagerWindow(show_spawn_window);
+
+    if (show_logs)
+        ShowLog(show_logs);
 
     bool full = imgui_stage == EditorStage::Full;
     //if (ImGui::Checkbox("Active", &full))
@@ -67,34 +72,36 @@ void ShowEditor()
 bool isRControl = false, isLControl = false, isRShift = false, isLShift = false;
 bool Editor_KeyPress(int key)
 {
-    if (g_current_renderer != 4)
+     if (g_current_renderer != 4)
         return false;
-
-
+ 
     if (g_dedicated_server)
         return false;
 
     if (!Level().game || !Level().game->local_player)
         return false;
 
-    switch (key)
-    {
-    case (DIK_ESCAPE):
+    if (!Level().game->local_player->testFlag(GAME_PLAYER_HAS_ADMIN_RIGHTS))
     {
         imgui_stage = EditorStage::None;
+        return false;
     }
-    break;
 
-    case (DIK_F12):
+    switch (key)
     {
-        if (Level().game->local_player->testFlag(GAME_PLAYER_HAS_ADMIN_RIGHTS))
+        case (DIK_ESCAPE):
+        {
+            imgui_stage = EditorStage::None;
+        }
+        break;
+
+        case (DIK_F12):
         {
             if (imgui_stage == EditorStage::Full)
                 imgui_stage = EditorStage::None;
             else
                 imgui_stage = EditorStage::Full;
-        }
-    }break;
+         }break;
     }
 
     if (!IsEditorActive())

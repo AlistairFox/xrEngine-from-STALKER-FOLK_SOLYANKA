@@ -139,6 +139,9 @@ SVS*	CResourceManager::_CreateVS		(LPCSTR _name)
 {
 	string_path			name;
 	xr_strcpy				(name,_name);
+
+
+
 	if (0 == ::Render->m_skinning)	xr_strcat(name,"_0");
 	if (1 == ::Render->m_skinning)	xr_strcat(name,"_1");
 	if (2 == ::Render->m_skinning)	xr_strcat(name,"_2");
@@ -146,7 +149,11 @@ SVS*	CResourceManager::_CreateVS		(LPCSTR _name)
 	if (4 == ::Render->m_skinning)	xr_strcat(name,"_4");
 	LPSTR N				= LPSTR		(name);
 	map_VS::iterator I	= m_vs.find	(N);
-	if (I!=m_vs.end())	return I->second;
+ 
+	// Msg("Creating SHADER VS: %s", name);
+
+	if (I!=m_vs.end())
+		return I->second;
 	else
 	{
 		SVS*	_vs					= xr_new<SVS>	();
@@ -251,6 +258,9 @@ SPS*	CResourceManager::_CreatePS			(LPCSTR _name)
 	if (7 == ::Render->m_MSAASample)	xr_strcat(name,"_7");
 	LPSTR N				= LPSTR(name);
 	map_PS::iterator I	= m_ps.find	(N);
+
+	// Msg("Creating SHADER PS: %s", name);
+
 	if (I!=m_ps.end())	return		I->second;
 	else
 	{

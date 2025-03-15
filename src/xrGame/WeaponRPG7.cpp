@@ -236,19 +236,20 @@ void CWeaponRPG7::OnEvent(NET_Packet& P, u16 type)
 
 		case GE_OWNERSHIP_TAKE:
 		{
-			Msg("GE_OWNERSHIP_TAKE");
-
 			P.r_u16(id);
+			Msg("GE_OWNERSHIP_TAKE : %u", id);
+
 			CRocketLauncher::AttachRocket(id, this);
 		} break;
 	
 		case GE_OWNERSHIP_REJECT:
 		case GE_LAUNCH_ROCKET:
 		{
-			Msg("GE_LAUNCH_ROCKET");
-
 			bool bLaunch = (type == GE_LAUNCH_ROCKET);
 			P.r_u16(id);
+
+			Msg("GE_LAUNCH_ROCKET : %u Launch: %u", id, bLaunch);
+
 			CRocketLauncher::DetachRocket(id, bLaunch);
 			if (bLaunch)
 				UpdateMissileVisibility();

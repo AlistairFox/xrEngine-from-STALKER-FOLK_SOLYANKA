@@ -254,6 +254,8 @@ void CSE_ALifeInventoryBox::add_online	(const bool &update_registries)
 		CSE_Abstract			*l_tpAbstract = smart_cast<CSE_Abstract*>(l_tpALifeInventoryItem);
 		object->alife().server().entity_Destroy(l_tpAbstract);
 
+
+		if (psDeviceFlags.test(rsDebug))
  		Msg						(
 			"[LSS][%d] Going online [%d][%s][%d] with parent [%d][%s] on '%s'",
 			Device.dwFrame,
