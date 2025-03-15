@@ -43,7 +43,7 @@ public:
 	virtual	u8		GetCurrentHudOffsetIdx();
 	virtual void	FireEnd();
 
-	virtual void	LaunchGrenade();
+	//virtual void	LaunchGrenade();
 
 	virtual void	LaunchGrenadeRecived(Fvector DIR, Fvector POS);
 	virtual void	LaunchGrenadeSend();

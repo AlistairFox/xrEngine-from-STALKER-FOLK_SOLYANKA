@@ -327,7 +327,7 @@ void CObjectList::Destroy(CObject* O)
 {
 	if (0 == O)
 		return;
-
+	OPTICK_EVENT("erase from updates");
 	net_Unregister(O);
 
 	// active/inactive

@@ -25,7 +25,8 @@ void  CRocketLauncher::Load	(LPCSTR section)
 
 void CRocketLauncher::SpawnRocket(const shared_str& rocket_section, CGameObject* parent_rocket_launcher)
 {
-	if (OnClient())		return;
+	if (OnClient())	
+		return;
 
 	CSE_Abstract*		D	= F_entity_Create(rocket_section.c_str());
 	R_ASSERT			(D);
@@ -35,8 +36,7 @@ void CRocketLauncher::SpawnRocket(const shared_str& rocket_section, CGameObject*
 	D->s_name			= rocket_section;
 	D->set_name_replace	("");
 	
-//.	D->s_gameid			=	u8(GameID());
-	D->s_RP				=	0xff;
+ 	D->s_RP				=	0xff;
 	D->ID				=	0xffff;
 	D->ID_Parent		=	parent_rocket_launcher->ID();
 	D->ID_Phantom		=	0xffff;
@@ -69,7 +69,14 @@ void CRocketLauncher::AttachRocket(u16 rocket_id, CGameObject* parent_rocket_lau
 void CRocketLauncher::DetachRocket(u16 rocket_id, bool bLaunch)
 {
 	CCustomRocket *pRocket = smart_cast<CCustomRocket*>(Level().Objects.net_Find(rocket_id));
-	if (!pRocket && OnClient()) return;
+	if (!pRocket && OnClient())
+	{
+		Msg("Cant Launch rocket[%u]", rocket_id);
+		return;
+	}
+
+	Msg("Launch rocket[%u]", rocket_id);
+
 
 	VERIFY(pRocket);
 	ROCKETIT It = std::find(m_rockets.begin(), m_rockets.end(),pRocket);
@@ -86,7 +93,11 @@ void CRocketLauncher::DetachRocket(u16 rocket_id, bool bLaunch)
 		(*It)->m_bLaunched	= bLaunch;
 		(*It)->H_SetParent	(NULL);
 		m_rockets.erase		(It);
-	};
+	}
+	else
+	{
+		Msg("(m_rockets) it == end cant find rocket: %u", rocket_id);
+	}
 
 	if( It_l != m_launched_rockets.end() )
 	{
@@ -94,15 +105,17 @@ void CRocketLauncher::DetachRocket(u16 rocket_id, bool bLaunch)
 		(*It_l)->H_SetParent		(NULL);
 		m_launched_rockets.erase	(It_l);
 	}
+	else
+	{
+		Msg("(m_launched_rockets) it == end cant find rocket: %u", rocket_id);
+	}
 }
 
 void CRocketLauncher::LaunchRocket(const Fmatrix& xform,  
 								   const Fvector& vel, 
 								   const Fvector& angular_vel)
 {
-	VERIFY2(_valid(xform),"CRocketLauncher::LaunchRocket. Invalid xform argument!");
-	getCurrentRocket()->SetLaunchParams(xform, vel, angular_vel);
-
+  	getCurrentRocket()->SetLaunchParams(xform, vel, angular_vel);
 	m_launched_rockets.push_back( getCurrentRocket() );
 }
 

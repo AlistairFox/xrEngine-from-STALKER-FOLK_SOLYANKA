@@ -65,9 +65,6 @@ public:
 	//	Rocket Properties
 	//////////////////////////////////////////////////////////////////////////
 public:
-#ifdef DEBUG
-	CGameObject*			owner					(){return m_pOwner;}
-#endif
 	virtual	void			StartEngine				();
 	virtual	void			StopEngine				();
 	virtual	void			UpdateEngine			();
@@ -85,6 +82,7 @@ public:
 protected:
 	//указатель на владельца RocketLauncher - который стреляет ракету
 	CGameObject*			m_pOwner;
+	u32						m_pInitiator;
 
 	SRoketContact			m_contact;
 	//параметры которые задаются RocketLauncher-ом перед пуском
@@ -152,10 +150,7 @@ protected:
 
 	Fvector				m_vPrevVel;
 	float				m_time_to_explode;
-#ifdef	DEBUG
-	float				gbg_rocket_speed1;
-	float				gbg_rocket_speed2;
-#endif
+ 
 protected:
 	virtual void		StartEngineParticles();
 	virtual void		StopEngineParticles();
@@ -163,7 +158,5 @@ protected:
 	virtual void		StopFlyParticles();
 
 	virtual void		UpdateParticles();
-#ifdef DEBUG
-	virtual void		deactivate_physics_shell ();
-#endif
+ 
 };

@@ -194,9 +194,9 @@ void attachable_hud_item::update_hud_additional(Fmatrix& trans)
 }
 
 void attachable_hud_item::setup_firedeps(firedeps& fd)
-{
+{ 
 	update(false);
-
+ 
 	// fire point&direction
 	if (m_measures.m_prop_flags.test(hud_item_measures::e_fire_point))
 	{
@@ -209,14 +209,7 @@ void attachable_hud_item::setup_firedeps(firedeps& fd)
 
 			fd.vLastFD.set(0.f, 0.f, 1.f);
 			m_item_transform.transform_dir(fd.vLastFD);
-
-			// auto Wpn = smart_cast<CWeapon*>(m_parent_hud_item);
-			// 
-			// if (Wpn)
-			// 	Wpn->CorrectDirFromWorldToHud(fd.vLastFD);
-
-			VERIFY(_valid(fd.vLastFD));
-
+ 
 			fd.m_FireParticlesXForm.identity();
 			fd.m_FireParticlesXForm.k.set(fd.vLastFD);
 			Fvector::generate_orthonormal_basis_normalized(fd.m_FireParticlesXForm.k,
@@ -408,7 +401,7 @@ void hud_item_measures::load(const shared_str& sect_name, IKinematics* K)
 
 attachable_hud_item::~attachable_hud_item()
 {
-	IRenderVisual* v = m_model->dcast_RenderVisual();
+ 	IRenderVisual* v = m_model->dcast_RenderVisual();
 	::Render->model_Delete(v);
 	m_model = NULL;
 }
@@ -1510,50 +1503,6 @@ void player_hud::update_inertion(Fmatrix& trans)
 			inertion_data.m_min_angle_aim = INERT_MIN_ANGLE_AIM;
 		}
 
-		// Replaced by CWeapon::UpdateHudAdditonal()
-		// Very FPS sensitive and hard to control
-		/*
-		// calc difference
-		Fvector								diff_dir;
-		diff_dir.sub						(xform.k, st_last_dir);
-
-		// clamp by PI_DIV_2
-		Fvector last;						last.normalize_safe(st_last_dir);
-		float dot							= last.dotproduct(xform.k);
-		if (dot<EPS){
-			Fvector v0;
-			v0.crossproduct					(st_last_dir,xform.k);
-			st_last_dir.crossproduct		(xform.k,v0);
-			diff_dir.sub					(xform.k, st_last_dir);
-		}
-
-		// tend to forward
-		float _tendto_speed, _origin_offset;
-		if (pMainHud != NULL && pMainHud->m_parent_hud_item->GetCurrentHudOffsetIdx() > 0)
-		{ // Худ в режиме "Прицеливание"
-			float factor = pMainHud->m_parent_hud_item->GetInertionFactor();
-			_tendto_speed = inertion_data.m_tendto_speed_aim - (inertion_data.m_tendto_speed_aim - inertion_data.m_tendto_speed) * factor;
-			_origin_offset =
-				inertion_data.m_origin_offset_aim - (inertion_data.m_origin_offset_aim - inertion_data.m_origin_offset) * factor;
-		}
-		else
-		{ // Худ в режиме "От бедра"
-			_tendto_speed = inertion_data.m_tendto_speed;
-			_origin_offset = inertion_data.m_origin_offset;
-		}
-
-		// Фактор силы инерции
-		if (pMainHud != NULL)
-		{
-			float power_factor = pMainHud->m_parent_hud_item->GetInertionPowerFactor();
-			_tendto_speed *= power_factor;
-			_origin_offset *= power_factor;
-		}
-
-		st_last_dir.mad(diff_dir, _tendto_speed * Device.fTimeDelta);
-		origin.mad(diff_dir, _origin_offset);
-		*/
-
 		// pitch compensation
 		float pitch = angle_normalize_signed(xform.k.getP());
 
@@ -1658,7 +1607,8 @@ void player_hud::re_sync_anim(u8 part)
 
 void player_hud::detach_item_idx(u16 idx)
 {
-	if (NULL == m_attached_items[idx]) return;
+	if (NULL == m_attached_items[idx])
+		return;
 
 	m_attached_items[idx]->m_parent_hud_item->on_b_hud_detach();
 
@@ -1699,10 +1649,11 @@ void player_hud::detach_item_idx(u16 idx)
 
 void player_hud::detach_item(CHudItem* item)
 {
-	if (NULL == item->HudItemData())		return;
-	u16 item_idx = item->HudItemData()->m_attach_place_idx;
+	if (NULL == item->HudItemData())
+		return;
 
-	if (m_attached_items[item_idx] == item->HudItemData())
+	u16 item_idx = item->HudItemData()->m_attach_place_idx;
+ 	if (m_attached_items[item_idx] == item->HudItemData())
 	{
 		detach_item_idx(item_idx);
 	}

@@ -173,7 +173,7 @@ void CWeaponMagazinedWGrenade::OnMotionMark(u32 state, const motion_marks& M)
 	inherited::OnMotionMark(state, M);
 }
 
-void  CWeaponMagazinedWGrenade::LaunchGrenade()
+/*void  CWeaponMagazinedWGrenade::LaunchGrenade()
 {
 	if (!getRocketCount())
 	{
@@ -261,6 +261,7 @@ void  CWeaponMagazinedWGrenade::LaunchGrenade()
 		};
 	}
 }
+*/
 
 void CWeaponMagazinedWGrenade::LaunchGrenadeRecived(Fvector direction, Fvector position)
 {

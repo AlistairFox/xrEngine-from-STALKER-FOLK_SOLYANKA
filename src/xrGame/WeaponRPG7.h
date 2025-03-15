@@ -26,6 +26,9 @@ public:
 	virtual void SwitchState	(u32 S);
 
 			void UpdateMissileVisibility	();
+			void StartRocketSend();
+			void StartRocketRecive(Fvector& position, Fvector& direction);
+
 	virtual void UnloadMagazine				(bool spawn_ammo = true);
 
 	virtual void net_Import			( NET_Packet& P);				// import from server

@@ -262,14 +262,7 @@ void CExplosive::Explode()
 	Fvector& pos = m_vExplodePos;
 	Fvector& dir = m_vExplodeDir;
 
-	//Msg("Set ExplodePOS : [%f, %f, %f]", VPUSH(pos));
-	//Msg("Set ExplodeDIR : [%f, %f, %f]", VPUSH(dir));
 	OnBeforeExplosion();
-
-	// Msg("sndExplode: Pos [%f, %f, %f]", VPUSH(pos));
-	//играем звук взрыва
-	// Sound->play_at_pos(sndExplode, 0, pos, false);
-
 
 	m_layered_sounds.PlaySound("sndExplode", pos, smart_cast<CObject*>(this), false, false, (u8)-1);
 
@@ -288,7 +281,8 @@ void CExplosive::Explode()
 
 	CParticlesObject* pStaticPG;
 	pStaticPG = CParticlesObject::Create(*m_sExplodeParticles, !m_bDynamicParticles);
-	if (m_bDynamicParticles) m_pExpParticle = pStaticPG;
+	if (m_bDynamicParticles) 
+		m_pExpParticle = pStaticPG;
 	pStaticPG->UpdateParent(explode_matrix, vel);
 	pStaticPG->Play(false);
 
@@ -305,18 +299,19 @@ void CExplosive::Explode()
 	bool SendHits = false;
 	if (OnServer())
 		SendHits = true;
-	else SendHits = false;
+	else
+		SendHits = false;
 
 
-	for (int i = 0; i < m_iFragsNum; ++i) {
+	for (int i = 0; i < m_iFragsNum; ++i)
+	{
 		frag_dir.random_dir();
 		frag_dir.normalize();
 
 		CCartridge cartridge;
 		cartridge.param_s.kDist = 1.f;
 		cartridge.param_s.kHit = 1.f;
-		//		cartridge.param_s.kCritical			= 1.f;
-		cartridge.param_s.kImpulse = 1.f;
+ 		cartridge.param_s.kImpulse = 1.f;
 		cartridge.param_s.kAP = 1.f;
 		cartridge.param_s.fWallmarkSize = fWallmarkSize;
 		cartridge.bullet_material_idx = GMLib.GetMaterialIdx(WEAPON_MATERIAL_NAME);
@@ -331,7 +326,7 @@ void CExplosive::Explode()
 	if (cast_game_object()->Remote())
 		return;
 
-	/////////////////////////////////
+ 	/////////////////////////////////
 	//взрывная волна
 	////////////////////////////////
 	//---------------------------------------------------------------------
@@ -350,14 +345,15 @@ void CExplosive::Explode()
 	}
 
 	GetExplosionBox(m_vExplodeSize);
+	
 	START_PROFILE("explosive/activate explosion box")
-		ActivateExplosionBox(m_vExplodeSize, m_vExplodePos);
+	ActivateExplosionBox(m_vExplodeSize, m_vExplodePos);
 	STOP_PROFILE
 		//---------------------------------------------------------------------
 
-		//////////////////////////////////////////////////////////////////////////
-		// Explode Effector	//////////////
-		CGameObject* GO = smart_cast<CGameObject*>(Level().CurrentEntity());
+	//////////////////////////////////////////////////////////////////////////
+	// Explode Effector	//////////////
+	CGameObject* GO = smart_cast<CGameObject*>(Level().CurrentEntity());
 	CActor* pActor = smart_cast<CActor*>(GO);
 	if (pActor)
 	{
@@ -489,8 +485,6 @@ void CExplosive::OnEvent(NET_Packet& P, u16 type)
 	{
 		if (!m_explosion_flags.test(flExploding))
 		{
-			Msg("[CExplosive] GE_GRENADE_EXPLODE");
-
 			Fvector pos, normal;
 			u16 parent_id;
 			P.r_u16(parent_id);
@@ -507,8 +501,7 @@ void CExplosive::OnEvent(NET_Packet& P, u16 type)
 	}
 }
 
-void CExplosive::ExplodeParams(const Fvector& pos,
-	const Fvector& dir)
+void CExplosive::ExplodeParams(const Fvector& pos, const Fvector& dir)
 {
 	m_explosion_flags.set(flReadyToExplode, TRUE);
 	m_vExplodePos = pos;
@@ -537,19 +530,13 @@ void CExplosive::GenExplodeEvent(const Fvector& pos, const Fvector& normal)
 
 void CExplosive::GenExplodeEventFromClient(const Fvector& pos, const Fvector& normal)
 {
-	VERIFY(!m_explosion_flags.test(flExplodEventSent));
-	VERIFY(0xffff != Initiator());
-
-	// Msg("GenExplodeEventFromClient");
-
-	NET_Packet		P;
+ 	NET_Packet		P;
 	cast_game_object()->u_EventGen(P, GE_GRENADE_EXPLODE, cast_game_object()->ID());
 	P.w_u16(Initiator());
 	P.w_vec3(pos);
 	P.w_vec3(normal);
 	cast_game_object()->u_EventSend(P);
 
-	//m_bExplodeEventSent = true;
 	m_explosion_flags.set(flExplodEventSent, TRUE);
 }
 
@@ -686,9 +673,13 @@ void CExplosive::ActivateExplosionBox(const Fvector& size, Fvector& in_out_pos)
 {
 	CPhysicsShellHolder* self_obj = smart_cast<CPhysicsShellHolder*>(cast_game_object());
 	CPhysicsShell* self_shell = self_obj->PPhysicsShell();
-	if (self_shell && self_shell->isActive())self_shell->DisableCollision();
+	if (self_shell && self_shell->isActive())
+		self_shell->DisableCollision();
+
 	ActivateShapeExplosive(self_obj, size, m_vExplodeSize, in_out_pos);
-	if (self_shell && self_shell->isActive())self_shell->EnableCollision();
+	
+	if (self_shell && self_shell->isActive())
+		self_shell->EnableCollision();
 }
 
 void CExplosive::net_Relcase(CObject* O)

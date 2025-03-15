@@ -255,12 +255,8 @@ void CWeapon::UpdateFireDependencies_internal()
 
 		UpdateXForm();
 
-		if (GetHUDmode())
+		if (GetHUDmode() && HudItemData())
 		{
-			if (H_Parent() != Level().CurrentControlEntity())
-			{
-				Msg("Strange AFFECTED setup_firedeps.. [H_PARRENT is dont correct]");
-			}
 			HudItemData()->setup_firedeps(m_current_firedeps);
 			VERIFY(_valid(m_current_firedeps.m_FireParticlesXForm));
 		}

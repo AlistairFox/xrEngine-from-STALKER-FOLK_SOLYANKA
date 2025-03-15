@@ -222,7 +222,7 @@ struct hud_item_measures
 
 struct attachable_hud_item
 {
-	player_hud* m_parent;
+ 	player_hud* m_parent;
 	CHudItem* m_parent_hud_item;
 	shared_str						m_sect_name;
 	IKinematics* m_model;

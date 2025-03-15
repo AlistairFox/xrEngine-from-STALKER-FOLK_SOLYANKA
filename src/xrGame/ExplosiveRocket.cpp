@@ -8,6 +8,8 @@
 #include "ExplosiveRocket.h"
 #include "physicsshellholder.h"
 #include "../xrphysics/physicsshell.h"
+#include <Level.h>
+#include <Actor.h>
 
 
 CExplosiveRocket::CExplosiveRocket() 
@@ -48,8 +50,23 @@ void CExplosiveRocket::Contact(const Fvector &pos, const Fvector &normal)
 {
 	if(eCollide == m_eState) return;
 
-	if(m_bLaunched)
-		CExplosive::GenExplodeEvent(pos,normal);
+#ifdef USE_CLIENT_SIDE_WEAPONS
+ 	if (m_bLaunched)
+	{
+		CActor* pActor = smart_cast<CActor*> (m_pOwner);
+		if (Actor() == pActor)
+		{
+			CExplosive::GenExplodeEventFromClient(pos, normal);
+		}
+		else
+		{
+			CExplosive::GenExplodeEvent(pos, normal);
+		}
+	} 
+#else 
+	if (m_bLaunched)
+		CExplosive::GenExplodeEvent(pos, normal);
+#endif
 
 	inherited::Contact(pos, normal);
 }

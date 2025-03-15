@@ -32,6 +32,8 @@ struct SectionData
 struct
 {
 	// weapon tab
+	string_path name_to_sort;
+
 	bool sort_by_max_cost{};
 	bool weapon_sort_by_max_hit_power{};
 	bool weapon_sort_by_max_fire_distance{};
@@ -41,6 +43,9 @@ struct
 	bool spawn_on_level{};
 	bool render_as_table{ true };
 	char spawn_count[4]{};
+
+	int Rows = 1;
+
 	// weapon tab
 
 	SectionData WeaponsSections = {};
@@ -325,16 +330,17 @@ void RenderSpawnManagerWindow(bool& IsActive)
 
 	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, kGeneralAlphaLevelForImGuiWindows));
 
-	if (ImGui::Begin("Spawn Manager", &IsActive, ImGuiWindowFlags_AlwaysAutoResize))
+	if (ImGui::Begin("Spawn Manager", &IsActive))
 	{
-		if (ImGui::Checkbox("spawn on Level", &imgui_spawn_manager.spawn_on_level))
-		{
-		}
-		ImGui::SetItemTooltip("if this checkbox is enabled that means it will spawn on level not in inventory");
+		
+  		ImGui::SetItemTooltip("if this checkbox is enabled that means it will spawn on level not in inventory");
+	
+		//ImGui::Checkbox("View as Table", &imgui_spawn_manager.render_as_table);
+		ImGui::InputInt("Rows Collumns", &imgui_spawn_manager.Rows, 1, 1);
 
-		if (ImGui::Checkbox("View as Table", &imgui_spawn_manager.render_as_table))
-		{
-		}
+		ImGui::Checkbox("spawn on Level", &imgui_spawn_manager.spawn_on_level);		
+  		// ImGui::InputText("Sort Text", imgui_spawn_manager.name_to_sort, sizeof(imgui_spawn_manager.name_to_sort));
+ 
 		ImGui::SetItemTooltip("If this checkbox is enabled the content in the window will be rendered as table otherwise it is a list view");
 
 		ImGui::InputText("count##IT_InGameSpawnManager", imgui_spawn_manager.spawn_count, sizeof(imgui_spawn_manager).spawn_count);
@@ -816,7 +822,8 @@ void RenderSpawnManagerWindow(bool& IsActive)
 
 void SpawnManager_ProcessSections(Section& sections, size_t& number_imgui)
 {
-	auto sm_process_button = [](bool is_table, const std::string_view& section_name, CInifile::Sect* pSection, size_t& number_imgui) {
+	auto sm_process_button = [](bool is_table, const std::string_view& section_name, CInifile::Sect* pSection, size_t& number_imgui)
+	{
 		char imname[kSpawnManagerMaxSectionName]{};
 		memcpy_s(imname, sizeof(imname), section_name.data(), section_name.size());
 
@@ -835,64 +842,45 @@ void SpawnManager_ProcessSections(Section& sections, size_t& number_imgui)
 			ImGui::NewLine();
 
 		++number_imgui;
-		};
+	};
 
-	if (imgui_spawn_manager.render_as_table)
+
+ 	size_t kSpawnManagerTableViewColumnSize = imgui_spawn_manager.Rows;
+	size_t row_max = std::ceil( sections.size() / kSpawnManagerTableViewColumnSize );
+	size_t size_of_sections = sections.size();
+  
+	if (ImGui::BeginTable("##SpawnManagerRenderAsTable", 
+		kSpawnManagerTableViewColumnSize, ImGuiTableFlags_Borders | ImGuiTableFlags_SizingStretchProp))
 	{
-		constexpr size_t kSpawnManagerTableViewColumnSize = 5;
-		size_t row_max = std::ceil(sections.size() / kSpawnManagerTableViewColumnSize
-		);
-		size_t size_of_sections = sections.size();
-
-		if (ImGui::BeginTable("##SpawnManagerRenderAsTable", kSpawnManagerTableViewColumnSize, ImGuiTableFlags_Borders | ImGuiTableFlags_SizingStretchProp))
+		for (size_t row = 0; row < row_max; ++row)
 		{
-			for (size_t row = 0; row < row_max; ++row)
+			ImGui::TableNextRow();
+
+			for (size_t column = 0; column < kSpawnManagerTableViewColumnSize; ++column)
 			{
-				ImGui::TableNextRow();
-
-				for (size_t column = 0; column < kSpawnManagerTableViewColumnSize; ++column)
+				size_t current_section_index = row * kSpawnManagerTableViewColumnSize + column;
+				if (current_section_index < size_of_sections)
 				{
-					size_t current_section_index = row * kSpawnManagerTableViewColumnSize + column;
+					ImGui::TableSetColumnIndex(column);
 
-					if (current_section_index < size_of_sections)
+					const auto& pair = sections[current_section_index];
+ 					const std::string_view& section_name = pair.first;
+					CInifile::Sect* pSection = pair.second;
+
+					//if ( !strstr(imgui_spawn_manager.name_to_sort, *pSection->Name) )
+					//	continue;
+
+					if (!section_name.empty() && pSection)
 					{
-						ImGui::TableSetColumnIndex(column);
-
-						const auto& pair = sections[current_section_index];
-
-						const std::string_view& section_name = pair.first;
-						CInifile::Sect* pSection = pair.second;
-
-						if (!section_name.empty() && pSection)
-						{
-							sm_process_button(imgui_spawn_manager.render_as_table, section_name, pSection, number_imgui);
-						}
+						sm_process_button(imgui_spawn_manager.render_as_table, section_name, pSection, number_imgui);
 					}
 				}
 			}
-
-
-
-			ImGui::EndTable();
 		}
-
-
+ 
+		ImGui::EndTable();
 	}
-	else
-	{
-		for (const auto& data : sections)
-		{
-			const auto& section_name = data.first;
-			const auto& pSection = data.second;
-
-			if (!section_name.empty() && pSection)
-			{
-				sm_process_button(imgui_spawn_manager.render_as_table, section_name, pSection, number_imgui);
-			}
-		}
-	}
-
-
+ 
 	std::sort(sections.begin(), sections.end());
 }
 
