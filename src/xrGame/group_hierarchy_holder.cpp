@@ -119,7 +119,8 @@ void CGroupHierarchyHolder::unregister_in_squad			(CEntity *member)
 
 void CGroupHierarchyHolder::unregister_in_agent_manager	(CEntity *member)
 {
-	if (get_agent_manager()) {
+	if (get_agent_manager()) 
+	{
 		agent_manager().member().remove	(member);
 		if (agent_manager().member().members().empty())
 			xr_delete					(m_agent_manager);

@@ -705,7 +705,7 @@ void CWeaponMagazined::UnloadMagazine(bool spawn_ammo)
 		if (l_it == l_ammo.end())
 			l_ammo[*l_cartridge.m_ammoSect] = 1;
 
-		m_magazine.pop_back();
+ 		m_magazine.pop_back();
 		--iAmmoElapsed;
 	}
 
@@ -880,6 +880,7 @@ void CWeaponMagazined::ReloadMagazine()
 			}
 			++iAmmoElapsed;
 			l_cartridge.m_LocalAmmoType = m_ammoType;
+
 			m_magazine.push_back(l_cartridge);
 		}
 
@@ -903,9 +904,6 @@ void CWeaponMagazined::ReloadMagazine()
 		}
 	}
 
-
-
-	//	VERIFY((u32)iAmmoElapsed == m_magazine.size());
 }
 
 // ANIMS
@@ -1906,8 +1904,6 @@ void CWeaponMagazined::state_Fire(float dt)
 			m_vStartDir = d;
 		};
 
-		VERIFY(!m_magazine.empty());
-
 		while (!m_magazine.empty() &&
 			fShotTimeCounter < 0 &&
 			(IsWorking() || m_bFireSingleShot) &&
@@ -2060,7 +2056,8 @@ void CWeaponMagazined::OnAnimationEnd(u32 state)
 		if (m_bNeedBulletInGun && bNeedputBullet)
 		{
 			FirstBulletInGun = m_magazine.back();
-			m_magazine.pop_back();
+			if (!m_magazine.empty())
+				m_magazine.pop_back();
 			iAmmoElapsed--;
 		}
 
@@ -2081,7 +2078,8 @@ void CWeaponMagazined::OnAnimationEnd(u32 state)
 	case eUnMisfire:
 	{
 		bMisfire = false;
-		m_magazine.pop_back();
+		if (!m_magazine.empty())
+			m_magazine.pop_back();
 		iAmmoElapsed--;
 		SwitchState(eIdle);
 	}break; // End of UnMisfire animation

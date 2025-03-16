@@ -163,6 +163,7 @@ void CAI_Stalker::net_Export(NET_Packet& P)
 		state.fv_position = Position();
    
 		//Animation
+		/* 
 		IKinematicsAnimated* ka = Visual()->dcast_PKinematicsAnimated();
 
 		if (ka)
@@ -178,16 +179,8 @@ void CAI_Stalker::net_Export(NET_Packet& P)
 			state.legs_anim.loop = legs_loop;
 			state.torso_anim.loop = torso_loop;
 			state.head_anim.loop = head_loop;
-
-			//state.legs_anim.anim_ctrl = legs_anim_ctrl;
-			//state.torso_anim.anim_ctrl = torso_anim_ctrl;
-			//state.head_anim.anim_ctrl = head_anim_ctrl;
-
-			//state.legs_anim.pos = blend_legs->timeCurrent;
-			//state.torso_anim.pos = blend_torso->timeCurrent;
-			//state.head_anim.pos = blend_head->timeCurrent;
 		}
-
+		*/
 		state.state_write(P);
 	}	 	
 	
@@ -340,7 +333,7 @@ void CAI_Stalker::ApplyAnimation(ai_stalker_net_state& state)
 {
 	if (OnServer())
 		return;
-
+/* 
 	IKinematicsAnimated* ka = smart_cast<IKinematicsAnimated*>(Visual());
 	if (!ka)
 		return;

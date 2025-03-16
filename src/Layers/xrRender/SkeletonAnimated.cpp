@@ -361,12 +361,12 @@ CBlend*	CKinematicsAnimated::LL_PlayCycle(u16 part, MotionID motion_ID, BOOL  bM
 		return 0;
 
 	// se7kills FIXED LL_PlayCycle (блендинг иногда отьебывает)
-	if (part < 4 && GetNPC())
-	{
-		if (blend_cycles[part].size() >= MAX_BLENDED)
-			return 0;
-	}
-
+	if (GetNPC() && motion_ID.slot > MAX_PARTS - 1)
+		return 0;
+	 
+  	// if (GetNPC() && blend_cycles[part].size() >= MAX_BLENDED)
+	// 	return 0;
+ 
 	// validate and unroll
 	if (!motion_ID.valid())	return 0;
 	if (BI_NONE==part)		{
@@ -411,27 +411,32 @@ CBlend*	CKinematicsAnimated::LL_PlayCycle		(u16 part, MotionID motion_ID, BOOL b
 CBlend*	CKinematicsAnimated::PlayCycle		(LPCSTR  N, BOOL bMixIn, PlayCallback Callback, LPVOID CallbackParam,u8 channel  /*= 0*/)
 {
 	MotionID motion_ID		= ID_Cycle(N);
-	if (motion_ID.valid())	return PlayCycle(motion_ID,bMixIn,Callback,CallbackParam,channel);
-	else					{ Debug.fatal(DEBUG_INFO,"! MODEL: can't find cycle: %s", N); return 0; }
+	if (motion_ID.valid())
+	{
+		return PlayCycle(motion_ID, bMixIn, Callback, CallbackParam, channel);
+	}
+	else			
+	{ 
+ 		Debug.fatal(DEBUG_INFO,"! MODEL: can't find cycle: %s", N); 
+		return 0;
+	}
 }
 CBlend*	CKinematicsAnimated::PlayCycle		(MotionID motion_ID,  BOOL bMixIn, PlayCallback Callback, LPVOID CallbackParam,u8 channel /*= 0*/)
 {	
-	VERIFY					(motion_ID.valid()); 
-    CMotionDef* m_def		= m_Motions[motion_ID.slot].motions.motion_def(motion_ID.idx);
-    VERIFY					(m_def);
-	return LL_PlayCycle		(m_def->bone_or_part,motion_ID,bMixIn, 
-    						 m_def->Accrue(),m_def->Falloff(),m_def->Speed(),m_def->StopAtEnd(), 
-                             Callback,CallbackParam,channel);
+	CMotionDef* m_def = m_Motions[motion_ID.slot].motions.motion_def(motion_ID.idx);
+	VERIFY(m_def);
+	return LL_PlayCycle(m_def->bone_or_part, motion_ID, bMixIn,
+		m_def->Accrue(), m_def->Falloff(), m_def->Speed(), m_def->StopAtEnd(),
+		Callback, CallbackParam, channel);	
 }
 
 CBlend*	CKinematicsAnimated::PlayCycle		(u16 partition, MotionID motion_ID,  BOOL bMixIn, PlayCallback Callback, LPVOID CallbackParam,u8 channel /*= 0*/)
 {	
-	VERIFY					(motion_ID.valid()); 
-    CMotionDef* m_def		= m_Motions[motion_ID.slot].motions.motion_def(motion_ID.idx);
-    VERIFY					(m_def);
-	return LL_PlayCycle		(partition, motion_ID,bMixIn, 
-    						 m_def->Accrue(),m_def->Falloff(),m_def->Speed(),m_def->StopAtEnd(), 
-                             Callback,CallbackParam,channel);
+	CMotionDef* m_def = m_Motions[motion_ID.slot].motions.motion_def(motion_ID.idx);
+	VERIFY(m_def);
+	return LL_PlayCycle(partition, motion_ID, bMixIn,
+		m_def->Accrue(), m_def->Falloff(), m_def->Speed(), m_def->StopAtEnd(),
+		Callback, CallbackParam, channel);   
 }
 
 // fx'es
@@ -447,7 +452,8 @@ MotionID CKinematicsAnimated::ID_FX_Safe		(LPCSTR  N)
 }
 MotionID CKinematicsAnimated::ID_FX			(LPCSTR  N)
 {
-	MotionID motion_ID		= ID_FX_Safe(N);R_ASSERT3(motion_ID.valid(),"! MODEL: can't find FX: ", N);
+	MotionID motion_ID		= ID_FX_Safe(N);
+	R_ASSERT3(motion_ID.valid(),"! MODEL: can't find FX: ", N);
     return motion_ID;
 }
 CBlend*	CKinematicsAnimated::PlayFX			(MotionID motion_ID, float power_scale)

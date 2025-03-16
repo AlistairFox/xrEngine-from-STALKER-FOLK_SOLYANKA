@@ -66,7 +66,8 @@ void CAI_Stalker::OnEvent		(NET_Packet& P, u16 type)
 			break;
 		}
 		case GE_TRADE_SELL :
-		case GE_OWNERSHIP_REJECT : {
+		case GE_OWNERSHIP_REJECT : 
+		{
 			u16 id;
 			P.r_u16		(id);
 
@@ -86,6 +87,11 @@ void CAI_Stalker::OnEvent		(NET_Packet& P, u16 type)
 
 			break;
 		}
+
+		case GE_STALKER_ANIMATION:
+		{
+			EventAnimation(P);
+		}break;
 	}
 }
 

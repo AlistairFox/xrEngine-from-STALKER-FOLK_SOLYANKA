@@ -158,9 +158,11 @@ private:
 	//Se7Kills Animation
 
 public:
-	void OnAnimationUpdate(MotionID motion, CBlend* blend, bool mix_anims, bool is_global, bool anim_controller);
+	void OnAnimationUpdate(MotionID motion, CBlend* blend, bool mix_anims, bool is_global, bool anim_controller, bool isLocal, bool isLegs, Fmatrix* matrix);
+	void EventAnimation(NET_Packet& P );
 
 private:
+	Fmatrix target_matrix;
 	void ApplyAnimation(ai_stalker_net_state& state);
 	void anim_sync(IKinematicsAnimated* skeleton_animated, CBlend* blend_1, CBlend* blend_2);
 

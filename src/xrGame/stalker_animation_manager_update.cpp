@@ -183,7 +183,11 @@ IC	void CStalkerAnimationManager::play_head				()
 
 IC	void CStalkerAnimationManager::play_torso				()
 {
-	torso().animation		(assign_torso_animation());
+	MotionID motion; 
+	motion = assign_torso_animation();
+	if (motion.slot > MAX_PARTS - 1)
+		return;
+	torso().animation		(motion);
 	torso().play			(m_skeleton_animated,torso_play_callback,false,false);
 }
 

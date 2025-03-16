@@ -393,15 +393,21 @@ LONG WINAPI UnhandledFilter(_EXCEPTION_POINTERS* pExceptionInfo)
 
 	if (EnabledStackTrace)
 	{
+		Msg("\n----------------------------------------------");
+		Msg("stack trace DBG_HELP:\n");
+
+		Debug.Callstack();
+
 		CONTEXT save = *pExceptionInfo->ContextRecord;
 
 		using namespace StackTrace;
 		std::vector<std::string> stackTrace = BuildStackTrace(pExceptionInfo->ContextRecord, 1024);
 		*pExceptionInfo->ContextRecord = save;
-		Msg("\n----------------------------------------------");
-		Msg("stack trace:\n");
-
+	
 		string4096			buffer;
+		Msg("\n----------------------------------------------");
+		Msg("stack trace IXray:\n");
+
 
 		for (size_t i = 0; i < stackTrace.size(); i++)
 		{
@@ -419,6 +425,8 @@ LONG WINAPI UnhandledFilter(_EXCEPTION_POINTERS* pExceptionInfo)
 			xr_strcat(error_message, sizeof(error_message), "\r\n");
 			os_clipboard::update_clipboard(buffer);
 		}
+
+		
 	}
 
 	if (shared_str_initialized)

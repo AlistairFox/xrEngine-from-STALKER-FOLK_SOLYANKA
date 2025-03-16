@@ -20,51 +20,12 @@ public:
 	}
 };
   
-struct MotionID_numered	 
-{
-	MotionID id;		//4	 
-	u8 num;				//1
-	bool loop;			//1
-	bool anim_ctrl;
-	float pos;			//4 
-						//TOTAL: 10
-	MotionID_numered() 
-	{
-		id.invalidate();
-		num = 0;
-		loop = false;
-		anim_ctrl = false;
-		pos = 0;
-	};
-};
- 
-class EXPORT_MOTIONS
-{
-	BIT_TO_BYTE BIT;
-
-	void Export_Base(MotionID_numered& legs, MotionID_numered& torso, MotionID_numered& head, u64& val);
-	void Import_Base(MotionID_numered& legs, MotionID_numered& torso, MotionID_numered& head, u64& val);
-
-	enum mask_flags
-	{
-		legs_flag  = 1 << 0,
-		torso_flag = 1 << 1,
-		head_flag  = 1 << 2,
-	};
-
-public: 
-	void Export(NET_Packet& P, MotionID_numered& legs, MotionID_numered& torso, MotionID_numered& head);
-	void Import(NET_Packet& P, MotionID_numered& legs, MotionID_numered& torso, MotionID_numered& head);
-};
-
-
 
 struct ai_stalker_net_state
 {
  
 	public:
-		EXPORT_MOTIONS exp_motions;
-
+ 
 		net_physics_state physics_state;
 		Fvector fv_position;
  		Fvector fv_linear_vel;
@@ -80,11 +41,7 @@ struct ai_stalker_net_state
 		float head_yaw;
 		float torso_pitch;
 		float head_pitch;
-		 
-		MotionID_numered torso_anim;
-		MotionID_numered legs_anim;
-		MotionID_numered head_anim;
- 
+		  
 		ai_stalker_net_state();
 
 		void    fill_position(CPHSynchronize * state_new);

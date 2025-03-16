@@ -706,6 +706,11 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 		SendBroadcast(BroadcastCID, P, net_flags(true, true));
 	}break;
 
+	case GE_STALKER_ANIMATION:
+	{
+		SendBroadcast(BroadcastCID, P, net_flags(true, true));
+	}break;
+
 	default:
 		Msg("ClientID: [%u] Not support event: %u (Kick player if many times print)", sender, type);
 		

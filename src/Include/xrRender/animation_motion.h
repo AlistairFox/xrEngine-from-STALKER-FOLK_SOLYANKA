@@ -21,7 +21,10 @@ public:
 	ICF	bool		operator!	() const					{return !valid();}
 	ICF void		set			(u16 motion_slot, u16 motion_idx){slot=motion_slot; idx=motion_idx;}
 	ICF void		invalidate	() {val=u16(-1);}
-	ICF bool		valid		() const {return val!=u16(-1);}
+	ICF bool		valid		() const 
+	{
+		return val!=u16(-1) ;
+	}
 	const MotionID*	get			() const {return this;};
 	ICF	operator	unspecified_bool_type () const 
 	{

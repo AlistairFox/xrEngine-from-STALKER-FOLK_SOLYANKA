@@ -5,24 +5,35 @@
 #include "inventory.h"
 #include "Actor.h" 			 
 #include "ai_stalker_net_state.h"
-
-// MotionID torso_motion, legs_motion, head_motion;
-
-// u8 torso_num, legs_num, head_num;
-// bool torso_loop, head_loop, legs_loop;
-// bool torso_anim_ctrl, head_anim_ctrl, legs_anim_ctrl;
-// 
-// u8 client_torso_num;
-// u8 client_head_num;
-// u8 client_legs_num;
-
-
-
-// Сохранение текущей анимки и нумерация (для синхры анимок)
-void CAI_Stalker::OnAnimationUpdate(MotionID motion, CBlend* blend, bool mix_anims, bool is_global, bool anim_controller)
+#include "animation_movement_controller.h"
+ 
+// для синхры анимок 
+void CAI_Stalker::OnAnimationUpdate(MotionID motion, CBlend* blend, bool mix_anims, bool is_global, bool anim_controller, bool isLocal, bool isLegs, Fmatrix* matrix)
 {
 	if (!blend)
 		return;
+
+	NET_Packet packet;
+	Game().u_EventGen(packet, GE_STALKER_ANIMATION, this->ID());
+	packet.w(&motion, sizeof(MotionID));
+	packet.w_u8(mix_anims);
+
+ 	packet.w_u8(is_global);
+	packet.w_u8(anim_controller);
+	packet.w_u8(isLocal);
+	packet.w_u8(isLegs);
+	 
+	if (anim_controller && matrix)
+	{
+		packet.w_u8(1);
+		packet.w_matrix(*matrix);
+	}
+	else
+	{
+		packet.w_u8(0);
+	}
+
+	Game().u_EventSend(packet);
 
 	// if (blend->bone_or_part == 0)
 	// {
@@ -61,6 +72,71 @@ void CAI_Stalker::OnAnimationUpdate(MotionID motion, CBlend* blend, bool mix_ani
 	// 	head_anim_ctrl = anim_ctrl;
 	// 	blend_head = blend;
 	// }	
+}
+
+void CAI_Stalker::EventAnimation(NET_Packet& P)
+{
+	if (OnServer())
+		return;
+
+	IKinematicsAnimated* ka = smart_cast<IKinematicsAnimated*>(Visual());
+	if (!ka)
+		return;
+
+	if (!RDEVICE.b_isLoadTextures || !RDEVICE.b_is_Ready || !isLoaded)
+	{
+		Msg("Skip Process Event: NPC: %d, IsLoaded: %d", ID(), isLoaded);
+		return;
+	}
+	ka->SetNPC(true);
+
+	MotionID motion;
+	bool mix_anims, is_global, anim_controller, isLocal, isLegs;
+	P.r(&motion, sizeof(MotionID));
+	mix_anims = P.r_u8();
+
+	is_global = P.r_u8();
+	anim_controller = P.r_u8();
+	isLocal = P.r_u8();
+	isLegs = P.r_u8();
+	
+	bool use_matrix = P.r_u8();
+	if (use_matrix)
+  		P.r_matrix(target_matrix);
+ 	
+	CBlend* m_blend = 0;
+	if (!is_global)
+	{
+		m_blend = ka->PlayCycle(motion, mix_anims);
+	}
+	else 
+	{
+		for (u16 i = 0; i < MAX_PARTS; ++i)
+		{
+			CBlend* blend = 0;
+			if (!m_blend)
+			{
+				blend = ka->LL_PlayCycle(i, motion, mix_anims, 0, 0);
+
+				if (blend && !m_blend)
+					m_blend = blend;
+
+				if (anim_controller)
+				{
+					create_anim_mov_ctrl(blend, &target_matrix, isLocal);
+				}
+				else
+				{
+					if (animation_movement() && is_global)
+						animation_movement()->stop();
+				}
+			}
+			else
+				ka->LL_PlayCycle(i, motion, mix_anims, 0, 0);
+		}
+	}	 
+
+	CStepManager::on_animation_start(motion, m_blend);
 }
 
 //Релиз тела

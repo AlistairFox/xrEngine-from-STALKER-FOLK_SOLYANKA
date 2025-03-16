@@ -32,7 +32,6 @@ public:
 	typedef fastdelegate::FastDelegate0<>			CALLBACK_ID;
 	typedef xr_vector<CALLBACK_ID>					CALLBACKS;
 
-private:
 	MotionID				m_animation;
 	CBlend					*m_blend;
 	bool					m_actual;

@@ -123,21 +123,40 @@ public:
 	MotionID					ID_Motion		(LPCSTR  N, u16 slot);
 #endif
 	u16							LL_MotionsSlotCount(){return (u16)m_Motions.size();}
-	const shared_motions&		LL_MotionsSlot	(u16 idx){return m_Motions[idx].motions;}
 
-	IC CMotionDef*				LL_GetMotionDef	(MotionID id){return m_Motions[id.slot].motions.motion_def(id.idx);}
-	IC CMotion*					LL_GetRootMotion(MotionID id){return &m_Motions[id.slot].bone_motions[iRoot]->at(id.idx);}
+	const shared_motions&		LL_MotionsSlot	(u16 idx)
+	{
+ 		return m_Motions[idx].motions;
+	}
+
+	IC CMotionDef*				LL_GetMotionDef	(MotionID id)
+	{
+ 		if (id.slot > MAX_ANIM_SLOT)
+			return nullptr;
+
+ 		return m_Motions[id.slot].motions.motion_def(id.idx);
+	}
+	IC CMotion*					LL_GetRootMotion(MotionID id)
+	{
+ 		if (id.slot > MAX_ANIM_SLOT)
+			return nullptr;
+
+		return &m_Motions[id.slot].bone_motions[iRoot]->at(id.idx);
+	}
+
 	IC CMotion*					LL_GetMotion	(MotionID id, u16 bone_id) 
 	{ 
 		/* Se7kills Check This*/
-		if (m_Motions.size() < id.slot)
-			return nullptr;
-
-		if (m_Motions[id.slot].bone_motions.size() < bone_id)
-			return nullptr;
-
-		if (m_Motions[id.slot].bone_motions[bone_id]->size() < id.idx)
-			return nullptr;
+		// if (m_Motions.size() < id.idx)
+		// 	return nullptr;
+ 		if (id.slot > MAX_ANIM_SLOT)
+		 	return nullptr;
+		 
+		// if (m_Motions[id.slot].bone_motions.size() < bone_id)
+		// 	return nullptr;
+		// 
+		// if (m_Motions[id.slot].bone_motions[bone_id]->size() < id.idx)
+		// 	return nullptr;
 
 		return &m_Motions[id.slot].bone_motions[bone_id]->at(id.idx);
 	}
