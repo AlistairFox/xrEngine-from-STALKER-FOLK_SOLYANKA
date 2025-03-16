@@ -16,6 +16,7 @@ private:
 
 public:
 	DebugCallbackFunction debug_calltack_lua = 0;
+	int isCallstackEnable = false;
 
 	void			_initialize			(const bool &dedicated);
 	void			_destroy			();

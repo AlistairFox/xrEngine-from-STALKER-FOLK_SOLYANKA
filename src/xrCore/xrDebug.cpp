@@ -561,6 +561,9 @@ bool isInitialized = false;
 
 void xrDebug::Callstack()
 {
+	if (!isCallstackEnable)
+		return;
+
 	if (!isInitialized)
 	{
 		SymSetOptions(SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS);

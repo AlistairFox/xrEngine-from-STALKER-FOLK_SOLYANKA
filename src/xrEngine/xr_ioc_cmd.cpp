@@ -810,6 +810,8 @@ void CCC_Register()
 {	 
 	CMD1(CCC_OptickStart, "optick_start");
 	CMD1(CCC_OptickSave, "optick_save");
+	CMD4(CCC_Integer, "debug_callstack", &Debug.isCallstackEnable, 0, 1);
+
 
 	CMD4(CCC_Integer, "updatecl_mp", &WorkDistance, 0, 1);
 	CMD4(CCC_Integer, "updatecl_mt", &MT_Work, 0, 1);
