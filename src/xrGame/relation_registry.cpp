@@ -148,7 +148,7 @@ CHARACTER_GOODWILL	 RELATION_REGISTRY::GetGoodwill			(u16 from, u16 to) const
 
 void RELATION_REGISTRY::SetGoodwill 	(u16 from, u16 to, CHARACTER_GOODWILL goodwill)
 {
-	Msg("SetGoodwill from[%d] to[%d] goodwill[%d]", from, to, goodwill);
+	// Msg("SetGoodwill from[%d] to[%d] goodwill[%d]", from, to, goodwill);
 
 	RELATION_DATA& relation_data = relation_registry().registry().objects(from);
 
@@ -160,7 +160,7 @@ void RELATION_REGISTRY::SetGoodwill 	(u16 from, u16 to, CHARACTER_GOODWILL goodw
 
 void RELATION_REGISTRY::ForceSetGoodwill 	(u16 from, u16 to, CHARACTER_GOODWILL goodwill)
 {
-	Msg("ForceSetGoodwill from[%d] to[%d] goodwill[%d]", from, to, goodwill);
+	// Msg("ForceSetGoodwill from[%d] to[%d] goodwill[%d]", from, to, goodwill);
 	RELATION_DATA& relation_data = relation_registry().registry().objects(from);
 
 	CSE_ALifeTraderAbstract* from_obj	= smart_cast<CSE_ALifeTraderAbstract*>(ai().alife().objects().object(from));
@@ -243,6 +243,6 @@ CHARACTER_GOODWILL	 RELATION_REGISTRY::GetReputationRelation		(CHARACTER_REPUTAT
 
 void RELATION_REGISTRY::SetCommunityRelation( CHARACTER_COMMUNITY_INDEX index1, CHARACTER_COMMUNITY_INDEX index2, CHARACTER_GOODWILL goodwill )
 {
-	Msg("SetCommunityRelation comm1[%d] comm2[%d] goodwill[%d]", index1, index2, goodwill);
+//	Msg("SetCommunityRelation comm1[%d] comm2[%d] goodwill[%d]", index1, index2, goodwill);
 	CHARACTER_COMMUNITY::set_relation( index1, index2, goodwill );
 }

@@ -283,8 +283,9 @@ BOOL CGameObject::net_Spawn		(CSE_Abstract*	DC)
 	}
 
 	setID							(E->ID);
-//	if (GameID() != eGameIDSingle)
-//		Msg ("CGameObject::net_Spawn -- object %s[%x] setID [%d]", *(E->s_name), this, E->ID);
+ 
+	if ( psDeviceFlags.test(rsDebug) )
+		Msg ("CGameObject::net_Spawn -- object %s[%x] setID [%d]", *(E->s_name), this, E->ID);
 	
 	// XForm
 	XFORM().setXYZ					(E->o_Angle);
@@ -497,7 +498,7 @@ void CGameObject::save			(NET_Packet &output_packet)
 void CGameObject::load			(IReader &input_packet)
 {
 }
-
+#include "InventoryBox.h"
 void CGameObject::spawn_supplies()
 {
 	if (OnClient())
@@ -514,14 +515,10 @@ void CGameObject::spawn_supplies()
 	bool bScope				=	false;
 	bool bSilencer			=	false;
 	bool bLauncher			=	false;
-
-	for (u32 k = 0, j; spawn_ini()->r_line("spawn",k,&N,&V); k++)
+	
+ 	for (u32 k = 0, j; spawn_ini()->r_line("spawn",k,&N,&V); k++)
 	{
-		if (!pSettings->section_exist(N))
-		{
-			Msg("[CGameObject] Cant spawn [spawn]: %s", N);
-			continue;
-		}
+		Msg("[Client] [GameObject] Dynamic Object[%s] SpawnSupply [%s]", this->cName(), N);
 
 		VERIFY				(xr_strlen(N));
 		j					= 1;
@@ -581,6 +578,7 @@ void CGameObject::spawn_supplies()
 			}
 		}
 	}
+
 }
 
 void CGameObject::setup_parent_ai_locations(bool assign_position)
