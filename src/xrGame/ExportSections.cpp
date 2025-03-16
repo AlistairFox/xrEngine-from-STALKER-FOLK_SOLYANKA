@@ -67,15 +67,14 @@ void ExportSectionsItems()
 	string_path pooooo;
 	FS.update_path(pooooo, "$game_config$", "alife\\gspawn_lock.ltx");
 	CInifile* locked_items = xr_new<CInifile>(pooooo);
-
-
+	 
 	string_path p;
 	FS.update_path(p, "$game_config$", "alife\\trade\\trade_section.ltx");
 	CInifile* file = xr_new<CInifile>(p, false, false, false);
 
 	file->set_override_names(true);
 
-	/*
+ 
 	if (file)
 		for (auto sect : pSettings->sections())
 		{
@@ -238,7 +237,7 @@ void ExportSectionsItems()
 		}
 
 	file->save_as(p);
-	*/
+ 
 	// JSON
 
 	{
@@ -246,7 +245,7 @@ void ExportSectionsItems()
 
 		Object table_json;
 		Array array_Weapon, arrayWeaponShotguns, arrayWeaponAutoShotguns, arrayWeaponMag, arrayAmmos, arrayArtefacts, arrayDetectors, arrayDocuments,
-			arrayHelmets, arrayOutfits, arrayPDA, arrayGrenades, arrayExplosive; //, arraysItems, arraysOthers;
+			arrayHelmets, arrayOutfits, arrayPDA, arrayGrenades, arrayExplosive;  
 
 		CInifile::Sect section_weapons, section_shotguns, section_ammo, section_arts, section_detectors, section_docs, 
 			section_helms, section_outfits, section_pda, section_grenades, section_explosive, section_items, section_others;
@@ -260,6 +259,9 @@ void ExportSectionsItems()
 
 		for (auto sect : pSettings->sections())
 		{
+			if (locked_items->line_exist("list", sect->Name.c_str()))
+				continue;
+
 			bool isFOOD = sect->line_exist("is_food");
 			bool isSkin = sect->line_exist("skin_weapon");
  			bool isWeaponScope = IsClassID(sect, "WP_SCOPE");
@@ -481,8 +483,7 @@ void ExportSectionsItems()
 
 		if (file)
 		{
-
-			// NEW
+ 			// NEW
 			section_skins.Name  = "WPN_SKINS";
 			section_scopes.Name = "WPN_SCOPES";
 			section_addons.Name = "WPN_ADDONS";
