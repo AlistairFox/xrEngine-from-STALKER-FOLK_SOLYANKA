@@ -208,8 +208,9 @@ bool CControlPathBuilder::valid_destination(const Fvector &pos, u32 node)
 
 bool CControlPathBuilder::valid_and_accessible(Fvector &pos, u32 node)
 {
-	if (!valid_destination(pos, node) || !accessible(node))	return false;
-
+	if (!valid_destination(pos, node) || !accessible(node))	
+		return false;
+	 
 	fix_position(Fvector().set(pos),node,pos);
 	return true;
 }
@@ -245,7 +246,8 @@ bool CControlPathBuilder::get_node_in_radius(u32 src_node, float min_radius, flo
 {
 	Fvector vertex_position = ai().level_graph().vertex_position(src_node);
 
-	for (u32 i=0; i<attempts; i++) {
+	for (u32 i=0; i<attempts; i++) 
+	{
 		Fvector			dir;
 		dir.random_dir	();
 		dir.normalize	();
@@ -278,7 +280,9 @@ bool CControlPathBuilder::can_use_distributed_computations (u32 option) const
 
 	VERIFY(Actor());
 	VERIFY(inherited_com::m_object);
-	if (Actor()->memory().visual().visible_right_now(inherited_com::m_object)) return false;
+	if (Actor()->memory().visual().visible_right_now(inherited_com::m_object))
+		return false;
+
 	return inherited::can_use_distributed_computations(option);
 }
 

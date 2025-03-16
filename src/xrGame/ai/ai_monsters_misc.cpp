@@ -181,24 +181,22 @@ void CAniVector::Load(IKinematicsAnimated *tpKinematics, LPCSTR caBaseName)
 	string256	S1, S2;
 	MotionID	tpMotionDef;
 	for (int i=0; ; ++i)
-		if (!!(tpMotionDef = tpKinematics->ID_Cycle_Safe(strconcat(sizeof(S1),S1,caBaseName,itoa(i,S2,10))))) {
-			A.push_back(tpMotionDef);
-#ifdef DEBUG
-			if (psAI_Flags.test(aiAnimation))
-				Msg		("* Loaded animation %s",S1);
-#endif
-		}
-		else
-			if (!!(tpMotionDef = tpKinematics->ID_FX_Safe(strconcat(sizeof(S1),S1,caBaseName,itoa(i,S2,10))))) {
-				A.push_back(tpMotionDef);
-#ifdef DEBUG
-			if (psAI_Flags.test(aiAnimation))
-				Msg		("* Loaded animation fx %s",S1);
-#endif
-			}
-			else
-				if (i<10)
-					continue;
-				else
-					break;
+	if (!!(tpMotionDef = tpKinematics->ID_Cycle_Safe(strconcat(sizeof(S1),S1,caBaseName,itoa(i,S2,10))))) 
+	{
+		A.push_back(tpMotionDef);
+ 		//if (psDeviceFlags.test(rsDebug))
+		//	Msg("* Loaded animation %s, Motion: IDX: %u| Slot: %u", S1, A[i].idx, A[i].slot);
+ 	}
+	else
+	if (!!(tpMotionDef = tpKinematics->ID_FX_Safe(strconcat(sizeof(S1),S1,caBaseName,itoa(i,S2,10)))))
+	{
+		A.push_back(tpMotionDef);
+		//if (psDeviceFlags.test(rsDebug))
+		//	Msg("* Loaded animation %s, Motion: IDX: %u| Slot: %u", S1, A[i].idx, A[i].slot);
+	}
+	else
+	if (i<10)
+		continue;
+	else
+		break;
 }

@@ -36,6 +36,13 @@ void CControlPathBuilderBase::prepare_builder()
 //////////////////////////////////////////////////////////////////////////
 void CControlPathBuilderBase::set_target_point(const Fvector &position, u32 node)
 {
+	/// float d = position.distance_to(m_object->Position());
+	/// if (d > 300)
+	/// {
+	/// 	Debug.Callstack();
+	/// 	Msg("Distance is : %f", d);
+	/// }
+
 	// обновить актуальность
 	m_target_actual = m_target_actual && (m_target_set.position().similar(position) && (m_target_set.node() == node));
 

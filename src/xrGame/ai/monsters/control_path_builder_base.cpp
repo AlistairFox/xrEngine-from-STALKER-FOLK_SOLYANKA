@@ -94,18 +94,22 @@ void CControlPathBuilderBase::detour_graph_points(u32 game_graph_vertex_id)
 
 void CControlPathBuilderBase::set_dest_direction(const Fvector &dir)
 {
-	if (m_last_time_dir_set + m_time > time()) return;
+	if (m_last_time_dir_set + m_time > time())
+		return;
 	m_dest_dir.set			(dir);
 	m_last_time_dir_set		 = time();
 }
 
 void CControlPathBuilderBase::set_target_accessible(STarget &target, const Fvector &position)
 {
-	if (!m_man->path_builder().accessible(position)) {
+	if (!m_man->path_builder().accessible(position)) 
+	{
 		Fvector new_position;
 		target.set_node	( m_man->path_builder().restrictions().accessible_nearest( position, new_position ) );
 		target.set_position( new_position );
-	} else {
+	}
+	else 
+	{
 		target.set_node	( u32(-1) );
 		target.set_position	( position );
 	}
@@ -115,8 +119,7 @@ void CControlPathBuilderBase::set_target_accessible(STarget &target, const Fvect
 void CControlPathBuilderBase::on_path_built()
 {
 	// проверка на конец пути
-	if (!m_man->path_builder().detail().path().empty() && 
-		(m_man->path_builder().detail().curr_travel_point_index() < m_man->path_builder().detail().path().size() - 1))
+	if (!m_man->path_builder().detail().path().empty() && (m_man->path_builder().detail().curr_travel_point_index() < m_man->path_builder().detail().path().size() - 1))
 		m_path_end = false;
 
 }
@@ -124,7 +127,8 @@ void CControlPathBuilderBase::on_path_built()
 void CControlPathBuilderBase::on_path_updated()
 {
 	// если level_path_manager failed
-	if (m_man->path_builder().level_path().failed()) {
+	if (m_man->path_builder().level_path().failed()) 
+	{
 		m_failed									= true;
 		m_man->path_builder().level_path().reset	();
 		VERIFY(!m_man->path_builder().level_path().failed());

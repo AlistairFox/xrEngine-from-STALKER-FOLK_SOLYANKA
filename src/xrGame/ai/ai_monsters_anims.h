@@ -34,10 +34,8 @@ public:
 		{
 			strconcat	(sizeof(S),S,caBaseName,caBaseNames[i]);
 			A[i]		= tpKinematics->ID_Cycle_Safe(S);
-#ifdef DEBUG
-			if (A[i] && psAI_Flags.test(aiAnimation))
-				Msg		("* Loaded animation %s",S);
-#endif
+			//if (A[i] && psDeviceFlags.test(rsDebug))
+			//	Msg		("* Loaded animation %s, Motion: IDX: %u| Slot: %u", S, A[i].idx, A[i].slot);
 		}
 	}
 };

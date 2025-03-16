@@ -43,6 +43,8 @@ public:
 
 			void			process_impl	(bool separate_computing = true)
 	{
+		OPTICK_EVENT("[CMovementManager] build detail path");
+
 		if (separate_computing)
 			m_object->m_wait_for_distributed_computation	= false;
 

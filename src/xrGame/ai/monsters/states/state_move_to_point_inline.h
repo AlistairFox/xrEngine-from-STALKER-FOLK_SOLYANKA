@@ -23,12 +23,14 @@ void CStateMonsterMoveToPointAbstract::execute()
 	object->path().set_generic_parameters	();
 	object->path().set_distance_to_end		(data.completion_dist);
 
-	if (data.accelerated) {
+	if (data.accelerated)
+	{
 		object->anim().accel_activate	(EAccelType(data.accel_type));
 		object->anim().accel_set_braking (data.braking);
 	}
 
-	if (data.action.sound_type != u32(-1)) {
+	if (data.action.sound_type != u32(-1))
+	{
 		object->set_state_sound(data.action.sound_type, data.action.sound_delay == u32(-1));
 	}
 }
@@ -36,12 +38,16 @@ void CStateMonsterMoveToPointAbstract::execute()
 TEMPLATE_SPECIALIZATION
 bool CStateMonsterMoveToPointAbstract::check_completion()
 {	
-	if (data.action.time_out !=0) {
-		if (time_state_started + data.action.time_out < Device.dwTimeGlobal) return true;
+	if (data.action.time_out !=0)
+	{
+		if (time_state_started + data.action.time_out < Device.dwTimeGlobal)
+			return true;
 	} 
 	
 	bool real_path_end = ((fis_zero(data.completion_dist)) ? (data.point.distance_to_xz(object->Position()) < ai().level_graph().header().cell_size()) : true);
-	if (object->control().path_builder().is_path_end(data.completion_dist) && real_path_end) return true;
+	
+	if (object->control().path_builder().is_path_end(data.completion_dist) && real_path_end) 
+		return true;
 
 	return false;
 }

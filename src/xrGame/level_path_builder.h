@@ -78,9 +78,10 @@ public:
 
 	void			process_impl		()
 	{
-		m_object->m_wait_for_distributed_computation	= false;
-		m_object->level_path().build_path	(m_start_vertex_id,m_dest_vertex_id);
-
+		OPTICK_EVENT("[CMovementManager] build level path");
+ 		m_object->level_path().build_path(m_start_vertex_id, m_dest_vertex_id);
+		m_object->m_wait_for_distributed_computation = false;
+		 
 		if (m_object->level_path().failed()) 
 		{
 			if ( m_use_delay_after_fail )
