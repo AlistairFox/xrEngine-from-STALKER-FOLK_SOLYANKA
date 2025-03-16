@@ -559,10 +559,10 @@ bool CSE_ALifeObject::used_ai_locations		() const
 #include "game_base_space.h"
 #include "../xrEngine/IGame_Persistent.h"
 
- 
+extern int AlifeSwitchOriginal;
 bool CSE_ALifeObject::can_switch_online		() const
 {
-	if (true)
+	if (AlifeSwitchOriginal)
 		return						(match_configuration() && !!m_flags.is(flSwitchOnline));
 	else
 		return true;
@@ -570,7 +570,7 @@ bool CSE_ALifeObject::can_switch_online		() const
 
 bool CSE_ALifeObject::can_switch_offline	() const
 {
-	if (true)
+	if (AlifeSwitchOriginal)
 		return						(!match_configuration() || !!m_flags.is(flSwitchOffline));
 	else
 		return false;
@@ -2149,6 +2149,11 @@ CSE_ALifeInventoryBox::CSE_ALifeInventoryBox( LPCSTR caSection ) : CSE_ALifeDyna
 	m_can_take = true;
 	m_closed   = false;
 	m_tip_text._set( "inventory_box_use" );
+
+	m_personal_safe = pSettings->line_exist(caSection, "private_box") ? pSettings->r_bool(caSection, "private_box") : false;
+
+	if (m_personal_safe)
+		m_tip_text._set("st_personal_box");
 }
 
 CSE_ALifeInventoryBox::~CSE_ALifeInventoryBox()
@@ -2167,16 +2172,21 @@ void CSE_ALifeInventoryBox::STATE_Read( NET_Packet &tNetPacket, u16 size )
 		tNetPacket.r_u8	( temp );		m_closed   = (temp == 1);
 		tNetPacket.r_stringZ( m_tip_text );
 	}
+
+	if (m_wVersion > 128)
+		m_personal_safe = tNetPacket.r_u8();
 }
 
-void CSE_ALifeInventoryBox::STATE_Write( NET_Packet &tNetPacket )
+void CSE_ALifeInventoryBox::STATE_Write(NET_Packet& tNetPacket)
 {
-	inherited::STATE_Write( tNetPacket );
-	tNetPacket.w_u8		( (m_can_take)? 1 : 0 );
-	tNetPacket.w_u8		( (m_closed)? 1 : 0 );
-	tNetPacket.w_stringZ( m_tip_text );
-}
+	inherited::STATE_Write(tNetPacket);
+	tNetPacket.w_u8((m_can_take) ? 1 : 0);
+	tNetPacket.w_u8((m_closed) ? 1 : 0);
+	tNetPacket.w_stringZ(m_tip_text);
 
+	tNetPacket.w_u8(m_personal_safe);
+}
+ 
 void CSE_ALifeInventoryBox::UPDATE_Read( NET_Packet &tNetPacket )
 {
 	inherited::UPDATE_Read( tNetPacket );

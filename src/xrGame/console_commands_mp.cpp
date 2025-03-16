@@ -4364,6 +4364,7 @@ extern int debug_networking = 0;
 extern int DebugHitZones    = 0; 
 extern int SyncAlifeCount;
 
+extern int AlifeSwitchOriginal = 1;
 void register_mp_console_commands()
 {
 	CMD4(CCC_Integer, "debug_network", &debug_networking, 0, 1);
@@ -4410,7 +4411,7 @@ void register_mp_console_commands()
 	CMD1(CCC_GetStatMemory, "ms_stats");
 
 	// MP GLOBAL ALIFE SETTINGS
-	// CMD4(CCC_Integer, "mp_alife_simulation_location", &ALIFE_ALL_LOCATION, 0, 2);		 
+	CMD4(CCC_Integer, "mp_alife_switcher", &AlifeSwitchOriginal, 0, 1);
 	// CMD4(CCC_Integer, "mp_alife_path_graph_distance", &MAX_DISTANCE_FIND_GRAPH, 1, 3000);
 
 	//ADMIN		(SE7kILLS)

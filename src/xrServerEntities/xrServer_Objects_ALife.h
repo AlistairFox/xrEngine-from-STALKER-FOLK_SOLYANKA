@@ -621,6 +621,7 @@ SERVER_ENTITY_DECLARE_BEGIN(CSE_ALifeInventoryBox,CSE_ALifeDynamicObjectVisual)
 	bool				m_can_take;
 	bool				m_closed;
 	shared_str			m_tip_text;
+	bool				m_personal_safe;
 
 						CSE_ALifeInventoryBox	(LPCSTR caSection);
 	virtual				~CSE_ALifeInventoryBox	();
