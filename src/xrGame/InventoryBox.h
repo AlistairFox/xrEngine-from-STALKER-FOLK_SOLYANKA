@@ -8,7 +8,8 @@ class CInventoryBox :public CGameObject
 
 public:
 	xr_vector<u16>		m_items;
-	xr_map<u16, shared_str> m_safe_items;
+	xr_map<u16, shared_str>	m_safe_items; // ID ITEM, SERIALIZE ID From Accounts
+
 	bool personal_safe;
 
 protected:
@@ -38,11 +39,10 @@ public:
 	IC			bool	closed							() const { return m_closed; }
 
 protected:
-				void	SE_update_status				();
+	void	SE_update_status();
+	void	Recvest_items_safe(ClientID id);
 
 public:
-				void SE_Read_items_safe(NET_Packet packet);
-
-				void SE_Write_items_safe(ClientID id);
-
+	void SE_update_ITEMS_SAFE(ClientID id);
+ 
 };

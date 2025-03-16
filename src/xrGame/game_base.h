@@ -90,6 +90,8 @@ struct game_PlayerState
 			void	resetFlag				(u32 f);
 
 			LPCSTR	getName					() const {return m_account.name().c_str();}
+			LPCSTR	getLogin				() const {return m_account.name_login().c_str(); }
+
 			//void	setName					(LPCSTR s){xr_strcpy(name,s);}
 			void	SetGameID				(u16 NewID);
 			bool	HasOldID				(u16 ID);

@@ -10,14 +10,18 @@
 #include "xrServer_Objects_ALife.h"
 #include "alife_simulator.h"
 #include "xrServer_Objects_ALife_Items.h"
+#include "Level.h"
 
 void CSE_ALifeObject::spawn_supplies		()
 {
 	spawn_supplies(*m_ini_string);
 }
 
-void CSE_ALifeObject::spawn_supplies		(LPCSTR ini_string)
+void CSE_ALifeObject::spawn_supplies(LPCSTR ini_string)
 {
+	if (OnClient())
+		return;
+
 	if (!ini_string)
 		return;
 
@@ -26,63 +30,73 @@ void CSE_ALifeObject::spawn_supplies		(LPCSTR ini_string)
 
 #pragma warning(push)
 #pragma warning(disable:4238)
-	CInifile					ini(
-		&IReader				(
-			(void*)(ini_string),
-			xr_strlen(ini_string)
-		),
-		FS.get_path("$game_config$")->m_Path
-	);
+	CInifile* ini = new CInifile(&IReader((void*)(ini_string), xr_strlen(ini_string)), FS.get_path("$game_config$")->m_Path);
 #pragma warning(pop)
 
-	if (ini.section_exist("spawn")) 
+	string_path tmp = { 0 };
+	string_path tt;
+
+	if (smart_cast<CSE_ALifeInventoryBox*> (this))
 	{
-		LPCSTR					N,V;
-		float					p;
-		for (u32 k = 0, j; ini.r_line("spawn",k,&N,&V); k++) 
+		sprintf_s(tt, "inventory_spawns\\%s.ltx", this->name_replace());
+		FS.update_path(tmp, "$users_data_root$", tt);
+ 		if (FS.exist(tmp))
 		{
-			VERIFY				(xr_strlen(N));
+			ini = new CInifile(tmp, true);
+		}
+	}
+	 
+	if (ini->section_exist("spawn"))
+	{
+		Msg("Spawn Reding from: %s : SelfID: %u", ini->fname(), this->ID );
+
+		LPCSTR					N, V;
+		float					p;
+		for (u32 k = 0, j; ini->r_line("spawn", k, &N, &V); k++)
+		{
+			VERIFY(xr_strlen(N));
 
 			if (!pSettings->section_exist(N))
 			{
 				Msg("[CGameObject] Cant spawn [spawn]: %s", N);
 				continue;
 			}
-	
-			float f_cond						= 1.0f;
-			bool bScope							= false;
-			bool bSilencer						= false;
-			bool bLauncher						= false;
- 			
-			j					= 1;
-			p					= 1.f;
-			
-			if (V && xr_strlen(V)) 
+			/// Msg("Dynamic Object [%s] SpawnSupply [%s]", this->name_replace(), N);
+
+			float f_cond = 1.0f;
+			bool bScope = false;
+			bool bSilencer = false;
+			bool bLauncher = false;
+
+			j = 1;
+			p = 1.f;
+
+			if (V && xr_strlen(V))
 			{
 				string64			buf;
-				j					= atoi(_GetItem(V, 0, buf));
-				if (!j)		j		= 1;
+				j = atoi(_GetItem(V, 0, buf));
+				if (!j)		j = 1;
 
-				bScope				= (NULL!=strstr(V,"scope"));
-				bSilencer			= (NULL!=strstr(V,"silencer"));
-				bLauncher			= (NULL!=strstr(V,"launcher"));
+				bScope = (NULL != strstr(V, "scope"));
+				bSilencer = (NULL != strstr(V, "silencer"));
+				bLauncher = (NULL != strstr(V, "launcher"));
 				//probability
-				if(NULL!=strstr(V,"prob="))
-					p				= (float)atof(strstr(V,"prob=")+5);
-				
+				if (NULL != strstr(V, "prob="))
+					p = (float)atof(strstr(V, "prob=") + 5);
+
 				if (fis_zero(p))
-					p	= 1.0f;
-				if(NULL!=strstr(V,"cond="))
-					f_cond			= (float)atof(strstr(V,"cond=")+5);
+					p = 1.0f;
+				if (NULL != strstr(V, "cond="))
+					f_cond = (float)atof(strstr(V, "cond=") + 5);
 			}
 
-			for (u32 i=0; i<j; ++i) 
+			for (u32 i = 0; i < j; ++i)
 			{
 				if (randF(1.f) < p) {
-					CSE_Abstract* E = alife().spawn_item	(N,o_Position,m_tNodeID,m_tGraphID,ID);
+					CSE_Abstract* E = alife().spawn_item(N, o_Position, m_tNodeID, m_tGraphID, ID);
 
 					//подсоединить аддоны к оружию, если включены соответствующие флажки
-					CSE_ALifeItemWeapon* W =  smart_cast<CSE_ALifeItemWeapon*>(E);
+					CSE_ALifeItemWeapon* W = smart_cast<CSE_ALifeItemWeapon*>(E);
 					if (W)
 					{
 						if (W->m_scope_status == ALife::eAddonAttachable)
@@ -93,11 +107,17 @@ void CSE_ALifeObject::spawn_supplies		(LPCSTR ini_string)
 							W->m_addon_flags.set(CSE_ALifeItemWeapon::eWeaponAddonGrenadeLauncher, bLauncher);
 					}
 					CSE_ALifeInventoryItem* IItem = smart_cast<CSE_ALifeInventoryItem*>(E);
-					if(IItem)
-						IItem->m_fCondition				= f_cond;
+					if (IItem)
+						IItem->m_fCondition = f_cond;
 				}
 			}
 		}
+	}
+
+
+	if (xr_strlen(tmp) > 4)
+	{
+		ini->save_as(tmp);
 	}
 }
 

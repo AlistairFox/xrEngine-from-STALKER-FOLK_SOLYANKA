@@ -30,6 +30,37 @@ void move_item_from_to (u16 from_id, u16 to_id, u16 what_id)
 	P.w_u16									(what_id);
 	CGameObject::u_EventSend				(P);
 }
+ 
+void move_item_private(u16 from_id, u16 to_id, u16 what_id)
+{
+	shared_str name;
+	bool isPlayer = false;
+
+	for (auto PL : Game().players)
+	{
+		if (PL.second->GameID == from_id)
+		{
+			name._set(PL.second->getLogin());
+			isPlayer = true;
+			break;
+		}
+	}
+	 
+	if (isPlayer)
+	{
+ 		NET_Packet P;
+		CGameObject::u_EventGen(P, GE_TRADE_SELL, from_id);
+		P.w_u16(what_id);
+		CGameObject::u_EventSend(P);
+
+		//другому инвентарю - взять вещь 
+		CGameObject::u_EventGen(P, GE_PRIVATE_INVENTORY_BUY, to_id);
+		P.w_stringZ(name);
+		P.w_u16(what_id);
+ 		CGameObject::u_EventSend(P);
+	}
+}
+
 
 bool move_item_check( PIItem itm, CInventoryOwner* from, CInventoryOwner* to, bool weight_check )
 {
@@ -45,43 +76,6 @@ bool move_item_check( PIItem itm, CInventoryOwner* from, CInventoryOwner* to, bo
 	}
 	move_item_from_to( from->object_id(), to->object_id(), itm->object_id() );
 	return true;
-}
-
-void move_item_from_to_INVBOX(u16 from_id, u16 to_id, u16 what_id)
-{
-	NET_Packet P;
-	CGameObject::u_EventGen(P, GE_TRADE_SELL, from_id);
-	P.w_u16(what_id);
-	CGameObject::u_EventSend(P);
-	//другому инвентарю - взять вещь 
-	CGameObject::u_EventGen(P, GE_TRADE_BUY, to_id);
-	P.w_u16(what_id);
-
-	bool find = false;
-	LPCSTR name = nullptr;
-
-	for (auto pl : Level().game->players)
-	{
-		if (pl.second->GameID == from_id)
-		{
-			name = pl.second->getName();
-			find = true;
-			break;
-		}
-	}
-
-	if (find)
-	{
-		P.w_u8(1);
-		P.w_stringZ(name);
-		P.w_u16(from_id);
-	}
-	else
-	{
-		P.w_u8(0);
-	}
-
-	CGameObject::u_EventSend(P);
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -216,8 +210,10 @@ bool CUIActorMenu::ToDeadBodyBag(CUICellItem* itm, bool b_use_cursor_pos)
 	}
 	else // box
 	{
-		move_item_from_to_INVBOX		(m_pActorInvOwner->object_id(), m_pInvBox->ID(), iitem->object_id());
-		//move_item_from_to				(m_pActorInvOwner->object_id(), m_pInvBox->ID(), iitem->object_id());
+		if (m_pInvBox->personal_safe)
+			move_item_private			(m_pActorInvOwner->object_id(), m_pInvBox->ID(), iitem->object_id());
+		else 
+			move_item_from_to				(m_pActorInvOwner->object_id(), m_pInvBox->ID(), iitem->object_id());
 	}
 	
 	UpdateDeadBodyBag();
@@ -279,15 +275,19 @@ void CUIActorMenu::TakeAllFromInventoryBox()
 		for ( u32 j = 0; j < ci->ChildsCount(); ++j )
 		{
 			PIItem j_item = (PIItem)(ci->Child(j)->m_pData);
-			//move_item_from_to( m_pInvBox->ID(), actor_id, j_item->object_id() );
-
-			move_item_from_to_INVBOX(m_pInvBox->ID(), actor_id, j_item->object_id());
+			//if (m_pInvBox->personal_safe)
+			//	move_item_private(m_pInvBox->ID(), actor_id, j_item->object_id());
+			//else 
+			move_item_from_to( m_pInvBox->ID(), actor_id, j_item->object_id() );
 		}
 
 		PIItem item = (PIItem)(ci->m_pData);
+		 
+		//if (m_pInvBox->personal_safe)
+		//	move_item_private(m_pInvBox->ID(), actor_id, item->object_id());
+ 		//else 
+			move_item_from_to(m_pInvBox->ID(), actor_id, item->object_id());
 		
-		//move_item_from_to( m_pInvBox->ID(), actor_id, item->object_id() );
-		move_item_from_to_INVBOX(m_pInvBox->ID(), actor_id, item->object_id());
 	}
 	
 	 

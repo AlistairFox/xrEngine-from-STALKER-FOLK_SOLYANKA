@@ -436,25 +436,13 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 			fmp->RecivePdaChatMSG(P, sender);			
 	}break;
 
-	case GE_INV_BOX_PRIVATE_SAFE:
-	{
-		CObject* obj = Level().Objects.net_Find(destination);
-		CInventoryBox* box = smart_cast<CInventoryBox*>(obj);
-		if (box)
-		{
-			ClientID id; P.r_clientID(id);
-			box->SE_Write_items_safe(id);
-		}
-	}break;
-
 	case GE_UNLOAD_AMMO:
 	{
 		NET_Packet packet;
 		game->u_EventGen(packet, GE_UNLOAD_AMMO, destination);
 		SendTo(SV_Client->ID, P, net_flags(true, true));
 	}break;
-
-
+	 
 
 	// xrMPE
 
@@ -696,6 +684,24 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 	}break;
 
 	case GE_PHANTOM_MODE:
+	{
+		SendBroadcast(BroadcastCID, P, net_flags(true, true));
+	}break;
+
+	case GE_INV_BOX_PRIVATE_SAFE:
+	{
+		ClientID id;
+		P.r_clientID(id);
+		u16 item_id = destination;
+
+		CObject* item = Level().Objects.net_Find(item_id);
+		CInventoryBox* box = smart_cast<CInventoryBox*>(item);
+		if (box)
+			box->SE_update_ITEMS_SAFE(id);
+ 	}
+	break;
+
+	case GE_PRIVATE_INVENTORY_BUY:
 	{
 		SendBroadcast(BroadcastCID, P, net_flags(true, true));
 	}break;
