@@ -90,6 +90,8 @@ CAI_Stalker::CAI_Stalker			() :
 	m_dbg_hud_draw					= false;
 #endif // DEBUG
 	m_registered_in_combat_on_migration	= false;
+
+	isLoaded = false;
 }
 
 CAI_Stalker::~CAI_Stalker			()
@@ -646,8 +648,9 @@ BOOL CAI_Stalker::net_Spawn			(CSE_Abstract* DC)
 	Exec_Look						(.001f);
 	
 	m_pPhysics_support->in_NetSpawn	(e);
-
-	return							(TRUE);
+	isLoaded = true;
+	
+ 	return							(TRUE);
 }
 
 void CAI_Stalker::net_Destroy()

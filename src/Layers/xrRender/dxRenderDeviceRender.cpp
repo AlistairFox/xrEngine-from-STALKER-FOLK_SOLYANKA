@@ -62,19 +62,10 @@ void  dxRenderDeviceRender::Reset( HWND hWnd, u32 &dwWidth, u32 &dwHeight, float
 
 	Resources->reset_begin	();
 	Memory.mem_compact		();
-#if defined (USE_DX10) || (USE_DX11) 
-
-#else
-	//Resources->DeferredUnload();
-#endif
+ 
 
 	HW.Reset				(hWnd);
 
-#if defined (USE_DX10) || (USE_DX11) 
-
-#else
-	//Resources->DeferredUpload();
-#endif
 
 
 #if defined(USE_DX10) || defined(USE_DX11)

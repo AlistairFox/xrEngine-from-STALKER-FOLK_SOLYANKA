@@ -62,6 +62,8 @@ public:
 	u32										dwHeight;
 	
 	u32										dwPrecacheFrame;
+
+	BOOL									b_isLoadTextures;
 	BOOL									b_is_Ready;
 	BOOL									b_is_Active;
 public:

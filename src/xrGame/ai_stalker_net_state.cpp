@@ -1,16 +1,8 @@
 #include "stdafx.h"
 #include "ai_stalker_net_state.h"
  
-//#define HALF_FLOAT
-
 void EXPORT_MOTIONS::Import(NET_Packet& P, MotionID_numered& legs, MotionID_numered& torso, MotionID_numered& head)
 {
-	/*
-	P.r_float_helf(legs.pos);
-	P.r_float_helf(torso.pos);
-	P.r_float_helf(head.pos);
-	*/ 
-
 	//Основа
 	u64 value = P.r_u64();
 	Import_Base(legs, torso, head, value);
@@ -19,12 +11,6 @@ void EXPORT_MOTIONS::Import(NET_Packet& P, MotionID_numered& legs, MotionID_nume
 
 void EXPORT_MOTIONS::Export(NET_Packet& P, MotionID_numered& legs, MotionID_numered& torso, MotionID_numered& head)
 {
-	/*
-	P.w_float_helf(legs.pos);
-	P.w_float_helf(torso.pos);
-	P.w_float_helf(head.pos);
-	*/ 
-
 	// Основа
 	u64 value = 0;
 	Export_Base(legs, torso, head, value); P.w_u64(value);	 //8
@@ -124,27 +110,17 @@ void ai_stalker_net_state::state_write(NET_Packet& packet)
 	{	
 		packet.w_u8(u_active_slot);
 		packet.w_u16(u_active_item);
-		packet.w_float(u_health);						  //5
+		packet.w_float(u_health);							   //5
 
-#ifndef	HALF_FLOAT
 		// 4 BYTE or float all (4  * 4 ) = 16 BYTE
 		packet.w_angle8(torso_yaw);
 		packet.w_angle8(head_yaw);
 		packet.w_angle8(torso_pitch);
 		packet.w_angle8(head_pitch);						  //4
-#else
-		packet.w_float_helf(torso_yaw);		  
-		packet.w_float_helf(head_yaw);
-		packet.w_float_helf(torso_pitch);
-		packet.w_float_helf(head_pitch);					  //OR 8 
-#endif
  	}
 
 	//Animation Export
-	exp_motions.Export(packet, legs_anim, torso_anim, head_anim); 
-
-	// MAX BYTES 38 
-	// MIN BYTES 32
+	// exp_motions.Export(packet, legs_anim, torso_anim, head_anim);
 }
 
 void ai_stalker_net_state::state_read(NET_Packet& packet)
@@ -154,7 +130,7 @@ void ai_stalker_net_state::state_read(NET_Packet& packet)
 
 	if (phSyncFlag)
 	{
-		physics_state.read(packet);	fv_position.set(physics_state.physics_position);	 //13
+		physics_state.read(packet);	fv_position.set(physics_state.physics_position);	 // 13
 	}
 	else
 	{
@@ -163,26 +139,15 @@ void ai_stalker_net_state::state_read(NET_Packet& packet)
  
 	//States
 	{	
- 		packet.r_u8(u_active_slot);   													 //5 BYTE
+ 		packet.r_u8(u_active_slot);   													 // 5 BYTE
 		packet.r_u16(u_active_item);
 		packet.r_float(u_health);
-
-#ifndef	HALF_FLOAT																		// 4 BYTE  
-		packet.r_angle8(torso_yaw);
+  		packet.r_angle8(torso_yaw);
 		packet.r_angle8(head_yaw);
 		packet.r_angle8(torso_pitch);
-		packet.r_angle8(head_pitch);
-#else
-		packet.r_float_helf(torso_yaw);													// 8 BYTE
-		packet.r_float_helf(head_yaw);
-		packet.r_float_helf(torso_pitch);
-		packet.r_float_helf(head_pitch);
-#endif	
-	}																					//23 BYTE BODY STATE
+		packet.r_angle8(head_pitch);	
+	}																					// 23 BYTE BODY STATE
 																						
 	//Animation Import	MAY BY timer ( > 500ms ) send ANIMATION
-	exp_motions.Import(packet, legs_anim, torso_anim, head_anim);  //15 max, 9 min BYTE
-
-	// MAX BYTES 38 
-	// MIN BYTES 32
+	// exp_motions.Import(packet, legs_anim, torso_anim, head_anim);						// 15 max, 9 min BYTE
 } 

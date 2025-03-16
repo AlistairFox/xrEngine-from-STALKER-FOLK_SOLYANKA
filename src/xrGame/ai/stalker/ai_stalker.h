@@ -124,6 +124,7 @@ private:
 public:
 	using inherited::useful;
 	using inherited::evaluate;
+	bool isLoaded = false;
 	
 private:
 	CStalkerAnimationManager		*m_animation_manager;
@@ -157,22 +158,10 @@ private:
 	//Se7Kills Animation
 
 public:
-	void OnAnimationUpdate(MotionID motion, CBlend* blend, bool mix_anims, bool anim_controller, float pos);
+	void OnAnimationUpdate(MotionID motion, CBlend* blend, bool mix_anims, bool is_global, bool anim_controller);
 
 private:
 	void ApplyAnimation(ai_stalker_net_state& state);
-
-	MotionID torso_motion, legs_motion, head_motion;
-	u8 torso_num, legs_num, head_num;
-	bool torso_loop, head_loop, legs_loop;
-	bool torso_anim_ctrl, head_anim_ctrl, legs_anim_ctrl;
-	float torso_pos, legs_pos, head_pos;
-
-	u8 client_torso_num;
-	u8 client_head_num;
-	u8 client_legs_num;
-
-
 	void anim_sync(IKinematicsAnimated* skeleton_animated, CBlend* blend_1, CBlend* blend_2);
 
 	CBlend* blend_torso = 0;
@@ -181,9 +170,8 @@ private:
 
 	// Релиз тела
 
-	//float							m_near_players_distance = 0;
-	mutable u32						m_last_player_detection_time = 0;
-	//u32							m_near_players_delay_time = 0;
+ 	mutable u32						m_last_player_detection_time = 0;
+ 
 public:
 	bool NeedToDestroyObject() const;
 	ALife::_TIME_ID TimePassedAfterDeath() const;

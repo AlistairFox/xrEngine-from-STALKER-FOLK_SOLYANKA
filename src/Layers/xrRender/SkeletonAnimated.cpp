@@ -351,8 +351,22 @@ void CKinematicsAnimated::IFXBlendSetup(CBlend &B, MotionID motion_ID, float ble
 	B.channel		= 0;
 	B.fall_at_end	= FALSE;	
 }
+
+ 
+
+
 CBlend*	CKinematicsAnimated::LL_PlayCycle(u16 part, MotionID motion_ID, BOOL  bMixing, float blendAccrue, float blendFalloff, float Speed, BOOL noloop, PlayCallback Callback, LPVOID CallbackParam,u8 channel/*=0*/ )
 {
+	if (!RDEVICE.b_is_Ready && !RDEVICE.b_isLoadTextures)
+		return 0;
+
+	// se7kills FIXED LL_PlayCycle (блендинг иногда отьебывает)
+	if (part < 4 && GetNPC())
+	{
+		if (blend_cycles[part].size() >= MAX_BLENDED)
+			return 0;
+	}
+
 	// validate and unroll
 	if (!motion_ID.valid())	return 0;
 	if (BI_NONE==part)		{

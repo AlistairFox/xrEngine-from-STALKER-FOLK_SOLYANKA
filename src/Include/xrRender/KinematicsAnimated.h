@@ -108,6 +108,10 @@ public:
 	virtual bool						get_animation_valid(MotionID motion_ID) = 0;
 	virtual int							get_animation_size(int slot) = 0;
 
+	bool IsNPC = false;
+	void SetNPC(bool Value) { IsNPC = Value; }
+	bool GetNPC() { return IsNPC; }
+
 //#ifdef DEBUG
 //	virtual	const BlendSVec			&blend_cycle	(const u32 &bone_part_id) const = 0;
 //#endif //	DEBUG

@@ -338,63 +338,96 @@ u16 MAX_BITS_COUNT = (u32(1) << 10);
 
 void CAI_Stalker::ApplyAnimation(ai_stalker_net_state& state)
 {
+	if (OnServer())
+		return;
+
 	IKinematicsAnimated* ka = smart_cast<IKinematicsAnimated*>(Visual());
 	if (!ka)
 		return;
+
+	if (!RDEVICE.b_isLoadTextures || !RDEVICE.b_is_Ready || !isLoaded)
+	{
+		Msg("Skip Process Event: NPC: %d, IsLoaded: %d", ID(), isLoaded);
+		return;
+	}
+	ka->SetNPC(true);
+
 
 	if (state.torso_anim.id.idx < MAX_BITS_COUNT)
 	if (state.torso_anim.num != client_torso_num)
 	{
 		MotionID motion = state.torso_anim.id;
-		blend_torso = ka->LL_PlayCycle(
-			ka->LL_GetMotionDef(motion)->bone_or_part,
-			state.torso_anim.id, 
-			state.torso_anim.loop, 
-			ka->LL_GetMotionDef(motion)->Accrue(),
-			ka->LL_GetMotionDef(motion)->Falloff(),
-			ka->LL_GetMotionDef(motion)->Speed(),
-			ka->LL_GetMotionDef(motion)->StopAtEnd(),
-			0, 0, 0
-		);		
-		client_torso_num = state.torso_anim.num;
+
+		if (ka->get_animation_valid(motion))
+		{
+			CBlend* blend = ka->LL_PlayCycle(
+				ka->LL_GetMotionDef(motion)->bone_or_part,
+				state.torso_anim.id,
+				state.torso_anim.loop,
+				ka->LL_GetMotionDef(motion)->Accrue(),
+				ka->LL_GetMotionDef(motion)->Falloff(),
+				ka->LL_GetMotionDef(motion)->Speed(),
+				ka->LL_GetMotionDef(motion)->StopAtEnd(),
+				0, 0, 0
+			);
+
+			if (blend != nullptr)
+			{
+				blend_torso = blend;
+				client_torso_num = state.torso_anim.num;
+			}			
+		}
 	}
 
 	if (state.head_anim.id.idx < MAX_BITS_COUNT)
 	if (state.head_anim.num != client_head_num)
 	{
 		MotionID motion = state.head_anim.id;
-
-		blend_head = ka->LL_PlayCycle(
-			ka->LL_GetMotionDef(motion)->bone_or_part,
-			motion,
-			state.head_anim.loop, 
-			ka->LL_GetMotionDef(motion)->Accrue(),
-			ka->LL_GetMotionDef(motion)->Falloff(),
-			ka->LL_GetMotionDef(motion)->Speed(),
-			ka->LL_GetMotionDef(motion)->StopAtEnd(),
-			0, 0, 0
-		);
-		client_head_num = state.head_anim.num;
+		if (ka->get_animation_valid(motion))
+		{
+			CBlend* head = ka->LL_PlayCycle(
+				ka->LL_GetMotionDef(motion)->bone_or_part,
+				motion,
+				state.head_anim.loop,
+				ka->LL_GetMotionDef(motion)->Accrue(),
+				ka->LL_GetMotionDef(motion)->Falloff(),
+				ka->LL_GetMotionDef(motion)->Speed(),
+				ka->LL_GetMotionDef(motion)->StopAtEnd(),
+				0, 0, 0
+			);
+			if (head != nullptr)
+			{
+				blend_head = head;
+				client_head_num = state.head_anim.num;
+			}			
+		}
 	}
  
 	if (state.legs_anim.id.idx < MAX_BITS_COUNT)
 	if (state.legs_anim.num != client_legs_num)
 	{
 		MotionID motion = state.legs_anim.id;
-		blend_legs = ka->LL_PlayCycle(
-			ka->LL_GetMotionDef(motion)->bone_or_part,
-			state.legs_anim.id,
-			state.legs_anim.loop,
-			ka->LL_GetMotionDef(motion)->Accrue(),
-			ka->LL_GetMotionDef(motion)->Falloff(),
-			ka->LL_GetMotionDef(motion)->Speed(),
-			ka->LL_GetMotionDef(motion)->StopAtEnd(),
-			0, 0, 0
-		);
 
-		if (blend_legs)
-			CStepManager::on_animation_start(state.legs_anim.id, blend_legs);
-		client_legs_num = state.legs_anim.num;
+		if (ka->get_animation_valid(motion))
+		{
+			CBlend* legs = ka->LL_PlayCycle(
+				ka->LL_GetMotionDef(motion)->bone_or_part,
+				state.legs_anim.id,
+				state.legs_anim.loop,
+				ka->LL_GetMotionDef(motion)->Accrue(),
+				ka->LL_GetMotionDef(motion)->Falloff(),
+				ka->LL_GetMotionDef(motion)->Speed(),
+				ka->LL_GetMotionDef(motion)->StopAtEnd(),
+				0, 0, 0
+			);
+
+			if (legs != nullptr)
+			{
+				blend_legs = legs; 
+				CStepManager::on_animation_start(state.legs_anim.id, blend_legs);
+				client_legs_num = state.legs_anim.num;
+			}
+		}
 	}
 
  	/*	Синхра ног кривая с рывками анимки

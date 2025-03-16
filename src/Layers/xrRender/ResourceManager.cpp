@@ -341,57 +341,21 @@ void CResourceManager::Delete(const Shader* S)
 
 void CResourceManager::DeferredUpload()
 {
- 
-	if (!RDEVICE.b_is_Ready)
+ 	if (!RDEVICE.b_is_Ready)
 		return;
 
 	CTimer timer;
 	timer.Start();
-	 
+	RDEVICE.b_isLoadTextures = false;
+
 	concurrency::parallel_for_each(m_textures.begin(), m_textures.end(), [&](std::pair<const char*, CTexture*> T)
 	{
 		T.second->Load();
 	});
 	
+	RDEVICE.b_isLoadTextures = true;
 
 	Msg("Textures Loading End [%u] ", timer.GetElapsed_ms());
- 
-
-	/*
-	if (!RDEVICE.b_is_Ready) return;
-	tex_to_load.clear();
-
-	Msg("CResourceManager::DeferredUpload -> START, size = %d", m_textures.size());
-
-	CTimer timer;
-	timer.Start();
-
-	if (m_textures.size() <= 100)  
-	{
-		Msg("CResourceManager::DeferredUpload -> one thread");
-		for (map_TextureIt t = m_textures.begin(); t != m_textures.end(); t++)
-			t->second->Load();
-	}
-	else
-	{
- 
-		u32 th_count = (m_textures.size() / 100) + 1;
-		std::thread* th_arr = new std::thread[th_count];
-		for (auto tex : m_textures)
-			tex_to_load.push_back(tex.second);
-
-		for (u16 i = 0; i < th_count; i++)
-			th_arr[i] = std::thread(TextureLoading, i + 1);
-
-		for (size_t i = 0; i < th_count; i++)
-			th_arr[i].join();
-
-		tex_to_load.clear();
-	}
-
-	Msg("texture loading time: %d", timer.GetElapsed_ms());
-
-	*/
 }
  
 void	CResourceManager::DeferredUnload	()

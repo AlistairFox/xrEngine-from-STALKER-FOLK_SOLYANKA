@@ -97,13 +97,6 @@ void CStalkerAnimationPair::play			(IKinematicsAnimated *skeleton_animated, Play
 	VERIFY					(animation());
 	if (actual()) 
 	{
-#if 0
-#	ifdef DEBUG
-		if (psAI_Flags.is(aiAnimation) && blend())
-			Msg				("%6d [%s][%s][%s][%f]",Device.dwTimeGlobal,m_object_name,m_animation_type_name,*animation()->name(),blend()->timeCurrent);
-#	endif
-#endif
-
 #ifdef DEBUG
 		m_just_started		= false;
 #endif // DEBUG
@@ -119,6 +112,7 @@ void CStalkerAnimationPair::play			(IKinematicsAnimated *skeleton_animated, Play
 #ifdef DEBUG
 	m_just_started			= true;
 #endif // DEBUG
+	skeleton_animated->SetNPC(true);
 
 	float				pos = 0.f;
 
@@ -164,7 +158,7 @@ void CStalkerAnimationPair::play			(IKinematicsAnimated *skeleton_animated, Play
 
 	bool ctrl = ( this->use_animation_movement_control(skeleton_animated, animation()) || use_animation_movement_control ) ;
 
- 	m_object->OnAnimationUpdate(animation(), blend(), mix_animations, global_animation() && ctrl, pos);
+  	m_object->OnAnimationUpdate(animation(), blend(), mix_animations, global_animation(), ctrl);
 
 
 #ifdef DEBUG

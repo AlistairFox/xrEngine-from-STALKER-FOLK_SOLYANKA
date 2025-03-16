@@ -6,8 +6,7 @@
 class BIT_TO_BYTE
 {
 public:
-
-	void write_bites(const u32& bit_count, const u32& value, u32& current, u64& output)
+ 	void write_bites(const u32& bit_count, const u32& value, u32& current, u64& output)
 	{
 		output |= ((value & ((u64(1) << bit_count) - 1)) << current);
 		current += bit_count;
