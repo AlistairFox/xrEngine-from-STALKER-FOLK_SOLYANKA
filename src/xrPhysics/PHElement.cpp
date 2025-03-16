@@ -1685,12 +1685,15 @@ void	CPHElement::	dbg_draw_geometry( float scale, u32 color, Flags32 flags /*= F
 	CPHGeometryOwner::dbg_draw( scale, color, flags );
 }
 #endif
-//bool CPHElement::CheckBreakConsistent()
-//{
-//	if(!m_fratures_holder) return true;
-//	m_fratures_holder->m_fractures
-//	m_fratures_holder->Fracture()
-//}) return true;
-//	m_fratures_holder->m_fractures
-//	m_fratures_holder->Fracture()
-//}
+ 
+void		CPHElement::ActivatingPos(const Fmatrix& BoneTransform)
+{
+	ToBonePos(BoneTransform, mh_unspecified);
+	m_flags.set(flActivating, FALSE);
+	if (!m_parent_element)
+		m_shell->SetObjVsShellTransform(BoneTransform);
+
+	VERIFY_RMATRIX(BoneTransform);
+	VERIFY(valid_pos(BoneTransform.c, phBoundaries));
+	return;
+}
