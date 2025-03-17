@@ -118,6 +118,8 @@
 #include <openssl/safestack.h>
 
 #pragma warning(disable: 4127)
+#pragma warning(disable: 4996)
+
 
 #if defined(OPENSSL_SYS_WIN32) || defined(OPENSSL_SYS_WIN16)
 static double SSLeay_MSVC5_hack=0.0; /* and for VC1.5 */

@@ -62,6 +62,7 @@
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
+    <EnableASAN>false</EnableASAN>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='LUAJIT_2|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>

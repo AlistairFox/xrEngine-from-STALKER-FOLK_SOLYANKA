@@ -123,7 +123,7 @@
 #endif
 #include <wincrypt.h>
 #include <tlhelp32.h>
-
+#pragma warning (disable: 4996)
 /* Limit the time spent walking through the heap, processes, threads and modules to
    a maximum of 1000 miliseconds each, unless CryptoGenRandom failed */
 #define MAXDELAY 1000
