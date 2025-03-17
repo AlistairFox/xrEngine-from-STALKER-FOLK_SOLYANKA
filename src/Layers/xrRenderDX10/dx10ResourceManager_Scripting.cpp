@@ -128,6 +128,40 @@ void LuaError(lua_State* L)
 {
 	Debug.fatal(DEBUG_INFO,"LUA error: %s",lua_tostring(L,-1));
 }
+
+static LPVOID __cdecl luabind_allocator(
+	luabind::memory_allocation_function_parameter const,
+	void const* const pointer,
+	size_t const size
+)
+{
+	if (!size) {
+		LPVOID	non_const_pointer = const_cast<LPVOID>(pointer);
+		xr_free(non_const_pointer);
+		return	(0);
+	}
+
+	if (!pointer)
+	{
+		return	(Memory.mem_alloc(size));
+	}
+
+	LPVOID		non_const_pointer = const_cast<LPVOID>(pointer);
+#ifdef DEBUG
+	return		(Memory.mem_realloc(non_const_pointer, size, "luabind"));
+#else // #ifdef DEBUG
+	return		(Memory.mem_realloc(non_const_pointer, size));
+#endif // #ifdef DEBUG
+}
+
+void setup_luabind_allocator()
+{
+	if (luabind::allocator == nullptr)
+	{
+		luabind::allocator = &luabind_allocator;
+		luabind::allocator_parameter = 0;
+	}
+}
  
 // export
 void	CResourceManager::LS_Load			()
@@ -137,6 +171,8 @@ void	CResourceManager::LS_Load			()
 		Msg			("! ERROR : Cannot initialize LUA VM!");
 		return;
 	}
+
+	setup_luabind_allocator();
 
 	// initialize lua standard library functions 
 	luaopen_base	(LSVM); 
@@ -298,7 +334,7 @@ Shader*	CResourceManager::_lua_Create		(LPCSTR d_shader, LPCSTR s_textures)
 {
 	CBlender_Compile	C;
 	Shader				S;
-
+ 
 	// undecorate
 	string256	undercorated;
 	for (int i=0, l=xr_strlen(d_shader)+1; i<l; i++)

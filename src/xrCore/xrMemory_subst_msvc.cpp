@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #pragma hdrstop
 
-#define USE_POOL
+//#define USE_POOL
 MEMPOOL		mem_pools[mem_pools_count];
  
 #ifdef USE_POOL 
@@ -131,6 +131,8 @@ void* xrMemory::mem_alloc(size_t	size)
 };
 void* xrMemory::mem_realloc(void* p, size_t size)
 {
+	if (0 == p)
+		return mem_alloc(size);
 	return realloc(p, size);
 };
 void  xrMemory::mem_free(void* p)

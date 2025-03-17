@@ -406,7 +406,7 @@ LONG WINAPI UnhandledFilter(_EXCEPTION_POINTERS* pExceptionInfo)
 	
 		string4096			buffer;
 		Msg("\n----------------------------------------------");
-		Msg("stack trace IXray:\n");
+		Msg("stack trace IXray: stack_size(%u) \n", stackTrace.size() );
 
 
 		for (size_t i = 0; i < stackTrace.size(); i++)

@@ -34,44 +34,6 @@ void CAI_Stalker::OnAnimationUpdate(MotionID motion, CBlend* blend, bool mix_ani
 	}
 
 	Game().u_EventSend(packet);
-
-	// if (blend->bone_or_part == 0)
-	// {
-	// 	if (legs_num > 254)
-	// 		legs_num = 0;
-	// 
-	// 	legs_num += 1;
-	// 	legs_motion = motion;
-	// 	legs_loop = mix_anims;
- 	// 	legs_anim_ctrl = anim_ctrl;
-	// 	blend_legs = blend;
-	// }
-	// 
-	// if (blend->bone_or_part == 1)
-	// {
-	// 	if (torso_num > 254)
-	// 		torso_num = 0;
-	// 
-	// 	torso_num += 1;
-	// 	torso_motion = motion;
-	// 	torso_loop = mix_anims;
-	// 	torso_pos = pos;
-	// 	torso_anim_ctrl = anim_ctrl;
-	// 	blend_torso = blend;
-	// }
-	// 
-	// if (blend->bone_or_part == 2)
-	// {
-	// 	if (head_num > 254)
-	// 		head_num = 0;
-	// 
-	// 	head_num += 1;
-	// 	head_motion = motion;
-	// 	head_loop = mix_anims;
-	// 	head_pos = pos;
-	// 	head_anim_ctrl = anim_ctrl;
-	// 	blend_head = blend;
-	// }	
 }
 
 void CAI_Stalker::EventAnimation(NET_Packet& P)

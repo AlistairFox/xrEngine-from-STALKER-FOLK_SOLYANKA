@@ -4359,6 +4359,38 @@ void ReadCMDCommands(NET_Packet& P)
   
 }
 
+void CheckFlagsPlayerState()
+{
+	if (Actor())
+	{
+		for (auto PL : Game().players)
+		{
+			bool isAdmin = PL.second->testFlag(GAME_PLAYER_HAS_ADMIN_RIGHTS);
+
+			if (PL.second->GameID == Actor()->ID())
+			{
+				Msg("[SELF] PLAYER LocalActor: %u has_admin, Local: %u", isAdmin, Game().local_player->testFlag(GAME_PLAYER_HAS_ADMIN_RIGHTS));
+			}
+			else
+			{
+				Msg("[OTHER] PLAYER  %u has_admin", isAdmin);
+			}
+		}
+	}
+	else
+		Msg("! Actor()");
+}
+
+class CCC_TEST_PLAYERSTATE : public IConsole_Command
+{
+public:
+	CCC_TEST_PLAYERSTATE(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = true; }
+	virtual void Execute(LPCSTR args)
+	{
+		CheckFlagsPlayerState();
+	}
+};
+
 extern int use_debug_squads = 0;
 extern int debug_networking = 0;
 extern int DebugHitZones    = 0; 
@@ -4367,6 +4399,7 @@ extern int SyncAlifeCount;
 extern int AlifeSwitchOriginal = 1;
 void register_mp_console_commands()
 {
+	CMD1(CCC_TEST_PLAYERSTATE, "g_state");
 	CMD4(CCC_Integer, "debug_network", &debug_networking, 0, 1);
 //	CMD4(CCC_Integer, "debug_hit_zones", &DebugHitZones, 0, 1);
 	CMD4(CCC_Integer, "sync_alife_objects", &SyncAlifeCount, 10, 1000);

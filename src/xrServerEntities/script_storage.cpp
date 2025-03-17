@@ -85,8 +85,11 @@ static LPVOID __cdecl luabind_allocator	(
 
 void setup_luabind_allocator		()
 {
-	luabind::allocator				= &luabind_allocator;
-	luabind::allocator_parameter	= 0;
+	if (luabind::allocator == nullptr)
+	{
+		luabind::allocator = &luabind_allocator;
+		luabind::allocator_parameter = 0;
+	}
 }
 
 /* ---- start of LuaJIT extensions */

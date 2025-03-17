@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "xrCompress.h"
-  
+#pragma warning(disable: 4995)
+#pragma warning(disable: 4996)
 #include <iostream>
 #include <string>
 #include <windows.h>

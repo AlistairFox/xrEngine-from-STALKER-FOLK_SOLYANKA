@@ -29,6 +29,8 @@
 #include <malloc.h>
 #pragma warning(pop)
 
+#pragma optimize(off, "")
+
 const float wounded_enemy_reached_distance = 3.f;
 
 const unsigned __int32 __c0					= 0x55555555;
@@ -95,9 +97,17 @@ void CAgentEnemyManager::fill_enemies			()
 	{
 		CAgentMemberManager::iterator	I = object().member().combat_members().begin();
 		CAgentMemberManager::iterator	E = object().member().combat_members().end();
-		for ( ; I != E; ++I) {
-			(*I)->probability			(1.f);
-			(*I)->object().memory().fill_enemies	(CEnemyFiller(&m_enemies,object().member().mask(&(*I)->object())));
+		for ( ; I != E; ++I) 
+		{
+			try 
+			{
+				(*I)->probability(1.f);
+				(*I)->object().memory().fill_enemies(CEnemyFiller(&m_enemies, object().member().mask(&(*I)->object())));
+			}
+			catch (...)
+			{
+				Debug.Callstack();
+			}
 		}
 	}
 

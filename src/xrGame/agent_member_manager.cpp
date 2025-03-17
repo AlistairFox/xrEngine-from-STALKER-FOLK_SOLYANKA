@@ -86,8 +86,10 @@ void CAgentMemberManager::remove_links			(CObject *object)
 {
 	MEMBER_STORAGE::iterator	I = m_members.begin();
 	MEMBER_STORAGE::iterator	E = m_members.end();
-	for ( ; I != E; ++I) {
-		if ((*I)->grenade_reaction().m_grenade) {
+	for ( ; I != E; ++I)
+	{
+		if ((*I)->grenade_reaction().m_grenade) 
+		{
 			const CGameObject	*explosive  =smart_cast<const CGameObject*>((*I)->grenade_reaction().m_grenade);
 			VERIFY				(explosive);
 			if (explosive->ID() == object->ID())
@@ -109,9 +111,6 @@ void CAgentMemberManager::remove_links			(CObject *object)
 
 void CAgentMemberManager::register_in_combat	(const CAI_Stalker *object)
 {
-//	if (!object->group_behaviour())
-//		return;
-
 #if 0//def DEBUG
 	Msg							(
 		"%6d registering stalker %s in combat: 0x%08x -> 0x%08x",

@@ -249,7 +249,8 @@ void	CKinematicsAnimated::LL_FadeCycle(u16 part, float falloff, u8 mask_channel 
 		B.set_falloff_state();
 		B.blendFalloff = falloff;
 		//B.blendAccrue		= B.timeCurrent;
-		if (B.stop_at_end)  B.stop_at_end_callback = FALSE;		// callback не должен приходить!
+		if (B.stop_at_end) 
+			B.stop_at_end_callback = FALSE;		// callback не должен приходить!
 		 
 	}
 }
@@ -359,6 +360,10 @@ CBlend*	CKinematicsAnimated::LL_PlayCycle(u16 part, MotionID motion_ID, BOOL  bM
 {
 	if (!RDEVICE.b_is_Ready && !RDEVICE.b_isLoadTextures)
 		return 0;
+
+	if (GetNPC() && blend_cycles[part].size() > 64)
+		return 0;
+
 
 	// se7kills FIXED LL_PlayCycle (блендинг иногда отьебывает)
 	if (GetNPC() && motion_ID.slot > MAX_PARTS - 1)

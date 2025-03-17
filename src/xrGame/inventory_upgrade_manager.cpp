@@ -174,8 +174,7 @@ void Manager::load_all_inventory()
 	for ( ; ib != ie ; ++ib )
 	{
 		shared_str root_id( (*ib).first );
-//		if ( !item_upgrades_exist( root_id ) ) continue;
-		item_upgrades_exist( root_id );
+ 		item_upgrades_exist( root_id );
 		add_root( root_id );
 	}
 
@@ -183,13 +182,6 @@ void Manager::load_all_inventory()
 	{
 		Msg( "# Upgrades of inventory items loaded." );
 	}
-
-	/*
-	float low, high; ///? <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-	LPCSTR param = "cost";
-	compute_range( param, low ,high );
-	Msg( "Parameter <%s> min = %.3f, max = %.3f", param, low, high );
-	*/
 }
 
 void Manager::load_all_properties()

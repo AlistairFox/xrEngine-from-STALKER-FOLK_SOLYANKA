@@ -143,7 +143,7 @@ namespace StackTrace
 			return traceResult;
 		}
 
-		traceResult.reserve(maxFramesCount);
+		// traceResult.reserve(maxFramesCount);
 
 		stackFrame.AddrPC.Mode = AddrModeFlat;
 		stackFrame.AddrStack.Mode = AddrModeFlat;
@@ -153,9 +153,14 @@ namespace StackTrace
 		stackFrame.AddrStack.Offset = threadCtx->Rsp;
 		stackFrame.AddrFrame.Offset = threadCtx->Rbp;
 
-		while (GetNextStackFrameString(&stackFrame, threadCtx, frameStr) && traceResult.size() <= maxFramesCount)
+		while (GetNextStackFrameString(&stackFrame, threadCtx, frameStr) )
 		{
-			traceResult.push_back(frameStr);
+			if (traceResult.size() <= maxFramesCount)
+			{
+				traceResult.push_back(frameStr);
+			}
+			else
+				break;
 		}
 
 		DeinitializeSymbolEngine();
