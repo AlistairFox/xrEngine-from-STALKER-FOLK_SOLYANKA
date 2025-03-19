@@ -1448,59 +1448,7 @@ HRESULT	CRender::shader_compile			(
 	}
 
 	HRESULT		_result = E_FAIL;
- 
-	string_path	folder_name, folder;
-	xr_strcpy(folder, "r3\\objects\\r4\\");
-	xr_strcat(folder, name);
-	xr_strcat(folder, ".");
-
-	char extension[3];
-	strncpy_s(extension, pTarget, 2);
-	xr_strcat(folder, extension);
-
-	FS.update_path(folder_name, "$game_shaders$", folder);
-	xr_strcat(folder_name, "\\");
-
-	m_file_set.clear();
-	FS.file_list(m_file_set, folder_name, FS_ListFiles | FS_RootOnly, "*");
-
-	string_path temp_file_name, file_name;
-	if (!match_shader_id(name, sh_name, m_file_set, temp_file_name))
-	{
-		string_path file;
-		xr_strcpy(file, "shaders_cache\\r4\\");
-		xr_strcat(file, name);
-		xr_strcat(file, ".");
-		xr_strcat(file, extension);
-		xr_strcat(file, "\\");
-		xr_strcat(file, sh_name);
-		FS.update_path(file_name, "$app_data_root$", file);
-	}
-	else 
-	{
-		xr_strcpy(file_name, folder_name);
-		xr_strcat(file_name, temp_file_name);
-	}
-
-	if (FS.exist(file_name))
-	{
-		IReader* file = FS.r_open(file_name);
-		if (file->length()>4)
-		{
-			u32 crc = 0;
-			crc = file->r_u32();
-
-			boost::crc_32_type		processor;
-			processor.process_block	( file->pointer(), ((char*)file->pointer()) + file->elapsed() );
-			u32 const real_crc		= processor.checksum( );
-
-			if ( real_crc == crc ) {
-				_result				= create_shader(pTarget, (DWORD*)file->pointer(), file->elapsed(), file_name, result, o.disasm);
-			}
-		}
-		file->close();
-	}
-
+   
 	if (FAILED(_result))
 	{
 		includer					Includer;
@@ -1518,8 +1466,24 @@ HRESULT	CRender::shader_compile			(
 				&pErrorBuf
 			);
 
+
 		if (SUCCEEDED(_result))
 		{
+			string_path  file_name;
+
+			char extension[3];
+			strncpy_s(extension, pTarget, 2);
+  
+			string_path file_shaders;
+			xr_strcpy(file_shaders, "shaders_cache\\r4\\");
+			xr_strcat(file_shaders, name);
+			xr_strcat(file_shaders, ".");
+			xr_strcat(file_shaders, extension);
+			xr_strcat(file_shaders, "\\");
+			xr_strcat(file_shaders, sh_name);
+			FS.update_path(file_name, "$app_data_root$", file_shaders);
+
+
 			IWriter* file = FS.w_open(file_name);
 
 			boost::crc_32_type		processor;
@@ -1532,9 +1496,9 @@ HRESULT	CRender::shader_compile			(
 
 			_result					= create_shader(pTarget, (DWORD*)pShaderBuf->GetBufferPointer(), (u32)pShaderBuf->GetBufferSize(), file_name, result, o.disasm);
 		}
-		else {
-//			Msg						( "! shader compilation failed" );
-			Log						("! ", file_name);
+		else 
+		{
+ 			Log						("! ", name);
 			if ( pErrorBuf )
 				Log					("! error: ",(LPCSTR)pErrorBuf->GetBufferPointer());
 			else
