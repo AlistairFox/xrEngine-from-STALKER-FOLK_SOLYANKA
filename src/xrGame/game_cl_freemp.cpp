@@ -531,10 +531,82 @@ void game_cl_freemp::TranslateGameMessage(u32 msg, NET_Packet& P)
 
 extern bool caps_lock = false;
 
-extern int use_debug_squads;
+#include "ai/stalker/ai_stalker.h"
+#include "HUDManager.h"
+#include "sight_manager.h"
 
-//u64 LastUpdateDebug = 0;
-//xr_vector<shared_str> text_to_render;
+extern int debuging_stalker;
+extern float debuging_font_size;
+
+void DisplayStalker(CAI_Stalker* stalker)
+{
+	if (!debuging_stalker)
+		return;
+
+	CGameFont* font = UI().Font().pFontArial14;
+
+	font->SetHeightI(debuging_font_size);
+	font->OutSet(400, 25);
+	font->SetColor(color_argb(255, 255, 128, 128));
+
+	font->OutNext("StalkerID : %d, Wounded: %d, name: %s", stalker->ID(), stalker->m_wounded, stalker->cName());
+ 
+	font->OutNext("Sight aiming_type[%u] m_animation_frame[%u] m_animation_id[%s]",
+		stalker->sight().m_aiming_type,
+ 		stalker->sight().m_animation_frame,
+		stalker->sight().m_animation_id.c_str()
+	);
+
+	font->OutNext("Position: [%f, %f, %f]", VPUSH(stalker->Position()));
+	font->OutNext("Animation Controled: %d", stalker->animation_movement_controlled()); //
+
+
+	IKinematics* KINEMATIC = smart_cast<IKinematics*>(stalker->Visual()->dcast_PKinematics() );
+
+	for (auto ID = 0; ID < KINEMATIC->LL_BoneCount(); ID++)
+	{
+		auto BONE = KINEMATIC->LL_GetBoneInstance(ID);
+		// auto BONE_DATA = KINEMATIC->GetBoneData(ID);
+		shared_str name = KINEMATIC->LL_BoneName_dbg(ID); //BONE_DATA.GetSelfID()
+		
+  		Fvector HPB, POS;
+		BONE.mTransform.getHPB(HPB);
+  		BONE.mTransform.getXYZ(POS);	
+		font->OutNext("Bone[%d][%s]: TRANSFORM [%.3f, %.3f, %.3f] HPB[%.3f, %.3f, %.3f]", 
+			ID, *name, VPUSH(POS), VPUSH(HPB)
+		);				
+	}
+
+	IKinematicsAnimated* ka = smart_cast<IKinematicsAnimated*>(stalker->Visual());
+	for (int i = 0; i < ka->LL_PartBlendsCount(0); i++)
+	{
+		CBlend* blend = ka->LL_PartBlend(0, i);
+		if (blend)
+			font->OutNext("part[0] Blend[%d] IDX: %d, time: %f / %f", i, blend->motionID.idx, blend->timeCurrent, blend->timeTotal);
+	}
+
+	for (int i = 0; i < ka->LL_PartBlendsCount(1); i++)
+	{
+		CBlend* blend = ka->LL_PartBlend(1, i);
+		if (blend)
+			font->OutNext("part[1] Blend[%d] IDX: %d, time: %f", i, blend->motionID.idx, blend->timeCurrent, blend->timeTotal);
+	}
+
+	for (int i = 0; i < ka->LL_PartBlendsCount(2); i++)
+	{
+		CBlend* blend = ka->LL_PartBlend(2, i);
+		if (blend)
+			font->OutNext("part[2] Blend[%d] IDX: %d, time: %f", i, blend->motionID.idx, blend->timeCurrent, blend->timeTotal);
+	}
+
+
+	font->OutNext("Dialog: %s", stalker->GetStartDialog().c_str());
+
+	font->OnRender();
+}
+
+extern int DebugingObjectID; 
+
 void game_cl_freemp::OnRender()
 {
 	//if (LastUpdateDebug < Device.dwTimeGlobal)
@@ -546,6 +618,24 @@ void game_cl_freemp::OnRender()
 	//		Level().Server->GetDataNetwork(text_to_render);
 	//	}
 	//}
+
+	if (DebugingObjectID)
+	{
+		CAI_Stalker* stalker = smart_cast<CAI_Stalker*> (Level().Objects.net_Find(DebugingObjectID));
+		if (stalker)
+		{
+			DisplayStalker(stalker);
+		}
+	}
+	else 
+	if (HUD().GetCurrentRayQuery().O)
+	{
+		CAI_Stalker* stalker = smart_cast<CAI_Stalker*> (HUD().GetCurrentRayQuery().O);
+		if (stalker)
+		{
+			DisplayStalker(stalker);
+		}
+	}
 
 	inherited::OnRender();
  
