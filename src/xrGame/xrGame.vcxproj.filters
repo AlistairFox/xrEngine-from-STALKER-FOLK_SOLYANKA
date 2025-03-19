@@ -2608,6 +2608,9 @@
     <Filter Include="Se7Kills\Weapons\Custom Weapon\WeaponBase\AutoWG">
       <UniqueIdentifier>{df4ec06a-0641-4cae-8288-7e3c06a44a9b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Common\Console Commands\mp commands">
+      <UniqueIdentifier>{7e12cdfb-9dae-4472-8c89-48ae1b95e108}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mt_config.h">
@@ -11515,14 +11518,20 @@
     <ClCompile Include="ImGUI_WeatherEditor.cpp">
       <Filter>ImGUI</Filter>
     </ClCompile>
-    <ClCompile Include="console_commands_gspawn.cpp">
-      <Filter>Core\Common\Console Commands</Filter>
-    </ClCompile>
     <ClCompile Include="console_commands_admin_features.cpp">
-      <Filter>Core\Common\Console Commands</Filter>
+      <Filter>Core\Common\Console Commands\mp commands</Filter>
     </ClCompile>
     <ClCompile Include="console_commands_register.cpp">
-      <Filter>Core\Common\Console Commands</Filter>
+      <Filter>Core\Common\Console Commands\mp commands</Filter>
+    </ClCompile>
+    <ClCompile Include="console_commands_mserver.cpp">
+      <Filter>Core\Common\Console Commands\mp commands</Filter>
+    </ClCompile>
+    <ClCompile Include="console_commands_gspawn.cpp">
+      <Filter>Core\Common\Console Commands\mp commands</Filter>
+    </ClCompile>
+    <ClCompile Include="console_commands_omf.cpp">
+      <Filter>Core\Common\Console Commands\mp commands</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

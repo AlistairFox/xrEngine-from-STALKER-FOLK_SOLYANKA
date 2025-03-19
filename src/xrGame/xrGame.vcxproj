@@ -4613,6 +4613,8 @@
     <ClCompile Include="console_commands_admin_features.cpp" />
     <ClCompile Include="console_commands_gspawn.cpp" />
     <ClCompile Include="console_commands_mp.cpp" />
+    <ClCompile Include="console_commands_mserver.cpp" />
+    <ClCompile Include="console_commands_omf.cpp" />
     <ClCompile Include="console_commands_register.cpp" />
     <ClCompile Include="console_registrator_script.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">pch_script.h</PrecompiledHeaderFile>

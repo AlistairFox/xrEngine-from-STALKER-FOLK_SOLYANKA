@@ -9,7 +9,7 @@
 // Functions
 u32 SendedBytes = 0;
 u32 SyncAlifeObjects = 0;
-int SyncAlifeCount = 50;
+extern int SyncAlifeCount;
 
 
 // Updater
