@@ -234,16 +234,21 @@ bool xrServer::NeedToCheckClient_BuildVersion		(IClient* CL)
 
 
 
-void xrServer::OnBuildVersionRespond				( IClient* CL, NET_Packet& P )
+void xrServer::OnBuildVersionRespond(IClient* CL, NET_Packet& P)
 {
 	u16 Type;
-	P.r_begin( Type );
-	u64 _our		=	FS.auth_get();
-	u64 _him		=	P.r_u64();
+	P.r_begin(Type);
+	u64 _our = FS.auth_get();
+	u64 _him = P.r_u64();
+
+	if (_our != _him)
+	{
+		SendConnectResult(CL, 0, ecr_data_verification_failed, "gamedata вмешательство !!!");	
+		return;
+	}
 
 	shared_str login ; 
 	P.r_stringZ(login);
-
 	shared_str password;
 	P.r_stringZ(password);
 	string_path path_xray; // logins
@@ -255,8 +260,8 @@ void xrServer::OnBuildVersionRespond				( IClient* CL, NET_Packet& P )
 		const auto& section = file->r_section(CL->name.c_str());
 
 		for (const auto& line : section.Data)
-			if (!strcmp(line.first.c_str(), "banned"))
-				SendConnectResult(CL, 0, ecr_have_been_banned, "Вас забанили за читы. Пошёл нахуй.");
+		if (!strcmp(line.first.c_str(), "banned"))
+			SendConnectResult(CL, 0, ecr_have_been_banned, "Вас забанили за читы. Пошёл нахуй.");
 	}
 
 #ifdef USE_DEBUG_AUTH
@@ -353,7 +358,8 @@ void xrServer::OnBuildVersionRespond				( IClient* CL, NET_Packet& P )
 			Msg("* Client 0x%08x has an incorrect password", CL->ID.value());
 			xr_strcat( res_check, "Invalid password.");
 			SendConnectResult( CL, 0, ecr_password_verification_failed, res_check );
-		}*/
+		}
+		*/
 
 		RequestClientDigest(CL);
 
