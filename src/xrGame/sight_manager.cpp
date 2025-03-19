@@ -101,6 +101,9 @@ static inline float	select_speed	( float const distance, float const speed, floa
 
 void CSightManager::Exec_Look		(float time_delta)
 {
+	//if (OnClient())
+	//	return;
+
 	START_PROFILE("Sight Manager")
 	
 	SBoneRotation&		body = object().movement().m_body;
@@ -129,35 +132,7 @@ void CSightManager::Exec_Look		(float time_delta)
 	if (current_action().change_head_speed())
 		head_speed		= current_action().head_speed();
 
-#ifdef SIGHT_DEBUG
-	if ( object().cName() == "level_prefix_stalker" ) {
-		Msg				("[%6d][%s] BEFORE BODY [%f] -> [%f]",Device.dwTimeGlobal, object().cName().c_str(), object().movement().m_body.current.yaw,object().movement().m_body.target.yaw);
-		Msg				("[%6d][%s] BEFORE HEAD [%f] -> [%f]",Device.dwTimeGlobal, object().cName().c_str(), object().movement().m_head.current.yaw,object().movement().m_head.target.yaw);
-	}
-#endif // #ifdef SIGHT_DEBUG
-
-	//static CStatGraph* s_stats_graph	= 0;
-	//if ( !s_stats_graph ) {
-	//	s_stats_graph					= xr_new<CStatGraph>();
-	//	s_stats_graph->SetRect			(0, 1024-68, 1280, 68, 0xff000000, 0xff000000);
-	//	s_stats_graph->SetMinMax		(-PI, PI, 1000);
-	//	s_stats_graph->SetStyle			(CStatGraph::stBarLine);
-	//	s_stats_graph->AppendSubGraph	(CStatGraph::stCurve);
-	//	s_stats_graph->AppendSubGraph	(CStatGraph::stCurve);
-	//}
-
-	//s_stats_graph->AppendItem			( angle_normalize_signed(head.current.yaw),   0xff00ff00, 0 );
-	//s_stats_graph->AppendItem			( angle_normalize_signed(head.current.pitch), 0xffff0000, 1 );
-
-#ifdef DEBUG
-	if ( g_ai_dbg_sight )
-		Msg							( "%6d [%s] before body[%f]->[%f], head[%f]->[%f]", Device.dwTimeGlobal, object().cName().c_str(), body.current.yaw, body.target.yaw, head.current.yaw, head.target.yaw );
-#endif // #ifdef DEBUG
 	vfValidateAngleDependency		(body.current.yaw,body.target.yaw,head.current.yaw);
-#ifdef DEBUG
-	if ( g_ai_dbg_sight )
-		Msg							( "%6d [%s] after  body[%f]->[%f], head[%f]->[%f]", Device.dwTimeGlobal, object().cName().c_str(), body.current.yaw, body.target.yaw, head.current.yaw, head.target.yaw );
-#endif // #ifdef DEBUG
 
 	m_object->angle_lerp_bounds		(body.current.yaw, body.target.yaw, select_speed( angle_difference(body.current.yaw, body.target.yaw), body_speed, g_ai_aim_min_speed, g_ai_aim_min_angle, g_ai_aim_max_angle ), time_delta);
 	m_object->angle_lerp_bounds		(body.current.pitch, body.target.pitch, select_speed( angle_difference(body.current.pitch, body.target.pitch), body_speed, g_ai_aim_min_speed, g_ai_aim_min_angle, g_ai_aim_max_angle ), time_delta);
@@ -165,45 +140,63 @@ void CSightManager::Exec_Look		(float time_delta)
 	m_object->angle_lerp_bounds		(head.current.yaw, head.target.yaw, select_speed( angle_difference(head.current.yaw, head.target.yaw), head_speed, g_ai_aim_min_speed, g_ai_aim_min_angle, g_ai_aim_max_angle ), time_delta);
 	m_object->angle_lerp_bounds		(head.current.pitch, head.target.pitch, select_speed( angle_difference(head.current.pitch, head.target.pitch), head_speed, g_ai_aim_min_speed, g_ai_aim_min_angle, g_ai_aim_max_angle ), time_delta);
 
-#ifdef DEBUG
-	if ( g_ai_dbg_sight )
-		Msg							( "%6d [%s] after2 body[%f]->[%f], head[%f]->[%f]", Device.dwTimeGlobal, object().cName().c_str(), body.current.yaw, body.target.yaw, head.current.yaw, head.target.yaw );
-#endif // #ifdef DEBUG
-
-#ifdef SIGHT_DEBUG
-	// normalizing torso angles
-	body.current.yaw	= angle_normalize_signed	(body.current.yaw);
-	body.current.pitch	= angle_normalize_signed	(body.current.pitch);
-
-	// normalizing head angles
-	head.current.yaw	= angle_normalize_signed	(head.current.yaw);
-	head.current.pitch	= angle_normalize_signed	(head.current.pitch);
-
-	if ( object().cName() == "level_prefix_stalker" ) {
-		Msg				("[%6d][%s] AFTER  BODY [%f] -> [%f]",			Device.dwTimeGlobal, object().cName().c_str(),object().movement().m_body.current.yaw,object().movement().m_body.target.yaw);
-		Msg				("[%6d][%s] AFTER  HEAD [%f][%f] -> [%f][%f]",	Device.dwTimeGlobal, object().cName().c_str(), object().movement().m_head.current.yaw,object().movement().m_head.current.pitch,object().movement().m_head.target.yaw,object().movement().m_head.target.pitch);
-	}
-#endif // #ifdef SIGHT_DEBUG
-
-	if (enabled()) {
+	if (enabled()) 
+	{
 		compute_aiming				(time_delta, head_speed);
 		current_action().on_frame	();
 	}
-
-#ifdef DEBUG
-	if ( g_ai_dbg_sight )
-		Msg							( "%6d [%s] after3 body[%f]->[%f], head[%f]->[%f]", Device.dwTimeGlobal, object().cName().c_str(), body.current.yaw, body.target.yaw, head.current.yaw, head.target.yaw );
-#endif // #ifdef DEBUG
-
+ 
 	if (object().animation_movement_controlled())
 		return;
 
 	Fmatrix&			m = m_object->XFORM();
+
 	float				h = -body.current.yaw;
 	float				_sh = _sin(h), _ch = _cos(h);
 	m.i.set				( _ch,	0.f,	_sh); m._14_	= 0.f;
 	m.j.set				( 0.f,	1.f,	0.f); m._24_	= 0.f;
 	m.k.set				(-_sh,	0.f,	_ch); m._34_	= 0.f;
+
+	/*
+	{
+		Fvector HPB;
+		m_object->XFORM().getHPB(HPB);
+		m_object->HPB.set(HPB);
+	}
+	 
+	Fvector zero; zero.set(0,0,0);
+
+	
+	{
+		Fmatrix head = current_head_rotation();
+		Fvector XYZ, HPB;
+		head.getXYZ(XYZ);
+		head.getHPB(HPB);
+
+		if (!XYZ.similar(zero, EPS_L) || !HPB.similar(zero, EPS_L))
+			Msg("HEAD POS(%f, %f, %f) HPB(%f, %f, %f) ", VPUSH(XYZ), VPUSH(HPB));
+	}
+
+	{
+		Fmatrix sholder = current_shoulder_rotation();
+		Fvector XYZ, HPB;
+		sholder.getXYZ(XYZ);
+		sholder.getHPB(HPB);
+
+		if (!XYZ.similar(zero, EPS_L) || !HPB.similar(zero, EPS_L))
+		Msg("SHOLDER POS(%f, %f, %f) HPB(%f, %f, %f) ", VPUSH(XYZ), VPUSH(HPB));
+	}
+
+	{
+		Fmatrix spine = current_spine_rotation();
+		Fvector XYZ, HPB;
+		spine.getXYZ(XYZ);
+		spine.getHPB(HPB);
+
+		if (!XYZ.similar(zero, EPS_L) || !HPB.similar(zero, EPS_L))
+		Msg("SPINE POS(%f, %f, %f) HPB(%f, %f, %f) ", VPUSH(XYZ), VPUSH(HPB));
+	}
+	*/
 
 	STOP_PROFILE
 }
@@ -233,11 +226,11 @@ void CSightManager::update			()
 		return;
 	}
 
-	if (!m_turning_in_place) {
+	if (!m_turning_in_place) 
+	{
 		if (angle_difference(object().movement().m_body.current.yaw,object().movement().m_head.current.yaw) > (left_angle(-object().movement().m_head.current.yaw,-object().movement().m_body.current.yaw) ? m_max_left_angle : m_max_right_angle)) {
 			m_turning_in_place	= true;
-//			Msg				("%6d started turning in place",Device.dwTimeGlobal);
-			object().movement().m_body.target.yaw	= object().movement().m_head.current.yaw;
+ 			object().movement().m_body.target.yaw	= object().movement().m_head.current.yaw;
 		}
 		else
 			object().movement().m_body.target.yaw	= object().movement().m_body.current.yaw;
@@ -246,14 +239,14 @@ void CSightManager::update			()
 		return;
 	}
 
-	if (angle_difference(object().movement().m_body.current.yaw,object().movement().m_head.target.yaw) > EPS_L) {
-//		object().movement().m_body.target.yaw	= object().movement().m_head.current.yaw;
-		object().movement().m_body.target.yaw	= object().movement().m_head.target.yaw;
+	if (angle_difference(object().movement().m_body.current.yaw,object().movement().m_head.target.yaw) > EPS_L)
+	{
+ 		object().movement().m_body.target.yaw	= object().movement().m_head.target.yaw;
 	}
-	else {
+	else
+	{
 		m_turning_in_place	= false;
-//		Msg					("%6d stopped turning in place",Device.dwTimeGlobal);
-		object().movement().m_body.target.yaw	= object().movement().m_body.current.yaw;
+ 		object().movement().m_body.target.yaw	= object().movement().m_body.current.yaw;
 	}
 
 	inherited::update		();
@@ -288,22 +281,10 @@ Fvector CSightManager::object_position				() const
 
 	return				(target);
 }
-
-//#include "actor.h"
-//CActor*			Actor()	;
-
+ 
 Fvector	CSightManager::aiming_position				() const
 {
 	Fvector						result;
-
-#if 0
-	Fmatrix								player_head;
-	IKinematics* actor_kinematics		= smart_cast<IKinematics*>(Actor()->Visual());
-	actor_kinematics->Bone_GetAnimPos	(player_head, actor_kinematics->LL_BoneID("bip01_head"), 1, false);
-	player_head.mulA_43					(Actor()->XFORM());
-	return								( player_head.c );
-#endif // #if 0
-
 #ifdef DEBUG
 	result.set					(flt_max, flt_max, flt_max);
 #endif // #ifdef DEBUG
@@ -312,8 +293,10 @@ Fvector	CSightManager::aiming_position				() const
 
 	using namespace SightManager;
 
-	switch (current_action().sight_type()) {
-		case eSightTypeCurrentDirection : {
+	switch (current_action().sight_type())
+	{
+		case eSightTypeCurrentDirection :
+		{
 			VERIFY2			( _valid(object().Position()), make_string("[%f][%f][%f]", VPUSH(object().Position())) );
 			VERIFY2			( _valid(-object().movement().m_head.current.yaw), make_string("%f", -object().movement().m_head.current.yaw) );
 			VERIFY2			( _valid(-object().movement().m_head.current.yaw), make_string("%f", -object().movement().m_head.current.pitch) );
@@ -347,7 +330,8 @@ Fvector	CSightManager::aiming_position				() const
 			VERIFY			( _valid(result) );
 			break;
 		}
-		case eSightTypePathDirection : {
+		case eSightTypePathDirection : 
+		{
 			result.mad			(
 				object().Position(),
 				Fvector().setHP(
@@ -369,7 +353,8 @@ Fvector	CSightManager::aiming_position				() const
 			VERIFY			( _valid(result) );
 			break;
 		}
-		case eSightTypeDirection : {
+		case eSightTypeDirection :
+		{
 			VERIFY			( _valid(current_action().vector3d()) );
 			result.mad			(
 				object().Position(),
@@ -388,8 +373,10 @@ Fvector	CSightManager::aiming_position				() const
 			VERIFY			( _valid(result) );
 			break;
 		}
+		
 		case eSightTypePosition :
-		case eSightTypeFirePosition : {
+		case eSightTypeFirePosition : 
+		{
 			result				= current_action().vector3d();
 			VERIFY2			(
 				result.magnitude() < 100000.f,
@@ -401,6 +388,7 @@ Fvector	CSightManager::aiming_position				() const
 			VERIFY			( _valid(current_action().vector3d()) );
 			break;
 		}
+
 		case eSightTypeObject : {
 			result				= object_position();
 			VERIFY2			(
@@ -413,8 +401,11 @@ Fvector	CSightManager::aiming_position				() const
 			VERIFY			( _valid(result) );
 			break;
 		}
-		case eSightTypeFireObject : {
-			switch (current_action().state_fire_object()) {
+
+		case eSightTypeFireObject : 
+		{
+			switch (current_action().state_fire_object())
+			{
 				case 0 : {
 					result		= current_action().vector3d();//object_position();
 					VERIFY2	(
@@ -443,6 +434,7 @@ Fvector	CSightManager::aiming_position				() const
 			}
 			break;
 		}
+
 		case eSightTypeCover : {
 			result.mad			(
 				object().Position(),
@@ -465,7 +457,9 @@ Fvector	CSightManager::aiming_position				() const
 			VERIFY			( _valid(result) );
 			break;
 		}
-		case eSightTypeSearch : {
+
+		case eSightTypeSearch : 
+		{
 			result.mad			(
 				object().Position(),
 				Fvector().setHP(
@@ -487,6 +481,7 @@ Fvector	CSightManager::aiming_position				() const
 			VERIFY			( _valid(result) );
 			break;
 		}
+
 		case eSightTypeLookOver : {
 			result.mad			(
 				object().Position(),
@@ -509,6 +504,7 @@ Fvector	CSightManager::aiming_position				() const
 			VERIFY			( _valid(result) );
 			break;
 		}
+
 		case eSightTypeCoverLookOver : {
 			result.mad			(
 				object().Position(),
@@ -531,6 +527,7 @@ Fvector	CSightManager::aiming_position				() const
 			VERIFY			( _valid(result) );
 			break;
 		}
+
 		case eSightTypeAnimationDirection : {
 			result.mad			(
 				object().Position(),
@@ -570,7 +567,8 @@ Fvector	CSightManager::aiming_position				() const
 static inline float lerp							( float low, float high, float value )
 {
 	float				result;
-	if (low > high) {
+	if (low > high)
+	{
 		result			= low - value;
 		std::swap		(low, high);
 	}
@@ -590,24 +588,12 @@ void CSightManager::process_action					( float const time_delta )
 {
 	VERIFY							(_valid(time_delta));
 	VERIFY							(_valid(s_factor_lerp_speed));
-
-//	if ( current_action().sight_type() == SightManager::eSightTypeAnimationDirection ) {
-//		m_current.m_spine.m_rotation			= Fidentity;
-//		m_current.m_shoulder.m_rotation			= Fidentity;
-//		m_current.m_head.m_rotation				= Fidentity;
-//		return;
-//	}
-
+ 
 	SBoneRotation const& head		= object().movement().m_head;
 	SBoneRotation const& body		= object().movement().m_body;
 
 	Fvector const&					factors = current_action().use_torso_look() ? s_danger_factors : s_free_factors;
 	VERIFY							(_valid(factors));
-//	if ( object().cName() == "level_prefix_stalker" ) {
-//		Msg							("[%6d][%6d] [%f] + [%f] = [%f] ([%f])",  Device.dwFrame, Device.dwTimeGlobal, m_current.m_head.m_factor,		s_factor_lerp_speed*time_delta,		lerp ( m_current.m_head.m_factor,		factors.x, s_factor_lerp_speed*time_delta ), factors.x );
-//		Msg							("[%6d][%6d] [%f] + [%f] = [%f] ([%f])",  Device.dwFrame, Device.dwTimeGlobal, m_current.m_shoulder.m_factor,	s_factor_lerp_speed*time_delta,		lerp ( m_current.m_shoulder.m_factor,	factors.y, s_factor_lerp_speed*time_delta ), factors.y );
-//		Msg							("[%6d][%6d] [%f] + [%f] = [%f] ([%f])",  Device.dwFrame, Device.dwTimeGlobal, m_current.m_spine.m_factor,	s_factor_lerp_speed*time_delta,		lerp ( m_current.m_spine.m_factor,		factors.z, s_factor_lerp_speed*time_delta ), factors.z );
-//	}
 
 	VERIFY							(_valid(m_current.m_head.m_factor));
 	m_current.m_head.m_factor		= lerp ( m_current.m_head.m_factor,		factors.x, s_factor_lerp_speed*time_delta );
@@ -635,7 +621,8 @@ void CSightManager::process_action					( float const time_delta )
 
 void CSightManager::compute_aiming					(float const time_delta, float const angular_speed)
 {
-	switch (m_aiming_type) {
+	switch (m_aiming_type) 
+	{
 		case aiming_none : {
 			process_action			(time_delta);
 			return;
@@ -678,9 +665,13 @@ void CSightManager::compute_aiming					(float const time_delta, float const angu
 				pSettings->r_string(object().cNameSect().c_str(),"weapon_bone2"),
 				*smart_cast<CWeapon const*>(object().best_weapon())
 			);
+
 			if (forward_blend_callbacks)
+			{
 				object().animation().assign_bone_blend_callbacks(true);
-			else {
+			}
+			else 
+			{
 				if (backward_blend_callbacks)
 					object().animation().assign_bone_blend_callbacks(false);
 				else
@@ -704,7 +695,10 @@ void CSightManager::compute_aiming					(float const time_delta, float const angu
 
 			break;
 		}
-		case aiming_head : {
+		
+		
+		case aiming_head : 
+		{
 			if (!enabled())
 				return;
 
@@ -855,8 +849,7 @@ void CSightManager::enable							(bool const value)
 		return;
 
 	m_enabled			= value;
-//	Msg					("[%d][%s] sight_enabled[%c]", Device.dwTimeGlobal, object().cName().c_str(), value ? '+' : '-');
-	
+ 	
 	if (!m_enabled)
 		return;
 

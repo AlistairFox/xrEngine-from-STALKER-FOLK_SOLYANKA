@@ -50,8 +50,10 @@ u16		CKinematics::LL_BoneID		(const shared_str& B)	{
 //
 LPCSTR CKinematics::LL_BoneName_dbg	(u16 ID)
 {
-	CKinematics::accel::iterator _I, _E=bone_map_N->end();
-	for (_I	= bone_map_N->begin(); _I!=_E; ++_I)	if (_I->second==ID) return *_I->first;
+	CKinematics::accel::iterator _I, _E = bone_map_N->end();
+	for (_I	= bone_map_N->begin(); _I!=_E; ++_I)	
+	if (_I->second==ID) 
+		return *_I->first;
 	return 0;
 }
 
@@ -168,28 +170,22 @@ void	CKinematics::Load(const char* N, IReader *data, u32 dwFlags)
         string_path		short_name;
         xr_strcpy		(short_name,sizeof(short_name),N);
 
-        if (strext(short_name)) *strext(short_name)=0;
-        // From stream
+        if (strext(short_name)) 
+			*strext(short_name)=0;
+
+		// From stream
 		{
 			string_path		lod_name;
 			LD->r_string	(lod_name, sizeof(lod_name));
-	//        strconcat		(sizeof(name_load),name_load, short_name, ":lod:", lod_name.c_str());
-	//		Msg("Loading Load");
+
 			m_lod 			= (dxRender_Visual*) ::Render->model_CreateChild(lod_name, NULL);
 
 			if ( CKinematics* lod_kinematics = dynamic_cast<CKinematics*>(m_lod) )
-			{
-				lod_kinematics->m_is_original_lod = true;
-			}
-
+ 				lod_kinematics->m_is_original_lod = true;
+ 
             VERIFY3(m_lod,"Cant create LOD model for", N);
-//.			VERIFY2			(m_lod->Type==MT_HIERRARHY || m_lod->Type==MT_PROGRESSIVE || m_lod->Type==MT_NORMAL,lod_name.c_str());
-/*
-			strconcat		(name_load, short_name, ":lod:1");
-            m_lod 			= ::Render->model_CreateChild(name_load,LD);
-			VERIFY			(m_lod->Type==MT_SKELETON_GEOMDEF_PM || m_lod->Type==MT_SKELETON_GEOMDEF_ST);
-*/
         }
+
         LD->close	();
     }
 

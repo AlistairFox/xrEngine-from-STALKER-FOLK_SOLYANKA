@@ -236,8 +236,17 @@ MotionID CKinematicsAnimated::ID_Cycle	(LPCSTR  N)
 }
 void	CKinematicsAnimated::LL_FadeCycle(u16 part, float falloff, u8 mask_channel /*= (1<<0)*/)
 {
-	BlendSVec&	Blend		= blend_cycles[part];
 	
+	if (BI_NONE == part)
+		return;
+	if (part >= MAX_PARTS)
+		return;
+
+	BlendSVec& Blend = blend_cycles[part];
+
+	if (Blend.size() >= MAX_BLENDED)
+		Msg("Blend Size: %u", Blend.size());
+
 	for (u32 I=0; I<Blend.size(); I++)
 	{
 		CBlend& B			= *Blend[I];
@@ -245,23 +254,24 @@ void	CKinematicsAnimated::LL_FadeCycle(u16 part, float falloff, u8 mask_channel 
 		if (!(mask_channel & (1 << B.channel)))
 			continue;
 
-		//B.blend				= CBlend::eFalloff;
-		B.set_falloff_state();
+ 		B.set_falloff_state();
 		B.blendFalloff = falloff;
-		//B.blendAccrue		= B.timeCurrent;
-		if (B.stop_at_end) 
+ 		if (B.stop_at_end) 
 			B.stop_at_end_callback = FALSE;		// callback не должен приходить!
 		 
 	}
 }
 void	CKinematicsAnimated::LL_CloseCycle(u16 part, u8 mask_channel /*= (1<<0)*/)
 {
-	if (BI_NONE==part)		return;
-	if (part>=MAX_PARTS)	return;
-
+	if (BI_NONE==part)		
+		return;
+	if (part>=MAX_PARTS)	
+		return;
+ 
 	// destroy cycle(s)
 	BlendSVecIt	I = blend_cycles[part].begin(), E = blend_cycles[part].end();
-	for (; I!=E; I++){
+	for (; I!=E; I++)
+	{
 		CBlend& B = *(*I);
 		if(!(mask_channel&(1<<B.channel)))
 					continue;
@@ -273,9 +283,11 @@ void	CKinematicsAnimated::LL_CloseCycle(u16 part, u8 mask_channel /*= (1<<0)*/)
 			Bone_Motion_Stop_IM	((*bones)[P.bones[i]],*I);
 
 		blend_cycles[part].erase(I);// ?
-		E				= blend_cycles[part].end(); I--; 
+		E				= blend_cycles[part].end();
+		I--; 
 	}
-	//blend_cycles[part].clear	(); // ?
+
+	blend_cycles[part].clear	(); // ?
 }
 
 float CKinematicsAnimated::get_animation_length (MotionID motion_ID)
@@ -361,42 +373,43 @@ CBlend*	CKinematicsAnimated::LL_PlayCycle(u16 part, MotionID motion_ID, BOOL  bM
 	if (!RDEVICE.b_is_Ready && !RDEVICE.b_isLoadTextures)
 		return 0;
 
-	if (GetNPC() && blend_cycles[part].size() > 64)
-		return 0;
-
-
 	// se7kills FIXED LL_PlayCycle (блендинг иногда отьебывает)
-	if (GetNPC() && motion_ID.slot > MAX_PARTS - 1)
+	if (GetNPC() && motion_ID.slot > MAX_PARTS - 1 )
 		return 0;
 	 
-  	// if (GetNPC() && blend_cycles[part].size() >= MAX_BLENDED)
-	// 	return 0;
- 
 	// validate and unroll
-	if (!motion_ID.valid())	return 0;
-	if (BI_NONE==part)		{
-		for (u16 i=0; i<MAX_PARTS; i++)
-			LL_PlayCycle(i,motion_ID,bMixing,blendAccrue,blendFalloff,Speed,noloop,Callback,CallbackParam,channel);
+	if (!motion_ID.valid())	
+		return 0;
+	
+	if (BI_NONE==part)		
+	{
+		for (u16 i = 0; i < MAX_PARTS; i++)
+		{
+			LL_PlayCycle(i, motion_ID, bMixing, blendAccrue, blendFalloff, Speed, noloop, Callback, CallbackParam, channel);
+		}
 		return 0;
 	}
-	if (part>=MAX_PARTS)	return 0;
-	if (0==m_Partition->part(part).Name)	return 0;
 
-//	shared_motions* s_mots	= &m_Motions[motion.slot];
-//	CMotionDef* m_def		= s_mots->motion_def(motion.idx);
-    
+	if (part>=MAX_PARTS)	
+		return 0;
+
+	if (0==m_Partition->part(part).Name)	
+		return 0;
+
 	// Process old cycles and create _new_
 	if( channel == 0 )
 	{
-		_DBG_SINGLE_USE_MARKER;
-		if (bMixing)	LL_FadeCycle	(part,blendFalloff,1<<channel);
-		else			LL_CloseCycle	(part,1<<channel);
+		if (GetNPC() && blend_cycles[motion_ID.slot].size() >= MAX_BLENDED)
+			return 0;
+  		if (bMixing)	
+			LL_FadeCycle	(part,blendFalloff,1<<channel);
+		else	
+			LL_CloseCycle	(part,1<<channel);
 	}
 	CPartDef& P	=	(*m_Partition)[part];
 	CBlend*	B	=	IBlend_Create	();
 
-	_DBG_SINGLE_USE_MARKER;
-	IBlendSetup(*B, part,channel, motion_ID, bMixing, blendAccrue, blendFalloff, Speed, noloop, Callback, CallbackParam );
+ 	IBlendSetup(*B, part,channel, motion_ID, bMixing, blendAccrue, blendFalloff, Speed, noloop, Callback, CallbackParam );
 	for (u32 i=0; i<P.bones.size(); i++)
 		Bone_Motion_Start_IM	((*bones)[P.bones[i]],B);
 	blend_cycles[part].push_back(B);

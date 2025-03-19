@@ -177,7 +177,7 @@ protected:
 	void					PerformCheckClientsForMaxPing	();
 public:
 	game_sv_GameState*		game;
-
+ 
 	void					Export_game_type		(IClient* CL);
 	void					Perform_game_export		();
 	BOOL					PerformRP				(CSE_Abstract* E);

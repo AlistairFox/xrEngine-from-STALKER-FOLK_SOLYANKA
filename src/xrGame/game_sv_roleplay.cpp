@@ -143,6 +143,7 @@ BOOL game_sv_roleplay::OnTouch(u16 eid_who, u16 eid_what, BOOL bForced)
 	//	return OnTouchPlayersBag(e_who, e_entity);
 	}
 
+	Msg("On Touch eid_who(%u) eid_what(%u)", eid_who, eid_what);
 	return TRUE;
 }
 
@@ -161,6 +162,8 @@ void game_sv_roleplay::OnDetach(u16 eid_who, u16 eid_what)
 	{
 	//	OnDetachPlayersBag(e_who, e_entity);
 	}
+
+	Msg("On OnDetach eid_who(%u) eid_what(%u)", eid_who, eid_what);
 }
 
 void game_sv_roleplay::MemoryUsageGameObjects()

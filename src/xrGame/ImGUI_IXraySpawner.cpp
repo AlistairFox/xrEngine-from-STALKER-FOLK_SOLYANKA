@@ -119,6 +119,9 @@ void InitSections()
 		if (pSection == nullptr)
 			continue;
 
+		if (pSection->line_exist("ignore_spawn"))
+			continue;
+
 		std::string_view name = pSection->Name.c_str();
 
 		if (name.empty())
@@ -990,7 +993,7 @@ void SpawnManager_HandleButtonPress(CInifile::Sect* section)
 
 		NET_Packet P;
 		Game().u_EventGen(P, GE_GAME_EVENT, -1);
-		P.w_u16(GE_SPAWN_ITEM);
+		P.w_u16(GAME_EVENT_SPAWN);
 		P.w_u8(1);
  		P.w_vec3(madPos);
 
@@ -1002,7 +1005,7 @@ void SpawnManager_HandleButtonPress(CInifile::Sect* section)
 	{
 		NET_Packet P;
 		Game().u_EventGen(P, GE_GAME_EVENT, -1);
-		P.w_u16(GE_SPAWN_ITEM);
+		P.w_u16(GAME_EVENT_SPAWN);
 		P.w_u8(2);
  
 		P.w_stringZ(section->Name);

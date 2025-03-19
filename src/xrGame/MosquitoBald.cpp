@@ -46,7 +46,7 @@ bool CMosquitoBald::BlowoutState()
 //	return result;
 //}
 
-extern int DebugHitZones;
+extern int debuging_hit_zones;
 void CMosquitoBald::Affect(SZoneObjectInfo* O) 
 {
 	CPhysicsShellHolder *pGameObject = smart_cast<CPhysicsShellHolder*>(O->object);
@@ -75,7 +75,7 @@ void CMosquitoBald::Affect(SZoneObjectInfo* O)
 	{
 		position_in_bone_space.set(0.f,0.f,0.f);
 
-		if (DebugHitZones)
+		if (debuging_hit_zones)
 		Msg("[CMosquitoBald] dwFrame[%u] Anomaly [%s] is Hit Sended Event[9] [40] Byte", Device.dwFrame, this->cName().c_str());
 
 		CreateHit(pGameObject->ID(),ID(),hit_dir,power,0,position_in_bone_space,impulse,m_eHitTypeBlowout);
@@ -157,7 +157,7 @@ void CMosquitoBald::UpdateSecondaryHit()
   		}
 	}
 
-	if (isSendedHit && DebugHitZones)
+	if (isSendedHit && debuging_hit_zones)
 	{
 		Msg("[MosquitoBald] [SecondHit] dwFrame[%u] Anomaly [%s] is Hit Sended Event[9] [40] Byte", Device.dwFrame, this->cName().c_str());
 	}

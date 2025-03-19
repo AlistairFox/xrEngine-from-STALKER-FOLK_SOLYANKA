@@ -49,3 +49,7 @@ IC	void			CALifeTimeManager::change_game_time		(u32 value)
 	m_game_time		+= value;
 }
 
+IC void		CALifeTimeManager::change_game_time_current(u64 value)
+{
+	m_game_time = value;
+}

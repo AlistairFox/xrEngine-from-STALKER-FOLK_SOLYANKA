@@ -419,7 +419,8 @@ void CSightAction::execute_fire_object			()
 
 void CSightAction::execute_animation_direction	()
 {
-	if ( object().animation_movement_controlled() ) {
+	if ( object().animation_movement_controlled() ) 
+	{
 		float										h,p,b;
 		object().XFORM().getHPB						( h, p, b );
 		object().movement().m_body.current.yaw		= -h;

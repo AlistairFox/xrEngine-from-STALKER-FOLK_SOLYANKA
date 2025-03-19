@@ -24,12 +24,13 @@ ai_stalker_net_state::ai_stalker_net_state()
 	u_active_slot = 0;
 	fv_position.set(0,0,0);
 	fv_linear_vel.set(0,0,0);
+
 	torso_yaw = 0.0f;
 	head_yaw = 0.0f;
 	torso_pitch = 0.0f;
 	head_pitch = 0.0f;
 
-	phSyncFlag = false;
+ 	phSyncFlag = false;
 }
 
 void ai_stalker_net_state::state_write(NET_Packet& packet)
@@ -51,11 +52,16 @@ void ai_stalker_net_state::state_write(NET_Packet& packet)
 		packet.w_u16(u_active_item);
 		packet.w_float(u_health);							   //5
 
-		// 4 BYTE or float all (4  * 4 ) = 16 BYTE
+		// 4 BYTE or float all (4  * 4 ) = 16 BYTE	
 		packet.w_angle8(torso_yaw);
-		packet.w_angle8(head_yaw);
+  		packet.w_angle8(head_yaw);
 		packet.w_angle8(torso_pitch);
 		packet.w_angle8(head_pitch);						  //4
+
+		packet.w_u8 ( m_aiming_type );
+ 		packet.w_u8( m_aiming_frame );
+		packet.w_stringZ(m_aiming_anim);
+
  	}
 }
 
@@ -78,9 +84,15 @@ void ai_stalker_net_state::state_read(NET_Packet& packet)
  		packet.r_u8(u_active_slot);   													 // 5 BYTE
 		packet.r_u16(u_active_item);
 		packet.r_float(u_health);
-  		packet.r_angle8(torso_yaw);
+		 
+   		packet.r_angle8(torso_yaw);
 		packet.r_angle8(head_yaw);
 		packet.r_angle8(torso_pitch);
 		packet.r_angle8(head_pitch);	
+	
+		m_aiming_type = (CSightManager::aiming_type) packet.r_u8();
+		m_aiming_frame = (CSightManager::animation_frame_type)packet.r_u8();
+		packet.r_stringZ(m_aiming_anim);
+		
 	}																					// 23 BYTE BODY STATE
 } 

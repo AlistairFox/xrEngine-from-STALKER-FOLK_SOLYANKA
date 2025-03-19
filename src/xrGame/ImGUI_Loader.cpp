@@ -25,10 +25,12 @@ bool IsEditor() { return imgui_stage != EditorStage::None; }
 
 void ShowWeatherEditor(bool& show);
 void ShowLog(bool& show);
+void RenderSearchManagerWindow();
 
 bool show_weather_window = false;
 bool show_spawn_window = false;
 bool show_logs = false;
+bool show_checkent = false;
 
 void ShowEditor()
 { 
@@ -45,6 +47,7 @@ void ShowEditor()
     
     ImGui::Checkbox("Weather Editor", &show_weather_window );
     ImGui::Checkbox("Spawn Meny", &show_spawn_window);
+    ImGui::Checkbox("Check Entity", &show_checkent);
     ImGui::Checkbox("Logs", &show_logs);
 
     if (ImGui::Button("Atmosfear 3 Options (Server)"))
@@ -59,6 +62,8 @@ void ShowEditor()
 
     if (show_spawn_window)
         RenderSpawnManagerWindow(show_spawn_window);
+    if (show_checkent)
+        RenderSearchManagerWindow();
 
     if (show_logs)
         ShowLog(show_logs);

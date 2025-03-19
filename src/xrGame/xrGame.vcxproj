@@ -4610,7 +4610,10 @@
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='LUAJIT_2|Win32'">$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>
       <PrecompiledHeaderOutputFile Condition="'$(Configuration)|$(Platform)'=='LUAJIT_2|x64'">$(IntDir)$(ProjectName)_script.pch</PrecompiledHeaderOutputFile>
     </ClCompile>
+    <ClCompile Include="console_commands_admin_features.cpp" />
+    <ClCompile Include="console_commands_gspawn.cpp" />
     <ClCompile Include="console_commands_mp.cpp" />
+    <ClCompile Include="console_commands_register.cpp" />
     <ClCompile Include="console_registrator_script.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">pch_script.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">pch_script.h</PrecompiledHeaderFile>
@@ -4669,7 +4672,7 @@
     <ClCompile Include="ImGUI_Logs.cpp" />
     <ClCompile Include="ImGUI_SearchingObjects.cpp" />
     <ClCompile Include="ImUtils.cpp" />
-    <ClCompile Include="IXraySpawner.cpp" />
+    <ClCompile Include="ImGUI_IXraySpawner.cpp" />
     <ClCompile Include="level_events.cpp" />
     <ClCompile Include="minhook\src\buffer.cpp" />
     <ClCompile Include="minhook\src\hde\hde32.cpp" />
@@ -9625,7 +9628,7 @@
     <ClCompile Include="Weapon_States.cpp" />
     <ClCompile Include="Weapon_XFORM.cpp" />
     <ClCompile Include="Weapon_Zoming.cpp" />
-    <ClCompile Include="WeatherEditor.cpp" />
+    <ClCompile Include="ImGUI_WeatherEditor.cpp" />
     <ClCompile Include="Wound.cpp" />
     <ClCompile Include="xrClientsPool.cpp" />
     <ClCompile Include="xrGame.cpp" />

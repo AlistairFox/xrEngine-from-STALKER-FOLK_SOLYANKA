@@ -56,7 +56,7 @@ private:
 		bone_parameters_base	m_head;
 	}; // struct parameters
 
-private:
+public:
 	parameters					m_current;
 	parameters_base				m_target;
 	shared_str					m_animation_id;
@@ -111,9 +111,9 @@ public:
 			Fvector	object_position						() const;
 
 public:
-	IC		Fmatrix	const&	current_spine_rotation		() const;
-	IC		Fmatrix	const&	current_shoulder_rotation	() const;
-	IC		Fmatrix	const&	current_head_rotation		() const;
+	IC		Fmatrix	const& current_spine_rotation() const;
+	IC		Fmatrix	const& current_shoulder_rotation() const;
+	IC		Fmatrix	const& current_head_rotation() const;
 
 public:
 	IC		void			bone_aiming					();

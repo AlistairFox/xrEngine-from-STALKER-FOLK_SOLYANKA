@@ -2,6 +2,7 @@
 #include "../Include/xrRender/animation_motion.h"
 #include "net_physics_state.h"
 #include "../xrServerEntities/PHSynchronize.h"
+#include "sight_manager.h"
  
 class BIT_TO_BYTE
 {
@@ -36,12 +37,16 @@ struct ai_stalker_net_state
 		u8 u_active_slot;
 	
 		float u_health;
-
+		 
 		float torso_yaw;
 		float head_yaw;
-		float torso_pitch;
+ 		float torso_pitch;
 		float head_pitch;
-		  
+
+		CSightManager::aiming_type m_aiming_type;
+		shared_str m_aiming_anim;
+		CSightManager::animation_frame_type m_aiming_frame;
+
 		ai_stalker_net_state();
 
 		void    fill_position(CPHSynchronize * state_new);

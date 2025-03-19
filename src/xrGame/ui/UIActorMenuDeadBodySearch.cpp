@@ -166,21 +166,18 @@ bool CUIActorMenu::ToDeadBodyBag(CUICellItem* itm, bool b_use_cursor_pos)
 	if ( m_pPartnerInvOwner )
 	{
 		if ( !m_pPartnerInvOwner->deadbody_can_take_status() )
-		{
-			return false;
-		}
-		else if (smart_cast<CBaseMonster*>(m_pPartnerInvOwner))
-		{
-			return false;
-		}
-	}
+ 			return false;
+ 		else if (smart_cast<CBaseMonster*>(m_pPartnerInvOwner))
+ 			return false;
+ 	}
 	else // box
 	{
 		if ( !m_pInvBox->can_take() )
-		{
+ 			return false;
+		if (m_pInvBox->isTrausure)
 			return false;
-		}
 	}
+
 	PIItem quest_item					= (PIItem)itm->m_pData;
 	if(quest_item->IsQuestItem())
 		return false;
@@ -192,7 +189,8 @@ bool CUIActorMenu::ToDeadBodyBag(CUICellItem* itm, bool b_use_cursor_pos)
 	{
 		new_owner						= CUIDragDropListEx::m_drag_item->BackList();
 		VERIFY							(new_owner==m_pDeadBodyBagList);
-	}else
+	}
+	else
 		new_owner						= m_pDeadBodyBagList;
 	
 	CUICellItem* i						= old_owner->RemoveItem(itm, (old_owner==new_owner) );

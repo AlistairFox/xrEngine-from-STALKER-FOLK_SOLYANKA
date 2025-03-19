@@ -26,7 +26,7 @@ bool  CRadioactiveZone::BlowoutState	()
 	return result;
 }
 
-extern int DebugHitZones;
+extern int debuging_hit_zones;
 void CRadioactiveZone::Affect(SZoneObjectInfo* O) 
 {
 	float one				= 0.1f;
@@ -66,7 +66,7 @@ void CRadioactiveZone::Affect(SZoneObjectInfo* O)
 		O->f_time_affected += one;
 	}
 
-	if (DebugHitZones)
+	if (debuging_hit_zones)
 		Msg("[CRadioactiveZone] dwFrame[%u] Anomaly [%s] Hits[%u] is Hit Sended Event[9] [40] Byte", Device.dwFrame, this->cName().c_str(), Hits);
 }
 

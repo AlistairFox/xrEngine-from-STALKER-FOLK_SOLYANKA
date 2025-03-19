@@ -25,11 +25,13 @@ void CPurchaseList::process	(CInifile &ini_file, LPCSTR section, CInventoryOwner
 	CInifile::Sect			&S = ini_file.r_section(section);
 	CInifile::SectCIt		I = S.Data.begin();
 	CInifile::SectCIt		E = S.Data.end();
-	for ( ; I != E; ++I) {
+	for ( ; I != E; ++I)
+	{
 		VERIFY3				((*I).second.size(),"PurchaseList : cannot handle lines in section without values",section);
 
 		string256			temp0, temp1;
 		THROW3				(_GetItemCount(*(*I).second) == 2,"Invalid parameters in section",section);
+		
 		process				(
 			game_object,
 			(*I).first,
@@ -41,17 +43,26 @@ void CPurchaseList::process	(CInifile &ini_file, LPCSTR section, CInventoryOwner
 
 void CPurchaseList::process	(const CGameObject &owner, const shared_str &name, const u32 &count, const float &probability)
 {
+	if (!pSettings->section_exist(*name))
+	{
+		Msg("![Trade][SPAWN] Section is no Exist : % s", *name);
+		return;
+	}
+
 	VERIFY3					(count,"Invalid count for section in the purchase list",*name);
 	VERIFY3					(!fis_zero(probability,EPS_S),"Invalid probability for section in the purchase list",*name);
+
+
 
 	const Fvector			&position = owner.Position();
 	const u32				&level_vertex_id = owner.ai_location().level_vertex_id();
 	const ALife::_OBJECT_ID	&id = owner.ID();
 	CRandom					random((u32)(CPU::QPC() & u32(-1)));
-	for (u32 i=0, j=0; i<count; ++i) {
+	
+	for (u32 i=0, j=0; i < count; ++i) 
+	{
 		if (random.randF() > probability)
 			continue;
-
 		++j;
 		Level().spawn_item		(*name,position,level_vertex_id,id,false);
 	}

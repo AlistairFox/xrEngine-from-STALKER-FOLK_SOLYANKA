@@ -48,7 +48,6 @@ bool xrServer::Process_event_reject	(NET_Packet& P, const ClientID sender, const
 
 	game->OnDetach(id_parent,id_entity);
 
-	Msg("On Detach: Parrent: %u, Ent: %u", id_parent, id_entity);
 
 	//R_ASSERT3(C.end()!=c,e_entity->name_replace(),e_parent->name_replace());
 	e_entity->ID_Parent		= 0xffff; 

@@ -38,9 +38,9 @@ void CAI_Stalker::OnAnimationUpdate(MotionID motion, CBlend* blend, bool mix_ani
 
 void CAI_Stalker::EventAnimation(NET_Packet& P)
 {
-	if (OnServer())
+	if (OnServer() || !g_Alive())
 		return;
-
+ 
 	IKinematicsAnimated* ka = smart_cast<IKinematicsAnimated*>(Visual());
 	if (!ka)
 		return;
@@ -50,6 +50,7 @@ void CAI_Stalker::EventAnimation(NET_Packet& P)
 		Msg("Skip Process Event: NPC: %d, IsLoaded: %d", ID(), isLoaded);
 		return;
 	}
+
 	ka->SetNPC(true);
 
 	MotionID motion;

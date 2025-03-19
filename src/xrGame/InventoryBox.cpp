@@ -73,28 +73,30 @@ void CInventoryBox::OnEvent(NET_Packet& P, u16 type)
 
 		case GE_TRADE_BUY:
 		case GE_OWNERSHIP_TAKE:
-	{
-		u16 id;
-		P.r_u16(id);
-		CObject* itm = Level().Objects.net_Find(id);  VERIFY(itm);
-		m_items.push_back(id);
-
-		itm->H_SetParent(this);
-
-		itm->setVisible(FALSE);
-		itm->setEnabled(FALSE);
-
-		CInventoryItem* pIItem = smart_cast<CInventoryItem*>(itm);
-		VERIFY(pIItem);
-		if (CurrentGameUI())
 		{
-			if (CurrentGameUI()->ActorMenu().GetMenuMode() == mmDeadBodySearch)
+			u16 id;
+			P.r_u16(id);
+
+			CObject* itm = Level().Objects.net_Find(id); 
+			VERIFY(itm);
+			m_items.push_back(id);
+
+			itm->H_SetParent(this);
+
+			itm->setVisible(FALSE);
+			itm->setEnabled(FALSE);
+
+			CInventoryItem* pIItem = smart_cast<CInventoryItem*>(itm);
+			VERIFY(pIItem);
+			if (CurrentGameUI())
 			{
-				if (this == CurrentGameUI()->ActorMenu().GetInvBox())
-					CurrentGameUI()->OnInventoryAction(pIItem, GE_OWNERSHIP_TAKE);
-			}
-		};
-	}break;
+				if (CurrentGameUI()->ActorMenu().GetMenuMode() == mmDeadBodySearch)
+				{
+					if (this == CurrentGameUI()->ActorMenu().GetInvBox())
+						CurrentGameUI()->OnInventoryAction(pIItem, GE_OWNERSHIP_TAKE);
+				}
+			};
+		}break;
 
 		case GE_TRADE_SELL:
 		case GE_OWNERSHIP_REJECT:
@@ -153,6 +155,7 @@ void CInventoryBox::net_Destroy()
 {
 	inherited::net_Destroy();
 }
+
 #include "../xrServerEntities/xrServer_Objects_Alife.h"
 BOOL CInventoryBox::net_Spawn(CSE_Abstract* DC)
 {
@@ -162,13 +165,37 @@ BOOL CInventoryBox::net_Spawn(CSE_Abstract* DC)
 	set_tip_text("inventory_box_use");
 
 	CSE_ALifeInventoryBox* pSE_box = smart_cast<CSE_ALifeInventoryBox*>(DC);
-	if ( /*IsGameTypeSingle() &&*/ pSE_box)
+	if ( pSE_box)
 	{
 		m_can_take = pSE_box->m_can_take;
 		m_closed = pSE_box->m_closed;
 		set_tip_text(pSE_box->m_tip_text.c_str());
-		personal_safe = pSE_box->m_personal_safe;
+ 
+		if (pSE_box->m_ini_file)
+		{
+			if (pSE_box->m_ini_file->section_exist("spawn"))
+			{
+				isTrausure = true;
+				Msg("Box Is Tresure[%s] : [%u]", cName().c_str(), ID());
+			}
+
+			if (pSE_box->m_ini_file->section_exist("personal"))
+			{
+				personal_safe = true;
+				Msg("Box Is Personal[%s] : [%u]", cName().c_str(), ID());
+			}
+		}
+		else
+		{
+			Msg("CInventoryBox is no contains ini file");
+		}
 	}
+ 	personal_safe = pSettings->line_exist(cNameSect(), "private_box") ? pSettings->r_bool(cNameSect(), "private_box") : false;
+	isTrausure    = pSettings->line_exist(cNameSect(), "tresure_box") ? pSettings->r_bool(cNameSect(), "tresure_box") : false;
+	if (personal_safe)
+		set_tip_text("st_personal_box");
+	if (isTrausure)
+		set_tip_text("st_trause_box");
 
 	if (OnClient())
 		Recvest_items_safe(Level().game->local_svdpnid);
@@ -184,6 +211,8 @@ void CInventoryBox::net_Relcase(CObject* O)
 #include "game_cl_roleplay.h"
 void CInventoryBox::AddAvailableItems(TIItemContainer& items_container) const
 {
+	Msg("m_items: %u, private: %u", m_items.size(), m_safe_items.size() );
+
 	if (personal_safe)
 	{
  		for (auto safed_items : m_safe_items)
@@ -194,7 +223,7 @@ void CInventoryBox::AddAvailableItems(TIItemContainer& items_container) const
 				items_container.push_back(itm);
 			}
 		}
-		return;
+	//	return;
 	}
 
 	xr_vector<u16>::const_iterator it = m_items.begin();

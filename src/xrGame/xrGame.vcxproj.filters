@@ -11419,9 +11419,6 @@
     <ClCompile Include="ImGUI_Loader.cpp">
       <Filter>ImGUI</Filter>
     </ClCompile>
-    <ClCompile Include="WeatherEditor.cpp">
-      <Filter>ImGUI</Filter>
-    </ClCompile>
     <ClCompile Include="guard_utils.cpp">
       <Filter>GuardSystem</Filter>
     </ClCompile>
@@ -11503,9 +11500,6 @@
     <ClCompile Include="WeaponMagazinedWGrenade_Upgrades.cpp">
       <Filter>Se7Kills\Weapons\Custom Weapon\WeaponBase\AutoWG</Filter>
     </ClCompile>
-    <ClCompile Include="IXraySpawner.cpp">
-      <Filter>ImGUI</Filter>
-    </ClCompile>
     <ClCompile Include="ImUtils.cpp">
       <Filter>ImGUI</Filter>
     </ClCompile>
@@ -11514,6 +11508,21 @@
     </ClCompile>
     <ClCompile Include="ImGUI_SearchingObjects.cpp">
       <Filter>ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGUI_IXraySpawner.cpp">
+      <Filter>ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGUI_WeatherEditor.cpp">
+      <Filter>ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="console_commands_gspawn.cpp">
+      <Filter>Core\Common\Console Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="console_commands_admin_features.cpp">
+      <Filter>Core\Common\Console Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="console_commands_register.cpp">
+      <Filter>Core\Common\Console Commands</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

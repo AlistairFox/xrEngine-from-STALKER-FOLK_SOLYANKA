@@ -2148,12 +2148,7 @@ CSE_ALifeInventoryBox::CSE_ALifeInventoryBox( LPCSTR caSection ) : CSE_ALifeDyna
 {
 	m_can_take = true;
 	m_closed   = false;
-	m_tip_text._set( "inventory_box_use" );
-
-	m_personal_safe = pSettings->line_exist(caSection, "private_box") ? pSettings->r_bool(caSection, "private_box") : false;
-
-	if (m_personal_safe)
-		m_tip_text._set("st_personal_box");
+	m_tip_text._set("inventory_box_use");
 }
 
 CSE_ALifeInventoryBox::~CSE_ALifeInventoryBox()
@@ -2173,8 +2168,8 @@ void CSE_ALifeInventoryBox::STATE_Read( NET_Packet &tNetPacket, u16 size )
 		tNetPacket.r_stringZ( m_tip_text );
 	}
 
-	if (m_wVersion > 128)
-		m_personal_safe = tNetPacket.r_u8();
+	//if (m_wVersion > 128)
+	//	m_personal_safe = tNetPacket.r_u8();
 }
 
 void CSE_ALifeInventoryBox::STATE_Write(NET_Packet& tNetPacket)
@@ -2184,7 +2179,7 @@ void CSE_ALifeInventoryBox::STATE_Write(NET_Packet& tNetPacket)
 	tNetPacket.w_u8((m_closed) ? 1 : 0);
 	tNetPacket.w_stringZ(m_tip_text);
 
-	tNetPacket.w_u8(m_personal_safe);
+	// tNetPacket.w_u8(m_personal_safe);
 }
  
 void CSE_ALifeInventoryBox::UPDATE_Read( NET_Packet &tNetPacket )

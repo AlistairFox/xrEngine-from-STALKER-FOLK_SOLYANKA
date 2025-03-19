@@ -299,14 +299,19 @@ void ShowWeatherEditor(bool& show)
 	ImGui::Text("Time: %02d:%02d:%02d", int(time / (60 * 60) % 24), int(time / 60 % 60), int(time % 60));
 
 
-	float tf = Level().GetGameTimeFactor();
+	float time_factor = Level().GetGameTimeFactor();
 
 	game_cl_freemp* fmp = smart_cast<game_cl_freemp*>(Level().game);
 
-	if (ImGui::SliderFloat("Time factor", &tf, 0.0f, 1000.0f, "%.3f", 2.0f))
+	if (ImGui::SliderFloat("Time factor", &time_factor, 0.0f, 1000.0f, "%.3f", 2.0f))
 	{
-		//if (fmp)
-		//	fmp->ClientTimeFactorChange(tf);
+		NET_Packet packet;
+		//packet.w_begin(M_SV_TIMEFACTOR);
+		Game().u_EventGen(packet, GE_GAME_EVENT, -1);
+		packet.w_u16(GAME_EVENT_WEATHER);
+		packet.w_u8(0);
+		packet.w_float(time_factor);
+		Game().u_EventSend(packet);
 	}
 
 	xr_vector<shared_str> cycles;
@@ -341,6 +346,15 @@ void ShowWeatherEditor(bool& show)
 		{
 			//if (fmp)
 			//	fmp->ClientWeatherUpdate(cycles[selected_iCycle].c_str());
+
+			NET_Packet packet;
+			//packet.w_begin(M_SV_WEATHER);
+			Game().u_EventGen(packet, GE_GAME_EVENT, -1);
+			packet.w_u16(GAME_EVENT_WEATHER);
+			packet.w_u8(1);			// CLIENT WEATHER UPDATE	
+			packet.w_stringZ(cycles[selected_iCycle].c_str());
+			Game().u_EventSend(packet);
+
 		}
 		else
 			env.SetWeather(cycles[selected_iCycle], true);
@@ -360,21 +374,16 @@ void ShowWeatherEditor(bool& show)
 	if (ImGui::Combo("Current section", &selected_weather_time, enumWeather, env.CurrentWeather, env.CurrentWeather->size()))
 	{
 		Msg("--- Update GameTime: %s, Selected: %d", env.CurrentWeather->at(selected_weather_time)->m_identifier.c_str(), selected_weather_time);
-		//if (fmp)
-		//	fmp->ClientTimeWeatherUpdate(env.CurrentWeather->at(selected_weather_time)->m_identifier.c_str(), tf);
-
-		//if (OnServer())
-		//{
-		//	env.SetGameTime(env.CurrentWeather->at(selected_weather_time)->exec_time + 0.5f, tf);
-		//	time = time / (24 * 60 * 60) * 24 * 60 * 60 * 1000;
-		//	time += u64(env.CurrentWeather->at(selected_weather_time)->exec_time * 1000 + 0.5f);
-		//	Level().SetEnvironmentGameTimeFactor(time, tf);
-		//}
-		//else
-		//{
-		//	if (fmp)
-		//		fmp->ClientTimeWeatherUpdate(env.CurrentWeather->at(selected_weather_time)->m_identifier.c_str(), tf);
-		//}
+		
+		shared_str envtime = env.CurrentWeather->at(selected_weather_time)->m_identifier;
+ 
+		NET_Packet packet;
+ 		Game().u_EventGen(packet, GE_GAME_EVENT, -1);
+		packet.w_u16(GAME_EVENT_WEATHER);
+		packet.w_u8(2);			// CLIENT TIME WEATHER
+		packet.w_stringZ(envtime);
+		packet.w_float(time_factor);
+		Game().u_EventSend(packet);
 	}
 
 	static bool b = getScriptWeather();

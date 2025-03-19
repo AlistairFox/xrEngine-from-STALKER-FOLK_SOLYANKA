@@ -11,6 +11,7 @@ public:
 	xr_map<u16, shared_str>	m_safe_items; // ID ITEM, SERIALIZE ID From Accounts
 
 	bool personal_safe;
+	bool isTrausure;
 
 protected:
 	bool	m_in_use;

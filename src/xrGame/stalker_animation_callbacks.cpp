@@ -66,8 +66,7 @@ static void	_BCL callback_rotation_blend	(CBoneInstance* const bone)
 	VERIFY							(parameter->m_rotation);
 	VERIFY							(parameter->m_object);
 	VERIFY							(parameter->m_blend);
-//	VERIFY2							( *parameter->m_blend, make_string( "%d %s[%s]", Device.dwTimeGlobal, parameter->m_object->cName().c_str(), parameter->m_object->g_Alive() ? "+" : "-") );
-
+ 
 	float multiplier				= 1.f;
 	if ( *parameter->m_blend ) {
 		CBlend const&				blend = **parameter->m_blend;
@@ -77,14 +76,7 @@ static void	_BCL callback_rotation_blend	(CBoneInstance* const bone)
 	VERIFY							(multiplier >= 0.f);
 	VERIFY							(multiplier <= 1.f);
 	multiplier						= parameter->m_forward ? multiplier : (1.f - multiplier);
-
-#if 0
-	Fmatrix rotation				= *parameter->m_rotation;
-	Fvector							angles;
-	rotation.getXYZ					(angles);
-	angles.mul						(multiplier);
-	rotation.setXYZ					(angles);
-#else // #if 0
+ 
 	Fquaternion						left;
 	left.set						( Fidentity );
 
@@ -96,8 +88,7 @@ static void	_BCL callback_rotation_blend	(CBoneInstance* const bone)
 
 	Fmatrix							rotation;
 	rotation.rotation				( result );
-#endif // #if 0
-
+ 
 	Fvector	position				= bone->mTransform.c;
 	R_ASSERT						( _valid( rotation ) );
 	bone->mTransform.mulA_43		(rotation);

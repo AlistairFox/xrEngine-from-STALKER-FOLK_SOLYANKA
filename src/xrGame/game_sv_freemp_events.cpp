@@ -126,62 +126,116 @@ void game_sv_freemp::OnPlayerConnectFinished(ClientID id_who)
 	};
 }
 
-
+#include "ai_space.h"
+#include "alife_time_manager.h"
+#include "alife_simulator.h"
 void game_sv_freemp::OnEvent(NET_Packet& P, u16 type, u32 time, ClientID sender)
 {
 	switch (type)
 	{
-	case GE_SPAWN_ITEM:
-	{
-		u8 type = P.r_u8();
-		if (get_id(sender))
+		case GAME_EVENT_WEATHER:
 		{
-			u32   GameID_Send = get_id(sender)->GameID;
+			int TYPE = P.r_u8();
+			Msg("Process Event Weather: %d", TYPE);
 
-			Fvector pos;
-			if (type == 1)
-				pos = P.r_vec3();
-			shared_str name; P.r_stringZ(name);
-			u32 count = P.r_u32();
-			Msg("[GSpawn] %s : %u", *name, count);
-			if (type == 2)
-				SpawnItem(name.c_str(), GameID_Send);
-			else if (type == 1)
-				SpawnItemToPos(name.c_str(), pos);
-		}
+			if (TYPE == 0)
+			{
+				float timefactor;
+				P.r_float(timefactor);
+				SetGameTimeFactor(timefactor);
+			}
 
-	}break;
+			if (TYPE == 1)
+			{
+				shared_str name;
+				P.r_stringZ(name);
+				Msg("Server SetWeather: %s", name.c_str());
 
-	case GAME_EVENT_PLAYER_KILL: // (g_kill)
-	{
-		u16 ID = P.r_u16();
-		xrClientData* l_pC = (xrClientData*)get_client(ID);
-		if (!l_pC) break;
-		KillPlayer(l_pC->ID, l_pC->ps->GameID);
-	}
-	break;
+				if (g_pGamePersistent)
+				{
+					CEnvironment& env = g_pGamePersistent->Environment();
+					env.SetWeather(name, true);
+				}
+			}
 
-	case GAME_EVENT_MP_TRADE:
-	{
-		OnPlayerTrade(P, sender);
-	}
-	break;
+			if (TYPE == 2)
+			{
+				shared_str sel;
+				P.r_stringZ(sel);
 
-	case GAME_EVENT_TRANSFER_MONEY:
-	{
-		OnTransferMoney(P, sender);
-	}
-	break;
+				float tf;
+				P.r_float(tf);
 
-	case M_CHANGE_LEVEL:
-	{
-		if (change_level(P, sender))
+				if (!g_pGamePersistent)
+					return;
+				CEnvironment& env = g_pGamePersistent->Environment();
+				u64 gametime = alife().time_manager().game_time() / 1000;
+				u64 DAYS = gametime / (24 * 3600);
+				CEnvDescriptor* descriptor = 0;
+				for (int i = 0; i != env.CurrentWeather->size(); i++)
+					if (sel == env.CurrentWeather->at(i)->m_identifier)
+						descriptor = env.CurrentWeather->at(i);
+
+				if (descriptor != 0)
+				{
+					u64 new_time_exec = u64(descriptor->exec_time + 0.5f);
+					u64 calculated_time = u64(DAYS * 86400 * 1000) + u64(new_time_exec * 1000);
+					alife().time_manager().change_game_time_current(calculated_time);
+				}
+			}
+		}break;
+
+		case GAME_EVENT_SPAWN:
 		{
-			server().SendBroadcast(BroadcastCID, P, net_flags(TRUE, TRUE));
-		}
-	}break;
+			u8 type = P.r_u8();
+			if (get_id(sender))
+			{
+				u32   GameID_Send = get_id(sender)->GameID;
 
-	case GAME_EVENT_PLAYER_NAME_ACCAUNT:
+				Fvector pos;
+				if (type == 1)
+					pos = P.r_vec3();
+				shared_str name; P.r_stringZ(name);
+				u32 count = P.r_u32();
+				Msg("[GSpawn] %s : %u", *name, count);
+				if (type == 2)
+					SpawnItem(name.c_str(), GameID_Send);
+				else if (type == 1)
+					SpawnItemToPos(name.c_str(), pos);
+			}
+
+		}break;
+
+		case GAME_EVENT_PLAYER_KILL: // (g_kill)
+		{
+			u16 ID = P.r_u16();
+			xrClientData* l_pC = (xrClientData*)get_client(ID);
+			if (!l_pC) break;
+			KillPlayer(l_pC->ID, l_pC->ps->GameID);
+		}
+		break;
+
+		case GAME_EVENT_MP_TRADE:
+		{
+			OnPlayerTrade(P, sender);
+		}
+		break;
+
+		case GAME_EVENT_TRANSFER_MONEY:
+		{
+			OnTransferMoney(P, sender);
+		}
+		break;
+
+		case M_CHANGE_LEVEL:
+		{
+			if (change_level(P, sender))
+			{
+				server().SendBroadcast(BroadcastCID, P, net_flags(TRUE, TRUE));
+			}
+		}break;
+
+		case GAME_EVENT_PLAYER_NAME_ACCAUNT:
 	{
 		shared_str nick;  P.r_stringZ(nick);
 		u32 team;		  P.r_u32(team);
@@ -206,8 +260,8 @@ void game_sv_freemp::OnEvent(NET_Packet& P, u16 type, u32 time, ClientID sender)
 
 	}break;
 
-	// GAME SPAWNER, SKIN SELECTOR
-	case GAME_EVENT_SPAWNER_SPAWN_ITEM:
+		// GAME SPAWNER, SKIN SELECTOR
+		case GAME_EVENT_SPAWNER_SPAWN_ITEM:
 	{
 		xrClientData* CL = m_server->ID_to_client(sender);
 		CActor* pActor = smart_cast<CActor*>(Level().Objects.net_Find(CL->ps->GameID)); R_ASSERT(pActor);
@@ -223,7 +277,7 @@ void game_sv_freemp::OnEvent(NET_Packet& P, u16 type, u32 time, ClientID sender)
 			Msg("! Can't spawn item to player: %s", pActor->Name());
 	}break;
 
-	case GAME_EVENT_CHANGE_VISUAL_FROM_SKIN_SELECTOR:
+		case GAME_EVENT_CHANGE_VISUAL_FROM_SKIN_SELECTOR:
 	{
 		xrClientData* CL = m_server->ID_to_client(sender);
 		if (!CL) return;
@@ -242,7 +296,7 @@ void game_sv_freemp::OnEvent(NET_Packet& P, u16 type, u32 time, ClientID sender)
 		pActor->u_EventSend(P);
 	}break;
 
-	case GAME_EVENT_SPEEAKING:
+		case GAME_EVENT_SPEEAKING:
 	{
 		ClientID client;
 		P.r_clientID(client);
@@ -256,7 +310,7 @@ void game_sv_freemp::OnEvent(NET_Packet& P, u16 type, u32 time, ClientID sender)
 		signal_Syncronize();
 	}break;
 
-	case GAME_EVENT_ADMIN_RIGHTS:
+		case GAME_EVENT_ADMIN_RIGHTS:
 	{
 		bool Give = P.r_u8();
 		ClientID id; P.r_clientID(id);

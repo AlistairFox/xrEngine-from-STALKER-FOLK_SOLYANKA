@@ -1541,11 +1541,11 @@ extern int SyncAlifeCount;
 
 #include "game_sv_freemp.h"
 
-extern int debug_networking;
+extern int debuging_networking;
 
 void xrServer::GetServerInfo( CServerInfo* si )
 {
-	if (debug_networking)
+	if (debuging_networking)
 	{
 		xr_vector<shared_str> text_to_draw;
 		GetDataNetwork(text_to_draw);

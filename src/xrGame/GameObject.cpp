@@ -501,12 +501,11 @@ void CGameObject::load			(IReader &input_packet)
 #include "InventoryBox.h"
 void CGameObject::spawn_supplies()
 {
-	if (OnClient())
+//	Msg("Spawn Supply Called");
+ 	if (!spawn_ini() || ai().get_alife())
 		return;
 
-	if (!spawn_ini() || ai().get_alife())
-		return;
-
+//	Msg("spawn Supply Has Alife()");
 	if (!spawn_ini()->section_exist("spawn"))
 		return;
 
@@ -519,8 +518,7 @@ void CGameObject::spawn_supplies()
  	for (u32 k = 0, j; spawn_ini()->r_line("spawn",k,&N,&V); k++)
 	{
 		Msg("[Client] [GameObject] Dynamic Object[%s] SpawnSupply [%s]", this->cName(), N);
-
-		VERIFY				(xr_strlen(N));
+ 		VERIFY				(xr_strlen(N));
 		j					= 1;
 		p					= 1.f;
 		

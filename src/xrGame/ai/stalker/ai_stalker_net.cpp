@@ -80,6 +80,8 @@ BOOL CAI_Stalker::net_SaveRelevant()
 	return (inherited::net_SaveRelevant() /* || BOOL(PPhysicsShell() != NULL) */);
 }
 
+#include "sight_manager.h"
+
 void CAI_Stalker::net_Export(NET_Packet& P)
 {
 	R_ASSERT(Local());
@@ -129,7 +131,7 @@ void CAI_Stalker::net_Export(NET_Packet& P)
 		u16 u_active_slot, u_active_item;
 		float health = GetfHealth();
 
- 		// inventory
+		// inventory
 		CWeapon* weapon = smart_cast<CWeapon*>(inventory().ActiveItem());
 
 		if (weapon && !weapon->strapped_mode())
@@ -147,76 +149,30 @@ void CAI_Stalker::net_Export(NET_Packet& P)
 		ai_stalker_net_state state;
 
 		//Position Interpolation
- 		state.fill_position(PHGetSyncItem(0));
- 
-		//Body Rotation
-		state.torso_yaw = movement().m_body.current.yaw;
-		state.head_yaw = movement().m_head.current.yaw;
+		state.fill_position(PHGetSyncItem(0));
 
+		//Body Rotation
+		state.torso_yaw   = movement().m_body.current.yaw;
+		state.head_yaw    = movement().m_head.current.yaw;
+		// 
 		state.torso_pitch = movement().m_body.current.pitch;
-		state.head_pitch = movement().m_head.current.pitch;
- 
+		state.head_pitch  = movement().m_head.current.pitch;
+
+ 		state.torso_yaw = movement().m_body.current.yaw;
+
+		state.m_aiming_type = sight().m_aiming_type;
+		state.m_aiming_anim = sight().m_animation_id;
+		state.m_aiming_frame = sight().m_animation_frame;
 		//GLOBAL PARAMS
 		state.u_active_item = u_active_item;
 		state.u_health = health;
 		state.u_active_slot = u_active_slot;
 		state.fv_position = Position();
-   
+
 		//Animation
-		/* 
-		IKinematicsAnimated* ka = Visual()->dcast_PKinematicsAnimated();
 
-		if (ka)
-		{
-			state.legs_anim.id = legs_motion;
-			state.torso_anim.id = torso_motion;
-			state.head_anim.id = head_motion;
-
-			state.legs_anim.num = legs_num;
-			state.torso_anim.num = torso_num;
-			state.head_anim.num = head_num;
- 
-			state.legs_anim.loop = legs_loop;
-			state.torso_anim.loop = torso_loop;
-			state.head_anim.loop = head_loop;
-		}
-		*/
 		state.state_write(P);
-	}	 	
-	
-	
-	/*
-	char* enum_to_str[4] = {"ePathTypeGamePath", "ePathTypeLevelPath", "ePathTypePatrolPath", "ePathTypeNoPath"};
-	if (Device.dwFrame % 30 == 0 && this->raycastNOW() && false)
-	{
-		Msg("PathType: %s", enum_to_str[movement().path_type()]);
-		if (movement().path_type() == 1 && !movement().level_path().path().empty())
-		{
-			Msg("PathSize: %d", movement().level_path().path().size());
-			
-			Msg("PathDEST %d", movement().level_path().dest_vertex_id());
-
-			u32 vert = movement().level_path().dest_vertex_id();
-			Fvector vec = ai().level_graph().vertex_position(vert);
-			Msg("DEST POS [%f][%f][%f]", vec.x, vec.y, vec.z);
-			//Msg("PathBack: %d", movement().level_path().path().back());
-			//Msg("PathFront: %d", movement().level_path().path().front());
-			
-			int i = 0;
-			for (auto vertex : movement().level_path().path())
-			{
-				i++;
-				Msg("ID[%d], vertex[%d]", i, vertex);
-		 
-				Fvector pos = ai().level_graph().vertex_position(vertex);
-				Msg("POS [%f][%f][%f]", pos.x, pos.y, pos.z);
-			}
-		
-		}
-
 	}
-	*/
- 
 }
 
 void CAI_Stalker::net_Import(NET_Packet& P)
@@ -288,6 +244,10 @@ void CAI_Stalker::net_Import(NET_Packet& P)
 		}
 		
 		inventory().SetActiveSlot(state.u_active_slot);
+
+		sight().m_aiming_type = state.m_aiming_type;
+ 		sight().m_animation_id = state.m_aiming_anim;
+		sight().m_animation_frame = state.m_aiming_frame;
 	    
 		if (state.phSyncFlag)
 		{
@@ -295,12 +255,13 @@ void CAI_Stalker::net_Import(NET_Packet& P)
 			N_A.State.enabled = state.physics_state.physics_state_enabled;
 			N_A.State.linear_vel = state.physics_state.physics_linear_velocity;
 			N_A.State.position = state.physics_state.physics_position;
-
+			 
 			N_A.o_torso.yaw = state.torso_yaw;
 			N_A.o_torso.pitch = state.torso_pitch;
+			
 			N_A.head.yaw = state.head_yaw;
 			N_A.head.pitch = state.head_pitch;
-	 
+			 	 
 			N_A.dwTimeStamp = state.physics_state.dwTimeStamp;
 
 			// interpolation
@@ -780,6 +741,9 @@ void CAI_Stalker::make_Interpolation()
 				break;
 			}
 			Position().set(ResPosition);
+			
+
+
 
  			character_physics_support()->movement()->SetPosition(ResPosition); // we need it ?
 			character_physics_support()->movement()->SetVelocity(SpeedVector);
