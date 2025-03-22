@@ -517,11 +517,16 @@ public:
 	{
 		if (OnServer())
 		{
-			NET_Packet		P;
-			P.w_begin(M_SCRIPT_EVENT);
-			P.w_u8(8);
-			P.w_u8(Surge);
-			Level().Send(P, net_flags(TRUE, TRUE));
+			Msg("Start Surge Storm");
+			luabind::functor<void> funct;
+			if (ai().script_engine().functor("mp_events.surge_run", funct))
+				funct();
+
+			// NET_Packet		P;
+			// P.w_begin(M_SCRIPT_EVENT);
+			// P.w_u8(8);
+			// P.w_u8(Surge);
+			// Level().Send(P, net_flags(TRUE, TRUE));
 		}
 		else
 		{
@@ -544,12 +549,15 @@ public:
 		if (OnServer())
 		{
 			Msg("Start Fallout Storm");
+			luabind::functor<void> funct;
+			if (ai().script_engine().functor("mp_events.fallout_run", funct))
+				funct();
 
-			NET_Packet		P;
-			P.w_begin(M_SCRIPT_EVENT);
-			P.w_u8(8);
-			P.w_u8(Fallout);
-			Level().Send(P, net_flags(TRUE, TRUE));
+			// NET_Packet		P;
+			// P.w_begin(M_SCRIPT_EVENT);
+			// P.w_u8(8);
+			// P.w_u8(Fallout);
+			// Level().Send(P, net_flags(TRUE, TRUE));
 		}
 		else
 		{
@@ -572,11 +580,15 @@ public:
 		if (OnServer())
 		{
 			Msg("Start Psi Storm");
-			NET_Packet		P;
-			P.w_begin(M_SCRIPT_EVENT);
-			P.w_u8(8);
-			P.w_u8(PsiStorm);
-			Level().Send(P, net_flags(TRUE, TRUE));
+			// NET_Packet		P;
+			// P.w_begin(M_SCRIPT_EVENT);
+			// P.w_u8(8);
+			// P.w_u8(PsiStorm);
+			// Level().Send(P, net_flags(TRUE, TRUE));
+
+			luabind::functor<void> funct;
+			if (ai().script_engine().functor("mp_events.psi_storm_run", funct))
+				funct();
 		}
 		else
 		{

@@ -295,6 +295,9 @@ void ShowWeatherEditor(bool& show)
 	if (!cur)
 		return;
 
+	if (env.bWFX)
+		return;
+
 	u64 time = Level().GetEnvironmentGameTime() / 1000;
 	ImGui::Text("Time: %02d:%02d:%02d", int(time / (60 * 60) % 24), int(time / 60 % 60), int(time % 60));
 
@@ -344,11 +347,7 @@ void ShowWeatherEditor(bool& show)
 		Msg("--- Update Weather to : %s", cycles[selected_iCycle].c_str());
 		if (OnClient())
 		{
-			//if (fmp)
-			//	fmp->ClientWeatherUpdate(cycles[selected_iCycle].c_str());
-
 			NET_Packet packet;
-			//packet.w_begin(M_SV_WEATHER);
 			Game().u_EventGen(packet, GE_GAME_EVENT, -1);
 			packet.w_u16(GAME_EVENT_WEATHER);
 			packet.w_u8(1);			// CLIENT WEATHER UPDATE	
@@ -359,26 +358,19 @@ void ShowWeatherEditor(bool& show)
 		else
 			env.SetWeather(cycles[selected_iCycle], true);
 	}
-
-	/*
-	for (int i = 0; i != env.CurrentWeather->size(); i++)
-	if (cur->m_identifier.equal(env.CurrentWeather->at(i)->m_identifier))
-	{
-		selected_weather_time = i;
-	}
-	*/
-
+ 
 	if (env.CurrentWeather->size() <= selected_weather_time)
 		selected_weather_time = env.CurrentWeather->size() - 1;
 
+	
 	if (ImGui::Combo("Current section", &selected_weather_time, enumWeather, env.CurrentWeather, env.CurrentWeather->size()))
 	{
 		Msg("--- Update GameTime: %s, Selected: %d", env.CurrentWeather->at(selected_weather_time)->m_identifier.c_str(), selected_weather_time);
-		
+
 		shared_str envtime = env.CurrentWeather->at(selected_weather_time)->m_identifier;
- 
+
 		NET_Packet packet;
- 		Game().u_EventGen(packet, GE_GAME_EVENT, -1);
+		Game().u_EventGen(packet, GE_GAME_EVENT, -1);
 		packet.w_u16(GAME_EVENT_WEATHER);
 		packet.w_u8(2);			// CLIENT TIME WEATHER
 		packet.w_stringZ(envtime);
@@ -405,6 +397,7 @@ void ShowWeatherEditor(bool& show)
 			changed = true;
 		}
 	}
+	 
 
 	ImGui::Text(u8"Ambient light parameters");
 

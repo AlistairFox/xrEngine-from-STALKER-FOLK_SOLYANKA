@@ -241,11 +241,11 @@ void xrServer::OnBuildVersionRespond(IClient* CL, NET_Packet& P)
 	u64 _our = FS.auth_get();
 	u64 _him = P.r_u64();
 
-	if (_our != _him)
-	{
-		SendConnectResult(CL, 0, ecr_data_verification_failed, "gamedata вмешательство !!!");	
-		return;
-	}
+	// if (_our != _him)
+	// {
+	// 	SendConnectResult(CL, 0, ecr_data_verification_failed, "gamedata вмешательство !!!");	
+	// 	return;
+	// }
 
 	shared_str login ; 
 	P.r_stringZ(login);
