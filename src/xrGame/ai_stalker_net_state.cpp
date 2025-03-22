@@ -58,10 +58,17 @@ void ai_stalker_net_state::state_write(NET_Packet& packet)
 		packet.w_angle8(torso_pitch);
 		packet.w_angle8(head_pitch);						  //4
 
-		packet.w_u8 ( m_aiming_type );
- 		packet.w_u8( m_aiming_frame );
-		packet.w_stringZ(m_aiming_anim);
+		//packet.w_u8 ( m_aiming_type );
+ 		//packet.w_u8( m_aiming_frame );
+		//packet.w_stringZ(m_aiming_anim);
 
+		// Start Animation
+		packet.w(&m_torso, sizeof(MotionID));
+		packet.w(&m_head, sizeof(MotionID));
+		packet.w(&m_legs, sizeof(MotionID));
+
+		packet.w(&m_script, sizeof(MotionID));
+		packet.w(&m_global, sizeof(MotionID));
  	}
 }
 
@@ -90,9 +97,20 @@ void ai_stalker_net_state::state_read(NET_Packet& packet)
 		packet.r_angle8(torso_pitch);
 		packet.r_angle8(head_pitch);	
 	
-		m_aiming_type = (CSightManager::aiming_type) packet.r_u8();
-		m_aiming_frame = (CSightManager::animation_frame_type)packet.r_u8();
-		packet.r_stringZ(m_aiming_anim);
-		
+		//m_aiming_type = (CSightManager::aiming_type) packet.r_u8();
+		//m_aiming_frame = (CSightManager::animation_frame_type)packet.r_u8();
+		//packet.r_stringZ(m_aiming_anim);
+
+		packet.r(&m_torso, sizeof(MotionID));
+		packet.r(&m_head, sizeof(MotionID));
+		packet.r(&m_legs, sizeof(MotionID));
+
+		packet.r(&m_script, sizeof(MotionID));
+		packet.r(&m_global, sizeof(MotionID));
+																						// + 6
 	}																					// 23 BYTE BODY STATE
+
+
+
+
 } 

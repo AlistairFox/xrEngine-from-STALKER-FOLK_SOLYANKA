@@ -36,10 +36,24 @@ void CAI_Stalker::OnAnimationUpdate(MotionID motion, CBlend* blend, bool mix_ani
 	Game().u_EventSend(packet);
 }
 
+/*
+bone_or_part:
+0: legs
+1: torso
+2: head
+*/
+
+
 void CAI_Stalker::EventAnimation(NET_Packet& P)
 {
 	if (OnServer() || !g_Alive())
 		return;
+ 
+	if (!Level().game_configured)
+	{
+		Msg("Game is not configured");
+		return;
+	}
  
 	IKinematicsAnimated* ka = smart_cast<IKinematicsAnimated*>(Visual());
 	if (!ka)
@@ -70,10 +84,34 @@ void CAI_Stalker::EventAnimation(NET_Packet& P)
 	CBlend* m_blend = 0;
 	if (!is_global)
 	{
-		m_blend = ka->PlayCycle(motion, mix_anims);
+		Msg("Event Animation Parts [%s]", cName().c_str());
+		if (motion.slot == 0)
+			last_legs_idx = motion.idx;
+		if (motion.slot == 1)
+			last_torso_idx = motion.idx;
+		if (motion.slot == 2)
+			last_head_idx = motion.idx;
+
+		last_script_idx = -1;
+		last_global_idx = -1;
+
+		if (animation_movement())
+			animation_movement()->stop();
+ 
+ 		m_blend = ka->PlayCycle(motion, mix_anims);
 	}
 	else 
 	{
+ 		last_legs_idx  = -1;
+ 		last_torso_idx = -1;
+ 		last_head_idx  = -1;
+
+		last_script_idx = motion.idx;
+		last_global_idx = motion.idx;
+
+		Msg("Event Animation SCRIPT [%s]", cName().c_str());
+
+
 		for (u16 i = 0; i < MAX_PARTS; ++i)
 		{
 			CBlend* blend = 0;

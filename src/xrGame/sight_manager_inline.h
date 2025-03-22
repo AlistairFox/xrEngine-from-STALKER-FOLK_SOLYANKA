@@ -29,22 +29,19 @@ IC	bool CSightManager::enabled						() const
 template <typename T1, typename T2, typename T3>
 IC	void CSightManager::setup						(T1 _1, T2 _2, T3 _3)
 {
-	Msg("Setup1");
-	setup				(CSightAction(_1,_2,_3));
+ 	setup				(CSightAction(_1,_2,_3));
 }
 
 template <typename T1, typename T2>
 IC	void CSightManager::setup						(T1 _1, T2 _2)
 {
-	Msg("Setup2");
-	setup				(CSightAction(_1,_2));
+ 	setup				(CSightAction(_1,_2));
 }
 
 template <typename T1>
 IC	void CSightManager::setup						(T1 _1)
 {
-	Msg("Setup3");
-	setup				(CSightAction(_1));
+ 	setup				(CSightAction(_1));
 }
 
 IC	Fmatrix	const& CSightManager::current_spine_rotation() const

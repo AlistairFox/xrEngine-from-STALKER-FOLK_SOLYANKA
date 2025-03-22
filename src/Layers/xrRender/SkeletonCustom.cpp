@@ -447,6 +447,11 @@ void CKinematics::Release		()
 
 void CKinematics::LL_SetBoneVisible(u16 bone_id, BOOL val, BOOL bRecursive)
 {
+	if (bone_id == u16(-1))
+	{
+		Msg("Bone ID is -1");
+		return;
+	}
 	VERIFY				(bone_id<LL_BoneCount());      
     u64 mask 			= u64(1)<<bone_id;
     visimask.set		(mask,val);
@@ -492,6 +497,7 @@ void CKinematics::Visibility_Update	()
 			children_invisible.push_back	(children[c_it]);	
 			swap(children[c_it],children.back());
 			children.pop_back				();
+			Update_Visibility = true;
 		}
 	}
 
@@ -503,6 +509,7 @@ void CKinematics::Visibility_Update	()
 			children.push_back				(children_invisible[_it]);	
 			swap(children_invisible[_it],children_invisible.back());
 			children_invisible.pop_back		();
+			Update_Visibility = true;
 		}
 	}
 }

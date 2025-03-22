@@ -154,63 +154,6 @@ private:
 private:
 	float							m_power_fx_factor;
 
-
-	//Se7Kills Animation
-
-public:
-	void OnAnimationUpdate(MotionID motion, CBlend* blend, bool mix_anims, bool is_global, bool anim_controller, bool isLocal, bool isLegs, Fmatrix* matrix);
-	void EventAnimation(NET_Packet& P );
-
-private:
-	Fmatrix target_matrix;
-	void ApplyAnimation(ai_stalker_net_state& state);
-	void anim_sync(IKinematicsAnimated* skeleton_animated, CBlend* blend_1, CBlend* blend_2);
-
-	CBlend* blend_torso = 0;
-	CBlend* blend_legs	= 0;
-	CBlend* blend_head	= 0;
-
-	// Релиз тела
-
- 	mutable u32						m_last_player_detection_time = 0;
- 
-public:
-	bool NeedToDestroyObject() const;
-	ALife::_TIME_ID TimePassedAfterDeath() const;
-	bool HavePlayersNearby(float distance) const;
-private:
-	//Pavel* Interpolation STALKERS
-
-	// for interpolation
-	SPHNetState						LastState;
-	SPHNetState						RecalculatedState;
-	SPHNetState						PredictedState;
-	
-	float							SCoeff[3][4];			//коэффициэнты для сплайна Бизье
-	float							HCoeff[3][4];			//коэффициэнты для сплайна Эрмита
-	Fvector							IPosS, IPosH, IPosL;	//положение актера после интерполяции Бизье, Эрмита, линейной
-
-
-	xr_deque<stalker_interpolation::net_update_A>	NET_A;
-
-	stalker_interpolation::net_update_A				NET_A_Last;
-
-	stalker_interpolation::InterpData		IStart;
-	//stalker_interpolation::InterpData		IRec;
-	stalker_interpolation::InterpData		IEnd;
-
-	bool							m_bInInterpolation;
-	bool							m_bInterpolate;
-	u32								m_dwIStartTime;
-	u32								m_dwIEndTime;
-	u32								m_dwILastUpdateTime;
-
-	void							CalculateInterpolationParams();
-	virtual void					make_Interpolation();
-	void							postprocess_packet(stalker_interpolation::net_update_A& packet);
-
-	//END Pavel*
-
 private:
 	float							m_fRankDisperison;
 	float							m_fRankVisibility;
@@ -268,14 +211,7 @@ public:
 	virtual void						reload								(LPCSTR	section );				
 	virtual void						LoadSounds							(LPCSTR section );
 
-
-	virtual void						PH_B_CrPr							(); // actions & operations before physic correction-prediction steps
-	virtual void						PH_I_CrPr							(); // actions & operations after correction before prediction steps
-	virtual void						PH_A_CrPr							(); // actions & operations after phisic correction-prediction steps
-
 	virtual BOOL						net_Spawn							(CSE_Abstract* DC);
-	virtual void						net_Export							(NET_Packet& P);
-	virtual void						net_Import							(NET_Packet& P);
 	virtual void						net_Destroy							();
 	virtual void						net_Save							(NET_Packet& P);
 	virtual	BOOL						net_SaveRelevant					();
@@ -935,6 +871,71 @@ private:
 
 
 public:
+	//Se7Kills Animation
+
+public:
+	void OnAnimationUpdate(MotionID motion, CBlend* blend, bool mix_anims, bool is_global, bool anim_controller, bool isLocal, bool isLegs, Fmatrix* matrix);
+	void EventAnimation(NET_Packet& P);
+
+private:
+	Fmatrix target_matrix;
+	u16 last_torso_idx = -1;
+	u16 last_legs_idx  = -1;
+	u16 last_head_idx  = -1;
+
+	u16 last_script_idx = -1;
+	u16 last_global_idx = -1;
+
+	void ApplyAnimation(ai_stalker_net_state& state);
+	void anim_sync(IKinematicsAnimated* skeleton_animated, CBlend* blend_1, CBlend* blend_2);
+ 
+	// Релиз тела
+
+	mutable u32							m_last_player_detection_time = 0;
+
+	virtual	bool						NeedToDestroyObject() const;
+	virtual	ALife::_TIME_ID				TimePassedAfterDeath() const;
+	virtual bool						HavePlayersNearby(float distance) const;
+	virtual void						net_Export(NET_Packet& P);
+	virtual void						net_Import(NET_Packet& P);
+
+	virtual void						PH_B_CrPr(); // actions & operations before physic correction-prediction steps
+	virtual void						PH_I_CrPr(); // actions & operations after correction before prediction steps
+	virtual void						PH_A_CrPr(); // actions & operations after phisic correction-prediction steps
+
+private:
+	//Pavel* Interpolation STALKERS
+
+	// for interpolation
+	SPHNetState						LastState;
+	SPHNetState						RecalculatedState;
+	SPHNetState						PredictedState;
+
+	float							SCoeff[3][4];			//коэффициэнты для сплайна Бизье
+	float							HCoeff[3][4];			//коэффициэнты для сплайна Эрмита
+	Fvector							IPosS, IPosH, IPosL;	//положение актера после интерполяции Бизье, Эрмита, линейной
+
+
+	xr_deque<stalker_interpolation::net_update_A>	NET_A;
+
+	stalker_interpolation::net_update_A				NET_A_Last;
+
+	stalker_interpolation::InterpData		IStart;
+	//stalker_interpolation::InterpData		IRec;
+	stalker_interpolation::InterpData		IEnd;
+
+	bool							m_bInInterpolation;
+	bool							m_bInterpolate;
+	u32								m_dwIStartTime;
+	u32								m_dwIEndTime;
+	u32								m_dwILastUpdateTime;
+
+	void							CalculateInterpolationParams();
+	virtual void					make_Interpolation();
+	void							postprocess_packet(stalker_interpolation::net_update_A& packet);
+
+	//END Pavel*
+
 	DECLARE_SCRIPT_REGISTER_FUNCTION
 };
 add_to_type_list(CAI_Stalker)

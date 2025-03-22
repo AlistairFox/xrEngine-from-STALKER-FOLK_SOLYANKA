@@ -236,17 +236,12 @@ MotionID CKinematicsAnimated::ID_Cycle	(LPCSTR  N)
 }
 void	CKinematicsAnimated::LL_FadeCycle(u16 part, float falloff, u8 mask_channel /*= (1<<0)*/)
 {
-	
 	if (BI_NONE == part)
 		return;
 	if (part >= MAX_PARTS)
 		return;
 
 	BlendSVec& Blend = blend_cycles[part];
-
-	if (Blend.size() >= MAX_BLENDED)
-		Msg("Blend Size: %u", Blend.size());
-
 	for (u32 I=0; I<Blend.size(); I++)
 	{
 		CBlend& B			= *Blend[I];
@@ -399,13 +394,15 @@ CBlend*	CKinematicsAnimated::LL_PlayCycle(u16 part, MotionID motion_ID, BOOL  bM
 	// Process old cycles and create _new_
 	if( channel == 0 )
 	{
-		if (GetNPC() && blend_cycles[motion_ID.slot].size() >= MAX_BLENDED)
-			return 0;
   		if (bMixing)	
 			LL_FadeCycle	(part,blendFalloff,1<<channel);
 		else	
 			LL_CloseCycle	(part,1<<channel);
 	}
+
+	if (blend_cycles[part].size() > MAX_BLENDED)
+		return 0; 
+
 	CPartDef& P	=	(*m_Partition)[part];
 	CBlend*	B	=	IBlend_Create	();
 

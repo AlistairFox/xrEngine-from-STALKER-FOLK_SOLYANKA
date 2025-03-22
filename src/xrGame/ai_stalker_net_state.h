@@ -4,28 +4,23 @@
 #include "../xrServerEntities/PHSynchronize.h"
 #include "sight_manager.h"
  
-class BIT_TO_BYTE
-{
-public:
- 	void write_bites(const u32& bit_count, const u32& value, u32& current, u64& output)
-	{
-		output |= ((value & ((u64(1) << bit_count) - 1)) << current);
-		current += bit_count;
-	}
-
-	u64 read_bites(const u32& bit_count, u32& current, const u64& read_value)
-	{
-		u64			result = (read_value >> current) & ((u64(1) << bit_count) - 1);
-		current += bit_count;
-		return		(result);
-	}
-};
-  
-
 struct ai_stalker_net_state
 {
- 
-	public:
+public:
+		template<typename T>
+		void write_bites(const u32& bit_count, const u32& value, u32& current, T& output)
+		{
+			output |= ((value & ((T(1) << bit_count) - 1)) << current);
+			current += bit_count;
+		}
+
+		template<typename T>
+		T read_bites(const u32& bit_count, u32& current, const T& read_value)
+		{
+			T			result = (read_value >> current) & ((T(1) << bit_count) - 1);
+			current += bit_count;
+			return		(result);
+		}
  
 		net_physics_state physics_state;
 		Fvector fv_position;
@@ -42,6 +37,19 @@ struct ai_stalker_net_state
 		float head_yaw;
  		float torso_pitch;
 		float head_pitch;
+ 
+		/*
+		bone_or_part:
+		0: legs
+		1: torso
+		2: head
+		*/
+
+		MotionID m_torso; // slot = 1
+		MotionID m_head;  // slot = 2
+		MotionID m_legs;  // slot = 0
+		MotionID m_script;  // slot = 0
+		MotionID m_global;  // slot = 0
 
 		CSightManager::aiming_type m_aiming_type;
 		shared_str m_aiming_anim;

@@ -163,6 +163,7 @@ void CAI_Stalker::net_Export(NET_Packet& P)
 		state.m_aiming_type = sight().m_aiming_type;
 		state.m_aiming_anim = sight().m_animation_id;
 		state.m_aiming_frame = sight().m_animation_frame;
+		
 		//GLOBAL PARAMS
 		state.u_active_item = u_active_item;
 		state.u_health = health;
@@ -170,6 +171,34 @@ void CAI_Stalker::net_Export(NET_Packet& P)
 		state.fv_position = Position();
 
 		//Animation
+		IKinematicsAnimated* ka = smart_cast<IKinematicsAnimated*>(Visual());
+	 
+		/* 
+		legs  = 0
+		torso = 1 
+		head  = 2
+		*/
+		//if (ka->LL_PartBlend(0, 0))
+		//	state.legs_idx = ka->LL_PartBlend(0, 0)->motionID.idx;
+		//else
+		//	state.legs_idx = -1;
+		//
+		//if (ka->LL_PartBlend(1, 0))
+		//	state.torso_idx = ka->LL_PartBlend(1, 0)->motionID.idx;
+		//else
+		//	state.torso_idx = -1;
+		//
+		//if (ka->LL_PartBlend(2, 0))
+		//	state.head_idx = ka->LL_PartBlend(2, 0)->motionID.idx;
+		//else
+		//	state.head_idx = -1;
+
+		state.m_legs = animation().legs().animation();
+		state.m_torso = animation().torso().animation();
+		state.m_head = animation().head().animation();
+
+		state.m_script = animation().script().animation();
+		state.m_global = animation().global().animation();
 
 		state.state_write(P);
 	}
@@ -245,9 +274,9 @@ void CAI_Stalker::net_Import(NET_Packet& P)
 		
 		inventory().SetActiveSlot(state.u_active_slot);
 
-		sight().m_aiming_type = state.m_aiming_type;
- 		sight().m_animation_id = state.m_aiming_anim;
-		sight().m_animation_frame = state.m_aiming_frame;
+		// sight().m_aiming_type = state.m_aiming_type;
+ 		// sight().m_animation_id = state.m_aiming_anim;
+		// sight().m_animation_frame = state.m_aiming_frame;
 	    
 		if (state.phSyncFlag)
 		{
@@ -294,7 +323,7 @@ void CAI_Stalker::ApplyAnimation(ai_stalker_net_state& state)
 {
 	if (OnServer())
 		return;
-/* 
+ 
 	IKinematicsAnimated* ka = smart_cast<IKinematicsAnimated*>(Visual());
 	if (!ka)
 		return;
@@ -305,92 +334,67 @@ void CAI_Stalker::ApplyAnimation(ai_stalker_net_state& state)
 		return;
 	}
 	ka->SetNPC(true);
+  
+	extern int DebugingObjectID;
 
-
-	if (state.torso_anim.id.idx < MAX_BITS_COUNT)
-	if (state.torso_anim.num != client_torso_num)
+	bool isGlobal = state.m_script.valid() || state.m_global.valid();
+	 
+	if (isGlobal)
 	{
-		MotionID motion = state.torso_anim.id;
+ 		MotionID motion = state.m_global.valid() ? state.m_global : state.m_script;
 
-		if (ka->get_animation_valid(motion))
+		if (last_script_idx != motion.idx && last_global_idx != motion.idx)
 		{
-			CBlend* blend = ka->LL_PlayCycle(
-				ka->LL_GetMotionDef(motion)->bone_or_part,
-				state.torso_anim.id,
-				state.torso_anim.loop,
-				ka->LL_GetMotionDef(motion)->Accrue(),
-				ka->LL_GetMotionDef(motion)->Falloff(),
-				ka->LL_GetMotionDef(motion)->Speed(),
-				ka->LL_GetMotionDef(motion)->StopAtEnd(),
-				0, 0, 0
-			);
-
-			if (blend != nullptr)
+			if (animation_movement())
+				animation_movement()->stop();
+			
+			Msg("Update Animation SCRIPT(GLOBAL) [%s]", cName().c_str());
+			last_script_idx = motion.idx;
+			last_global_idx = motion.idx;
+			
+			for (u16 i = 0; i < MAX_PARTS; ++i)
 			{
-				blend_torso = blend;
-				client_torso_num = state.torso_anim.num;
-			}			
-		}
-	}
-
-	if (state.head_anim.id.idx < MAX_BITS_COUNT)
-	if (state.head_anim.num != client_head_num)
-	{
-		MotionID motion = state.head_anim.id;
-		if (ka->get_animation_valid(motion))
-		{
-			CBlend* head = ka->LL_PlayCycle(
-				ka->LL_GetMotionDef(motion)->bone_or_part,
-				motion,
-				state.head_anim.loop,
-				ka->LL_GetMotionDef(motion)->Accrue(),
-				ka->LL_GetMotionDef(motion)->Falloff(),
-				ka->LL_GetMotionDef(motion)->Speed(),
-				ka->LL_GetMotionDef(motion)->StopAtEnd(),
-				0, 0, 0
-			);
-			if (head != nullptr)
-			{
-				blend_head = head;
-				client_head_num = state.head_anim.num;
-			}			
-		}
-	}
- 
-	if (state.legs_anim.id.idx < MAX_BITS_COUNT)
-	if (state.legs_anim.num != client_legs_num)
-	{
-		MotionID motion = state.legs_anim.id;
-
-		if (ka->get_animation_valid(motion))
-		{
-			CBlend* legs = ka->LL_PlayCycle(
-				ka->LL_GetMotionDef(motion)->bone_or_part,
-				state.legs_anim.id,
-				state.legs_anim.loop,
-				ka->LL_GetMotionDef(motion)->Accrue(),
-				ka->LL_GetMotionDef(motion)->Falloff(),
-				ka->LL_GetMotionDef(motion)->Speed(),
-				ka->LL_GetMotionDef(motion)->StopAtEnd(),
-				0, 0, 0
-			);
-
-			if (legs != nullptr)
-			{
-				blend_legs = legs; 
-				CStepManager::on_animation_start(state.legs_anim.id, blend_legs);
-				client_legs_num = state.legs_anim.num;
+				ka->LL_PlayCycle(i, motion, FALSE, 0, 0);
 			}
-		}
-	}
+		}		
 
- 	/*	Синхра ног кривая с рывками анимки
-	if (blend_legs && blend_torso && state.legs_anim.pos != 0)
-	{
-		blend_legs->timeCurrent *= blend_legs->timeTotal * state.legs_anim.pos;
-		anim_sync(ka, blend_torso, blend_legs);
+		return;
 	}
-	*/
+  
+	if (!isGlobal)
+	{
+  		if (last_legs_idx != state.m_legs.idx && ka->get_animation_valid(state.m_legs))
+		{
+			Msg("Update Animation Legs [%s]", cName().c_str());
+
+			if (animation_movement())
+				animation_movement()->stop();
+			CBlend* legs = ka->PlayCycle(state.m_legs, TRUE, 0, 0);
+			CStepManager::on_animation_start(state.m_legs, legs);
+   			last_legs_idx = state.m_legs.idx;
+ 		}
+	 
+  
+ 		if (last_torso_idx != state.m_torso.idx && ka->get_animation_valid(state.m_torso))
+		{
+			Msg("Update Animation Torso [%s]", cName().c_str());
+
+			if (animation_movement())
+				animation_movement()->stop();
+			ka->PlayCycle(state.m_torso, TRUE, 0, 0);
+  			last_torso_idx = state.m_torso.idx;
+		}
+	 
+ 		if (last_head_idx != state.m_head.idx && ka->get_animation_valid(state.m_head))
+		{
+			Msg("Update Animation Head [%s]", cName().c_str());
+
+			if (animation_movement())
+				animation_movement()->stop();
+			ka->PlayCycle(state.m_head, TRUE, 0, 0);
+ 			last_head_idx = state.m_head.idx;
+		}
+	} 
 }
 
 void CAI_Stalker::postprocess_packet(stalker_interpolation::net_update_A &N_A)
