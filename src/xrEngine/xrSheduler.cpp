@@ -280,29 +280,40 @@ void CSheduler::Update				()
 	m_processing_now				= true;
 	u32	dwTime						= Device.dwTimeGlobal;
  
-	Device.Statistic->ShedulerLow.Begin();
-	for (u32 it=0; it<ItemsRT.size(); it++)
 	{
-		Item&	T					= ItemsRT[it];
-		R_ASSERT					(T.Object);
-
-		if(!T.Object->shedule_Needed())
+		OPTICK_EVENT("Shedule LOW Quality");
+		Device.Statistic->ShedulerLow.Begin();
+		for (u32 it = 0; it < ItemsRT.size(); it++)
 		{
-			T.dwTimeOfLastExecute	= dwTime;
-			continue;
+			Item& T = ItemsRT[it];
+			R_ASSERT(T.Object);
+
+			if (!T.Object->shedule_Needed())
+			{
+				T.dwTimeOfLastExecute = dwTime;
+				continue;
+			}
+
+			u32	Elapsed = dwTime - T.dwTimeOfLastExecute;
+
+
+
+			T.Object->shedule_Update(Elapsed);
+			T.dwTimeOfLastExecute = dwTime;
 		}
-
-		u32	Elapsed					= dwTime-T.dwTimeOfLastExecute;
-		T.Object->shedule_Update	(Elapsed);
-		T.dwTimeOfLastExecute		= dwTime;
+		Device.Statistic->ShedulerLow.End();
 	}
-	Device.Statistic->ShedulerLow.End();
-
 	
-	// Normal (sheduled)
-	Device.Statistic->Sheduler.Begin();
- 	ProcessStep						();
-	Device.Statistic->Sheduler.End();
+	
+	{
+		OPTICK_EVENT("SHEDULE ALL");
+		// Normal (sheduled)
+		Device.Statistic->Sheduler.Begin();
+		ProcessStep();
+		Device.Statistic->Sheduler.End();
+	}
+	
+
 	 
 	m_processing_now				= false;
 

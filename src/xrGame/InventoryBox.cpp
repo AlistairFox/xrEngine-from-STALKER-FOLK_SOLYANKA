@@ -211,7 +211,7 @@ void CInventoryBox::net_Relcase(CObject* O)
 #include "game_cl_roleplay.h"
 void CInventoryBox::AddAvailableItems(TIItemContainer& items_container) const
 {
-	Msg("m_items: %u, private: %u", m_items.size(), m_safe_items.size() );
+//	Msg("m_items: %u, private: %u", m_items.size(), m_safe_items.size() );
 
 	if (personal_safe)
 	{

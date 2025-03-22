@@ -348,7 +348,7 @@ void CAI_Stalker::ApplyAnimation(ai_stalker_net_state& state)
 			if (animation_movement())
 				animation_movement()->stop();
 			
-			Msg("Update Animation SCRIPT(GLOBAL) [%s]", cName().c_str());
+			//Msg("Update Animation SCRIPT(GLOBAL) [%s]", cName().c_str());
 			last_script_idx = motion.idx;
 			last_global_idx = motion.idx;
 			
@@ -365,7 +365,7 @@ void CAI_Stalker::ApplyAnimation(ai_stalker_net_state& state)
 	{
   		if (last_legs_idx != state.m_legs.idx && ka->get_animation_valid(state.m_legs))
 		{
-			Msg("Update Animation Legs [%s]", cName().c_str());
+			//Msg("Update Animation Legs [%s]", cName().c_str());
 
 			if (animation_movement())
 				animation_movement()->stop();
@@ -377,7 +377,7 @@ void CAI_Stalker::ApplyAnimation(ai_stalker_net_state& state)
   
  		if (last_torso_idx != state.m_torso.idx && ka->get_animation_valid(state.m_torso))
 		{
-			Msg("Update Animation Torso [%s]", cName().c_str());
+			//Msg("Update Animation Torso [%s]", cName().c_str());
 
 			if (animation_movement())
 				animation_movement()->stop();
@@ -387,7 +387,7 @@ void CAI_Stalker::ApplyAnimation(ai_stalker_net_state& state)
 	 
  		if (last_head_idx != state.m_head.idx && ka->get_animation_valid(state.m_head))
 		{
-			Msg("Update Animation Head [%s]", cName().c_str());
+			//Msg("Update Animation Head [%s]", cName().c_str());
 
 			if (animation_movement())
 				animation_movement()->stop();

@@ -877,11 +877,10 @@ public:
 	void OnAnimationUpdate(MotionID motion, CBlend* blend, bool mix_anims, bool is_global, bool anim_controller, bool isLocal, bool isLegs, Fmatrix* matrix);
 	void EventAnimation(NET_Packet& P);
 
-private:
 	Fmatrix target_matrix;
 	u16 last_torso_idx = -1;
-	u16 last_legs_idx  = -1;
-	u16 last_head_idx  = -1;
+	u16 last_legs_idx = -1;
+	u16 last_head_idx = -1;
 
 	u16 last_script_idx = -1;
 	u16 last_global_idx = -1;
@@ -902,8 +901,7 @@ private:
 	virtual void						PH_B_CrPr(); // actions & operations before physic correction-prediction steps
 	virtual void						PH_I_CrPr(); // actions & operations after correction before prediction steps
 	virtual void						PH_A_CrPr(); // actions & operations after phisic correction-prediction steps
-
-private:
+ 
 	//Pavel* Interpolation STALKERS
 
 	// for interpolation

@@ -202,9 +202,13 @@ void CLevel::ClientSend()
 		if (CurrentControlEntity()) 
 		{
 			CObject* pObj = CurrentControlEntity();
+			
+			// EXPORT ACTIVE SLOT
 			CActor* a = smart_cast<CActor*> (CurrentControlEntity());
 			if (a)
 				a->SyncPacketSlot();
+
+			// EXPORT ACTOR ORIGINAL
 			if (!pObj->getDestroy() && pObj->net_Relevant())
 			{				
 				P.w_begin		(M_CL_UPDATE);

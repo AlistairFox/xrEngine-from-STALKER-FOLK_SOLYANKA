@@ -84,7 +84,7 @@ void CAI_Stalker::EventAnimation(NET_Packet& P)
 	CBlend* m_blend = 0;
 	if (!is_global)
 	{
-		Msg("Event Animation Parts [%s]", cName().c_str());
+		// Msg("Event Animation Parts [%s]", cName().c_str());
 		if (motion.slot == 0)
 			last_legs_idx = motion.idx;
 		if (motion.slot == 1)
@@ -109,7 +109,7 @@ void CAI_Stalker::EventAnimation(NET_Packet& P)
 		last_script_idx = motion.idx;
 		last_global_idx = motion.idx;
 
-		Msg("Event Animation SCRIPT [%s]", cName().c_str());
+		// Msg("Event Animation SCRIPT [%s]", cName().c_str());
 
 
 		for (u16 i = 0; i < MAX_PARTS; ++i)

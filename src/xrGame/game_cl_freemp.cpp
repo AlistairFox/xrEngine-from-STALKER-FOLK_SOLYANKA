@@ -559,9 +559,11 @@ void DisplayStalker(CAI_Stalker* stalker)
 
 	font->OutNext("Position: [%f, %f, %f]", VPUSH(stalker->Position()));
 	font->OutNext("Animation Controled: %d", stalker->animation_movement_controlled()); //
-
-
-	IKinematics* KINEMATIC = smart_cast<IKinematics*>(stalker->Visual()->dcast_PKinematics() );
+	font->OutNext("Animation torso: %u, legs: %u, head: %u, script: %u, global: %u", 
+		stalker->last_torso_idx, stalker->last_legs_idx, stalker->last_head_idx, stalker->last_script_idx, stalker->last_global_idx); //
+	 
+	/*
+	IKinematics* KINEMATIC = smart_cast<IKinematics*>(stalker->Visual()->dcast_PKinematics());
 
 	for (auto ID = 0; ID < KINEMATIC->LL_BoneCount(); ID++)
 	{
@@ -576,6 +578,7 @@ void DisplayStalker(CAI_Stalker* stalker)
 			ID, *name, VPUSH(POS), VPUSH(HPB)
 		);				
 	}
+	*/
 
 	IKinematicsAnimated* ka = smart_cast<IKinematicsAnimated*>(stalker->Visual());
 	for (int i = 0; i < ka->LL_PartBlendsCount(0); i++)

@@ -1286,44 +1286,60 @@ void CActor::set_state_box(u32	mstate)
 }
 
 #include "actor_mp_client.h"
-
+#include "CustomDetector.h"
 void CActor::shedule_Update	(u32 DT)
 {
 	setSVU							(OnServer());
  
-	if(IsFocused())
+	if (IsFocused())
 	{
-		BOOL bHudView				= HUDview();
-		if(bHudView)
+		BOOL bHudView = HUDview();
+		if (bHudView)
 		{
-			CInventoryItem* pInvItem	= inventory().ActiveItem();	
-			if( pInvItem )
+			CInventoryItem* pInvItem = inventory().ActiveItem();
+			CCustomDetector* pInvDetector = smart_cast<CCustomDetector*> ( inventory().ItemFromSlot(DETECTOR_SLOT) );
+			
+			if (g_player_hud)
 			{
-				CHudItem* pHudItem		= smart_cast<CHudItem*>(pInvItem);	
-				if(pHudItem)
+				if (pInvItem ) //pInvDetector
 				{
-					if( pHudItem->IsHidden() )
+					CHudItem* pHudItem = smart_cast<CHudItem*>(pInvItem);
+					if (pHudItem)
 					{
-						g_player_hud->detach_item	(pHudItem);
+						if (pHudItem->IsHidden())
+						{
+							g_player_hud->detach_item(pHudItem);
+						}
+						else
+						{
+							g_player_hud->attach_item(pHudItem);
+						}
 					}
-					else
-					{
-						g_player_hud->attach_item	(pHudItem);
-					}
+
+					// if (pInvDetector && pInvDetector->IsHidden())
+					// {
+					// 	g_player_hud->detach_item(pInvDetector);
+					// }
+					// else
+					// {
+					// 	g_player_hud->attach_item(pInvDetector);
+					// }
 				}
-			}
-			else
-			{
-				g_player_hud->detach_item_idx	( 0 );
-				g_player_hud->detach_item_idx	( 1 );
- 			}
+				else
+				{
+					g_player_hud->detach_item_idx(0);
+					// g_player_hud->detach_item_idx(1);
+					Msg("---No active item in inventory(), item 0 detached.");
+				}		 
+			}			
 		}
 		else
 		{
-			g_player_hud->detach_all_items();
- 		}
-			
-	}
+			if (g_player_hud)
+				g_player_hud->detach_all_items();
+			Msg("---No hud view found, all items detached.");
+		}
+ 	}
 
 	if(m_holder || !getEnabled() || !Ready())
 	{

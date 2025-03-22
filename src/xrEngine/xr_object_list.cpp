@@ -82,12 +82,20 @@ void	CObjectList::o_sleep		( CObject*		O		)
 }
 
 #include "../xrServerEntities/clsid_game.h"
-extern int MT_Work = 0;
-extern int WorkDistance = 0;
+ 
 void CObjectList::UpdateProcessing(CObject* O)
 {
-	if (!g_dedicated_server && WorkDistance)
-		O->EnabledMP_Processing = O->Position().distance_to(Device.vCameraPosition) < 200;
+	if (!g_dedicated_server)
+	{
+		if (O->H_Parent())
+		{
+			O->EnabledMP_Processing  = O->H_Parent()->Position().distance_to(Device.vCameraPosition) < 350;
+		}
+		else
+		{
+			O->EnabledMP_Processing  = O->Position().distance_to(Device.vCameraPosition) < 350;
+		}		
+	}
 	else
 		O->EnabledMP_Processing = true;
 }

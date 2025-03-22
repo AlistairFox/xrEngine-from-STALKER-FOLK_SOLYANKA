@@ -862,8 +862,10 @@ public:
 
 extern BOOL		g_cl_draw_mp_statistic;
 extern int		MAX_DISTANCE_FIND_GRAPH = 350;
-extern float	Shedule_Scale_AI_Stalker = 0;
-extern float	Shedule_Scale_Objects = 0;
+
+extern float	Shedule_Scale_Objects = 4;
+extern float	Shedule_Scale_AI_Stalker = 1;
+
 extern float	Shedule_Events = 0.1f;
 
 extern int		SyncAlifeCount = 10;
@@ -871,9 +873,9 @@ void register_console_admin()
 {
 	CMD4(CCC_Integer, "sync_alife_objects", &SyncAlifeCount, 10, 1000);
 
-	CMD4(CCC_Float, "ai_shedule", &Shedule_Scale_AI_Stalker, 0, 20);
-	CMD4(CCC_Float, "shedule_objects", &Shedule_Scale_Objects, 0, 20);
-
+	CMD4(CCC_Float, "_shedule_ai", &Shedule_Scale_AI_Stalker, 0, 20);
+	CMD4(CCC_Float, "_shedule_objects", &Shedule_Scale_Objects, 0, 20);
+ 
 
 	// DRAW STATISTIC
 	CMD4(CCC_Integer, "draw_mp_statistic", &g_cl_draw_mp_statistic, 0, 1);

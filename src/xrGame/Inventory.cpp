@@ -544,12 +544,13 @@ bool CInventory::Ruck(PIItem pIItem, bool strict_placement)
 
 	return true;
 }
+
 // #define DUMP_MSG
 
 void CInventory::Activate(u16 slot, bool bForce)
 {
 #ifdef USE_CLIENT_SIDE_WEAPONS
-	if (!OnServer() && smart_cast<CActor*>(Level().CurrentControlEntity()) != m_pOwner)
+	if (OnClient() && smart_cast<CActor*>(Level().CurrentControlEntity()) != m_pOwner)
 		return;
 #else 
 	if (!OnServer())

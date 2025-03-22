@@ -409,8 +409,7 @@ void CArtefact::SwitchState(u32 S)
 
 void CArtefact::OnStateSwitch(u32 S)
 {
-	Msg("On State Switch: %u", S);
-	inherited::OnStateSwitch	(S);
+ 	inherited::OnStateSwitch	(S);
 
 	switch(S)
 	{

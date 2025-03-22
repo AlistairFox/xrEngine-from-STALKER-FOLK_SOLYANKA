@@ -9,71 +9,73 @@
 #include "actor.h"
 #include "ui/UIWindow.h"
 #include "player_hud.h"
-#include "weapon.h"
+#include "Weapon.h"
+#include "inventory_item.h"
+
 
 ITEM_INFO::ITEM_INFO()
 {
-	pParticle	= NULL;
-	curr_ref	= NULL;
+	pParticle = NULL;
+	curr_ref = NULL;
 }
 
 ITEM_INFO::~ITEM_INFO()
 {
-	if(pParticle)
+	if (pParticle)
 		CParticlesObject::Destroy(pParticle);
 }
 
 bool CCustomDetector::CheckCompatibilityInt(CHudItem* itm, u16* slot_to_activate)
 {
-	if(itm==NULL)
+	if (itm == NULL)
 		return true;
 
-	CInventoryItem& iitm			= itm->item();
-	u32 slot						= iitm.BaseSlot();
-	bool bres = (slot==INV_SLOT_2 || slot==KNIFE_SLOT || slot==BOLT_SLOT);
-	if(!bres && slot_to_activate)
+	CInventoryItem& iitm = itm->item();
+	u32 slot = iitm.BaseSlot();
+	bool bres = (slot == INV_SLOT_2 || slot == KNIFE_SLOT || slot == BOLT_SLOT);
+	if (!bres && slot_to_activate)
 	{
-		*slot_to_activate	= NO_ACTIVE_SLOT;
-		if(m_pInventory->ItemFromSlot(BOLT_SLOT))
+		*slot_to_activate = NO_ACTIVE_SLOT;
+		if (m_pInventory->ItemFromSlot(BOLT_SLOT))
 			*slot_to_activate = BOLT_SLOT;
 
-		if(m_pInventory->ItemFromSlot(KNIFE_SLOT))
+		if (m_pInventory->ItemFromSlot(KNIFE_SLOT))
 			*slot_to_activate = KNIFE_SLOT;
 
-		if(m_pInventory->ItemFromSlot(INV_SLOT_3) && m_pInventory->ItemFromSlot(INV_SLOT_3)->BaseSlot()!=INV_SLOT_3)
+		if (m_pInventory->ItemFromSlot(INV_SLOT_3) && m_pInventory->ItemFromSlot(INV_SLOT_3)->BaseSlot() != INV_SLOT_3)
 			*slot_to_activate = INV_SLOT_3;
 
-		if(m_pInventory->ItemFromSlot(INV_SLOT_2) && m_pInventory->ItemFromSlot(INV_SLOT_2)->BaseSlot()!=INV_SLOT_3)
+		if (m_pInventory->ItemFromSlot(INV_SLOT_2) && m_pInventory->ItemFromSlot(INV_SLOT_2)->BaseSlot() != INV_SLOT_3)
 			*slot_to_activate = INV_SLOT_2;
 
-		if(*slot_to_activate != NO_ACTIVE_SLOT)
+		if (*slot_to_activate != NO_ACTIVE_SLOT)
 			bres = true;
 	}
 
-	if(itm->GetState()!=CHUDState::eShowing)
+	if (itm->GetState() != CHUDState::eShowing)
 		bres = bres && !itm->IsPending();
 
-	if(bres)
+	if (bres)
 	{
 		CWeapon* W = smart_cast<CWeapon*>(itm);
-		if(W)
-			bres =	bres								&& 
-					(W->GetState()!=CHUDState::eBore)	&& 
-					(W->GetState()!=CWeapon::eReload) && 
-					(W->GetState()!=CWeapon::eSwitch) && 
-					!W->IsZoomed();
+		if (W)
+			bres = bres &&
+			(W->GetState() != CHUDState::eBore) &&
+			(W->GetState() != CWeapon::eReload) &&
+			(W->GetState() != CWeapon::eSwitch) &&
+			!W->IsZoomed();
 	}
 	return bres;
 }
 
 bool  CCustomDetector::CheckCompatibility(CHudItem* itm)
 {
-	if(!inherited::CheckCompatibility(itm) )	
+	if (!inherited::CheckCompatibility(itm))
 		return false;
 
-	if(!CheckCompatibilityInt(itm, NULL))
+	if (!CheckCompatibilityInt(itm, NULL))
 	{
-		HideDetector	(true);
+		HideDetector(true);
 		return			false;
 	}
 	return true;
@@ -90,178 +92,121 @@ void CCustomDetector::HideAndSetCallback(detector_fn_t fn)
 
 void CCustomDetector::HideDetector(bool bFastMode)
 {
-	if(GetState()==eIdle)
+	if (GetState() == eIdle)
+	{
+		Msg("Hide Detector");
 		ToggleDetector(bFastMode);
+	}
 }
 
 void CCustomDetector::ShowDetector(bool bFastMode)
 {
-	if(GetState()==eHidden)
-		ToggleDetector(bFastMode);
+	if (GetState() == eHidden)
+	{
+		Msg("Show Detector");
+ 		ToggleDetector(bFastMode);
+	}
 }
 
 void CCustomDetector::ToggleDetector(bool bFastMode)
 {
-	m_bNeedActivation		= false;
-	m_bFastAnimMode			= bFastMode;
+	m_bNeedActivation = false;
+	m_bFastAnimMode = bFastMode;
 
-	if(GetState()==eHidden)
+	if (GetState() == eHidden)
 	{
 		PIItem iitem = m_pInventory->ActiveItem();
-		CHudItem* itm = (iitem)?iitem->cast_hud_item():NULL;
+		CHudItem* itm = (iitem) ? iitem->cast_hud_item() : NULL;
 		u16 slot_to_activate = NO_ACTIVE_SLOT;
 
-		if(CheckCompatibilityInt(itm, &slot_to_activate))
+		if (CheckCompatibilityInt(itm, &slot_to_activate))
 		{
-			if(slot_to_activate!=NO_ACTIVE_SLOT)
+			Msg("Возможность достать детектор: SlotTo: %u", slot_to_activate);
+  		
+			if (slot_to_activate != NO_ACTIVE_SLOT)
 			{
-				if (OnServer())
-				{
-					// Пытаемся достать допустимый предмет: нож, оружие или тп
-					// при этом будет спрятано текущее оружие
-					m_pInventory->Activate(slot_to_activate);
-				}
-				else
-				{
-					if (H_Parent() && H_Parent() == Level().CurrentViewEntity())
-					{
-						NET_Packet						P;
-						CGameObject::u_EventGen(P, GEG_PLAYER_ACTIVATE_SLOT, H_Parent()->ID());
-						P.w_u16(slot_to_activate);
-						P.w_u8(m_bWorking);
-						CGameObject::u_EventSend(P);
-					}
-				}
+				m_pInventory->Activate(slot_to_activate);
+ 				
 				// указываем, что нужно будет достать детектор
 				m_bNeedActivation = true;
 			}
 			else
 			{
-				SwitchState				(eShowing);
-				TurnDetectorInternal	(true);
+				SwitchState(eShowing);
+				TurnDetectorInternal(true);
 			}
 		}
-	}else
-	if(GetState()==eIdle)
-		SwitchState					(eHiding);
-
+		else
+		{
+			Msg("Нету возможности достать детектор. ");
+		}
+	}
+	else
+	{
+		if (GetState() == eIdle)
+		{
+			Msg("Детектор уже достан, прячем. ");
+			SwitchState(eHiding);
+		}	
+	}
 }
+
 void CCustomDetector::SwitchState(u32 S)
 {
-	if (IsGameTypeSingle() || OnServer())
-	{
-		inherited::SwitchState(S);
-		return;
-	}
-
-	if (!IsGameTypeSingle() && OnClient())
-	{
-		SetNextState(S);
-		OnStateSwitch(u32(S));
-
-		if (Level().CurrentControlEntity() == H_Parent())
-		{
-			NET_Packet packet;
-			u_EventGen(packet, GE_DETECTOR_STATE, ID());
-			packet.w_u32(S);
-			u_EventSend(packet);
-
-			switch (S)
-			{
-				case eHidden:
-					if (hide_callback)
-					{
-						hide_callback();
-					}
-					ClearCallback();
-					break;
-				case eShowing:
-				case eIdle:
-					ClearCallback();
-					break;
-				default:
-					break;
-			}
-		}
-	}
+	inherited::SwitchState(S);
 }
 
 void CCustomDetector::OnEvent(NET_Packet& P, u16 type)
 {
-	if (type == GE_DETECTOR_STATE)
-	{
-		u32 state = P.r_u32();
-		//m_bWorking = P.r_u8();
-		if (GetState() != state)
-			SwitchState(state);
-	}
-	else
-	{
-		inherited::OnEvent(P, type);
-	}
+	if (Level().CurrentControlEntity() != H_Parent())
+		 inherited::OnEvent(P, type);
 }
 
-void CCustomDetector::net_Export(NET_Packet& P)
-{
-	inherited::net_Export(P);
-	P.w_u32(GetState());
-	//P.w_u8(m_bWorking);
-}
-
-void CCustomDetector::net_Import(NET_Packet& P)
-{
-	inherited::net_Import(P);
-	u32 state = P.r_u32();
-	//m_bWorking = P.r_u8();
-	
-	if (GetState() != state && Level().CurrentControlEntity() != H_Parent())
-		SwitchState(state);
-}
 
 void CCustomDetector::OnStateSwitch(u32 S)
 {
 	inherited::OnStateSwitch(S);
-
-	if (Level().CurrentControlEntity() == H_Parent())
-	switch(S)
+	// Msg("[MP][CustomDetector] Attach Item HUD : %u", S);
+ 	if (H_Parent() == Level().CurrentControlEntity())
+	switch (S)
 	{
 		case eShowing:
-			{
-				g_player_hud->attach_item	(this);
-				m_sounds.PlaySound			("sndShow", Fvector().set(0,0,0), this, true, false);
-				PlayHUDMotion				(m_bFastAnimMode?"anm_show_fast":"anm_show", FALSE/*TRUE*/, this, GetState());
-				SetPending					(TRUE);
-			}break;
+		{
+ 			m_sounds.PlaySound("sndShow", Fvector().set(0, 0, 0), this, true, false);
+			PlayHUDMotion(m_bFastAnimMode ? "anm_show_fast" : "anm_show", FALSE/*TRUE*/, this, GetState());
+			SetPending(TRUE);
+		}break;
 		case eHiding:
-			{
-				m_sounds.PlaySound			("sndHide", Fvector().set(0,0,0), this, true, false);
-				PlayHUDMotion				(m_bFastAnimMode?"anm_hide_fast":"anm_hide", FALSE/*TRUE*/, this, GetState());
-				SetPending					(TRUE);
-			}break;
+		{
+			m_sounds.PlaySound("sndHide", Fvector().set(0, 0, 0), this, true, false);
+			PlayHUDMotion(m_bFastAnimMode ? "anm_hide_fast" : "anm_hide", FALSE/*TRUE*/, this, GetState());
+			SetPending(TRUE);
+		}break;
 		case eIdle:
-			{
-				PlayAnimIdle				();
-				SetPending					(FALSE);
-			}break;
-}
+		{
+			PlayAnimIdle();
+			SetPending(FALSE);
+		}break;
+	}
 }
 
 void CCustomDetector::OnAnimationEnd(u32 state)
 {
-	inherited::OnAnimationEnd	(state);
+	inherited::OnAnimationEnd(state);
 
-	switch(state)
+	if (H_Parent() == Level().CurrentControlEntity())
+	switch (state)
 	{
 		case eShowing:
-			{
-				SwitchState					(eIdle);
-			} break;
+		{
+			SwitchState(eIdle);
+		} break;
 		case eHiding:
-			{
-				SwitchState					(eHidden);
-				TurnDetectorInternal		(false);
-				g_player_hud->detach_item	(this);
-			} break;
+		{
+			SwitchState(eHidden);
+			TurnDetectorInternal(false);
+			g_player_hud->detach_item(this);
+		} break;
 	}
 }
 
@@ -272,200 +217,198 @@ void CCustomDetector::UpdateXForm()
 
 void CCustomDetector::OnActiveItem()
 {
-	return;
+	Msg("On Activate Detector");
 }
 
 void CCustomDetector::OnHiddenItem()
 {
+	Msg("On Hidden Detector");
 }
 
-CCustomDetector::CCustomDetector() 
+CCustomDetector::CCustomDetector()
 {
-	m_ui				= NULL;
-	m_bFastAnimMode		= false;
-	m_bNeedActivation	= false;
+	m_ui = NULL;
+	m_bFastAnimMode = false;
+	m_bNeedActivation = false;
 }
 
-CCustomDetector::~CCustomDetector() 
+CCustomDetector::~CCustomDetector()
 {
-	m_artefacts.destroy		();
-	TurnDetectorInternal	(false);
-	xr_delete				(m_ui);
+	m_artefacts.destroy();
+	TurnDetectorInternal(false);
+	xr_delete(m_ui);
 }
 
-BOOL CCustomDetector::net_Spawn(CSE_Abstract* DC) 
+BOOL CCustomDetector::net_Spawn(CSE_Abstract* DC)
 {
 	TurnDetectorInternal(false);
 	return		(inherited::net_Spawn(DC));
 }
 
-void CCustomDetector::Load(LPCSTR section) 
+void CCustomDetector::Load(LPCSTR section)
 {
-	inherited::Load			(section);
+	inherited::Load(section);
+ 
+	m_fAfDetectRadius = pSettings->r_float(section, "af_radius");
+	m_fAfVisRadius = pSettings->r_float(section, "af_vis_radius");
+	m_artefacts.load(section, "af");
 
-	m_fAfDetectRadius		= pSettings->r_float(section,"af_radius");
-	m_fAfVisRadius			= pSettings->r_float(section,"af_vis_radius");
-	m_artefacts.load		(section, "af");
-
-	m_sounds.LoadSound( section, "snd_draw", "sndShow");
-	m_sounds.LoadSound( section, "snd_holster", "sndHide");
+	m_sounds.LoadSound(section, "snd_draw", "sndShow");
+	m_sounds.LoadSound(section, "snd_holster", "sndHide");
 }
 
 
-void CCustomDetector::shedule_Update(u32 dt) 
+void CCustomDetector::shedule_Update(u32 dt)
 {
 	inherited::shedule_Update(dt);
-	
-	if( !IsWorking() )			return;
+
+	if (!IsWorking())			return;
+	if (!H_Parent())			return;
 
 	Position().set(H_Parent()->Position());
 
-	Fvector						P; 
-	P.set						(H_Parent()->Position());
-	m_artefacts.feel_touch_update(P,m_fAfDetectRadius);
+	Fvector						P;
+	P.set(H_Parent()->Position());
+	m_artefacts.feel_touch_update(P, m_fAfDetectRadius);
 }
 
 
 bool CCustomDetector::IsWorking()
 {
-	return GetState() == eIdle;
+	if (g_dedicated_server)
+		return false;
+ 
+	return m_bWorking && H_Parent() && H_Parent() == Level().CurrentViewEntity();
 }
 
 void CCustomDetector::UpfateWork()
 {
-	UpdateAf				();
-	
-	if (Level().CurrentControlEntity() == H_Parent() && !g_dedicated_server)
-		m_ui->update			();
+	//if (Level().CurrentControlEntity() == H_Parent())
+	UpdateAf();
+
+	if (m_ui)
+		m_ui->update();
 }
+
+void CCustomDetector::net_Export(NET_Packet& packet)
+{
+	inherited::net_Export(packet);
+ }
+
+void CCustomDetector::net_Import(NET_Packet& packet)
+{
+	inherited::net_Import(packet);
+}
+ 
 
 void CCustomDetector::UpdateVisibility()
 {
 	// Pavel: Предотвращение краша при дисконнекте сервера
 	if (!Actor())
 		return;
+	 
+	//check visibility
+	attachable_hud_item* i0 = g_player_hud->attached_item(0);
 
-	// Pavel: ХАК. Прячем детектор, если в руках оказывается оружие (кроме пистолета, ножа, болта)
-	if (!IsGameTypeSingle() && OnClient())
+	if (i0 && HudItemData())
 	{
-		u16 curSlot = m_pInventory->GetActiveSlot();
-		if (curSlot != NO_ACTIVE_SLOT)
+		bool bClimb = ((Actor()->MovingState() & mcClimb) != 0);
+		if (bClimb)
 		{
-			PIItem pWpn = m_pInventory->ItemFromSlot(m_pInventory->GetNextActiveSlot());
-			if (pWpn)
+			HideDetector(true);
+			m_bNeedActivation = true;
+		}
+		else
+		{
+			CWeapon* wpn = smart_cast<CWeapon*>(i0->m_parent_hud_item);
+			if (wpn)
 			{
-				u32 slot = pWpn->BaseSlot();
-				bool bres = (slot == INV_SLOT_2 || slot == KNIFE_SLOT || slot == BOLT_SLOT || curSlot == NO_ACTIVE_SLOT);
-				if (GetState() == eIdle || GetState() == eShowing) {
-					if (!bres)
-					{
-						m_bNeedActivation = false;
-						m_bFastAnimMode = true;
-						SwitchState(eHiding);
-						// HideDetector(true);
-						return;
-					}
+				u32 state = wpn->GetState();
+				if (wpn->IsZoomed() || state == CWeapon::eReload || state == CWeapon::eSwitch)
+				{
+					HideDetector(true);
+					m_bNeedActivation = true;
 				}
 			}
 		}
 	}
-
-	//check visibility
-	attachable_hud_item* i0		= g_player_hud->attached_item(0);
-	if(i0 && HudItemData())
+	else
+	if (m_bNeedActivation)
 	{
-		bool bClimb			= ( (Actor()->MovingState()&mcClimb) != 0 );
-		if(bClimb)
+		attachable_hud_item* i0 = g_player_hud->attached_item(0);
+		bool bClimb = ((Actor()->MovingState() & mcClimb) != 0);
+		if (!bClimb)
 		{
-			HideDetector		(true);
-			m_bNeedActivation	= true;
-		}else
-		{
-			CWeapon* wpn			= smart_cast<CWeapon*>(i0->m_parent_hud_item);
-			if(wpn)
-			{
-				u32 state			= wpn->GetState();
-				if(wpn->IsZoomed() || state==CWeapon::eReload || state==CWeapon::eSwitch)
-				{
-					HideDetector		(true);
-					m_bNeedActivation	= true;
-				}
-			}
-		}
-	}else
-	if(m_bNeedActivation)
-	{
-		attachable_hud_item* i0		= g_player_hud->attached_item(0);
-		bool bClimb					= ( (Actor()->MovingState()&mcClimb) != 0 );
-		if(!bClimb)
-		{
-			CHudItem* huditem		= (i0)?i0->m_parent_hud_item : NULL;
-			bool bChecked			= !huditem || CheckCompatibilityInt(huditem, 0);
-			
-			if(	bChecked )
-				ShowDetector		(true);
+			CHudItem* huditem = (i0) ? i0->m_parent_hud_item : NULL;
+			bool bChecked = !huditem || CheckCompatibilityInt(huditem, 0);
+ 			if (bChecked)
+				ShowDetector(true);
 		}
 	}
 }
 
-void CCustomDetector::UpdateCL() 
+void CCustomDetector::UpdateCL()
 {
 	inherited::UpdateCL();
 
-	if(H_Parent() ==Level().CurrentEntity() )	
-		UpdateVisibility		();
+	if (H_Parent() == Level().CurrentEntity())
+		UpdateVisibility();
 
-	if( !IsWorking() )		return;
+	if (!IsWorking())		return;
 
-	UpfateWork				();
+	UpfateWork();
 }
 
-void CCustomDetector::OnH_A_Chield() 
+void CCustomDetector::OnH_A_Chield()
 {
-	inherited::OnH_A_Chield		();
+	inherited::OnH_A_Chield();
 }
 
-void CCustomDetector::OnH_B_Independent(bool just_before_destroy) 
+void CCustomDetector::OnH_B_Independent(bool just_before_destroy)
 {
 	inherited::OnH_B_Independent(just_before_destroy);
-	
-	m_artefacts.clear			();
+
+	m_artefacts.clear();
 }
 
 
 void CCustomDetector::OnMoveToRuck(const SInvItemPlace& prev)
 {
-	inherited::OnMoveToRuck	(prev);
-	if(prev.type==eItemPlaceSlot)
+	inherited::OnMoveToRuck(prev);
+
+	if (prev.type == eItemPlaceSlot)
 	{
-		SwitchState					(eHidden);
-		g_player_hud->detach_item	(this);
+		SwitchState(eHidden);
+		g_player_hud->detach_item(this);
 
 		// Pavel: фикс для мп, не нужно доставать детектор,
 		// если он был убран / заменён на другой во время перезарядки
 		m_bNeedActivation = false;
 	}
-	TurnDetectorInternal			(false);
-	StopCurrentAnimWithoutCallback	();
+
+	TurnDetectorInternal(false);
+	StopCurrentAnimWithoutCallback();
 }
 
 void CCustomDetector::OnMoveToSlot(const SInvItemPlace& prev)
 {
-	inherited::OnMoveToSlot	(prev);
+	inherited::OnMoveToSlot(prev);
 }
 
 void CCustomDetector::TurnDetectorInternal(bool b)
 {
-	m_bWorking				= b;
-	if(b && m_ui==NULL)
+	m_bWorking = b;
+
+	if (b && m_ui == NULL)
 	{
-		CreateUI			();
-	}else
+		CreateUI();
+	}
+	else
 	{
-//.		xr_delete			(m_ui);
+		//.		xr_delete			(m_ui);
 	}
 
-	UpdateNightVisionMode	(b);
+	UpdateNightVisionMode(b);
 }
 
 
@@ -475,17 +418,19 @@ void CCustomDetector::UpdateNightVisionMode(bool b_on)
 {
 }
 
-BOOL CAfList::feel_touch_contact	(CObject* O)
+BOOL CAfList::feel_touch_contact(CObject* O)
 {
-	TypesMapIt it				= m_TypesMap.find(O->cNameSect());
+	TypesMapIt it = m_TypesMap.find(O->cNameSect());
 
-	bool res					 = (it!=m_TypesMap.end());
-	if(res)
+	bool res = (it != m_TypesMap.end());
+	if (res)
 	{
-		CArtefact*	pAf				= smart_cast<CArtefact*>(O);
-		
-		if(pAf->GetAfRank()>m_af_rank)
+		CArtefact* pAf = smart_cast<CArtefact*>(O);
+
+		if (pAf->GetAfRank() > m_af_rank)
 			res = false;
 	}
 	return						res;
 }
+
+

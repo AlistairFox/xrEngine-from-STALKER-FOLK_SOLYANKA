@@ -40,17 +40,17 @@ virtual		~animation_movement_controller		( );
 			void	NewBlend					( CBlend* B, const Fmatrix &new_matrix, bool local_animation );
 			bool	IsActive					( ) const ;
 			void	OnFrame						( );
-private:
+ 
 			void	GetInitalPositionBlenSpeed	( );
-			void	animation_root_position		( Fmatrix &pos  );
+			bool	animation_root_position		( Fmatrix &pos  );
 			void	InitalPositionBlending		( const Fmatrix &to );
 			void	SetPosesBlending			( );
-public:
+ 
 			bool	IsBlending					( ) const;
-	inline	Fmatrix const& start_transform		( ) const
-	{
-		return		(m_startObjXForm);
-	}
+			inline	Fmatrix const& start_transform		( ) const
+			{
+				return		(m_startObjXForm);
+			}
 
 			void	stop						( );
 };

@@ -688,10 +688,6 @@ extern int simulate_netwark_ping_cl;
 extern int			g_ErrorLineCount;
 
 ENGINE_API int			ps_r__Supersample			= 1;
-
-#ifdef DEDICATED_SERVER
-extern int updateCL_Rate = 30;
-#endif // !DEDICATE
  
 extern int fps_limit = 60;
 
@@ -803,18 +799,12 @@ public:
 
  
 extern int gAlvaysActive = 0;
-extern int MT_Work;
-extern int WorkDistance;
 
 void CCC_Register()
 {	 
 	CMD1(CCC_OptickStart, "optick_start");
 	CMD1(CCC_OptickSave, "optick_save");
 	CMD4(CCC_Integer, "debug_callstack", &Debug.isCallstackEnable, 0, 1);
-
-
-	CMD4(CCC_Integer, "updatecl_mp", &WorkDistance, 0, 1);
-	CMD4(CCC_Integer, "updatecl_mt", &MT_Work, 0, 1);
 
 	CMD4(CCC_Integer, "r__always_active", &gAlvaysActive, 0, 1);
 	CMD1(CCC_UpdateWindowPos, "r__update_window");
@@ -823,11 +813,7 @@ void CCC_Register()
 
 	CMD4(CCC_Float, "r__nearplane_hud", &VIEWPORT_NEAR_HUD, 0, 1);
  	CMD4(CCC_Float, "r__nearplane", &VIEWPORT_NEAR, 0.05f, 1.0f);
-
-#ifdef DEDICATED_SERVER
-	CMD4(CCC_Integer, "shedule_updateCL", &updateCL_Rate, 1, 500);
-#endif
-
+ 
 	// General
 	CMD1(CCC_Help,		"help"					);
 	CMD1(CCC_Quit,		"quit"					);

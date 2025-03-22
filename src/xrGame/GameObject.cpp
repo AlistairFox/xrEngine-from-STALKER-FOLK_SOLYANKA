@@ -1027,22 +1027,22 @@ extern float Shedule_Scale_Objects;
 
 float CGameObject::shedule_Scale()
 {
-	float MaxDistance = 9999.0f;
-	for (auto PL : Game().players)
+	if (OnClient())
 	{
-		CObject* O = Level().Objects.net_Find(PL.second->GameID);
-		CActor* A = smart_cast<CActor*>(O);
-		if (A)
+ 		if (Actor())
 		{
-			float D = A->Position().distance_to(Position());
-			if (D < MaxDistance)
-			{
-				MaxDistance = D;
-			}
+			Fvector OPos = H_Parent() ? H_Parent()->Position() : Position();
+			float Distance = Actor()->Position().distance_to(OPos);
+			float scale = Distance / 300;
+			if (scale > Shedule_Scale_Objects)
+				scale = Shedule_Scale_Objects;
+			return scale;
 		}
+
+		return Shedule_Scale_Objects;
 	}
-	float scale = MaxDistance / 200;
-	return scale < Shedule_Scale_Objects ? scale : Shedule_Scale_Objects;
+	else
+  		return Shedule_Scale_Objects;
 }
 		  
 #include "smart_zone.h"

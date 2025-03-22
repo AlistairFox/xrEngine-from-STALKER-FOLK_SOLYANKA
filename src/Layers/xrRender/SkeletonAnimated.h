@@ -131,16 +131,10 @@ public:
 
 	IC CMotionDef*				LL_GetMotionDef	(MotionID id)
 	{
- 		if (id.slot > MAX_ANIM_SLOT)
-			return nullptr;
-
  		return m_Motions[id.slot].motions.motion_def(id.idx);
 	}
 	IC CMotion*					LL_GetRootMotion(MotionID id)
 	{
- 		if (id.slot > MAX_ANIM_SLOT)
-			return nullptr;
-
 		return &m_Motions[id.slot].bone_motions[iRoot]->at(id.idx);
 	}
 

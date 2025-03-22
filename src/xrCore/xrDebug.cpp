@@ -575,11 +575,12 @@ void xrDebug::Callstack()
 	if (!isInitialized)
 	{
 		SymSetOptions(SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS);
-		SymInitialize(GetCurrentProcess(), 0, TRUE);
-		isInitialized = true;
+		isInitialized = SymInitialize(GetCurrentProcess(), 0, TRUE);
 	}
 
- 
+	if (!isInitialized)
+		return;
+
 	CaptureStackBackTraceType func_callstack = (CaptureStackBackTraceType)(GetProcAddress(LoadLibrary("kernel32.dll"), "RtlCaptureStackBackTrace"));
 
 	if (func_callstack != nullptr)
@@ -616,4 +617,6 @@ void xrDebug::Callstack()
 			free(symbol);
 		}
 	}
+
+
 }

@@ -162,24 +162,24 @@ void game_cl_roleplay::OnSetCurrentControlEntity(CObject * O)
 
 void game_cl_roleplay::OnRender()
 {
-	if (g_pGamePersistent && g_pGamePersistent->m_pGShaderConstants)
-	{
-		float fRotation = g_pGamePersistent->m_pGShaderConstants->hud_params.x;//--#SM+#--
-		float fVP2_Fov = g_pGamePersistent->m_pGShaderConstants->hud_params.y;//--#SM+#--
-		float useMark = g_pGamePersistent->m_pGShaderConstants->hud_params.z;//--#SM+#--
-
-	
- 		CGameFont* font = UI().Font().pFontArial14;
-
-		font->SetHeightI(0.02f);
-		font->OutSet(25, 25);
-		font->SetColor(color_argb(255, 255, 128, 128));
-
-		string128 tmp;
-		sprintf(tmp, "zRotation: %.2f, VP_Fov: %.2f, UseMark: %.2f", fRotation, fVP2_Fov, useMark);
-		font->OutNext(tmp);
- 
-	}
+	// if (g_pGamePersistent && g_pGamePersistent->m_pGShaderConstants)
+	// {
+	// 	float fRotation = g_pGamePersistent->m_pGShaderConstants->hud_params.x;//--#SM+#--
+	// 	float fVP2_Fov = g_pGamePersistent->m_pGShaderConstants->hud_params.y;//--#SM+#--
+	// 	float useMark = g_pGamePersistent->m_pGShaderConstants->hud_params.z;//--#SM+#--
+	// 
+	// 
+ 	// 	CGameFont* font = UI().Font().pFontArial14;
+	// 
+	// 	font->SetHeightI(0.02f);
+	// 	font->OutSet(25, 25);
+	// 	font->SetColor(color_argb(255, 255, 128, 128));
+	// 
+	// 	string128 tmp;
+	// 	sprintf(tmp, "zRotation: %.2f, VP_Fov: %.2f, UseMark: %.2f", fRotation, fVP2_Fov, useMark);
+	// 	font->OutNext(tmp);
+ 	// 
+	// }
 
  	// for (auto player : Game().players)
 	// {

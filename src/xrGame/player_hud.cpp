@@ -426,7 +426,7 @@ void attachable_hud_item::load(const shared_str& sect_name)
 
 u32 attachable_hud_item::anim_play(const shared_str& anm_name_b, BOOL bMixIn, const CMotionDef*& md, u8& rnd_idx, float speed)
 {
-	R_ASSERT(strstr(anm_name_b.c_str(), "anm_") == anm_name_b.c_str());
+ 	R_ASSERT(strstr(anm_name_b.c_str(), "anm_") == anm_name_b.c_str());
 	string256				anim_name_r;
 	bool is_16x9 = UI().is_widescreen();
 	xr_sprintf(anim_name_r, "%s%s", anm_name_b.c_str(), ((m_attach_place_idx == 1) && is_16x9) ? "_16x9" : "");
@@ -439,12 +439,10 @@ u32 attachable_hud_item::anim_play(const shared_str& anm_name_b, BOOL bMixIn, co
 		speed = anm->m_anim_speed != 0 ? anm->m_anim_speed : CalcMotionSpeed(anm_name_b);
 
 	rnd_idx = (u8)Random.randI(anm->m_animations.size());
+
+
 	const motion_descr& M = anm->m_animations[rnd_idx];
-
-	//if (!md)
-	//	return 0;
-
-	u32 ret = g_player_hud->anim_play(m_attach_place_idx, M.mid, bMixIn, md, speed);
+ 	u32 ret = g_player_hud->anim_play(m_attach_place_idx, M.mid, bMixIn, md, speed);
 
 	if (m_model->dcast_PKinematicsAnimated())
 	{
@@ -460,8 +458,8 @@ u32 attachable_hud_item::anim_play(const shared_str& anm_name_b, BOOL bMixIn, co
 		if (!M2.valid())
 			M2 = ka->ID_Cycle_Safe("idle");
 		else
-			if (bDebug)
-				Msg("playing item animation [%s]", item_anm_name.c_str());
+		if (bDebug)
+			Msg("playing item animation [%s]", item_anm_name.c_str());
 
 		R_ASSERT3(M2.valid(), "model has no motion [idle] ", pSettings->r_string(m_sect_name, "item_visual"));
 
@@ -474,8 +472,12 @@ u32 attachable_hud_item::anim_play(const shared_str& anm_name_b, BOOL bMixIn, co
 		for (u16 pid = 0; pid < pc; ++pid)
 		{
 			CBlend* B = ka->PlayCycle(pid, M2, bMixIn);
-			R_ASSERT(B);
-			B->speed *= speed;
+			if (!B)
+			{
+				Msg("Cant Create Blend Safe: [%s] ID[%u]",  item_anm_name.c_str(), M2.idx);
+ 			}			
+			if (B)
+				B->speed *= speed;
 		}
 
 		m_model->CalculateBones_Invalidate();
@@ -483,9 +485,7 @@ u32 attachable_hud_item::anim_play(const shared_str& anm_name_b, BOOL bMixIn, co
 
 	R_ASSERT2(m_parent_hud_item, "parent hud item is NULL");
 	CPhysicItem& parent_object = m_parent_hud_item->object();
-	//R_ASSERT2		(parent_object, "object has no parent actor");
-	//CObject*		parent_object = static_cast_checked<CObject*>(&m_parent_hud_item->object());
-
+ 
 	if (parent_object.H_Parent() == Level().CurrentControlEntity())
 	{
 		CActor* current_actor = static_cast_checked<CActor*>(Level().CurrentControlEntity());
@@ -782,8 +782,16 @@ void player_hud::render_hud()
 {
 	bool b_r0 = ((m_attached_items[0] && m_attached_items[0]->need_renderable()) || script_anim_part == 0 || script_anim_part == 2);
 	bool b_r1 = ((m_attached_items[1] && m_attached_items[1]->need_renderable()) || script_anim_part == 1 || script_anim_part == 2);
+ 
+	if (!b_r0 && !b_r1)
+	{
+	//	Msg("Attach1 [%p] | Attach2 [%p]", m_attached_items[0], m_attached_items[1]);
+		return;
+	}
 
-	if (!b_r0 && !b_r1)									return;
+
+	// Msg("Render R0: %u", b_r0);
+	// Msg("Render R1: %u", b_r1);
 
 	::Render->set_Transform(&m_transform);
 	::Render->add_Visual(m_model->dcast_RenderVisual());
@@ -1197,8 +1205,10 @@ u32 player_hud::script_anim_play(u8 hand, LPCSTR section, LPCSTR anm_name, bool 
 		for (u16 pid = 0; pid < pc; ++pid)
 		{
 			CBlend* B = script_anim_item_model->dcast_PKinematicsAnimated()->PlayCycle(pid, M2, bMixIn);
-			R_ASSERT(B);
-			B->speed *= speed;
+			if (B)
+				B->speed *= speed;
+			else
+				Msg("~~~ Blend blendID[%u] is No Exist Blend | LINE: %u", M2.idx, __LINE__);
 		}
 
 		script_anim_item_model->CalculateBones_Invalidate();
@@ -1207,27 +1217,55 @@ u32 player_hud::script_anim_play(u8 hand, LPCSTR section, LPCSTR anm_name, bool 
 	if (hand == 0) // right hand
 	{
 		CBlend* B = m_model->PlayCycle(0, M.mid, bMixIn);
-		B->speed *= speed;
+		if (B)
+ 			B->speed *= speed;
+		else
+			Msg("~~~ Blend blendID[%u] is No Exist Blend | LINE: %u", M.mid.idx, __LINE__);
+
 		B = m_model->PlayCycle(2, M.mid, bMixIn);
-		B->speed *= speed;
-	}
+		if (B)
+			B->speed *= speed;
+		else
+			Msg("~~~ Blend blendID[%u] is No Exist Blend | LINE: %u", M.mid.idx, __LINE__);
+ 	}
 	else if (hand == 1) // left hand
 	{
 		CBlend* B = m_model_2->PlayCycle(0, M.mid, bMixIn);
-		B->speed *= speed;
+		if (B)
+ 			B->speed *= speed;
+		else
+			Msg("~~~ Blend blendID[%u] is No Exist Blend | LINE: %u", M.mid.idx, __LINE__);
 		B = m_model_2->PlayCycle(1, M.mid, bMixIn);
-		B->speed *= speed;
+		if (B)
+			B->speed *= speed;
+		else
+			Msg("~~~ Blend blendID[%u] is No Exist Blend | LINE: %u", M.mid.idx, __LINE__);
 	}
 	else if (hand == 2) // both hands
 	{
 		CBlend* B = m_model->PlayCycle(0, M.mid, bMixIn);
-		B->speed *= speed;
+		if (B)
+			B->speed *= speed;
+		else
+			Msg("~~~ Blend blendID[%u] is No Exist Blend | LINE: %u", M.mid.idx, __LINE__);
+		
 		B = m_model_2->PlayCycle(0, M.mid, bMixIn);
-		B->speed *= speed;
+		if (B)
+			B->speed *= speed;
+		else
+			Msg("~~~ Blend blendID[%u] is No Exist Blend | LINE: %u", M.mid.idx, __LINE__);
+		
 		B = m_model->PlayCycle(2, M.mid, bMixIn);
-		B->speed *= speed;
+		if (B)
+			B->speed *= speed;
+		else
+			Msg("~~~ Blend blendID[%u] is No Exist Blend | LINE: %u", M.mid.idx, __LINE__);
+		
 		B = m_model_2->PlayCycle(1, M.mid, bMixIn);
-		B->speed *= speed;
+		if (B)
+			B->speed *= speed;
+		else
+			Msg("~~~ Blend blendID[%u] is No Exist Blend", M.mid.idx);
 	}
 
 	const CMotionDef* md;
@@ -1397,13 +1435,15 @@ u32 player_hud::anim_play(u16 part, const MotionID& M, BOOL bMixIn, const CMotio
 			if (pid == 0 || pid == 2)
 			{
 				CBlend* B = m_model->PlayCycle(pid, M, bMixIn);
-				R_ASSERT(B);
-				B->speed *= speed;
+				if (B)
+					B->speed *= speed;
+				else 
+ 					Msg("~~~ Blend blendID[%u] is No Exist Blend", M.idx);
 			}
 			if (pid == 0 || pid == 1)
 			{
 				CBlend* B = m_model_2->PlayCycle(pid, M, bMixIn);
-				R_ASSERT(B);
+				if (B)
 				B->speed *= speed;
 			}
 		}
@@ -1418,8 +1458,11 @@ u32 player_hud::anim_play(u16 part, const MotionID& M, BOOL bMixIn, const CMotio
 			if (pid != 1)
 			{
 				CBlend* B = m_model->PlayCycle(pid, M, bMixIn);
-				R_ASSERT(B);
-				B->speed *= speed;
+ 	 
+ 				if (B)
+					B->speed *= speed;
+				else
+					Msg("~~~ Blend blendID[%u] is No Exist Blend", M.idx);
 			}
 		}
 
@@ -1432,13 +1475,17 @@ u32 player_hud::anim_play(u16 part, const MotionID& M, BOOL bMixIn, const CMotio
 			if (pid != 2)
 			{
 				CBlend* B = m_model_2->PlayCycle(pid, M, bMixIn);
-				R_ASSERT(B);
-				B->speed *= speed;
+				if (B)
+					B->speed *= speed;
+				else 
+ 					Msg("~~~ Blend blendID[%u] is No Exist Blend", M.idx);
 			}
 		}
 
 		m_model_2->dcast_PKinematics()->CalculateBones_Invalidate();
 	}
+
+
 	return motion_length(M, md, speed);
 }
 
@@ -1550,6 +1597,9 @@ bool player_hud::allow_activation(CHudItem* item)
 
 void player_hud::attach_item(CHudItem* item)
 {
+	if (item == nullptr)
+		return;
+
 	attachable_hud_item* pi = create_hud_item(item->HudSection());
 	int item_idx = pi->m_attach_place_idx;
 
@@ -1618,13 +1668,16 @@ void player_hud::detach_item_idx(u16 idx)
 	if (idx == 1)
 	{
 		if (m_attached_items[0])
+		{
 			re_sync_anim(2);
+		}
 		else
 		{
 			m_model_2->PlayCycle("hand_idle_doun");
 		}
 	}
-	else if (idx == 0)
+	else
+	if (idx == 0)
 	{
 		if (m_attached_items[1])
 		{
@@ -1649,6 +1702,9 @@ void player_hud::detach_item_idx(u16 idx)
 
 void player_hud::detach_item(CHudItem* item)
 {
+	if (!item)
+		return;
+
 	if (NULL == item->HudItemData())
 		return;
 
