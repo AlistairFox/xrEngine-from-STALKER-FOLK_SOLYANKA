@@ -172,6 +172,7 @@ void CCustomDetector::OnStateSwitch(u32 S)
 	{
 		case eShowing:
 		{
+			g_player_hud->attach_item(this);
  			m_sounds.PlaySound("sndShow", Fvector().set(0, 0, 0), this, true, false);
 			PlayHUDMotion(m_bFastAnimMode ? "anm_show_fast" : "anm_show", FALSE/*TRUE*/, this, GetState());
 			SetPending(TRUE);

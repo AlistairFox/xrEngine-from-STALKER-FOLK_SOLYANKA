@@ -1297,11 +1297,10 @@ void CActor::shedule_Update	(u32 DT)
 		if (bHudView)
 		{
 			CInventoryItem* pInvItem = inventory().ActiveItem();
-			CCustomDetector* pInvDetector = smart_cast<CCustomDetector*> ( inventory().ItemFromSlot(DETECTOR_SLOT) );
-			
+		
 			if (g_player_hud)
 			{
-				if (pInvItem ) //pInvDetector
+				if (pInvItem )
 				{
 					CHudItem* pHudItem = smart_cast<CHudItem*>(pInvItem);
 					if (pHudItem)
@@ -1315,15 +1314,6 @@ void CActor::shedule_Update	(u32 DT)
 							g_player_hud->attach_item(pHudItem);
 						}
 					}
-
-					// if (pInvDetector && pInvDetector->IsHidden())
-					// {
-					// 	g_player_hud->detach_item(pInvDetector);
-					// }
-					// else
-					// {
-					// 	g_player_hud->attach_item(pInvDetector);
-					// }
 				}
 				else
 				{
