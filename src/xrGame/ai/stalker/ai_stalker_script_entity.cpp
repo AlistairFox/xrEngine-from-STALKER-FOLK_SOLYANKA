@@ -31,12 +31,7 @@ u32 CAI_Stalker::GetWeaponAmmo() const
 		return		(0);
 	return			(GetCurrentWeapon()->GetSuitableAmmoTotal(true));	
 }
-
-//CInventoryItem *CAI_Stalker::GetCurrentEquipment() const
-//{
-//    return inventory().ItemFromSlot(OUTFIT_SLOT);
-//}
-
+ 
 CInventoryItem *CAI_Stalker::GetMedikit() const
 {
 #pragma todo("Dima to Dima : Return correct medikit")

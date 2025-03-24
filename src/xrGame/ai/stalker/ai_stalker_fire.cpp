@@ -212,7 +212,18 @@ void CAI_Stalker::g_WeaponBones	(int &L, int &R1, int &R2)
 void CAI_Stalker::Hit(SHit* pHDS)
 {
 	if (OnClient())
+	{
+		const CEntityAlive* entity_alive = smart_cast<const CEntityAlive*>(pHDS->initiator());
+		if (entity_alive && !wounded()) 
+		{
+			if (is_relation_enemy(entity_alive))
+				sound().play(eStalkerSoundInjuring);
+		}
+
+		CPhysicsShellHolder::Hit(pHDS);
 		return;
+	}
+
 
 	//хит может меняться в зависимости от ранга (новички получают больше хита, чем ветераны)
 	SHit HDS = *pHDS;
@@ -303,9 +314,7 @@ void CAI_Stalker::Hit(SHit* pHDS)
 					HDS._dump			();
 				}
 	#endif
-//				int						fx_index = iFloor(tpKinematics->LL_GetBoneInstance(HDS.bone()).get_param(1) + (angle_difference(movement().m_body.current.yaw,-yaw) <= PI_DIV_2 ? 0 : 1));
-//				if (fx_index != -1)
-//					animation().play_fx	(power_factor,fx_index);
+
 			}
 			else {
 				if (!already_critically_wounded && became_critically_wounded) {
@@ -324,8 +333,6 @@ void CAI_Stalker::Hit(SHit* pHDS)
 		float const damage_factor	= invulnerable() ? 0.f : 100.f;
 		memory().hit().add			( damage_factor*HDS.damage(), HDS.direction(), HDS.who, HDS.boneID );
 	}
-
-	//conditions().health()			= 1.f;
 
 	inherited::Hit					( &HDS );
 }
@@ -575,12 +582,7 @@ IC BOOL ray_query_callback	(collide::rq_result& result, LPVOID params)
 	ray_query_param						*param = (ray_query_param*)params;
 	float								power = param->m_holder->feel_vision_mtl_transp(result.O,result.element);
 	param->m_power						*= power;
-
-//	if (power >= .05f) {
-//		param->m_pick_distance			= result.range;
-//		return							(true);
-//	}
-
+ 
 	if (!result.O) {
 		if (param->m_power > param->m_power_threshold)
 			return						(true);
