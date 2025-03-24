@@ -1268,7 +1268,7 @@ extern float Shedule_Scale_AI_Stalker;
 
 float CAI_Stalker::shedule_Scale				()
 {
- 	return inherited::shedule_Scale();
+  	return Shedule_Scale_AI_Stalker;
 }
 
 void CAI_Stalker::aim_bone_id					(shared_str const &bone_id)

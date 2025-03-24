@@ -363,7 +363,7 @@ void CActor::steer_Vehicle(float angle)
 */
 }
 
-void legs_play_callback		(CBlend *blend)
+void legs_play_callback_ai		(CBlend *blend)
 {
 	CActor					*object = (CActor*)blend->CallbackParam;
 	VERIFY					(object);
@@ -655,7 +655,7 @@ void CActor::g_SetAnimation( u32 mstate_rl )
 		}
 
 		IKinematicsAnimated* ka		= smart_cast<IKinematicsAnimated*>(Visual());
-		m_current_legs_blend		= PlayMotionByParts(ka, M_legs, TRUE, legs_play_callback, this);
+		m_current_legs_blend		= PlayMotionByParts(ka, M_legs, TRUE, legs_play_callback_ai, this);
 //		m_current_legs_blend		= smart_cast<IKinematicsAnimated*>(Visual())->PlayCycle(M_legs,TRUE,legs_play_callback,this);
 
 

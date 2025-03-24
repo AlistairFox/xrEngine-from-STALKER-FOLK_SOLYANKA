@@ -569,8 +569,8 @@ bool isInitialized = false;
 
 void xrDebug::Callstack()
 {
-	if (!isCallstackEnable)
-		return;
+	//if (!isCallstackEnable)
+	//	return;
 
 	if (!isInitialized)
 	{

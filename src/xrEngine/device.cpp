@@ -511,11 +511,15 @@ BOOL CRenderDevice::Paused()
 	return g_pauseMngr.Paused();
 };
 
+
 void CRenderDevice::OnWM_Activate(WPARAM wParam, LPARAM lParam)
 {
 	u16 fActive = LOWORD(wParam);
 	BOOL fMinimized = (BOOL)HIWORD(wParam);
-	BOOL bActive = ((fActive != WA_INACTIVE) && (!fMinimized)) ? TRUE : FALSE;
+	BOOL bActive =  ((fActive != WA_INACTIVE) && (!fMinimized)) ? TRUE : FALSE;
+
+	if (g_dedicated_server)
+		bActive = true;
 
 	if (bActive != Device.b_is_Active)
 	{

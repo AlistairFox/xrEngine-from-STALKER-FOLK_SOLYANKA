@@ -178,20 +178,6 @@ void CAI_Stalker::net_Export(NET_Packet& P)
 		torso = 1 
 		head  = 2
 		*/
-		//if (ka->LL_PartBlend(0, 0))
-		//	state.legs_idx = ka->LL_PartBlend(0, 0)->motionID.idx;
-		//else
-		//	state.legs_idx = -1;
-		//
-		//if (ka->LL_PartBlend(1, 0))
-		//	state.torso_idx = ka->LL_PartBlend(1, 0)->motionID.idx;
-		//else
-		//	state.torso_idx = -1;
-		//
-		//if (ka->LL_PartBlend(2, 0))
-		//	state.head_idx = ka->LL_PartBlend(2, 0)->motionID.idx;
-		//else
-		//	state.head_idx = -1;
 
 		state.m_legs = animation().legs().animation();
 		state.m_torso = animation().torso().animation();
@@ -304,6 +290,15 @@ void CAI_Stalker::net_Import(NET_Packet& P)
 			//TODO: disable interpolation?
 		}
  		   
+
+		Fvector POS = state.phSyncFlag ? state.physics_state.physics_position : state.fv_position;
+		float D = POS.distance_to(Position());
+		if (D > 24.f)
+		{
+			Msg("To Distant object update: %f", D);
+		}
+
+
 		// Pavel: create structure for animation?
 		if (g_Alive())
 			ApplyAnimation(state);
@@ -318,6 +313,43 @@ void CAI_Stalker::net_Import(NET_Packet& P)
 #include "../xrEngine/SkeletonMotions.h"
 
 u16 MAX_BITS_COUNT = (u32(1) << 10);
+
+
+void torso_play_callback(CBlend* blend)
+{
+	CAI_Stalker* object = (CAI_Stalker*)blend->CallbackParam;
+	if (blend->stop_at_end)
+		object->last_torso_idx = -1;
+}
+ 
+void legs_play_callback(CBlend* blend)
+{
+	CAI_Stalker* object = (CAI_Stalker*)blend->CallbackParam;
+	if (blend->stop_at_end)
+		object->last_legs_idx = -1;
+}
+
+void head_play_callback(CBlend* blend)
+{
+	CAI_Stalker* object = (CAI_Stalker*)blend->CallbackParam;
+	if (blend->stop_at_end)
+		object->last_head_idx = -1;
+}
+ 
+void script_play_callback(CBlend* blend)
+{
+	CAI_Stalker* object = (CAI_Stalker*)blend->CallbackParam;
+	if (blend->stop_at_end)
+		object->last_script_idx = -1;
+}
+ 
+void global_play_callback(CBlend* blend)
+{
+	CAI_Stalker* object = (CAI_Stalker*)blend->CallbackParam;
+	if (blend->stop_at_end)
+		object->last_global_idx = -1;
+}
+
 
 void CAI_Stalker::ApplyAnimation(ai_stalker_net_state& state)
 {
@@ -337,64 +369,83 @@ void CAI_Stalker::ApplyAnimation(ai_stalker_net_state& state)
   
 	extern int DebugingObjectID;
 
-	bool isGlobal = state.m_script.valid() || state.m_global.valid();
-	 
-	if (isGlobal)
+ 
+	if (state.m_script.valid())
 	{
- 		MotionID motion = state.m_global.valid() ? state.m_global : state.m_script;
+		MotionID motion = state.m_script;
 
 		if (last_script_idx != motion.idx && last_global_idx != motion.idx)
 		{
-			if (animation_movement())
-				animation_movement()->stop();
-			
-			//Msg("Update Animation SCRIPT(GLOBAL) [%s]", cName().c_str());
-			last_script_idx = motion.idx;
-			last_global_idx = motion.idx;
-			
-			for (u16 i = 0; i < MAX_PARTS; ++i)
+			if (ka->get_animation_valid(motion))
 			{
-				ka->LL_PlayCycle(i, motion, FALSE, 0, 0);
-			}
+				if (animation_movement())
+					animation_movement()->stop();
+				last_script_idx = motion.idx;
+				last_global_idx = motion.idx;
+				for (u16 i = 0; i < MAX_PARTS; ++i)
+				{
+					ka->LL_PlayCycle(i, motion, FALSE, script_play_callback, this);
+				}
+			}			
+		}
+
+		return;
+	}
+	 
+	if (state.m_global.valid())
+	{
+		MotionID motion = state.m_global;
+		if (last_script_idx != motion.idx && last_global_idx != motion.idx)
+		{
+			// if (ka->get_animation_valid(motion))
+			{
+				if (animation_movement())
+					animation_movement()->stop();
+				last_global_idx = motion.idx;
+				for (u16 i = 0; i < MAX_PARTS; ++i)
+				{
+					ka->LL_PlayCycle(i, motion, FALSE, global_play_callback, this);
+				}
+			} 			
 		}		
 
 		return;
 	}
   
-	if (!isGlobal)
+	// Continue
+   	if (last_legs_idx != state.m_legs.idx && ka->get_animation_valid(state.m_legs))
 	{
-  		if (last_legs_idx != state.m_legs.idx && ka->get_animation_valid(state.m_legs))
+		if (ka->get_animation_valid(state.m_legs))
 		{
-			//Msg("Update Animation Legs [%s]", cName().c_str());
-
 			if (animation_movement())
 				animation_movement()->stop();
-			CBlend* legs = ka->PlayCycle(state.m_legs, TRUE, 0, 0);
+			CBlend* legs = ka->PlayCycle(state.m_legs, TRUE, legs_play_callback, this);
 			CStepManager::on_animation_start(state.m_legs, legs);
-   			last_legs_idx = state.m_legs.idx;
- 		}
-	 
-  
- 		if (last_torso_idx != state.m_torso.idx && ka->get_animation_valid(state.m_torso))
+			last_legs_idx = state.m_legs.idx;
+		}
+ 	}
+	  
+ 	if (last_torso_idx != state.m_torso.idx && ka->get_animation_valid(state.m_torso))
+	{
+		if (ka->get_animation_valid(state.m_torso))
 		{
-			//Msg("Update Animation Torso [%s]", cName().c_str());
-
 			if (animation_movement())
 				animation_movement()->stop();
-			ka->PlayCycle(state.m_torso, TRUE, 0, 0);
-  			last_torso_idx = state.m_torso.idx;
+			ka->PlayCycle(state.m_torso, TRUE, torso_play_callback, this);
+			last_torso_idx = state.m_torso.idx;
 		}
+	}
 	 
- 		if (last_head_idx != state.m_head.idx && ka->get_animation_valid(state.m_head))
+ 	if (last_head_idx != state.m_head.idx && ka->get_animation_valid(state.m_head))
+	{
+		if (ka->get_animation_valid(state.m_torso))
 		{
-			//Msg("Update Animation Head [%s]", cName().c_str());
-
 			if (animation_movement())
 				animation_movement()->stop();
-			ka->PlayCycle(state.m_head, TRUE, 0, 0);
- 			last_head_idx = state.m_head.idx;
+			ka->PlayCycle(state.m_head, TRUE, head_play_callback, this);
+			last_head_idx = state.m_head.idx;
 		}
-	} 
+	}
 }
 
 void CAI_Stalker::postprocess_packet(stalker_interpolation::net_update_A &N_A)

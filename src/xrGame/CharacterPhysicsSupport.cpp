@@ -392,26 +392,16 @@ void CCharacterPhysicsSupport::UpdateCollisionActivatingDellay( )
 
 void CCharacterPhysicsSupport::in_shedule_Update( u32 DT )
 {
-	///VERIFY( 0 );
-
-	//CPHSkeleton::Update(DT);
 	if(m_collision_activating_delay)
-			UpdateCollisionActivatingDellay();
+		UpdateCollisionActivatingDellay();
 
 	if( !m_EntityAlife.use_simplified_visual	( ) )
 		CPHDestroyable::SheduleUpdate( DT );
-	else	if( m_pPhysicsShell&&m_pPhysicsShell->isFullActive( ) && !m_pPhysicsShell->isEnabled( ) )
+	else	
+	if( m_pPhysicsShell&&m_pPhysicsShell->isFullActive( ) && !m_pPhysicsShell->isEnabled( ) )
 		m_EntityAlife.deactivate_physics_shell( );
-	movement( )->in_shedule_Update( DT );
-#if	0
-	if( anim_mov_state.active )
-	{
-		DBG_OpenCashedDraw( );
-		DBG_DrawMatrix( mXFORM, 0.5f );
-		DBG_ClosedCashedDraw( 5000 );
-	}
-#endif
 
+	movement( )->in_shedule_Update( DT );
 }
 
 #ifdef DEBUG

@@ -284,7 +284,6 @@ bool CCustomDetector::IsWorking()
 
 void CCustomDetector::UpfateWork()
 {
-	//if (Level().CurrentControlEntity() == H_Parent())
 	UpdateAf();
 
 	if (m_ui)

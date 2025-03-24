@@ -415,48 +415,39 @@ void CBaseMonster::UpdateCL()
 {
 	if (OnClient())
 	{
-		float d = Device.vCameraPosition.distance_to_xz(Position());
-		if (d > 200)
+		if (g_Alive() && OnClient())
 		{
-			if (g_Alive() && Remote() && !IsGameTypeSingle())
+			if (Actor())
 			{
-				make_Interpolation();
+				float Distance = Actor()->Position().distance_to_xz(Position());
+				if (Distance > 360)
+				{
+					Msg("Distance is : %f", Distance);
+				}
 			}
-			return;
+			make_Interpolation();
 		}
-	}
-	
-	if ((IsGameTypeSingle() || OnServer()) && EatedCorpse && !CorpseMemory.is_valid_corpse(EatedCorpse) )
-	{
-		EatedCorpse = NULL;
-	}
 
+		inherited::UpdateCL();
 
-	inherited::UpdateCL();
-    
-	if (g_Alive() && Remote() && !IsGameTypeSingle())
-	{
-		make_Interpolation();
+		m_pPhysics_support->in_UpdateCL();
+		return;
 	}
 
+ 	if (EatedCorpse && !CorpseMemory.is_valid_corpse(EatedCorpse) )
+ 		EatedCorpse = NULL;
+
+ 	inherited::UpdateCL();
+ 
 	if ( g_Alive() ) 
 	{
-		//time.Start();
-		if (OnServer())
-			update_enemy_accessible_and_at_home_info();
-		
-		CStepManager::update(false);
- 
-		if (IsGameTypeSingle() || OnServer())
-			update_pos_by_grouping_behaviour();
+ 		update_enemy_accessible_and_at_home_info();
+  		update_pos_by_grouping_behaviour();
 	}
 
-	//time.Start();
-	if(IsGameTypeSingle() || OnServer())
-		control().update_frame();
-
-	if (OnClient())
- 		m_pPhysics_support->in_UpdateCL();	
+	CStepManager::update(false);
+	control().update_frame();
+ 	m_pPhysics_support->in_UpdateCL();	
 }
 
 
@@ -468,7 +459,7 @@ extern float Shedule_Scale_AI_Stalker;
 
 float CBaseMonster::shedule_Scale()
 {
-	return inherited::shedule_Scale();
+	return Shedule_Scale_AI_Stalker;
 }
 
 
@@ -480,29 +471,24 @@ void CBaseMonster::shedule_Update(u32 dt)
 	if (OnClient())
 	{
 		inherited::shedule_Update(dt);
-		return;
+		m_pPhysics_support->in_shedule_Update(dt);
+ 		return;
 	}
  
 	inherited::shedule_Update(dt);
-	update_eyes_visibility		();
+	 
+	update_eyes_visibility();
 
-	if ( m_anti_aim )
-	{
+	if (m_anti_aim)
 		m_anti_aim->update_schedule();
-	}
-
 	m_psy_aura.update_schedule();
 	m_fire_aura.update_schedule();
 	m_base_aura.update_schedule();
 	m_radiation_aura.update_schedule();
-
-	if (IsGameTypeSingle() || OnServer())
-	{
-		control().update_schedule();
-		Morale.update_schedule(dt);
-		m_anomaly_detector->update_schedule();
-	}
-	
+	control().update_schedule();
+	Morale.update_schedule(dt);
+	m_anomaly_detector->update_schedule();
+ 	
 	m_pPhysics_support->in_shedule_Update(dt);
 }
 

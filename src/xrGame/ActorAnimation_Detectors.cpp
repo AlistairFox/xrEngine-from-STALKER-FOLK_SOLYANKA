@@ -9,9 +9,7 @@
 #include "WeaponPistol.h"
 #include "Bolt.h"
 #include "WeaponKnife.h"
-
-
-
+ 
 void STorsoWpn::CreateDetectorEMPTY(IKinematicsAnimated* K)
 {
 	moving[eIdle] = K->ID_Cycle_Safe("norm_torso_0+detector_aim_1");

@@ -122,8 +122,11 @@ public:
 	}
 };
  
+extern int bDebugHud = 0;
 void register_console_ogfs()
 {
+	CMD4(CCC_Integer, "debug_playerhud", &bDebugHud, 0, 1);
+
 	CMD1(CCC_OMFS, "ogf_refs");
 	CMD1(CCC_OMFS_HANDS, "ogfs_refs_hands");
 }

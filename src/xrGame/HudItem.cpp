@@ -427,13 +427,14 @@ u32 CHudItem::PlayHUDMotionIfExists(std::initializer_list<const char*> Ms, const
 	return 0;
 }
 
+extern int bDebugHud;
 u32 CHudItem::PlayHUDMotion_noCB(const shared_str& motion_name, const bool bMixIn, const bool randomAnim, float speed)
 {
 	m_current_motion = motion_name;
 
-	if (bDebug && item().m_pInventory)
+	if (bDebugHud && item().m_pInventory)
 	{
-		Msg("-[%s] as[%d] [%d]anim_play [%s][%d]",
+		Msg("-[%s] as[%d] [%d] anim_play [%s][%d]",
 			HudItemData() ? "HUD" : "Simulating",
 			item().m_pInventory->GetActiveSlot(),
 			item().object_id(),

@@ -424,6 +424,7 @@ void attachable_hud_item::load(const shared_str& sect_name)
 	m_measures.load(sect_name, m_model);
 }
 
+extern int bDebugHud;
 u32 attachable_hud_item::anim_play(const shared_str& anm_name_b, BOOL bMixIn, const CMotionDef*& md, u8& rnd_idx, float speed)
 {
  	R_ASSERT(strstr(anm_name_b.c_str(), "anm_") == anm_name_b.c_str());
@@ -458,7 +459,7 @@ u32 attachable_hud_item::anim_play(const shared_str& anm_name_b, BOOL bMixIn, co
 		if (!M2.valid())
 			M2 = ka->ID_Cycle_Safe("idle");
 		else
-		if (bDebug)
+		if (bDebugHud)
 			Msg("playing item animation [%s]", item_anm_name.c_str());
 
 		R_ASSERT3(M2.valid(), "model has no motion [idle] ", pSettings->r_string(m_sect_name, "item_visual"));

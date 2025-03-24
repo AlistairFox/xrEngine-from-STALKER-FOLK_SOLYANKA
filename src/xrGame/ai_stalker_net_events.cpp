@@ -10,30 +10,30 @@
 // для синхры анимок 
 void CAI_Stalker::OnAnimationUpdate(MotionID motion, CBlend* blend, bool mix_anims, bool is_global, bool anim_controller, bool isLocal, bool isLegs, Fmatrix* matrix)
 {
-	if (!blend)
-		return;
-
-	NET_Packet packet;
-	Game().u_EventGen(packet, GE_STALKER_ANIMATION, this->ID());
-	packet.w(&motion, sizeof(MotionID));
-	packet.w_u8(mix_anims);
-
- 	packet.w_u8(is_global);
-	packet.w_u8(anim_controller);
-	packet.w_u8(isLocal);
-	packet.w_u8(isLegs);
-	 
-	if (anim_controller && matrix)
-	{
-		packet.w_u8(1);
-		packet.w_matrix(*matrix);
-	}
-	else
-	{
-		packet.w_u8(0);
-	}
-
-	Game().u_EventSend(packet);
+//	if (!blend)
+//		return;
+//
+//	NET_Packet packet;
+//	Game().u_EventGen(packet, GE_STALKER_ANIMATION, this->ID());
+//	packet.w(&motion, sizeof(MotionID));
+//	packet.w_u8(mix_anims);
+//
+// 	packet.w_u8(is_global);
+//	packet.w_u8(anim_controller);
+//	packet.w_u8(isLocal);
+//	packet.w_u8(isLegs);
+//	 
+//	if (anim_controller && matrix)
+//	{
+//		packet.w_u8(1);
+//		packet.w_matrix(*matrix);
+//	}
+//	else
+//	{
+//		packet.w_u8(0);
+//	}
+//
+//	Game().u_EventSend(packet);
 }
 
 /*
@@ -46,98 +46,98 @@ bone_or_part:
 
 void CAI_Stalker::EventAnimation(NET_Packet& P)
 {
-	if (OnServer() || !g_Alive())
-		return;
- 
-	if (!Level().game_configured)
-	{
-		Msg("Game is not configured");
-		return;
-	}
- 
-	IKinematicsAnimated* ka = smart_cast<IKinematicsAnimated*>(Visual());
-	if (!ka)
-		return;
-
-	if (!RDEVICE.b_isLoadTextures || !RDEVICE.b_is_Ready || !isLoaded)
-	{
-		Msg("Skip Process Event: NPC: %d, IsLoaded: %d", ID(), isLoaded);
-		return;
-	}
-
-	ka->SetNPC(true);
-
-	MotionID motion;
-	bool mix_anims, is_global, anim_controller, isLocal, isLegs;
-	P.r(&motion, sizeof(MotionID));
-	mix_anims = P.r_u8();
-
-	is_global = P.r_u8();
-	anim_controller = P.r_u8();
-	isLocal = P.r_u8();
-	isLegs = P.r_u8();
-	
-	bool use_matrix = P.r_u8();
-	if (use_matrix)
-  		P.r_matrix(target_matrix);
- 	
-	CBlend* m_blend = 0;
-	if (!is_global)
-	{
-		// Msg("Event Animation Parts [%s]", cName().c_str());
-		if (motion.slot == 0)
-			last_legs_idx = motion.idx;
-		if (motion.slot == 1)
-			last_torso_idx = motion.idx;
-		if (motion.slot == 2)
-			last_head_idx = motion.idx;
-
-		last_script_idx = -1;
-		last_global_idx = -1;
-
-		if (animation_movement())
-			animation_movement()->stop();
- 
- 		m_blend = ka->PlayCycle(motion, mix_anims);
-	}
-	else 
-	{
- 		last_legs_idx  = -1;
- 		last_torso_idx = -1;
- 		last_head_idx  = -1;
-
-		last_script_idx = motion.idx;
-		last_global_idx = motion.idx;
-
-		// Msg("Event Animation SCRIPT [%s]", cName().c_str());
-
-
-		for (u16 i = 0; i < MAX_PARTS; ++i)
-		{
-			CBlend* blend = 0;
-			if (!m_blend)
-			{
-				blend = ka->LL_PlayCycle(i, motion, mix_anims, 0, 0);
-
-				if (blend && !m_blend)
-					m_blend = blend;
-
-				if (anim_controller)
-				{
-					create_anim_mov_ctrl(blend, &target_matrix, isLocal);
-				}
-				else
-				{
-					if (animation_movement() && is_global)
-						animation_movement()->stop();
-				}
-			}
-			else
-				ka->LL_PlayCycle(i, motion, mix_anims, 0, 0);
-		}
-	}	 
-
-	CStepManager::on_animation_start(motion, m_blend);
+//	if (OnServer() || !g_Alive())
+//		return;
+// 
+//	if (!Level().game_configured)
+//	{
+//		Msg("Game is not configured");
+//		return;
+//	}
+// 
+//	IKinematicsAnimated* ka = smart_cast<IKinematicsAnimated*>(Visual());
+//	if (!ka)
+//		return;
+//
+//	if (!RDEVICE.b_isLoadTextures || !RDEVICE.b_is_Ready || !isLoaded)
+//	{
+//		Msg("Skip Process Event: NPC: %d, IsLoaded: %d", ID(), isLoaded);
+//		return;
+//	}
+//
+//	ka->SetNPC(true);
+//
+//	MotionID motion;
+//	bool mix_anims, is_global, anim_controller, isLocal, isLegs;
+//	P.r(&motion, sizeof(MotionID));
+//	mix_anims = P.r_u8();
+//
+//	is_global = P.r_u8();
+//	anim_controller = P.r_u8();
+//	isLocal = P.r_u8();
+//	isLegs = P.r_u8();
+//	
+//	bool use_matrix = P.r_u8();
+//	if (use_matrix)
+//  		P.r_matrix(target_matrix);
+// 	
+//	CBlend* m_blend = 0;
+//	if (!is_global)
+//	{
+//		// Msg("Event Animation Parts [%s]", cName().c_str());
+//		if (motion.slot == 0)
+//			last_legs_idx = motion.idx;
+//		if (motion.slot == 1)
+//			last_torso_idx = motion.idx;
+//		if (motion.slot == 2)
+//			last_head_idx = motion.idx;
+//
+//		last_script_idx = -1;
+//		last_global_idx = -1;
+//
+//		if (animation_movement())
+//			animation_movement()->stop();
+// 
+// 		m_blend = ka->PlayCycle(motion, mix_anims);
+//	}
+//	else 
+//	{
+// 		last_legs_idx  = -1;
+// 		last_torso_idx = -1;
+// 		last_head_idx  = -1;
+//
+//		last_script_idx = motion.idx;
+//		last_global_idx = motion.idx;
+//
+//		// Msg("Event Animation SCRIPT [%s]", cName().c_str());
+//
+//
+//		for (u16 i = 0; i < MAX_PARTS; ++i)
+//		{
+//			CBlend* blend = 0;
+//			if (!m_blend)
+//			{
+//				blend = ka->LL_PlayCycle(i, motion, mix_anims, 0, 0);
+//
+//				if (blend && !m_blend)
+//					m_blend = blend;
+//
+//				if (anim_controller)
+//				{
+//					create_anim_mov_ctrl(blend, &target_matrix, isLocal);
+//				}
+//				else
+//				{
+//					if (animation_movement() && is_global)
+//						animation_movement()->stop();
+//				}
+//			}
+//			else
+//				ka->LL_PlayCycle(i, motion, mix_anims, 0, 0);
+//		}
+//	}	 
+//
+//	CStepManager::on_animation_start(motion, m_blend);
 }
 
 //Релиз тела

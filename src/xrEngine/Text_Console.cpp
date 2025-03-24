@@ -237,6 +237,9 @@ string128 updateSH_count;
 
 float last_fps = 0;
 
+u32 AccumedFPS = 0;
+u32 AccumedCount = 0;
+
 #include "IGame_Persistent.h"
 
 void CTextConsole::DrawLog( HDC hDC, RECT* pRect )
@@ -345,14 +348,29 @@ void CTextConsole::DrawLog( HDC hDC, RECT* pRect )
 				SetTextColor(hDC, RGB(0, 255, 0));
 				TextOut(hDC, 10, 5, full_fps, xr_strlen(full_fps));
 			}	
+
+			AccumedFPS += (u32) Device.Statistic->fFPS;
+			AccumedCount++;
 		}
 
 
 		if (g_pGameLevel && (Device.dwTimeGlobal - m_last_time > 1000))
 		{
-			m_last_time = Device.dwTimeGlobal;
+			if (AccumedFPS > 0 && AccumedCount > 0)
+			{
+				u32 FPSM = AccumedFPS / AccumedCount;
 
-			m_server_info.ResetData();
+				AccumedFPS = 0;
+				AccumedCount = 0;
+				m_last_time = Device.dwTimeGlobal;
+
+				m_server_info.ResetData();
+
+				string128 tmp;
+				sprintf(tmp, "%u", FPSM);
+				m_server_info.AddItem("FPS Middle", tmp, RGB(0, 255, 0));
+			}
+
 			g_pGameLevel->GetLevelInfo(&m_server_info);
 
 			// m_server_info.AddItem("updateCL", updateCL, RGB(0, 255, 255));
@@ -379,6 +397,9 @@ void CTextConsole::DrawLog( HDC hDC, RECT* pRect )
 
 					m_server_info.AddItem("weather2", weather2, RGB(255, 0, 255));
 				}
+			
+
+				
 			}
 		}
 

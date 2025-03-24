@@ -325,6 +325,16 @@ void CBaseMonster::net_Import(NET_Packet& P)
 			m_bSkipCorrectionPrediction = false;
 		}
 
+		bool usePredicated = flags.test(sync_flags::fNeedPhysicSync) && !m_bSkipCorrectionPrediction;
+		Fvector POS = usePredicated ? physics_state.physics_position : fv_position;
+		float D = POS.distance_to(Position());
+		if (D > 16.f)
+		{
+			Msg("Teleport Monster[%s] Distance:%f, From[%.2f, %.2f, %.2f] to [%.2f, %.2f, %.2f]", cNameSect(), D, VPUSH(Position()), VPUSH(POS));
+ 			Position().set(POS);
+		}
+
+
 		// play sound
 		if (flags.test(sync_flags::fSndPlayNoDelay))
 		{
