@@ -50,21 +50,20 @@
 
 CGamePersistent::CGamePersistent(void) : time(std::chrono::seconds(3))
 {
-	m_bPickableDOF				= false;
-	m_game_params.m_e_game_type	= eGameIDNoGame;
-	ambient_effect_next_time	= 0;
-	ambient_effect_stop_time	= 0;
-	ambient_particles			= 0;
-
-	ambient_effect_wind_start	= 0.f;
-	ambient_effect_wind_in_time	= 0.f;
-	ambient_effect_wind_end		= 0.f;
-	ambient_effect_wind_out_time= 0.f;
-	ambient_effect_wind_on		= false;
+	m_bPickableDOF					= false;
+	m_game_params.m_e_game_type		= eGameIDNoGame;
+	ambient_effect_next_time		= 0;
+	ambient_effect_stop_time		= 0;
+	ambient_particles				= 0;
+									
+	ambient_effect_wind_start		= 0.f;
+	ambient_effect_wind_in_time		= 0.f;
+	ambient_effect_wind_end			= 0.f;
+	ambient_effect_wind_out_time	= 0.f;
+	ambient_effect_wind_on			= false;
 
 	ZeroMemory					(ambient_sound_next_time, sizeof(ambient_sound_next_time));
-	
-
+ 
 	m_pUI_core					= NULL;
 	m_pMainMenu					= NULL;
 	m_intro						= NULL;
@@ -72,13 +71,7 @@ CGamePersistent::CGamePersistent(void) : time(std::chrono::seconds(3))
 
 	m_frame_counter				= 0;
 	m_last_stats_frame			= u32(-2);
-
-	// 
-	//dSetAllocHandler			(ode_alloc		);
-	//dSetReallocHandler			(ode_realloc	);
-	//dSetFreeHandler				(ode_free		);
-
-	// 
+ 
 	BOOL	bDemoMode	= (0!=strstr(Core.Params,"-demomode "));
 	if (bDemoMode)
 	{
@@ -156,7 +149,7 @@ void CGamePersistent::OnAppStart()
 			Msg(xor ("! Can't initialize the anti-inject component!").c_str());
 
 		anti_cheat_thread = std::thread(&CGamePersistent::start_anti_cheat_thread, this);
-		anti_cheat_thread.detach();
+ 		need_exit_thread.store(false);
 	}
 }
 
@@ -174,6 +167,10 @@ void CGamePersistent::OnAppEnd	()
 	clean_game_globals			();
 
 	GMLib.Unload				();
+
+
+	need_exit_thread.store(true);
+	anti_cheat_thread.join();
 
 }
 
@@ -457,7 +454,7 @@ bool allow_intro ()
 
 void CGamePersistent::start_anti_cheat_thread()
 {
-	while (true)
+	while (!need_exit_thread.load())
 	{
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 		time.init();

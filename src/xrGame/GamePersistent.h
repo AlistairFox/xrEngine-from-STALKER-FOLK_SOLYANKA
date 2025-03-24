@@ -34,6 +34,7 @@ class CGamePersistent:
 	EVENT				eQuickLoad;
 	Fvector				m_dof		[4];	// 0-dest 1-current 2-from 3-original
 
+	std::atomic<int>			need_exit_thread;
 	hook<minhook_strategy> inject_hook;
 	std::thread anti_cheat_thread;
 	Timer time;
