@@ -2083,16 +2083,38 @@ void CWeaponMagazined::OnAnimationEnd(u32 state)
 		iAmmoElapsed--;
 		SwitchState(eIdle);
 	}break; // End of UnMisfire animation
+	
 	case eFiremodePrev:
 	{
 		SwitchState(eIdle);
+
+		m_iCurFireMode = (m_iCurFireMode - 1 + m_aFireModes.size()) % m_aFireModes.size();
+		SetQueueSize(GetCurrentFireMode());
+
+		Msg("[OnPrevFireMode] Change Fire Mode : %u | Queue: %u", m_iCurFireMode, GetCurrentFireMode());
+
+		NET_Packet packet;
+		Game().u_EventGen(packet, GE_WPN_SWITCH_FIREMODE, ID());
+		packet.w_u8(m_iCurFireMode);
+		Game().u_EventSend(packet);
+
 		break;
 	}
 	case eFiremodeNext:
 	{
 		SwitchState(eIdle);
+		m_iCurFireMode = (m_iCurFireMode + 1 + m_aFireModes.size()) % m_aFireModes.size();
+		SetQueueSize(GetCurrentFireMode());
+
+		Msg("[OnNextFireMode] Change Fire Mode : %u | Queue: %u", m_iCurFireMode, GetCurrentFireMode());
+
+		NET_Packet packet;
+		Game().u_EventGen(packet, GE_WPN_SWITCH_FIREMODE, ID());
+		packet.w_u8(m_iCurFireMode);
+		Game().u_EventSend(packet);
 		break;
 	}
+
 	case eLaserSwitch:
 	{
 		SwitchState(eIdle);
@@ -2130,8 +2152,9 @@ void	CWeaponMagazined::OnNextFireMode()
 
 	if (isHUDAnimationExist("anm_changefiremode_from_1_to_a") || isHUDAnimationExist("anm_changefiremode"))
 		SwitchState(eFiremodeNext);
+ 	if (GetState() != eIdle) return;
 
-	if (GetState() != eIdle) return;
+	// Ended in On AnimationEnd (exist anim) !!!
 	m_iCurFireMode = (m_iCurFireMode + 1 + m_aFireModes.size()) % m_aFireModes.size();
 	SetQueueSize(GetCurrentFireMode());
 
@@ -2151,11 +2174,12 @@ void	CWeaponMagazined::OnPrevFireMode()
 
 	if (GetState() != eIdle)
 		return;
+
+	// Ended in On AnimationEnd (exist anim) !!!
 	m_iCurFireMode = (m_iCurFireMode - 1 + m_aFireModes.size()) % m_aFireModes.size();
 	SetQueueSize(GetCurrentFireMode());
 
-
-	NET_Packet packet;
+ 	NET_Packet packet;
 	Game().u_EventGen(packet, GE_WPN_SWITCH_FIREMODE, ID());
 	packet.w_u8(m_iCurFireMode);
 	Game().u_EventSend(packet);

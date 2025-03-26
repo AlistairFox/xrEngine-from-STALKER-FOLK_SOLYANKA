@@ -91,14 +91,8 @@ void CWeapon::SetAmmoElapsed(int ammo_count)
 
 bool CWeapon::SwitchAmmoType(u32 flags)
 {
-	if (IsPending() || OnClient())
-	{
+	if (IsPending() || !(flags & CMD_START))
 		return false;
-	}
-	if (!(flags & CMD_START))
-	{
-		return false;
-	}
 
 	u8 l_newType = m_ammoType;
 	bool b1, b2;
