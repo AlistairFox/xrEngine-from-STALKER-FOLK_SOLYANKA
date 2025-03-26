@@ -192,23 +192,17 @@ void printLuaTraceback(lua_State* L)
 int CScriptEngine::lua_panic			(lua_State *L)
 {  
  	printLuaTraceback(L);
-	// print_output	(L,"PANIC",LUA_ERRRUN);
 	return			(0);
 }
 
 void CScriptEngine::lua_error			(lua_State *L)
 {
  	printLuaTraceback(L);
-	// print_output(L, "", LUA_ERRRUN);
-	// ai().script_engine().on_error	(L);
 }
 
 int  CScriptEngine::lua_pcall_failed	(lua_State *L)
 {
 	printLuaTraceback(L);
-	// print_output			(L,"",LUA_ERRRUN);
-	// ai().script_engine().on_error	(L);
-	
 	if (lua_isstring(L,-1))
 		lua_pop				(L,1);
 	return					(LUA_ERRRUN);
@@ -222,18 +216,10 @@ void lua_cast_failed					(lua_State *L, LUABIND_TYPE_INFO info)
 
 void CScriptEngine::setup_callbacks		()
 {
-	{
-#if XRAY_EXCEPTIONS
-		luabind::set_error_callback		(CScriptEngine::lua_error);
-#endif
- 		luabind::set_pcall_callback		(CScriptEngine::lua_pcall_failed);
- 	}
-
-#if XRAY_EXCEPTIONS
-	luabind::set_cast_failed_callback	(lua_cast_failed);
-#endif
-
-	lua_atpanic							(lua(),CScriptEngine::lua_panic);
+  	luabind::set_error_callback			(CScriptEngine::lua_error);
+  	luabind::set_pcall_callback			(CScriptEngine::lua_pcall_failed);
+  	luabind::set_cast_failed_callback	(lua_cast_failed);
+ 	lua_atpanic							(lua(),CScriptEngine::lua_panic);
 }
 
  
