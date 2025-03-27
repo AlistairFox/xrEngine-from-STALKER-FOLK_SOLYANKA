@@ -241,9 +241,9 @@ void CWeapon::UpdateXForm()
 		mRes.mulA_43(E->XFORM());
 	}
 
-	if (CurrSlot() == INV_SLOT_3)
+	if (!(CurrSlot() == INV_SLOT_2))
 		UpdatePosition(mRes);
-	else if (CurrSlot() == INV_SLOT_2)
+	else 
 		UpdatePosition_alt(mRes);
 }
 
