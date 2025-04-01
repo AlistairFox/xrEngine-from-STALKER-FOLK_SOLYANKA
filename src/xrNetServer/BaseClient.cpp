@@ -207,7 +207,7 @@ void	BaseClient::timeServer_Correct(u32 sv_time, u32 cl_time)
 
 void client_sync_thread(void* P)
 {
-	SetThreadDescription(GetCurrentThread(), L"X-RAY Network Sync thread");
+	// SetThreadDescription(GetCurrentThread(), L"X-RAY Network Sync thread");
 
 	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
 	BaseClient*	C = (BaseClient*)P;

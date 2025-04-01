@@ -18,7 +18,7 @@ void SvSteamNetConnectionStatusChangedCallback(SteamNetConnectionStatusChangedCa
 
 void steam_net_update_server(void* P)
 {
-	SetThreadDescription(GetCurrentThread(), L"X-RAY server thread");
+	// SetThreadDescription(GetCurrentThread(), L"X-RAY server thread");
 
 	Msg("- [SteamNetServer] Thread for steam network server is started");
 	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_BELOW_NORMAL);

@@ -129,7 +129,7 @@ volatile u32	mt_Thread_marker = 0x12345678;
 void 			mt_Thread(void* ptr)
 {
 	OPTICK_THREAD("X-RAY SECONDARY THREAD");
-	SetThreadDescription(GetCurrentThread(), L"X-RAY Second thread");
+	// SetThreadDescription(GetCurrentThread(), L"X-RAY Second thread");
 
 	while (true)
 	{
@@ -360,7 +360,7 @@ void CRenderDevice::Run()
 	Log("Starting engine...");
 	thread_name("X-RAY Primary thread");
  	
-	SetThreadDescription(GetCurrentThread(), L"X-RAY Primary thread");
+	// SetThreadDescription(GetCurrentThread(), L"X-RAY Primary thread");
 
 	OPTICK_THREAD("Xray Primary Thread");
 	// Startup timers and calculate timer delta
