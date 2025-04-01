@@ -1205,6 +1205,12 @@ bool has_local_admin()
 		return false;
 }
 
+extern int HudWeaponsEffects;
+bool GetHudWeaponsEffects()
+{
+	return HudWeaponsEffects;
+}
+
 #pragma optimize("s",on)
 void CLevel::script_register(lua_State *L)
 {
@@ -1336,7 +1342,9 @@ void CLevel::script_register(lua_State *L)
 				def("get_client_by_player_id", &get_client_by_player_id),
 
 				def("get_g_actor_id", &get_g_actor_id),
-				def("set_surge_time", &set_surge_time)
+				def("set_surge_time", &set_surge_time),
+
+				def("get_HudWeaponsEffects", GetHudWeaponsEffects)
 	],
 
 	module(L, "mp")

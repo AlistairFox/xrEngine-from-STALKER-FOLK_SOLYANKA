@@ -870,8 +870,12 @@ extern float	Shedule_Zone = 1;
 extern float	Shedule_Events = 0.1f;
 
 extern int		SyncAlifeCount = 10;
+
+extern int		HudWeaponsEffects = 1;
+
 void register_console_admin()
 {
+	CMD4(CCC_Integer, "wpn_hud_effect", &HudWeaponsEffects, 0, 1);
 	CMD4(CCC_Integer, "sync_alife_objects", &SyncAlifeCount, 10, 1000);
 
 	CMD4(CCC_Float, "_shedule_ai", &Shedule_Scale_AI_Stalker, 0, 20);
