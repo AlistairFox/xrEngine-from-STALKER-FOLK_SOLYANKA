@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////
+Ôªø////////////////////////////////////////////////////////////////////////////
 //	Module 		: xrServer_Object_Base.cpp
 //	Created 	: 19.09.2002
 //  Modified 	: 16.07.2004
@@ -178,14 +178,47 @@ CSE_Motion* CSE_Abstract::motion			()
 {
 	return						(0);
 }
+
+#include "xrServer_Objects_ALife.h"
 #pragma warning(disable:4238)
 CInifile &CSE_Abstract::spawn_ini			()
 {
+	// –í —Ü–µ–ª–æ–º –º–æ–∂–Ω–æ —Å–¥–µ–ª–∞—Ç—å –ø–æ–¥–º–µ–Ω—É –Ω–∞ —á—Ç–µ–Ω–∏–µ —Ñ–∞–π–ª–∞
 	if (!m_ini_file)
 	{
 		void* data = (void*)(m_ini_string.c_str());
 		int size = m_ini_string.size();
 		m_ini_file = xr_new<CInifile>( &IReader(data, size ), FS.get_path("$game_config$")->m_Path );
+	
+		if (ID != u16(-1) && this->m_ini_string.size() > 4)
+		{
+			CSE_ALifeObjectPhysic* physic = smart_cast<CSE_ALifeObjectPhysic*>(this);
+			CSE_ALifeInventoryBox* inventory_box = smart_cast<CSE_ALifeInventoryBox*>(this);
+			CSE_ALifeSpaceRestrictor* space_restrictor = smart_cast<CSE_ALifeSpaceRestrictor*>(this);
+			CSE_ALifeObjectHangingLamp* lamps = smart_cast<CSE_ALifeObjectHangingLamp*>(this);
+
+			string128 tmp_section;
+			if (this->cast_smart_zone())
+				sprintf(tmp_section, "world_spawns\\smart_terrains\\%s.ltx", this->name_replace());
+			else  if (this->cast_inventory_item())
+				sprintf(tmp_section, "world_spawns\\inventory_items\\%s.ltx", this->name_replace());
+			else if (physic)
+				sprintf(tmp_section, "world_spawns\\physic_objects\\%s.ltx", this->name_replace());
+			else if (inventory_box)
+				sprintf(tmp_section, "world_spawns\\inventory_box\\%s.ltx", this->name_replace());
+			else if (space_restrictor)
+				sprintf(tmp_section, "world_spawns\\space_restrictor\\%s.ltx", this->name_replace());
+			else if (lamps)
+				sprintf(tmp_section, "world_spawns\\dynamics_lamps\\%s.ltx", this->name_replace());
+			else
+				sprintf(tmp_section, "world_spawns\\unsorted\\%s.ltx", this->name_replace());
+
+			string_path path_save;
+			FS.update_path(path_save, "$fs_root$", tmp_section);
+			IWriter* w = FS.w_open(path_save);
+			w->w_string(this->m_ini_string.c_str());
+			FS.w_close(w);
+		}
 	}
 	return						(*m_ini_file);
 }
@@ -222,7 +255,7 @@ void CSE_Abstract::Spawn_Write				(NET_Packet	&tNetPacket, BOOL bLocal)
 
 
 	//client object custom data serialization SAVE
-	u16 client_data_size		= (u16)client_data.size(); //ÌÂ ÏÓÊÂÚ ·˚Ú¸ ·ÓÎ¸¯Â 256 ·‡ÈÚ
+	u16 client_data_size		= (u16)client_data.size(); //–Ω–µ –º–æ–∂–µ—Ç –±—ã—Ç—å –±–æ–ª—å—à–µ 256 –±–∞–π—Ç
 	tNetPacket.w_u16			(client_data_size);
 //	Msg							("SERVER:saving:save:%d bytes:%d:%s",client_data_size,ID,s_name_replace ? s_name_replace : "");
 	if (client_data_size > 0)
@@ -319,7 +352,7 @@ BOOL CSE_Abstract::Spawn_Read				(NET_Packet	&tNetPacket)
 
 	//client object custom data serialization LOAD
 	if (m_wVersion > 70) {
-		u16 client_data_size	= (m_wVersion > 93) ? tNetPacket.r_u16() : tNetPacket.r_u8(); //ÌÂ ÏÓÊÂÚ ·˚Ú¸ ·ÓÎ¸¯Â 256 ·‡ÈÚ
+		u16 client_data_size	= (m_wVersion > 93) ? tNetPacket.r_u16() : tNetPacket.r_u8(); //–Ω–µ –º–æ–∂–µ—Ç –±—ã—Ç—å –±–æ–ª—å—à–µ 256 –±–∞–π—Ç
 		if (client_data_size > 0) {
 //			Msg					("SERVER:loading:load:%d bytes:%d:%s",client_data_size,ID,s_name_replace ? s_name_replace : "");
 			client_data.resize	(client_data_size);
@@ -366,7 +399,7 @@ BOOL CSE_Abstract::Spawn_Read				(NET_Packet	&tNetPacket)
 void	CSE_Abstract::load			(NET_Packet	&tNetPacket)
 {
 	CPureServerObject::load		(tNetPacket);
-	u16 client_data_size		= (m_wVersion > 93) ? tNetPacket.r_u16() : tNetPacket.r_u8(); //ÌÂ ÏÓÊÂÚ ·˚Ú¸ ·ÓÎ¸¯Â 256 ·‡ÈÚ
+	u16 client_data_size		= (m_wVersion > 93) ? tNetPacket.r_u16() : tNetPacket.r_u8(); //–Ω–µ –º–æ–∂–µ—Ç –±—ã—Ç—å –±–æ–ª—å—à–µ 256 –±–∞–π—Ç
 	if (client_data_size > 0) {
 #ifdef DEBUG
 //		Msg						("SERVER:loading:load:%d bytes:%d:%s",client_data_size,ID,s_name_replace ? s_name_replace : "");
