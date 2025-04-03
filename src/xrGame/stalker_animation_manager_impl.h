@@ -8,25 +8,9 @@
 
 #pragma once
 
-#include "CharacterPhysicsSupport.h"
-
 IC	CStalkerAnimationManager::EBodyState CStalkerAnimationManager::body_state	() const
 {
 	return					(object().movement().body_state());
-}
-
-IC	bool CStalkerAnimationManager::standing										() const
-{
-	CAI_Stalker				&obj = object();
-	stalker_movement_manager_smart_cover	&movement = obj.movement();
-	
-	if (movement.speed(obj.character_physics_support()->movement()) < EPS_L)
-		return				(true);
-
-	if (eMovementTypeStand == movement.movement_type())
-		return				(true);
-
-	return					(false);
 }
 
 IC	void CStalkerAnimationManager::fill_object_info								()

@@ -33,6 +33,22 @@ CStalkerAnimationManager::CStalkerAnimationManager	(CAI_Stalker *object) :
 {
 }
 
+#include "CharacterPhysicsSupport.h"
+
+bool CStalkerAnimationManager::standing() const
+{
+	CAI_Stalker& obj = object();
+	stalker_movement_manager_smart_cover& movement = obj.movement();
+
+	if (movement.speed(obj.character_physics_support()->movement()) < EPS_L)
+		return				(true);
+
+	if (eMovementTypeStand == movement.movement_type())
+		return				(true);
+
+	return					(false);
+}
+
 void CStalkerAnimationManager::reinit				()
 {
 	m_direction_start			= 0;

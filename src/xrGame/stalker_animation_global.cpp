@@ -18,6 +18,7 @@
 #include "weapon.h"
 #include "missile.h"
 #include "stalker_animation_manager_impl.h"
+#include "CharacterPhysicsSupport.h"
 
 using namespace StalkerSpace;
 
