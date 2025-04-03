@@ -103,7 +103,7 @@ bool SteamNetClient::CreateConnection(ClientConnectionOptions & connectOpt)
 			return false;
 		}
 	}
-
+	 
 	SteamNetworkingIPAddr serverAddr;
 	serverAddr.Clear();
 
@@ -123,25 +123,9 @@ bool SteamNetClient::CreateConnection(ClientConnectionOptions & connectOpt)
 	serverAddr.ToString(szAddr, sizeof(szAddr), true);
 	Msg("[SteamNetClient] Connecting to server at %s", szAddr);
 
-	if (simulate_netwark_ping_cl > 0)
-	{
-		int ping = 0;
-
-		ping = simulate_netwark_ping_cl;
-
-		SteamNetworkingUtils()->SetGlobalConfigValueInt32(k_ESteamNetworkingConfig_FakePacketLag_Send, ping);
-		SteamNetworkingUtils()->SetGlobalConfigValueInt32(k_ESteamNetworkingConfig_FakePacketLag_Recv, ping); 
-	}
-
-	SteamNetworkingUtils()->SetGlobalConfigValueInt32(k_ESteamNetworkingConfig_SendBufferSize, 1024 * 1024 * 10);
-
-	//  SteamNetworkingUtils()->SetGlobalConfigValueInt32(k_ESteamNetworkingConfig_TimeoutInitial, 5 * 1000);
-	//  SteamNetworkingUtils()->SetGlobalConfigValueInt32(k_ESteamNetworkingConfig_TimeoutConnected, 120 * 1000);
-
-	SteamNetworkingConfigValue_t opt;
+ 	SteamNetworkingConfigValue_t opt;
 	opt.SetPtr(k_ESteamNetworkingConfig_Callback_ConnectionStatusChanged, (void*)ClSteamNetConnectionStatusChangedCallback);
-	//opt.SetPtr(k_ESteamNetworkingConfig_Callback_MessagesSessionFailed, (void*)CLSteamSessionFailed);
-
+ 
 	m_hConnection = m_pInterface->ConnectByIPAddress(serverAddr, 1, &opt);
 
 	if (m_hConnection == k_HSteamNetConnection_Invalid)
