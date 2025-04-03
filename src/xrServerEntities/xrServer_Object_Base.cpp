@@ -181,6 +181,9 @@ CSE_Motion* CSE_Abstract::motion			()
 
 #include "xrServer_Objects_ALife.h"
 #pragma warning(disable:4238)
+
+
+extern ENGINE_API	bool g_dedicated_server;
 CInifile &CSE_Abstract::spawn_ini			()
 {
 	// В целом можно сделать подмену на чтение файла
@@ -190,7 +193,7 @@ CInifile &CSE_Abstract::spawn_ini			()
 		int size = m_ini_string.size();
 		m_ini_file = xr_new<CInifile>( &IReader(data, size ), FS.get_path("$game_config$")->m_Path );
 	
-		if (ID != u16(-1) && this->m_ini_string.size() > 4)
+		if (ID != u16(-1) && this->m_ini_string.size() > 4 && g_dedicated_server)
 		{
 			CSE_ALifeObjectPhysic* physic = smart_cast<CSE_ALifeObjectPhysic*>(this);
 			CSE_ALifeInventoryBox* inventory_box = smart_cast<CSE_ALifeInventoryBox*>(this);
