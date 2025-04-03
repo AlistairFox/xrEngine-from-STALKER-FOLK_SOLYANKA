@@ -100,7 +100,7 @@ void CSE_ALifeObject::spawn_supplies(LPCSTR ini_string)
 
 			if (!pSettings->section_exist(N))
 			{
-				Msg("[CGameObject] Cant spawn [spawn]: %s", N);
+				Msg("~~~ [CGameObject] Cant spawn [spawn]: %s", N);
 				continue;
 			}
 			
