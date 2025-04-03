@@ -21,10 +21,7 @@ enum enmDisconnectReason_MS
 {
 	EUnknownReasonMS = k_ESteamNetConnectionEnd_App_Min + 1,
 	EServerAlreadyConnected = k_ESteamNetConnectionEnd_App_Min + 2
-};
-
-
-
+}; 
 
 class XRNETSERVER_API SteamNetServer : public BaseServer
 {

@@ -191,9 +191,6 @@ void CObject::Load				(LPCSTR section )
 
 BOOL CObject::net_Spawn			(CSE_Abstract* data)
 {
-	if (psDeviceFlags.test(rsDebug))
-		Msg("net_sapwn id[%d], Parrent[%d], SectName[%s], NameObj[%s]", this->ID(), this->H_Parent() ? this->H_Parent()->ID() : -1, this->cNameSect_str(), this->NameObject.c_str());
-
 	PositionStack.clear			();
 
 	VERIFY						(_valid(renderable.xform));

@@ -42,11 +42,16 @@ enum {
 	rsR4							= (1ul<<21ul),
 
 	rsDebug							= (1ul << 22ul),
-	rsProfiler						= (1ul << 23ul),
-    rsLogAlifeNames					= (1ul << 24ul),
+	rsDebugAlife					= (1ul << 23ul), 
+	rsDebugSpawn					= (1ul << 24ul),
 
-	rsStatistic_fps					= (1ul << 25ul),
-	rsStatistic_Advanced			= (1ul << 26ul)
+	rsProfiler						= (1ul << 25ul),
+    rsLogAlifeNames					= (1ul << 26ul),
+
+	rsStatistic_fps					= (1ul << 27ul),
+	rsStatistic_Advanced			= (1ul << 28ul)
+
+
  
 	// 22-32 bit - reserved to Editor
 };

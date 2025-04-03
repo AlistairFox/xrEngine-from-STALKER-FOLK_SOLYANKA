@@ -255,7 +255,7 @@ void CSE_ALifeInventoryBox::add_online	(const bool &update_registries)
 		object->alife().server().entity_Destroy(l_tpAbstract);
 
 
-		if (psDeviceFlags.test(rsDebug))
+		if (psDeviceFlags.test(rsDebugAlife))
  		Msg						(
 			"[LSS][%d] Going online [%d][%s][%d] with parent [%d][%s] on '%s'",
 			Device.dwFrame,

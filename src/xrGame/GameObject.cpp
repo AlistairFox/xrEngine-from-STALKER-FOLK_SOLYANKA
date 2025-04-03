@@ -284,7 +284,7 @@ BOOL CGameObject::net_Spawn		(CSE_Abstract*	DC)
 
 	setID							(E->ID);
  
-	if ( psDeviceFlags.test(rsDebug) )
+	if ( psDeviceFlags.test(rsDebugSpawn) )
 		Msg ("CGameObject::net_Spawn -- object %s[%x] setID [%d]", *(E->s_name), this, E->ID);
 	
 	// XForm

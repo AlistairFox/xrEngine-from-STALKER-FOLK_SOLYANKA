@@ -8,7 +8,6 @@
 #include "Actor.h"
 extern char const* exclude_raid_from_args(LPCSTR args, LPSTR dest, size_t dest_size);
 
-
 // MOENY TRANSFERING
 class CCC_GiveMoneyToPlayer : public IConsole_Command {
 public:
@@ -218,13 +217,9 @@ public:
 	}
 	virtual void Save(IWriter* F) {};
 };
-
-
-
+ 
 /**
-
 	ADM_FETURES
-
 **/
 
 class CCC_SetNoClipForPlayer : public IConsole_Command {
@@ -601,9 +596,7 @@ public:
 		}
 	}
 };
-
-// TELEPORTS
-
+ 
 // TELEPORTS
 
 class CCC_TeleportToPosition : public IConsole_Command
@@ -857,8 +850,9 @@ public:
 	}
 
 };
+ 
 
-
+// SHEDULE UPDATE
 
 extern BOOL		g_cl_draw_mp_statistic;
 extern int		MAX_DISTANCE_FIND_GRAPH = 350;
@@ -870,25 +864,23 @@ extern float	Shedule_Zone = 1;
 extern float	Shedule_Events = 0.1f;
 
 extern int		SyncAlifeCount = 10;
-
 extern int		HudWeaponsEffects = 1;
 
 void register_console_admin()
 {
-	CMD4(CCC_Integer, "wpn_hud_effect", &HudWeaponsEffects, 0, 1);
-	CMD4(CCC_Integer, "sync_alife_objects", &SyncAlifeCount, 10, 1000);
+	CMD4(CCC_Integer, "adm_wpn_hud_effect", &HudWeaponsEffects, 0, 1);
+	CMD4(CCC_Integer, "adm_alife_objects_sync", &SyncAlifeCount, 10, 1000);
 
-	CMD4(CCC_Float, "_shedule_ai", &Shedule_Scale_AI_Stalker, 0, 20);
-	CMD4(CCC_Float, "_shedule_objects", &Shedule_Scale_Objects, 0, 20);
-	CMD4(CCC_Float, "_shedule_zones", &Shedule_Zone, 0, 20);
+	CMD4(CCC_Float, "adm_shedule_ai", &Shedule_Scale_AI_Stalker, 0, 20);
+	CMD4(CCC_Float, "adm_shedule_objects", &Shedule_Scale_Objects, 0, 20);
+	CMD4(CCC_Float, "adm_shedule_zones", &Shedule_Zone, 0, 20);
 
 	// DRAW STATISTIC
 	CMD4(CCC_Integer, "draw_mp_statistic", &g_cl_draw_mp_statistic, 0, 1);
 
 	// client side
 	CMD1(CCC_TransferMoney, "g_transfer_money");
- 
-	CMD1(CCC_ADD_Money_to_client_self, "g_money");
+ 	CMD1(CCC_ADD_Money_to_client_self, "g_money");
 
 	CMD1(CCC_AdmNoClip, "adm_no_clip");
 	CMD1(CCC_AdmInvis, "adm_invis");
@@ -919,8 +911,4 @@ void register_console_admin()
 
 	CMD1(CCC_TeleportToPosition, "adm_teleport");
 	CMD1(CCC_ChangeTeamPlayer, "adm_set_team");
-
-
-
-
 }

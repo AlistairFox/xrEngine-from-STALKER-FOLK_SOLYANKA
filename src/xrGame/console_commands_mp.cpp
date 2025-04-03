@@ -2528,9 +2528,6 @@ extern int debuging_hit_zones = 0;
 extern int debuging_networking = 0;
 extern float debuging_font_size = 0.1f;
 
-
-
-
 extern void register_console_gspawn();
 extern void register_console_admin();
 extern void register_console_registers();

@@ -878,6 +878,9 @@ void CCC_Register()
 
 	CMD3(CCC_Mask,		"rs_cam_pos",			&psDeviceFlags,		rsCameraPos				);
 	CMD3(CCC_Mask,		"rs_debug_lua",			&psDeviceFlags,		rsDebug);
+	CMD3(CCC_Mask,		"rs_debug_spawn",		&psDeviceFlags,		rsDebugSpawn);
+	CMD3(CCC_Mask,		"rs_debug_alife",		&psDeviceFlags,		rsDebugAlife);
+
 	CMD3(CCC_Mask,		"rs_profiler",			&psDeviceFlags,		rsProfiler);
 	CMD3(CCC_Mask,		"alife_log_names",		&psDeviceFlags,		rsLogAlifeNames);
 

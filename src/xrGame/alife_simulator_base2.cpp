@@ -38,7 +38,7 @@ void CALifeSimulatorBase::register_object	(CSE_ALifeDynamicObject *object, bool 
 
 	setup_simulator						(object);
 	
-	if (psDeviceFlags.test(rsDebug))
+	if (psDeviceFlags.test(rsDebugAlife))
 		Msg("register_object : [%s], id [%d], time[%d]", object->name(), object->ID, Device.dwTimeGlobal);
 
 	CSE_ALifeInventoryItem				*item = smart_cast<CSE_ALifeInventoryItem*>(object);
@@ -89,8 +89,7 @@ void CALifeSimulatorBase::unregister_object	(CSE_ALifeDynamicObject *object, boo
 	else
 	if (object->ID_Parent == 0xffff)
 	{
-//			if (object->used_ai_locations())
- 			graph().level().remove	(object,!object->used_ai_locations());
+  		graph().level().remove	(object,!object->used_ai_locations());
 	}
 
 	game_sv_freemp* freemp = smart_cast<game_sv_freemp*>(server().game);

@@ -82,19 +82,12 @@ void xrServer::SendConnectionData(IClient* _CL)
 	for (; I!=E; ++I)						
 		I->second->net_Processed	= FALSE;
 	
-	int index = 0;
-
 	std::string name;
 	name.append("spawns_ini.ltx");
 
 	for (I=entities.begin(); I!=E; ++I)		
 	{
 		Perform_connect_spawn(I->second, CL, P);
- 		
-		index += 1;
-
-		if (psDeviceFlags.test(rsDebug))
-			Msg("[%d]: Perform connect spawn [%d]", index, P.B.count);
 	}
 
 	// Start to send server logo and rules

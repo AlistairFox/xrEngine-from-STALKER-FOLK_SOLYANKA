@@ -1319,7 +1319,7 @@ void CActor::shedule_Update	(u32 DT)
 				{
 					g_player_hud->detach_item_idx(0);
 					// g_player_hud->detach_item_idx(1);
-					Msg("---No active item in inventory(), item 0 detached.");
+				//	Msg("---No active item in inventory(), item 0 detached.");
 				}		 
 			}			
 		}
@@ -1327,7 +1327,7 @@ void CActor::shedule_Update	(u32 DT)
 		{
 			if (g_player_hud)
 				g_player_hud->detach_all_items();
-			Msg("---No hud view found, all items detached.");
+			//Msg("---No hud view found, all items detached.");
 		}
  	}
 
