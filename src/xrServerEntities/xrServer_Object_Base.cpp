@@ -199,19 +199,19 @@ CInifile &CSE_Abstract::spawn_ini			()
 
 			string128 tmp_section;
 			if (this->cast_smart_zone())
-				sprintf(tmp_section, "world_spawns\\smart_terrains\\%s.ltx", this->name_replace());
+				sprintf(tmp_section, "world_spawns\\smart_terrains\\%s_game_id_%u.ltx", this->name_replace(), ID);
 			else  if (this->cast_inventory_item())
-				sprintf(tmp_section, "world_spawns\\inventory_items\\%s.ltx", this->name_replace());
+				sprintf(tmp_section, "world_spawns\\inventory_items\\%s_game_id_%u.ltx", this->name_replace(), ID);
 			else if (physic)
-				sprintf(tmp_section, "world_spawns\\physic_objects\\%s.ltx", this->name_replace());
+				sprintf(tmp_section, "world_spawns\\physic_objects\\%s_game_id_%u.ltx", this->name_replace(), ID);
 			else if (inventory_box)
-				sprintf(tmp_section, "world_spawns\\inventory_box\\%s.ltx", this->name_replace());
+				sprintf(tmp_section, "world_spawns\\inventory_box\\%s_game_id_%u.ltx", this->name_replace(), ID);
 			else if (space_restrictor)
-				sprintf(tmp_section, "world_spawns\\space_restrictor\\%s.ltx", this->name_replace());
+				sprintf(tmp_section, "world_spawns\\space_restrictor\\%s_game_id_%u.ltx", this->name_replace(), ID);
 			else if (lamps)
-				sprintf(tmp_section, "world_spawns\\dynamics_lamps\\%s.ltx", this->name_replace());
+				sprintf(tmp_section, "world_spawns\\dynamics_lamps\\%s_game_id_%u.ltx", this->name_replace(), ID);
 			else
-				sprintf(tmp_section, "world_spawns\\unsorted\\%s.ltx", this->name_replace());
+				sprintf(tmp_section, "world_spawns\\unsorted\\%s_game_id_%u.ltx", this->name_replace(), ID);
 
 			string_path path_save;
 			FS.update_path(path_save, "$fs_root$", tmp_section);
