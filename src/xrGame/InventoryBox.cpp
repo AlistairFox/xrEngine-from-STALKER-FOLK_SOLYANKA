@@ -171,27 +171,33 @@ BOOL CInventoryBox::net_Spawn(CSE_Abstract* DC)
 		m_closed = pSE_box->m_closed;
 		set_tip_text(pSE_box->m_tip_text.c_str());
  
-		if (pSE_box->m_ini_file)
+		if (pSE_box->m_ini_string.size() > 0)
 		{
-			if (pSE_box->m_ini_file->section_exist("spawn"))
+ 			void* data	= (void*)(pSE_box->m_ini_string.c_str());
+			int size	= xr_strlen(pSE_box->m_ini_string);			 
+			CInifile* ini = new CInifile(&IReader(data, size), FS.get_path("$game_config$")->m_Path);
+ 			
+			if (ini->section_exist("spawn"))
 			{
 				isTrausure = true;
-				Msg("Box Is Tresure[%s] : [%u]", cName().c_str(), ID());
+				Msg("Set Box Is Tresure[%s] : [%u]", cName().c_str(), ID());
 			}
-
-			if (pSE_box->m_ini_file->section_exist("personal"))
+			
+			if (ini->section_exist("personal"))
 			{
 				personal_safe = true;
-				Msg("Box Is Personal[%s] : [%u]", cName().c_str(), ID());
+				Msg("Set Box Is Personal[%s] : [%u]", cName().c_str(), ID());
 			}
 		}
 		else
 		{
-			Msg("CInventoryBox is no contains ini file");
+			//Msg("CInventoryBox is no contains ini file");
 		}
 	}
+
  	personal_safe = pSettings->line_exist(cNameSect(), "private_box") ? pSettings->r_bool(cNameSect(), "private_box") : false;
 	isTrausure    = pSettings->line_exist(cNameSect(), "tresure_box") ? pSettings->r_bool(cNameSect(), "tresure_box") : false;
+	
 	if (personal_safe)
 		set_tip_text("st_personal_box");
 	if (isTrausure)
