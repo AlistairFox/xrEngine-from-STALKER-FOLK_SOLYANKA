@@ -202,7 +202,7 @@ void CWeaponRG6::OnEvent(NET_Packet& P, u16 type)
 		{
 			P.r_u16(id);
 			
-			Msg("GE_ROCKET_TAKE : %u", id);
+			// Msg("GE_ROCKET_TAKE : %u", id);
  			inheritedRL::AttachRocket(id, this);
 		} break;
 		
@@ -212,7 +212,7 @@ void CWeaponRG6::OnEvent(NET_Packet& P, u16 type)
 			bool bLaunch = (type == GE_LAUNCH_ROCKET);
 			P.r_u16(id);
 
-			Msg("GE_LAUNCH_ROCKET : %u", id);
+			// Msg("GE_LAUNCH_ROCKET : %u", id);
 			inheritedRL::DetachRocket(id, bLaunch);
 		} break;
 	}

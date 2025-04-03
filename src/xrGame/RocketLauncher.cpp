@@ -71,11 +71,11 @@ void CRocketLauncher::DetachRocket(u16 rocket_id, bool bLaunch)
 	CCustomRocket *pRocket = smart_cast<CCustomRocket*>(Level().Objects.net_Find(rocket_id));
 	if (!pRocket && OnClient())
 	{
-		Msg("Cant Launch rocket[%u]", rocket_id);
+		// Msg("Cant Launch rocket[%u]", rocket_id);
 		return;
 	}
 
-	Msg("Launch rocket[%u]", rocket_id);
+	// Msg("Launch rocket[%u]", rocket_id);
 
 
 	VERIFY(pRocket);
@@ -96,7 +96,7 @@ void CRocketLauncher::DetachRocket(u16 rocket_id, bool bLaunch)
 	}
 	else
 	{
-		Msg("(m_rockets) it == end cant find rocket: %u", rocket_id);
+		// Msg("(m_rockets) it == end cant find rocket: %u", rocket_id);
 	}
 
 	if( It_l != m_launched_rockets.end() )
@@ -107,7 +107,7 @@ void CRocketLauncher::DetachRocket(u16 rocket_id, bool bLaunch)
 	}
 	else
 	{
-		Msg("(m_launched_rockets) it == end cant find rocket: %u", rocket_id);
+		//  Msg("(m_launched_rockets) it == end cant find rocket: %u", rocket_id);
 	}
 }
 

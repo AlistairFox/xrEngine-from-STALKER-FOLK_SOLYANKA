@@ -501,12 +501,14 @@ void CGameObject::load			(IReader &input_packet)
 #include "InventoryBox.h"
 void CGameObject::spawn_supplies()
 {
-//	Msg("Spawn Supply Called");
- 	if (!spawn_ini() || ai().get_alife())
+	// Так понимаю что было выключено и используется метод в alife
+	if (OnClient())
 		return;
 
-//	Msg("spawn Supply Has Alife()");
-	if (!spawn_ini()->section_exist("spawn"))
+  	if (!spawn_ini() || ai().get_alife())
+		return;
+
+ 	if (!spawn_ini()->section_exist("spawn"))
 		return;
 
 	LPCSTR					N,V;
@@ -517,8 +519,7 @@ void CGameObject::spawn_supplies()
 	
  	for (u32 k = 0, j; spawn_ini()->r_line("spawn",k,&N,&V); k++)
 	{
-		Msg("[Client] [GameObject] Dynamic Object[%s] SpawnSupply [%s]", this->cName(), N);
- 		VERIFY				(xr_strlen(N));
+  		VERIFY				(xr_strlen(N));
 		j					= 1;
 		p					= 1.f;
 		
@@ -569,10 +570,6 @@ void CGameObject::spawn_supplies()
 					Level().Send(P, net_flags(TRUE));
 					F_entity_Destroy(A);
 				}
-			}
-			else 
-			{
-				Msg("Supply Try Spawn to bad vertex");
 			}
 		}
 	}
