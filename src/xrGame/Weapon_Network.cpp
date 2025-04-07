@@ -388,43 +388,52 @@ bool CWeapon::Action(u16 cmd, u32 flags)
 
 	switch (cmd)
 	{
-	//case kWPN_NV_CHANGE:
-	//{
-	//	return bChangeNVSecondVPStatus();
-	//}
-	//	break;
-
-	case kWPN_FIRE:
-	{
-		//если оружие чем-то занято, то ничего не делать
+ 		case kWPN_FIRE:
 		{
-			if (IsPending())
-				return				false;
-
-			if (flags & CMD_START)
-				FireStart();
-			else
-				FireEnd();
-		};
-		return true;
-	}
- 
-	case kWPN_NEXT:
-	{
-		return SwitchAmmoType(flags);
-	}
-
-	case kWPN_ZOOM:
-	{
-		if (IsZoomEnabled())
-		{
-			if (b_toggle_weapon_aim)
+			//если оружие чем-то занято, то ничего не делать
 			{
+				if (IsPending())
+					return				false;
+
 				if (flags & CMD_START)
+					FireStart();
+				else
+					FireEnd();
+			};
+			return true;
+		}
+ 
+		case kWPN_NEXT:
+		{
+			return SwitchAmmoType(flags);
+		}
+
+		case kWPN_ZOOM:
+		{
+			if (IsZoomEnabled())
+			{
+				if (b_toggle_weapon_aim)
 				{
-					if (!IsZoomed())
+					if (flags & CMD_START)
 					{
-						if (!IsPending())
+						if (!IsZoomed())
+						{
+							if (!IsPending())
+							{
+								if (GetState() != eIdle)
+									SwitchState(eIdle);
+								OnZoomIn();
+							}
+						}
+						else
+							OnZoomOut();
+					}
+				}
+				else
+				{
+					if (flags & CMD_START)
+					{
+						if (!IsZoomed() && !IsPending())
 						{
 							if (GetState() != eIdle)
 								SwitchState(eIdle);
@@ -432,40 +441,25 @@ bool CWeapon::Action(u16 cmd, u32 flags)
 						}
 					}
 					else
-						OnZoomOut();
+						if (IsZoomed())
+							OnZoomOut();
 				}
+				return true;
 			}
 			else
-			{
-				if (flags & CMD_START)
-				{
-					if (!IsZoomed() && !IsPending())
-					{
-						if (GetState() != eIdle)
-							SwitchState(eIdle);
-						OnZoomIn();
-					}
-				}
-				else
-					if (IsZoomed())
-						OnZoomOut();
-			}
-			return true;
+				return false;
 		}
-		else
-			return false;
-	}
 
-	case kWPN_ZOOM_INC:
-	case kWPN_ZOOM_DEC:
-		if (IsZoomEnabled() && IsZoomed())
-		{
-			if (cmd == kWPN_ZOOM_INC)  ZoomInc();
-			else					ZoomDec();
-			return true;
-		}
-		else
-			return false;
+		case kWPN_ZOOM_INC:
+		case kWPN_ZOOM_DEC:
+			if (IsZoomEnabled() && IsZoomed())
+			{
+				if (cmd == kWPN_ZOOM_INC)  ZoomInc();
+				else					ZoomDec();
+				return true;
+			}
+			else
+				return false;
 	}
 	return false;
 }

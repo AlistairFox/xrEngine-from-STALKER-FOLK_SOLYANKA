@@ -85,7 +85,8 @@ void game_cl_freemp::ReadUpdateAlife(NET_Packet* packet)
 		{
  			if (!pSettings->section_exist(name.c_str()))
   				return;
-			Msg("Register Alife[%d] : Sec[%s]", id, name.c_str());
+			
+			// Msg("Register Alife[%d] : Sec[%s]", id, name.c_str());
 			CSE_Abstract* ent = F_entity_Create(name.c_str());
 			CSE_ALifeDynamicObject* dynamic = smart_cast<CSE_ALifeDynamicObject*>(ent);
 
@@ -114,7 +115,7 @@ void game_cl_freemp::ReadUpdateAlife(NET_Packet* packet)
 		u16 id = packet->r_u16();
 		CSE_ALifeDynamicObject* dynamic = alife_objects[id];
  
-		Msg("UnRegister Alife[%d] : Section[%s] Replace[%s]", id, dynamic->name_replace(), dynamic->name());
+		// Msg("UnRegister Alife[%d] : Section[%s] Replace[%s]", id, dynamic->name_replace(), dynamic->name());
 
 
 		if (dynamic)

@@ -91,6 +91,7 @@ void CWeapon::SetAmmoElapsed(int ammo_count)
 
 bool CWeapon::SwitchAmmoType(u32 flags)
 {
+	Msg("Switch Ammo Type");
 	if (IsPending() || !(flags & CMD_START))
 		return false;
 
@@ -106,11 +107,8 @@ bool CWeapon::SwitchAmmoType(u32 flags)
 	if (l_newType != m_ammoType)
 	{
 		m_set_next_ammoType_on_reload = l_newType;
-		if (OnServer())
-		{
-			Reload();
-		}
-	}
+  		Reload();
+ 	}
 	return true;
 }
 

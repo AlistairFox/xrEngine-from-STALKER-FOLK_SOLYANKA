@@ -113,7 +113,7 @@ void	CTextConsole::CreateLogWnd()
 	UpdateWindow(m_hLogWnd);
 	//-----------------------------------------------
 	LOGFONT lf; 
-	lf.lfHeight = -12; 
+	lf.lfHeight = -18; 
 	lf.lfWidth = 0;
 	lf.lfEscapement = 0; 
 	lf.lfOrientation = 0; 
@@ -144,7 +144,7 @@ void	CTextConsole::CreateLogWnd()
 	m_hBB_BM = CreateCompatibleBitmap(m_hDC_LogWnd, lWidth, lHeight);
 	R_ASSERT2(m_hBB_BM, "Unable to Create Compatible Bitmap for Log Window!");
 	//------------------------------------------------
-	m_hOld_BM = (HBITMAP)SelectObject(m_hDC_LogWnd_BackBuffer, m_hBB_BM);
+	m_hOld_BM	= (HBITMAP)SelectObject(m_hDC_LogWnd_BackBuffer, m_hBB_BM);
 	//------------------------------------------------
 	m_hPrevFont = (HFONT)SelectObject(m_hDC_LogWnd_BackBuffer, m_hLogWndFont);
 	//------------------------------------------------
@@ -204,29 +204,23 @@ void CTextConsole::OnPaint()
 	PAINTSTRUCT ps;
 	BeginPaint( m_hLogWnd, &ps );
 
-	if ( /*m_bNeedUpdate*/ Device.dwFrame % 2 )
+	if ( Device.dwFrame % 2 )
 	{
-//		m_dwLastUpdateTime = Device.dwTimeGlobal;
-//		m_bNeedUpdate = false;
-		
-		GetClientRect( m_hLogWnd, &wRC );
+ 		GetClientRect( m_hLogWnd, &wRC );
 		DrawLog( m_hDC_LogWnd_BackBuffer, &wRC );
 	}
 	else
 	{
 		wRC = ps.rcPaint;
-	}
-	
+	} 
 	
 	BitBlt(	m_hDC_LogWnd,
 			wRC.left, wRC.top,
 			wRC.right - wRC.left, wRC.bottom - wRC.top,
 			m_hDC_LogWnd_BackBuffer,
 			wRC.left, wRC.top,
-			SRCCOPY); //(FullUpdate) ? SRCCOPY : NOTSRCCOPY);
-/*
-	Msg ("URect - %d:%d - %d:%d", ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
-*/
+			SRCCOPY);  
+ 
 	EndPaint( m_hLogWnd, &ps );
 }
   
@@ -432,8 +426,7 @@ void CTextConsole::DrawLog( HDC hDC, RECT* pRect )
 			
 			g_pGameLevel->GetLevelInfo(&m_server_info);
 		}
-
-
+		 
 		bool right = false;
 
 		ypos = 15;
@@ -442,7 +435,7 @@ void CTextConsole::DrawLog( HDC hDC, RECT* pRect )
 			SetTextColor(hDC, m_server_info[i].color);
 			
 			if (!right)
-				TextOut(hDC, 10, ypos, m_server_info[i].name, xr_strlen(m_server_info[i].name));
+				TextOut(hDC, 10,  ypos, m_server_info[i].name, xr_strlen(m_server_info[i].name));
 			else 
 				TextOut(hDC, 550, ypos, m_server_info[i].name, xr_strlen(m_server_info[i].name));
 
@@ -452,32 +445,18 @@ void CTextConsole::DrawLog( HDC hDC, RECT* pRect )
 			{
 				ypos = 5;
 				right = true;
-				//break;
-			}
-			 
-		}
+ 			}
+ 		}
 	}
 
-	
+
 }
-/*
-void CTextConsole::IR_OnKeyboardPress( int dik ) !!!!!!!!!!!!!!!!!!!!!
-{
-	m_bNeedUpdate = true;
-	inherited::IR_OnKeyboardPress( dik );
-}
-*/
+ 
 void CTextConsole::OnFrame()
 {
 	if (strstr(Core.Params, "-hide"))
 		return;
-
 	inherited::OnFrame();
-/*	if ( !m_bNeedUpdate && m_dwLastUpdateTime + 1000/g_svTextConsoleUpdateRate > Device.dwTimeGlobal )
-	{
-		return;
-	}
-*/	InvalidateRect( m_hConsoleWnd, NULL, FALSE );
+	InvalidateRect( m_hConsoleWnd, NULL, FALSE );
 	SetCursor( LoadCursor( NULL, IDC_ARROW ) );	
-//	m_bNeedUpdate = true;
 }

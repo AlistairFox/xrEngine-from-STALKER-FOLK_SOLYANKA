@@ -230,11 +230,10 @@ void CScriptStorage::reinit	()
 	luajit::open_lib	(lua(),	LUA_MATHLIBNAME,	luaopen_math);
 	luajit::open_lib	(lua(),	LUA_STRLIBNAME,		luaopen_string);
 
-//#ifdef DEBUG
-	luajit::open_lib	(lua(),	LUA_DBLIBNAME,		luaopen_debug);
-//#endif // #ifdef DEBUG
-
-	if (!strstr(Core.Params,"-nojit")) {
+ 	luajit::open_lib	(lua(),	LUA_DBLIBNAME,		luaopen_debug);
+ 
+	if (!strstr(Core.Params,"-nojit"))
+	{
 		luajit::open_lib(lua(),	LUA_JITLIBNAME,		luaopen_jit);
 #ifndef DEBUG
 		put_function	(lua(), opt_lua_binary, sizeof(opt_lua_binary), "jit.opt");
@@ -334,46 +333,13 @@ int CScriptStorage::vscript_log		(ScriptStorage::ELuaMessageType tLuaMessageType
 }
 
 #ifdef PRINT_CALL_STACK
+
+void printLuaTraceback(lua_State* L);
 void CScriptStorage::print_stack		()
 {
-	if (!m_stack_is_ready)
-		return;
-
-	//	Msg("Print Stack:");
-
-	m_stack_is_ready		= false;
- 
-	lua_State				*L = lua();
-	lua_Debug				l_tDebugInfo;
- 
-	//string4096 msg;
-	//luaL_traceback(L, L, msg, 0);
-	//Msg("GetData: %s", msg);
-
-	for (int i=0; lua_getstack(L,i,&l_tDebugInfo); ++i ) 
-	{
-		lua_getinfo			(L,"nSlu",&l_tDebugInfo);
-		 
-		if (!l_tDebugInfo.name)
-		{
-			Msg("!l_tDebugInfo.name");
-			script_log(ScriptStorage::eLuaMessageTypeError, "%2d : [%s] %s(%d) : %s", i, l_tDebugInfo.what, l_tDebugInfo.short_src, l_tDebugInfo.currentline, "");
-		}
-		else
-			if (!xr_strcmp(l_tDebugInfo.what, "C"))
-			{
-				Msg("C");
-				script_log(ScriptStorage::eLuaMessageTypeError, "%2d : [C  ] %s", i, l_tDebugInfo.name);
-			}
-			else
-			{
-				Msg("l_tDebugInfo full print");
-				script_log(ScriptStorage::eLuaMessageTypeError, "%2d : [%s] %s(%d) : %s", i, l_tDebugInfo.what, l_tDebugInfo.short_src, l_tDebugInfo.currentline, l_tDebugInfo.name);
-			}
-	}
-
-	Msg("//  End Print Stack ");
+	printLuaTraceback(lua());
 }
+
 void CScriptStorage::static_print_stack(lua_State *state)
 {
 	lua_State* L = state;

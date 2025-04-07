@@ -86,6 +86,13 @@ void CLevel::ClientReceive()
 		P->r_begin	(m_type);
 		switch (m_type)
 		{
+			case M_MESSAGE_TEXT:
+			{
+				shared_str text;
+				P->r_stringZ(text);
+				Msg("[SV] Recived Message: %s", text.c_str());
+			}break;
+
 			case M_EVENT_CMD_SYNC:
 			{
 				if (OnClient())

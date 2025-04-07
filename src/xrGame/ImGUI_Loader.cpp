@@ -89,7 +89,6 @@ bool Editor_KeyPress(int key)
     if (!Level().game->local_player->testFlag(GAME_PLAYER_HAS_ADMIN_RIGHTS))
     {
         imgui_stage = EditorStage::None;
-        Msg("ImGUI Cant Open no admin Rights !!!");
         return false;
     }
 

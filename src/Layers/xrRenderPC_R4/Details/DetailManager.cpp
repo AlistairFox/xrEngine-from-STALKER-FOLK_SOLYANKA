@@ -249,20 +249,24 @@ void CDetailManager::UpdateVisibleM()
 
 				for (auto& SItem : sp.items)
 				{
-					CDetail::SlotItem& Item = *SItem;
-					float scale = Item.scale * alpha_i; //1;
-					float ssa = scale * scale * Rq_drcp;
+					if (nullptr != SItem)
+					{
+						CDetail::SlotItem& Item = *SItem;
+						float scale = Item.scale * alpha_i; //1;
+						float ssa = scale * scale * Rq_drcp;
 
-					if (ssa < r_ssaDISCARD)
-						continue;
+						if (ssa < r_ssaDISCARD)
+							continue;
 
-					u32 vis_id = 0;
-					if (ssa > r_ssaCHEAP)
-						vis_id = Item.vis_ID;
+						u32 vis_id = 0;
+						if (ssa > r_ssaCHEAP)
+							vis_id = Item.vis_ID;
 
-					Item.RenderScale = scale;
+						Item.RenderScale = scale;
 
-					D.m_items[vis_id][calc_key].push_back(SItem);
+						D.m_items[vis_id][calc_key].push_back(SItem);
+					}
+					
 				}
 			}
 		}

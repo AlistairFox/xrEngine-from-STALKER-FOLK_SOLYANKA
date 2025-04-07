@@ -388,9 +388,10 @@ static bool EnabledStackTrace = true;
 
 LONG WINAPI UnhandledFilter(_EXCEPTION_POINTERS* pExceptionInfo)
 {
+	/*
 	string256				error_message;
 	format_message(error_message, sizeof(error_message));
-
+	
 	if (EnabledStackTrace)
 	{
 		Msg("\n----------------------------------------------");
@@ -425,30 +426,21 @@ LONG WINAPI UnhandledFilter(_EXCEPTION_POINTERS* pExceptionInfo)
 			xr_strcat(error_message, sizeof(error_message), "\r\n");
 			os_clipboard::update_clipboard(buffer);
 		}
-
-		
 	}
+	*/
+
+	if (Debug.debug_calltack_lua)
+		Debug.debug_calltack_lua();
 
 	if (shared_str_initialized)
 		FlushLog();
 
-#ifdef USE_OWN_MINI_DUMP
-	save_mini_dump(pExceptionInfo);
-#endif // USE_OWN_MINI_DUMP
-
+ 	save_mini_dump(pExceptionInfo);
+ 
 	if (!error_after_dialog) {
 		if (Debug.get_on_dialog())
 			Debug.get_on_dialog()	(true);
 	}
-
-#ifndef _EDITOR
-	ReportFault(pExceptionInfo, 0);
-#endif
-
-#ifdef USE_OWN_ERROR_MESSAGE_WINDOW
-	if (Debug.get_on_dialog())
-		Debug.get_on_dialog()		(false);
-#endif // USE_OWN_ERROR_MESSAGE_WINDOW
 
 	return EXCEPTION_EXECUTE_HANDLER;
 }

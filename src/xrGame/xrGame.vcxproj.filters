@@ -11533,6 +11533,9 @@
     <ClCompile Include="console_commands_omf.cpp">
       <Filter>Core\Common\Console Commands\mp commands</Filter>
     </ClCompile>
+    <ClCompile Include="WeaponMagazined_ReloadingSystems.cpp">
+      <Filter>Se7Kills\Weapons\Custom Weapon\WeaponBase\Automatic</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="ai\monsters\chimera\chimera_attack_state.h">

@@ -800,18 +800,6 @@ bool is_dedicated()
 	return g_dedicated_server;
 }
 
-void print_msg(LPCSTR str)
-{
-	if (psDeviceFlags.test(rsDebug))
-		Msg("[lua] %s", str);
-}
-
-
-void print_msg_clear(LPCSTR str)
-{
-	if (psDeviceFlags.test(rsDebug))
-		Msg("%s", str);
-}
  
 bool check_params(LPCSTR p)
 {
@@ -1172,31 +1160,7 @@ bool alife_off()
 {
 	return Level().ClientData_AlifeOff();
 }
-
-xr_map<u16, u64> timer_elapsed;
-
-xr_map<u16, CTimer> t;
-
-void Start_T(u16 id)
-{
-	t[id].Start();
-}
-
-void Stop_T(u16 id)
-{
-	timer_elapsed[id] += t[id].GetElapsed_ticks();
-}
-
-void Reset_T(u16 id)
-{
-	timer_elapsed[id] = 0;
-}
-
-float get_elapsed(u16 id)
-{
-	return float ( (double(timer_elapsed[id]) / CPU::qpc_freq) * 1000);
-}
-
+ 
 bool has_local_admin()
 {
 	if (Level().game && Level().game->local_player)
@@ -1210,6 +1174,34 @@ bool GetHudWeaponsEffects()
 {
 	return HudWeaponsEffects;
 }
+
+
+void print_msg(LPCSTR str)
+{
+	if (psDeviceFlags.test(rsDebug))
+		Msg("[lua] %s", str);
+}
+
+void print_msg_sync(LPCSTR str)
+{
+ 	if (OnServer())
+	{
+		NET_Packet P;
+		P.w_begin(M_MESSAGE_TEXT);
+		P.w_stringZ(str);
+		Level().Server->SendBroadcast(BroadcastCID, P, net_flags(true, true));
+	}
+}
+
+
+
+void print_msg_clear(LPCSTR str)
+{
+	if (psDeviceFlags.test(rsDebug))
+		Msg("%s", str);
+}
+
+
 
 #pragma optimize("s",on)
 void CLevel::script_register(lua_State *L)
@@ -1227,15 +1219,6 @@ void CLevel::script_register(lua_State *L)
 			def("alife_off", &alife_off)
 		
 		];
-
-	module(L, "CTimer")
-	[
-		def("Start", &Start_T),
-		def("Stop", &Stop_T),
-		def("Reset", &Reset_T),
-		def("Get", &get_elapsed)
-	];
-
 
 	module(L, "level")
 		[
@@ -1390,7 +1373,8 @@ void CLevel::script_register(lua_State *L)
 		def("IsGameTypeSingle",					&IsGameTypeSingle),
 		def("IsDynamicMusic",					&IsDynamicMusic),
 		def("render_get_dx_level",				&render_get_dx_level),
-		def("IsImportantSave",					&IsImportantSave),
+		def("IsImportantSave",					&IsImportantSave),		
+		def("print_msg_sync",					&print_msg_sync),
 		def("print_msg",						&print_msg),
  		def("print_msg_clear",					&print_msg_clear),
 		def("IsDedicated",						&is_dedicated),
