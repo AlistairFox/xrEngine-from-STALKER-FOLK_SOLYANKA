@@ -43,6 +43,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xrEngine", "xrEngine\xrEngi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xrPhysics", "xrPhysics\xrPhysics.vcxproj", "{98D24A3D-7666-4C11-9D6E-B10393CE8CBA}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xrRender_R4", "Layers\xrRenderPC_R4\xrRender_R4.vcxproj", "{AC9B12ED-A2D7-4337-A981-5BD8430E96D8}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xrCompress", "utils\xrCompress\xrCompress.vcxproj", "{EF76867B-6EB8-4DC0-A1D6-E964FAD6FC7B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xrScripts", "xrScripts\xrScripts.vcxproj", "{CC52E0B3-CC35-4934-9302-035B748F3F2C}"
@@ -50,10 +52,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imgui", "3rd party\imgui\imgui.vcxproj", "{C8FBC3CE-D6DE-4FC3-BC15-7B647614DB09}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NoStatic", "NoStatic", "{36D591C7-65C7-A0D1-1CBC-10CDE441BDC8}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xrRender_R4", "Layers\xrRenderPC_R4\xrRender_R4.vcxproj", "{AC9B12ED-A2D7-4337-A981-5BD8430E96D8}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "crypto", "3rd party\crypto\crypto.vcxproj", "{FA169092-EA3E-40C1-8E5A-A2B575700FE8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -198,6 +196,14 @@ Global
 		{98D24A3D-7666-4C11-9D6E-B10393CE8CBA}.Release|x64.Build.0 = Release|x64
 		{98D24A3D-7666-4C11-9D6E-B10393CE8CBA}.Release|x86.ActiveCfg = Release|Win32
 		{98D24A3D-7666-4C11-9D6E-B10393CE8CBA}.Release|x86.Build.0 = Release|Win32
+		{AC9B12ED-A2D7-4337-A981-5BD8430E96D8}.Release_Dedicated|x64.ActiveCfg = Release|x64
+		{AC9B12ED-A2D7-4337-A981-5BD8430E96D8}.Release_Dedicated|x64.Build.0 = Release|x64
+		{AC9B12ED-A2D7-4337-A981-5BD8430E96D8}.Release_Dedicated|x86.ActiveCfg = Release|Win32
+		{AC9B12ED-A2D7-4337-A981-5BD8430E96D8}.Release_Dedicated|x86.Build.0 = Release|Win32
+		{AC9B12ED-A2D7-4337-A981-5BD8430E96D8}.Release|x64.ActiveCfg = Release|x64
+		{AC9B12ED-A2D7-4337-A981-5BD8430E96D8}.Release|x64.Build.0 = Release|x64
+		{AC9B12ED-A2D7-4337-A981-5BD8430E96D8}.Release|x86.ActiveCfg = Release|Win32
+		{AC9B12ED-A2D7-4337-A981-5BD8430E96D8}.Release|x86.Build.0 = Release|Win32
 		{EF76867B-6EB8-4DC0-A1D6-E964FAD6FC7B}.Release_Dedicated|x64.ActiveCfg = Release|x64
 		{EF76867B-6EB8-4DC0-A1D6-E964FAD6FC7B}.Release_Dedicated|x64.Build.0 = Release|x64
 		{EF76867B-6EB8-4DC0-A1D6-E964FAD6FC7B}.Release_Dedicated|x86.ActiveCfg = Release|Win32
