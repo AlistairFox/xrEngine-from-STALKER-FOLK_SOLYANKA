@@ -16,7 +16,7 @@ class xrCompressor
 	};
 public:
 	u8							level_compression;
-
+	u8							max_threads;
 private:
 	bool						bFast;
 	bool						bStoreFiles;
@@ -29,12 +29,9 @@ private:
 	xr_vector<char*>*			files_list;
 	xr_vector<char*>*			folders_list;
  
-	xr_vector<shared_str>		exclude_exts;
 	bool	testSKIP			(LPCSTR path);
 	bool	testEqual			(LPCSTR path, IReader* base);
 	bool	testVFS				(LPCSTR path);
-
-	bool	IsFolderAccepted	(CInifile& ltx, LPCSTR path, BOOL& recurse);
 	
 	void	GatherFiles			(LPCSTR folder);
 
@@ -73,7 +70,7 @@ public:
 	void	SetPackHeaderName	(LPCSTR n);
 	void	SetStoreDDS(bool b) { bStoreDDS = b; };
 
-	void	ProcessLTX			(CInifile& ini);
+	void	ProcessStart		();
 	void	ProcessTargetFolder	();
 };
 

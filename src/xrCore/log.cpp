@@ -196,40 +196,13 @@ void CreateLog			(BOOL nl)
   
 	strconcat(sizeof(log_file_name), log_file_name, Core.ApplicationName, "_", Core.UserName, name_log);
 	 
-  
-	//if (strstr(Core.Params, "server(") )
-	//{
-	//
-	//	string128 name;
-	//	const char* s = strstr(Core.Params, "server(") + 7;
-	//		strncpy_s(name, s, strchr(Core.Params, '/') - s);
-	//		xr_strcat(name, ".log");
-	//		if (FS.path_exist("$logs$"))
-	//			FS.update_path(logFName, "$logs$", name);	   //
-	//}
-	//else
-	{
-		if (FS.path_exist("$logs$"))
-			FS.update_path(logFName, "$logs$", log_file_name);	   //
-	}
-	 
-
-	/*
-	if (strstr(Core.Params, "-log("))
-	{
-		string128 name;
-		const char* s = strstr(Core.Params, "-log(") + 5;
-		strncpy_s(name, s, strchr(s, ')') - s);
-		if (FS.path_exist("$logs$"))
-			FS.update_path(logFName, "$logs$", name);
-	}
-	*/
+	if (FS.path_exist("$logs$"))
+		FS.update_path(logFName, "$logs$", log_file_name);	   	 
 	
-
 	if (!no_log)
 	{
-        IWriter *f		= FS.w_open	(logFName);
-        if (f==NULL)
+        IWriter * f		= FS.w_open	(logFName);
+        if ( f==NULL )
 		{
         	MessageBox	(NULL,"Can't create log file.","Error",MB_ICONERROR);
         	abort();
@@ -238,6 +211,12 @@ void CreateLog			(BOOL nl)
     }
 
 	filelog = FS.w_open(logFName);
+
+	for (auto& line :  *LogFile)
+	{
+		filelog->w_string(line.c_str());
+	}
+	filelog->flush();
 }
 
 void CloseLog(void)

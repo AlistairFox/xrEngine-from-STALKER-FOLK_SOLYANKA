@@ -37,7 +37,8 @@ int __cdecl main(int argc, char* argv[])
 	std::wcout.imbue(std::locale("")); // Устанавливаем локаль для вывода
 
 	bool use_encript = false;
- 	u8 maximal_level_compression = 1;
+ 	int maximal_level_compression = 1;
+	int max_threads = 4;
 
 	switch (response)
 	{
@@ -57,10 +58,18 @@ int __cdecl main(int argc, char* argv[])
 
 		std::cout << ToUTF8(L"Введите степень сжатия 0-9 Больше значение медленее: ");
 		std::cin >> maximal_level_compression;
+
+		std::cout << ToUTF8(L"Введите кол-во патоков: ");
+		std::cin >> max_threads;
 	}
 	 
 	if (maximal_level_compression < 1 || maximal_level_compression > 9)
 		maximal_level_compression = 9;
+
+	if (max_threads > 32)
+		max_threads = 32;
+	if (max_threads < 4)
+		max_threads = 4;
 
 	if (use_unpack)
 	{
@@ -110,27 +119,27 @@ int __cdecl main(int argc, char* argv[])
 		C.SetArchiveName(filearchivename.c_str());
 		C.SetOutFolder(folder_out.c_str());
 		C.level_compression = maximal_level_compression;
-		printf("ArgV: %s", argv[1]);
+		C.max_threads = max_threads;
 
+	
 		string_path		folder;
 		strconcat(sizeof(folder), folder, filename.c_str(), "\\");
 		_strlwr_s(folder, sizeof(folder));
 
+		Msg("\nCompressing files (%s)...\n\n", folder);
 		printf("\nCompressing files (%s)...\n\n", folder);
 
 		FS._initialize(CLocatorAPI::flTargetFolderOnly, folder);
 		FS.append_path("$working_folder$", "", 0, false);
 
+		Msg("MAX THREADS: %u", max_threads);
+ 		Msg("MAX Level Compress: %u", maximal_level_compression);
+ 
 		C.SetFastMode(false);
 		C.SetTargetName(filename.c_str());
 		C.SetMaxVolumeSize(1024 * 1024 * 1024);
    
-		CInifile* ini = xr_new<CInifile> ("build_all.ltx");
-		if (!ini)
-			R_ASSERT(ini, "Ini file is no finded");
-		
-		printf("Processing LTX...\n");
-		C.ProcessLTX(*ini);	 
+		C.ProcessStart();	 
 	}
 
 	Msg("Working Process Destroy");

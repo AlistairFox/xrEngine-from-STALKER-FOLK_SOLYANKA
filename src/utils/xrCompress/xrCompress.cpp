@@ -78,20 +78,12 @@ bool xrCompressor::testSKIP(LPCSTR path)
 	if (0==stricmp(p_ext,".sln"))	return true;
 	if (0==stricmp(p_ext,".old"))	return true;
 	if (0==stricmp(p_ext,".rc"))	return true;
-
-	for (xr_vector<shared_str>::iterator it=exclude_exts.begin(); it!=exclude_exts.end(); ++it)
-		if (PatternMatch(p_ext,it->c_str()))
-			return true;
-
+ 
 	return false;
 }
 
 bool xrCompressor::testVFS(LPCSTR path)
 {
-	if (bStoreFiles)
-		return			(true);
-
-
 	string256			p_ext;
 	_splitpath(path, 0, 0, 0, p_ext);
  
@@ -297,39 +289,74 @@ void xrCompressor::OpenPack(LPCSTR tgt_folder, int num)
  
 	dwTimeStart		= timeGetTime();
 
+	char* text_ltx = 
+		"[header]							  \n"
+		"auto_load = true					  \n"
+		"level_name = single				  \n"
+		"level_ver = 1.0					  \n"
+		"entry_point = $fs_root$\\gamedata\\  \n"
+		"creator = \"\"						  \n"
+		"link = \"\"						  \n";
+
+	MsgComressor("LTX: %s", text_ltx);
+
+	IReader * file = new IReader(text_ltx, xr_strlen(text_ltx));
+
+	config_ltx = new CInifile(file);
+ 
 	//write pack header without compression
- 	if(config_ltx && config_ltx->section_exist("header"))
+ 	//if(config_ltx && config_ltx->section_exist("header"))
 	{
 		CMemoryWriter			W;
-		CInifile::Sect&	S		= config_ltx->r_section("header");
-		CInifile::SectCIt it	= S.Data.begin();
-		CInifile::SectCIt it_e	= S.Data.end();
-		string4096				buff;
-		xr_sprintf					(buff,"[%s]",S.Name.c_str());
-		W.w_string				(buff);
-		for(;it!=it_e;++it)
-		{
-			const CInifile::Item& I	= *it;
-			xr_sprintf					(buff, "%s = %s", I.first.c_str(), I.second.c_str());
-			W.w_string				(buff);
-		}
-		W.seek						(0);
+		// CInifile::Sect&	S		= config_ltx->r_section("header");
+ 		
+		// string4096				buff;
+		// xr_sprintf				(buff,"[%s]", S.Name.c_str());
+		// W.w_string				(buff);
+	 	// 
+		// for(auto & items : S.Data)
+		// {
+		// 	xr_sprintf					(buff, "%s = %s", items.first.c_str(), items.second.c_str());
+		// 	W.w_string				(buff);
+ 		// }
+		// W.seek						(0);
+
+		W.w_string(" [header] ");
+		W.w_string("auto_load = true");
+		W.w_string("level_name = single");
+		W.w_string("level_ver = 1.0");
+		W.w_string("entry_point = $fs_root$\\gamedata\\");
+		W.w_string("creator = \"\"	");
+		W.w_string("link = \"\" ");
+
 		IReader	R(W.pointer(), W.size());
 
 		printf						("...Writing pack header\n");
+
+		IReader* test = new IReader(W.pointer(), W.size());
+		if (test)
+		{
+			while (test->elapsed())
+			{
+				xr_string s;
+				test->r_string(s);
+				MsgComressor("Writed: %s", s.c_str());
+			}
+		}
+
 		fs_pack_writer->open_chunk	(CFS_HeaderChunkID);					//CFS_HeaderChunkID
 		fs_pack_writer->w			(R.pointer(), R.length());
 		fs_pack_writer->close_chunk	();
 	}
-	else
-	if(pPackHeader)
-	{
-		printf						("...Writing pack header\n");
-		fs_pack_writer->open_chunk	(CFS_HeaderChunkID);
-		fs_pack_writer->w			(pPackHeader->pointer(), pPackHeader->length());
-		fs_pack_writer->close_chunk	();
-	}else
-		printf			("...Pack header not found\n");
+	//else
+	//if(pPackHeader)
+	//{
+	//	printf						("...Writing pack header\n");
+	//	fs_pack_writer->open_chunk	(CFS_HeaderChunkID);
+	//	fs_pack_writer->w			(pPackHeader->pointer(), pPackHeader->length());
+	//	fs_pack_writer->close_chunk	();
+	//}else
+	//	printf			("...Pack header not found\n");
 
 //	g_dummy_stuff	= _dummy_stuff_subst;
 
@@ -350,7 +377,7 @@ void xrCompressor::ClosePack()
 	bytesDST		= fs_pack_writer->tell	();
 	Msg				("...Writing pack desc");
 
-	fs_pack_writer->w_chunk		( 1000, fs_desc.pointer(), fs_desc.size());
+	fs_pack_writer->w_chunk		( 1000 , fs_desc.pointer(), fs_desc.size());
 
 
 	Msg				("Data size: %d. Desc size: %d.",bytesDST,fs_desc.size());
@@ -371,44 +398,50 @@ void xrCompressor::PerformWork()
 		for (u32 it = 0; it < folders_list->size(); it++)
 			write_file_header((*folders_list)[it], 0, 0, 0, 0);
 
-		xr_vector<PackedData> toPack[16];
+		xr_vector<PackedData> toPack[32];
 		xr_vector<PackedData> toPackGlobal;
 		size_t DataAccumulated = 0;
 		std::atomic<int> CurrentPos = 0;
 
 		auto FunctionMT = [&](int ID)
+		{
+			for (;;)
 			{
-				for (;;)
-				{
-					int CurrentFile = CurrentPos.load();
-					if (CurrentFile >= files_list->size())
-						break;
-					CurrentPos.fetch_add(1);
+				int CurrentFile = CurrentPos.load();
+				if (CurrentFile >= files_list->size())
+					break;
+				CurrentPos.fetch_add(1);
 
-					auto File = (*files_list)[CurrentFile];
-					ProcessFile(File, toPack[ID], DataAccumulated);
+				auto File = (*files_list)[CurrentFile];
+				ProcessFile(File, toPack[ID], DataAccumulated);
 
 
-					// Window Info 
-					xr_sprintf(caption, "Compress files: Accumulated:%u | %d/%d - %d%%", toPack[ID].size(), CurrentFile, files_list->size(), (it * 100) / files_list->size());
-					SetWindowText(GetConsoleWindow(), caption);
-				}
+				// Window Info 
+				xr_sprintf(caption, "Compress files: Accumulated:%u | %d/%d - %d%%", toPack[ID].size(), CurrentFile, files_list->size(), (it * 100) / files_list->size());
+				SetWindowText(GetConsoleWindow(), caption);
+			}
+		};
 
-			};
+ 		xr_vector<std::thread*> threads_work;
+  		for (auto I = 0; I < max_threads; I++)
+			threads_work.push_back(new std::thread(FunctionMT, I));
+	
+		for (auto I = 0; I < max_threads; I++)
+			threads_work[I]->join();
 
-		concurrency::parallel_for(size_t(0), size_t(16), [&](size_t ID)
-			{
-				FunctionMT(ID);
-			});
+		//concurrency::parallel_for(size_t(0), size_t(max_threads), [&](size_t ID)
+		//{
+		//	FunctionMT(ID);
+		//});
 
 		u32 TotalFiles = 0;
-		for (auto i = 0; i < 16; i++)
+		for (auto i = 0; i < max_threads; i++)
 		{
 			TotalFiles += toPack[i].size();
 		}
 
 		int ID = 0;
-		for (auto i = 0; i < 16; i++)
+		for (auto i = 0; i < max_threads; i++)
 		{
 			for (auto P : toPack[i])
 			{
@@ -472,122 +505,46 @@ void xrCompressor::GatherFiles(LPCSTR path)
 	}
 	FS.file_list_close	(i_list);
 }
-
-bool xrCompressor::IsFolderAccepted(CInifile& ltx, LPCSTR path, BOOL& recurse)
+ 
+void xrCompressor::ProcessStart()
 {
-	// exclude folders
-	if( ltx.section_exist("exclude_folders") )
-	{
-		CInifile::Sect& ef_sect	= ltx.r_section("exclude_folders");
-		for (CInifile::SectCIt ef_it=ef_sect.Data.begin(); ef_it!=ef_sect.Data.end(); ef_it++)
-		{
-			recurse	= CInifile::IsBOOL(ef_it->second.c_str());
-			if (recurse)	
-			{
-				if (path==strstr(path,ef_it->first.c_str()))	
-					return false;
-			}else
-			{
-				if (0==xr_strcmp(path,ef_it->first.c_str()))	
-					return false;
-			}
-		}
-	}
-	return true;
-}
-
-void xrCompressor::ProcessLTX(CInifile& ltx)
-{
-	config_ltx	=&ltx;
-
-	if (ltx.line_exist("options","exclude_exts"))
-		_SequenceToList(exclude_exts, ltx.r_string("options","exclude_exts"));
-
 	files_list				= xr_new< xr_vector<char*> >();
 	folders_list			= xr_new< xr_vector<char*> >();
+ 
+ 	u32 folder_mask		= FS_ListFolders;
 
-	if(ltx.section_exist("include_folders"))
-	{
-		CInifile::Sect& if_sect	= ltx.r_section("include_folders");
+	string_path path;
+	LPCSTR _path		= "";
+	xr_strcpy			(path,_path);
+	u32 path_len		= xr_strlen(path);
+	if ((0!=path_len)&&(path[path_len-1]!='\\')) xr_strcat(path,"\\");
 
-		for (CInifile::SectCIt if_it=if_sect.Data.begin(); if_it!=if_sect.Data.end(); ++if_it)
-		{
-			BOOL ifRecurse		= CInifile::IsBOOL(if_it->second.c_str());
-			u32 folder_mask		= FS_ListFolders | (ifRecurse?0:FS_RootOnly);
+	Msg					("");
+	Msg					("Processing folder: '%s'",path);
 
-			string_path path;
-			LPCSTR _path		= 0==xr_strcmp(if_it->first.c_str(),".\\")?"":if_it->first.c_str();
-			xr_strcpy			(path,_path);
-			u32 path_len		= xr_strlen(path);
-			if ((0!=path_len)&&(path[path_len-1]!='\\')) xr_strcat(path,"\\");
+	GatherFiles	(path);
 
-			Msg					("");
-			Msg					("Processing folder: '%s'",path);
-
-			BOOL efRecurse;
-			BOOL val			= IsFolderAccepted(ltx,path,efRecurse);
-			if (val || (!val&&!efRecurse))
-			{ 
-				if (val)		
-					GatherFiles	(path);
-
-				xr_vector<char*>*	i_fl_list	= FS.file_list_open	("$target_folder$",path,folder_mask);
-				if (!i_fl_list)
-				{
-					Msg			("ERROR: Unable to open folder list:", path);
-					continue;
-				}
-
-				xr_vector<char*>::iterator it	= i_fl_list->begin();
-				xr_vector<char*>::iterator itE	= i_fl_list->end();
-				for (;it!=itE;++it)
-				{ 
-					xr_string tmp_path	= xr_string(path)+xr_string(*it);
-					bool val		= IsFolderAccepted(ltx,tmp_path.c_str(),efRecurse);
-					if (val)
-					{
-						folders_list->push_back(xr_strdup(tmp_path.c_str()));
-						Msg			("+F: %s",tmp_path.c_str());
-						// collect files
-						if (ifRecurse) 
-							GatherFiles (tmp_path.c_str());
-					}else
-					{
-						Msg			("-F: %s",tmp_path.c_str());
-					}
-				}
-				FS.file_list_close	(i_fl_list);
-			}else
-			{
-				Msg					("-F: %s",path);
-			}
-		}
+	xr_vector<char*>*	i_fl_list	=  FS.file_list_open	("$target_folder$", path, folder_mask);
+ 	for (auto& file : *i_fl_list)
+	{ 
+		xr_string tmp_path	= xr_string(path) + xr_string(file);
+		folders_list->push_back(xr_strdup(tmp_path.c_str()));
+		Msg			("+F: %s",tmp_path.c_str());
+		
+		// collect files
+ 		GatherFiles (tmp_path.c_str());
 	}
-
-	
-	if(ltx.section_exist("include_files"))
-	{
-		CInifile::Sect& if_sect	= ltx.r_section("include_files");
-		for (CInifile::SectCIt if_it=if_sect.Data.begin(); if_it!=if_sect.Data.end(); ++if_it)
-		{
-		  files_list->push_back	(xr_strdup(if_it->first.c_str()));
-		}	
-	}
+	FS.file_list_close	(i_fl_list);
 
 	PerformWork	();
 
 	// free
-	xr_vector<char*>::iterator it	= files_list->begin();
-	xr_vector<char*>::iterator itE	= files_list->end();
-	for (;it!=itE;++it) 
-		xr_free(*it);
+	for (auto& list : *files_list)
+		xr_free(list);
 	xr_delete(files_list);
-
-	it				= folders_list->begin();
-	itE				= folders_list->end();
-	for (;it!=itE;++it) 
-		xr_free(*it);
+ 
+	for (auto& list : *folders_list)
+		xr_free(list);
 	xr_delete(folders_list);
-
-	exclude_exts.clear_and_free();
+	 
 }

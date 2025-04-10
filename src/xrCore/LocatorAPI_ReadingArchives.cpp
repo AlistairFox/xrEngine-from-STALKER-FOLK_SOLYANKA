@@ -190,6 +190,9 @@ void CLocatorAPI::LoadArchive(archive& A, LPCSTR entrypoint)
 
 	IReader* hdr = hdr = open_chunk(A.hSrcFile, 1000);
 	R_ASSERT(hdr);
+	
+//	Msg("Header is: %p", hdr);
+
 	while (!hdr->eof())
 	{
 		DescriptData data;
@@ -198,6 +201,8 @@ void CLocatorAPI::LoadArchive(archive& A, LPCSTR entrypoint)
  		string_path		name, full;
 		xr_strcpy(name, data.file_path);
 		strconcat(sizeof(full), full, fs_entry_point, name);
+
+//		Msg("Read File: %s", full);
   		Register(full, A.vfs_idx, data.crc, data.ptr, data.size_real, data.size_compressed, 0);
 	}
 	hdr->close();
