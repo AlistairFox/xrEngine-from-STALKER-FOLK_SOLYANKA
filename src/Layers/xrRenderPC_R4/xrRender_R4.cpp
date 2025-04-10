@@ -7,7 +7,7 @@
 
 //#pragma comment(lib,"xrEngine.lib")
 
-BOOL DllMainR4( HANDLE hModule,   DWORD  ul_reason_for_call,  LPVOID lpReserved )
+BOOL DllMainRenderR4( HANDLE hModule,   DWORD  ul_reason_for_call,  LPVOID lpReserved )
 {
 	switch (ul_reason_for_call)
 	{

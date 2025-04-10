@@ -27,6 +27,7 @@
 #pragma comment(lib, "zlibstatic-ng.lib")
 
 #pragma comment(lib, "ode.lib")
+#pragma comment(lib, "crypto.lib")
 
 #pragma comment(lib, "xrCore.lib")
 #pragma comment(lib, "xrCDB.lib")

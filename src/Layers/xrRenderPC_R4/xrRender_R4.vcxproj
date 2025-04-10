@@ -119,7 +119,7 @@
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DebugInformationFormat>None</DebugInformationFormat>
       <FloatingPointModel>Fast</FloatingPointModel>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <SDLCheck>true</SDLCheck>
@@ -392,12 +392,7 @@
     <ClCompile Include="..\xrRender\du_cone.cpp" />
     <ClCompile Include="..\xrRender\du_cylinder.cpp" />
     <ClCompile Include="..\xrRender\du_sphere.cpp" />
-    <ClCompile Include="..\xrRender\du_sphere_part.cpp">
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.obj</ObjectFileName>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(Filename)1.obj</ObjectFileName>
-      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
-      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(Filename)1.xdc</XMLDocumentationFileName>
-    </ClCompile>
+    <ClCompile Include="..\xrRender\du_sphere_part.cpp" />
     <ClCompile Include="..\xrRender\dxApplicationRender.cpp" />
     <ClCompile Include="..\xrRender\dxConsoleRender.cpp" />
     <ClCompile Include="..\xrRender\dxDebugRender.cpp" />
@@ -549,20 +544,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="xrRender_R4.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\3rd party\crypto\crypto.vcxproj">
-      <Project>{fa169092-ea3e-40c1-8e5a-a2b575700fe8}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="..\..\xrCore\xrCore.vcxproj">
-      <Project>{a0f7d1fb-59a7-4717-a7e4-96f37e91998e}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="..\..\xrCPU_Pipe\xrCPU_Pipe.vcxproj">
-      <Project>{ca0649dd-d089-423a-981c-46b57a884eb9}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -83,6 +83,7 @@
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <ControlFlowGuard>false</ControlFlowGuard>
+      <DebugInformationFormat>None</DebugInformationFormat>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

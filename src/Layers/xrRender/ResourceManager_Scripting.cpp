@@ -73,10 +73,7 @@ class	adopt_blend
 public:
 };
 
-void LuaLog(LPCSTR caMessage)
-{
- 	Lua::LuaOut	(Lua::eLuaMessageTypeMessage,"%s",caMessage);
-}
+ 
 void LuaError(lua_State* L)
 {
 	Debug.fatal(DEBUG_INFO,"LUA error: %s",lua_tostring(L,-1));
@@ -107,15 +104,6 @@ static LPVOID __cdecl luabind_allocator(
 #endif // #ifdef DEBUG
 }
 
-void setup_luabind_allocator()
-{
-	if (luabind::allocator == nullptr)
-	{
-		luabind::allocator = &luabind_allocator;
-		luabind::allocator_parameter = 0;
-	}
-}
-
 // export
 void	CResourceManager::LS_Load			()
 {
@@ -124,8 +112,6 @@ void	CResourceManager::LS_Load			()
 		Msg			("! ERROR : Cannot initialize LUA VM!");
 		return;
 	}
-
-	setup_luabind_allocator();
 
 	// initialize lua standard library functions 
 	luaopen_base	(LSVM); 
@@ -140,8 +126,7 @@ void	CResourceManager::LS_Load			()
 		luabind::set_error_callback		(LuaError);
 #endif
 
-	function		(LSVM, "log",	LuaLog);
-
+ 
 	module			(LSVM)
 	[
 		class_<adopt_sampler>("_sampler")

@@ -3,8 +3,27 @@
 #include "../../xrEngine/xrLevel.h"
 #include "../../xrEngine/igame_persistent.h"
 #include "../../xrEngine/environment.h"
-#include "../../utils/xrLC_Light/R_light.h"
 #include "light_db.h"
+
+
+struct R_Light
+{
+	u16				type;				// Type of light source		
+	u16				level;				// GI level
+	Fvector			diffuse;			// Diffuse color of light	
+	Fvector			position;			// Position in world space	
+	Fvector			direction;			// Direction in world space	
+	float		    range;				// Cutoff range
+	float			range2;				// ^2
+	float			falloff;			// precalc to make light aqal to zero at light range
+	float	        attenuation0;		// Constant attenuation		
+	float	        attenuation1;		// Linear attenuation		
+	float	        attenuation2;		// Quadratic attenuation	
+	float			energy;				// For radiosity ONLY
+
+	Fvector 		tri[3];
+};
+
 
 CLight_DB::CLight_DB()
 {

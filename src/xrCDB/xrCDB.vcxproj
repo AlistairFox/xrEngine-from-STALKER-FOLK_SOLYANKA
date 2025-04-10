@@ -142,7 +142,7 @@
       </BrowseInformation>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <DebugInformationFormat>OldStyle</DebugInformationFormat>
+      <DebugInformationFormat>None</DebugInformationFormat>
       <FloatingPointModel>Fast</FloatingPointModel>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <SDLCheck>true</SDLCheck>
