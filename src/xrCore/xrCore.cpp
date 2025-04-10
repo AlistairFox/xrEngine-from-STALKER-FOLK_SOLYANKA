@@ -110,7 +110,7 @@ void xrCore::_destroy		()
 	}
 }
 
-BOOL DllMainCore(HINSTANCE hinstDLL, DWORD ul_reason_for_call, LPVOID lpvReserved)
+BOOL DllMainCore(HANDLE hinstDLL, DWORD ul_reason_for_call, LPVOID lpvReserved)
 {
 	switch (ul_reason_for_call)
 	{

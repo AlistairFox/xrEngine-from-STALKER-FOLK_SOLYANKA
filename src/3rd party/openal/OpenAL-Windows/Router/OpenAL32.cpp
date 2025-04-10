@@ -29,7 +29,7 @@
 // DllMain
 //*****************************************************************************
 //
-BOOL APIENTRY DllMain(HANDLE module, DWORD reason, LPVOID reserved)
+BOOL DllMainOpenAL32(HANDLE module, DWORD reason, LPVOID reserved)
 {
     BOOL result = TRUE;
 

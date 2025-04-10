@@ -182,6 +182,7 @@ void __cdecl xrFactory_Destroy(DLL_Pure* O);
 ENGINE_API extern bool CoreXrayClearSky = false;
 
 #include "IGame_Persistent.h"
+#include <openal/alc.h>
 
 void CEngineAPI::Initialize(void)
 {
@@ -400,4 +401,39 @@ void CEngineAPI::CreateRendererList()
 	vid_quality_token[1].name = NULL;
 
 	Msg("DEBUG_RENDERS: [%s]", _tmp[0]);
+}
+
+
+
+
+extern BOOL DllMainCore(HANDLE hinstDLL, DWORD ul_reason_for_call, LPVOID lpvReserved);
+extern BOOL DllMainXrPhysics(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved);
+extern BOOL DllMainOpenAL32(HANDLE module, DWORD reason, LPVOID reserved);
+
+void al_log(char* msg)
+{
+	Msg(msg);
+}
+
+int APIENTRY WinMain_impl(HINSTANCE hInstance,
+	HINSTANCE hPrevInstance,
+	char* lpCmdLine,
+	int       nCmdShow);
+
+int APIENTRY WinMain(HINSTANCE hInstance,
+	HINSTANCE hPrevInstance,
+	char* lpCmdLine,
+	int       nCmdShow)
+{
+	pLog = &al_log;
+	DllMainCore(NULL, DLL_PROCESS_ATTACH, NULL);
+	DllMainOpenAL32(NULL, DLL_PROCESS_ATTACH, NULL);
+	DllMainXrPhysics(NULL, DLL_PROCESS_ATTACH, NULL);
+
+	WinMain_impl(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
+
+	DllMainCore(NULL, DLL_PROCESS_DETACH, NULL);
+	DllMainOpenAL32(NULL, DLL_PROCESS_DETACH, NULL);
+	DllMainXrPhysics(NULL, DLL_PROCESS_DETACH, NULL);
+	return					(0);
 }

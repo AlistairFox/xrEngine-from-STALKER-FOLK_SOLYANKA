@@ -229,7 +229,7 @@ VOID ttapi_AddWorker( LPPTTAPI_WORKER_FUNC lpWorkerFunc , LPVOID lpvWorkerFuncPa
 	ttapi_assigned_workers++;	
 }
 
-VOID ttapi_RunAllWorkers()
+void  ttapi_RunAllWorkers()
 {	
 	DWORD ttapi_thread_workers = ( ttapi_assigned_workers - 1 );
 	//unsigned __int64 Start,Stop;
@@ -261,7 +261,7 @@ VOID ttapi_RunAllWorkers()
 	ttapi_assigned_workers = 0;
 }
 
-VOID ttapi_Done()
+void ttapi_Done()
 {
 	if ( ! ttapi_initialized )
 		return;

@@ -19,8 +19,9 @@ extern xrPLC_calc3		PLC_calc3_x86;
 extern xrPLC_calc3		PLC_calc3_SSE;
 
 
-extern "C" {
-	__declspec(dllexport) void	__cdecl	xrBind_PSGP	( xrDispatchTable* T , processor_info* ID )
+extern "C"
+{
+	void	__cdecl	xrBind_PSGP	( xrDispatchTable* T , processor_info* ID )
 	{
 		// generic
 		T->skin1W	= xrSkin1W_x86;
