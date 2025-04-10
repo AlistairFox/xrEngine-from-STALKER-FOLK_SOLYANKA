@@ -5,6 +5,10 @@
 #include "data_archive.h"
 #pragma warning (disable: 4996)
 
+
+#include "zlib/zlib-ng.h"
+#pragma comment(lib, "zlibstatic-ng.lib")
+
 // Reader
 IReader* open_chunk(void* ptr, u32 ID)
 {
@@ -114,10 +118,18 @@ void CLocatorAPI::file_from_archive(IReader*& R, LPCSTR fname, const file& desc)
 		return;
 	}
 
-	// Compressed
-	u8* dest = xr_alloc<u8>(desc.size_real);
-	rtc_decompress(dest, desc.size_real, ptr + ptr_offs, desc.size_compressed);
-	R = xr_new<CTempReader>(dest, desc.size_real, 0);
+	// Compressed LZO
+	// u8* data_real = xr_alloc<u8>(desc.size_real);
+	// rtc_decompress(data_real, desc.size_real, ptr + ptr_offs, desc.size_compressed);
+	
+	// ZLIB
+	size_t real = desc.size_real;
+	size_t compressed = desc.size_compressed;
+
+	u8* data_real = xr_alloc<u8>(desc.size_real);
+	R_ASSERT(Z_OK == zng_uncompress2(data_real, &real, ptr + ptr_offs, &compressed));
+
+	R = xr_new<CTempReader>(data_real, desc.size_real, 0);
 	UnmapViewOfFile(ptr);
 }
 
