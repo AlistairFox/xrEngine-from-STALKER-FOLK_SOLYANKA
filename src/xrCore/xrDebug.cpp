@@ -208,27 +208,21 @@ void __cdecl xrDebug::fatal(const char* file, int line, const char* function, co
 }
 
 typedef void (*full_memory_stats_callback_type) ();
-XRCORE_API full_memory_stats_callback_type g_full_memory_stats_callback = 0;
-
+ 
 int out_of_memory_handler(size_t size)
 {
-	if (g_full_memory_stats_callback)
-		g_full_memory_stats_callback();
-	else {
-		Memory.mem_compact();
+	Memory.mem_compact();
 
-		u32					process_heap = mem_usage_impl(nullptr, nullptr, nullptr);
-		int					eco_strings = (int)g_pStringContainer->stat_economy();
-		int					eco_smem = (int)g_pSharedMemoryContainer->stat_economy();
-		Msg("* [x-ray]: process heap[%d K]", process_heap / 1024);
-		Msg("* [x-ray]: economy: strings[%d K], smem[%d K]", eco_strings / 1024, eco_smem);
-	}
+	u32					process_heap = mem_usage_impl(nullptr, nullptr, nullptr);
+	int					eco_strings = (int)g_pStringContainer->stat_economy();
+	int					eco_smem = (int)g_pSharedMemoryContainer->stat_economy();
+	Msg("* [x-ray]: process heap[%d K]", process_heap / 1024);
+	Msg("* [x-ray]: economy: strings[%d K], smem[%d K]", eco_strings / 1024, eco_smem);
 
 	Debug.fatal(DEBUG_INFO, "Out of memory. Memory request: %d K", size / 1024);
 	return					1;
 }
-
-XRCORE_API string_path g_bug_report_file;
+ 
 
 #if defined(IXR_WINDOWS)
 typedef long WINAPI UnhandledExceptionFilterType(struct _EXCEPTION_POINTERS* pExceptionInfo);
@@ -547,8 +541,7 @@ void __cdecl debug_on_thread_spawn(void)
 void xrDebug::_initialize(const bool& dedicated)
 {
 	static bool is_dedicated = dedicated;
-
-	*g_bug_report_file = 0;
+ 
 #ifdef IXR_WINDOWS
 	previous_filter = ::SetUnhandledExceptionFilter(UnhandledFilter);	// exception handler to all "unhandled" exceptions
 #endif

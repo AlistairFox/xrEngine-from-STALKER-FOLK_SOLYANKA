@@ -192,10 +192,10 @@ static void full_memory_stats	( )
 class CCC_MemStats : public IConsole_Command
 {
 public:
-	CCC_MemStats(LPCSTR N) : IConsole_Command(N)  {
+	CCC_MemStats(LPCSTR N) : IConsole_Command(N) 
+	{
 		bEmptyArgsHandled = TRUE;
-		g_full_memory_stats_callback	= &full_memory_stats;
-	};
+ 	};
 	virtual void Execute(LPCSTR args) {
 		full_memory_stats( );
 	}

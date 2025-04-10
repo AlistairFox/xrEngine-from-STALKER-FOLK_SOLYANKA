@@ -567,6 +567,7 @@ void CInput::exclusive_mode			(const bool &exclusive)
 	unacquire						();
 	acquire							(exclusive);
 }
+
 bool CInput::get_exclusive_mode		()
 {
 	return g_exclusive;

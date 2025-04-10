@@ -2398,9 +2398,6 @@
     <Filter Include="Core\Server\Games\client\mp">
       <UniqueIdentifier>{5411b18c-4bb0-45a1-a247-4c882be425e7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core\Server\Games\client\mp\screenshots">
-      <UniqueIdentifier>{85716612-2641-475b-8692-a6d33fece6cd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Core\Server\Games\client\mp\anticheat">
       <UniqueIdentifier>{dccae07c-5e17-459b-a835-97ed5c5a3d4e}</UniqueIdentifier>
     </Filter>
@@ -6414,15 +6411,6 @@
     <ClInclude Include="game_cl_mp_snd_messages.h">
       <Filter>Core\Server\Games\client\mp</Filter>
     </ClInclude>
-    <ClInclude Include="screenshot_manager.h">
-      <Filter>Core\Server\Games\client\mp\screenshots</Filter>
-    </ClInclude>
-    <ClInclude Include="screenshots_common.h">
-      <Filter>Core\Server\Games\client\mp\screenshots</Filter>
-    </ClInclude>
-    <ClInclude Include="screenshots_writer.h">
-      <Filter>Core\Server\Games\client\mp\screenshots</Filter>
-    </ClInclude>
     <ClInclude Include="configs_common.h">
       <Filter>Core\Server\Games\client\mp\anticheat</Filter>
     </ClInclude>
@@ -10079,15 +10067,6 @@
     </ClCompile>
     <ClCompile Include="game_cl_mp_snd_messages.cpp">
       <Filter>Core\Server\Games\client\mp</Filter>
-    </ClCompile>
-    <ClCompile Include="screenshot_manager.cpp">
-      <Filter>Core\Server\Games\client\mp\screenshots</Filter>
-    </ClCompile>
-    <ClCompile Include="screenshots_common.cpp">
-      <Filter>Core\Server\Games\client\mp\screenshots</Filter>
-    </ClCompile>
-    <ClCompile Include="screenshots_writer.cpp">
-      <Filter>Core\Server\Games\client\mp\screenshots</Filter>
     </ClCompile>
     <ClCompile Include="configs_common.cpp">
       <Filter>Core\Server\Games\client\mp\anticheat</Filter>

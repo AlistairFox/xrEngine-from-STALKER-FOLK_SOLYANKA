@@ -31,7 +31,7 @@ void fix_texture_name(LPSTR fn)
 		*_ext = 0;
 }
 
-  ENGINE_API int g_current_renderer;
+  extern int g_current_renderer;
   #ifndef _EDITOR
   ENGINE_API bool is_enough_address_space_available();
   #else

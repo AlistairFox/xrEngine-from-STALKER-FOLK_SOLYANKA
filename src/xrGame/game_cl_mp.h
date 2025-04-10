@@ -4,7 +4,7 @@
 #include "ui_defs.h"
 #include "Spectator.h"
 #include "file_transfer.h"
-#include "screenshot_manager.h"
+// #include "screenshot_manager.h"
 #include "configs_dumper.h"
 #include "configs_dump_verifyer.h"
 #include "screenshot_server.h"
@@ -282,7 +282,7 @@ public:
 	virtual		void				OnConnected				();
 	virtual		LPCSTR				GetGameScore			(string32&	score_dest) = 0;
 				
-	screenshot_manager				ss_manager;
+	// screenshot_manager				ss_manager;
 	mp_anticheat::configs_dumper	cd_manager;
 	mp_anticheat::configs_verifyer	cd_verifyer;
 	

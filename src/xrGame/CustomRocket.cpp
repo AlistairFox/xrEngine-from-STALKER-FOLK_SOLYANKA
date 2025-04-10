@@ -19,8 +19,6 @@
 #include "actor.h"
  
 
-extern ENGINE_API	bool g_dedicated_server;
-
 #define CHOOSE_MAX(x,inst_x,y,inst_y,z,inst_z)\
 	if(x>y)\
 	if(x>z){inst_x;}\

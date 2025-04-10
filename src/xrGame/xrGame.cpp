@@ -15,11 +15,10 @@
 //#include "lua/library_linkage.h"
 //#include "luabind/library_linkage.h"
 
-//#pragma comment(lib,"ode.lib")
-#pragma comment(lib,"xrEngine.lib")
+// #pragma comment(lib,"ode.lib")
+// #pragma comment(lib,"xrEngine.lib")
 #pragma comment(lib,"OptickCore.lib")
-
-
+ 
 extern "C" {
 	DLL_API DLL_Pure*	__cdecl xrFactory_Create		(CLASS_ID clsid)
 	{
@@ -40,14 +39,14 @@ extern "C" {
 
 void CCC_RegisterCommands	();
 void setup_luabind_allocator();
-
-
+ 
 void RegisterImGuiInGame();
 void DestroyImGuiInGame();
 
-BOOL APIENTRY DllMain(HANDLE hModule, u32 ul_reason_for_call, LPVOID lpReserved)
+BOOL DllMainXrGame(HANDLE hModule, u32 ul_reason_for_call, LPVOID lpReserved)
 {
-	switch (ul_reason_for_call) {
+	switch (ul_reason_for_call)
+	{
 		case DLL_PROCESS_ATTACH: {
 			// register console commands
 			CCC_RegisterCommands();
@@ -69,5 +68,6 @@ BOOL APIENTRY DllMain(HANDLE hModule, u32 ul_reason_for_call, LPVOID lpReserved)
 			break;
 		}
 	}
-    return								(TRUE);
+
+	return true;
 }

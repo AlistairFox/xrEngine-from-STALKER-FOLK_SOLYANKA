@@ -3,9 +3,9 @@
 #pragma once
 
 #ifdef XR_PARTICLES_EXPORTS
-	#define PARTICLES_API __declspec(dllexport)
+	#define PARTICLES_API //__declspec(dllexport)
 #else
-	#define PARTICLES_API __declspec(dllimport)
+	#define PARTICLES_API //__declspec(dllimport)
 	#ifdef _EDITOR
 		#pragma comment(lib,"x:\\xrParticlesB.lib")
 	#else

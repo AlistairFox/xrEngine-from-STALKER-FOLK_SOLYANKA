@@ -1,7 +1,7 @@
 #pragma once
 
 
-ENGINE_API int g_current_renderer;
+extern int g_current_renderer;
 
 void ShowEditor();
 bool IsEditor();

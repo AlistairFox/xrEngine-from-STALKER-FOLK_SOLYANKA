@@ -1999,6 +1999,7 @@ void game_sv_mp::DumpOnlineStatistic()
 
 			m_owner->WritePlayerStats(*ini,num_buf,l_pC);
 		}
+
 	};
 	player_stats_writer tmp_functor;
 	tmp_functor.m_owner = this;

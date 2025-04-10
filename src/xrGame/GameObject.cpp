@@ -43,9 +43,7 @@ extern MagicBox3 MagicMinBox (int iQuantity, const Fvector* akPoint);
 #	include "debug_renderer.h"
 #	include "PHDebug.h"
 #endif
-
-ENGINE_API bool g_dedicated_server;
-
+ 
 CGameObject::CGameObject		()
 {
 	m_ai_obstacle				= 0;

@@ -1,11 +1,6 @@
 #include "stdafx.h"
 #pragma hdrstop
 
-BOOL WINAPI DllMain ( HINSTANCE hinstDLL , DWORD fdwReason , LPVOID lpvReserved )
-{
-	return TRUE;
-}
-
 extern xrSkin1W			xrSkin1W_x86;
 extern xrSkin2W			xrSkin2W_x86;
 extern xrSkin3W			xrSkin3W_x86;

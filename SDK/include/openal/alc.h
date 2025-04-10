@@ -5,20 +5,14 @@
 extern "C" {
 #endif
 
-#if defined(_WIN32) && !defined(_XBOX)
+ 
  /* _OPENAL32LIB is deprecated */
  #if defined(AL_BUILD_LIBRARY) || defined (_OPENAL32LIB)
-  #define ALC_API __declspec(dllexport)
+	 #define ALC_API //__declspec(dllexport)
  #else
-  #define ALC_API __declspec(dllimport)
+	 #define ALC_API //__declspec(dllimport)
  #endif
-#else
- #if defined(AL_BUILD_LIBRARY) && defined(HAVE_GCC_VISIBILITY)
-  #define ALC_API __attribute__((visibility("default")))
- #else
-  #define ALC_API extern
- #endif
-#endif
+ 
 
 #if defined(_WIN32)
  #define ALC_APIENTRY __cdecl

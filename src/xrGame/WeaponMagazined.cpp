@@ -17,8 +17,6 @@
 #include "object_saver.h"
 #include "object_loader.h"
 
-extern ENGINE_API bool	g_dedicated_server;
-
 CWeaponMagazined::CWeaponMagazined(ESoundTypes eSoundType) : CWeapon()
 {
 	m_eSoundShow = ESoundTypes(SOUND_TYPE_ITEM_TAKING | eSoundType);

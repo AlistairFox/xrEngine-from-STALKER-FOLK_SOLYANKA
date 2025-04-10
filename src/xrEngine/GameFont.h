@@ -69,15 +69,15 @@ public:
 
 	void					Initialize		(LPCSTR shader, LPCSTR texture);
 
-	IC void					SetColor		(u32 C)		{dwCurrentColor=C;};
+	void					SetColor		(u32 C)		{dwCurrentColor=C;};
 
-	IC void					SetHeightI		(float S);
-	IC void					SetHeight		(float S);
+	void					SetHeightI		(float S);
+	void					SetHeight		(float S);
 
-	IC float				GetHeight		(){return fCurrentHeight;};
-	IC void					SetInterval		(float x, float y) {vInterval.set(x,y);};
-	IC void					SetInterval		(const Fvector2& v) {vInterval.set(v);};
-	IC void					SetAligment		(EAligment aligment){ eCurrentAlignment=aligment; }
+	float					GetHeight		(){return fCurrentHeight;};
+	void					SetInterval		(float x, float y) {vInterval.set(x,y);};
+	void					SetInterval		(const Fvector2& v) {vInterval.set(v);};
+	void					SetAligment		(EAligment aligment){ eCurrentAlignment=aligment; }
 
 	float					SizeOf_			( LPCSTR s );
 	float					SizeOf_			( const wide_char *wsStr );

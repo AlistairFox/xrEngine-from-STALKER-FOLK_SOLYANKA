@@ -4,21 +4,14 @@
 #if defined(__cplusplus)
 extern "C" {
 #endif
-
-#if defined(_WIN32) && !defined(_XBOX)
+ 
  /* _OPENAL32LIB is deprecated */
  #if defined(AL_BUILD_LIBRARY) || defined (_OPENAL32LIB)
-  #define AL_API __declspec(dllexport)
+  #define AL_API //__declspec(dllexport)
  #else
-  #define AL_API __declspec(dllimport)
+  #define AL_API// __declspec(dllimport)
  #endif
-#else
- #if defined(AL_BUILD_LIBRARY) && defined(HAVE_GCC_VISIBILITY)
-  #define AL_API __attribute__((visibility("default")))
- #else
-  #define AL_API extern
- #endif
-#endif
+ 
 
 #if defined(_WIN32)
  #define AL_APIENTRY __cdecl

@@ -3,9 +3,9 @@
 #pragma once
 
 #ifdef XRAPI_EXPORTS
-#define XRAPI_API __declspec(dllexport)
+#define XRAPI_API //__declspec(dllexport)
 #else
-#define XRAPI_API __declspec(dllimport)
+#define XRAPI_API //__declspec(dllimport)
 #endif
 
 

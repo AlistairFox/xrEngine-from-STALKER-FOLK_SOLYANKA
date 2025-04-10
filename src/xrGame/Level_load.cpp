@@ -13,8 +13,6 @@
 #include "level_sounds.h"
 #include "GamePersistent.h"
 
-ENGINE_API	bool g_dedicated_server;
-
 BOOL CLevel::Load_GameSpecific_Before()
 {
 	// AI space
@@ -126,7 +124,8 @@ BOOL CLevel::Load_GameSpecific_After()
 		}
 
 		// loading random (around player) sounds
-		if (pSettings->section_exist("sounds_random")){ 
+		if (pSettings->section_exist("sounds_random"))
+		{ 
 			CInifile::Sect& S		= pSettings->r_section("sounds_random");
 			Sounds_Random.reserve	(S.Data.size());
 			for (CInifile::SectCIt I=S.Data.begin(); S.Data.end()!=I; ++I) 
