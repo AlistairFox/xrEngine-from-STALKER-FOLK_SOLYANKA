@@ -4,6 +4,29 @@
 
 class xrCompressor
 {
+	struct DescriptData
+	{
+		char file_path[512];
+		u32 crc;
+		u32 ptr;
+		u32 size_real;
+		u32 size_compressed;
+	};
+
+
+	struct PackedData
+	{
+		char		FileName[512];
+		u32			c_crc32 = 0;
+		u32			c_size_real = 0;
+		u32			c_size_compressed = 0;
+
+		xr_vector<u8> packed_data;
+	};
+public:
+	u8							level_compression;
+
+private:
 	bool						bFast;
 	bool						bStoreFiles;
 	bool						bStoreDDS;
@@ -14,31 +37,22 @@ class xrCompressor
 	CInifile*					config_ltx;
 	xr_vector<char*>*			files_list;
 	xr_vector<char*>*			folders_list;
-
-	struct	ALIAS
-	{
-		LPCSTR		path;
-		u32			crc;
-		u32			c_ptr;
-		u32			c_size_real;
-		u32			c_size_compressed;
-	};
-	xr_multimap<u32,ALIAS>		aliases;
-
+ 
 	xr_vector<shared_str>		exclude_exts;
 	bool	testSKIP			(LPCSTR path);
-	ALIAS*	testALIAS			(IReader* base, u32 crc, u32& a_tests);
 	bool	testEqual			(LPCSTR path, IReader* base);
 	bool	testVFS				(LPCSTR path);
+
 	bool	IsFolderAccepted	(CInifile& ltx, LPCSTR path, BOOL& recurse);
 	
 	void	GatherFiles			(LPCSTR folder);
-	
+
 	void	write_file_header	(LPCSTR file_name, const u32 &crc, const u32 &ptr, const u32 &size_real, const u32 &size_compressed);
 	void	ClosePack			();
 	void	OpenPack			(LPCSTR tgt_folder, int num);
 	
 	void	PerformWork			();
+ 	void	ProcessFile			(LPCSTR path, xr_vector<PackedData>& toPack, size_t& Accum);
 
 	void	CompressOne			(LPCSTR path);
 
@@ -49,14 +63,11 @@ class xrCompressor
 	u32						filesTOTAL;
 	u32						filesSKIP;
 	u32						filesVFS;
-	u32						filesALIAS;
-	CStatTimer				t_compress;
-	u8*						c_heap;
-	u32						dwTimeStart;
+
+  	u32						dwTimeStart;
 
 	u32						XRP_MAX_SIZE;
 
-	bool skip_cform = false;
 	shared_str				ArchiveName, OutFolder;
 
 public:

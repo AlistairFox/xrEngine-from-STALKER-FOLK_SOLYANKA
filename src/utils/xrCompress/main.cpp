@@ -37,6 +37,7 @@ int __cdecl main(int argc, char* argv[])
 	std::wcout.imbue(std::locale("")); // Устанавливаем локаль для вывода
 
 	bool use_encript = false;
+ 	u8 maximal_level_compression = 1;
 
 	switch (response)
 	{
@@ -53,11 +54,14 @@ int __cdecl main(int argc, char* argv[])
 
 		std::cout << ToUTF8(L"Введите имя архива: ");
 		std::cin >> filearchivename;
-  
-		break;
-	}
 
+		std::cout << ToUTF8(L"Введите степень сжатия 0-9 Больше значение медленее: ");
+		std::cin >> maximal_level_compression;
+	}
 	 
+	if (maximal_level_compression < 1 || maximal_level_compression > 9)
+		maximal_level_compression = 9;
+
 	if (use_unpack)
 	{
 		string_path	fsgame = "fsgame.ltx";
@@ -105,6 +109,7 @@ int __cdecl main(int argc, char* argv[])
 		C.SetStoreFiles(true);
 		C.SetArchiveName(filearchivename.c_str());
 		C.SetOutFolder(folder_out.c_str());
+		C.level_compression = maximal_level_compression;
 		printf("ArgV: %s", argv[1]);
 
 		string_path		folder;
