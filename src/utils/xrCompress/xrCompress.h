@@ -1,19 +1,10 @@
 #pragma once
 #ifndef XR_COMPRESS_H_INCLUDED
 #define XR_COMPRESS_H_INCLUDED
+#include "..\..\xrCore\data_archive.h"
 
 class xrCompressor
 {
-	struct DescriptData
-	{
-		char file_path[512];
-		u32 crc;
-		u32 ptr;
-		u32 size_real;
-		u32 size_compressed;
-	};
-
-
 	struct PackedData
 	{
 		char		FileName[512];
@@ -53,9 +44,6 @@ private:
 	
 	void	PerformWork			();
  	void	ProcessFile			(LPCSTR path, xr_vector<PackedData>& toPack, size_t& Accum);
-
-	void	CompressOne			(LPCSTR path);
-
 
 
 	u32						bytesSRC;

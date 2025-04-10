@@ -79,6 +79,9 @@
     <Filter Include="Debug core\StackTrace">
       <UniqueIdentifier>{a87eb50f-d1e5-45cf-80e9-4df32b6b49e3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="FS\LocatorAPI">
+      <UniqueIdentifier>{24dd4dab-7e08-4d0e-bc4c-be6892fed700}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FTimer.cpp">
@@ -124,18 +127,6 @@
       <Filter>FS</Filter>
     </ClCompile>
     <ClCompile Include="FS.cpp">
-      <Filter>FS</Filter>
-    </ClCompile>
-    <ClCompile Include="LocatorAPI.cpp">
-      <Filter>FS</Filter>
-    </ClCompile>
-    <ClCompile Include="LocatorAPI_auth.cpp">
-      <Filter>FS</Filter>
-    </ClCompile>
-    <ClCompile Include="LocatorAPI_defs.cpp">
-      <Filter>FS</Filter>
-    </ClCompile>
-    <ClCompile Include="LocatorAPI_Notifications.cpp">
       <Filter>FS</Filter>
     </ClCompile>
     <ClCompile Include="log.cpp">
@@ -225,6 +216,18 @@
     </ClCompile>
     <ClCompile Include="xrMemory_POOL.cpp">
       <Filter>Memory manager\POOL</Filter>
+    </ClCompile>
+    <ClCompile Include="LocatorAPI.cpp">
+      <Filter>FS\LocatorAPI</Filter>
+    </ClCompile>
+    <ClCompile Include="LocatorAPI_auth.cpp">
+      <Filter>FS\LocatorAPI</Filter>
+    </ClCompile>
+    <ClCompile Include="LocatorAPI_defs.cpp">
+      <Filter>FS\LocatorAPI</Filter>
+    </ClCompile>
+    <ClCompile Include="LocatorAPI_ReadingArchives.cpp">
+      <Filter>FS\LocatorAPI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -369,12 +372,6 @@
     <ClInclude Include="FS_internal.h">
       <Filter>FS</Filter>
     </ClInclude>
-    <ClInclude Include="LocatorAPI.h">
-      <Filter>FS</Filter>
-    </ClInclude>
-    <ClInclude Include="LocatorAPI_defs.h">
-      <Filter>FS</Filter>
-    </ClInclude>
     <ClInclude Include="log.h">
       <Filter>FS</Filter>
     </ClInclude>
@@ -496,6 +493,13 @@
     <ClInclude Include="StackTrace.h">
       <Filter>Debug core\StackTrace</Filter>
     </ClInclude>
+    <ClInclude Include="LocatorAPI.h">
+      <Filter>FS\LocatorAPI</Filter>
+    </ClInclude>
+    <ClInclude Include="LocatorAPI_defs.h">
+      <Filter>FS\LocatorAPI</Filter>
+    </ClInclude>
+    <ClInclude Include="data_archive.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="xrCore.rc">
@@ -504,9 +508,6 @@
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="FileSystem.h">
-      <Filter>FS</Filter>
-    </CustomBuild>
-    <CustomBuild Include="LocatorAPI_Notifications.h">
       <Filter>FS</Filter>
     </CustomBuild>
   </ItemGroup>

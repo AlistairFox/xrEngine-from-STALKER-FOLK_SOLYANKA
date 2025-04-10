@@ -7,6 +7,8 @@
 #include "ppl.h"
 
 #define CFS_ARCHIVE_SE7	2610
+
+std::mutex lock_processfile;
  
 xrCompressor::xrCompressor() : fs_pack_writer(NULL),bFast(false),files_list(NULL),folders_list(NULL),bStoreFiles(false),pPackHeader(NULL),config_ltx(NULL)
 {
@@ -101,31 +103,31 @@ bool xrCompressor::testVFS(LPCSTR path)
 
 	if (!stricmp(p_ext,".script"))
 		return			(FALSE);
-	//new SE7  TEXTURES
-	// if (!bStoreDDS)
-	// if (!stricmp(p_ext, ".dds"))
-	// 	return			(FALSE);
+	
+	
+	if (!stricmp(p_ext, ".dds"))
+	 	return			(FALSE);
 
 	//LEVELS
-	//if (!stricmp(p_ext, ".geom"))
-	//	return (FALSE);
+	if (!stricmp(p_ext, ".geom"))
+		return (FALSE);
 
-	//if (!stricmp(p_ext, ".geomx"))
-	//	return (FALSE);
+	if (!stricmp(p_ext, ".geomx"))
+		return (FALSE);
 
-	//if (!stricmp(p_ext, ".cform"))
-	//	return (FALSE);
+	if (!stricmp(p_ext, ".cform"))
+		return (FALSE);
 
 	//OGF
-	// if (!stricmp(p_ext, ".ogf"))
-	// 	return (FALSE);
-	// 
-	// if (!stricmp(p_ext, ".omf"))
-	// 	return (FALSE);
-	// 
-	// //SOUND
-	// if (!stricmp(p_ext, ".ogg"))
-	// 	return (FALSE);
+	if (!stricmp(p_ext, ".ogf"))
+	 	return (FALSE);
+	
+	 if (!stricmp(p_ext, ".omf"))
+	 	return (FALSE);
+
+	//SOUND
+	if (!stricmp(p_ext, ".ogg"))
+		return (FALSE);
  
 	return				(TRUE);
 }
@@ -158,7 +160,6 @@ void MsgComressor(const char* format, ...)
 	Msg(text_buffer);
 }
 
-std::mutex lock_processfile;
 
 
 void xrCompressor::ProcessFile(LPCSTR path, xr_vector<PackedData>& toPack, size_t& Accum)
@@ -197,11 +198,8 @@ void xrCompressor::ProcessFile(LPCSTR path, xr_vector<PackedData>& toPack, size_
 	{
 		filesVFS++;
 		c_size_compressed = c_size_real;
-		// fs_pack_writer->w(data.data(), c_size_real);
-
 		MsgComressor("VFSS: %7u kb to %7u kb | Rate: %3.0f | File: %s", c_size_real / 1024, c_size_compressed / 1024, (float(c_size_compressed) / float(c_size_real)) * 100.0f, path);
-
-		data_toPack.c_crc32 = c_crc32;
+ 		data_toPack.c_crc32 = c_crc32;
 		data_toPack.c_size_compressed = c_size_compressed;
 		data_toPack.c_size_real = c_size_real;
 		data_toPack.packed_data = data;
@@ -224,15 +222,13 @@ void xrCompressor::ProcessFile(LPCSTR path, xr_vector<PackedData>& toPack, size_
 			else
 			{
 				// Compressed OK - optimize
-				//fs_pack_writer->w(CompressedData, size_compressed);
-				data_toPack.packed_data.resize(c_size_compressed);
+ 				data_toPack.packed_data.resize(c_size_compressed);
 				CopyMemory(data_toPack.packed_data.data(), CompressedData, c_size_compressed);
 				data_toPack.c_crc32 = c_crc32;
 				data_toPack.c_size_compressed = c_size_compressed;
 				data_toPack.c_size_real = c_size_real;
 				xr_delete(CompressedData);
-
-				MsgComressor("Zlib: %7u kb to %7u kb | Rate: %3.0f | File: %s", c_size_real / 1024, c_size_compressed / 1024, (float(c_size_compressed) / float(c_size_real)) * 100.0f, path);
+ 				MsgComressor("Zlib: %7u kb to %7u kb | Rate: %3.0f | File: %s", c_size_real / 1024, c_size_compressed / 1024, (float(c_size_compressed) / float(c_size_real)) * 100.0f, path);
 			}
 		}
 		else
@@ -241,17 +237,12 @@ void xrCompressor::ProcessFile(LPCSTR path, xr_vector<PackedData>& toPack, size_
 		if (noCompress)
 		{
 			filesVFS++;
-			//fs_pack_writer->w(data, size_real);
 			c_size_compressed = c_size_real;
-
-
 			data_toPack.c_crc32 = c_crc32;
 			data_toPack.c_size_compressed = c_size_compressed;
 			data_toPack.c_size_real = c_size_real;
 			data_toPack.packed_data = data;
-
 			MsgComressor("VFSS: %7u kb to %7u kb | Rate: %3.0f | File: %s", c_size_real / 1024, c_size_compressed / 1024, (float(c_size_compressed) / float(c_size_real)) * 100.0f, path);
-
 		}
 	}
 
@@ -260,8 +251,6 @@ void xrCompressor::ProcessFile(LPCSTR path, xr_vector<PackedData>& toPack, size_
 	lock_processfile.unlock();
 
 	toPack.push_back(data_toPack);
-	// Write description
-	// write_file_header		(path, c_crc32, c_ptr, c_size_real, c_size_compressed);
 	FS.r_close(src);
 }
 
@@ -309,9 +298,7 @@ void xrCompressor::OpenPack(LPCSTR tgt_folder, int num)
 	dwTimeStart		= timeGetTime();
 
 	//write pack header without compression
- 
-
-	if(config_ltx && config_ltx->section_exist("header"))
+ 	if(config_ltx && config_ltx->section_exist("header"))
 	{
 		CMemoryWriter			W;
 		CInifile::Sect&	S		= config_ltx->r_section("header");
@@ -348,21 +335,22 @@ void xrCompressor::OpenPack(LPCSTR tgt_folder, int num)
 
 	fs_pack_writer->open_chunk	(0);
 }
-
 void xrCompressor::SetPackHeaderName(LPCSTR n)
 {
 	pPackHeader		= FS.r_open	(n);
 	R_ASSERT2		(pPackHeader, n);
 }
+
    
 void xrCompressor::ClosePack()
 {
 	fs_pack_writer->close_chunk	(); 
+
 	// save list
 	bytesDST		= fs_pack_writer->tell	();
 	Msg				("...Writing pack desc");
 
-	fs_pack_writer->w_chunk		(CFS_ARCHIVE_SE7 /*1*/ | CFS_CompressMark, fs_desc.pointer(), fs_desc.size());
+	fs_pack_writer->w_chunk		( 1000, fs_desc.pointer(), fs_desc.size());
 
 
 	Msg				("Data size: %d. Desc size: %d.",bytesDST,fs_desc.size());

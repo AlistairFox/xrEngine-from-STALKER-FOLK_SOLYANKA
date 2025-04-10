@@ -15,6 +15,8 @@
 
 class XRCORE_API CStreamReader;
 
+static u32 BIG_FILE_READER_WINDOW_SIZE = 1024 * 1024;
+
 class XRCORE_API CLocatorAPI  
 {
 	friend class FS_Path;

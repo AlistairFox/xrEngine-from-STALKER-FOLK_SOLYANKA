@@ -11,7 +11,7 @@ void CLevel::CalculateLevelCrc32()
 {
 	void* read_buffer	= _alloca(r_buffer_size);
 	Msg("* calculating checksum of level.geom");
-	CStreamReader*		geom = FS.rs_open	("$level$","level.geom");
+	IReader*		geom = FS.r_open	("$level$","level.geom");
 	R_ASSERT2			(geom, "failed to open level.geom file");
 	u32 remaind			= geom->elapsed();
 	map_data.m_level_geom_crc32	= 0;
