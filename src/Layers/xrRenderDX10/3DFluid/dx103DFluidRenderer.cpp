@@ -17,23 +17,23 @@ namespace
 {
 	// For render call
 	//pZNearVar = pEffect->GetVariableByName("ZNear")->AsScalar();
-	shared_str	strZNear("ZNear");
+	shared_str	strZNear;
 	//pZFarVar = pEffect->GetVariableByName("ZFar")->AsScalar();
-	shared_str	strZFar("ZFar");
+	shared_str	strZFar;
 	//pGridScaleFactorVar = pEffect->GetVariableByName( "gridScaleFactor")->AsScalar();
-	shared_str	strGridScaleFactor("gridScaleFactor");
+	shared_str	strGridScaleFactor;
 	//pEyeOnGridVar = pEffect->GetVariableByName("eyeOnGrid")->AsVector();
-	shared_str	strEyeOnGrid("eyeOnGrid");
+	shared_str	strEyeOnGrid;
 	//pWorldViewProjectionVar = pEffect->GetVariableByName("WorldViewProjection")->AsMatrix();
-	shared_str	strWorldViewProjection("WorldViewProjection");
+	shared_str	strWorldViewProjection;
 	//pInvWorldViewProjectionVar = pEffect->GetVariableByName("InvWorldViewProjection")->AsMatrix();
-	shared_str	strInvWorldViewProjection("InvWorldViewProjection");
+	shared_str	strInvWorldViewProjection;
 	//pRTWidthVar = pEffect->GetVariableByName("RTWidth")->AsScalar();
-	shared_str	strRTWidth("RTWidth");
+	shared_str	strRTWidth;
 	//pRTHeightVar = pEffect->GetVariableByName("RTHeight")->AsScalar();
-	shared_str	strRTHeight("RTHeight");
+	shared_str	strRTHeight;
 
-	shared_str	strDiffuseLight("DiffuseLight");
+	shared_str	strDiffuseLight;
 }
 
 LPCSTR			dx103DFluidRenderer::m_pRTNames[ RRT_NumRT ] = 
@@ -55,6 +55,8 @@ LPCSTR			dx103DFluidRenderer::m_pResourceRTNames[ RRT_NumRT ] =
 dx103DFluidRenderer::dx103DFluidRenderer():
 	m_bInited(false)
 {
+
+
 	RTFormats[RRT_RayDataTex] = D3DFMT_A32B32G32R32F;
 	RTFormats[RRT_RayDataTexSmall] = D3DFMT_A32B32G32R32F;
 	RTFormats[RRT_RayCastTex] = D3DFMT_A32B32G32R32F;
@@ -68,6 +70,16 @@ dx103DFluidRenderer::~dx103DFluidRenderer()
 
 void dx103DFluidRenderer::Initialize(int gridWidth, int gridHeight, int gridDepth)
 {
+	strZNear = "ZNear";
+	strZFar = "ZFar";
+	strGridScaleFactor = "gridScaleFactor";
+	strEyeOnGrid = "eyeOnGrid";
+	strWorldViewProjection = "WorldViewProjection";
+	strInvWorldViewProjection = "InvWorldViewProjection";
+	strRTWidth = "RTWidth";
+	strRTHeight = "RTHeight";
+	strDiffuseLight = "DiffuseLight";
+
 	Destroy();
 
 	m_vGridDim[0] = float(gridWidth);
@@ -312,7 +324,7 @@ void dx103DFluidRenderer::CreateJitterTexture()
 	// Create the shader resource view for jittering
 	//D3Dxx_SHADER_RESOURCE_VIEW_DESC descSRV;
 
-	//ZeroMemory( &descSRV, sizeof(descSRV) );
+	//SecureZeroMemory( &descSRV, sizeof(descSRV) );
 	//descSRV.Format = DXGI_FORMAT_R8_UNORM;
 	//descSRV.ViewDimension = D3D_SRV_DIMENSION_TEXTURE2D;
 	//descSRV.Texture2D.MipLevels = 1;
@@ -527,7 +539,7 @@ void dx103DFluidRenderer::CreateRayDataResources( int width, int height )
 	V_RETURN( m_pD3DDevice->CreateRenderTargetView(pEdgeTex2D, &DescRT, &pEdgeRTV));
 
 	D3Dxx_SHADER_RESOURCE_VIEW_DESC SRVDesc;
-	ZeroMemory( &SRVDesc, sizeof(SRVDesc) );
+	SecureZeroMemory( &SRVDesc, sizeof(SRVDesc) );
 	SRVDesc.ViewDimension = D3D_SRV_DIMENSION_TEXTURE2D;
 	SRVDesc.Texture2D.MostDetailedMip = 0;
 	SRVDesc.Texture2D.MipLevels = 1;

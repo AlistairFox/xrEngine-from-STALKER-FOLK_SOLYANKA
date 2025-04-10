@@ -41,14 +41,14 @@ namespace
 	//	For OOBB
 //	shared_str	strBoxLBDcorner("boxLBDcorner");
 //	shared_str	strBoxRTUcorner("boxRTUcorner");
-	shared_str	strOOBBClipPlane("OOBBClipPlane");
+	shared_str	strOOBBClipPlane;
 
 	//	For velocity calculation
-	shared_str	strWorldToLocal("WorldToLocal");
-	shared_str	strLocalToWorld("LocalToWorld");
-	shared_str	strMassCenter("MassCenter");
-	shared_str	strOOBBWorldAngularVelocity("OOBBWorldAngularVelocity");
-	shared_str	strOOBBWorldTranslationVelocity("OOBBWorldTranslationVelocity");
+	shared_str	strWorldToLocal;
+	shared_str	strLocalToWorld;
+	shared_str	strMassCenter;
+	shared_str	strOOBBWorldAngularVelocity;
+	shared_str	strOOBBWorldTranslationVelocity;
 
 	Fvector4	UnitClipPlanes[] = 
 	{
@@ -64,6 +64,15 @@ namespace
 dx103DFluidObstacles::dx103DFluidObstacles(int gridWidth, int gridHeight, int gridDepth, dx103DFluidGrid *pGrid)
 	:	m_pGrid(pGrid)
 {
+	strOOBBClipPlane = ("OOBBClipPlane");
+
+	//	For velocity calculation
+	strWorldToLocal = ("WorldToLocal");
+	strLocalToWorld = ("LocalToWorld");
+	strMassCenter = ("MassCenter");
+	strOOBBWorldAngularVelocity  = ("OOBBWorldAngularVelocity");
+	strOOBBWorldTranslationVelocity = ("OOBBWorldTranslationVelocity");
+
 	VERIFY(m_pGrid);
 
 	m_vGridDim[0] = float(gridWidth);

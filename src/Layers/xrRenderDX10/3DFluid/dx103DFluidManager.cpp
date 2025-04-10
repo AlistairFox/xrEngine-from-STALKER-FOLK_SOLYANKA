@@ -17,10 +17,10 @@ namespace
 
 	// For render call
 	//DrawTextureShaderVariable = pEffect->GetVariableByName( "textureNumber")->AsScalar();
-	shared_str	strDrawTexture("textureNumber");
+	shared_str	strDrawTexture;
 	// For project, advect
 	//ModulateShaderVariable = pEffect->GetVariableByName( "modulate")->AsScalar();
-	shared_str	strModulate("modulate");
+	shared_str	strModulate;
 	// For gaussian
 	//ImpulseSizeShaderVariable = pEffect->GetVariableByName( "size")->AsScalar();
 	//shared_str	strImpulseSize("size");
@@ -30,16 +30,16 @@ namespace
 	//shared_str	strSplatColor("splatColor");
 	// For confinement
 	//EpsilonShaderVariable = pEffect->GetVariableByName( "epsilon")->AsScalar();
-	shared_str	strEpsilon("epsilon");
+	shared_str	strEpsilon;
 	// For confinement, advect
-	shared_str	strTimeStep("timestep");
+	shared_str	strTimeStep;
 	// For advect BFECC
 	//ForwardShaderVariable = pEffect->GetVariableByName( "forward")->AsScalar();
-	shared_str	strForward("forward");
+	shared_str	strForward;
 	//HalfVolumeDimShaderVariable = pEffect->GetVariableByName( "halfVolumeDim")->AsVector();
-	shared_str	strHalfVolumeDim("halfVolumeDim");
+	shared_str	strHalfVolumeDim;
 
-	shared_str	strGravityBuoyancy("GravityBuoyancy");
+	shared_str	strGravityBuoyancy;
 }
 
 LPCSTR dx103DFluidManager::m_pEngineTextureNames[ NUM_RENDER_TARGETS ] = 
@@ -78,7 +78,7 @@ dx103DFluidManager::dx103DFluidManager()
 	m_fDecay(1.0f), m_pGrid(0), m_pRenderer(0),
 	m_pObstaclesHandler(0)
 {
-	ZeroMemory(pRenderTargetViews, sizeof(pRenderTargetViews));
+	SecureZeroMemory(pRenderTargetViews, sizeof(pRenderTargetViews));
 
 	//RenderTargetFormats [RENDER_TARGET_VELOCITY0]	= DXGI_FORMAT_R16G16B16A16_FLOAT;
 	RenderTargetFormats [RENDER_TARGET_VELOCITY1]	= DXGI_FORMAT_R16G16B16A16_FLOAT;
@@ -99,6 +99,14 @@ dx103DFluidManager::~dx103DFluidManager()
 
 void dx103DFluidManager::Initialize( int width, int height, int depth )
 {
+	strDrawTexture = "textureNumber";
+	strModulate = "modulate";
+	strEpsilon = "epsilon";
+	strTimeStep = "timestep";
+	strForward = "forward";
+	strHalfVolumeDim = "halfVolumeDim";
+	strGravityBuoyancy = "GravityBuoyancy";
+
 	//if (strstr(Core.Params,"-no_volumetric_fog"))
 	if (!RImplementation.o.volumetricfog)
 		return;
@@ -122,7 +130,7 @@ void dx103DFluidManager::Initialize( int width, int height, int depth )
 	desc.Depth =  depth;
 
 	D3D_SHADER_RESOURCE_VIEW_DESC SRVDesc;
-	ZeroMemory( &SRVDesc, sizeof(SRVDesc) );
+	SecureZeroMemory( &SRVDesc, sizeof(SRVDesc) );
 	SRVDesc.ViewDimension = D3D_SRV_DIMENSION_TEXTURE3D;
 	SRVDesc.Texture3D.MipLevels = 1;
 	SRVDesc.Texture3D.MostDetailedMip = 0;
