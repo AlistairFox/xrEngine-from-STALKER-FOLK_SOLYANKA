@@ -90,7 +90,7 @@ void CLevel::ClientReceive()
 			{
 				shared_str text;
 				P->r_stringZ(text);
-				Msg("[SV] Recived Message: %s", text.c_str());
+				Msg("~~~ [SV] Recived Message: %s", text.c_str());
 			}break;
 
 			case M_EVENT_CMD_SYNC:

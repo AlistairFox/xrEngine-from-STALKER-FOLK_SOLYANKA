@@ -679,9 +679,11 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 	case GE_WPN_SPAWNGRENADE:
 	case GE_WPN_SWITCH_FIREMODE:
 	case GE_WPN_STATE_CHANGE:
-	{
-		SendBroadcast(BroadcastCID, P, net_flags(true, true));
-	}break;
+
+	case GE_PRIVATE_INVENTORY_BUY:
+	case GE_STALKER_ANIMATION:
+	case GE_MISSILE_THROW:
+	case GE_MISSILE_SPAWN:
 
 	case GE_PHANTOM_MODE:
 	{
@@ -700,16 +702,6 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 			box->SE_update_ITEMS_SAFE(id);
  	}
 	break;
-
-	case GE_PRIVATE_INVENTORY_BUY:
-	{
-		SendBroadcast(BroadcastCID, P, net_flags(true, true));
-	}break;
-
-	case GE_STALKER_ANIMATION:
-	{
-		SendBroadcast(BroadcastCID, P, net_flags(true, true));
-	}break;
 
 	default:
 		Msg("ClientID: [%u] Not support event: %u (Kick player if many times print)", sender, type);

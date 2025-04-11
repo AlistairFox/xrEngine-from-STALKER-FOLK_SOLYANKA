@@ -276,7 +276,13 @@ BOOL CGameObject::net_Spawn		(CSE_Abstract*	DC)
 	{
 		Msg("* Spawning demo spectator ...");
 		demo_spectator = true;
-	} else {
+	} 
+	else 
+	{
+		CObject* O = Level().Objects.net_Find(E->ID);
+		if (O)
+		Msg("Strange Detected (%s) (%u) already in Objects !!!", O->cName(), O->ID());
+
 		R_ASSERT(Level().Objects.net_Find(E->ID) == NULL);
 	}
 

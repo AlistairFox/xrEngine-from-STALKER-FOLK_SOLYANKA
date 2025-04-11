@@ -19,13 +19,9 @@ bool xrServer::Process_event_reject	(NET_Packet& P, const ClientID sender, const
 		Msg                ( "! ERROR on rejecting: parent not found. parent_id = [%d], entity_id = [%d], frame = [%d].", id_parent, id_entity, Device.dwFrame );
 		return false;
 	}
-
-#ifdef MP_LOGGING
-	Msg ( "--- SV: Process reject: parent[%d][%s], item[%d][%s]", id_parent, e_parent->name_replace(), id_entity, e_entity->name());
-#endif // MP_LOGGING
-
+ 
 	xr_vector<u16>& C		= e_parent->children;
-	xr_vector<u16>::iterator c	= std::find	(C.begin(),C.end(),id_entity);
+	xr_vector<u16>::iterator c	= std::find	(C.begin(),C.end(), id_entity);
 	if (c == C.end())
 	{
 		Msg("! ERROR: SV: can't find children [%d] of parent [%d]", id_entity, e_parent);

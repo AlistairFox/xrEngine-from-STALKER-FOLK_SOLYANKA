@@ -25,6 +25,31 @@
 #include "ui/UIProgressShape.h"
 #include "ui/UIXmlInit.h"
 #include "physicsshellholder.h"
+#include <Grenade.h>
+
+
+void MsgSync(LPCSTR format, ...)
+{
+	va_list		mark;
+	string2048	buf;
+	va_start(mark, format);
+	int sz = _vsnprintf(buf, sizeof(buf) - 1, format, mark); buf[sizeof(buf) - 1] = 0;
+	va_end(mark);
+
+	if (OnServer())
+	{
+		NET_Packet P;
+		P.w_begin(M_MESSAGE_TEXT);
+		P.w_stringZ(buf);
+		Level().Server->SendBroadcast(BroadcastCID, P, net_flags(true, true));
+	}
+	else
+	{
+		if (sz)
+			Log(buf);
+	}
+}
+
 
 CUIProgressShape* g_MissileForceShape = NULL;
 
@@ -125,27 +150,32 @@ void CMissile::OnHiddenItem()
 void CMissile::spawn_fake_missile()
 {
 	if (OnClient())
-		return;
-
-	if (!getDestroy())
 	{
-		CSE_Abstract* object = Level().spawn_item(
-			*cNameSect(),
-			Position(),
-			(g_dedicated_server) ? u32(-1) : ai_location().level_vertex_id(),
-			ID(),
-			true
-		);
-
-		CSE_ALifeObject* alife_object = smart_cast<CSE_ALifeObject*>(object);
-		VERIFY(alife_object);
-		alife_object->m_flags.set(CSE_ALifeObject::flCanSave, FALSE);
-
-		NET_Packet			P;
-		object->Spawn_Write(P, TRUE);
-		Level().Send(P, net_flags(TRUE));
-		F_entity_Destroy(object);
+		NET_Packet P;
+		Game().u_EventGen(P, GE_MISSILE_SPAWN, ID() );
+		Game().u_EventSend(P);
+		return;
 	}
+	else
+	{
+		if (!getDestroy())
+		{
+			CSE_Abstract* object = Level().spawn_item(
+				*cNameSect(),
+				Position(),
+				ai_location().level_vertex_id(),
+				ID(),
+				true
+			);
+
+			CSE_ALifeObject* alife_object = smart_cast<CSE_ALifeObject*>(object);
+ 			alife_object->m_flags.set(CSE_ALifeObject::flCanSave, FALSE);
+ 			NET_Packet			P;
+			object->Spawn_Write(P, TRUE);
+			Level().Send(P, net_flags(TRUE));
+			F_entity_Destroy(object);
+		}
+	}	 
 }
 
 // Physic States
@@ -192,11 +222,10 @@ void CMissile::OnH_B_Independent(bool just_before_destroy)
 
 		if (GetState() == eThrow)
 		{
-			Msg("Throw on reject");
-			Throw();
+ 			Throw();
 		}
 	}
-
+  
 	if (!m_dwDestroyTime && Local())
 	{
 		DestroyObject();
@@ -208,7 +237,7 @@ extern u32 hud_adj_mode;
 
 // ќбновл€торы
 void CMissile::UpdateCL()
-{
+{ 
 	m_dwStateTime += Device.dwTimeDelta;
 
 	inherited::UpdateCL();
@@ -426,8 +455,14 @@ void CMissile::OnMotionMark(u32 state, const motion_marks& M)
 	inherited::OnMotionMark(state, M);
 	if (state == eThrow && !m_throw)
 	{
-		if (H_Parent())
+ 
+		CInventoryOwner* invOwner = smart_cast<CInventoryOwner*>(H_Parent());
+		CActor* pActor = smart_cast<CActor*>(invOwner);
+ 		if (pActor && pActor == Level().CurrentControlEntity() || !pActor && OnServer())
+ 		{
 			Throw();
+		}
+
 	}
 }
  
@@ -455,40 +490,36 @@ void CMissile::setup_throw_params()
 
 	Fvector::generate_orthonormal_basis(TransformMatrix.k, TransformMatrix.j, TransformMatrix.i);
 	TransformMatrix.c.set(FirePos);
-	m_throw_matrix.set(TransformMatrix);
-	m_throw_direction.set(TransformMatrix.k);
+	
+	Fmatrix m_value_throw_matrix; 
+	m_value_throw_matrix.set(TransformMatrix);
+	
+	Fvector m_value_throw_direction;
+	m_value_throw_direction.set(TransformMatrix.k);
+
+ 
+	// 
+	float ThrowForces = 0.01f;
+ 	if (inventory_owner->use_default_throw_force())
+ 		ThrowForces = m_constpower ? m_fConstForce : m_fThrowForce;
+	else
+ 		ThrowForces = inventory_owner->missile_throw_force();
+
+	// m_fThrowForce = m_fMinForce;
+
+	NET_Packet packet;
+	Game().u_EventGen(packet, GE_MISSILE_THROW, ID());
+	packet.w_matrix(m_value_throw_matrix);
+	packet.w_vec3(m_value_throw_direction);
+	packet.w_float(ThrowForces);
+ 	Game().u_EventSend(packet);
 }
 
 
 void CMissile::Throw()
 {
-	Msg("Throw[%s]", cName().c_str());
-
-	CInventoryOwner* invOwner = smart_cast<CInventoryOwner*>(H_Parent());
-	CActor* pActor = smart_cast<CActor*>(invOwner);
-	if (pActor && pActor == Level().CurrentControlEntity() || Local())
-	{
- 		setup_throw_params();
-
-		m_fake_missile->m_throw_direction = m_throw_direction;
-		m_fake_missile->m_throw_matrix = m_throw_matrix;
-
-		CInventoryOwner* inventory_owner = smart_cast<CInventoryOwner*>(H_Parent());
- 		if (inventory_owner->use_default_throw_force())
-			m_fake_missile->m_fThrowForce = m_constpower ? m_fConstForce : m_fThrowForce;
-		else
-			m_fake_missile->m_fThrowForce = inventory_owner->missile_throw_force();
-
-		m_fThrowForce = m_fMinForce;
-	}
-
-	if (Local() && H_Parent())
-	{
-		NET_Packet P;
-		u_EventGen(P, GE_OWNERSHIP_REJECT, ID());
-		P.w_u16(u16(m_fake_missile->ID()));
-		u_EventSend(P);
-	}
+	MsgSync("Throw[%s]", cName().c_str());
+ 	setup_throw_params();
 }
 
 void CMissile::OnEvent(NET_Packet& P, u16 type)
@@ -511,6 +542,7 @@ void CMissile::OnEvent(NET_Packet& P, u16 type)
 
 		case GE_OWNERSHIP_REJECT: 
 		{
+
 			P.r_u16(id);
 			bool IsFakeMissile = false;
 			if (m_fake_missile && (id == m_fake_missile->ID()))
@@ -518,6 +550,8 @@ void CMissile::OnEvent(NET_Packet& P, u16 type)
 				m_fake_missile = NULL;
 				IsFakeMissile = true;
 			}
+
+			Msg("Reject ID: %u", id);
 
 			CMissile* missile = smart_cast<CMissile*>(Level().Objects.net_Find(id));
 			if (!missile)
@@ -527,6 +561,62 @@ void CMissile::OnEvent(NET_Packet& P, u16 type)
 				missile->set_destroy_time(m_dwDestroyTimeMax);
 			break;
 		}
+
+		case GE_MISSILE_SPAWN:
+		{
+			if (OnServer())
+			{
+				spawn_fake_missile();
+			}
+		}break;
+
+		case GE_MISSILE_THROW:
+		{
+			Fmatrix throw_matrix;
+			P.r_matrix(throw_matrix);
+			Fvector throw_direction;
+			P.r_vec3(throw_direction);
+			float ThrowForce;
+			P.r_float(ThrowForce);
+
+			CGrenade* pGrenade = smart_cast<CGrenade*>(m_fake_missile);
+			if (pGrenade)
+			{
+				MsgSync("Throw Grenade [%u]", ID());
+				pGrenade->set_destroy_time(m_dwDestroyTimeMax);
+				pGrenade->SetInitiator(H_Parent()->ID()); //установить ID того кто кинул гранату
+				pGrenade->m_thrown = true;
+				 
+				m_fake_missile->m_throw_direction = throw_direction;
+				m_fake_missile->m_throw_matrix = throw_matrix;
+				m_fake_missile->m_fThrowForce = ThrowForce;
+
+				m_throw_direction = throw_direction;
+				m_throw_matrix = throw_matrix;
+				m_fThrowForce = ThrowForce;
+				// Setup Direction to missile
+				 
+				if (OnServer() && H_Parent())
+				{
+					NET_Packet P;
+					u_EventGen(P, GE_OWNERSHIP_REJECT, ID());
+					P.w_u16(u16(m_fake_missile->ID()));
+					u_EventSend(P);
+				}
+
+				m_fake_missile->processing_activate();//@sliph
+
+				if (OnServer())
+				{
+					CGrenade* pGrenade = smart_cast<CGrenade*>(this);
+					if (pGrenade)
+					{
+						pGrenade->PutNextToSlot();
+						pGrenade->DestroyObject();
+					}
+				}
+			}
+		}break;
 	}
 }
 

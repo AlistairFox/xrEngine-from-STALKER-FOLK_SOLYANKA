@@ -58,11 +58,12 @@ protected:
 	ESoundTypes				m_eSoundCheckout;
 private:
 	float					m_grenade_detonation_threshold_hit;
-	bool					m_thrown;
+	
 
 protected:
 	virtual	void			UpdateXForm							()		{ CMissile::UpdateXForm(); };
 public:
+	bool					m_thrown;
 
 	virtual BOOL			UsedAI_Locations					();
 	virtual CExplosive		*cast_explosive						()	{return this;}

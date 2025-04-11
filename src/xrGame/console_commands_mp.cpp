@@ -2571,8 +2571,8 @@ void register_mp_console_commands()
  	
 	
 	//CLIENT PING SIMMULATION
-	CMD4(CCC_Integer, "net_sv_simulate_lag", &simulate_netwark_ping, 0, 100);
-	CMD4(CCC_Integer, "net_cl_simulate_lag", &simulate_netwark_ping_cl, 0, 100);
+	CMD4(CCC_Integer, "net_sv_simulate_lag", &simulate_netwark_ping, 0, 500);
+	CMD4(CCC_Integer, "net_cl_simulate_lag", &simulate_netwark_ping_cl, 0, 500);
 
 	//SOUND VOICE Settings
 	CMD4(CCC_Float,   "snd_volume_players",   &psSoundVPlayers, 0, 1);

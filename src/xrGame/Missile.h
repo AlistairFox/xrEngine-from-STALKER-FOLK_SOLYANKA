@@ -14,6 +14,8 @@ public:
 		eThrow,
 		eThrowEnd,
 	};
+
+	bool need_after_throw = false;
 	CMissile();
 	virtual					~CMissile();
 
@@ -59,7 +61,7 @@ protected:
 
 	//для сети
 	virtual void			net_Relcase(CObject* O);
-protected:
+public:
 
 	//время нахождения в текущем состоянии
 	u32						m_dwStateTime;

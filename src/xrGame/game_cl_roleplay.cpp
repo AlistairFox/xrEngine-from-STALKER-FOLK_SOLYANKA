@@ -160,8 +160,46 @@ void game_cl_roleplay::OnSetCurrentControlEntity(CObject * O)
 #define PLAYER_NAME_COLOR_8 0xff40ff40
 #define PLAYER_NAME_COLOR_9 0xff40ff40
 
+char* MissileHud[10] =
+{
+	"eIdle",
+	"eShowing",
+	"eHiding",
+	"eHidden",
+	"eBore",
+	"eSprintStart",
+	"eSprintEnd",
+	"eThrowStart"
+	"eReady",
+	"eThrow",
+	"eThrowEnd"
+};
+  
+#include "Inventory.h"
+#include "Missile.h" 
+
 void game_cl_roleplay::OnRender()
 {
+	// CActor* actor = smart_cast<CActor*> (Level().CurrentControlEntity());
+	// if (actor)
+	// {
+	// 	CMissile* item = smart_cast<CMissile*>(actor->inventory().ActiveItem());
+	// 	if (item)
+	// 	{
+	// 		u32 StateID = item->GetState();
+	// 
+	// 		CGameFont* font = UI().Font().pFontArial14;
+	// 
+	// 		font->SetHeightI(0.02f);
+	// 		font->OutSet(25, 25);
+	// 		font->SetColor(color_argb(255, 255, 128, 128));
+	// 
+	// 		string128 tmp;
+	// 		sprintf(tmp, "Missile State: %s | Throw: %u", MissileHud[StateID], item->m_throw);
+	// 		font->OutNext(tmp);
+	// 	}
+	// }		
+
 	// if (g_pGamePersistent && g_pGamePersistent->m_pGShaderConstants)
 	// {
 	// 	float fRotation = g_pGamePersistent->m_pGShaderConstants->hud_params.x;//--#SM+#--
@@ -169,7 +207,7 @@ void game_cl_roleplay::OnRender()
 	// 	float useMark = g_pGamePersistent->m_pGShaderConstants->hud_params.z;//--#SM+#--
 	// 
 	// 
- 	// 	CGameFont* font = UI().Font().pFontArial14;
+	// 	CGameFont* font = UI().Font().pFontArial14;
 	// 
 	// 	font->SetHeightI(0.02f);
 	// 	font->OutSet(25, 25);
@@ -178,7 +216,7 @@ void game_cl_roleplay::OnRender()
 	// 	string128 tmp;
 	// 	sprintf(tmp, "zRotation: %.2f, VP_Fov: %.2f, UseMark: %.2f", fRotation, fVP2_Fov, useMark);
 	// 	font->OutNext(tmp);
- 	// 
+	// 
 	// }
 
  	// for (auto player : Game().players)

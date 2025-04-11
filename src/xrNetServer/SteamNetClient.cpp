@@ -201,6 +201,8 @@ void SteamNetClient::DestroyConnection()
  
 void SteamNetClient::Update()
 {
+	u32 LastSimulatePing = 0;
+
 	CTimer t;
 	t.Start();
 	while (true)
@@ -212,19 +214,13 @@ void SteamNetClient::Update()
 			csConnection.Leave();
 			break;
 		}
- 		/*
-		if (!GameDescriptionReceived() && !m_bWasConnected && t.GetElapsed_ms() % 5000 == 0)
+ 	 
+		if (simulate_netwark_ping_cl != LastSimulatePing && simulate_netwark_ping_cl >= 0)
 		{
-			SteamNetConnectionRealTimeStatus_t status;
-			m_pInterface->GetConnectionRealTimeStatus(m_hConnection, &status, 0, nullptr);
-			if (status.m_eState == k_ESteamNetworkingConnectionState_Connected)
-			{
-				m_bWasConnected = true;
-				SendClientData();
-			}
+			SteamNetworkingUtils()->SetGlobalConfigValueInt32(k_ESteamNetworkingConfig_FakePacketLag_Send, simulate_netwark_ping_cl / 2);
+ 			LastSimulatePing = simulate_netwark_ping_cl;
 		}
-		*/
- 
+
 		PollIncomingMessages();
 		//MasterServer
 		//if (master_server)

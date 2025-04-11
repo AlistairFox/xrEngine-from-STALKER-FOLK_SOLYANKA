@@ -24,8 +24,10 @@ void CBolt::OnH_A_Chield()
 void CBolt::Throw() 
 {
 	CMissile					*l_pBolt = smart_cast<CMissile*>(m_fake_missile);
-	if(!l_pBolt)				return;
-	l_pBolt->set_destroy_time	(u32(m_dwDestroyTimeMax/phTimefactor));
+	if (!l_pBolt)
+  		return;
+ 
+	l_pBolt->set_destroy_time	( u32(m_dwDestroyTimeMax/phTimefactor) );
 	inherited::Throw			();
 	spawn_fake_missile			();
 }
@@ -37,7 +39,9 @@ bool CBolt::Useful() const
 
 bool CBolt::Action(u16 cmd, u32 flags) 
 {
-	if(inherited::Action(cmd, flags)) return true;
+	if(inherited::Action(cmd, flags))
+		return true;
+
 /*
 	switch(cmd) 
 	{
