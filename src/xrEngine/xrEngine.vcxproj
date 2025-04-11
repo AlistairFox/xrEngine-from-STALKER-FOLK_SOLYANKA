@@ -87,7 +87,7 @@
     <LinkIncremental>false</LinkIncremental>
     <LibraryPath>$(LibraryPath);A:\Games\TEST\Dead Edge\bin\x86\LIBS\</LibraryPath>
     <OutDir>A:\STALKER\FOLK STCOP 3.7\bins\</OutDir>
-    <TargetName>RenderDX11</TargetName>
+    <TargetName>xrEngine</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Dedicated|Win32'">
     <LinkIncremental>false</LinkIncremental>

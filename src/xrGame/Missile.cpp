@@ -28,27 +28,27 @@
 #include <Grenade.h>
 
 
-void MsgSync(LPCSTR format, ...)
-{
-	va_list		mark;
-	string2048	buf;
-	va_start(mark, format);
-	int sz = _vsnprintf(buf, sizeof(buf) - 1, format, mark); buf[sizeof(buf) - 1] = 0;
-	va_end(mark);
-
-	if (OnServer())
-	{
-		NET_Packet P;
-		P.w_begin(M_MESSAGE_TEXT);
-		P.w_stringZ(buf);
-		Level().Server->SendBroadcast(BroadcastCID, P, net_flags(true, true));
-	}
-	else
-	{
-		if (sz)
-			Log(buf);
-	}
-}
+// void MsgSync(LPCSTR format, ...)
+// {
+// 	va_list		mark;
+// 	string2048	buf;
+// 	va_start(mark, format);
+// 	int sz = _vsnprintf(buf, sizeof(buf) - 1, format, mark); buf[sizeof(buf) - 1] = 0;
+// 	va_end(mark);
+// 
+// 	if (OnServer())
+// 	{
+// 		NET_Packet P;
+// 		P.w_begin(M_MESSAGE_TEXT);
+// 		P.w_stringZ(buf);
+// 		Level().Server->SendBroadcast(BroadcastCID, P, net_flags(true, true));
+// 	}
+// 	else
+// 	{
+// 		if (sz)
+// 			Log(buf);
+// 	}
+// }
 
 
 CUIProgressShape* g_MissileForceShape = NULL;
@@ -518,7 +518,7 @@ void CMissile::setup_throw_params()
 
 void CMissile::Throw()
 {
-	MsgSync("Throw[%s]", cName().c_str());
+	// MsgSync("Throw[%s]", cName().c_str());
  	setup_throw_params();
 }
 
@@ -582,7 +582,7 @@ void CMissile::OnEvent(NET_Packet& P, u16 type)
 			CGrenade* pGrenade = smart_cast<CGrenade*>(m_fake_missile);
 			if (pGrenade)
 			{
-				MsgSync("Throw Grenade [%u]", ID());
+				// MsgSync("Throw Grenade [%u]", ID());
 				pGrenade->set_destroy_time(m_dwDestroyTimeMax);
 				pGrenade->SetInitiator(H_Parent()->ID()); //установить ID того кто кинул гранату
 				pGrenade->m_thrown = true;
