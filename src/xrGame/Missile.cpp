@@ -26,6 +26,7 @@
 #include "ui/UIXmlInit.h"
 #include "physicsshellholder.h"
 #include <Grenade.h>
+#include <Bolt.h>
 
 
 // void MsgSync(LPCSTR format, ...)
@@ -616,6 +617,33 @@ void CMissile::OnEvent(NET_Packet& P, u16 type)
 					}
 				}
 			}
+
+			CBolt* bolt = smart_cast<CBolt*>(m_fake_missile);
+			if (bolt)
+			{
+				bolt->set_destroy_time(m_dwDestroyTimeMax);
+				bolt->SetInitiator(H_Parent()->ID()); //установить ID того кто кинул гранату
+ 
+				m_fake_missile->m_throw_direction = throw_direction;
+				m_fake_missile->m_throw_matrix = throw_matrix;
+				m_fake_missile->m_fThrowForce = ThrowForce;
+
+				m_throw_direction = throw_direction;
+				m_throw_matrix = throw_matrix;
+				m_fThrowForce = ThrowForce;
+
+				if (OnServer() && H_Parent())
+				{
+					NET_Packet P;
+					u_EventGen(P, GE_OWNERSHIP_REJECT, ID());
+					P.w_u16(u16(m_fake_missile->ID()));
+					u_EventSend(P);
+				}
+
+				m_fake_missile->processing_activate();//@sliph
+			}
+
+
 		}break;
 	}
 }
