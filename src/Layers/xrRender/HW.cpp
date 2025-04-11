@@ -156,6 +156,8 @@ D3DFORMAT CHW::selectDepthStencil	(D3DFORMAT fTarget)
 	return D3DFMT_UNKNOWN;
 }
 
+
+
 void	CHW::DestroyDevice	()
 {
 	_SHOW_REF				("refCount:pBaseZB",pBaseZB);
@@ -185,16 +187,13 @@ void	CHW::selectResolution	(u32 &dwWidth, u32 &dwHeight, BOOL bWindowed)
 #ifndef _EDITOR
 	if (g_dedicated_server)
 	{
-		if (strstr(Core.Params, "-res1024"))
-		{
-			dwWidth = 1024;
-			dwHeight = 768;
-		}
-		else
-		{
-			dwWidth = 640;
-			dwHeight = 480;
-		}
+		extern int WidthDedicatedX;
+		extern int WidthDedicatedY;
+
+		// -res1024
+ 		dwWidth = WidthDedicatedX;
+		dwHeight = WidthDedicatedY;
+		 
 	}
 	else
 #endif

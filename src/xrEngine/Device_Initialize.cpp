@@ -32,6 +32,7 @@ void CRenderDevice::initialize_editor	()
 	VERIFY				(m_hWnd != INVALID_HANDLE_VALUE);
 }
 #endif // #ifdef INGAME_EDITOR
+#include "IGame_Persistent.h"
 
 void CRenderDevice::Initialize			()
 {
@@ -64,16 +65,15 @@ void CRenderDevice::Initialize			()
         // Set the window's initial width
         RECT rc;
 
-		if (strstr(Core.Params, "-dedicated"))
-		{
-			if (strstr(Core.Params, "-res1024"))
-				SetRect(&rc, 0, 0, 1024, 768);
-			else
-				SetRect(&rc, 0, 0, 640, 480);
-		}
-		else 
-			SetRect(&rc, 0, 0, 640, 480);
-		
+#ifdef DEDICATED_SERVER
+		extern int WidthDedicatedX;
+		extern int WidthDedicatedY;
+
+		// -res1024
+ 		SetRect(&rc, 0, 0, WidthDedicatedX, WidthDedicatedY);
+#else 
+		SetRect(&rc, 0, 0, 640, 480);
+#endif 
 		AdjustWindowRect( &rc, m_dwWindowStyle, FALSE );
 
         // Create the render window

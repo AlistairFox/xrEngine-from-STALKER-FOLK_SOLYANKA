@@ -82,6 +82,9 @@ ENGINE_API bool is_enough_address_space_available()
 	return			(*(u32*)&system_info.lpMaximumApplicationAddress) > 0x90000000;
 }
 
+
+#pragma comment(lib, "imgui.lib")
+
 #ifdef STATICRENDER_R1
 #pragma comment(lib, "xrRender_R1.lib")
 #pragma comment(lib, "d3dx9.lib")
@@ -100,7 +103,7 @@ ENGINE_API bool is_enough_address_space_available()
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3d10.lib")
-#pragma comment(lib, "imgui.lib")
+
 
 //#pragma comment(lib, "GFSDK_SSAO_D3D11.win64.lib")
 
@@ -108,7 +111,6 @@ ENGINE_API bool is_enough_address_space_available()
 
 extern BOOL DllMainRenderR1(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved);
 extern BOOL DllMainRenderR2(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved);
-extern BOOL DllMainRenderR3(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved);
 extern BOOL DllMainRenderR4(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved);
 
 void CEngineAPI::InitializeNotDedicated()
@@ -152,22 +154,17 @@ void CEngineAPI::InitializeNotDedicated()
 
 void CEngineAPI::InitializeDedicated()
 {
-	LPCSTR			r1_name = "xrRender_R1.dll";
+#ifdef DEDICATED_SERVER
+	// try to initialize R1
+	psDeviceFlags.set(rsR2, FALSE);
+	psDeviceFlags.set(rsR3, FALSE);
+	psDeviceFlags.set(rsR4, FALSE);
+	Log("Loading DLL: xrRender_R1.dll");
 
-	if (0 == hRender)
-	{
-		// try to load R1
-		psDeviceFlags.set(rsR4, FALSE);
-		psDeviceFlags.set(rsR3, FALSE);
-		psDeviceFlags.set(rsR2, FALSE);
-		renderer_value = 0; //con cmd
-
-		Log("Loading DLL:", r1_name);
-		hRender = LoadLibrary(r1_name);
-		if (0 == hRender)	R_CHK(GetLastError());
-		R_ASSERT(hRender);
-		g_current_renderer = 1;
-	}
+	DllMainRenderR1(NULL, DLL_PROCESS_ATTACH, NULL);
+	g_current_renderer = 1;
+	renderer_value = 0;
+#endif
 }
 
 #pragma comment(lib, "xrGame.lib")
@@ -222,17 +219,6 @@ void CEngineAPI::Destroy(void)
 	XRC.r_clear_compact();
 }
 
-typedef bool __cdecl SupportsAdvancedRenderingREF(void);
-typedef bool /*_declspec(dllexport)*/ SupportsDX10RenderingREF();
-typedef bool /*_declspec(dllexport)*/ SupportsDX11RenderingREF();
-
-extern "C"
-{
-	bool __cdecl SupportsAdvancedRendering(void);
-	bool /*_declspec(dllexport)*/ SupportsDX10Rendering();
-	bool /*_declspec(dllexport)*/ SupportsDX11Rendering();
-};
-
 void CEngineAPI::CreateRendererList()
 {
 	if (g_dedicated_server)
@@ -264,16 +250,10 @@ void CEngineAPI::CreateRendererList()
 #ifdef STATICRENDER_R2
 	// try to initialize R2
 	Log("Loading DLL:", r2_name);
-	//hRender = LoadLibrary(r2_name);
 	DllMainRenderR2(NULL, DLL_PROCESS_ATTACH, NULL);
-	//if (hRender)
 	{
 		bSupports_r2 = true;
-		//SupportsAdvancedRenderingREF* test_rendering = (SupportsAdvancedRenderingREF*)GetProcAddress(hRender, "SupportsAdvancedRendering");
-		SupportsAdvancedRenderingREF* test_rendering = SupportsAdvancedRendering;
-		R_ASSERT(test_rendering);
-		bSupports_r2_5 = test_rendering();
-		//FreeLibrary(hRender);
+ 		bSupports_r2_5 = true;
 		Msg("Support R4: %d", bSupports_r2_5);
 	}
 #endif
@@ -309,10 +289,7 @@ void CEngineAPI::CreateRendererList()
 	SetErrorMode(0);
 	//if (hRender)
 	{
-		//SupportsDX11RenderingREF* test_dx11_rendering = (SupportsDX11RenderingREF*)GetProcAddress(hRender, "SupportsDX11Rendering");
-		SupportsDX11RenderingREF* test_dx11_rendering = SupportsDX11Rendering;
-		R_ASSERT(test_dx11_rendering);
-		bSupports_r4 = test_dx11_rendering();
+ 		bSupports_r4 = true;
 		//FreeLibrary(hRender);
 		Msg("Support R4: %d", bSupports_r4);
 	}
@@ -403,7 +380,9 @@ void CEngineAPI::CreateRendererList()
 	Msg("DEBUG_RENDERS: [%s]", _tmp[0]);
 }
 
-
+// Dedicated Server Sizes
+extern int WidthDedicatedX = 1024;
+extern int WidthDedicatedY = 900;
 
 
 extern BOOL DllMainCore(HANDLE hinstDLL, DWORD ul_reason_for_call, LPVOID lpvReserved);

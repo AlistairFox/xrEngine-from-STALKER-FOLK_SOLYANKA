@@ -6,7 +6,7 @@
 #include "../xrRender/dxDebugRender.h"
 // #pragma comment(lib,"xrEngine.lib")
 
-BOOL DllMainR2( HANDLE hModule,  DWORD  ul_reason_for_call, LPVOID lpReserved )
+BOOL DllMainRenderR2( HANDLE hModule,  DWORD  ul_reason_for_call, LPVOID lpReserved )
 {
 	switch (ul_reason_for_call)
 	{

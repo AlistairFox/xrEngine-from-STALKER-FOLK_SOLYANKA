@@ -221,8 +221,6 @@ bool CWeaponMagazined::Action(u16 cmd, u32 flags)
 	if (IsPending())
 		return false;
  
-	Msg("Test Click 1");
-
 	switch (cmd)
 	{
 		case kWPN_RELOAD:
