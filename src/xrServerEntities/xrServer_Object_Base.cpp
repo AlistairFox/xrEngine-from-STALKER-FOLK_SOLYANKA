@@ -192,7 +192,8 @@ CInifile &CSE_Abstract::spawn_ini			()
 		void* data = (void*)(m_ini_string.c_str());
 		int size = m_ini_string.size();
 		m_ini_file = xr_new<CInifile>( &IReader(data, size ), FS.get_path("$game_config$")->m_Path );
-	
+		
+		if ( strstr ( Core.Params, "-dev" ) != 0 )
 		if (ID != u16(-1) && this->m_ini_string.size() > 4 && g_dedicated_server)
 		{
 			CSE_ALifeObjectPhysic* physic = smart_cast<CSE_ALifeObjectPhysic*>(this);
@@ -222,6 +223,7 @@ CInifile &CSE_Abstract::spawn_ini			()
 			w->w_string(this->m_ini_string.c_str());
 			FS.w_close(w);
 		}
+		 
 	}
 	return						(*m_ini_file);
 }

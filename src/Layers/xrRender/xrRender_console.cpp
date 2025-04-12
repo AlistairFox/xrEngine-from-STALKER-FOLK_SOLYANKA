@@ -789,10 +789,38 @@ public:
 extern int opt_static  = 0;
 extern int opt_dynamic = 0;
 
+#ifdef USE_DX11
+class CCC_UpdateShadowMapsSize : public CCC_Integer
+{
+public:
+	CCC_UpdateShadowMapsSize(LPCSTR N, int* Value, int min, int max) : CCC_Integer(N, Value, min, max)
+	{
+		bEmptyArgsHandled = false;
+	}
+
+	//virtual void Execute(LPCSTR args)
+	//{
+	//	u32 SmapSize = 2048;
+	//	sscanf(args, "%u", &SmapSize);
+	//	RImplementation.o.smapsize = SmapSize;
+	//}
+	//virtual void	Status(TStatus& S)
+	//{
+	//	sprintf_s(S, "smapsize: %d", RImplementation.o.smapsize);
+	//}
+};
+
+#endif 
 
 //-----------------------------------------------------------------------
 void		xrRender_initconsole	()
 {
+#ifdef USE_DX11
+//	int value = RImplementation.o.smapsize;
+//	CMD4(CCC_Integer, "r__smap_size", &value, 16, 8192);
+//	RImplementation.o.smapsize = value;
+#endif 
+
 //	CMD4(CCC_Integer, "r__optimize_dynamic_geom", &opt_dynamic, 0, 4);
 	CMD4(CCC_Integer, "r__optimize_static_geom", &opt_static, 0, 4);
 

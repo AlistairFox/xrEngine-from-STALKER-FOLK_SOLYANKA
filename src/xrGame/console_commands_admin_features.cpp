@@ -853,13 +853,12 @@ public:
  
 
 // SHEDULE UPDATE
-
 extern BOOL		g_cl_draw_mp_statistic;
 extern int		MAX_DISTANCE_FIND_GRAPH = 350;
 
-extern float	Shedule_Scale_Objects = 4;
-extern float	Shedule_Scale_AI_Stalker = 1;
-extern float	Shedule_Zone = 1;
+extern float	Shedule_Scale_Objects = 10;
+extern float	Shedule_Scale_AI_Stalker = 0.25;
+extern float	Shedule_Zone = 0.25;
 
 extern float	Shedule_Events = 0.1f;
 
@@ -871,9 +870,9 @@ void register_console_admin()
 	CMD4(CCC_Integer, "adm_wpn_hud_effect", &HudWeaponsEffects, 0, 1);
 	CMD4(CCC_Integer, "adm_alife_objects_sync", &SyncAlifeCount, 10, 1000);
 
-	CMD4(CCC_Float, "adm_shedule_ai", &Shedule_Scale_AI_Stalker, 0, 20);
-	CMD4(CCC_Float, "adm_shedule_objects", &Shedule_Scale_Objects, 0, 20);
-	CMD4(CCC_Float, "adm_shedule_zones", &Shedule_Zone, 0, 20);
+	// CMD4(CCC_Float, "adm_shedule_ai", &Shedule_Scale_AI_Stalker, 0, 20);
+	// CMD4(CCC_Float, "adm_shedule_objects", &Shedule_Scale_Objects, 0, 20);
+	// CMD4(CCC_Float, "adm_shedule_zones", &Shedule_Zone, 0, 20);
 
 	// DRAW STATISTIC
 	CMD4(CCC_Integer, "draw_mp_statistic", &g_cl_draw_mp_statistic, 0, 1);

@@ -294,7 +294,7 @@ public:
 			float		GetProtection_ArtefactsOnBelt(ALife::EHitType hit_type);
 
 			Fvector4	GetGlassShader();
- 			FVector3	GetRaindropsShader();
+ 			Fvector3	GetRaindropsShader();
 protected:
 	//звук тяжелого дыхания
 	ref_sound			m_HeavyBreathSnd;

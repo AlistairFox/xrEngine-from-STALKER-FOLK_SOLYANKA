@@ -40,6 +40,8 @@ DECLARE_TREE_BIND(c_scale);
 DECLARE_TREE_BIND(c_bias);
 DECLARE_TREE_BIND(c_sun);
 
+extern CRender										RImplementation;
+
 class cl_hemi_cube_pos_faces: public R_constant_setup
 {
 	virtual void setup(R_constant* C) {RCache.hemi.set_c_pos_faces(C);}
@@ -320,6 +322,13 @@ static class cl_blend_mode : public R_constant_setup //--#SM+#--
 	virtual void setup(R_constant* C) { RCache.set_c(C, g_pGamePersistent->m_pGShaderConstants->m_blender_mode); }
 } binder_blend_mode;
 
+#ifdef USE_DX11
+static class cl_render_smaps : public R_constant_setup //--#SM+#--
+{
+	virtual void setup(R_constant* C) { RCache.set_c(C, RImplementation.o.smapsize, 0, 0, 0); }
+} binder_blend_smap;
+#endif 
+
 // Standart constant-binding
 void	CBlender_Compile::SetMapping	()
 {
@@ -327,6 +336,9 @@ void	CBlender_Compile::SetMapping	()
 	r_Constant("m_hud_params", &binder_hud_params);		  //--#SM+#--
 	r_Constant("m_script_params", &binder_script_params); //--#SM+#--
 	r_Constant("m_blender_mode", &binder_blend_mode);	  //--#SM+#--
+#ifdef USE_DX11
+	r_Constant("m_smap_size", &binder_blend_smap);		  // Real Time Change Smap
+#endif 
 
 	// matrices
 	r_Constant				("m_W",				&binder_w);

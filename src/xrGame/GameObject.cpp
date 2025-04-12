@@ -1034,7 +1034,7 @@ float CGameObject::shedule_Scale()
 		{
 			Fvector OPos = H_Parent() ? H_Parent()->Position() : Position();
 			float Distance = Actor()->Position().distance_to(OPos);
-			float scale = Distance / 300;
+			float scale = Distance / 60;
 			if (scale > Shedule_Scale_Objects)
 				scale = Shedule_Scale_Objects;
 			return scale;

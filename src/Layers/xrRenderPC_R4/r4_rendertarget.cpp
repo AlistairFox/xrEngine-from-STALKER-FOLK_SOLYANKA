@@ -431,7 +431,8 @@ CRenderTarget::CRenderTarget		()
 	if (RImplementation.o.HW_smap)
 	{
 		D3DFORMAT	nullrt				= D3DFMT_R5G6B5;
-		if (RImplementation.o.nullrt)	nullrt	= (D3DFORMAT)MAKEFOURCC('N','U','L','L');
+		if (RImplementation.o.nullrt)	
+			nullrt	= (D3DFORMAT)MAKEFOURCC('N','U','L','L');
 
 		u32	size					=RImplementation.o.smapsize	;
 		rt_smap_depth.create		(r2_RT_smap_depth,			size,size,depth_format	);
