@@ -53,26 +53,54 @@ IC	u32 population(const u64 &b) {
 	return	( population( (u32)b ) + population(u32(b >> 32)) );
 }
 
-struct CEnemyFiller {
+struct CEnemyFiller
+{
 	typedef CAgentEnemyManager::ENEMIES ENEMIES;
-	ENEMIES			*m_enemies;
+	ENEMIES* m_enemies;
 	squad_mask_type	m_mask;
-	
-	IC			CEnemyFiller					(ENEMIES *enemies, squad_mask_type mask)
+
+	IC			CEnemyFiller(ENEMIES* enemies, squad_mask_type mask)
 	{
-		m_enemies					= enemies;
-		m_mask						= mask;
+		m_enemies = enemies;
+		m_mask = mask;
 	}
 
-	IC	void	operator()						(const CEntityAlive *enemy) const
+	IC	void	operator()						(const CEntityAlive* enemy) const
 	{
-		ENEMIES::iterator			I = std::find(m_enemies->begin(),m_enemies->end(),enemy);
-		if (I == m_enemies->end()) {
-			m_enemies->push_back	(CMemberEnemy(enemy,m_mask));
+		ENEMIES::iterator I;
+		try
+		{
+			I = std::find(m_enemies->begin(), m_enemies->end(), enemy);
+		}
+		catch (...)
+		{
+			Msg("Enemy Manager catch: %p | entity: %p", m_enemies, enemy);
 			return;
 		}
 
-		(*I).m_mask.set				(m_mask,TRUE);
+		if (I == m_enemies->end())
+		{
+			try
+			{
+				m_enemies->push_back(CMemberEnemy(enemy, m_mask));
+			}
+			catch (...)
+			{
+				Msg("Enemy Manager catch I==end: %p | entity: %p", m_enemies, enemy);
+			}
+
+			return;
+		}
+
+
+		try
+		{
+			(*I).m_mask.set(m_mask, TRUE);
+		}
+		catch (...)
+		{
+			Msg("Agent enemy is Strange affected: %p | %p", m_enemies, enemy);
+		}
 	}
 };
 
@@ -102,7 +130,14 @@ void CAgentEnemyManager::fill_enemies			()
 			try 
 			{
 				(*I)->probability(1.f);
-				(*I)->object().memory().fill_enemies(CEnemyFiller(&m_enemies, object().member().mask(&(*I)->object())));
+				
+				CAI_Stalker* stalker = const_cast<CAI_Stalker*> (&(*I)->object());
+				if (stalker && !stalker->getDestroy())
+				{
+					auto mask = object().member().mask(stalker);
+					(*I)->object().memory().fill_enemies(CEnemyFiller(&m_enemies, mask));
+				}
+				//(*I)->object().memory().fill_enemies(CEnemyFiller(&m_enemies, object().member().mask(&(*I)->object())));
 			}
 			catch (...)
 			{
