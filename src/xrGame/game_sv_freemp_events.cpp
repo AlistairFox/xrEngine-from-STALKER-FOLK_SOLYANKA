@@ -120,6 +120,9 @@ void game_sv_freemp::OnPlayerConnectFinished(ClientID id_who)
 		xrCData->ps->setFlag(GAME_PLAYER_FLAG_READY);
 		xrCData->ps->setFlag(GAME_PLAYER_MP_ON_CONNECTED);
 
+		if (xrCData->m_admin_rights.m_has_admin_rights)
+			xrCData->ps->setFlag(GAME_PLAYER_HAS_ADMIN_RIGHTS);
+
 		xrCData->ps->net_Export(P, TRUE);
 		u_EventSend(P);
 		xrCData->net_Ready = TRUE;
