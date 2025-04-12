@@ -793,7 +793,14 @@ public:
 	virtual void	Execute(LPCSTR args)
 	{
 		OPTICK_STOP_CAPTURE();
-		OPTICK_SAVE_CAPTURE("optick_save.opt");		
+
+		string_path name_log;
+		string64 t_stemp;
+		timestamp(t_stemp);
+		xr_strcat(name_log, "OptickCapture_");
+		xr_strcat(name_log, t_stemp);
+		xr_strcat(name_log, ".opt");
+		OPTICK_SAVE_CAPTURE(name_log);
 	}
 };
 
