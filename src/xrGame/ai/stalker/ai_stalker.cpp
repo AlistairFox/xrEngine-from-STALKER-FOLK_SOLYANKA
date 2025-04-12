@@ -1116,13 +1116,18 @@ void CAI_Stalker::net_Relcase				(CObject*	 O)
 {
 	inherited::net_Relcase				(O);
 
-	sight().remove_links				(O);
-	movement().remove_links				(O);
+	if (OnServer())
+	{
+		sight().remove_links(O);
+		movement().remove_links(O);
+	}
 
 	if (!g_Alive())
 		return;
 
-	agent_manager().remove_links		(O);
+	if (OnServer())
+		agent_manager().remove_links		(O);
+
 	m_pPhysics_support->in_NetRelcase	(O);
 }
 
