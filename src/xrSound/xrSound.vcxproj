@@ -119,7 +119,7 @@
       <BrowseInformation>
       </BrowseInformation>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
-      <DebugInformationFormat>None</DebugInformationFormat>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <FloatingPointModel>Fast</FloatingPointModel>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <SDLCheck>true</SDLCheck>

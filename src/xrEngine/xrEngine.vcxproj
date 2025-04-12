@@ -97,8 +97,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Dedicated|x64'">
     <LinkIncremental>false</LinkIncremental>
     <LibraryPath>$(LibraryPath);A:\Games\TEST\Dead Edge\bin\x86\LIBS\;A:\Games\TEST\Dead Edge\bin\dedicated\LIBS\</LibraryPath>
-    <TargetName>xrServer</TargetName>
-    <OutDir>A:\STALKER\FOLK STCOP 3.7\bins\</OutDir>
+    <TargetName>xrEngine</TargetName>
+    <OutDir>A:\STALKER\FOLK STCOP 3.7\dedicated\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -312,7 +312,7 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <IgnoreSpecificDefaultLibraries>libcmt;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <GenerateMapFile>false</GenerateMapFile>
       <MapFileName>
       </MapFileName>

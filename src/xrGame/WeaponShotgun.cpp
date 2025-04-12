@@ -231,8 +231,20 @@ u8 CWeaponShotgun::AddCartridge		(u8 cnt)
 	VERIFY((u32)iAmmoElapsed == m_magazine.size());
 
 	//выкинуть коробку патронов, если она пустая
-	if(m_pCurrentAmmo && !m_pCurrentAmmo->m_boxCurr && OnServer()) 
-		m_pCurrentAmmo->SetDropManual(TRUE);
+	// if(m_pCurrentAmmo && !m_pCurrentAmmo->m_boxCurr && OnServer()) 
+	// 	m_pCurrentAmmo->SetDropManual(TRUE);
+
+	if (m_pCurrentAmmo)
+	{
+		NET_Packet					P;
+		Game().u_EventGen(P, GE_WPN_UPDATE_AMMO, ID());
+		P.w_u16(m_pCurrentAmmo->ID());
+		P.w_u16(m_pCurrentAmmo->m_boxCurr);
+		Game().u_EventSend(P);
+ 
+		Msg("Add Catridge[%u] : %u", m_pCurrentAmmo->ID(), m_pCurrentAmmo->m_boxCurr);
+	}
+
 
 	return cnt;
 }

@@ -46,46 +46,45 @@ void CWeaponRG6::Load(LPCSTR section)
 }
 #include "inventory.h"
 #include "inventoryOwner.h"
-
 void CWeaponRG6::FireStart()
 {
-	CActor* A = smart_cast<CActor*>(H_Parent());
+	Msg("Rockets : %u", getRocketCount());
 
-	if (A && A->IsFocused())
-	{
-		FireStartSend();
-	}
-	else
-	if (OnServer() && !A)
-	{
-		FireStartSend();
-	}
-}
-
-void CWeaponRG6::FireStartSend()
-{
-	Msg("RG6 Fire Start Send [%u] ammos", getRocketCount());
-	if (GetState() == eIdle)
+	if (GetState() == eIdle && getRocketCount())
 	{
 		inheritedSG::FireStart();
 
-		Fvector position, direction;
-		position.set(get_LastFP());
-		direction.set(get_LastFD());
+		Fvector Position, Direction;
+		Position.set(get_LastFP());
+		Direction.set(get_LastFD());
 
 		CEntity* E = smart_cast<CEntity*>(H_Parent());
-		if (E) 
-  			E->g_fireParams(this, position, direction);
- 
-		CActor* A = smart_cast<CActor*>(H_Parent());
+		if (E)
+		{
+			CInventoryOwner* io = smart_cast<CInventoryOwner*>(H_Parent());
+			if (NULL == io->inventory().ActiveItem())
+			{
+				Log("current_state", GetState());
+				Log("next_state", GetNextState());
+				Log("item_sect", cNameSect().c_str());
+				Log("H_Parent", H_Parent()->cNameSect().c_str());
+			}
+			E->g_fireParams(this, Position, Direction);
+		}
 
-		if (IsZoomed() && A != nullptr && A->IsFocused())
+		Fmatrix launch_matrix;
+		launch_matrix.identity();
+		launch_matrix.k.set(Direction);
+		Fvector::generate_orthonormal_basis(launch_matrix.k, launch_matrix.j, launch_matrix.i);
+		launch_matrix.c.set(Position);
+
+		if (Level().CurrentControlEntity() == H_Parent() && IsZoomed())
 		{
 			H_Parent()->setEnabled(FALSE);
 			setEnabled(FALSE);
 
 			collide::rq_result RQ;
-			BOOL HasPick = Level().ObjectSpace.RayPick(position, direction, 300.0f, collide::rqtStatic, RQ, this);
+			BOOL HasPick = Level().ObjectSpace.RayPick(Position, Direction, 300.0f, collide::rqtStatic, RQ, this);
 
 			setEnabled(TRUE);
 			H_Parent()->setEnabled(TRUE);
@@ -93,82 +92,69 @@ void CWeaponRG6::FireStartSend()
 			if (HasPick)
 			{
 				Fvector Transference;
-				Transference.mul(direction, RQ.range);
+				Transference.mul(Direction, RQ.range);
 				Fvector res[2];
 				u8 canfire0 = TransferenceAndThrowVelToThrowDir(Transference, CRocketLauncher::m_fLaunchSpeed, EffectiveGravity(), res);
 				if (canfire0 != 0)
 				{
-					direction = res[0];
+					Direction = res[0];
 				};
 			}
 		};
 
-		if (getRocketCount() >= 1)
-		{
-			dropCurrentRocket();
+		Direction.normalize();
+		Direction.mul(m_fLaunchSpeed);
 
-			NET_Packet packet;
-			Game().u_EventGen(packet, GE_WPN_STARTGRENADE, ID());
-			packet.w_vec3(position);
-			packet.w_vec3(direction);
-			Game().u_EventSend(packet);
-		}
-		else
-			Msg("[ERROR] Current Rocket: %u", getRocketCount());
-	}
-}
- 
-void CWeaponRG6::FireStartRecive(Fvector& position, Fvector& direction)
-{
-	Msg("RG6 Fire Start Recive [%u] ammos", getRocketCount());
+		u32 RocketID = getCurrentRocket()->ID();
 
-	if (!getCurrentRocket())
-	{	
-		Msg("Current Rockets is no correct to SV");
-		return;
-	}
-
-	Fmatrix launch_matrix;
-	launch_matrix.identity();
-	launch_matrix.k.set(direction);
-	Fvector::generate_orthonormal_basis(launch_matrix.k, launch_matrix.j, launch_matrix.i);
-	launch_matrix.c.set(position);
-
-	direction.normalize();
-	direction.mul(m_fLaunchSpeed);
-	
-	Msg("Setup Launch Rocket");
- 	CRocketLauncher::LaunchRocket(launch_matrix, direction, zero_vel);
-
-	CExplosiveRocket* pGrenade = smart_cast<CExplosiveRocket*>(getCurrentRocket());
-	if (pGrenade != nullptr)
-	{
-		Msg("Setup Initiator Rocket");
-		pGrenade->SetInitiator(H_Parent()->ID());
-	}
-	else
-		Msg("Rocket[ getCurrentRocket() ] is empty !!!");
-
-	if (OnServer())
-	{
 		NET_Packet P;
-		u_EventGen(P, GE_LAUNCH_ROCKET, ID());
-		P.w_u16(u16(getCurrentRocket()->ID()));
-		u_EventSend(P);
+		Game().u_EventGen(P, GE_WPN_STARTGRENADE, ID());
+		P.w_u32(RocketID);
+		P.w_matrix(launch_matrix);
+		P.w_vec3(Direction);
+		Game().u_EventSend(P);
+
+		/*
+		CRocketLauncher::LaunchRocket(launch_matrix, Direction, zero_vel);
+
+		CExplosiveRocket* pGrenade = smart_cast<CExplosiveRocket*>(getCurrentRocket());
+		VERIFY(pGrenade);
+		pGrenade->SetInitiator(H_Parent()->ID());
+
+		if (OnServer())
+		{
+			NET_Packet P;
+			u_EventGen(P, GE_LAUNCH_ROCKET, ID());
+			P.w_u16(u16(getCurrentRocket()->ID()));
+			u_EventSend(P);
+		}
+
+		dropCurrentRocket();
+		*/
 	}
 }
+
  
 u8 CWeaponRG6::AddCartridge(u8 cnt)
 {
-	u8 t = inheritedSG::AddCartridge(cnt);
-	u8 k = cnt - t;
-	shared_str fake_grenade_name = pSettings->r_string(m_ammoTypes[m_ammoType].c_str(), "fake_grenade_name");
-	while (k)
+	CActor* a = smart_cast<CActor*> (H_Parent());
+	bool isCurentCotrl = a == Level().CurrentControlEntity();
+
+	if (isCurentCotrl || !a && OnServer())
 	{
-		--k;
- 		inheritedRL::SpawnRocketSend(*fake_grenade_name, this);
- 	}
-	return k;
+		u8 t = inheritedSG::AddCartridge(cnt);
+		u8 k = cnt - t;
+		shared_str fake_grenade_name = pSettings->r_string(m_ammoTypes[m_ammoType].c_str(), "fake_grenade_name");
+		while (k)
+		{
+			--k;
+			inheritedRL::SpawnRocketSend(*fake_grenade_name, this);
+		}
+
+		return k;
+	}
+	else
+		return 0;
 }
 
 void CWeaponRG6::OnEvent(NET_Packet& P, u16 type)
@@ -178,42 +164,63 @@ void CWeaponRG6::OnEvent(NET_Packet& P, u16 type)
 	u16 id;
 	switch (type)
 	{
-		case GE_WPN_STARTGRENADE:
-		{ 
-			Msg("GE_WPN_STARTGRENADE");
-			Fvector position, direction;
-			P.r_vec3(position);
-			P.r_vec3(direction);
-			FireStartRecive(direction, position);
-		}break;
-
-		case GE_WPN_SPAWNGRENADE:
+	case GE_WPN_SPAWNGRENADE:
+	{
+		if (OnServer())
 		{
-			Msg("GE_WPN_SPAWNGRENADE");
+			shared_str section;
+			P.r_stringZ(section);
+			CRocketLauncher::SpawnRocket(section, this);
+		}break;
+	}break;
+
+	case GE_WPN_STARTGRENADE:
+	{
+		Fmatrix launch_matrix;
+		Fvector Direction;
+		u32 RocketID;
+
+		P.r_u32(RocketID);
+		P.r_matrix(launch_matrix);
+		P.r_vec3(Direction);
+
+		CExplosiveRocket* rocket = smart_cast<CExplosiveRocket*> (Level().Objects.net_Find(RocketID));
+
+		if (rocket)
+		{
+			Msg("Launch Rocket : %u == current: %u", RocketID, getCurrentRocket()->ID());
+
+			CRocketLauncher::LaunchRocket(launch_matrix, Direction, zero_vel);
+
+			CExplosiveRocket* pGrenade = smart_cast<CExplosiveRocket*>(getCurrentRocket());
+			VERIFY(pGrenade);
+			pGrenade->SetInitiator(H_Parent()->ID());
+
 			if (OnServer())
 			{
-				shared_str section;
-				P.r_stringZ(section);
-				CRocketLauncher::SpawnRocket(section, this);
-			}break;
-		}break;
+				NET_Packet P;
+				u_EventGen(P, GE_LAUNCH_ROCKET, ID());
+				P.w_u16(getCurrentRocket()->ID());
+				u_EventSend(P);
+			}
 
-		case GE_OWNERSHIP_TAKE:
-		{
-			P.r_u16(id);
-			
-			// Msg("GE_ROCKET_TAKE : %u", id);
- 			inheritedRL::AttachRocket(id, this);
-		} break;
-		
-		case GE_OWNERSHIP_REJECT:
-		case GE_LAUNCH_ROCKET:
-		{
-			bool bLaunch = (type == GE_LAUNCH_ROCKET);
-			P.r_u16(id);
+			dropCurrentRocket();
+		}
 
-			// Msg("GE_LAUNCH_ROCKET : %u", id);
-			inheritedRL::DetachRocket(id, bLaunch);
-		} break;
+	}break;
+
+	case GE_OWNERSHIP_TAKE:
+	{
+		P.r_u16(id);
+		inheritedRL::AttachRocket(id, this);
+	} break;
+
+	case GE_OWNERSHIP_REJECT:
+	case GE_LAUNCH_ROCKET:
+	{
+		bool bLaunch = (type == GE_LAUNCH_ROCKET);
+		P.r_u16(id);
+		inheritedRL::DetachRocket(id, bLaunch);
+	} break;
 	}
 }

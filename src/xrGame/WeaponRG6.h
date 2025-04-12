@@ -17,8 +17,6 @@ public:
 protected:
 
 	virtual void	FireStart() override;
-	virtual void	FireStartRecive	(Fvector& position, Fvector& direction);
-	virtual void	FireStartSend	();
 	virtual u8		AddCartridge			(u8 cnt);
 
 	DECLARE_SCRIPT_REGISTER_FUNCTION
