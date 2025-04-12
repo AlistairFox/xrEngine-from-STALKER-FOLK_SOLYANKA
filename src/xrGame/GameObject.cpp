@@ -248,15 +248,13 @@ void VisualCallback(IKinematics *tpKinematics);
 
 BOOL CGameObject::net_Spawn		(CSE_Abstract*	DC)
 {
-	VERIFY							(!m_spawned);
 	m_spawned						= true;
 	m_spawn_time					= Device.dwFrame;
 	m_ai_obstacle					= xr_new<ai_obstacle>(this);
 
 	CSE_Abstract					*E = (CSE_Abstract*)DC;
-	VERIFY							(E);
-
 	const CSE_Visual				*visual	= smart_cast<const CSE_Visual*>(E);
+	
 	if (visual) {
 		cNameVisual_set				(visual_name(E));
 		if (visual->flags.test(CSE_Visual::flObstacle)) {
@@ -294,14 +292,7 @@ BOOL CGameObject::net_Spawn		(CSE_Abstract*	DC)
 	// XForm
 	XFORM().setXYZ					(E->o_Angle);
 	Position().set					(E->o_Position);
-#ifdef DEBUG
-	if(ph_dbg_draw_mask1.test(ph_m1_DbgTrackObject)&&stricmp(PH_DBG_ObjectTrackName(),*cName())==0)
-	{
-		Msg("CGameObject::net_Spawn obj %s Position set from CSE_Abstract %f,%f,%f",PH_DBG_ObjectTrackName(),Position().x,Position().y,Position().z);
-	}
-#endif
-	VERIFY							(_valid(renderable.xform));
-	VERIFY							(!fis_zero(DET(renderable.xform)));
+
 	CSE_ALifeObject					*O = smart_cast<CSE_ALifeObject*>(E);
 	if (O && xr_strlen(O->m_ini_string)) {
 #pragma warning(push)
@@ -348,21 +339,12 @@ BOOL CGameObject::net_Spawn		(CSE_Abstract*	DC)
 	
 	reinit						();
 	CScriptBinder::reinit	();
-#ifdef DEBUG
-	if(ph_dbg_draw_mask1.test(ph_m1_DbgTrackObject)&&stricmp(PH_DBG_ObjectTrackName(),*cName())==0)
-	{
-		Msg("CGameObject::net_Spawn obj %s After Script Binder reinit %f,%f,%f",PH_DBG_ObjectTrackName(),Position().x,Position().y,Position().z);
-	}
-#endif
+
 	//load custom user data from server
 	if(!E->client_data.empty())
 	{	
-//		Msg				("client data is present for object [%d][%s], load is processed",ID(),*cName());
 		IReader			ireader = IReader(&*E->client_data.begin(), E->client_data.size());
 		net_Load		(ireader);
-	}
-	else {
-//		Msg				("no client data for object [%d][%s], load is skipped",ID(),*cName());
 	}
 
 	// if we have a parent
@@ -582,21 +564,10 @@ void CGameObject::spawn_supplies()
 
 void CGameObject::setup_parent_ai_locations(bool assign_position)
 {
-//	CGameObject				*l_tpGameObject	= static_cast<CGameObject*>(H_Root());
-	VERIFY					(H_Parent());
 	CGameObject				*l_tpGameObject	= static_cast<CGameObject*>(H_Parent());
-	VERIFY					(l_tpGameObject);
-
 	// get parent's position
 	if ( assign_position && use_parent_ai_locations() )
 		Position().set		(l_tpGameObject->Position());
-
-	//if ( assign_position && 
-	//		( use_parent_ai_locations() &&
-	//		!( cast_attachable_item() && cast_attachable_item()->enabled() )
-	//		 ) 
-	//	)
-	//	Position().set		(l_tpGameObject->Position());
 
 	// setup its ai locations
 	if (!UsedAI_Locations())
@@ -613,16 +584,11 @@ void CGameObject::setup_parent_ai_locations(bool assign_position)
 		ai_location().level_vertex	(l_tpGameObject->ai_location().level_vertex_id());
 	else
 		validate_ai_locations	(false);
-//	VERIFY2						(l_tpGameObject->UsedAI_Locations(),*l_tpGameObject->cNameSect());
-//	VERIFY2						(ai().level_graph().valid_vertex_id(l_tpGameObject->ai_location().level_vertex_id()),*cNameSect());
-//	ai_location().level_vertex	(l_tpGameObject->ai_location().level_vertex_id());
 
 	if (ai().game_graph().valid_vertex_id(l_tpGameObject->ai_location().game_vertex_id()))
 		ai_location().game_vertex	(l_tpGameObject->ai_location().game_vertex_id());
 	else
 		ai_location().game_vertex	(ai().cross_table().vertex(ai_location().level_vertex_id()).game_vertex_id());
-//	VERIFY2						(ai().game_graph().valid_vertex_id(l_tpGameObject->ai_location().game_vertex_id()),*cNameSect());
-//	ai_location().game_vertex	(l_tpGameObject->ai_location().game_vertex_id());
 }
 
 u32 CGameObject::new_level_vertex_id			() const
@@ -637,23 +603,15 @@ u32 CGameObject::new_level_vertex_id			() const
 void CGameObject::update_ai_locations			(bool decrement_reference)
 {
 	//SE7Kills 
-
  	u32								l_dwNewLevelVertexID = new_level_vertex_id();
- 	//VERIFY							(ai().level_graph().valid_vertex_id(l_dwNewLevelVertexID));
-
 	if (decrement_reference && (ai_location().level_vertex_id() == l_dwNewLevelVertexID))
 		return;
-
-
-
 	ai_location().level_vertex		(l_dwNewLevelVertexID);
 	
 	if (!ai().get_game_graph() && ai().get_cross_table())
 		return;
 
 	ai_location().game_vertex		(ai().cross_table().vertex(ai_location().level_vertex_id()).game_vertex_id());
- 
-	//VERIFY							(ai().game_graph().valid_vertex_id(ai_location().game_vertex_id()));
 }
 
 #include "ai/stalker/ai_stalker.h"
