@@ -222,6 +222,17 @@ void	CRenderTarget::phase_combine	()
 		}
 	}
 
+	if (g_pGamePersistent)
+ 	{
+		Fvector4 vec = g_pGamePersistent->GetDudvParams();
+ 
+		if (vec.x > 0.0f)
+ 		{ 
+ 			phase_gasmask_dudv(vec);
+ 			phase_gasmask_drops(vec);
+ 		}
+ 	}
+
 	// PP enabled ?
 	//	Render to RT texture to be able to copy RT even in windowed mode.
 	BOOL	PP_Complex		= u_need_PP	() | (BOOL)RImplementation.m_bMakeAsyncSS;
@@ -277,7 +288,7 @@ void	CRenderTarget::phase_combine	()
 		RCache.set_c				("m_previous",	m_previous);
 		RCache.set_c				("m_blur",		m_blur_scale.x,m_blur_scale.y, 0,0);
 		RCache.set_c				("r_color_drag",ps_rcol,ps_gcol, ps_bcol,0);
-
+		RCache.set_c				("mask_control", ps_r2_mask_control.x, ps_r2_mask_control.y, ps_r2_mask_control.z, ps_r2_mask_control.w);
 		Fvector3					dof;
 		g_pGamePersistent->GetCurrentDof(dof);
 		RCache.set_c				("dof_params",	dof.x, dof.y, dof.z, ps_r2_dof_sky);

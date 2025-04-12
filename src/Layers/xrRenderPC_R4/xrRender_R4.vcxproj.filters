@@ -741,6 +741,8 @@
     <ClInclude Include="Details\DetailModel.h">
       <Filter>Details</Filter>
     </ClInclude>
+    <ClInclude Include="blender_gasmask_drops.h" />
+    <ClInclude Include="blender_gasmask_dudv.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -1343,5 +1345,9 @@
     <ClCompile Include="r__dshgraph_optimize.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="blender_gasmask_drops.cpp" />
+    <ClCompile Include="blender_gasmask_dudv.cpp" />
+    <ClCompile Include="..\xrRender\rendertarget_phase_gasmask_drops.cpp" />
+    <ClCompile Include="..\xrRender\rendertarget_phase_gasmask_dudv.cpp" />
   </ItemGroup>
 </Project>

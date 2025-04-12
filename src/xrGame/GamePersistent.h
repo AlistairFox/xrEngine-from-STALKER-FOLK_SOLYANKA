@@ -105,6 +105,8 @@ public:
 	virtual void		SetBaseDof				(const Fvector3& dof);
 	virtual void		OnSectorChanged			(int sector);
 	virtual void		OnAssetsChanged			();
+	virtual	Fvector4	GetDudvParams			() override;
+	virtual	Fvector3	GetRainDropsParams		() override;
 };
 
 IC CGamePersistent&		GamePersistent()		{ return *((CGamePersistent*) g_pGamePersistent);			}

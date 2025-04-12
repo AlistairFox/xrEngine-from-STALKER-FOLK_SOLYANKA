@@ -48,6 +48,8 @@ public:
 	IBlender*					b_accum_reflected_msaa[8];
 	IBlender*					b_ssao;
 	IBlender*					b_ssao_msaa[8];
+	IBlender*					b_gasmask_drops;
+ 	IBlender*					b_gasmask_dudv;
 
     // compute shader for hdao
     IBlender*                   b_hdao_cs;
@@ -115,6 +117,8 @@ private:
 	// OCCq
 
 	ref_shader					s_occq;
+ 	ref_shader					s_gasmask_drops;
+ 	ref_shader					s_gasmask_dudv;
 
 	// SSAO
 	ref_rt						rt_ssao_temp;
@@ -254,6 +258,8 @@ public:
 	void						phase_occq				();
 	void						phase_ssao				();
 	void						phase_hdao				();
+	void						phase_gasmask_drops		(Fvector4& dudv);
+ 	void						phase_gasmask_dudv		(Fvector4& dudv);
 	void						phase_downsamp			();
 	void						phase_wallmarks			();
 	void						phase_smap_direct		(light* L,	u32 sub_phase);

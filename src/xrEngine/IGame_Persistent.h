@@ -96,7 +96,8 @@ public:
 	virtual void					SetBaseDof			(const Fvector3& dof){};
 	virtual void					OnSectorChanged		(int sector){};
 	virtual void					OnAssetsChanged		();
-
+	virtual Fvector4				GetDudvParams		() { return Fvector4().set(0,0,0,0); }
+	virtual Fvector3				GetRainDropsParams	() { return Fvector3().set(0,0,0); }
 	virtual void					EditorOnFrame() {};
 
 	virtual void					RegisterModel		(IRenderVisual* V)

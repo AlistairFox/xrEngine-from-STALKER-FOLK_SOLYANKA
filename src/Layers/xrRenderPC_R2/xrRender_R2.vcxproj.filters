@@ -160,6 +160,8 @@
     <Filter Include="Interfase implementations\UI\UISequenceVideoItem">
       <UniqueIdentifier>{be599e50-c181-494a-af42-484bfd6d20fa}</UniqueIdentifier>
     </Filter>
+    <ClInclude Include="blender_gasmask_drops.h" />
+    <ClInclude Include="blender_gasmask_dudv.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cl_intersect.h">
@@ -1139,6 +1141,10 @@
     <ClCompile Include="r__dshgraph_optimize.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="blender_gasmask_drops.cpp" />
+    <ClCompile Include="blender_gasmask_dudv.cpp" />
+    <ClCompile Include="..\xrRender\rendertarget_phase_gasmask_drops.cpp" />
+    <ClCompile Include="..\xrRender\rendertarget_phase_gasmask_dudv.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="todo.txt" />

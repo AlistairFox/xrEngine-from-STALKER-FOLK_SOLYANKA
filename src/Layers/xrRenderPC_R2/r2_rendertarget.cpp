@@ -11,6 +11,8 @@
 #include "blender_bloom_build.h"
 #include "blender_luminance.h"
 #include "blender_ssao.h"
+#include "blender_gasmask_dudv.h"
+#include "blender_gasmask_drops.h"
 
 #include "../xrRender/dxRenderDeviceRender.h"
 
@@ -210,6 +212,8 @@ CRenderTarget::CRenderTarget		()
 	b_ssao							= xr_new<CBlender_SSAO>					();
 	b_luminance						= xr_new<CBlender_luminance>			();
 	b_combine						= xr_new<CBlender_combine>				();
+	b_gasmask_drops					= xr_new<CBlender_gasmask_drops>		();
+ 	b_gasmask_dudv					= xr_new<CBlender_gasmask_dudv>			();
 
 	//	NORMAL
 	{
@@ -249,6 +253,9 @@ CRenderTarget::CRenderTarget		()
 		if (RImplementation.o.advancedpp)
 			rt_Generic_2.create			(r2_RT_generic2,w,h,D3DFMT_A16B16G16R16F);
 	}
+
+	s_gasmask_drops.create(b_gasmask_drops, "r2\\gasmask_drops");
+	s_gasmask_dudv.create(b_gasmask_dudv, "r2\\gasmask_dudv");
 
 	// OCCLUSION
 	s_occq.create					(b_occq,		"r2\\occq");
@@ -631,6 +638,8 @@ CRenderTarget::~CRenderTarget	()
 	xr_delete					(b_accum_direct_cascade	);
 	xr_delete					(b_accum_mask			);
 	xr_delete					(b_occq					);
+	xr_delete					(b_gasmask_drops		);
+ 	xr_delete					(b_gasmask_dudv			);
 }
 
 void CRenderTarget::reset_light_marker( bool bResetStencil)

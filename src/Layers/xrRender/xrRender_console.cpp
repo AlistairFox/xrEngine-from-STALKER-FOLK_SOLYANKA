@@ -237,6 +237,8 @@ float		ps_r3_dyn_wet_surf_near		= 10.f;				// 10.0f
 float		ps_r3_dyn_wet_surf_far		= 30.f;				// 30.0f
 int			ps_r3_dyn_wet_surf_sm_res	= 256;				// 256
 
+Fvector4 ps_r2_mask_control = { .0f, .0f, .0f, .0f }; // r2-only
+Fvector ps_r2_drops_control = { .0f, 1.15f, .0f }; // r2-only
 
 //- Mad Max
 float		ps_r2_gloss_factor			= 4.0f;
@@ -921,6 +923,9 @@ void		xrRender_initconsole	()
 	CMD4(CCC_Integer,	"r2_gi_depth",			&ps_r2_GI_depth,			1,		5		);
 	CMD4(CCC_Integer,	"r2_gi_photons",		&ps_r2_GI_photons,			8,		256		);
 	CMD4(CCC_Float,		"r2_gi_refl",			&ps_r2_GI_refl,				EPS_L,	0.99f	);
+
+	//CMD4(CCC_Vector4,	"r2_mask_control",		&ps_r2_mask_control,		Fvector4().set(0, 0, 0, 0), Fvector4().set(10, 3, 1, 1));
+	//CMD4(CCC_Vector3,	"r2_drops_control",		&ps_r2_drops_control,		Fvector3().set(0, 0, 0), Fvector3().set(10, 0, 10));
 
 	CMD4(CCC_Integer,	"r2_wait_sleep",		&ps_r2_wait_sleep,			0,		1		);
 

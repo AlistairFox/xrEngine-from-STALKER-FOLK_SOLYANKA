@@ -5,7 +5,6 @@
 #include "Torch.h"
 #include "BoneProtections.h"
 #include "../Include/xrRender/Kinematics.h"
-//#include "CustomOutfit.h"
 
 CHelmet::CHelmet()
 {
@@ -15,6 +14,10 @@ CHelmet::CHelmet()
 		m_HitTypeProtection[i] = 1.0f;
 
 	m_boneProtection = xr_new<SBoneProtections>();
+
+ 	b_has_glass = false;
+ 	b_enable_reflection = false;
+ 	helm_vingette = 0;
 }
 
 CHelmet::~CHelmet()
@@ -55,6 +58,52 @@ void CHelmet::Load(LPCSTR section)
 	m_BonesProtectionSect			= READ_IF_EXISTS(pSettings, r_string, section, "bones_koeff_protection",  "" );
 	m_fShowNearestEnemiesDistance	= READ_IF_EXISTS(pSettings, r_float, section, "nearest_enemies_show_dist",  0.0f );
 
+
+ 	if (pSettings->line_exist("settings_helm", section))
+ 	{
+ 		b_has_glass = true;
+ 
+ 		for (u8 omg = 1; omg <= 10; omg++)
+ 		{
+ 			string16 string_it;
+ 			xr_sprintf(string_it, "_%d", omg);
+ 			float cond = pSettings->r_float("settings_helm_con", string_it);
+
+ 			condition_params[static_cast<u16>(cond * 1000)] = omg;
+ 		}
+ 
+ 		LPCSTR str = pSettings->r_string("settings_helm", section);
+ 		for(int i = 0; i < _GetItemCount(str); ++i )	
+ 		{
+ 			string32						hud_section;
+ 			_GetItem						(str, 0, hud_section);
+ 			
+ 			if (pSettings->line_exist("settings_helm_reflection", hud_section))
+ 			{
+ 				b_enable_reflection = true;
+ 			}
+ 
+ 			if (pSettings->line_exist("settings_helm_vingette", hud_section))
+ 			{
+ 				helm_vingette = pSettings->r_u8("settings_helm_vingette", hud_section);
+ 				break;
+ 			}
+ 		}
+ 	}
+ 	else
+ 	{
+ 		b_has_glass = false;
+ 		helm_vingette = 0;
+ 	}
+}
+
+u8 CHelmet::GetParamFromCondition(u16 cond)
+{
+	for (auto it = condition_params.rbegin(); it != condition_params.rend(); ++it)
+	{
+		if (it->first <= cond)
+			return it->second;
+	}
 }
 
 void CHelmet::ReloadBonesProtection()

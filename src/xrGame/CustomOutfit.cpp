@@ -24,6 +24,9 @@ CCustomOutfit::CCustomOutfit()
 	m_boneProtection = xr_new<SBoneProtections>();
 	m_artefact_count = 0;
 	m_BonesProtectionSect = NULL;
+	b_has_glass = false;
+ 	b_enable_reflection = false;
+ 	outfit_vingette = 0;
 }
 
 CCustomOutfit::~CCustomOutfit() 
@@ -121,6 +124,53 @@ void CCustomOutfit::Load(LPCSTR section)
 
 	m_BonesProtectionSect	= READ_IF_EXISTS(pSettings, r_string, section, "bones_koeff_protection",  "" );
 	bIsHelmetAvaliable		= !!READ_IF_EXISTS(pSettings, r_bool, section, "helmet_avaliable", true);
+
+
+ 	if (pSettings->line_exist("settings_helm", section))
+ 	{
+ 		b_has_glass = true;
+ 
+ 		for (u8 omg = 1; omg <= 10; omg++)
+ 		{
+ 			string16 string_it;
+ 			xr_sprintf(string_it, "_%d", omg);
+ 			float cond = pSettings->r_float("settings_helm_con", string_it);
+ 			condition_params[static_cast<u16>(cond * 1000)] = omg;
+ 		}
+ 
+ 		LPCSTR str = pSettings->r_string("settings_helm", section);
+ 		for(int i = 0; i < _GetItemCount(str); ++i )	
+ 		{
+ 			string32						hud_section;
+ 			_GetItem						(str, 0, hud_section);
+ 			
+ 			if (pSettings->line_exist("settings_helm_reflection", hud_section))
+ 			{
+ 				b_enable_reflection = true;
+ 			}
+ 
+ 			if (pSettings->line_exist("settings_helm_vingette", hud_section))
+ 			{
+ 				outfit_vingette = pSettings->r_u8("settings_helm_vingette", hud_section);
+ 				break;
+ 			}
+ 		}
+ 	}
+ 	else
+ 	{
+ 		b_has_glass = false;
+ 		outfit_vingette = 0;
+ 	}
+}
+
+
+u8 CCustomOutfit::GetParamFromCondition(u16 cond)
+{
+	for (auto it = condition_params.rbegin(); it != condition_params.rend(); ++it)
+	{
+		if (it->first <= cond)
+			return it->second;
+	}
 }
 
 void CCustomOutfit::ReloadBonesProtection()

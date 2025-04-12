@@ -125,6 +125,9 @@ extern ECORE_API int			ps_r2_dhemi_count;			// 5
 extern ECORE_API float			ps_r2_slight_fade;			// 1.f
 extern ECORE_API int			ps_r2_wait_sleep;
 
+extern ECORE_API Fvector4		ps_r2_mask_control;			// r2-only
+extern ECORE_API Fvector		ps_r2_drops_control;		// r2-only
+
 //	x - min (0), y - focus (1.4), z - max (100)
 extern ECORE_API Fvector3		ps_r2_dof;
 extern ECORE_API float			ps_r2_dof_sky;				//	distance to sky

@@ -7,6 +7,8 @@ struct SBoneProtections;
 class CCustomOutfit: public CInventoryItemObject {
 private:
     typedef	CInventoryItemObject inherited;
+
+	xr_map<u16, u8> condition_params;
 public:
 							CCustomOutfit		();
 	virtual					~CCustomOutfit		();
@@ -54,6 +56,12 @@ public:
 	shared_str				m_NightVisionSect;
 
 	bool					bIsHelmetAvaliable;
+
+	bool					b_enable_reflection;
+ 	bool					b_has_glass;
+ 	u8						outfit_vingette;
+ 
+  	u8						GetParamFromCondition(u16 cond);
 
 	virtual u32				ef_equipment_type		() const;
 	virtual	BOOL			BonePassBullet			(int boneID);

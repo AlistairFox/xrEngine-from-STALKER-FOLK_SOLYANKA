@@ -293,6 +293,8 @@ public:
 			float		HitArtefactsOnBelt		(float hit_power, ALife::EHitType hit_type);
 			float		GetProtection_ArtefactsOnBelt(ALife::EHitType hit_type);
 
+			Fvector4	GetGlassShader();
+ 			FVector3	GetRaindropsShader();
 protected:
 	//звук тяжелого дыхания
 	ref_sound			m_HeavyBreathSnd;
@@ -330,6 +332,8 @@ protected:
 	u32						m_feel_touch_characters;
 private:
 	void					SwitchOutBorder(bool new_border_state);
+	Fvector4				v_dudv_param;
+ 	Fvector3				v_drops_param;
 public:
 	bool					m_bAllowDeathRemove;
 

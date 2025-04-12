@@ -10,6 +10,8 @@
 #include "blender_bloom_build.h"
 #include "blender_luminance.h"
 #include "blender_ssao.h"
+#include "blender_gasmask_drops.h"
+#include "blender_gasmask_dudv.h"
 #include "dx11MinMaxSMBlender.h"
 #include "dx11HDAOCSBlender.h"
 #include "../xrRenderDX10/msaa/dx10MSAABlender.h"
@@ -316,6 +318,8 @@ CRenderTarget::CRenderTarget		()
 	b_luminance				= xr_new<CBlender_luminance>		();
 	b_combine				= xr_new<CBlender_combine>			();
 	b_ssao					= xr_new<CBlender_SSAO_noMSAA>		();
+	b_gasmask_drops			= xr_new<CBlender_gasmask_drops>	();
+ 	b_gasmask_dudv			= xr_new<CBlender_gasmask_dudv>		();
 
 	// HDAO
 	b_hdao_cs               = xr_new<CBlender_CS_HDAO>			();
@@ -413,6 +417,10 @@ CRenderTarget::CRenderTarget		()
 		if (RImplementation.o.advancedpp)
 			rt_Generic_2.create			(r2_RT_generic2,w,h,D3DFMT_A16B16G16R16F, SampleCount );
 	}
+
+	// RAINDROPS
+	s_gasmask_drops.create(b_gasmask_drops, "r2\\gasmask_drops");
+	s_gasmask_dudv.create(b_gasmask_dudv, "r2\\gasmask_dudv");
 
 	// OCCLUSION
 	s_occq.create					(b_occq,		"r2\\occq");
@@ -1037,6 +1045,8 @@ CRenderTarget::~CRenderTarget	()
 	xr_delete					(b_accum_point			);
 	xr_delete					(b_accum_direct			);
 	xr_delete					(b_ssao					);
+	xr_delete					(b_gasmask_drops		);
+ 	xr_delete					(b_gasmask_dudv			);
 
    if( RImplementation.o.dx10_msaa )
    {

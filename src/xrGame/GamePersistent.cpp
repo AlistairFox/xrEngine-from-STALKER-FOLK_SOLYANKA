@@ -999,6 +999,28 @@ void CGamePersistent::OnSectorChanged(int sector)
 	if(CurrentGameUI())
 		CurrentGameUI()->UIMainIngameWnd->OnSectorChanged(sector);
 }
+ 
+Fvector4 CGamePersistent::GetDudvParams()
+{
+	if (!Actor())
+		return Fvector4().set(0,0,0,1);
+
+	if (!Actor()->g_Alive()) 
+		return Fvector4().set(0,0,0,1);
+
+	return Actor()->GetGlassShader();
+}
+
+Fvector3 CGamePersistent::GetRainDropsParams()
+{
+	if (!Actor())
+		return Fvector().set(0,0,0);
+
+	if (!Actor()->g_Alive()) 
+		return Fvector().set(0,0,0);
+
+	return Actor()->GetRaindropsShader();
+}
 
 void CGamePersistent::OnAssetsChanged()
 {

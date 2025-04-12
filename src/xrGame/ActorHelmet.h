@@ -7,6 +7,8 @@ struct SBoneProtections;
 class CHelmet: public CInventoryItemObject {
 private:
     typedef	CInventoryItemObject inherited;
+
+	xr_map<u16, u8> condition_params;
 public:
 							CHelmet					();
 	virtual					~CHelmet				();
@@ -39,6 +41,12 @@ public:
 	float					m_fBleedingRestoreSpeed;
 
 	float					m_fShowNearestEnemiesDistance;
+
+	bool					b_enable_reflection;
+ 	bool					b_has_glass;
+ 	u8						helm_vingette;
+
+	u8						GetParamFromCondition(u16 cond);
 
 	void					ReloadBonesProtection	();
 	void					AddBonesProtection		(LPCSTR bones_section);
