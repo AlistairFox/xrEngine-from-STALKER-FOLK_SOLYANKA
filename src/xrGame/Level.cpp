@@ -600,267 +600,108 @@ u64 ticks2, ticks3, ticks5 = 0;
 
 CGameObject* old_select_obj;
 
-void CLevel::OnFrame	()
+void CLevel::OnFrame()
 {
 	OPTICK_EVENT("CLevel::OnFrame");
 
-	CTimer timer, timer2, timer3, timer4, timer5;
-	timer.Start();
-
-#ifdef DEBUG_MEMORY_MANAGER
-	debug_memory_guard					__guard__;
-#endif // DEBUG_MEMORY_MANAGER
-
-#ifdef DEBUG
-	 DBG_RenderUpdate( );
-#endif // #ifdef DEBUG
-	 timer2.Start();
 	Fvector	temp_vector;
-	m_feel_deny.feel_touch_update		(temp_vector, 0.f);
+	m_feel_deny.feel_touch_update(temp_vector, 0.f);
 
-	if (GameID()!=eGameIDSingle)		psDeviceFlags.set(rsDisableObjectsAsCrows,true);
-	else								psDeviceFlags.set(rsDisableObjectsAsCrows,false);
+	if (GameID() != eGameIDSingle)
+		psDeviceFlags.set(rsDisableObjectsAsCrows, true);
+	else
+		psDeviceFlags.set(rsDisableObjectsAsCrows, false);
 
 	// commit events from bullet manager from prev-frame
-	Device.Statistic->TEST0.Begin		();
-	BulletManager().CommitEvents		();
-	Device.Statistic->TEST0.End			();
+	BulletManager().CommitEvents();
 
-	ticks2 += timer2.GetElapsed_ticks();
-
-	// Client receive
-
-	timer3.Start();
-
-	if (net_isDisconnected())	
+	if (net_isDisconnected())
 	{
 		if (OnClient() && GameID() != eGameIDSingle)
 		{
-#ifdef DEBUG
 			Msg("--- I'm disconnected, so clear all objects...");
-#endif // #ifdef DEBUG
 			ClearAllObjects();
 		}
 
-		Engine.Event.Defer				("kernel:disconnect");
+		Engine.Event.Defer("kernel:disconnect");
 		return;
-	} else {
+	}
+	else
+		ClientReceive();
 
-		Device.Statistic->netClient1.Begin();
+	if (true)
+	{
+		OPTICK_EVENT("CLevel::Process Events");
 
-		ClientReceive					();
-
-		Device.Statistic->netClient1.End	();
+		ProcessGameEvents();
+		if (m_bNeed_CrPr)
+			make_NetCorrectionPrediction();
 	}
 
-	ProcessGameEvents	();
-
-
-	ticks3 += timer3.GetElapsed_ticks();
-
-	if (m_bNeed_CrPr)					make_NetCorrectionPrediction();
-
-	timer4.Start();
-
-	if(!g_dedicated_server )
+	if (!g_dedicated_server)
 	{
-		if (g_mt_config.test(mtMap)) 
-			Device.seqParallel.push_back	(fastdelegate::FastDelegate0<>(m_map_manager,&CMapManager::Update));
-		else								
-			MapManager().Update		();
+		OPTICK_EVENT("CLevel::Process MAP PDA");
 
-		if(Device.dwPrecacheFrame==0 )
+		if (g_mt_config.test(mtMap))
+			Device.seqParallel.push_back(fastdelegate::FastDelegate0<>(m_map_manager, &CMapManager::Update));
+		else
+			MapManager().Update();
+
+		if (Device.dwPrecacheFrame == 0)
 		{
-			if (g_mt_config.test(mtMap)) 
-				Device.seqParallel.push_back	(fastdelegate::FastDelegate0<>(m_game_task_manager,&CGameTaskManager::UpdateTasks));
-			else								
+			if (g_mt_config.test(mtMap))
+				Device.seqParallel.push_back(fastdelegate::FastDelegate0<>(m_game_task_manager, &CGameTaskManager::UpdateTasks));
+			else
 				GameTaskManager().UpdateTasks();
 		}
 	}
 
-
 	// Inherited update
-	inherited::OnFrame		();
-	update_ticks += timer4.GetElapsed_ticks();
-
-	// Draw client/server stats
-	if ( !g_dedicated_server && psDeviceFlags.test(rsStatistic) && false)
 	{
-		CGameFont* F = UI().Font().pFontDI;
-		if (!psNET_direct_connect) 
-		{
-			if ( IsServer() )
-			{
-				const IServerStatistic* S = Server->GetStatistic();
-				F->SetHeightI	(0.015f);
-				F->OutSetI	(0.0f,0.5f);
-				F->SetColor	(D3DCOLOR_XRGB(0,255,0));
-				F->OutNext	("IN:  %4d/%4d (%2.1f%%)",	S->bytes_in_real,	S->bytes_in,	100.f*float(S->bytes_in_real)/float(S->bytes_in));
-				F->OutNext	("OUT: %4d/%4d (%2.1f%%)",	S->bytes_out_real,	S->bytes_out,	100.f*float(S->bytes_out_real)/float(S->bytes_out));
-				F->OutNext	("client_2_sever ping: %d",	net_Statistic.getPing());
-				F->OutNext	("SPS/Sended : %4d/%4d", S->dwBytesPerSec, S->dwBytesSended);
-				F->OutNext	("sv_urate/cl_urate : %4d/%4d", psNET_ServerUpdate, psNET_ClientUpdate);
-
-				F->SetColor	(D3DCOLOR_XRGB(255,255,255));
-
-				struct net_stats_functor
-				{
-					xrServer* m_server;
-					CGameFont* F;
-					void operator()(IClient* C)
-					{
-						m_server->UpdateClientStatistic(C);
-						F->OutNext("0x%08x: P(%d), BPS(%2.1fK), MRR(%2d), MSR(%2d), Retried(%2d), Blocked(%2d)",
-							//Server->game->get_option_s(*C->Name,"name",*C->Name),
-							C->ID.value(),
-							C->stats.getPing(),
-							float(C->stats.getBPS()),// /1024,
-							C->stats.getMPS_Receive	(),
-							C->stats.getMPS_Send	(),
-							C->stats.getRetriedCount(),
-							C->stats.dwTimesBlocked
-						);
-					}
-				};
-				net_stats_functor tmp_functor;
-				tmp_functor.m_server = Server;
-				tmp_functor.F = F;
-				Server->ForEachClientDo(tmp_functor);
-			}
-			if (IsClient())
-			{
-				NET_CLIENT_CLASS::UpdateStatistic();
-
-				F->SetHeightI(0.015f);
-				F->OutSetI	(0.0f,0.5f);
-				F->SetColor	(D3DCOLOR_XRGB(0,255,0));
-				F->OutNext	("client_2_sever ping: %d",	net_Statistic.getPing());
-				F->OutNext	("sv_urate/cl_urate : %4d/%4d", psNET_ServerUpdate, psNET_ClientUpdate);
-
-				F->SetColor	(D3DCOLOR_XRGB(255,255,255));
-				F->OutNext("BReceivedPs(%2d), BSendedPs(%2d), Retried(%2d), Blocked(%2d)",
-					net_Statistic.getReceivedPerSec(),
-					net_Statistic.getSendedPerSec(),
-					net_Statistic.getRetriedCount(),
-					net_Statistic.dwTimesBlocked);
-#ifdef DEBUG
-				if (!pStatGraphR)
-				{
-					pStatGraphR = xr_new<CStatGraph>();
-					pStatGraphR->SetRect(50, 700, 300, 68, 0xff000000, 0xff000000);
-					//m_stat_graph->SetGrid(0, 0.0f, 10, 1.0f, 0xff808080, 0xffffffff);
-					pStatGraphR->SetMinMax(0.0f, 65536.0f, 1000);
-					pStatGraphR->SetStyle(CStatGraph::stBarLine);
-					pStatGraphR->AppendSubGraph(CStatGraph::stBarLine);
-				}
-				pStatGraphR->AppendItem(float(net_Statistic.getBPS()), 0xff00ff00, 0);
-				F->OutSet(20.f, 700.f);
-				F->OutNext("64 KBS");
-
-#endif
-			}
-		}
-	} else
-	{
-#ifdef DEBUG
-		if (pStatGraphR)
-			xr_delete(pStatGraphR);
-#endif
+		OPTICK_EVENT("IGame_Level::OnFrame");
+		inherited::OnFrame();
 	}
-#ifdef DEBUG
-	g_pGamePersistent->Environment().m_paused		= m_bEnvPaused;
-#endif
 
-	if (OnServer())
-		g_pGamePersistent->Environment().SetGameTime	(GetEnvironmentGameDayTimeSec(),game->GetEnvironmentGameTimeFactor());
-	else
-		g_pGamePersistent->Environment().SetGameTimeWFX (GetEnvironmentGameDayTimeSec(), game->GetEnvironmentGameTimeFactor());
-
-	timer5.Start();
-
-	//Device.Statistic->cripting.Begin	();
-	ai().script_engine().script_process	(ScriptEngine::eScriptProcessorLevel)->update();
-	//Device.Statistic->Scripting.End	();
- 
-	m_ph_commander->update				();
-	m_ph_commander_scripts->update		();
-//	autosave_manager().update			();
-
-	ticks5 += timer5.GetElapsed_ticks();
-
-	//  
-	Device.Statistic->TEST0.Begin		();
-	BulletManager().CommitRenderSet		();
-	Device.Statistic->TEST0.End			();
-
-	// update static sounds
-	if (g_mt_config.test(mtLevelSounds)) 
-		Device.seqParallel.push_back	(fastdelegate::FastDelegate0<>(m_level_sound_manager,&CLevelSoundManager::Update));
-	else								
-		m_level_sound_manager->Update	();
-	// deffer LUA-GC-STEP
-	 
-//	if (g_mt_config.test(mtLUA_GC))
-//		Device.seqParallel.push_back	(fastdelegate::FastDelegate0<>(this,&CLevel::script_gc));
-//	else							
-		script_gc	()	;
-
-
-	//-----------------------------------------------------
-	if (pStatGraphR)
-	{	
-		static	float fRPC_Mult = 10.0f;
-		static	float fRPS_Mult = 1.0f;
-
-		pStatGraphR->AppendItem(float(m_dwRPC)*fRPC_Mult, 0xffff0000, 1);
-		pStatGraphR->AppendItem(float(m_dwRPS)*fRPS_Mult, 0xff00ff00, 0);
-	};
-
-	ticks += timer.GetElapsed_ticks();
-
-	if (timer_old < Device.dwTimeGlobal)
+	if (true)
 	{
-		/*
-		Msg("TicksALL: %u", ticks);
-		Msg("Ticks2: %u", ticks2);
-		Msg("Ticks3: %u", ticks3);
-		//Msg("Ticks4: %u", ticks4);
-		Msg("Ticks5: %u", ticks5);
+		OPTICK_EVENT("CLevel::Process Scripts Level");
+		if (OnServer())
+			g_pGamePersistent->Environment().SetGameTime(GetEnvironmentGameDayTimeSec(), game->GetEnvironmentGameTimeFactor());
+		else
+			g_pGamePersistent->Environment().SetGameTimeWFX(GetEnvironmentGameDayTimeSec(), game->GetEnvironmentGameTimeFactor());
 
-		Msg("Updates: %u", update_ticks);	
-		*/
+		ai().script_engine().script_process(ScriptEngine::eScriptProcessorLevel)->update();
 
-		ticks = 0; 
-		ticks2 = 0;
-		ticks3 = 0;
-		ticks5 = 0;
-
-		update_ticks = 0;
-		timer_old = Device.dwTimeGlobal + 1000;
-	} 
-
- 	/* Raycast (”брал не нужен)
-	collide::rq_result res = HUD().GetCurrentRayQuery();
-	CGameObject* obj = smart_cast<CGameObject*> (res.O);
-
-	if (OnClient() && obj && !obj->raycastNOW())
-	{
-		if (old_select_obj != 0)
-		{
-			old_select_obj->setMPPlayerRaycast(false);
-			old_select_obj = 0;
-		}
-		old_select_obj = obj;
-		obj->setMPPlayerRaycast(true);
 	}
-	else
-	if (!obj && old_select_obj)
-	{
-		old_select_obj->setMPPlayerRaycast(false);
-		old_select_obj = 0;
-	}
-	*/ 
 
+	if (true)
+	{
+		OPTICK_EVENT("CLevel::Process PH Commander, Bullets");
+
+		m_ph_commander->update();
+		m_ph_commander_scripts->update();
+
+		BulletManager().CommitRenderSet();
+
+	}
+
+	if (true)
+	{
+		OPTICK_EVENT("CLevel::Process Sounds, LuaGC");
+		
+		// update static sounds
+		if (g_mt_config.test(mtLevelSounds))
+			Device.seqParallel.push_back(fastdelegate::FastDelegate0<>(m_level_sound_manager, &CLevelSoundManager::Update));
+		else
+			m_level_sound_manager->Update();
+
+		// deffer LUA-GC-STEP
+		if (g_mt_config.test(mtLUA_GC) && !g_dedicated_server)
+			Device.seqParallel.push_back(fastdelegate::FastDelegate0<>(this, &CLevel::script_gc));
+		else
+			script_gc();
+	}
+	
 }
 
 int		psLUA_GCSTEP					= 10			;
