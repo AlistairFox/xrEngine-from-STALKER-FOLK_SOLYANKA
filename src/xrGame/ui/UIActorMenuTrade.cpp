@@ -160,6 +160,11 @@ void CUIActorMenu::DeInitTradeMode()
 	}
 }
 
+bool USE_OMP_REALIZATION()
+{
+	return Game().Type() == eGameIDRolePlay;  
+}
+
 bool CUIActorMenu::ToActorTrade(CUICellItem* itm, bool b_use_cursor_pos)
 {
 	PIItem	iitem						= (PIItem)itm->m_pData;
@@ -183,7 +188,7 @@ bool CUIActorMenu::ToActorTrade(CUICellItem* itm, bool b_use_cursor_pos)
 		}else
 			new_owner						= m_pTradeActorList;
 		
-		if (IsGameTypeSingle())
+		if (USE_OMP_REALIZATION())
 		{
 			bool result = (old_owner_type != iActorBag) ? m_pActorInvOwner->inventory().Ruck(iitem) : true;
 			R_ASSERT(result);
@@ -231,7 +236,7 @@ bool CUIActorMenu::ToPartnerTrade(CUICellItem* itm, bool b_use_cursor_pos)
 
 	CUICellItem* i = nullptr;
 
-	if (IsGameTypeSingle())
+	if (USE_OMP_REALIZATION())
 	{
 		// удаляем из списка предметов НПС (и будем добавлять в список для покупки)
 		i = old_owner->RemoveItem(itm, (old_owner == new_owner));
@@ -254,7 +259,7 @@ bool CUIActorMenu::ToPartnerTrade(CUICellItem* itm, bool b_use_cursor_pos)
 bool CUIActorMenu::ToPartnerTradeBag(CUICellItem* itm, bool b_use_cursor_pos)
 { // Перенос назад в список предметов НПС
 
-	if (IsGameTypeSingle())
+	if (USE_OMP_REALIZATION())
 	{
 		CUIDragDropListEx*	old_owner = itm->OwnerList();
 		CUIDragDropListEx*	new_owner = NULL;
@@ -349,7 +354,7 @@ bool CUIActorMenu::CanMoveToPartner(PIItem pItem)
 
 void CUIActorMenu::UpdateActor()
 {
-	if ( IsGameTypeSingle() )
+	if (USE_OMP_REALIZATION() )
 	{
 		string64 buf;
 		xr_sprintf( buf, "%d RU", m_pActorInvOwner->get_money() );
@@ -514,11 +519,7 @@ void CUIActorMenu::OnBtnPerformTradeSell(CUIWindow* w, void* d)
 	}
 	else
 	{
-/*		if ( actor_money < 0 )
-		{
-			CallMessageBoxOK( "not_enough_money_actor" );
-		}
-		else */if ( partner_money < 0 )
+		if ( partner_money < 0 )
 		{
 			CallMessageBoxOK( "not_enough_money_partner" );
 		}
@@ -534,7 +535,7 @@ void CUIActorMenu::OnBtnPerformTradeSell(CUIWindow* w, void* d)
 
 void CUIActorMenu::TransferItems( CUIDragDropListEx* pSellList, CUIDragDropListEx* pBuyList, CTrade* pTrade, bool bBuying )
 {
-	if (!IsGameTypeSingle())
+	if ( !USE_OMP_REALIZATION() )
 	{
 		TransferItemsMp(pSellList, pBuyList, pTrade, bBuying);
 		return;
