@@ -918,8 +918,6 @@ void CBaseMonster::net_Relcase(CObject *O)
 			EnemyMan.remove_links(O);
 			CorpseMan.remove_links(O);
 
-			UpdateMemory();
-
 			monster_squad().remove_links(O);
  			CorpseMemory.remove_links(O);
 		}
