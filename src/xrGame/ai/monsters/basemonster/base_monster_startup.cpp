@@ -329,6 +329,8 @@ void CBaseMonster::reinit()
 
 BOOL CBaseMonster::net_Spawn (CSE_Abstract* DC) 
 {
+	OPTICK_EVENT("CBaseMonster::net_Spawn");
+
 	if (!inherited::net_Spawn(DC))
 		return(FALSE);
 

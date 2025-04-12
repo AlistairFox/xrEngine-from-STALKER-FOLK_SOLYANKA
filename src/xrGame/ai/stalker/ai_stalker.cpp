@@ -197,6 +197,8 @@ void CAI_Stalker::reinit			()
 
 void CAI_Stalker::LoadSounds		(LPCSTR section)
 {
+	OPTICK_EVENT("CAI_Stalker::LoadSounds");
+
 	LPCSTR							head_bone_name = pSettings->r_string(section,"bone_head");
 	sound().add						(pSettings->r_string(section,"sound_death"),						100, SOUND_TYPE_MONSTER_DYING,		0, u32(eStalkerSoundMaskDie),						eStalkerSoundDie,						head_bone_name, xr_new<CStalkerSoundData>(this));
 	sound().add						(pSettings->r_string(section,"sound_anomaly_death"),				100, SOUND_TYPE_MONSTER_DYING,		0, u32(eStalkerSoundMaskDieInAnomaly),				eStalkerSoundDieInAnomaly,				head_bone_name, 0);
@@ -528,12 +530,9 @@ void CAI_Stalker::Load				(LPCSTR section)
 }
 
 BOOL CAI_Stalker::net_Spawn			(CSE_Abstract* DC)
-{
-#ifdef DEBUG_MEMORY_MANAGER
-	u32								start = 0;
-	if (g_bMEMO)
-		start						= Memory.mem_usage();
-#endif // DEBUG_MEMORY_MANAGER
+{ 
+	OPTICK_EVENT("CAI_Stalker::net_spawn");
+
 
 	CSE_Abstract					*e	= (CSE_Abstract*)(DC);
 	CSE_ALifeHumanStalker			*tpHuman = smart_cast<CSE_ALifeHumanStalker*>(e);
@@ -1114,6 +1113,8 @@ const MonsterSpace::SBoneRotation &CAI_Stalker::head_orientation	() const
 
 void CAI_Stalker::net_Relcase				(CObject*	 O)
 {
+	OPTICK_EVENT("CAI_Stalker::net_Relcase");
+
 	inherited::net_Relcase				(O);
 
 	if (OnServer())

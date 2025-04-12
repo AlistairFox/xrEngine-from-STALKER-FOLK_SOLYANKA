@@ -898,6 +898,9 @@ DLL_Pure *CBaseMonster::_construct	()
 
 void CBaseMonster::net_Relcase(CObject *O)
 {
+	OPTICK_EVENT("CBaseMonster::net_relcase");
+
+
 	inherited::net_Relcase(O);
 
 	if (OnServer() && g_Alive())
