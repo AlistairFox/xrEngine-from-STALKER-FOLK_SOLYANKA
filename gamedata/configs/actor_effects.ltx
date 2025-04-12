@@ -1,0 +1,45 @@
+[settings]
+	cam_dist = 4
+	radiation_ppe_threshold = 0.45
+
+[settings_helm_con]	;-- For shaders (r2_mask_control) - distortion based on condition
+	_1  = 0.93 , blue1 , 1.0 
+	_2  = 0.86 , blue2 , 2.0 
+	_3  = 0.79 , blue3 , 3.0 
+	_4  = 0.72 , green1 , 4.0 
+	_5  = 0.65 , green2 , 5.0 
+	_6  = 0.58 , green3 , 6.0 
+	_7  = 0.51 , yellow1 , 7.0
+	_8  = 0.44 , yellow2 , 8.0
+	_9  = 0.37 , yellow3 , 9.0
+	_10 = 0.0 ,  red1 , 10.0
+
+[settings_helm_vingette] ;-- For shaders (r2_mask_control) - vingette, vector 2 values per helm type (from 1 to 3)
+hud_gass    = 1
+hud_hard    = 1
+hud_mil     = 1
+hud_kill    = 1
+hud_exo     = 2
+hud_sci     = 3
+
+[settings_helm_reflection] ;-- For shaders (r2_mask_control) - helmet reflection, vector 3 will set to 1 if a helm type is specified here
+hud_sci     = true
+
+[settings_helm]
+	;-- Helmets
+	helm_respirator						= hud_gass , true , 2.5 , true 
+	helm_hardhat						= hud_mil , true , 0 , false 
+	helm_protective						= hud_sci , true , 2.5 , true 
+	helm_tactic							= hud_mil , true , 2.5 , true 
+	helm_battle							= hud_mil , true , 2.5 , true  
+	
+	;-- Exoskeleton
+	;-- Exolight
+	
+	;-- SEVA
+	scientific_outfit					= hud_sci , true , 2.5 , true 
+	
+	;-- SSP	
+	;-- Others
+	wastelander_outfit		            = hud_hard , true , 2.5 , true 
+	ghillie_outfit						= hud_gass , true , 2.5 , true 
