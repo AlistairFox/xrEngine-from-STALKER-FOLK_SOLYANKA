@@ -119,16 +119,20 @@ struct pred_remove_nonactual_sounds {
 	bool operator() (const SoundElem &x) {
 
 		// удалить звуки от объектов, перешедших в оффлайн	
-		if (x.who && x.who->getDestroy()) return true;
+		if (x.who && x.who->getDestroy()) 
+			return true;
 
 		// удалить 'старые' звуки
-		if (x.time < new_time)	return true;
+		if (x.time < new_time)
+			return true;
 
 		// удалить звуки от неживых объектов
-		if (x.who) {
-			const CEntityAlive *pE = smart_cast<const CEntityAlive*> (x.who);
-			if (pE && !pE->g_Alive()) return true;
-		}
+		//if (x.who)
+		//{
+		//	const CEntityAlive *pE = smart_cast<const CEntityAlive*> (x.who);
+		//	if (pE && !pE->g_Alive())
+		//		return true;
+		//}
 
 		return false;
 	}
