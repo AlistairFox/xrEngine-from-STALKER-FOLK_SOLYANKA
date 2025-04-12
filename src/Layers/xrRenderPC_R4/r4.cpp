@@ -1465,44 +1465,19 @@ HRESULT	CRender::shader_compile			(
 				&pShaderBuf,
 				&pErrorBuf
 			);
-
-
+ 
 		if (SUCCEEDED(_result))
 		{
-			string_path  file_name;
-
-			char extension[3];
-			strncpy_s(extension, pTarget, 2);
-  
-			string_path file_shaders;
-			xr_strcpy(file_shaders, "shaders_cache\\r4\\");
-			xr_strcat(file_shaders, name);
-			xr_strcat(file_shaders, ".");
-			xr_strcat(file_shaders, extension);
-			xr_strcat(file_shaders, "\\");
-			xr_strcat(file_shaders, sh_name);
-			FS.update_path(file_name, "$app_data_root$", file_shaders);
-
-
-			IWriter* file = FS.w_open(file_name);
-
-			boost::crc_32_type		processor;
-			processor.process_block	( pShaderBuf->GetBufferPointer(), ((char*)pShaderBuf->GetBufferPointer()) + pShaderBuf->GetBufferSize() );
-			u32 const crc			= processor.checksum( );
-
-			file->w_u32				(crc);
-			file->w					(pShaderBuf->GetBufferPointer(), (u32)pShaderBuf->GetBufferSize());
-			FS.w_close				(file);
-
-			_result					= create_shader(pTarget, (DWORD*)pShaderBuf->GetBufferPointer(), (u32)pShaderBuf->GetBufferSize(), file_name, result, o.disasm);
+			Msg("Shader Recomp D3D Succeced: %s, Function: %s", name, pFunctionName);
+			_result = create_shader(pTarget, (DWORD*)pShaderBuf->GetBufferPointer(), (u32)pShaderBuf->GetBufferSize(), /* file_name */ name, result, o.disasm);
 		}
-		else 
+		else
 		{
- 			Log						("! ", name);
-			if ( pErrorBuf )
-				Log					("! error: ",(LPCSTR)pErrorBuf->GetBufferPointer());
+			Msg("! shader compilation failed");
+			if (pErrorBuf)
+				Log("! error: ", (LPCSTR)pErrorBuf->GetBufferPointer());
 			else
-				Msg					("Can't compile shader hr=0x%08x", _result);
+				Msg("Can't compile shader hr=0x%08x", _result);
 		}
 	}
 
