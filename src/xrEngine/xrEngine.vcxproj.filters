@@ -975,7 +975,7 @@
     <Image Include="splash_xrcs_en.bmp">
       <Filter>General\Resources</Filter>
     </Image>
-    <Image Include="stalker_cs.ico">
+    <Image Include="C:\Users\Dima\Desktop\Иконки\rad2.ico">
       <Filter>General\Resources</Filter>
     </Image>
   </ItemGroup>

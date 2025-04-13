@@ -53,7 +53,7 @@ void CRenderDevice::Initialize			()
         // Register the windows class
 		HINSTANCE hInstance = (HINSTANCE)GetModuleHandle(0);
         WNDCLASS wndClass = { 0, WndProc, 0, 0, hInstance,
-                              LoadIcon( hInstance, MAKEINTRESOURCE(IDI_ICON1) ),
+                              LoadIcon( hInstance, MAKEINTRESOURCE(IDI_ICON2) ),
                               LoadCursor( NULL, IDC_ARROW ),
                               (HBRUSH)GetStockObject(BLACK_BRUSH),
                               NULL, wndclass };
