@@ -657,6 +657,7 @@ void CLevel::OnFrame()
 	}
 
 	// Inherited update
+	if (true)
 	{
 		OPTICK_EVENT("IGame_Level::OnFrame");
 		inherited::OnFrame();

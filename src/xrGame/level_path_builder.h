@@ -28,7 +28,7 @@ private:
 private:
 	enum 
 	{
-		time_to_wait_after_fail	= u32(2000),
+		time_to_wait_after_fail	= u32(30000),
 	};
 
 public:
@@ -79,9 +79,19 @@ public:
 	void			process_impl		()
 	{
 		OPTICK_EVENT("[CMovementManager] build level path");
- 		m_object->level_path().build_path(m_start_vertex_id, m_dest_vertex_id);
+		CTimer t; t.Start();
+
+		m_object->level_path().build_path(m_start_vertex_id, m_dest_vertex_id);
 		m_object->m_wait_for_distributed_computation = false;
 		 
+		if (t.GetElapsed_ms() > 30)
+		{
+			// Msg("vertex start: %u | dest: %u", m_start_vertex_id, m_dest_vertex_id);
+			Fvector pos_start = ai().level_graph().vertex_position(m_start_vertex_id); 
+			Fvector pos_dest = ai().level_graph().vertex_position(m_dest_vertex_id);
+			Msg("--- PathNav (%u) Waiting From Pos(%.1f,%.1f,%.1f) to (%.1f,%.1f,%.1f)", t.GetElapsed_ms(), VPUSH(pos_start), VPUSH(pos_dest));
+		}
+			
 		if (m_object->level_path().failed()) 
 		{
 			if ( m_use_delay_after_fail )

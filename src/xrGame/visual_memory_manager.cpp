@@ -442,35 +442,20 @@ bool CVisualMemoryManager::visible				(const CGameObject *game_object, float tim
 bool   CVisualMemoryManager::should_ignore_object (CObject const* object) const
 {
 	if ( !object )
-	{
 		return true;
-	}
 
-#ifndef MASTER_GOLD
-	if (smart_cast<CActor const*>(object) && psAI_Flags.test(aiIgnoreActor))
-	{
-		return	true;
-	}
-	else
-#endif // MASTER_GOLD
+	CObject* O = const_cast<CObject*>(object);
+	if (!O)
+		return true;
 
-	CActorMP const* const actormp = smart_cast<CActorMP const *>(object);
-	CActor const* const actorsp = smart_cast<CActor const *>(object);
+	CActorMP *	actormp = dynamic_cast<CActorMP*>(O);
+	CActor *	actorsp = dynamic_cast<CActor*>(O);
 	
 	if (!actormp && actorsp)
-	{
-		//Msg("Set Ignore Visual Menager [%s] [%s]", object->cName().c_str(), actorsp->Name());
-		return true;
-	}
-
+ 		return true;
 	if (actormp != NULL && actormp->MpInvisibility())
-	{
-		//Msg("Set Ignore Visual Menager [%s] [%s]", object->cName().c_str(), actormp->Name());
-		return true;
-	}
-	
-
-
+  		return true;
+ 
 	if ( CBaseMonster const* const monster = smart_cast<CBaseMonster const*>(object) )
 	{
 		if ( !monster->can_be_seen() )

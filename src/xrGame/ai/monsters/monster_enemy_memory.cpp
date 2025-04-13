@@ -175,6 +175,9 @@ void CMonsterEnemyMemory::update_mp()
 		}
 	}
 
+	// se7kills (Ќахрен этот код пока не пон€тно почему падает преобразование константы)
+	// TODO: —делать что нибудь с этии :)
+	/*
 	if (monster->SoundMemory.IsRememberSound())
 	{
 		SoundElem sound;
@@ -183,24 +186,20 @@ void CMonsterEnemyMemory::update_mp()
 
 		if (dangerous && Device.dwTimeGlobal < sound.time + 2000)
 		{
-			if (CEntityAlive const* enemy = smart_cast<CEntityAlive const*>(sound.who))
+			CObject* enemy = const_cast<CObject*>(sound.who);
+			if (enemy)					 
 			{
-				if (CActor const* enemy_actor = smart_cast<CActor const*>(sound.who)) 
+				if (CActor* enemy_actor = dynamic_cast<CActor*>(enemy))
 				{
 					float const xz_dist = monster->Position().distance_to_xz(enemy_actor->Position());
 					float const y_dist = _abs(monster->Position().y - enemy_actor->Position().y);
 					float const max_dist = monster->get_feel_enemy_who_made_sound_max_distance();
 						
-					if (monster->CCustomMonster::useful(&monster->memory().enemy(), enemy) &&
-						y_dist < 10 &&
-						xz_dist < max_dist &&
-						enemy_actor->memory().visual().visible_now(monster))
+					bool isUseful = monster->CCustomMonster::useful(&monster->memory().enemy(), enemy_actor);
+					if (isUseful && y_dist < 10 && xz_dist < max_dist && enemy_actor->memory().visual().visible_now(monster))
 					{
-						add_enemy(enemy);
-					//	Msg("Add Enemy %s, dist: %f", enemy->Name(), xz_dist);
-
-						bool const self_is_dog = !!smart_cast<const CAI_Dog*>(monster);
-						if (self_is_dog)
+						add_enemy(enemy_actor);
+  						if (dynamic_cast<CAI_Dog*>(monster))
 						{
 							CMonsterSquad* const squad = monster_squad().get_squad(monster);
 							squad->set_home_in_danger();
@@ -210,6 +209,7 @@ void CMonsterEnemyMemory::update_mp()
 			}
 		}
 	}
+	*/
 
 	const float feel_enemy_max_distance = monster->get_feel_enemy_max_distance();
 

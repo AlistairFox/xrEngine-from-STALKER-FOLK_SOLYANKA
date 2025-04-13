@@ -133,7 +133,8 @@ void 			mt_Thread(void* ptr)
 
 	while (true)
 	{
-		OPTICK_FRAME("X-RAY SECONDARY FRAME");
+		OPTICK_EVENT("X-RAY SECONDARY FRAME");
+
 		// waiting for Device permission to execute
 		Device.mt_csEnter.Enter();
 
@@ -143,24 +144,16 @@ void 			mt_Thread(void* ptr)
 			Device.mt_csEnter.Leave();					// Important!!!
 			return;
 		}
-
+		 
 		// we has granted permission to execute
 		mt_Thread_marker = Device.dwFrame;
 
-		{
-			OPTICK_EVENT("seqParralel (MT)");
-			for (u32 pit = 0; pit < Device.seqParallel.size(); pit++)
-				Device.seqParallel[pit]();
-		}
-
-
-		Device.seqParallel.clear_not_free();
-
-		{
-			OPTICK_EVENT("OnFrame (MT)");
-			Device.seqFrameMT.Process(rp_Frame);
-		}
+ 		for (u32 pit = 0; pit < Device.seqParallel.size(); pit++)
+			Device.seqParallel[pit]();
  
+		Device.seqParallel.clear_not_free();
+  		Device.seqFrameMT.Process(rp_Frame);
+  
 		// now we give control to device - signals that we are ended our work
 		Device.mt_csEnter.Leave();
 		// waits for device signal to continue - to start again
