@@ -59,6 +59,7 @@ public:
 
 	// Se7kills
 	// NEW For Safe Mode Weapon HUD
+	float			m_fCollisionFactor;
 	Fvector			m_hud_offset[2];
 	u8 last_idx;
 

@@ -27,6 +27,7 @@
 
 #include "xrSash.h"
 #include "igame_persistent.h"
+#include <chrono>
 #pragma comment( lib, "OptickCore.lib")
 
 #pragma comment( lib, "d3dx9.lib"		)
@@ -125,6 +126,16 @@ void CRenderDevice::End(void)
 #endif
 }
  
+bool IsMainMenuActive()
+{
+	return g_pGamePersistent && g_pGamePersistent->m_pMainMenu && g_pGamePersistent->m_pMainMenu->IsActive();
+}
+ 
+std::chrono::high_resolution_clock::time_point tlastf = std::chrono::high_resolution_clock::now(), tcurrentf = std::
+chrono::high_resolution_clock::now();
+std::chrono::duration<float> time_span;
+float refresh_rate = 0;
+
 volatile u32	mt_Thread_marker = 0x12345678;
 void 			mt_Thread(void* ptr)
 {
@@ -220,6 +231,24 @@ void CRenderDevice::UpdateCamera()
 	mView_saved = mView;
 	mProject_saved = mProject;
 }
+extern int block_30FPS;
+float GetMonitorRefresh()
+{
+	DEVMODE lpDevMode;
+	memset(&lpDevMode, 0, sizeof(DEVMODE));
+	lpDevMode.dmSize = sizeof(DEVMODE);
+	lpDevMode.dmDriverExtra = 0;
+
+	if (block_30FPS != 0)
+		return 1.f / 30.f;
+ 
+	if (EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &lpDevMode) == 0)
+	{
+		return 1.f / 60.f;
+	}
+	else
+		return 1.f / lpDevMode.dmDisplayFrequency;
+}
 
 void CRenderDevice::on_idle()
 {
@@ -305,7 +334,6 @@ void CRenderDevice::on_idle()
 	// *** Suspend threads
 	// Capture startup point
 	// Release end point - allow thread to wait for startup point
-	
 	if (!g_dedicated_server)
 	{
 		mt_csEnter.Enter();
@@ -321,6 +349,21 @@ void CRenderDevice::on_idle()
 		Device.seqParallel.clear_not_free();
 		seqFrameMT.Process(rp_Frame);
 	}
+
+
+	if (Device.Paused() || IsMainMenuActive())
+	{
+		if (refresh_rate == 0)
+			refresh_rate = GetMonitorRefresh();
+		time_span = std::chrono::duration_cast<std::chrono::duration<float>>(tcurrentf - tlastf);
+		while (time_span.count() < refresh_rate)
+		{
+			tcurrentf = std::chrono::high_resolution_clock::now();
+			time_span = std::chrono::duration_cast<std::chrono::duration<float>>(tcurrentf - tlastf);
+		}
+		tlastf = std::chrono::high_resolution_clock::now();
+	}
+
  
 	//FPS LOCK FOR CLIENT
 	if (!b_is_Active)

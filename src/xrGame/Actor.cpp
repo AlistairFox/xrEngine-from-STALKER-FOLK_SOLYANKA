@@ -1420,7 +1420,7 @@ void CActor::shedule_Update	(u32 DT)
 		if (!pInput->iGetAsyncKeyState(DIK_LALT) && !MpAnimationMode())
 			g_cl_Orientate			(mstate_real,dt);
 
-		if (MpAnimationMode() || MpSafeMode())
+		if (MpAnimationMode())
 			cam_Set(eacLookAt);
 	
 		

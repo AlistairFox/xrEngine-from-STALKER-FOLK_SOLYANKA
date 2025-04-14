@@ -300,9 +300,9 @@ void CActor::cam_Update(float dt, float fFOV)
 	if (this == Level().CurrentControlEntity())
 	{
 		CWeapon* pWeapon = smart_cast<CWeapon*>(this->inventory().ActiveItem());
-		if (eacFirstEye == cam_active && pWeapon)
-			psHUD_FOV = pWeapon->GetHudFov();
-		else
+		//if (eacFirstEye == cam_active && pWeapon)
+		//	psHUD_FOV = pWeapon->GetHudFov();
+		//else
 			psHUD_FOV = psHUD_FOV_def;
 	}
 	//--#SM+#--

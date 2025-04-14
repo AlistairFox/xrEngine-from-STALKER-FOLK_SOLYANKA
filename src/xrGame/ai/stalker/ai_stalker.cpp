@@ -873,6 +873,8 @@ CPHDestroyable*		CAI_Stalker::		ph_destroyable	()
 
 void CAI_Stalker::shedule_Update		( u32 DT )
 {
+	OPTICK_EVENT("CAI_Stalker::shedule_update");
+
 	if (!IsGameTypeSingle() && OnClient())
 	{
 		inherited::shedule_Update(DT);

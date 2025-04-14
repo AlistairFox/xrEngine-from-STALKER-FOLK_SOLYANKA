@@ -449,11 +449,8 @@ void CBaseMonster::UpdateCL()
 	control().update_frame();
  	m_pPhysics_support->in_UpdateCL();	
 }
-
-
-
-extern float Shedule_Scale_AI_Stalker;
  
+extern float Shedule_Scale_AI_Stalker;
 #include "Spectator.h"
 #include "enemy_manager.h"
 
@@ -468,6 +465,7 @@ float CBaseMonster::shedule_Scale()
 
 void CBaseMonster::shedule_Update(u32 dt)
 {
+	OPTICK_EVENT("BASE_MONSTER::shedule_update");
 	if (OnClient())
 	{
 		inherited::shedule_Update(dt);

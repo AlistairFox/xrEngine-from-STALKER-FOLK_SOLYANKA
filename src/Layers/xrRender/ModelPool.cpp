@@ -160,7 +160,8 @@ dxRender_Visual*	CModelPool::Instance_Load(LPCSTR name, IReader* data, BOOL allo
 	V->Load				(name,data,0);
 
 	// Registration
-	if (allow_register) Instance_Register(name,V);
+	if (allow_register)
+		Instance_Register(name,V);
 	return V;
 }
 
@@ -236,14 +237,15 @@ dxRender_Visual* CModelPool::Instance_Find(LPCSTR N)
 
 dxRender_Visual* CModelPool::Create(const char* name, IReader* data)
 {
-#ifdef _EDITOR
-	if (!name||!name[0])	return 0;
-#endif
 	string_path low_name;	VERIFY	(xr_strlen(name)<sizeof(low_name));
-	xr_strcpy(low_name,name);	strlwr	(low_name);
-	if (strext(low_name))	*strext	(low_name)=0;
-//	Msg						("-CREATE %s",low_name);
+	xr_strcpy(low_name,name);
+	strlwr	(low_name);
 
+	if (strext(low_name))	
+		*strext	(low_name)=0;
+
+	OPTICK_EVENT("ModelPool Loading Model");
+ 
 	// 0. Search POOL
 	POOL_IT	it			=	Pool.find	(low_name);
 	if (it!=Pool.end())
@@ -253,20 +255,24 @@ dxRender_Visual* CModelPool::Create(const char* name, IReader* data)
 		Model->Spawn		();
 		Pool.erase			(it);
 		return				Model;
-	} else {
+	} 
+	else 
+	{
 		// 1. Search for already loaded model (reference, base model)
 		dxRender_Visual* Base		= Instance_Find		(low_name);
 
 		if (0==Base){
 			// 2. If not found
 			bAllowChildrenDuplicate	= FALSE;
-			if (data)		Base = Instance_Load(low_name,data,TRUE);
-            else			Base = Instance_Load(low_name,TRUE);
+			if (data)	
+				Base = Instance_Load(low_name,data,TRUE);
+            else		
+				Base = Instance_Load(low_name,TRUE);
 			bAllowChildrenDuplicate	= TRUE;
-//#ifdef _EDITOR
-			if (!Base)		return 0;
-//#endif
-		}
+ 			
+			if (!Base)	
+				return 0;
+ 		}
         // 3. If found - return (cloned) reference
         dxRender_Visual*		Model	= Instance_Duplicate(Base);
         Registry.insert		( mk_pair(Model,low_name) );

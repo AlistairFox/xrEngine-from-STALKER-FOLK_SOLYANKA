@@ -1047,15 +1047,13 @@ void		xrRender_initconsole	()
 	CMD4(CCC_Float, "r__detail_l_ambient", &ps_r__Detail_l_ambient, .5f, .95f);
 	CMD4(CCC_Float, "r__detail_l_aniso", &ps_r__Detail_l_aniso, .1f, .5f);
 
-	CMD4(CCC_Float, "r__d_tree_w_amp", &ps_r__Tree_w_amp, .001f, 1.f);
-	CMD4(CCC_Float, "r__d_tree_w_rot", &ps_r__Tree_w_rot, .01f, 100.f);
-	CMD4(CCC_Float, "r__d_tree_w_speed", &ps_r__Tree_w_speed, 1.0f, 10.f);
-
 	tw_min.set(EPS, EPS, EPS);
 	tw_max.set(2, 2, 2);
 	CMD4(CCC_Vector3, "r__d_tree_wave", &ps_r__Tree_Wave, tw_min, tw_max);
 #endif // DEBUG
-
+	CMD4(CCC_Float, "r__d_tree_w_amp",   &ps_r__Tree_w_amp, .001f, 1.f);
+	CMD4(CCC_Float, "r__d_tree_w_rot",   &ps_r__Tree_w_rot, .01f, 100.f);
+	CMD4(CCC_Float, "r__d_tree_w_speed", &ps_r__Tree_w_speed, 1.0f, 10.f);
 }
 
 void	xrRender_apply_tf		()

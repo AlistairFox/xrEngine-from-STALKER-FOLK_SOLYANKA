@@ -807,8 +807,11 @@ public:
  
 extern int gAlvaysActive = 0;
 
+extern int block_30FPS	 = 0;
+
 void CCC_Register()
 {	 
+	CMD4(CCC_Integer, "r__block_30FPS", &block_30FPS, 0, 1);
 	CMD1(CCC_OptickStart, "optick_start");
 	CMD1(CCC_OptickSave, "optick_save");
 	CMD4(CCC_Integer, "debug_callstack", &Debug.isCallstackEnable, 0, 1);

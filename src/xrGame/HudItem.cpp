@@ -754,6 +754,7 @@ void CHudItem::ReplaceHudSection(LPCSTR hud_section)
 
 float CHudItem::GetHudFov()
 {
+	m_nearwall_enabled = false;
 	if (m_nearwall_enabled && ParentIsActor() && Level().CurrentViewEntity() == object().H_Parent())
 	{
 		collide::rq_result& RQ = HUD().GetCurrentRayQuery();
@@ -778,3 +779,4 @@ float CHudItem::GetHudFov()
 
 	return m_nearwall_last_hud_fov;
 }
+ 

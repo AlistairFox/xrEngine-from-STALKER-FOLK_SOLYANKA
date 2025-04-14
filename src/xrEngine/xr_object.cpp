@@ -51,13 +51,6 @@ void CObject::cNameVisual_set	(shared_str N)
 		
 		IKinematics* old_k	= old_v?old_v->dcast_PKinematics():NULL;
 		IKinematics* new_k	= renderable.visual->dcast_PKinematics();
-
-		/*
-		if(old_k && new_k){
-			new_k->Update_Callback			= old_k->Update_Callback;
-			new_k->Update_Callback_Param	= old_k->Update_Callback_Param;
-		}
-		*/
 		if(old_k && new_k)
 		{
 			new_k->SetUpdateCallback(old_k->GetUpdateCallback());
@@ -167,6 +160,8 @@ CObject::~CObject				( )
 
 void CObject::Load				(LPCSTR section )
 {
+	OPTICK_EVENT("CObject::Load")
+
 	// Name
 	R_ASSERT					(section);
 	cName_set					(section);
