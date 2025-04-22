@@ -217,23 +217,42 @@ float CWeapon::GetConditionMisfireProbability() const
 
 BOOL CWeapon::CheckForMisfire()
 {
-	if (OnClient()) return FALSE;
-
-	float rnd = ::Random.randF(0.f, 1.f);
-	float mp = GetConditionMisfireProbability();
-	if (rnd < mp)
+	CActor*  a = smart_cast<CActor*> (H_Parent());
+	if (H_Parent() == Level().CurrentControlEntity() && a)
 	{
-		FireEnd();
+		float rnd = ::Random.randF(0.f, 1.f);
+		float mp = GetConditionMisfireProbability();
+		if (rnd < mp)
+		{
+			FireEnd();
 
-		bMisfire = true;
-		SwitchState(eMisfire);
+			bMisfire = true;
+			SwitchState(eMisfire);
 
-		return TRUE;
+			return TRUE;
+		}
+		else
+ 			return FALSE;
+ 	}
+ 
+	if (!a)
+	{
+		float rnd = ::Random.randF(0.f, 1.f);
+		float mp = GetConditionMisfireProbability();
+		if (rnd < mp)
+		{
+			FireEnd();
+
+			bMisfire = true;
+			SwitchState(eMisfire);
+
+			return TRUE;
+		}
+		else
+			return FALSE;
 	}
 	else
-	{
 		return FALSE;
-	}
 }
 
 

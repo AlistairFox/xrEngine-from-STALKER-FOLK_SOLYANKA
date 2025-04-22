@@ -125,24 +125,7 @@ void CWeaponMagazined::switch2_FlashlightSwitch()
 	SetPending(TRUE);
 }
 
-// BASE MODES
-
-void CWeaponMagazined::switch2_Fire()
-{
-	CInventoryOwner* io = smart_cast<CInventoryOwner*>(H_Parent());
-	CInventoryItem* ii = smart_cast<CInventoryItem*>(this);
-
-	if (!io)
-		return;
-
-	m_bStopedAfterQueueFired = false;
-	m_bFireSingleShot = true;
-	m_iShotNum = 0;
-
-	if ((OnClient() || Level().IsDemoPlay()) && !IsWorking())
-		FireStart();
-
-}
+// Base
 
 void CWeaponMagazined::switch2_Empty()
 {
@@ -240,80 +223,6 @@ void CWeaponMagazined::switch2_Showing()
 
 
 // ONSTATE
-void CWeaponMagazined::state_Fire(float dt)
-{
-	if (iAmmoElapsed > 0)
-	{
-		VERIFY(fOneShotTime > 0.f);
-
-		Fvector					p1, d;
-		p1.set(get_LastFP());
-		d.set(get_LastFD());
-
-		CEntity* E = smart_cast<CEntity*>(H_Parent());
-		if (E != nullptr)
-		{
-			E->g_fireParams(this, p1, d);
-
-			if (!E->g_stateFire())
-				StopShooting();
-		}
-		else
-		{
-			SwitchState(eIdle);
-			return;
-		}
-
-		if (m_iShotNum == 0)
-		{
-			m_vStartPos = p1;
-			m_vStartDir = d;
-		};
-
-		while (!m_magazine.empty() &&
-			fShotTimeCounter < 0 &&
-			(IsWorking() || m_bFireSingleShot) &&
-			(m_iQueueSize < 0 || m_iShotNum < m_iQueueSize)
-			)
-		{
-			if (CheckForMisfire())
-			{
-				StopShooting();
-				return;
-			}
-
-			m_bFireSingleShot = false;
-
-			fShotTimeCounter += fOneShotTime;
-
-			++m_iShotNum;
-
-			OnShot();
-
-			if (m_iShotNum > m_iBaseDispersionedBulletsCount)
-				FireTrace(p1, d);
-			else
-				FireTrace(m_vStartPos, m_vStartDir);
-		}
-
-		if (m_iShotNum == m_iQueueSize)
-			m_bStopedAfterQueueFired = true;
-
-		UpdateSounds();
-	}
-
-	if (fShotTimeCounter < 0)
-	{
-		if (iAmmoElapsed == 0)
-			OnMagazineEmpty();
-
-		StopShooting();
-	}
-	else
-	{
-		fShotTimeCounter -= dt;
-	}
-}
 
 void CWeaponMagazined::state_Misfire(float dt)
 {

@@ -69,63 +69,6 @@ bool CWeaponMagazined::UseScopeTexture()
 	return bScopeIsHasTexture;
 }
 
-void CWeaponMagazined::FireStart()
-{
-	if (!IsMisfire())
-	{
-		if (IsValid())
-		{
-			if (!IsWorking() || AllowFireWhileWorking())
-			{
-				if (GetState() == eReload)
-					return;
-				if (GetState() == eShowing)
-					return;
-				if (GetState() == eHiding)
-					return;
-				if (GetState() == eMisfire)
-					return;
-				if (GetState() == eUnMisfire)
-					return;
-				if (GetState() == eFiremodePrev)
-					return;
-				if (GetState() == eFiremodeNext)
-					return;
-				if (GetState() == eLaserSwitch)
-					return;
-				if (GetState() == eFlashlightSwitch)
-					return;
-
-				inherited::FireStart();
-
-				if (iAmmoElapsed == 0)
-					OnMagazineEmpty();
-				else {
-					R_ASSERT(H_Parent());
-					SwitchState(eFire);
-				}
-			}
-		}
-		else
-		{
-			if (eReload != GetState())
-				OnMagazineEmpty();
-		}
-	}
-	else
-	{
-		//misfire
-		//CGameObject* object = smart_cast<CGameObject*>(H_Parent());
-		//if (object)
-		//	object->callback(GameObject::eOnWeaponJammed)(object->lua_game_object(), this->lua_game_object());
-
-		if (smart_cast<CActor*>(this->H_Parent()) && (Level().CurrentViewEntity() == H_Parent()))
-			CurrentGameUI()->AddCustomStatic("gun_jammed", true);
-
-		OnEmptyClick();
-	}
-}
-
 void CWeaponMagazined::FireEnd()
 {
 	inherited::FireEnd();
@@ -378,4 +321,148 @@ bool CWeaponMagazined::WeaponSoundExist(LPCSTR section, LPCSTR sound_name, bool 
 		Msg("~ [WARNING] ------ Sound [%s] does not exist in [%s]", sound_name, section);
 #endif
 	return false;
+}
+
+
+// se7kills !!!
+// State Fire Очень важный код 
+// Нужно убедиться что не перестает стерлять очередь
+
+void CWeaponMagazined::switch2_Fire()
+{
+	CInventoryOwner* io = smart_cast<CInventoryOwner*>(H_Parent());
+	CInventoryItem* ii = smart_cast<CInventoryItem*>(this);
+
+	if (!io)
+		return;
+
+	m_bStopedAfterQueueFired = false;
+	m_bFireSingleShot = true;
+	m_iShotNum = 0;
+
+	if (!IsWorking())
+		FireStart();
+}
+
+void CWeaponMagazined::FireStart()
+{
+	if (!IsMisfire())
+	{
+		if (IsValid())
+		{
+			if (!IsWorking() || AllowFireWhileWorking())
+			{
+				if (GetState() == eReload)
+					return;
+				if (GetState() == eShowing)
+					return;
+				if (GetState() == eHiding)
+					return;
+				if (GetState() == eMisfire)
+					return;
+				if (GetState() == eUnMisfire)
+					return;
+				if (GetState() == eFiremodePrev)
+					return;
+				if (GetState() == eFiremodeNext)
+					return;
+				if (GetState() == eLaserSwitch)
+					return;
+				if (GetState() == eFlashlightSwitch)
+					return;
+
+				inherited::FireStart();
+
+				if (iAmmoElapsed == 0)
+					OnMagazineEmpty();
+				else {
+					R_ASSERT(H_Parent());
+					SwitchState(eFire);
+				}
+			}
+		}
+		else
+		{
+			if (eReload != GetState())
+				OnMagazineEmpty();
+		}
+	}
+	else
+	{
+		if (smart_cast<CActor*>(this->H_Parent()) && (Level().CurrentViewEntity() == H_Parent()))
+			CurrentGameUI()->AddCustomStatic("gun_jammed", true);
+
+		OnEmptyClick();
+	}
+}
+
+void CWeaponMagazined::state_Fire(float dt)
+{
+	if (iAmmoElapsed > 0)
+	{
+		VERIFY(fOneShotTime > 0.f);
+
+		Fvector					p1, d;
+		p1.set(get_LastFP());
+		d.set(get_LastFD());
+
+		CEntity* E = smart_cast<CEntity*>(H_Parent());
+		if (E != nullptr)
+		{
+			E->g_fireParams(this, p1, d);
+
+			if (!E->g_stateFire())
+				StopShooting();
+		}
+		else
+		{
+			SwitchState(eIdle);
+			return;
+		}
+
+		if (m_iShotNum == 0)
+		{
+			m_vStartPos = p1;
+			m_vStartDir = d;
+		};
+
+		while (!m_magazine.empty() && fShotTimeCounter < 0 && (IsWorking() || m_bFireSingleShot) && (m_iQueueSize < 0 || m_iShotNum < m_iQueueSize) )
+		{
+			// se7kills (Переделать чтобы только в одном месте чекало на Misfire)
+			// Теперь не будет блочится очередь на сревере изза этого сервер не стрелял
+			if (CheckForMisfire())
+			{
+				StopShooting();
+				return;
+			}
+
+			m_bFireSingleShot = false;
+ 			fShotTimeCounter += fOneShotTime;
+ 			++m_iShotNum;
+
+			OnShot();
+
+			if (m_iShotNum > m_iBaseDispersionedBulletsCount)
+				FireTrace(p1, d);
+			else
+				FireTrace(m_vStartPos, m_vStartDir);
+		}
+
+		if (m_iShotNum == m_iQueueSize)
+			m_bStopedAfterQueueFired = true;
+
+		UpdateSounds();
+	}
+
+	if (fShotTimeCounter < 0)
+	{
+		if (iAmmoElapsed == 0)
+			OnMagazineEmpty();
+
+		StopShooting();
+	}
+	else
+	{
+		fShotTimeCounter -= dt;
+	}
 }
