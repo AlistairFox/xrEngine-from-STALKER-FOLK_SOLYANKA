@@ -6291,6 +6291,11 @@
     <ClCompile Include="WeaponMagazinedWGrenade_Animations.cpp" />
     <ClCompile Include="WeaponMagazinedWGrenade_States.cpp" />
     <ClCompile Include="WeaponMagazinedWGrenade_Upgrades.cpp" />
+    <ClCompile Include="WeaponMagazined_Addons.cpp" />
+    <ClCompile Include="WeaponMagazined_Animation.cpp" />
+    <ClCompile Include="WeaponMagazined_Loading.cpp" />
+    <ClCompile Include="WeaponMagazined_States.cpp" />
+    <ClCompile Include="WeaponMagazined_Upgrades.cpp" />
     <ClCompile Include="Weapon_Dispersion.cpp" />
     <ClCompile Include="Weapon_Fire.cpp" />
     <ClCompile Include="WeaponFN2000.cpp">

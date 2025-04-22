@@ -11515,6 +11515,21 @@
     <ClCompile Include="WeaponMagazined_ReloadingSystems.cpp">
       <Filter>Se7Kills\Weapons\Custom Weapon\WeaponBase\Automatic</Filter>
     </ClCompile>
+    <ClCompile Include="WeaponMagazined_Addons.cpp">
+      <Filter>Se7Kills\Weapons\Custom Weapon\WeaponBase\Automatic</Filter>
+    </ClCompile>
+    <ClCompile Include="WeaponMagazined_Upgrades.cpp">
+      <Filter>Se7Kills\Weapons\Custom Weapon\WeaponBase\Automatic</Filter>
+    </ClCompile>
+    <ClCompile Include="WeaponMagazined_States.cpp">
+      <Filter>Se7Kills\Weapons\Custom Weapon\WeaponBase\Automatic</Filter>
+    </ClCompile>
+    <ClCompile Include="WeaponMagazined_Animation.cpp">
+      <Filter>Se7Kills\Weapons\Custom Weapon\WeaponBase\Automatic</Filter>
+    </ClCompile>
+    <ClCompile Include="WeaponMagazined_Loading.cpp">
+      <Filter>Se7Kills\Weapons\Custom Weapon\WeaponBase\Automatic</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="ai\monsters\chimera\chimera_attack_state.h">
