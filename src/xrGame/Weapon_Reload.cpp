@@ -255,9 +255,6 @@ BOOL CWeapon::CheckForMisfire()
 		return FALSE;
 }
 
-
-
-
 void CWeapon::OnMagazineEmpty()
 {
 	VERIFY((u32)iAmmoElapsed == m_magazine.size());

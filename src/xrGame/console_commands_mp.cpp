@@ -2410,6 +2410,22 @@ public:
 	}
 };
 
+bool isAllowed(const char* s)
+{
+	if (strstr(s, "r2_"))
+		return true;
+	if (strstr(s, "r3_"))
+		return true;
+	if (strstr(s, "r4_"))
+		return true;
+	if (strstr(s, "r__"))
+		return true;
+	if (strstr(s, "rs_"))
+		return true;
+
+	return false;
+}
+
 class CCC_ExportConfigMP : public IConsole_Command
 {
 public:
@@ -2422,8 +2438,12 @@ public:
 		CMemoryWriter oc_writer;
 		for (auto cmd : Console->Commands)
 		{
-			Msg("Pack[CMD]: %s", cmd.first);
- 			cmd.second->Save(&oc_writer);
+			LPCSTR test = cmd.first;
+			if (isAllowed(test))
+			{
+				Msg("Pack[CMD]: %s", cmd.first);
+				cmd.second->Save(&oc_writer);
+			}
 		}
 		packet.w_u32(oc_writer.size());
 		packet.w(oc_writer.pointer(), oc_writer.size());
@@ -2433,21 +2453,7 @@ public:
  	}
 };
 
-bool isAllowed(string256& s)
-{
-	if (strstr(s, "r2_"))
-		return true;
- 	if (strstr(s, "r3_"))
-		return true;
-	if (strstr(s, "r4_"))
-		return true;
-	if (strstr(s, "r__"))
-		return true;
-	if (strstr(s, "rs_"))
-		return true;
 
-	return false;
-}
 
 void ReadCMDCommands(NET_Packet& P)
 {
@@ -2467,7 +2473,6 @@ void ReadCMDCommands(NET_Packet& P)
 			Console->Execute(str);
 		}
 	}
-  
 }
 
 void CheckFlagsPlayerState()
