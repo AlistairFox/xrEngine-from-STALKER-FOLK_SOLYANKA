@@ -37,7 +37,7 @@ protected:
 	virtual void	PlayAnimReload	();
 
 	shared_str	m_sRocketSection;
-
+	u32			LastStartTime = 0;
 	DECLARE_SCRIPT_REGISTER_FUNCTION
 };
 add_to_type_list(CWeaponRPG7)

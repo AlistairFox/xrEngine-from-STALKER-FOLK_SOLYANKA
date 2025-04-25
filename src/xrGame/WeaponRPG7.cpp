@@ -176,10 +176,12 @@ void CWeaponRPG7::switch2_Fire()
 	m_iShotNum = 0;
 	m_bFireSingleShot = true;
 	bWorking = false;
+ 	iAmmoElapsed = getRocketCount();
 
-	if (GetState() == eFire)
+	if (GetState() == eFire && LastStartTime < Device.dwTimeGlobal)
 	{
-		iAmmoElapsed = getRocketCount();
+		LastStartTime = Device.dwTimeGlobal + 1000;
+
 		if (!getRocketCount())
 		{
 			Msg("No Has Any Rocket in vector");
@@ -220,12 +222,12 @@ void CWeaponRPG7::OnEvent(NET_Packet& P, u16 type)
 
 		case GE_WPN_SPAWNGRENADE:
 		{
+			Msg("Spawn RPG 7 Ammo");
 			if (OnServer())
 			{
 				shared_str section;
 				P.r_stringZ(section);
-				if (getCurrentRocket() <= 0)
-					CRocketLauncher::SpawnRocket(section, this);
+ 				CRocketLauncher::SpawnRocket(section, this);
 			}break;
 		}break;
 
