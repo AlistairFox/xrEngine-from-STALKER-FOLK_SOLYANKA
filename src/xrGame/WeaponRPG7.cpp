@@ -90,34 +90,33 @@ void CWeaponRPG7::StartRocketRecive(Fvector& position, Fvector& direction)
 void CWeaponRPG7::StartRocketSend()
 {
 	Msg("RPG 7 Start Rocket Send");
-	Fvector position_wp, position_ent;
-	Fvector direction_wp, direction_ent;
-	Fvector position, direction;
 
-	position = position_wp.set(get_LastFP());
-	direction = direction_wp.set(get_LastFP());
+	Fvector position_wp, direction_wp, position;
+	Fvector position_entity, direction_entity, direction;
+	position_wp.set(get_LastFP());
+	direction_wp.set(get_LastFD());
+	position = position_wp;
+	direction = direction_wp;
 
-	CEntity* E = smart_cast<CEntity*>	(H_Parent());
+	CEntity* E = smart_cast<CEntity*>(H_Parent());
 	if (E)
 	{
-		E->g_fireParams(this, position_ent, direction_ent);
-		position = position_ent;
-		direction = direction_ent;
+		E->g_fireParams(this, position_entity, direction_entity);
+		position  = position_entity;
+		direction = direction_entity;
 
-		if (IsHudModeNow())
+ 		if (IsHudModeNow())
 		{
 			Fvector		p0;
 			float dist = HUD().GetCurrentRayQuery().range;
-			p0.mul(direction_ent, dist);
-			p0.add(position_wp); 
-			
+			p0.mul(direction_entity, dist);
+			p0.add(position_wp);
+			position = position_wp;
 			direction.sub(p0, position_wp);
 			direction.normalize_safe();
-
-			position = position_wp;
 		}
 	}
-  
+	 
 	NET_Packet packet;
 	Game().u_EventGen(packet, GE_WPN_STARTGRENADE, ID());
 	packet.w_vec3(position);
@@ -151,9 +150,13 @@ void CWeaponRPG7::UnloadMagazine(bool spawn_ammo)
 void CWeaponRPG7::ReloadMagazine()
 {
 	inherited::ReloadMagazine();
-// 	Msg("Reload Magazine");
+ 
 	if (iAmmoElapsed != getRocketCount())
- 		CRocketLauncher::SpawnRocketSend(m_sRocketSection.c_str(), this);
+	{
+		CRocketLauncher::SpawnRocketSend(m_sRocketSection.c_str(), this);
+		Msg("Send Spawn Rocket: %u | %u", iAmmoElapsed, getRocketCount());
+	}
+
 }
 
 void CWeaponRPG7::SwitchState(u32 S)
@@ -176,16 +179,13 @@ void CWeaponRPG7::switch2_Fire()
 
 	if (GetState() == eFire)
 	{
- 		// Msg("Rockets: %u, Elapsed: %u", getRocketCount(), iAmmoElapsed);
-
+		iAmmoElapsed = getRocketCount();
 		if (!getRocketCount())
 		{
 			Msg("No Has Any Rocket in vector");
 			return;
 		}
-
-		iAmmoElapsed = getRocketCount();
-		
+		 
 		CActor* A = smart_cast<CActor*>(H_Parent());
 		if (A->IsFocused())
 		{
@@ -203,9 +203,7 @@ void CWeaponRPG7::PlayAnimReload()
 	VERIFY(GetState() == eReload);
 	PlayHUDMotion("anm_reload", FALSE, this, GetState());
 }
-
-
-
+ 
 void CWeaponRPG7::OnEvent(NET_Packet& P, u16 type)
 {
 	inherited::OnEvent(P, type);
@@ -214,22 +212,20 @@ void CWeaponRPG7::OnEvent(NET_Packet& P, u16 type)
 	{
 		case GE_WPN_STARTGRENADE:
 		{
-			Msg("GE_WPN_STARTGRENADE");
 			Fvector position, direction;
 			P.r_vec3(position);
 			P.r_vec3(direction);
-			StartRocketRecive(direction, position);
+			StartRocketRecive(position, direction);
 		}break;
 
 		case GE_WPN_SPAWNGRENADE:
 		{
 			if (OnServer())
 			{
-				Msg("GE_WPN_SPAWNGRENADE");
-
 				shared_str section;
 				P.r_stringZ(section);
-				CRocketLauncher::SpawnRocket(section, this);
+				if (getCurrentRocket() <= 0)
+					CRocketLauncher::SpawnRocket(section, this);
 			}break;
 		}break;
 
@@ -237,8 +233,6 @@ void CWeaponRPG7::OnEvent(NET_Packet& P, u16 type)
 		case GE_OWNERSHIP_TAKE:
 		{
 			P.r_u16(id);
-			Msg("GE_OWNERSHIP_TAKE : %u", id);
-
 			CRocketLauncher::AttachRocket(id, this);
 		} break;
 	
@@ -247,9 +241,6 @@ void CWeaponRPG7::OnEvent(NET_Packet& P, u16 type)
 		{
 			bool bLaunch = (type == GE_LAUNCH_ROCKET);
 			P.r_u16(id);
-
-			Msg("GE_LAUNCH_ROCKET : %u Launch: %u", id, bLaunch);
-
 			CRocketLauncher::DetachRocket(id, bLaunch);
 			if (bLaunch)
 				UpdateMissileVisibility();
