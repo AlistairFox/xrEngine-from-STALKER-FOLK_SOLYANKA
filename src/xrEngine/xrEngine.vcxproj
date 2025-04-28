@@ -951,7 +951,7 @@
     <ResourceCompile Include="resource.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="C:\Users\Dima\Desktop\Иконки\rad2.ico" />
+    <Image Include="..\rad2.ico" />
     <Image Include="splash_xrcs_en.bmp" />
   </ItemGroup>
   <ItemGroup>
