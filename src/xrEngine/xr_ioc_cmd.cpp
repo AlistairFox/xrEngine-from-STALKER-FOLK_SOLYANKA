@@ -884,7 +884,7 @@ void CCC_Register()
 	CMD1(CCC_RSStats,		"rs_stats" );
  
 
-	CMD4(CCC_Float,		"rs_vis_distance",		&psVisDistance,		0.1f,	3.0f			);
+	CMD4(CCC_Float,		"rs_vis_distance",		&psVisDistance,		0.1f,	1.2f			);
 
 	CMD3(CCC_Mask,		"rs_cam_pos",			&psDeviceFlags,		rsCameraPos				);
 	CMD3(CCC_Mask,		"rs_debug_lua",			&psDeviceFlags,		rsDebug);

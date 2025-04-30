@@ -192,9 +192,8 @@ void CWeaponRPG7::switch2_Fire()
 		if (A->IsFocused())
 		{
 			StartRocketSend();
-			return;
-		}
-		
+ 		}
+		else 
 		if (!A && OnServer())
 			StartRocketSend();
 	}
@@ -220,10 +219,9 @@ void CWeaponRPG7::OnEvent(NET_Packet& P, u16 type)
 			StartRocketRecive(position, direction);
 		}break;
 
-		case GE_WPN_SPAWNGRENADE:
+ 		case GE_WPN_SPAWNGRENADE:
 		{
-			Msg("Spawn RPG 7 Ammo");
-			if (OnServer())
+ 			if (OnServer())
 			{
 				shared_str section;
 				P.r_stringZ(section);
@@ -231,18 +229,23 @@ void CWeaponRPG7::OnEvent(NET_Packet& P, u16 type)
 			}break;
 		}break;
 
-
-		case GE_OWNERSHIP_TAKE:
+ 		case GE_OWNERSHIP_TAKE:
 		{
 			P.r_u16(id);
 			CRocketLauncher::AttachRocket(id, this);
+			
+			Msg("GE Rocket Take: %u | Rockets: %u", id, getRocketCount());
 		} break;
-	
-		case GE_OWNERSHIP_REJECT:
+
+ 		case GE_OWNERSHIP_REJECT:
 		case GE_LAUNCH_ROCKET:
 		{
 			bool bLaunch = (type == GE_LAUNCH_ROCKET);
 			P.r_u16(id);
+
+			if (bLaunch)
+				Msg("GE Launch Rocket: %u", id);
+
 			CRocketLauncher::DetachRocket(id, bLaunch);
 			if (bLaunch)
 				UpdateMissileVisibility();

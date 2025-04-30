@@ -70,33 +70,19 @@ void CRocketLauncher::DetachRocket(u16 rocket_id, bool bLaunch)
 {
 	CCustomRocket *pRocket = smart_cast<CCustomRocket*>(Level().Objects.net_Find(rocket_id));
 	if (!pRocket && OnClient())
-	{
-		// Msg("Cant Launch rocket[%u]", rocket_id);
 		return;
-	}
-
-	// Msg("Launch rocket[%u]", rocket_id);
-
-
-	VERIFY(pRocket);
-	ROCKETIT It = std::find(m_rockets.begin(), m_rockets.end(),pRocket);
-	ROCKETIT It_l = std::find(m_launched_rockets.begin(), m_launched_rockets.end(),pRocket);
-
-	if (OnServer())
+	ROCKETIT It = std::find(m_rockets.begin(), m_rockets.end(), pRocket);
+	ROCKETIT It_l = std::find(m_launched_rockets.begin(), m_launched_rockets.end(), pRocket);
+ 	if (OnServer())
 	{
-		VERIFY( (It != m_rockets.end())||
-			(It_l != m_launched_rockets.end()) );
+		VERIFY( (It != m_rockets.end()) || (It_l != m_launched_rockets.end()) );
 	};
-
+	 
 	if( It != m_rockets.end() )
 	{
 		(*It)->m_bLaunched	= bLaunch;
 		(*It)->H_SetParent	(NULL);
 		m_rockets.erase		(It);
-	}
-	else
-	{
-		// Msg("(m_rockets) it == end cant find rocket: %u", rocket_id);
 	}
 
 	if( It_l != m_launched_rockets.end() )
@@ -105,10 +91,7 @@ void CRocketLauncher::DetachRocket(u16 rocket_id, bool bLaunch)
 		(*It_l)->H_SetParent		(NULL);
 		m_launched_rockets.erase	(It_l);
 	}
-	else
-	{
-		//  Msg("(m_launched_rockets) it == end cant find rocket: %u", rocket_id);
-	}
+
 }
 
 void CRocketLauncher::LaunchRocket(const Fmatrix& xform,  
