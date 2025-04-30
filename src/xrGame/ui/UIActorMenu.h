@@ -213,6 +213,7 @@ private:
 	void						PropertiesBoxForDrop		(CUICellItem* cell_item, PIItem item, bool& b_show);
 	void						PropertiesBoxForRepair		(PIItem item, bool& b_show);
 	void						PropertiesBoxForGift		(PIItem item, bool& b_show);
+	void						PropertiesBoxForInject		(PIItem item, bool& b_show);
 private:
 	void						clear_highlight_lists		();
 	void						set_highlight_item			(CUICellItem* cell_item);
@@ -297,6 +298,7 @@ protected:
 	bool						TryUseItem					(CUICellItem* cell_itm);
 	bool						ToQuickSlot					(CUICellItem* itm);
 	bool						TryGiftItem					(CUICellItem* cell_itm);
+	bool						TryInjectItem				(CUICellItem* cell_itm);
 	void						SetActorInfoMP				();
 	void						UpdateActorMoneyMP();
 	void						UpdateOutfit				();

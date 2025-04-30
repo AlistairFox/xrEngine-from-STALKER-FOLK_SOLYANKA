@@ -36,6 +36,7 @@
 
 #include "../actor_defs.h"
 #include "../CampFireSwitcher.h"
+#include "Actor.h"
 
 #pragma optimize(off, "")
 
@@ -848,6 +849,34 @@ bool CUIActorMenu::TryGiftItem(CUICellItem* cell_itm)
 	return true;
 }
 
+bool CUIActorMenu::TryInjectItem(CUICellItem* cell_itm)
+{
+	if (!cell_itm)
+		return false;
+
+	PIItem item = (PIItem)cell_itm->m_pData;
+
+	if (!item)
+		return false;
+
+	CActor* who_give = smart_cast<CActor*>(Level().Objects.net_Find(m_pActorInvOwner->object_id()));
+	CActor* to_give = smart_cast<CActor*>(who_give->PersonWeLookingAt());
+
+	if (!who_give) return false;
+	if (!to_give) return false;
+
+	NET_Packet P;
+	who_give->u_EventGen(P, GE_ACTOR_INJECT_ITEM, -1);
+	P.w_u16(who_give->ID());
+	P.w_u16(to_give->ID());
+	P.w_u16(item->object().ID());
+	who_give->u_EventSend(P);
+
+	SetCurrentItem(NULL);
+	return true;
+}
+
+
 bool CUIActorMenu::ToQuickSlot(CUICellItem* itm)
 {
 	PIItem iitem = (PIItem)itm->m_pData;
@@ -917,6 +946,7 @@ void CUIActorMenu::ActivatePropertiesBox()
  		{
  			PropertiesBoxForDrop(cell_item, item, b_show);
  			PropertiesBoxForGift(item, b_show);
+  			PropertiesBoxForInject(item, b_show);
  		}
 	}
 	//else if ( m_currMenuMode == mmDeadBodySearch )
@@ -1252,6 +1282,23 @@ void CUIActorMenu::PropertiesBoxForGift( PIItem item, bool& b_show )
  	}
  }
 
+void CUIActorMenu::PropertiesBoxForInject(PIItem item, bool& b_show)
+{
+	if (!item->cast_eatable_item())
+		return;
+
+	CActor* to_give = smart_cast<CActor*>(Actor()->PersonWeLookingAt());
+	CActor* who_give = smart_cast<CActor*>(Level().Objects.net_Find(m_pActorInvOwner->object_id()));
+
+	if (who_give && who_give->is_player && to_give && to_give->is_player && who_give->Position().distance_to_sqr(to_give->Position()) < 49.f)
+	{
+		shared_str str = CStringTable().translate("st_inject");
+		str.printf("%s %s", str.c_str(), to_give->Name());
+		m_UIPropertiesBox->AddItem(str.c_str(), NULL, INVENTORY_INJECT_ITEM);
+		b_show = true;
+	}
+}
+
 void CUIActorMenu::ProcessPropertiesBoxClicked( CUIWindow* w, void* d )
 {
 	PIItem			item		= CurrentIItem();
@@ -1269,6 +1316,7 @@ void CUIActorMenu::ProcessPropertiesBoxClicked( CUIWindow* w, void* d )
 	case INVENTORY_TO_BAG_ACTION:	ToBag ( cell_item, false );		break;
 	case INVENTORY_EAT_ACTION:		TryUseItem( cell_item ); 		break;
 	case INVENTORY_GIFT_ITEM:		TryGiftItem( cell_item ); 		break;
+	case INVENTORY_INJECT_ITEM:		TryInjectItem( cell_item ); 	break;
 	case INVENTORY_DROP_ACTION:
 		{
 			void* d = m_UIPropertiesBox->GetClickedItem()->GetData();

@@ -268,7 +268,7 @@ Fvector3 CActor::GetRaindropsShader()
  		static float droplets_speed = 0;
  		static bool	 inside = true;
  
- 		if (Device.dwTimeGlobal > droplet_update + 1000)
+ 		if (Device.dwTimeGlobal > droplet_update + 500)
  		{
  			droplet_update = Device.dwTimeGlobal;
  			collide::rq_result RQ;
@@ -926,6 +926,12 @@ void CActor::Die	(CObject* who)
 	SetfHealth(0);
 
 	inherited::Die		(who);
+
+	if (Level().CurrentViewEntity() && Level().CurrentViewEntity() == this)
+	{
+		const xr_vector<const CArtefact*> empty_vector;
+		CurrentGameUI()->UIMainIngameWnd->m_artefactPanel->InitIcons(empty_vector);
+	}
 
 	if (OnServer())
 	{	
