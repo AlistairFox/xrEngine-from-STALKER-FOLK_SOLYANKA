@@ -984,6 +984,81 @@ extern float Shedule_Scale_Objects;
 #include "helicopter.h"
 #include "Actor.h"
 
+#include "smart_zone.h"
+#include "Weapon.h"
+#include "PHDestroyable.h"
+#include "eatable_item.h"
+
+float DistanceToActors(Fvector pos)
+{
+	float distance = 10000.0f;
+	for (auto pl : Level().game->players)
+	{
+		CActorMP* a = smart_cast<CActorMP*>(Level().Objects.net_Find(pl.second->GameID));
+		if (a)
+		{
+			float d = a->Position().distance_to(pos);
+			if (d < distance)
+			{
+				distance = d;
+			}
+		}
+	}
+
+	float distance_server = 10000.0f;
+	if (!g_dedicated_server && OnServer())
+	{
+		if (Actor())
+		{
+			float d = Actor()->Position().distance_to(pos);
+			distance_server = d;
+		}
+	}
+
+	return distance_server < distance ? distance_server : distance;
+}
+
+float CGameObject::GetDistanceToNearActor()
+{
+	float distance = 999999.0;
+	for (const auto& pl : Level().game->players)
+	{
+		CActor* test = smart_cast<CActor*>(Level().Objects.net_Find(pl.second->GameID));
+		if (test)
+		{
+			float d = test->Position().distance_to(Position());
+			if (d < distance)
+				distance = d;
+		}
+	}
+
+	return distance;
+}
+
+CActor* CGameObject::GetNearestActor()
+{
+	float distance = 999999.0;
+	CActor* ActorNear = nullptr;
+	for (const auto& pl : Level().game->players)
+	{
+		CActor* test = smart_cast<CActor*>(Level().Objects.net_Find(pl.second->GameID));
+		if (test)
+		{
+			float d = test->Position().distance_to(Position());
+			if (d < distance)
+			{
+				distance = d;
+				ActorNear = test;
+			}
+		}
+	}
+
+	if (!ActorNear)
+		return Actor();
+
+	return ActorNear;
+}
+
 float CGameObject::shedule_Scale()
 {
 	if (OnClient())
@@ -995,21 +1070,21 @@ float CGameObject::shedule_Scale()
 			float scale = Distance / 60;
 			if (scale > Shedule_Scale_Objects)
 				scale = Shedule_Scale_Objects;
-			return scale;
+ 			clamp(scale, 0.0f, 2.0f);
+ 			return scale;
 		}
 
-		return Shedule_Scale_Objects;
+		float scale = Shedule_Scale_Objects;
+		clamp(scale, 0.0f, 2.0f);
+		return scale;
 	}
 	else
-  		return Shedule_Scale_Objects;
+	{
+		float scale = Shedule_Scale_Objects / (GetDistanceToNearActor() / 200);
+ 		clamp(scale, 0.0f, 2.0f);
+		return scale;
+	}	
 }
-		  
-#include "smart_zone.h"
-#include "ai/stalker/ai_stalker.h"
-#include "ai/monsters/basemonster/base_monster.h"
-#include "Weapon.h"
-#include "PHDestroyable.h"
-#include "eatable_item.h"
 
 shared_str CGameObject::shedule_clsid()
 {	  
@@ -1151,15 +1226,9 @@ void CGameObject::UpdateCL			()
 {
 	inherited::UpdateCL				();
 	
-//	if (!is_ai_obstacle())
-//		return;
-	
-	if (H_Parent())
+	if (H_Parent() || similar(XFORM(), m_previous_matrix, EPS))
 		return;
-
-	if (similar(XFORM(),m_previous_matrix,EPS))
-		return;
-
+ 
 	on_matrix_change				(m_previous_matrix);
 	m_previous_matrix				= XFORM();
 }

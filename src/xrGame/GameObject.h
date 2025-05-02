@@ -124,8 +124,12 @@ public:
 	virtual BOOL			Ready				()	{ return getReady();	}	// update only if active and fully initialized by/for network
 //	virtual float			renderable_Ambient	();
 
+	float					GetDistanceToNearActor();
+ 	CActor*					GetNearestActor();
+
 	virtual void			shedule_Update		(u32 dt);	
 	virtual bool			shedule_Needed		();
+
 	virtual	float			shedule_Scale();
 	virtual shared_str		shedule_clsid();
 
