@@ -42,7 +42,7 @@ bool CVoiceChat::CreateRecorder()
 
 void CVoiceChat::Start()
 {
-	Msg("Start Voice ");
+//	Msg("Start Voice ");
 	m_pRecorder->Start();
 
 	NET_Packet packet;
@@ -57,9 +57,8 @@ void CVoiceChat::Stop()
 {
 	m_pRecorder->Stop();
 
-	Msg("Stop Voice ");
-
-
+//	Msg("Stop Voice ");
+	 
 	NET_Packet packet;
 	Game().u_EventGen(packet, GE_GAME_EVENT, -1);
 	packet.w_u16(GAME_EVENT_SPEEAKING);
