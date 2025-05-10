@@ -19,6 +19,9 @@ public:
 	virtual void SetDistance(float value);
 	virtual void SetPosition(const Fvector& pos);
 	virtual void SetSquad(bool value);
+	
+	float last_volume = 0;
+	virtual float GetVolume();
 
 private:
 	void UpdateVolume();

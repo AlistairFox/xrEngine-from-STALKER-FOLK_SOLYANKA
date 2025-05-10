@@ -24,13 +24,17 @@
 #include <windows.h>
 #include "OpenAL32.h"
 
-
 //*****************************************************************************
 // DllMain
 //*****************************************************************************
 //
-BOOL DllMainOpenAL32(HANDLE module, DWORD reason, LPVOID reserved)
+
+void AlLog(LPCSTR format, ...);
+
+BOOL APIENTRY DllMain(HANDLE module, DWORD reason, LPVOID reserved)
+//BOOL DllMainOpenAL32(HANDLE module, DWORD reason, LPVOID reserved)
 {
+    AlLog("Initialize OpenAL32 DLL");
     BOOL result = TRUE;
 
     // Perform actions based on the reason for calling.

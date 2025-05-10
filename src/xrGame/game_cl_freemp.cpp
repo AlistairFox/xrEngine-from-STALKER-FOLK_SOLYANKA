@@ -722,15 +722,12 @@ void game_cl_freemp::CreateParticle(LPCSTR name, Fvector3 pos)
 	pobjec = CParticlesObject::Create(name);
 	pobjec->play_at_pos(pos);
 }
-
  
-
 void game_cl_freemp::OnVoiceMessage(NET_Packet* P)
 {
 	m_pVoiceChat->ReceiveMessage(P);
 }
-
-
+ 
 game_cl_freemp::MP_SquadInvite* game_cl_freemp::FindInviteByInviterID(u16 ID)
 {
 	xr_vector<MP_SquadInvite*>::const_iterator it = mp_squad_invites.begin();

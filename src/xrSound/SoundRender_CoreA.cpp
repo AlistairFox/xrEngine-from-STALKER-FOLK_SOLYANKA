@@ -78,6 +78,8 @@ void CSoundRender_CoreA::_initialize(int stage)
 {
 	if(stage==0)
 	{
+		Debug.Callstack();
+		Msg("[xrSound] Initialize OpenAL Device List");
 		pDeviceList					= xr_new<ALDeviceList>();
 
 		if (0==pDeviceList->GetNumDevices())

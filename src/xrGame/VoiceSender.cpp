@@ -6,7 +6,7 @@
 
 void CVoiceSender::Send(VoicePacket** packets, u8 count)
 {
-	NET_Packet P;
+ 	NET_Packet P;
 	P.w_begin(M_VOICE_MESSAGE);
 	P.w_u8(m_distance);
 	P.w_u16(Level().game->local_player->GameID);
@@ -17,6 +17,8 @@ void CVoiceSender::Send(VoicePacket** packets, u8 count)
 		VoicePacket* packet = packets[i];
 		P.w_u32(packet->length);
 		P.w(packet->data, packet->length);
+
+//		Msg("Send Voice Packet: BData %u | total Packets: %u|%u", P.B.count, i, count);
 	}
 
 	Level().Send(P, net_flags(FALSE, TRUE, TRUE, TRUE));

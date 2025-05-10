@@ -387,7 +387,7 @@ extern int WidthDedicatedY = 900;
 
 extern BOOL DllMainCore(HANDLE hinstDLL, DWORD ul_reason_for_call, LPVOID lpvReserved);
 extern BOOL DllMainXrPhysics(HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved);
-extern BOOL DllMainOpenAL32(HANDLE module, DWORD reason, LPVOID reserved);
+// extern BOOL DllMainOpenAL32(HANDLE module, DWORD reason, LPVOID reserved);
 
 void al_log(char* msg)
 {
@@ -406,13 +406,13 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 {
 	pLog = &al_log;
 	DllMainCore(NULL, DLL_PROCESS_ATTACH, NULL);
-	DllMainOpenAL32(NULL, DLL_PROCESS_ATTACH, NULL);
+	// DllMainOpenAL32(NULL, DLL_PROCESS_ATTACH, NULL);
 	DllMainXrPhysics(NULL, DLL_PROCESS_ATTACH, NULL);
 
 	WinMain_impl(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
 
 	DllMainCore(NULL, DLL_PROCESS_DETACH, NULL);
-	DllMainOpenAL32(NULL, DLL_PROCESS_DETACH, NULL);
+	/// DllMainOpenAL32(NULL, DLL_PROCESS_DETACH, NULL);
 	DllMainXrPhysics(NULL, DLL_PROCESS_DETACH, NULL);
 	return					(0);
 }

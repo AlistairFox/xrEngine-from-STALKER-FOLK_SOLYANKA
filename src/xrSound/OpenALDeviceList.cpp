@@ -56,6 +56,8 @@ ALDeviceList::~ALDeviceList()
 	snd_devices_token			= NULL;
 }
 
+#pragma comment(lib, "openal32.lib")
+#include "openal/alc.h"
 
 void ALDeviceList::Enumerate()
 {
@@ -101,7 +103,10 @@ void ALDeviceList::Enumerate()
 			ALCdevice *device		= alcOpenDevice(devices);
 			if (device) 
 			{
-				ALCcontext *context = alcCreateContext(device, NULL);
+				ALCcontext* context = nullptr;
+ 				context = alcCreateContext(device, NULL);
+				 
+				
 				if (context) 
 				{
 					alcMakeContextCurrent(context);
@@ -136,7 +141,8 @@ void ALDeviceList::Enumerate()
 					Msg("SOUND: OpenAL: cant create context for %s",device);
 				}
 				alcCloseDevice(device);
-			}else
+			}
+			else
 			{
 				Msg("SOUND: OpenAL: cant open device %s",devices);
 			}

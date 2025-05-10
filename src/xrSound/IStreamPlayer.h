@@ -8,4 +8,6 @@ public:
 	virtual void Update() = 0;
 	virtual void SetDistance(float value) = 0;
 	virtual void SetPosition(const Fvector& pos) = 0;
+
+	virtual float GetVolume() = 0;
 };

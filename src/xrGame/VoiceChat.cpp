@@ -42,6 +42,7 @@ bool CVoiceChat::CreateRecorder()
 
 void CVoiceChat::Start()
 {
+	Msg("Start Voice ");
 	m_pRecorder->Start();
 
 	NET_Packet packet;
@@ -55,6 +56,9 @@ void CVoiceChat::Start()
 void CVoiceChat::Stop()
 {
 	m_pRecorder->Stop();
+
+	Msg("Stop Voice ");
+
 
 	NET_Packet packet;
 	Game().u_EventGen(packet, GE_GAME_EVENT, -1);
@@ -152,6 +156,7 @@ void CVoiceChat::OnRender()
 
 void CVoiceChat::ReceiveMessage(NET_Packet* P)
 {
+	// Msg("Recive Packet Sound Voice");
 	game_PlayerState* local_player = Game().local_player;
 	if (!local_player || local_player->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD) || !Actor())
  		return;
@@ -180,8 +185,11 @@ void CVoiceChat::ReceiveMessage(NET_Packet* P)
 	}
 
 	if (!isCorrectSquad && distance > 30)
-  		return;
- 
+	{
+		/// Msg("Squad Is No correct");
+		return;
+	}
+
  	IStreamPlayer* player = GetStreamPlayer(clientId);
 	
 	// Se7kills
@@ -189,7 +197,7 @@ void CVoiceChat::ReceiveMessage(NET_Packet* P)
 	{
   		player->SetPosition(Actor()->Position());	// Играем на себе звук
 		player->SetDistance(0);  
-		player->SetSquad(isCorrectSquad);
+		player->SetSquad(true);
  	}
 	else // Если в не отряде делаем и говорим не от своего игрока
 	{
@@ -198,9 +206,11 @@ void CVoiceChat::ReceiveMessage(NET_Packet* P)
 
 		player->SetPosition(obj->Position());
 		player->SetDistance(30);				
-		player->SetSquad(isCorrectSquad);
+		player->SetSquad(false);
 	}
  
+	/// Msg("Update Sound For Squad: (%u)", isCorrectSquad, player->GetVolume());
+
 	u8 packetsCount = P->r_u8();
 	
 	for (u32 i = 0; i < packetsCount; ++i)
@@ -212,7 +222,7 @@ void CVoiceChat::ReceiveMessage(NET_Packet* P)
   
 	m_voiceTimeMap[clientId] = SVoiceIconInfo(GetTickCount());
 
-	Msg("Squad: %d, isCorrectSquad: %d, distance: %.1f => (player).PushToPlay", local_player->MPSquadID, isCorrectSquad, distance);
+	// Msg("Squad: %d, isCorrectSquad: %d, distance: %.1f => (player).PushToPlay", local_player->MPSquadID, isCorrectSquad, distance);
 }
 
 

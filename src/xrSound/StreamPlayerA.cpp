@@ -71,6 +71,11 @@ void CStreamPlayerA::SetSquad(bool value)
 	m_isSquad = value;
 }
 
+float CStreamPlayerA::GetVolume()
+{
+	return last_volume;
+}
+
 void CStreamPlayerA::PushToPlay(const void* data, int count)
 {
 	R_ASSERT2(m_source != 0 && alIsSource(m_source), "Not initialized sound source");
@@ -119,7 +124,7 @@ void CStreamPlayerA::UpdateVolume()
 		volume = volume * psSoundVPlayers;
 		clamp(volume, 0.01f, 1.f);
  	}
-
+	last_volume = volume;
 	alSourcef(m_source, AL_GAIN, volume);
 }
 

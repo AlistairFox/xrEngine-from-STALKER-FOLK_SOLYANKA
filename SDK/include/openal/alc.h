@@ -8,9 +8,9 @@ extern "C" {
  
  /* _OPENAL32LIB is deprecated */
  #if defined(AL_BUILD_LIBRARY) || defined (_OPENAL32LIB)
-	 #define ALC_API //__declspec(dllexport)
+	 #define ALC_API __declspec(dllexport)
  #else
-	 #define ALC_API //__declspec(dllimport)
+	 #define ALC_API __declspec(dllimport)
  #endif
  
 

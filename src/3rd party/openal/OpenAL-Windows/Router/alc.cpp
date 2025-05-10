@@ -61,16 +61,22 @@
 log_fn_ptr_type*	pLog = NULL;
 void AlLog(LPCSTR format, ...)
 {
-	if(pLog)
+ 	va_list		mark;
+	char	buf	[2048];
+	va_start	(mark, format );
+	int sz		= _vsnprintf(buf, sizeof(buf)-1, format, mark ); buf[sizeof(buf)-1]=0;
+	va_end		(mark);
+	if (sz)
 	{
-		va_list		mark;
-		char	buf	[2048];
-		va_start	(mark, format );
-		int sz		= _vsnprintf(buf, sizeof(buf)-1, format, mark ); buf[sizeof(buf)-1]=0;
-		va_end		(mark);
-		if (sz)		
+		if (pLog)
 			(*pLog)(buf);
+		else
+		{
+			OutputDebugString(buf);
+			OutputDebugString("\n");
+		}
 	}
+	 
 }
 
 //*****************************************************************************
@@ -2305,35 +2311,54 @@ ALCAPI ALCdevice * ALCAPIENTRY alcCaptureOpenDevice(const ALCchar *deviceName, A
 			} else {
 				strncpy_s(newDeviceName, deviceName, 256);
 			}
+			AlLog("[OPENAL] Open Capture Device: %s", newDeviceName);
 
 			g_CaptureDevice->Dll = FindDllWithMatchingSpecifier(_T("*oal.dll"), (char *)newDeviceName, false, NULL, true);
 
-			if (g_CaptureDevice->Dll) {
-				if(FillOutAlcFunctions(g_CaptureDevice)) {
-					if (g_CaptureDevice->AlcApi.alcCaptureOpenDevice) {
+			if (g_CaptureDevice->Dll)
+			{
+				if(FillOutAlcFunctions(g_CaptureDevice))
+				{
+					if (g_CaptureDevice->AlcApi.alcCaptureOpenDevice)
+					{
+						AlLog("[OPENAL] Open Capture Device");
 						g_CaptureDevice->CaptureDevice = g_CaptureDevice->AlcApi.alcCaptureOpenDevice(newDeviceName, frequency, format, buffersize);
 						g_CaptureDevice->LastError = ALC_NO_ERROR;
 						g_CaptureDevice->InUse = 0;
-					} else {
+					} 
+					else
+					{
 						g_CaptureDevice->LastError = ALC_INVALID_DEVICE;
 					}
 				}
 			}
+			else
+			{
+				AlLog("[OPENAL] Cannot find Wrapper: *oal.dll");
+			}
 		}
-	} else {
+	}
+	else 
+	{
 		// already open
 		g_CaptureDevice->LastError = ALC_INVALID_VALUE;
 	}
 
-	if (g_CaptureDevice != NULL) {
-		if (g_CaptureDevice->CaptureDevice) {
+	if (g_CaptureDevice != NULL) 
+	{
+		if (g_CaptureDevice->CaptureDevice) 
+		{
 			return g_CaptureDevice;
-		} else {
+		} 
+		else 
+		{
 			free(g_CaptureDevice);
 			g_CaptureDevice = NULL;
 			return NULL;
 		}
-	} else {
+	} 
+	else
+	{
 		return NULL;
 	}
 }

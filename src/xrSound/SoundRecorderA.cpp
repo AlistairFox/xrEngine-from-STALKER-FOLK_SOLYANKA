@@ -13,6 +13,47 @@ namespace
 	};
 }
 
+ALenum CheckOpenALError()
+{
+	auto error = alGetError();
+	switch (error)
+	{
+		case AL_NO_ERROR:
+		{
+			Msg("Create Voice Recorder Device: reason: AL_NO_ERROR");
+		}break;
+		case AL_INVALID_NAME:
+		{
+			Msg("~~~ Cannot Create Voice Recorder Device: reason: AL_INVALID_NAME");
+		}break;
+		case AL_INVALID_ENUM:
+		{
+			Msg("~~~ Cannot Create Voice Recorder Device: reason: AL_INVALID_ENUM");
+		}break;
+		case AL_INVALID_VALUE:
+		{
+			Msg("~~~ Cannot Create Voice Recorder Device: reason: AL_INVALID_VALUE");
+		}break;
+		case AL_INVALID_OPERATION:
+		{
+			Msg("~~~ Cannot Create Voice Recorder Device: reason: AL_INVALID_OPERATION");
+
+		}break;
+		case AL_OUT_OF_MEMORY:
+		{
+			Msg("~~~ Cannot Create Voice Recorder Device: reason: AL_OUT_OF_MEMORY");
+		}break;
+
+		default: {
+
+			Msg("~~~ Cannot Create Voice Recorder Device: Uncached: %u", error);
+		}break;
+
+	};
+
+	return error;
+}
+
 CSoundRecorderA::CSoundRecorderA(ALuint sampleRate, ALenum format, ALuint samplesPerBuffer)
 	: m_sampleRate(sampleRate), m_format(format), m_samplesPerBuffer(samplesPerBuffer)
 {
@@ -53,18 +94,19 @@ CSoundRecorderA::~CSoundRecorderA()
 
 bool CSoundRecorderA::Init(CVoicePacketsPacker* packetsPacker)
 {
-	m_packetsPacker = packetsPacker;
-
-	alGetError();
-
-	m_pCaptureDevice = alcCaptureOpenDevice(0, m_sampleRate, m_format, m_samplesPerBuffer * 2);
-
-	ALenum error = alGetError();
+	Msg("OpenAl Initialize Capture Device");
+ 	m_packetsPacker = packetsPacker;
+  	m_pCaptureDevice = alcCaptureOpenDevice(0, m_sampleRate, m_format, m_samplesPerBuffer * 2);
+ 	
+ 	ALenum error = CheckOpenALError();
 	if (error == AL_NO_ERROR)
-	{
+	{ 
+		Msg("Start Capture Device: %p", m_pCaptureDevice);
 		alcCaptureStart(m_pCaptureDevice);
 		return true;
 	}
+	 
+	Msg("Cant Open Capture Device: %p", m_pCaptureDevice);
 	return false;
 }
 
@@ -91,8 +133,11 @@ void CSoundRecorderA::Stop()
 void CSoundRecorderA::Update()
 {
 	if (m_pCaptureDevice == nullptr)
+	{
+		Msg("~~~~ NO Device to Capture Voice: %p", m_pCaptureDevice);
 		return;
-
+	}
+	 
 	ALint samples = 0;
 	alcGetIntegerv(m_pCaptureDevice, ALC_CAPTURE_SAMPLES, (ALCsizei)sizeof(ALint), &samples);
 
