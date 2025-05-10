@@ -1269,14 +1269,9 @@ void CAI_Stalker::on_after_change_team			()
 	agent_manager().member().register_in_combat	(this);
 }
 
-extern float Shedule_Scale_AI_Stalker;
-
-#include "Spectator.h"
-
-
 float CAI_Stalker::shedule_Scale				()
 {
-  	return Shedule_Scale_AI_Stalker;
+  	return inherited::shedule_Scale();
 }
 
 void CAI_Stalker::aim_bone_id					(shared_str const &bone_id)

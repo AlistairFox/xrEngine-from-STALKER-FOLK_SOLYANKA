@@ -28,7 +28,7 @@ private:
 private:
 	enum 
 	{
-		time_to_wait_after_fail	= u32(30000),
+		time_to_wait_after_fail	= u32(2000),
 	};
 
 public:

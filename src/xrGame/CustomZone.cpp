@@ -578,11 +578,6 @@ void CCustomZone::shedule_Update(u32 dt)
 	}
 }
 
-extern float	Shedule_Zone;
-float CCustomZone::shedule_Scale()
-{
-	return Shedule_Zone;
-}
 
 void CCustomZone::CheckForAwaking()
 {

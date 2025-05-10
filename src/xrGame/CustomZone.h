@@ -55,8 +55,7 @@ public:
 	virtual		void	UpdateCL						();
 	virtual		void	UpdateWorkload					(u32 dt);
 	virtual		void	shedule_Update					(u32 dt);
-	virtual		float   shedule_Scale()					override;
-
+ 
 	virtual		void	enter_Zone						(SZoneObjectInfo& io);
 	virtual		void	exit_Zone						(SZoneObjectInfo& io);
 	virtual		void	feel_touch_new					(CObject* O);

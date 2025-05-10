@@ -975,7 +975,6 @@ bool CGameObject::shedule_Needed( )
 	return						(!getDestroy());
 }
 
-extern float Shedule_Scale_Objects;
 
 #include "actor_mp_client.h"
 #include "Spectator.h"
@@ -988,6 +987,8 @@ extern float Shedule_Scale_Objects;
 #include "Weapon.h"
 #include "PHDestroyable.h"
 #include "eatable_item.h"
+
+#include "CustomZone.h"
 
 float DistanceToActors(Fvector pos)
 {
@@ -1058,9 +1059,21 @@ CActor* CGameObject::GetNearestActor()
 
 	return ActorNear;
 }
+ 
+extern float Shedule_Scale_Objects;
+extern float Shedule_Scale_AI_Stalker;
+extern float Shedule_Zone;
 
 float CGameObject::shedule_Scale()
 {
+	auto npc = smart_cast<CCustomMonster*>(this);
+	auto zone = smart_cast<CCustomZone*>(this);
+ 	u32 SheduleMax = Shedule_Scale_Objects;
+	if (npc)
+		SheduleMax = Shedule_Scale_AI_Stalker;
+	if (zone)
+		SheduleMax = Shedule_Zone;
+
 	if (OnClient())
 	{
  		if (Actor())
@@ -1068,19 +1081,19 @@ float CGameObject::shedule_Scale()
 			Fvector OPos = H_Parent() ? H_Parent()->Position() : Position();
 			float Distance = Actor()->Position().distance_to(OPos);
 			float scale = Distance / 60;
-			if (scale > Shedule_Scale_Objects)
-				scale = Shedule_Scale_Objects;
+			if (scale > SheduleMax)
+				scale = SheduleMax;
  			clamp(scale, 0.0f, 2.0f);
  			return scale;
 		}
 
-		float scale = Shedule_Scale_Objects;
+		float scale = SheduleMax;
 		clamp(scale, 0.0f, 2.0f);
 		return scale;
 	}
 	else
 	{
-		float scale = Shedule_Scale_Objects / (GetDistanceToNearActor() / 200);
+		float scale = SheduleMax / (GetDistanceToNearActor() / 200);
  		clamp(scale, 0.0f, 2.0f);
 		return scale;
 	}	
