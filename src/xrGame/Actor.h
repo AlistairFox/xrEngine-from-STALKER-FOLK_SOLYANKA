@@ -124,6 +124,14 @@ public:
 
 	bool AnimExtraExit = false;
 
+
+
+
+	u8 CurrentVisualTeam = 0;
+
+	const char*				GetActorTeamVisual(u8 team);
+	void					ActorUpdateDefaultVisualFromTeam();
+
 public:
 	void					SelectScriptAnimation(u32 mstate_rl);
 	bool					ActorAnimationBlockedUpdate(u32 mstate_rl);

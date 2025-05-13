@@ -324,11 +324,14 @@ void CCustomOutfit::ApplySkinModel(CActor* pActor, bool bDress, bool bHUDOnly)
 	{
 		if (!bHUDOnly && m_ActorVisual.size())
 		{
-			shared_str DefVisual	= pActor->GetDefaultVisualOutfit();
-			if (DefVisual.size())
-			{
-				pActor->ChangeVisual(DefVisual);
-			};
+
+			pActor->ActorUpdateDefaultVisualFromTeam();
+
+			//shared_str DefVisual	= pActor->GetDefaultVisualOutfit();
+			//if (DefVisual.size())
+			//{
+			//	pActor->ChangeVisual(DefVisual);
+			//};
 		}
 
 		if (pActor == Level().CurrentViewEntity())	

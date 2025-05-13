@@ -241,7 +241,9 @@ void CUICharacterInfo::InitCharacterMP(CInventoryOwner * invOwner)
 		m_icons[eName]->Show(true);
 	}
 
-	m_texture_name = invOwner->IconName();
+	//m_texture_name = invOwner->IconName();
+
+	m_texture_name = GetPlayerIcon(invOwner);
 
 	if (m_icons[eIcon])
 	{
@@ -278,6 +280,22 @@ void CUICharacterInfo::InitCharacterMP(CInventoryOwner * invOwner)
 		m_icons[eReputation]->TextItemControl()->SetTextST(GetReputationAsText(invOwner->CharacterInfo().Reputation().value()));
 		m_icons[eReputation]->Show(true);
 	}
+}
+
+const char* CUICharacterInfo::GetPlayerIcon(CInventoryOwner* invOwner)
+{
+	shared_str FinalIcon;
+
+	u8 PlayerTeam = invOwner->Community();
+
+	shared_str TeamLine;
+	TeamLine.printf("team%d_icon", PlayerTeam);
+
+
+	FinalIcon = pSettings->r_string("player_team_icons", *TeamLine);
+
+
+	return *FinalIcon;
 }
 
 void CUICharacterInfo::InitCharacterMP( LPCSTR player_name, LPCSTR player_icon )

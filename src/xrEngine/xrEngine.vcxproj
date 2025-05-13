@@ -191,7 +191,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <LibraryPath>$(LibraryPath);A:\Games\TEST\Dead Edge\bin\x86\LIBS\</LibraryPath>
-    <OutDir>A:\STALKER\FOLK STCOP 3.7\bins\</OutDir>
+    <OutDir>$(SolutionDir)\..\binares\$(Platform)-$(Configuration)\</OutDir>
     <TargetName>RenderDX11</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DX8|x64'">
@@ -221,7 +221,7 @@
     <LinkIncremental>false</LinkIncremental>
     <LibraryPath>$(LibraryPath);</LibraryPath>
     <TargetName>xrEngine</TargetName>
-    <OutDir>A:\STALKER\FOLK STCOP 3.7\dedicated\</OutDir>
+    <OutDir>$(SolutionDir)\..\binares\$(Platform)-$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

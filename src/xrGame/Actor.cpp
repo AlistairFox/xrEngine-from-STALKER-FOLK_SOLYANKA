@@ -1173,6 +1173,25 @@ float CActor::currentFOV()
 
 float	NET_Jump = 0;
 
+const char* CActor::GetActorTeamVisual(u8 team)
+{
+	shared_str CurrentVisualName;
+
+	shared_str Line;
+
+	Line.printf("team%d_visual", team);
+
+	CurrentVisualName = pSettings->r_string("actor_team_visuals", *Line);
+
+
+	return *CurrentVisualName;
+}
+
+void CActor::ActorUpdateDefaultVisualFromTeam()
+{
+	shared_str visual = GetActorTeamVisual(g_Team());
+	ChangeVisual(visual);
+}
 
 void CActor::UpdateCL	()
 {
@@ -1210,6 +1229,21 @@ void CActor::UpdateCL	()
 		mstate_old = mstate_real;
 		NET_Jump = 0;
 	}
+
+
+	if (g_Alive())
+	{
+		CCustomOutfit* pOutf = smart_cast<CCustomOutfit*>(inventory().ItemFromSlot(OUTFIT_SLOT));
+		if (!pOutf)
+		{
+			if (CurrentVisualTeam != g_Team())
+			{
+				ActorUpdateDefaultVisualFromTeam();
+				CurrentVisualTeam = g_Team();
+			}
+		} 
+	}
+
 
 	UpdateInventoryOwner			(Device.dwTimeDelta);
 

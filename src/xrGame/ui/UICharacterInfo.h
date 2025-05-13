@@ -74,6 +74,7 @@ public:
 	void				InitCharacter			(u16 id);
 	void				ClearInfo				();
 	void				InitCharacterMP			(CInventoryOwner* invOwner);
+	const char*			GetPlayerIcon(CInventoryOwner* invOwner);
 	void				InitCharacterMP			(LPCSTR player_name, LPCSTR player_icon );
 	void				InitCharacterMP			(CInventoryOwner* invOwner, ClientID clID);
 
