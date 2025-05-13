@@ -26,7 +26,7 @@ LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_ICON2               ICON                    "C:\\Users\\Dima\\Desktop\\»конки\\rad2.ico"
+IDI_ICON2               ICON                    "..\\rad2.ico"
 
 
 /////////////////////////////////////////////////////////////////////////////
