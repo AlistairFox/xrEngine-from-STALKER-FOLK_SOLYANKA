@@ -197,13 +197,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DX8|x64'">
     <LinkIncremental>false</LinkIncremental>
     <LibraryPath>D:\github\DEAD_EDGE_ENGINE\bins\x64;$(LibraryPath)</LibraryPath>
-    <OutDir>A:\STALKER\FOLK STCOP 3.7\bins\</OutDir>
+    <OutDir>$(SolutionDir)\..\binares\$(Platform)-$(Configuration)\</OutDir>
     <TargetName>RenderDX8</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DX9|x64'">
     <LinkIncremental>false</LinkIncremental>
     <LibraryPath>D:\github\DEAD_EDGE_ENGINE\bins\x64;$(LibraryPath)</LibraryPath>
-    <OutDir>A:\STALKER\FOLK STCOP 3.7\bins\</OutDir>
+    <OutDir>$(SolutionDir)\..\binares\$(Platform)-$(Configuration)\</OutDir>
     <TargetName>RenderDX9</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWithDebug|x64'">
