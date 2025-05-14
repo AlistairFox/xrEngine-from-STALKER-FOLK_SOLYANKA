@@ -11530,6 +11530,9 @@
     <ClCompile Include="WeaponMagazined_Loading.cpp">
       <Filter>Se7Kills\Weapons\Custom Weapon\WeaponBase\Automatic</Filter>
     </ClCompile>
+    <ClCompile Include="ui\UIActorMenuCraft.cpp">
+      <Filter>UI\Common\Inventory</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="ai\monsters\chimera\chimera_attack_state.h">

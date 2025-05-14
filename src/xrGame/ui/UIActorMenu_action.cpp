@@ -76,7 +76,7 @@ bool CUIActorMenu::OnItemDrop(CUICellItem* itm)
 	InfoCurItem( NULL );
 	CUIDragDropListEx*	old_owner		= itm->OwnerList();
 	CUIDragDropListEx*	new_owner		= CUIDragDropListEx::m_drag_item->BackList();
-	if ( old_owner==new_owner || !old_owner || !new_owner )
+	if (!old_owner || !new_owner )
 	{
 		return false;
 	}
@@ -88,6 +88,45 @@ bool CUIActorMenu::OnItemDrop(CUICellItem* itm)
 		Msg("incorrect action [%d]->[%d]",t_old, t_new);
 		return true;
 	}
+
+	if (old_owner == new_owner)
+	{
+		if (old_owner != m_pInventoryBagList)
+			return false;
+
+		CUICellItem* _citem = (new_owner->ItemsCount() == 1) ? new_owner->GetItemIdx(0) : NULL;
+		if (!_citem)
+		{
+			CUICellContainer* c = old_owner->GetContainer();
+			Ivector2 c_pos = c->PickCell(GetUICursor().GetCursorPosition());
+			if (c->ValidCell(c_pos))
+			{
+				CUICell& ui_cell = c->GetCellAt(c_pos);
+				if (!ui_cell.Empty())
+					_citem = ui_cell.m_item;
+			}
+		}
+
+		PIItem _iitem = _citem ? (PIItem)_citem->m_pData : NULL;
+
+		CGameObject* GO1 = smart_cast<CGameObject*>(CurrentIItem());
+		CGameObject* GO2 = _iitem ? smart_cast<CGameObject*>(_iitem) : NULL;
+
+		if (GO1 && GO2)
+		{
+			RecipeSection recipe;
+
+			if (VerifyCraftRecipe(GO1->cNameSect(), GO2->cNameSect(), recipe))
+			{
+				CInventoryItem* inv_item1 = smart_cast<CInventoryItem*>(GO1);
+				CInventoryItem* inv_item2 = smart_cast<CInventoryItem*>(GO2);
+
+				TryCraftItem(inv_item1, inv_item2, recipe);
+			}
+		}
+		return false;
+	}
+
 	switch(t_new)
 	{
 	case iTrashSlot:

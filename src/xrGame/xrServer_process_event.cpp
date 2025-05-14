@@ -688,6 +688,43 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
   
   	}break;
 
+	case GE_CRAFT_ITEM:
+	{
+  		game_sv_mp* mp = smart_cast<game_sv_mp*>(game);
+  		if (!mp)
+  			break;
+
+		if (receiver && receiver->owner && (receiver->owner != SV_Client))
+		{
+			u8 status = P.r_u8();
+
+			if (status == 1)
+			{
+				shared_str sect;
+				P.r_stringZ(sect);
+
+				CActor* pl = smart_cast<CActor*>(Level().Objects.net_Find(destination));
+
+				if (!pl)
+				{
+					Msg("! Craft SV: null actor");
+					break;
+				}
+				mp->SpawnItem(sect.c_str(), pl->ID());
+			}
+			else if (status == 0)
+			{
+				shared_str first;
+				P.r_stringZ(first);
+
+				shared_str second;
+				P.r_stringZ(second);
+			}
+
+			SendTo(receiver->owner->ID, P, net_flags(TRUE, TRUE));
+		}
+	}break;
+
 	case GE_ACTOR_ANIMATION_MOTIONID:
 	case GE_ACTOR_ITEM_ACTIVATE:
 	case GE_ACTOR_SND_ACTIVATE:

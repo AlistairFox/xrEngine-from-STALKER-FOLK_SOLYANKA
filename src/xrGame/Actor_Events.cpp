@@ -401,6 +401,51 @@ void CActor::OnEvent(NET_Packet& P, u16 type)
  			}
  			AddGameNews(news_data);
  		}break;
+		case GE_CRAFT_ITEM:
+  		{
+  			u8 status = P.r_u8();
+
+  			GAME_NEWS_DATA news_data;
+  			news_data.m_type = (GAME_NEWS_DATA::eNewsType)0;
+  
+  			ref_sound snd;
+			string128 tmp;
+
+			if (status == 0) //fail
+			{
+				snd.create("device\\pda\\pda_sos", st_Effect, SOUND_TYPE_ITEM);
+
+				shared_str first, second;
+				P.r_stringZ(first);
+				P.r_stringZ(second);
+
+				LPCSTR translate = CStringTable().translate(pSettings->r_string(first, "inv_name")).c_str();
+				LPCSTR translate2 = CStringTable().translate(pSettings->r_string(second, "inv_name")).c_str();
+
+				xr_sprintf(tmp, "%s, %s", translate, translate2);
+  				news_data.news_caption = CStringTable().translate("craft_item_fail").c_str();
+  				news_data.news_text = tmp;
+  				news_data.texture_name = "ui_inGame2_Predmet_otdan";
+  				news_data.show_time = 3000;
+			}
+			else if (status == 1) //success
+			{
+				snd.create("device\\pda\\pda_tip", st_Effect, SOUND_TYPE_ITEM);
+
+				shared_str out_sect;
+				P.r_stringZ(out_sect);
+
+				LPCSTR translate = CStringTable().translate(pSettings->r_string(out_sect, "inv_name")).c_str();
+
+				xr_sprintf(tmp, "%s", translate);
+  				news_data.news_caption = CStringTable().translate("craft_item_success").c_str();
+  				news_data.news_text = tmp;
+  				news_data.texture_name = "ui_inGame2_Predmet_poluchen";
+  				news_data.show_time = 3000;
+			}
+  			snd.play(NULL, sm_2D);
+  			AddGameNews(news_data);
+  		}break;
 		case GE_ACTOR_INJECT_RECIEVE:
   		{
   			u8 is_whogive = P.r_u8();

@@ -5729,6 +5729,7 @@
     </ClCompile>
     <ClCompile Include="ui\UIActorMenu.cpp" />
     <ClCompile Include="ui\UIActorMenuArtUpgrade.cpp" />
+    <ClCompile Include="ui\UIActorMenuCraft.cpp" />
     <ClCompile Include="ui\UIActorMenuDeadBodySearch.cpp" />
     <ClCompile Include="ui\UIActorMenuInitialize.cpp" />
     <ClCompile Include="ui\UIActorMenuInventory.cpp" />

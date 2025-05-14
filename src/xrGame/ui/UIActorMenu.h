@@ -375,4 +375,21 @@ public:
 
 	IC	UIHint*					get_hint_wnd				() { return m_hint_wnd; }
 
+private: //Craft
+
+	struct RecipeSection
+	{
+		float craft_chance;
+		shared_str out_section;
+		xr_vector<shared_str> ing_1_sections;
+		xr_vector<shared_str> ing_2_sections;
+	};
+
+	xr_vector<RecipeSection> recipes;
+
+	void						InitCraft					();
+	void						CraftDestroyItem			(PIItem itm);
+	void						TryCraftItem				(PIItem first, PIItem second, RecipeSection section_to_craft);
+	
+	bool						VerifyCraftRecipe			(shared_str sect1, shared_str sect2, RecipeSection& recipe);
 }; // class CUIActorMenu
