@@ -72,20 +72,11 @@ xrGameSpyServer::EConnect xrGameSpyServer::Connect(shared_str &session_name, Gam
 	
 	if (0 != *(game->get_option_s		(*session_name,"psw",NULL)))
 		Password._set(game->get_option_s		(*session_name,"psw",NULL));
-
-	/*
-	string4096	tMapName = "";
-	const char* SName = *session_name;
-	strncpy_s(tMapName, *session_name, strchr(SName, '/') - SName);
-	*/
-
 	MapName	= Level().name();
-	
 
-	m_iReportToMasterServer = game->get_option_i		(*session_name,"public",0);
-	m_iMaxPlayers	= game->get_option_i		(*session_name,"maxplayers",32);
-//	m_bCheckCDKey = game->get_option_i		(*session_name,"cdkey",0) != 0;
-	m_bCheckCDKey = game->get_option_i		(*session_name,"public",0) != 0;
+	m_iReportToMasterServer		= game->get_option_i		(*session_name,"public",0);
+	m_iMaxPlayers				= game->get_option_i		(*session_name,"maxplayers",32);
+	 
 	//--------------------------------------------//
 	if (game->Type() != eGameIDSingle) 
 	{
@@ -100,17 +91,6 @@ xrGameSpyServer::EConnect xrGameSpyServer::Connect(shared_str &session_name, Gam
 		//------ Init of QR2 SDK -------------
 		iGameSpyBasePort = game->get_option_i(*session_name, "portgs", -1);
 		QR2_Init(iGameSpyBasePort);
-
-		//------ Init of CDKey SDK -----------
-
-#ifndef DEBUG
-
-#ifndef DEMO_BUILD
-		if(m_bCheckCDKey) 
-#endif
-
-			CDKey_Init();
-#endif // DEBUG
 	};
 
 	return res;
@@ -249,6 +229,10 @@ void xrGameSpyServer::GetServerInfo( CServerInfo* si )
 
 	string32 tmp, tmp2;
 
+	string32 isPublicS;
+	sprintf(isPublicS, "Server is Public: %u", m_iReportToMasterServer);
+	si->AddItem (isPublicS, RGB(128, 128, 255));
+
 	si->AddItem( "Server name", HostName.c_str(), RGB(128,128,255) );
 
 	si->AddItem( "Map", Level().Server->game->name_map_alife().c_str(), RGB(255, 0, 128));
@@ -258,29 +242,7 @@ void xrGameSpyServer::GetServerInfo( CServerInfo* si )
 	xr_strcat( tmp, itoa( m_iMaxPlayers, tmp2, 10 ) );
 
 	si->AddItem( "Players", tmp, RGB(255,128,255) );
-
-	/*
-	string256 res;
-	si->AddItem( "Game version", QR2()->GetGameVersion( res ), RGB(0,158,255) );
-	
-	xr_strcpy( res, "" );
-	if ( HasProtected() || (Password.size() > 0))
-	{
-		if ( HasProtected() )			xr_strcat( res, "protected  " );
-		if ( Password.size() > 0 )		xr_strcat( res, "password  " );
-	}
-	else
-	{
-		if ( xr_strlen( res ) == 0 )	xr_strcat( res, "free" );
-	}
-
-	si->AddItem( "Access to server", res, RGB(200,155,155) );
-	*/
-
 	si->AddItem( "GameSpy port", itoa( iGameSpyBasePort, tmp, 10 ), RGB(200,5,155) );
-
-	
-
 
 	inherited::GetServerInfo( si );
 }

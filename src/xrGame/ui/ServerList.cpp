@@ -484,6 +484,7 @@ void CServerList::ConnectToSelected()
 	CUIListItemServer* item = smart_cast<CUIListItemServer*>(m_list[LST_SERVER].GetSelectedItem());
 	if(!item)
 		return;
+	
 	if (!browser().CheckDirectConnection(item->GetInfo()->info.Index))
 	{
 		Msg("! Direct connection to this server is not available -> its behind firewall");
@@ -495,8 +496,7 @@ void CServerList::ConnectToSelected()
 		MainMenu()->SetErrorDialog(CMainMenu::ErrDifferentVersion);
 		return;
 	}
-
-
+	 
 	if (item->GetInfo()->info.icons.pass || item->GetInfo()->info.icons.user_pass)
 	{
 		m_message_box->m_pMessageBox->SetUserPasswordMode	(item->GetInfo()->info.icons.user_pass);

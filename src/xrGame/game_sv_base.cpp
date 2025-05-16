@@ -904,19 +904,22 @@ bool game_sv_GameState::CheckNewPlayer(xrClientData* CL)
 	char const *			error_msg = NULL;
 	ClientID				tmp_client_id(CL->ID);
 	
-	if (gs_server->IsPublicServer())
+	/*if (gs_server->IsPublicServer())
 	{
 		if (!CL->ps->m_account.is_online())
 		{
 			error_msg = "mp_please_login";
-		} else
+		} 
+		else
 		{
 			if (FindPlayerName(CL->ps->getName(), CL))
 			{
 				error_msg = "mp_already_logged_in";
 			}
 		}
-	} else
+	} 
+	else
+	
 	{
 		if (CL->ps->m_account.is_online())
 		{
@@ -926,6 +929,9 @@ bool game_sv_GameState::CheckNewPlayer(xrClientData* CL)
 			CheckPlayerName(CL);
 		}
 	}
+	*/
+
+	CheckPlayerName(CL);
 
 	if (error_msg)
 	{

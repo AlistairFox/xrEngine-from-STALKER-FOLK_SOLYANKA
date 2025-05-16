@@ -2335,6 +2335,8 @@ void	game_sv_mp::OnPlayerChangeName		(NET_Packet& P, ClientID sender)
 	if (!ps) return;
 
 	xrGameSpyServer* sv = smart_cast<xrGameSpyServer*>( m_server );
+	
+	/*
 	if( sv && sv->IsPublicServer() )
 	{
 		Msg( "Player \"%s\" try to change name on \"%s\" at public server.", ps->getName(), NewName );
@@ -2346,6 +2348,7 @@ void	game_sv_mp::OnPlayerChangeName		(NET_Packet& P, ClientID sender)
 		m_server->SendTo	( sender, P );
 		return;
 	}
+	*/
 
 	shared_str old_name = ps->getName();
 	pClient->name					= NewName;
