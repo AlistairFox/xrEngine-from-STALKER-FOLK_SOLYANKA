@@ -1,6 +1,7 @@
-#ifndef xrDebugH
-#define xrDebugH
 #pragma once
+
+#include <DbgHelp.h>
+
 
 typedef	void		crashhandler		(void);
 typedef	void		on_dialog			(bool before);
@@ -15,13 +16,10 @@ private:
 	on_dialog*		m_on_dialog;
 
 public:
-	DebugCallbackFunction debug_calltack_lua = 0;
-	int isCallstackEnable = false;
-
+  
 	void			_initialize			(const bool &dedicated);
 	void			_destroy			();
-	void			Callstack();
-
+ 
 public:
 	crashhandler*	get_crashhandler	()							{ return handler;	};
 	void			set_crashhandler	(crashhandler* _handler)	{ handler=_handler;	};
@@ -48,6 +46,17 @@ public:
 	void _cdecl		fatal				(const char *file, int line, const char *function, const char* F,...);
 	void			backend				(const char* reason, const char* expression, const char *argument0, const char *argument1, const char* file, int line, const char *function, bool &ignore_always);
 	void			do_exit				(const std::string &message);
+
+	// StackTrace 
+	std::vector<std::string> BuildStackTrace(PCONTEXT threadCtx, int maxFramesCount);
+	 
+	bool symEngineInitialized;
+	bool InitializeSymbolEngine();
+	void DeinitializeSymbolEngine();
+	
+	std::vector<std::string> BuildStackTrace(int maxFramesCount);
+	void LogStackTrace(const char* header);
+	bool GetNextStackFrameString(LPSTACKFRAME stackFrame, PCONTEXT threadCtx, std::string& frameStr);
 };
 
 // warning
@@ -68,5 +77,3 @@ extern XRCORE_API	xrDebug		Debug;
 XRCORE_API void LogStackTrace	(LPCSTR header);
 
 #include "xrDebug_macros.h"
-
-#endif // xrDebugH

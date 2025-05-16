@@ -259,17 +259,9 @@ void CScriptEngine::setup_auto_load		()
 }
 
 extern void export_classes(lua_State *L);
-
-void printLuaCallstack()
-{
-	printLuaTraceback( ai().script_engine().lua() );
-}
-
  
 void CScriptEngine::init				()
 {
-	Debug.debug_calltack_lua = &printLuaCallstack;
-
 #ifdef USE_LUA_STUDIO
 	bool lua_studio_connected = !!m_lua_studio_world;
 	if (lua_studio_connected)

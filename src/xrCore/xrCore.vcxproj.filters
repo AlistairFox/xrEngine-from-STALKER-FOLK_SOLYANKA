@@ -76,9 +76,6 @@
     <Filter Include="Memory manager\POOL">
       <UniqueIdentifier>{8c021fbe-4bde-4877-89c5-c29fd0b833aa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Debug core\StackTrace">
-      <UniqueIdentifier>{a87eb50f-d1e5-45cf-80e9-4df32b6b49e3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="FS\LocatorAPI">
       <UniqueIdentifier>{24dd4dab-7e08-4d0e-bc4c-be6892fed700}</UniqueIdentifier>
     </Filter>
@@ -228,6 +225,9 @@
     </ClCompile>
     <ClCompile Include="LocatorAPI_ReadingArchives.cpp">
       <Filter>FS\LocatorAPI</Filter>
+    </ClCompile>
+    <ClCompile Include="xrDebug_new_callstack.cpp">
+      <Filter>Debug core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -489,9 +489,6 @@
     </ClInclude>
     <ClInclude Include="xrMemory_align.h">
       <Filter>Memory manager\POOL</Filter>
-    </ClInclude>
-    <ClInclude Include="StackTrace.h">
-      <Filter>Debug core\StackTrace</Filter>
     </ClInclude>
     <ClInclude Include="LocatorAPI.h">
       <Filter>FS\LocatorAPI</Filter>

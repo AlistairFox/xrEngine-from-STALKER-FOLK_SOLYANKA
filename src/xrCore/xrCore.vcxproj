@@ -342,6 +342,7 @@
     <ClCompile Include="string_concatenations.cpp" />
     <ClCompile Include="xrCore.cpp" />
     <ClCompile Include="xrDebug.cpp" />
+    <ClCompile Include="xrDebug_new_callstack.cpp" />
     <ClCompile Include="xrMemory.cpp" />
     <ClCompile Include="xrMemory_align.cpp" />
     <ClCompile Include="xrMemory_POOL.cpp" />
@@ -401,7 +402,6 @@
     <ClInclude Include="rt_lzo_dict.h" />
     <ClInclude Include="rt_lzo_ptr.h" />
     <ClInclude Include="rt_miniacc.h" />
-    <ClInclude Include="StackTrace.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="stream_reader.h" />
     <ClInclude Include="stream_reader_inline.h" />

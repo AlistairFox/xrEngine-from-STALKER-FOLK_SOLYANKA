@@ -369,63 +369,8 @@ void format_message(LPSTR buffer, const u32& buffer_size)
 	LocalFree(message);
 }
 
-#ifndef _EDITOR
-#include <errorrep.h>
-#endif
-
-#pragma comment(lib, "dbghelp.lib")
-#pragma comment(lib, "Faultrep.lib")
-
-#include "StackTrace.h"
-
-static bool EnabledStackTrace = true;
-
 LONG WINAPI UnhandledFilter(_EXCEPTION_POINTERS* pExceptionInfo)
 {
-	/*
-	string256				error_message;
-	format_message(error_message, sizeof(error_message));
-	
-	if (EnabledStackTrace)
-	{
-		Msg("\n----------------------------------------------");
-		Msg("stack trace DBG_HELP:\n");
-
-		Debug.Callstack();
-
-		CONTEXT save = *pExceptionInfo->ContextRecord;
-
-		using namespace StackTrace;
-		std::vector<std::string> stackTrace = BuildStackTrace(pExceptionInfo->ContextRecord, 1024);
-		*pExceptionInfo->ContextRecord = save;
-	
-		string4096			buffer;
-		Msg("\n----------------------------------------------");
-		Msg("stack trace IXray: stack_size(%u) \n", stackTrace.size() );
-
-
-		for (size_t i = 0; i < stackTrace.size(); i++)
-		{
-			Log(stackTrace[i].c_str());
-			xr_sprintf(buffer, sizeof(buffer), "%s\r\n", stackTrace[i].c_str());
-		}
-
-		Msg("----------------------------------------------\n\n");
-
-		if (*error_message)
-		{
-			if (shared_str_initialized)
-				Msg("\n%s", error_message);
-
-			xr_strcat(error_message, sizeof(error_message), "\r\n");
-			os_clipboard::update_clipboard(buffer);
-		}
-	}
-	*/
-
-	if (Debug.debug_calltack_lua)
-		Debug.debug_calltack_lua();
-
 	if (shared_str_initialized)
 		FlushLog();
 
@@ -545,63 +490,4 @@ void xrDebug::_initialize(const bool& dedicated)
 #ifdef IXR_WINDOWS
 	previous_filter = ::SetUnhandledExceptionFilter(UnhandledFilter);	// exception handler to all "unhandled" exceptions
 #endif
-}
-
- 
-typedef USHORT(WINAPI* CaptureStackBackTraceType)(__in ULONG, __in ULONG, __out PVOID*, __out_opt PULONG);
-
-bool isInitialized = false;
-
-void xrDebug::Callstack()
-{
-	//if (!isCallstackEnable)
-	//	return;
-
-	if (!isInitialized)
-	{
-		SymSetOptions(SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS);
-		isInitialized = SymInitialize(GetCurrentProcess(), 0, TRUE);
-	}
-
-	if (!isInitialized)
-		return;
-
-	CaptureStackBackTraceType func_callstack = (CaptureStackBackTraceType)(GetProcAddress(LoadLibrary("kernel32.dll"), "RtlCaptureStackBackTrace"));
-
-	if (func_callstack != nullptr)
-	{
-		const int max_frames = 64;
-		void* callstack[max_frames];
-
-		USHORT frames = func_callstack(0, max_frames, callstack, NULL);
-		SYMBOL_INFO* symbol = (SYMBOL_INFO*)calloc(sizeof(SYMBOL_INFO) + 256 * sizeof(char), 1);
-
-		if (symbol != 0)
-		{
-			symbol->MaxNameLen = 255;
-			symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
-
-
-			for (USHORT i = 0; i < frames; ++i)
-			{
-				SymFromAddr(GetCurrentProcess(), (DWORD64)(callstack[i]), 0, symbol);
-
-				IMAGEHLP_LINE64 data;
-
-				DWORD dwDisplacement;
-				SymGetLineFromAddr(GetCurrentProcess(), (DWORD64)(callstack[i]), &dwDisplacement, &data);
-
-				DWORD_PTR displacement = 0;
-				const DWORD max_name_len = 1024;
-				char nameBuffer[max_name_len];
-				UnDecorateSymbolName(symbol->Name, nameBuffer, max_name_len, UNDNAME_COMPLETE);
-
-				Msg("callstack[%d]: SYMVOL:%s, LINE: %d, File: %s", i, nameBuffer, data.LineNumber, data.FileName != nullptr ? data.FileName : "no file");
-			}
-
-			free(symbol);
-		}
-	}
-
-
 }
