@@ -9,45 +9,51 @@ void CUIActorMenu::InitCraft()
 	recipes.clear();
 
 	string_path file_name;
-	string32 filename;
-	xr_strcpy(filename, "craft");
-	xr_strcat(filename, ".ltx");
-	FS.update_path(file_name, "$game_config$", filename);
+	FS.update_path(file_name, "$game_config$", "craft.ltx");
 
 	CInifile* file = xr_new<CInifile>(file_name, true); //read only
 
-    CInifile::Sect& sect = file->r_section("recipes");
+	if (!file)
+		return;
 
-	for (const auto& read_sect : sect.Data)
+	if (file->section_exist("recipes"))
 	{
-		LPCSTR S = file->r_string(read_sect.first, "ingredients");
-		LPCSTR S2 = file->r_string(read_sect.first, "ingredients_2");
-		if ((S && S[0]) && (S2 && S2[0]))
+		CInifile::Sect& sect = file->r_section("recipes");
+ 		for (const auto& read_sect : sect.Data)
 		{
-			RecipeSection recipe_data;
-
-			recipe_data.out_section._set(read_sect.first);
-			recipe_data.craft_chance = READ_IF_EXISTS(file, r_float, read_sect.first, "chance", 1.0f);
-
-			string128		str_temp;
-			int				count = _GetItemCount(S);
-			for (int it = 0; it < count; ++it)
+			if (file->line_exist(read_sect.first, "ingredients") && 
+				file->line_exist(read_sect.first, "ingredients_2"))
 			{
-				_GetItem(S, it, str_temp);
-				recipe_data.ing_1_sections.push_back(str_temp);
-			}
-			string128		str_temp2;
-			int				count2 = _GetItemCount(S2);
-			for (int i = 0; i < count2; ++i)
-			{
-				_GetItem(S2, i, str_temp2);
-				recipe_data.ing_2_sections.push_back(str_temp2);
-			}
+				LPCSTR S = file->r_string(read_sect.first, "ingredients");
+				LPCSTR S2 = file->r_string(read_sect.first, "ingredients_2");
+				if ((S && S[0]) && (S2 && S2[0]))
+				{
+					RecipeSection recipe_data;
 
-			recipes.push_back(recipe_data);
+					recipe_data.out_section._set(read_sect.first);
+					recipe_data.craft_chance = READ_IF_EXISTS(file, r_float, read_sect.first, "chance", 1.0f);
+
+					string128		str_temp;
+					int				count = _GetItemCount(S);
+					for (int it = 0; it < count; ++it)
+					{
+						_GetItem(S, it, str_temp);
+						recipe_data.ing_1_sections.push_back(str_temp);
+					}
+					string128		str_temp2;
+					int				count2 = _GetItemCount(S2);
+					for (int i = 0; i < count2; ++i)
+					{
+						_GetItem(S2, i, str_temp2);
+						recipe_data.ing_2_sections.push_back(str_temp2);
+					}
+
+					recipes.push_back(recipe_data);
+				}
+			}			
 		}
 	}
-
+  
 	xr_delete(file);
 }
 
