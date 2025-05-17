@@ -141,8 +141,8 @@ void CAgentEnemyManager::fill_enemies			()
 			}
 			catch (...)
 			{
-				Debug.Callstack();
-			}
+				Debug.LogStackTrace("CAgentEnemyManager [Fill Enemys]");
+ 			}
 		}
 	}
 

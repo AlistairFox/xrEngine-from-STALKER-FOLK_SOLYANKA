@@ -594,13 +594,14 @@ bool CUIActorMenu::ToSlot(CUICellItem* itm, bool force_place, u16 slot_id)
 			}
 			else
 			{
-				Debug.Callstack();
+				Debug.LogStackTrace("slot_list == nullptr");
 				Msg("[ERROR] UI Dragdrop list is nullptr");
 			}
 		}
 		else
 		{
-			Debug.Callstack();
+			Debug.LogStackTrace("slot_id > LAST_SLOT");
+
 			Msg("[ERROR] Slot ID: %u > max: %u", slot_id, LAST_SLOT);
 		}
 
