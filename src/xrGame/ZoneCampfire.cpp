@@ -6,21 +6,10 @@
 #include "xrServer_Objects_ALife_Monsters.h"
 std::vector<u16> CZoneCampfire::vCampfires;
 
-/*
-CZoneCampfire* g_zone = NULL;
-void turn_zone()
-{
-	if(!g_zone) return;
-	if(g_zone->is_on())
-		g_zone->turn_off_script();
-	else
-		g_zone->turn_on_script();
-}
-*/
+ 
 CZoneCampfire::CZoneCampfire()
 :m_pDisabledParticles(NULL),m_pEnablingParticles(NULL),m_turned_on(true),m_turn_time(0)
 {
-//.	g_zone = this;
 }
 
 CZoneCampfire::~CZoneCampfire()
@@ -92,6 +81,16 @@ bool CZoneCampfire::is_on()
 
 void CZoneCampfire::shedule_Update(u32	dt)
 {
+	if (!is_on() && Device.dwTimeGlobal > m_disable_time)
+	{
+		if (m_disabled_sound._handle())
+			m_disabled_sound.stop();
+
+		if (m_pDisabledParticles && m_pDisabledParticles->IsPlaying())
+			m_pDisabledParticles->Stop();
+	}
+
+
 	if (OnServer())
 	{
 		if (UpdateTimer <= Device.dwTimeGlobal)
@@ -103,22 +102,9 @@ void CZoneCampfire::shedule_Update(u32	dt)
 			CGameObject::u_EventSend(P);
 		}
 	}
-
-	// if (!m_turned_on)
-	// {
-	// 	m_idle_sound.stop();
-	// 	m_awaking_sound.stop();
-	// 	m_accum_sound.stop();
-	// 	m_blowout_sound.stop();
-	// 	m_hit_sound.stop();
-	// 	m_entrance_sound.stop();
-	// }
-
-
+ 
 	if (!IsEnabled() && m_turn_time)
-	{
-		UpdateWorkload	(dt);
-	}
+ 		UpdateWorkload	(dt);
 
 	if (OnServer() && IsEnabled())
 	{
@@ -196,6 +182,7 @@ bool CZoneCampfire::Disable()
 	if (!IsEnabled())
 		return false;
 
+	m_disable_time = Device.dwTimeGlobal + 10000;
 	m_turn_time = Device.dwTimeGlobal + OVL_TIME;
 	m_turned_on = false;
 
@@ -205,29 +192,13 @@ bool CZoneCampfire::Disable()
 	m_pDisabledParticles->UpdateParent(XFORM(), zero_vel);
 	m_pDisabledParticles->Play(false);
 
-
-	str = pSettings->r_string(cNameSect(), "disabled_sound");
+ 	str = pSettings->r_string(cNameSect(), "disabled_sound");
 	m_disabled_sound.create(str, st_Effect, sg_SourceType);
 	m_disabled_sound.play_at_pos(0, Position(), true);
-
-	m_idle_sound.stop();
-	m_awaking_sound.stop();
-	m_accum_sound.stop();
-	m_blowout_sound.stop();
-	m_hit_sound.stop();
-	m_entrance_sound.stop();
-
-
+	 
 	return inherited::Disable();
 }
-
-void CZoneCampfire::UpdateCL()
-{
-
-	inherited::UpdateCL();
-
-}
-
+  
 void CZoneCampfire::OnEvent(NET_Packet& P, u16 type)
 {
 	switch (type)
@@ -243,8 +214,7 @@ void CZoneCampfire::OnEvent(NET_Packet& P, u16 type)
 	}
 	inherited::OnEvent(P, type);
 }
-
-
+ 
 void CZoneCampfire::PlayIdleParticles(bool bIdleLight)
 {
 	if(m_turn_time==0 || m_turn_time-Device.dwTimeGlobal<(OVL_TIME-2000))
@@ -271,12 +241,13 @@ void CZoneCampfire::UpdateWorkload(u32 dt)
 	{
 		float k = float(m_turn_time-Device.dwTimeGlobal)/float(OVL_TIME);
 
-		if(m_turned_on)
+		if(is_on())
 		{
 			k = 1.0f-k;
 			PlayIdleParticles	(true);
 			StartIdleLight		();
-		}else
+		}
+		else
 		{
 			StopIdleParticles	(false);
 		}
@@ -304,10 +275,11 @@ void CZoneCampfire::UpdateWorkload(u32 dt)
 	if(m_turn_time)
 	{
 		m_turn_time = 0;
-		if(m_turned_on)
+		if( is_on() )
 		{
 			PlayIdleParticles(true);
-		}else
+		}
+		else
 		{
 			StopIdleParticles(true);
 		}

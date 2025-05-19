@@ -8,8 +8,11 @@ protected:
 	CParticlesObject*		m_pEnablingParticles;
 	CParticlesObject*		m_pDisabledParticles;
 	ref_sound				m_disabled_sound;
+	
 	bool					m_turned_on;
 	u32						m_turn_time;
+	u32						m_disable_time;
+
 	u32						m_update_save_time;
 	u32						FireTimer = 0;
 	bool					OffTimerStart = false;
@@ -32,8 +35,9 @@ public:
 	virtual		void		OnStateSwitch(EZoneState new_state);
 	virtual		bool		Enable();
 	virtual		bool		Disable();
-	static std::vector<u16> vCampfires;
-	virtual		void	UpdateCL();
+
+
+	static std::vector<u16> vCampfires; 
 	virtual		void	OnEvent(NET_Packet& P, u16 type);
 
 	u32			UpdateTimer = 0;
