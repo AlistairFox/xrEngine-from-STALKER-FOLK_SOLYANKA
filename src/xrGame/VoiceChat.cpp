@@ -42,7 +42,6 @@ bool CVoiceChat::CreateRecorder()
 
 void CVoiceChat::Start()
 {
-//	Msg("Start Voice ");
 	m_pRecorder->Start();
 
 	NET_Packet packet;
@@ -56,8 +55,6 @@ void CVoiceChat::Start()
 void CVoiceChat::Stop()
 {
 	m_pRecorder->Stop();
-
-//	Msg("Stop Voice ");
 	 
 	NET_Packet packet;
 	Game().u_EventGen(packet, GE_GAME_EVENT, -1);
@@ -77,26 +74,6 @@ u8 CVoiceChat::GetDistance() const
 	return m_pSender->GetDistance();
 }
 	
-/*
-u8 CVoiceChat::SwitchDistance()
-{
-	R_ASSERT(m_pSender != nullptr);
-
-	switch (m_pSender->GetDistance())
-	{
-	case 5:
-		m_pSender->SetDistance(10);
-		return 10;
-	case 10:
-		m_pSender->SetDistance(30);
-		return 30;
-	default:
-		m_pSender->SetDistance(5);
-		return 5;
-	}
-} 
-*/
-
 void CVoiceChat::Update()
 {
 	CheckAndClearPlayers(m_soundPlayersMap);
@@ -155,8 +132,7 @@ void CVoiceChat::OnRender()
 
 void CVoiceChat::ReceiveMessage(NET_Packet* P)
 {
-	// Msg("Recive Packet Sound Voice");
-	game_PlayerState* local_player = Game().local_player;
+ 	game_PlayerState* local_player = Game().local_player;
 	if (!local_player || local_player->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD) || !Actor())
  		return;
 
@@ -165,8 +141,7 @@ void CVoiceChat::ReceiveMessage(NET_Packet* P)
 	// Кто говорит ID
 	u16 clientId = P->r_u16();
 	CObject* obj = Level().Objects.net_Find(clientId);
-	if (!obj)
- 		return;
+	if (!obj) return;
  
 	// Se7kills
 	// Дистанция до игрока
@@ -184,11 +159,8 @@ void CVoiceChat::ReceiveMessage(NET_Packet* P)
 	}
 
 	if (!isCorrectSquad && distance > 30)
-	{
-		/// Msg("Squad Is No correct");
-		return;
-	}
-
+  		return;
+ 
  	IStreamPlayer* player = GetStreamPlayer(clientId);
 	
 	// Se7kills
@@ -201,17 +173,13 @@ void CVoiceChat::ReceiveMessage(NET_Packet* P)
 	else // Если в не отряде делаем и говорим не от своего игрока
 	{
 		// Сломал переключайку растояния  поэтому 30 по дефолту (в OpenAL (xrSound) идет расщет на растояние до sound_player )
-		// тоесть от obj->position() до слушателя Actor() в целом если растояние маленькое задать  
-
+		// тоесть от obj->position() до слушателя Actor() в целом если растояние маленькое задать
 		player->SetPosition(obj->Position());
 		player->SetDistance(30);				
 		player->SetSquad(false);
 	}
- 
-	/// Msg("Update Sound For Squad: (%u)", isCorrectSquad, player->GetVolume());
 
 	u8 packetsCount = P->r_u8();
-	
 	for (u32 i = 0; i < packetsCount; ++i)
 	{
 		u32 length = P->r_u32();
@@ -220,8 +188,6 @@ void CVoiceChat::ReceiveMessage(NET_Packet* P)
 	}
   
 	m_voiceTimeMap[clientId] = SVoiceIconInfo(GetTickCount());
-
-	// Msg("Squad: %d, isCorrectSquad: %d, distance: %.1f => (player).PushToPlay", local_player->MPSquadID, isCorrectSquad, distance);
 }
 
 

@@ -1383,19 +1383,14 @@ void xrServer::OnVoiceMessage(NET_Packet& P, ClientID sender)
 
 		void operator()(IClient* client)
 		{
-			if (client == m_server->GetServerClient())
-				return;
+			if (client == m_server->GetServerClient()) return;
 
 			xrClientData* CL = static_cast<xrClientData*>(client);
-			if (!CL || !CL->net_Ready || !CL->owner || !m_from->owner || !m_from->ps)
-				return;
-
-			if (CL->ID == m_from->ID)
-				return;
+			if (!CL || !CL->net_Ready || !CL->owner || !m_from->owner || !m_from->ps) return;
+ 			if (CL->ID == m_from->ID) return;
 
 			game_PlayerState* ps = CL->ps;
-			if (!ps || ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD))
-				return;
+			if (!ps || ps->testFlag(GAME_PLAYER_FLAG_VERY_VERY_DEAD)) return;
 
 			// se7kills (Отправляем всем игрокам)
 			//float distanceSqr = CL->owner->Position().distance_to_sqr(m_from->owner->Position());

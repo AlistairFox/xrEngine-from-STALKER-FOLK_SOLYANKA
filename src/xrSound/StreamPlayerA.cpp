@@ -124,6 +124,7 @@ void CStreamPlayerA::UpdateVolume()
 		volume = volume * psSoundVPlayers;
 		clamp(volume, 0.01f, 1.f);
  	}
+
 	last_volume = volume;
 	alSourcef(m_source, AL_GAIN, volume);
 }
