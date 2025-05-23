@@ -14,7 +14,8 @@
 
 #include "uistatic.h"
 #include "UIScrollView.h"
-
+#include "CustomOutfit.h"
+#include "Inventory.h"
 
 #include "../alife_simulator.h"
 #include "../ai_space.h"
@@ -286,14 +287,22 @@ const char* CUICharacterInfo::GetPlayerIcon(CInventoryOwner* invOwner)
 {
 	shared_str FinalIcon;
 
-	u8 PlayerTeam = invOwner->Community();
+	CActor* pA = smart_cast<CActor*>(invOwner);
+
+	if (!pA)
+		return invOwner->IconName();
+
+	u8 PlayerTeam = pA->Community();
+
+	CCustomOutfit* pOutf = smart_cast<CCustomOutfit*>(pA->inventory().ItemFromSlot(OUTFIT_SLOT));
+
+	if (pOutf)
+		return *pOutf->m_sOutfitInventoryIcon;
 
 	shared_str TeamLine;
 	TeamLine.printf("team%d_icon", PlayerTeam);
 
-
 	FinalIcon = pSettings->r_string("player_team_icons", *TeamLine);
-
 
 	return *FinalIcon;
 }

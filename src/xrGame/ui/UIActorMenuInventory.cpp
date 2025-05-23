@@ -37,6 +37,7 @@
 #include "../actor_defs.h"
 #include "../CampFireSwitcher.h"
 #include "Actor.h"
+#include "UICharacterInfo.h"
 
 #pragma optimize(off, "")
 

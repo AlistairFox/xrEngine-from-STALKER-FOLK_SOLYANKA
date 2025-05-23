@@ -161,6 +161,8 @@ void CCustomOutfit::Load(LPCSTR section)
  		b_has_glass = false;
  		outfit_vingette = 0;
  	}
+
+	m_sOutfitInventoryIcon = READ_IF_EXISTS(pSettings, r_string, section, "outfit_inventory_icon", "ui_inGame2_neutral_2_mask");
 }
 
 

@@ -121,6 +121,10 @@ void game_cl_freemp::shedule_Update(u32 dt)
 	// Shedule Save QUESTS
 	shedule_Quests();
 
+
+	if (Device.dwFrame % 200 == 0)
+		FillMyTeamMapLocation();
+
 }
 
 void game_cl_freemp::shedule_voice()
@@ -807,4 +811,28 @@ void game_cl_freemp::OnSquadCancelReceived(NET_Packet& P)
 	xr_sprintf(InviteMessage, "%s %s %s", CStringTable().translate("mp_squad_cancel_0").c_str(), PlayerName, CStringTable().translate("mp_squad_cancel_1").c_str()); //"Приглашение от игрока %s отменено, либо истекло"
 
 	// tasks->GiveNews(CStringTable().translate("mp_squad_title").c_str(), InviteMessage, "ui_inGame2_PD_Lider", 0, 4000, 0, false);
+}
+
+
+void game_cl_freemp::FillMyTeamMapLocation()
+{
+	for (auto& player : Level().game->players)
+	{
+		CActor* LocalActor = smart_cast<CActor*>(Level().CurrentControlEntity());
+		if (!LocalActor) break;
+
+		CActor* TargetActor = smart_cast<CActor*>(Level().Objects.net_Find(player.second->GameID));
+
+		if (!TargetActor) continue;
+		if (TargetActor == LocalActor) continue;
+
+		Level().MapManager().RemoveMapLocation("actor_location", TargetActor->ID());
+		Level().MapManager().RemoveMapLocation("actor_location_p", TargetActor->ID());
+
+		if (TargetActor->g_Team() != LocalActor->g_Team())
+			continue;
+
+		Level().MapManager().AddMapLocation("actor_location", TargetActor->ID());
+		Level().MapManager().AddMapLocation("actor_location_p", TargetActor->ID());
+	}
 }

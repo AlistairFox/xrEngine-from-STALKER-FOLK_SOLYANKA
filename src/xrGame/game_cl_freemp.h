@@ -146,6 +146,8 @@ public:
 	void GiveNews(LPCSTR caption, LPCSTR text, LPCSTR texture_name, int delay, int show_time, int type, bool noSound);
 	void GiveNews(LPCSTR caption, LPCSTR text, LPCSTR texture_name, int delay, int show_time, int type);
 	// END XRMPE SYSTEM
+
+	void					FillMyTeamMapLocation();
 };
  
 

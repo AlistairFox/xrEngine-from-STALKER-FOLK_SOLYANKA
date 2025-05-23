@@ -55,6 +55,9 @@ public:
 	shared_str				m_BonesProtectionSect;
 	shared_str				m_NightVisionSect;
 
+	shared_str				m_sOutfitInventoryIcon;
+
+
 	bool					bIsHelmetAvaliable;
 
 	bool					b_enable_reflection;
