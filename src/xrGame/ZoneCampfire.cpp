@@ -81,7 +81,7 @@ bool CZoneCampfire::is_on()
 
 void CZoneCampfire::shedule_Update(u32	dt)
 {
-	if (!is_on() && Device.dwTimeGlobal > m_disable_time)
+	if (!IsEnabled() && m_disable_time < Device.dwTimeGlobal)
 	{
 		if (m_disabled_sound._handle())
 			m_disabled_sound.stop();
