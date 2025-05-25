@@ -88,13 +88,9 @@ void CObjectList::UpdateProcessing(CObject* O)
 	if (!g_dedicated_server)
 	{
 		if (O->H_Parent())
-		{
-			O->EnabledMP_Processing  = O->H_Parent()->Position().distance_to(Device.vCameraPosition) < 350;
-		}
-		else
-		{
-			O->EnabledMP_Processing  = O->Position().distance_to(Device.vCameraPosition) < 350;
-		}		
+ 			O->EnabledMP_Processing  = O->H_Parent()->Position().distance_to(Device.vCameraPosition) < 350;
+ 		else
+ 			O->EnabledMP_Processing  = O->Position().distance_to(Device.vCameraPosition) < 350;	
 	}
 	else
 		O->EnabledMP_Processing = true;
@@ -134,16 +130,17 @@ void CObjectList::Update		(bool bForce)
  					objects_processed.push_back(O);
 				}
  				
-				std::sort(objects_processed.begin(), objects_processed.end(), [&](CObject* O, CObject* O2)
-				{
-					return O->dwFrame_UpdateCL < O2->dwFrame_UpdateCL && !O->EnabledMP_Processing;
-				});
+				std::sort (
+					objects_processed.begin(), objects_processed.end(), [&](CObject* O, CObject* O2)
+					{
+						return O->dwFrame_UpdateCL < O2->dwFrame_UpdateCL && !O->EnabledMP_Processing;
+					}
+				);
 			
 				u32 CurrentObjects = 0;
 				for (auto& O : objects_processed)
 				{	 
-					if (O->EnabledMP_Processing || CurrentObjects > 100)
-						continue; 	
+					if (O->EnabledMP_Processing || CurrentObjects > 100)	continue; 	
    					SingleUpdate(O);
 					CurrentObjects++;
   				}
@@ -151,13 +148,13 @@ void CObjectList::Update		(bool bForce)
 				LastUpdateTime = Device.dwTimeGlobal + 100;
 			}
 
-			
-			for (auto& O : objects_active)
+
+ 			for (auto& O : objects_active)
 			{
-				if (!O->EnabledMP_Processing)
-				 	continue;
+				if (!O->EnabledMP_Processing)		continue;
  				SingleUpdate(O);
 			}
+
 			Device.Statistic->UpdateClient.End();
 		}
 	}

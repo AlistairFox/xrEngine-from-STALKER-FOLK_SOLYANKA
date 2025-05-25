@@ -654,14 +654,8 @@ void CGameObject::validate_ai_locations			(bool decrement_reference)
 				this->ID(), this->cNameSect().c_str(), this->cName().c_str(), timer.GetElapsed_ms()
 			);
 			obj_skip_ms[this->ID()] = true;
-		}
-		
-
-		
+		}	
 	}
-	
-
-
 }
 
 void CGameObject::spatial_move	()
@@ -719,14 +713,7 @@ void CGameObject::renderable_Render	()
 	::Render->add_Visual		(Visual());
 	Visual()->getVisData().hom_frame = Device.dwFrame;
 }
-
-/*
-float CGameObject::renderable_Ambient	()
-{
-	return (ai().get_level_graph() && ai().level_graph().valid_vertex_id(level_vertex_id()) ? float(level_vertex()->light()/15.f) : 1.f);
-}
-*/
-
+ 
 CObject::SavedPosition CGameObject::ps_Element(u32 ID) const
 {
 	VERIFY(ID<ps_Size());
@@ -1068,7 +1055,8 @@ float CGameObject::shedule_Scale()
 {
 	auto npc = smart_cast<CCustomMonster*>(this);
 	auto zone = smart_cast<CCustomZone*>(this);
- 	u32 SheduleMax = Shedule_Scale_Objects;
+ 	
+	float SheduleMax = Shedule_Scale_Objects;
 	if (npc)
 		SheduleMax = Shedule_Scale_AI_Stalker;
 	if (zone)
@@ -1088,13 +1076,13 @@ float CGameObject::shedule_Scale()
 		}
 
 		float scale = SheduleMax;
-		clamp(scale, 0.0f, 2.0f);
+		clamp(scale, 0.1f, 2.0f);
 		return scale;
 	}
 	else
 	{
-		float scale = SheduleMax / (GetDistanceToNearActor() / 200);
- 		clamp(scale, 0.0f, 2.0f);
+		float scale = SheduleMax / float(GetDistanceToNearActor() / 60);
+ 		clamp(scale, 0.1f, 2.0f);
 		return scale;
 	}	
 }
