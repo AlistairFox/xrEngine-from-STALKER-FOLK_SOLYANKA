@@ -840,12 +840,18 @@ bool CUIActorMenu::TryGiftItem(CUICellItem* cell_itm)
 	if (!who_give) return false;
 	if (!to_give) return false;
 
-	NET_Packet P;
-	who_give->u_EventGen(P, GE_ACTOR_GIFT_ITEM, -1);
-	P.w_u16(who_give->ID());
-	P.w_u16(to_give->ID());
-	P.w_u16(item->object().ID());
-	who_give->u_EventSend(P);
+	move_item_from_to(who_give->ID(), to_give->ID(), item->object_id());
+
+		NET_Packet P;
+		who_give->u_EventGen(P, GE_ACTOR_GIFT_RECIEVE, who_give->ID());
+		P.w_u8(1);
+		P.w_u16(item->object_id());
+		who_give->u_EventSend(P);
+
+		who_give->u_EventGen(P, GE_ACTOR_GIFT_RECIEVE, to_give->ID());
+		P.w_u8(0);
+		P.w_u16(item->object_id());
+		who_give->u_EventSend(P);
 
 	SetCurrentItem(NULL);
 	return true;
@@ -867,12 +873,29 @@ bool CUIActorMenu::TryInjectItem(CUICellItem* cell_itm)
 	if (!who_give) return false;
 	if (!to_give) return false;
 
-	NET_Packet P;
-	who_give->u_EventGen(P, GE_ACTOR_INJECT_ITEM, -1);
-	P.w_u16(who_give->ID());
-	P.w_u16(to_give->ID());
-	P.w_u16(item->object().ID());
-	who_give->u_EventSend(P);
+	move_item_from_to(who_give->ID(), to_give->ID(), item->object_id());
+
+
+		NET_Packet Pack;
+		who_give->u_EventGen(Pack, GE_ACTOR_INJECT_RECIEVE, who_give->ID());
+		Pack.w_u8(1);
+		Pack.w_u16(item->object_id());
+		who_give->u_EventSend(Pack);
+		//Level().Server->SendTo(data->ID, Pack, net_flags(TRUE, TRUE));
+
+		who_give->u_EventGen(Pack, GE_ACTOR_INJECT_RECIEVE, to_give->ID());
+		Pack.w_u8(0);
+		Pack.w_u16(item->object_id());
+		who_give->u_EventSend(Pack);
+		//Level().Server->SendTo(data2->ID, Pack, net_flags(TRUE, TRUE));
+
+
+	//NET_Packet P;
+	//who_give->u_EventGen(P, GE_ACTOR_INJECT_ITEM, -1);
+	//P.w_u16(who_give->ID());
+	//P.w_u16(to_give->ID());
+	//P.w_u16(item->object().ID());
+	//who_give->u_EventSend(P);
 
 	SetCurrentItem(NULL);
 	return true;
