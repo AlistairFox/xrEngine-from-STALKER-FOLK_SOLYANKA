@@ -287,17 +287,12 @@ _DDS_2D:
 			LoadInfo.FirstMipLevel = img_loaded_lod;
 			LoadInfo.Width	= IMG.Width;
 			LoadInfo.Height	= IMG.Height;
-			
-			 
+ 
 			img_loaded_lod			= get_texture_load_lod(fn); 
-
-			// se7kills Fixed x64
+ 			// se7kills Fixed x64
 			//if (img_loaded_lod)
-			//{
-			//	Reduce(LoadInfo.Width, LoadInfo.Height, IMG.MipLevels, img_loaded_lod);
-			//}
-			 
-
+ 			//	Reduce(LoadInfo.Width, LoadInfo.Height, IMG.MipLevels, img_loaded_lod);
+ 	  
 			//LoadInfo.Usage = D3D_USAGE_IMMUTABLE;
 			if (bStaging)
 			{

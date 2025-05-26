@@ -84,12 +84,11 @@ public:
 		m_object->level_path().build_path(m_start_vertex_id, m_dest_vertex_id);
 		m_object->m_wait_for_distributed_computation = false;
 		 
-		if (t.GetElapsed_ms() > 30)
+		if (t.GetElapsed_ms() > 60)
 		{
-			// Msg("vertex start: %u | dest: %u", m_start_vertex_id, m_dest_vertex_id);
-			Fvector pos_start = ai().level_graph().vertex_position(m_start_vertex_id); 
+ 			Fvector pos_start = ai().level_graph().vertex_position(m_start_vertex_id); 
 			Fvector pos_dest = ai().level_graph().vertex_position(m_dest_vertex_id);
-			Msg("--- PathNav (%u) Waiting From Pos(%.1f,%.1f,%.1f) to (%.1f,%.1f,%.1f)", t.GetElapsed_ms(), VPUSH(pos_start), VPUSH(pos_dest));
+			Msg("~~~ PathNav (%u) Waiting From Pos(%.1f,%.1f,%.1f) to (%.1f,%.1f,%.1f)", t.GetElapsed_ms(), VPUSH(pos_start), VPUSH(pos_dest));
 		}
 			
 		if (m_object->level_path().failed()) 
