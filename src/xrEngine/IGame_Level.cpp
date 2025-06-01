@@ -80,9 +80,7 @@ static void __stdcall	build_callback	(Fvector* V, int Vcnt, CDB::TRI* T, int Tcn
 
 BOOL IGame_Level::Load			(u32 dwNum) 
 {
-	SECUROM_MARKER_PERFORMANCE_ON(10)
-
-	// Initialize level data
+ 	// Initialize level data
 	pApp->Level_Set				( dwNum );
 	string_path					temp;
 	if (!FS.exist(temp, "$level$", "level.ltx"))
@@ -130,9 +128,6 @@ BOOL IGame_Level::Load			(u32 dwNum)
 #endif
 
 	Device.seqFrame.Add			(this, 572662306, 0, "level");
-
-	SECUROM_MARKER_PERFORMANCE_OFF(10)
-
 	return TRUE;	
 }
 

@@ -2608,6 +2608,9 @@
     <Filter Include="Core\Common\Console Commands\mp commands">
       <UniqueIdentifier>{7e12cdfb-9dae-4472-8c89-48ae1b95e108}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Se7Kills\NewZones">
+      <UniqueIdentifier>{5b7762f9-6470-4b2f-9d65-7b86fba3cc35}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mt_config.h">
@@ -7628,6 +7631,9 @@
       <Filter>ImGUI</Filter>
     </ClInclude>
     <ClInclude Include="DynamicHudGlass.h" />
+    <ClInclude Include="ZoneTeleport.h">
+      <Filter>Se7Kills\NewZones</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="damage_manager.cpp">
@@ -11535,6 +11541,9 @@
       <Filter>UI\Common\Inventory</Filter>
     </ClCompile>
     <ClCompile Include="DynamicHudGlass.cpp" />
+    <ClCompile Include="ZoneTeleport.cpp">
+      <Filter>Se7Kills\NewZones</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="ai\monsters\chimera\chimera_attack_state.h">

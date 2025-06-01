@@ -25,7 +25,6 @@
 #	include "engine_impl.hpp"
 #endif // #ifdef INGAME_EDITOR
 
-#include "xrSash.h"
 #include "igame_persistent.h"
 
 #pragma comment( lib, "d3dx9.lib"		)

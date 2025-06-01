@@ -312,9 +312,6 @@ public:
 	DWORD		dwFrame;
 
 public:
-	int sign1 = 0;
-	int sign2 = 0;
-
 	void		_initialize	(LPCSTR ApplicationName, LogCallback cb=0, BOOL init_fs=TRUE, LPCSTR fs_fname=0);
 	void		_destroy	();
 };

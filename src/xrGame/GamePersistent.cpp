@@ -20,7 +20,7 @@
 
 #include "UI/UItextureMaster.h"
 
-#include "../xrEngine/xrSASH.h"
+
 #include "ai_space.h"
 #include "../xrServerEntities/script_engine.h"
 
@@ -446,15 +446,7 @@ void CGamePersistent::WeathersUpdate()
 
 bool allow_intro ()
 {
-#ifdef MASTER_GOLD
-	if (g_SASH.IsRunning())
-#else	// #ifdef MASTER_GOLD
-	if ((0!=strstr(Core.Params, "-nointro")) || g_SASH.IsRunning())
-#endif	// #ifdef MASTER_GOLD
-	{
-		return false;
-	}else
-		return true;
+ 	return true;
 }
 
 void CGamePersistent::start_anti_cheat_thread()

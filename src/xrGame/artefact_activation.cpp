@@ -186,10 +186,11 @@ void SArtefactActivation::SpawnAnomaly()
 {
  	string128 tmp;
 	LPCSTR str			= pSettings->r_string("artefact_spawn_zones", *m_af->cNameSect());
-	VERIFY3(3==_GetItemCount(str),"Bad record format in artefact_spawn_zones",str);
+	VERIFY3				(4==_GetItemCount(str),"Bad record format in artefact_spawn_zones",str);
 
-	float zone_radius	= (float)atof(_GetItem(str,1,tmp));
-	LPCSTR zone_sect	= _GetItem(str,0,tmp); //must be last call of _GetItem... (LPCSTR !!!)
+	float zone_radius	 = (float)atof(_GetItem(str,1,tmp));
+	LPCSTR zone_sect	 = _GetItem(str, 0,tmp); //must be last call of _GetItem... (LPCSTR !!!)
+ 	bool create_teleport = atoi(_GetItem(str, 3, tmp));
 
 	Fvector pos;
 	m_af->Center(pos);
@@ -212,34 +213,59 @@ void SArtefactActivation::SpawnAnomaly()
 	// Level().Send(P, net_flags(TRUE));
 	// F_entity_Destroy(object);
 	// Msg("artefact [%s] spawned a zone [%s] at [%f]", *m_af->cName(), zone_sect, Device.fTimeGlobal);
+
+	if (!create_teleport)
+	{
 #define MAX_ZONES 9
-	xr_vector<Fvector> anomaly_zones;
-	for (auto i = 0; i < MAX_ZONES; i++)
-	{
-		Fvector pos_new = { pos.x + Random.randI(-10, 10), pos.y, pos.z + Random.randI(-10, 10) };
-		anomaly_zones.push_back(pos_new);
+		xr_vector<Fvector> anomaly_zones;
+		for (auto i = 0; i < MAX_ZONES; i++)
+		{
+			Fvector pos_new = { pos.x + Random.randI(-10, 10), pos.y, pos.z + Random.randI(-10, 10) };
+			anomaly_zones.push_back(pos_new);
+		}
+
+		for (auto zone_ps : anomaly_zones)
+		{
+			CSE_Abstract* object = Level().spawn_item(zone_sect, zone_ps, m_af->ai_location().level_vertex_id(), 0xffff, true);
+			CSE_ALifeAnomalousZone* AlifeZone = smart_cast<CSE_ALifeAnomalousZone*>(object);
+			VERIFY(AlifeZone);
+
+			CShapeData::shape_def		_shape;
+			_shape.data.sphere.P.set(0.0f, 0.0f, 0.0f);
+			_shape.data.sphere.R = zone_radius;
+			_shape.type = CShapeData::cfSphere;
+
+			AlifeZone->assign_shapes(&_shape, 1);
+			AlifeZone->m_owner_id = u32(-1); // m_owner_id
+			AlifeZone->m_space_restrictor_type = RestrictionSpace::eRestrictorTypeNone;
+
+			NET_Packet					P;
+			object->Spawn_Write(P, TRUE);
+			Level().Send(P, net_flags(TRUE));
+			F_entity_Destroy(object);
+
+			Msg("artefact [%s] spawned a zone [%s] at [%f]", *m_af->cName(), zone_sect, Device.fTimeGlobal);
+		}
 	}
-	 
-	for (auto zone_ps : anomaly_zones)
+	else
 	{
-		CSE_Abstract* object = Level().spawn_item(zone_sect, zone_ps, m_af->ai_location().level_vertex_id(), 0xffff, true);
+		CSE_Abstract* object = Level().spawn_item(zone_sect, pos, m_af->ai_location().level_vertex_id(), 0xffff, true);
 		CSE_ALifeAnomalousZone* AlifeZone = smart_cast<CSE_ALifeAnomalousZone*>(object);
-		VERIFY(AlifeZone);
-	
+ 
 		CShapeData::shape_def		_shape;
 		_shape.data.sphere.P.set(0.0f, 0.0f, 0.0f);
 		_shape.data.sphere.R = zone_radius;
 		_shape.type = CShapeData::cfSphere;
-	
+
 		AlifeZone->assign_shapes(&_shape, 1);
-		AlifeZone->m_owner_id = u32(-1); // m_owner_id
-		AlifeZone->m_space_restrictor_type = RestrictionSpace::eRestrictorTypeNone;
-	
+		AlifeZone->m_owner_id					= u32(-1); // m_owner_id
+		AlifeZone->m_space_restrictor_type		= RestrictionSpace::eRestrictorTypeNone;
+
 		NET_Packet					P;
 		object->Spawn_Write(P, TRUE);
 		Level().Send(P, net_flags(TRUE));
 		F_entity_Destroy(object);
-	
+
 		Msg("artefact [%s] spawned a zone [%s] at [%f]", *m_af->cName(), zone_sect, Device.fTimeGlobal);
 	}
 

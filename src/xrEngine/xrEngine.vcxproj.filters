@@ -244,18 +244,12 @@
     <Filter Include="editor\ide">
       <UniqueIdentifier>{1f893d38-befe-499f-8984-cc2229b1a6de}</UniqueIdentifier>
     </Filter>
-    <Filter Include="OpenAutomate">
-      <UniqueIdentifier>{1ee175c4-f591-43d1-ad12-29710dd997c0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="My Amplifier Results">
       <UniqueIdentifier>{5f7850ed-cc7a-464f-8af7-3173499416e0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="_d3d_extensions.h">
-      <Filter>General</Filter>
-    </ClInclude>
-    <ClInclude Include="CopyProtection.h">
       <Filter>General</Filter>
     </ClInclude>
     <ClInclude Include="dedicated_server_only.h">
@@ -612,9 +606,6 @@
     <ClInclude Include="ide.hpp">
       <Filter>editor\ide</Filter>
     </ClInclude>
-    <ClInclude Include="xrSASH.h">
-      <Filter>OpenAutomate</Filter>
-    </ClInclude>
     <ClInclude Include="ShadersExternalData.h">
       <Filter>Game API</Filter>
     </ClInclude>
@@ -959,11 +950,11 @@
     <ClCompile Include="editor_environment_detail.cpp">
       <Filter>editor\environment\detail</Filter>
     </ClCompile>
-    <ClCompile Include="xrSASH.cpp">
-      <Filter>OpenAutomate</Filter>
-    </ClCompile>
     <ClCompile Include="device_imgui.cpp">
       <Filter>RenderRef\Execution &amp; 3D\Device</Filter>
+    </ClCompile>
+    <ClCompile Include="Application.cpp">
+      <Filter>General</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

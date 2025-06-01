@@ -607,9 +607,7 @@ void CConsole::ExecuteCommand( LPCSTR cmd_str, bool record_cmd )
 
 void CConsole::Show()
 {
-	SECUROM_MARKER_HIGH_SECURITY_ON(11)
-
-	if ( bVisible )
+ 	if ( bVisible )
 	{
 		return;
 	}
@@ -626,8 +624,6 @@ void CConsole::Show()
 	m_editor->IR_Capture();
 	Device.seqRender.Add( this, 1 );
 	Device.seqFrame.Add( this );
-
-	SECUROM_MARKER_HIGH_SECURITY_OFF(11)
 }
 
 extern CInput* pInput;

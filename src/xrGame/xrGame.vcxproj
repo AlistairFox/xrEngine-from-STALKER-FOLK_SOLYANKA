@@ -2053,6 +2053,7 @@
     <ClInclude Include="xr_level_controller.h" />
     <ClInclude Include="xr_time.h" />
     <ClInclude Include="ZoneCampfire.h" />
+    <ClInclude Include="ZoneTeleport.h" />
     <ClInclude Include="ZoneVisual.h" />
     <ClInclude Include="zone_effector.h" />
     <ClInclude Include="ZudaArtifact.h" />
@@ -6563,6 +6564,7 @@
     <ClCompile Include="xr_level_controller.cpp" />
     <ClCompile Include="xr_time.cpp" />
     <ClCompile Include="ZoneCampfire.cpp" />
+    <ClCompile Include="ZoneTeleport.cpp" />
     <ClCompile Include="ZoneVisual.cpp" />
     <ClCompile Include="zone_effector.cpp" />
     <ClCompile Include="ZudaArtifact.cpp" />

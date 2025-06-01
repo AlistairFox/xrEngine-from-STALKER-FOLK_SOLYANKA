@@ -27,7 +27,7 @@ extern	void msCreate		(LPCSTR name);
 
 extern "C" void xrBind_PSGP(xrDispatchTable* T, processor_info* ID);
 
-PROTECT_API void CEngine::Initialize	(void)
+void CEngine::Initialize	(void)
 {
 	// Bind PSGP
  
