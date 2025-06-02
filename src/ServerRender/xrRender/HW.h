@@ -165,7 +165,7 @@ class  CHW
 			virtual	void	OnAppActivate();
 			virtual void	OnAppDeactivate();
 		#endif	//	USE_DX10
-
+			virtual void	updateWindowProps_Position(HWND hw, u32 X, u32 Y, u32 SizeX, u32 SizeY);
 		private:
 			bool					m_move_window;
 };

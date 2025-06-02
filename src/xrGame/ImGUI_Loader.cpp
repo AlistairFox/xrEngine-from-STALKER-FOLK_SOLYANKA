@@ -11,9 +11,6 @@ ENGINE_API extern EditorStage imgui_stage;
 
 bool IsEditorActive()
 {
-    if (g_current_renderer != 4)
-        return false;
-
     if (g_dedicated_server)
         return false;
 
@@ -34,7 +31,7 @@ bool show_checkent = false;
 
 void ShowEditor()
 { 
-    if (g_current_renderer != 4)
+    if (g_dedicated_server)
         return;
     
     ImguiWnd wnd("Main");
@@ -77,9 +74,6 @@ void ShowEditor()
 bool isRControl = false, isLControl = false, isRShift = false, isLShift = false;
 bool Editor_KeyPress(int key)
 {
-     if (g_current_renderer != 4)
-        return false;
- 
     if (g_dedicated_server)
         return false;
 
@@ -198,10 +192,6 @@ bool Editor_KeyPress(int key)
 
 bool Editor_KeyRelease(int key)
 {
-    if (g_current_renderer != 4)
-        return false;
-
-
     if (g_dedicated_server)
         return false;
 
@@ -254,7 +244,7 @@ bool Editor_KeyRelease(int key)
 
 bool Editor_KeyHold(int key)
 {
-    if (g_current_renderer != 4)
+    if (g_dedicated_server)
         return false;
 
     if (!IsEditorActive())
@@ -264,7 +254,7 @@ bool Editor_KeyHold(int key)
 
 bool Editor_MouseMove(int dx, int dy)
 {
-    if (g_current_renderer != 4)
+    if (g_dedicated_server)
         return false;
 
     if (!IsEditorActive())
@@ -282,7 +272,7 @@ static int s_direction{};
 
 bool Editor_MouseWheel(int direction)
 {
-    if (g_current_renderer != 4)
+    if (g_dedicated_server)
         return false;
 
     if (!IsEditorActive())
@@ -295,7 +285,7 @@ bool Editor_MouseWheel(int direction)
 
 void Editor_OnFrame()
 {
-    if (g_current_renderer != 4)
+    if (g_dedicated_server)
         return;
 
     if (s_direction)

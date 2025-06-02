@@ -443,6 +443,23 @@ void CRenderDevice::on_idle()
 	Statistic->RenderTOTAL_Real.FrameEnd();
 	Statistic->RenderTOTAL.accum = Statistic->RenderTOTAL_Real.accum;
 
+	if (g_dedicated_server)
+		g_pGamePersistent->Statistics(nullptr);
+
+	if (Device.fTimeDelta > EPS_S)
+	{
+		float fps = 1.f / Device.fTimeDelta;
+		float fOne = 0.3f;
+		float fInv = 1.f - fOne;
+		Statistic->fFPS = fInv * Statistic->fFPS + fOne * fps;
+
+		if (Statistic->RenderTOTAL.result > EPS_S)
+		{
+			Statistic->fTPS = fInv * Statistic->fTPS + fOne * float(Device.m_pRender->GetCacheStatPolys()) / (Statistic->RenderTOTAL.result * 1000.f);
+			Statistic->fRFPS = fInv * Statistic->fRFPS + fOne * 1000.f / Statistic->RenderTOTAL.result;
+		}
+	}
+
 	Render->viewPortsThisFrame.clear();
 	if (g_pGameLevel) // reapply camera params as for the main vp, for next frame stuff(we dont want to use last vp camera in next frame possible usages)
 		g_pGameLevel->ApplyCamera();
@@ -471,31 +488,11 @@ void CRenderDevice::on_idle()
 #ifdef DEDICATED_SERVER
 	u32 FrameEndTime = TimerGlobal.GetElapsed_ms();
 	u32 FrameTime = (FrameEndTime - FrameStartTime);
-	/*
-	string1024 FPS_str = "";
-	string64 tmp;
-	xr_strcat(FPS_str, "FPS Real - ");
-	if (dwTimeDelta != 0)
-		xr_strcat(FPS_str, ltoa(1000/dwTimeDelta, tmp, 10));
-	else
-		xr_strcat(FPS_str, "~~~");
-
-	xr_strcat(FPS_str, ", FPS Proj - ");
-	if (FrameTime != 0)
-		xr_strcat(FPS_str, ltoa(1000/FrameTime, tmp, 10));
-	else
-		xr_strcat(FPS_str, "~~~");
-
-*/
 	u32 DSUpdateDelta = 1000 / g_svDedicateServerUpdateReate;
 	if (FrameTime < DSUpdateDelta)
 	{
 		Sleep(DSUpdateDelta - FrameTime);
-		//		Msg("sleep for %d", DSUpdateDelta - FrameTime);
-		//		xr_strcat(FPS_str, ", sleeped for ");
-		//		xr_strcat(FPS_str, ltoa(DSUpdateDelta - FrameTime, tmp, 10));
 	}
-	//	Msg(FPS_str);
 #endif // #ifdef DEDICATED_SERVER
 
 	if (!b_is_Active)

@@ -66,7 +66,7 @@ public:
 	virtual void	SwitchViewPortRTZB(ViewPort vp);
 	virtual void	SetCacheXform(Fmatrix &mView, Fmatrix &mProject);
 	virtual void	OnAssetsChanged();
-
+	virtual void	UpdateWindow(HWND hWnd, u32 X, u32 Y, u32 SizeX, u32 SizeY);
 public:
 	CResourceManager*	Resources;
 	ref_shader			m_WireShader;

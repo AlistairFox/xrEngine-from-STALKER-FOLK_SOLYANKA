@@ -522,52 +522,6 @@ public:
 ENGINE_API BOOL r2_sun_static = TRUE;
 ENGINE_API BOOL r2_advanced_pp = FALSE;	//	advanced post process and effects
 
-u32	renderer_value	= 3;
-//void fill_render_mode_list();
-//void free_render_mode_list();
-
-class CCC_r2 : public CCC_Token
-{
-	typedef CCC_Token inherited;
-public:
-	CCC_r2(LPCSTR N) :inherited(N, &renderer_value, NULL){renderer_value=3;};
-	virtual			~CCC_r2	()
-	{
-		//free_render_mode_list();
-	}
-	virtual void	Execute	(LPCSTR args)
-	{
-		//fill_render_mode_list	();
-		//	vid_quality_token must be already created!
-		tokens					= vid_quality_token;
-
-		inherited::Execute		(args);
-		//	0 - r1
-		//	1..3 - r2
-		//	4 - r3
-		psDeviceFlags.set		(rsR2, ((renderer_value>0) && renderer_value<4) );
- 		psDeviceFlags.set		(rsR4, (renderer_value>=4) );
-
-		r2_sun_static	= (renderer_value<2);
-		r2_advanced_pp  = (renderer_value>=3);
-	}
-
-	virtual void	Save	(IWriter *F)	
-	{
-		//fill_render_mode_list	();
-		tokens					= vid_quality_token;
-		if( !strstr(Core.Params, "-r2") )
-		{
-			inherited::Save(F);
-		}
-	}
-	virtual xr_token* GetToken()
-	{
-		tokens					= vid_quality_token;
-		return					inherited::GetToken();
-	}
-
-};
 #ifndef DEDICATED_SERVER
 class CCC_soundDevice : public CCC_Token
 {
@@ -714,8 +668,8 @@ public:
 
 		vector_data.set(v);
 
-		//Msg("Update Window: PosX: %d", v.x, v.y, v.z, v.w);
-		//Device.m_pRender->UpdateWindow(Device.m_hWnd, v.x, v.y, v.z, v.w);
+		Msg("Update Window: PosX: %d", v.x, v.y, v.z, v.w);
+		Device.m_pRender->UpdateWindow(Device.m_hWnd, v.x, v.y, v.z, v.w);
 	}
 
 	virtual void	Status(TStatus& S)
@@ -950,8 +904,6 @@ void CCC_Register()
 	// Camera
 	CMD2(CCC_Float,		"cam_inert",			&psCamInert);
 	CMD2(CCC_Float,		"cam_slide_inert",		&psCamSlideInert);
-
-	CMD1(CCC_r2,		"renderer"				);
 
 #ifndef DEDICATED_SERVER
 	CMD1(CCC_soundDevice, "snd_device"			);

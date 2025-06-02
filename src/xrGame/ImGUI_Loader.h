@@ -1,8 +1,5 @@
 #pragma once
 
-
-extern int g_current_renderer;
-
 void ShowEditor();
 bool IsEditor();
 void Editor_OnFrame();

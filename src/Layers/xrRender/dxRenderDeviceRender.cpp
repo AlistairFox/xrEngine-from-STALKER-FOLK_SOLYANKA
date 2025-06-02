@@ -266,3 +266,10 @@ void  dxRenderDeviceRender::OnAssetsChanged()
 	Resources->m_textures_description.UnLoad();
 	Resources->m_textures_description.Load();
 }
+
+void dxRenderDeviceRender::UpdateWindow(HWND hWnd, u32 X, u32 Y, u32 SizeX, u32 SizeY)
+{
+
+	HW.updateWindowProps_Position(hWnd, X, Y, SizeX, SizeY);
+
+}

@@ -74,28 +74,6 @@ void CHW::CreateD3D()
 	m_pAdapter = 0;
 	m_bUsePerfhud = false;
 
-#ifndef	MASTER_GOLD
-	// Look for 'NVIDIA NVPerfHUD' adapter
-	// If it is present, override default settings
-	UINT i = 0;
-	while (pFactory->EnumAdapters(i, &m_pAdapter) != DXGI_ERROR_NOT_FOUND)
-	{
-		DXGI_ADAPTER_DESC desc;
-		m_pAdapter->GetDesc(&desc);
-		if (!wcscmp(desc.Description, L"NVIDIA PerfHUD"))
-		{
-			m_bUsePerfhud = true;
-			break;
-		}
-		else
-		{
-			m_pAdapter->Release();
-			m_pAdapter = 0;
-		}
-		++i;
-	}
-#endif	//	MASTER_GOLD
-
 	if (!m_pAdapter)
 		pFactory->EnumAdapters(0, &m_pAdapter);
 
@@ -131,24 +109,6 @@ void CHW::CreateDevice(HWND m_hWnd, bool move_window)
 	if (m_bUsePerfhud)
 		m_DriverType = D3D_DRIVER_TYPE_REFERENCE;
 
-	//	For DirectX 10 adapter is already created in create D3D.
-	/*
-	//. #ifdef DEBUG
-	// Look for 'NVIDIA NVPerfHUD' adapter
-	// If it is present, override default settings
-	for (UINT Adapter=0;Adapter<pD3D->GetAdapterCount();Adapter++)	{
-		D3DADAPTER_IDENTIFIER9 Identifier;
-		HRESULT Res=pD3D->GetAdapterIdentifier(Adapter,0,&Identifier);
-		if (SUCCEEDED(Res) && (xr_strcmp(Identifier.Description,"NVIDIA PerfHUD")==0))
-		{
-			DevAdapter	=Adapter;
-			DevT		=D3DDEVTYPE_REF;
-			break;
-		}
-	}
-	//. #endif
-	*/
-
 	// Display the name of video board
 	DXGI_ADAPTER_DESC Desc;
 	R_CHK(m_pAdapter->GetDesc(&Desc));
@@ -177,15 +137,15 @@ void CHW::CreateDevice(HWND m_hWnd, bool move_window)
 	sd.OutputWindow = m_hWnd;
 	sd.Windowed = bWindowed;
 
-	//if (bWindowed)
-	//{
-	//	sd.BufferDesc.RefreshRate.Numerator = Device.GetMonitorRefresh();
-	//	sd.BufferDesc.RefreshRate.Denominator = 1;
-	//}
-	//else
-	//{
+	if (bWindowed)
+	{
+		sd.BufferDesc.RefreshRate.Numerator = 60;
+		sd.BufferDesc.RefreshRate.Denominator = 1;
+	}
+	else
+	{
 		sd.BufferDesc.RefreshRate = selectRefresh(sd.BufferDesc.Width, sd.BufferDesc.Height, sd.BufferDesc.Format);
-	//}
+	}
 
 	//	Additional set up
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
@@ -358,12 +318,12 @@ void CHW::Reset(HWND hwnd)
 
 	selectResolution(desc.Width, desc.Height, bWindowed);
 
-	//if (bWindowed)
-	//{
-	//	desc.RefreshRate.Numerator = Device.GetMonitorRefresh();
-	//	desc.RefreshRate.Denominator = 1;
-	//}
-	//else
+	if (bWindowed)
+	{
+		desc.RefreshRate.Numerator = 60;
+		desc.RefreshRate.Denominator = 1;
+	}
+	else
 		desc.RefreshRate = selectRefresh(desc.Width, desc.Height, desc.Format);
 
 	CHK_DX(m_pSwapChain->ResizeTarget(&desc));
@@ -549,6 +509,44 @@ DXGI_RATIONAL CHW::selectRefresh(u32 dwWidth, u32 dwHeight, DXGI_FORMAT fmt)
 	return res;
 }
 
+void CHW::updateWindowProps_Position(HWND m_hWnd, u32 X, u32 Y, u32 SizeX, u32 SizeY)
+{
+	if (psDeviceFlags.is(rsFullscreen))
+		return;
+
+	u32		dwWindowStyle = 0;
+	// Set window properties depending on what mode were in.
+
+	if (m_move_window)
+	{
+		Msg("Update Window Pos : X: %u, Y: %u", X, Y);
+
+		SetWindowLong(m_hWnd, GWL_STYLE, dwWindowStyle = (WS_BORDER | WS_DLGFRAME | WS_VISIBLE | WS_SYSMENU | WS_MINIMIZEBOX));
+
+		RECT			m_rcWindowBounds;
+
+		SetRect(&m_rcWindowBounds,
+			X,
+			Y,
+			X + m_ChainDesc.BufferDesc.Width,
+			Y + m_ChainDesc.BufferDesc.Height);
+
+		AdjustWindowRect(&m_rcWindowBounds, dwWindowStyle, FALSE);
+
+		SetWindowPos(m_hWnd,
+			HWND_NOTOPMOST,
+			m_rcWindowBounds.left,
+			m_rcWindowBounds.top,
+			(m_rcWindowBounds.right - m_rcWindowBounds.left),
+			(m_rcWindowBounds.bottom - m_rcWindowBounds.top),
+			SWP_SHOWWINDOW | SWP_NOCOPYBITS | SWP_DRAWFRAME);
+	}
+
+	ShowCursor(FALSE);
+	SetForegroundWindow(m_hWnd);
+
+}
+
 void CHW::updateWindowProps(HWND m_hWnd)
 {
 	//	BOOL	bWindowed				= strstr(Core.Params,"-dedicated") ? TRUE : !psDeviceFlags.is	(rsFullscreen);
@@ -558,31 +556,67 @@ void CHW::updateWindowProps(HWND m_hWnd)
 	// Set window properties depending on what mode were in.
 	if (bWindowed) {
 		if (m_move_window) {
-			dwWindowStyle = WS_POPUP | WS_VISIBLE; 
+			if (strstr(Core.Params, "-no_dialog_header"))
+				SetWindowLong(m_hWnd, GWL_STYLE, dwWindowStyle = (WS_BORDER | WS_VISIBLE));
+			else
+				SetWindowLong(m_hWnd, GWL_STYLE, dwWindowStyle = (WS_BORDER | WS_DLGFRAME | WS_VISIBLE | WS_SYSMENU | WS_MINIMIZEBOX));
+			// When moving from fullscreen to windowed mode, it is important to
+			// adjust the window size after recreating the device rather than
+			// beforehand to ensure that you get the window size you want.  For
+			// example, when switching from 640x480 fullscreen to windowed with
+			// a 1000x600 window on a 1024x768 desktop, it is impossible to set
+			// the window size to 1000x600 until after the display mode has
+			// changed to 1024x768, because windows cannot be larger than the
+			// desktop.
 
-			DWORD dwExStyle = WS_EX_LAYERED;
+			RECT			m_rcWindowBounds;
+			BOOL			bCenter = FALSE;
+			BOOL			bRight = FALSE;
 
-			SetWindowLong(m_hWnd, GWL_STYLE, dwWindowStyle);
-			SetWindowLong(m_hWnd, GWL_EXSTYLE, dwExStyle);
+			if (strstr(Core.Params, "-center_screen"))	bCenter = TRUE;
+			if (strstr(Core.Params, "-right_screen")) bRight = TRUE;
 
-			RECT DesktopRect;
-			SystemParametersInfo(SPI_GETWORKAREA, 0, &DesktopRect, 0);
+			if (bCenter) {
+				RECT				DesktopRect;
 
-			RECT WindowRect;
-			SetRect(&WindowRect,
-				DesktopRect.left,
-				DesktopRect.top,
-				DesktopRect.right,
-				DesktopRect.bottom);
+				GetClientRect(GetDesktopWindow(), &DesktopRect);
 
-			AdjustWindowRect(&WindowRect, dwWindowStyle, FALSE);
+				SetRect(&m_rcWindowBounds,
+					(DesktopRect.right - m_ChainDesc.BufferDesc.Width) / 2,
+					(DesktopRect.bottom - m_ChainDesc.BufferDesc.Height) / 2,
+					(DesktopRect.right + m_ChainDesc.BufferDesc.Width) / 2,
+					(DesktopRect.bottom + m_ChainDesc.BufferDesc.Height) / 2);
+			}
+			else
+				if (bRight)
+				{
+					RECT				DesktopRect;
+
+					GetClientRect(GetDesktopWindow(), &DesktopRect);
+
+					SetRect(&m_rcWindowBounds,
+						1024,
+						0,
+						m_ChainDesc.BufferDesc.Width + 1024,
+						m_ChainDesc.BufferDesc.Height);
+				}
+				else
+				{
+					SetRect(&m_rcWindowBounds,
+						0,
+						0,
+						m_ChainDesc.BufferDesc.Width,
+						m_ChainDesc.BufferDesc.Height);
+				};
+
+			AdjustWindowRect(&m_rcWindowBounds, dwWindowStyle, FALSE);
 
 			SetWindowPos(m_hWnd,
 				HWND_NOTOPMOST,
-				WindowRect.left,
-				WindowRect.top,
-				(WindowRect.right - WindowRect.left),
-				(WindowRect.bottom - WindowRect.top),
+				m_rcWindowBounds.left,
+				m_rcWindowBounds.top,
+				(m_rcWindowBounds.right - m_rcWindowBounds.left),
+				(m_rcWindowBounds.bottom - m_rcWindowBounds.top),
 				SWP_SHOWWINDOW | SWP_NOCOPYBITS | SWP_DRAWFRAME);
 		}
 	}

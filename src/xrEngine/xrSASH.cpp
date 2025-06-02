@@ -351,7 +351,6 @@ void xrSASH::GetCurrentOptions()
 	Msg("SASH:: GetCurrentOptions.");
 	TryInitEngine();
 
-	GetOption("renderer");
 	GetOption("vid_mode");
 	GetOption("rs_fullscreen");
 

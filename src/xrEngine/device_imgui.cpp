@@ -13,8 +13,6 @@ extern ENGINE_API EditorStage imgui_stage = EditorStage::None;
 static INT64 g_Time = 0;
 static INT64 g_TicksPerSecond = 0;
 
-extern int g_current_renderer;
-
 #include "backends\imgui_impl_dx11.h"
 #include "backends\imgui_impl_dx9.h"
 #include "backends\imgui_impl_win32.h"
@@ -27,7 +25,7 @@ extern int g_current_renderer;
 
 void ImGui_NewFrame()
 {
-	if (g_current_renderer != 4)
+	if (g_dedicated_server)
 		return;
 
 	ImGuiIO& io = ImGui::GetIO();
@@ -61,7 +59,7 @@ void ImGui_NewFrame()
  
 void ImGui_EndFrame()
 {
-	if (g_current_renderer != 4)
+	if (g_dedicated_server)
 		return;
 
 	ImGui::EndFrame();
@@ -69,7 +67,7 @@ void ImGui_EndFrame()
 
 void ImGUI_DeviceCreate()
 {
-	if (g_current_renderer != 4)
+	if (g_dedicated_server)
 		return;
 
 	string_path path;
@@ -80,7 +78,7 @@ void ImGUI_DeviceCreate()
 
 void ImGUI_DeviceDestroy()
 {
-	if (g_current_renderer != 4)
+	if (g_dedicated_server)
 		return;
 
 	xr_free(ImGui::GetIO().IniFilename);
@@ -88,7 +86,7 @@ void ImGUI_DeviceDestroy()
 
 void ImGUI_OnRender()
 {
-	if (g_current_renderer != 4)
+	if (g_dedicated_server)
 		return;
 
 	extern BOOL g_appLoaded;

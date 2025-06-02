@@ -55,6 +55,8 @@ public:
 	virtual void	ClearTarget() = 0;
 	virtual void	SetCacheXform(Fmatrix &mView, Fmatrix &mProject) = 0;
 	virtual void	OnAssetsChanged() = 0;
+
+	virtual void	UpdateWindow(HWND hWnd, u32 X, u32 Y, u32 SizeX, u32 SizeY) = 0;
 };
 
 #endif	//	RenderDeviceRender_included
