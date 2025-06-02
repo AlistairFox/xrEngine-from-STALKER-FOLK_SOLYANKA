@@ -12,10 +12,6 @@
 
 #include "dxRenderDeviceRender.h"
 
-
-#pragma warning(disable:4996)
-#pragma warning(disable:4995)
-
 #define		PRIORITY_HIGH	12
 #define		PRIORITY_NORMAL	8
 #define		PRIORITY_LOW	4

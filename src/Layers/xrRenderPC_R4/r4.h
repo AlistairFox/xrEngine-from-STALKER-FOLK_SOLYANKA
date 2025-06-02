@@ -9,7 +9,7 @@
 #include "r4_rendertarget.h"
 
 #include "../xrRender/hom.h"
-#include "details/detailmanager.h"
+#include "../xrRender/detailmanager.h"
 #include "../xrRender/modelpool.h"
 #include "../xrRender/wallmarksengine.h"
 
@@ -51,8 +51,7 @@ public:
 	};
 
 public:
-	struct		_options	
-	{
+	struct		_options	{
 		u32		bug					: 1;
 
 		u32		ssao_blur_on		: 1;
@@ -61,6 +60,7 @@ public:
 		u32		ssao_hbao			: 1;
 		u32		ssao_hdao			: 1;
 		u32		ssao_ultra			: 1;
+		u32		hbao_plus : 1;
 		u32		hbao_vectorized		: 1;
 
 		u32		smapsize			: 16;
@@ -81,17 +81,18 @@ public:
 
 		u32		nullrt				: 1;
 
+		u32 no_ram_textures : 1; // don't keep textures in RAM
+
 		u32		distortion			: 1;
 		u32		distortion_enabled	: 1;
 		u32		mblur				: 1;
+		u32		pseudo_pbr			: 1;
 
 		u32		sunfilter			: 1;
-		u32		sunstatic			: 1;
 		u32		sjitter				: 1;
 		u32		noshadows			: 1;
 		u32		Tshadows			: 1;						// transluent shadows
 		u32		disasm				: 1;
-		u32		advancedpp			: 1;	//	advanced post process (DOF, SSAO, volumetrics, etc.)
 		u32		volumetricfog		: 1;
 
       u32		dx10_msaa			: 1;	//	DX10.0 path
@@ -110,6 +111,13 @@ public:
 		u32		forcegloss			: 1;
 		u32		forceskinw			: 1;
 		float	forcegloss_v		;
+		// Ascii - Screen Space Shaders
+		u32		ssfx_branches		: 1;
+		u32		ssfx_blood			: 1;
+		u32		ssfx_rain			: 1;
+		u32		ssfx_hud_raindrops	: 1;
+		u32		ssfx_ssr			: 1;
+		u32		ssfx_volumetric		: 1;
 	}			o;
 	struct		_stats		{
 		u32		l_total,	l_visible;
@@ -119,6 +127,7 @@ public:
 		u32		ic_total,	ic_culled;
 	}			stats;
 public:
+	bool is_sun();
 	// Sector detection and visibility
 	CSector*													pLastSector;
 	Fvector														vLastCameraPos;
@@ -151,7 +160,6 @@ public:
 	xr_vector<light*>											Lights_LastFrame;
 	SMAP_Allocator												LP_smap_pool;
 	light_Package												LP_normal;
-	light_Package												LP_pending;
 
 	xr_vector<Fbox3,render_alloc<Fbox3> >						main_coarse_structure;
 
@@ -160,21 +168,23 @@ public:
 	float														o_hemi			;
 	float														o_hemi_cube[CROS_impl::NUM_FACES]	;
 	float														o_sun			;
-	ID3DQuery*													q_sync_point[CHWCaps::MAX_GPUS];
-	u32															q_sync_count	;
+	//ID3DQuery*													q_sync_point[CHWCaps::MAX_GPUS];
+	//u32															q_sync_count	;
 
 	bool														m_bMakeAsyncSS;
 	bool														m_bFirstFrameAfterReset;	// Determines weather the frame is the first after resetting device.
-	xr_vector<sun::cascade>										m_sun_cascades;
+	void init_cascades();
+
+	xr_vector<sun::cascade> m_sun_cascades;
 
 private:
 	// Loading / Unloading
-	void							LoadBuffers					(IReader	*fs,	BOOL	_alternative);
+	void							LoadBuffers					(IReader* fs, BOOL	_alternative);
 	void							LoadVisuals					(IReader	*fs);
 	void							LoadLights					(IReader	*fs);
 	void							LoadPortals					(IReader	*fs);
 	void							LoadSectors					(IReader	*fs);
-	void							LoadSWIs					(IReader	*fs);
+	void							LoadSWIs					(IReader* fs);
 	void							Load3DFluid					();
 
 	BOOL							add_Dynamic					(dxRender_Visual*pVisual, u32 planes);		// normal processing
@@ -196,7 +206,6 @@ public:
 	void							render_rain					();
 
 	void							render_sun_cascade			(u32 cascade_ind);
-	void							init_cacades				();
 	void							render_sun_cascades			();
 
 public:
@@ -216,6 +225,7 @@ public:
 	IC u32							occq_begin					(u32&	ID		)	{ return HWOCC.occq_begin	(ID);	}
 	IC void							occq_end					(u32&	ID		)	{ HWOCC.occq_end	(ID);			}
 	IC R_occlusion::occq_result		occq_get					(u32&	ID		)	{ return HWOCC.occq_get		(ID);	}
+	IC void occq_free(u32 ID) { HWOCC.occq_free(ID); }
 
 	ICF void						apply_object				(IRenderable*	O)
 	{
@@ -253,7 +263,6 @@ public:
 	// feature level
 	virtual	GenerationLevel			get_generation			()	{ return IRender_interface::GENERATION_R2; }
 
-	virtual bool					is_sun_static			()	{ return o.sunstatic;}
 	virtual DWORD					get_dx_level			()	{ return HW.FeatureLevel >= D3D_FEATURE_LEVEL_10_1?0x000A0001:0x000A0000; }
 
 	// Loading / Unloading
@@ -274,9 +283,6 @@ public:
 		LPCSTR                          pTarget,
 		DWORD                           Flags,
 		void*&							result);
-
-
-	virtual	CRender::SurfaceParams			getSurface(const char* nameTexture) override;
 
 	// Information
 	virtual void					Statistics					(CGameFont* F);
@@ -341,10 +347,18 @@ public:
 	virtual void					ScreenshotAsyncEnd			(CMemoryWriter& memory_writer);
 	virtual void		_BCL		OnFrame						();
 
+	// [FFT++]
+	virtual void					BeforeWorldRender(); //--#SM+#-- +SecondVP+       -
+	virtual void					AfterWorldRender();  //--#SM+#-- +SecondVP+       UI
+
+
 	// Render mode
 	virtual void					rmNear						();
 	virtual void					rmFar						();
 	virtual void					rmNormal					();
+
+	void							PdaRenderToTarget();
+	virtual							u32 active_phase() { return phase; };
 
 	// Constructor/destructor/loader
 	CRender							();

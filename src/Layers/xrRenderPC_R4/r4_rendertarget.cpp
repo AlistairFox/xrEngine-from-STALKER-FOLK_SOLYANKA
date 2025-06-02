@@ -10,25 +10,35 @@
 #include "blender_bloom_build.h"
 #include "blender_luminance.h"
 #include "blender_ssao.h"
-#include "blender_gasmask_drops.h"
-#include "blender_gasmask_dudv.h"
 #include "dx11MinMaxSMBlender.h"
 #include "dx11HDAOCSBlender.h"
 #include "../xrRenderDX10/msaa/dx10MSAABlender.h"
 #include "../xrRenderDX10/DX10 Rain/dx10RainBlender.h"
-
+#include "blender_hud_blood.h"
+#include "blender_hud_stamina.h"
+#include "blender_hud_bleeding.h"
+#include "blender_hud_satiety.h"
+#include "blender_hud_thirst.h"
+#include "blender_lens_flares.h"
+#include "blender_ss_sunshafts.h"
+#include "blender_cut.h"
+#include "blender_blur.h"
 
 #include "../xrRender/dxRenderDeviceRender.h"
 
 #include <D3DX10Tex.h>
+#include "blender_gasmask_drops.h"
+#include "blender_gasmask_dudv.h"
+
+extern ENGINE_API float psSVPImageSizeK;
 
 void	CRenderTarget::u_setrt			(const ref_rt& _1, const ref_rt& _2, const ref_rt& _3, ID3DDepthStencilView* zb)
 {
 	VERIFY									(_1||zb);
 	if (_1)
 	{
-		dwWidth									= _1->dwWidth;
-		dwHeight								= _1->dwHeight;
+		dwWidth = _1->RTWidth();
+		dwHeight = _1->RTHeight();
 	}
 	else
 	{
@@ -60,13 +70,22 @@ void	CRenderTarget::u_setrt			(const ref_rt& _1, const ref_rt& _2, const ref_rt&
 //	RImplementation.rmNormal				();
 }
 
+D3D_VIEWPORT custom_viewport[1] = { 0, 0, 0, 0, 0.f, 1.f };
+
+void CRenderTarget::set_viewport_size(ID3DDeviceContext* dev, float w, float h)
+{
+	custom_viewport[0].Width = w;
+	custom_viewport[0].Height = h;
+	dev->RSSetViewports(1, custom_viewport);
+}
+
 void	CRenderTarget::u_setrt			(const ref_rt& _1, const ref_rt& _2, ID3DDepthStencilView* zb)
 {
 	VERIFY									(_1||zb);
 	if (_1)
 	{
-		dwWidth									= _1->dwWidth;
-		dwHeight								= _1->dwHeight;
+		dwWidth = _1->RTWidth();
+		dwHeight = _1->RTHeight();
 	}
 	else
 	{
@@ -299,10 +318,11 @@ CRenderTarget::CRenderTarget		()
 	//param_color_add		= color_rgba(0,0,0,			0);
 	param_color_add.set( 0.0f, 0.0f, 0.0f );
 
-	dwAccumulatorClearMark			= 0;
+	needClearAccumulator = true;
 	dxRenderDeviceRender::Instance().Resources->Evict			();
 
 	// Blenders
+	b_cut = xr_new<CBlender_cut>(); //New
 	b_occq					= xr_new<CBlender_light_occq>			();
 	b_accum_mask			= xr_new<CBlender_accum_direct_mask>	();
 	b_accum_direct			= xr_new<CBlender_accum_direct>			();
@@ -318,8 +338,33 @@ CRenderTarget::CRenderTarget		()
 	b_luminance				= xr_new<CBlender_luminance>		();
 	b_combine				= xr_new<CBlender_combine>			();
 	b_ssao					= xr_new<CBlender_SSAO_noMSAA>		();
-	b_gasmask_drops			= xr_new<CBlender_gasmask_drops>	();
- 	b_gasmask_dudv			= xr_new<CBlender_gasmask_dudv>		();
+	b_sunshafts = new CBlender_sunshafts();
+	b_blur = xr_new<CBlender_blur>();
+
+	//HUD BLOOD
+	b_hud_blood = xr_new<CBlender_Hud_Blood>();
+
+	//HUD STAMINA
+	b_hud_power = xr_new<CBlender_Hud_Stamina>();
+
+	//HUD BLEEDING
+	b_hud_bleeding = xr_new<CBlender_Hud_Bleeding>();
+
+	//Hud Satiety
+	b_hud_satiety = xr_new<CBlender_Hud_Satiety>();
+
+	//hud thirst
+	b_hud_thirst = xr_new<CBlender_Hud_Thirst>();
+
+	//SFZ Lens Flares
+	b_lfx = xr_new<CBlender_LFX>();
+
+	// Screen Space Shaders Stuff
+	b_ssfx_ssr = xr_new<CBlender_ssfx_ssr>(); // [Ascii1457] SSS new Phase
+	b_ssfx_volumetric_blur = xr_new<CBlender_ssfx_volumetric_blur>(); // [Ascii1457] SSS new Phase
+
+	b_gasmask_drops = xr_new<CBlender_gasmask_drops>();
+	b_gasmask_dudv = xr_new<CBlender_gasmask_dudv>();
 
 	// HDAO
 	b_hdao_cs               = xr_new<CBlender_CS_HDAO>			();
@@ -363,83 +408,138 @@ CRenderTarget::CRenderTarget		()
 	//	NORMAL
 	{
 		u32		w=Device.dwWidth, h=Device.dwHeight;
-		rt_Position.create			(r2_RT_P,		w,h,D3DFMT_A16B16G16R16F, SampleCount );
+		xr_vector<RtCreationParams> vp_params_main_secondary;
+		vp_params_main_secondary.push_back(RtCreationParams(w, h, MAIN_VIEWPORT));
+		vp_params_main_secondary.push_back(RtCreationParams(Device.m_SecondViewport.screenWidth, Device.m_SecondViewport.screenHeight, SECONDARY_WEAPON_SCOPE));
+
+		rt_Position.create(r2_RT_P, vp_params_main_secondary, DXGI_FORMAT_R16G16B16A16_FLOAT, SRV_RTV, SampleCount);
 
 		if( RImplementation.o.dx10_msaa )
-			rt_MSAADepth.create( r2_RT_MSAAdepth, w, h, D3DFMT_D24S8, SampleCount );
+			rt_MSAADepth.create(r2_RT_MSAAdepth, vp_params_main_secondary, DXGI_FORMAT_D24_UNORM_S8_UINT, SRV_DSV, SampleCount);
 
 		if( !RImplementation.o.dx10_gbuffer_opt )
-			rt_Normal.create			(r2_RT_N,		w,h,D3DFMT_A16B16G16R16F, SampleCount );
+			rt_Normal.create(r2_RT_N, vp_params_main_secondary, DXGI_FORMAT_R16G16B16A16_FLOAT, SRV_RTV, SampleCount);
 
 		// select albedo & accum
-		if (RImplementation.o.mrtmixdepth)	
+		//if (RImplementation.o.mrtmixdepth)	
 		{
 			// NV50
-			rt_Color.create			(r2_RT_albedo,	w,h,D3DFMT_A8R8G8B8		, SampleCount );
-			rt_Accumulator.create	(r2_RT_accum,	w,h,D3DFMT_A16B16G16R16F, SampleCount );
+			rt_Color.create(r2_RT_albedo, vp_params_main_secondary, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, SampleCount);
+			rt_Accumulator.create(r2_RT_accum, vp_params_main_secondary,  DXGI_FORMAT_R16G16B16A16_FLOAT, SRV_RTV, SampleCount);
 		}
-		else		
+		/*else
 		{
 			// can't - mix-depth
 			if (RImplementation.o.fp16_blend) {
 				// NV40
 				if( !RImplementation.o.dx10_gbuffer_opt )
 				{
-					rt_Color.create				(r2_RT_albedo,		w,h,D3DFMT_A16B16G16R16F, SampleCount );	// expand to full
-					rt_Accumulator.create		(r2_RT_accum,		w,h,D3DFMT_A16B16G16R16F, SampleCount );
+					rt_Color.create(r2_RT_albedo, vp_params_main_secondary, D3DFMT_A16B16G16R16F, SampleCount);	// expand to full
+					rt_Accumulator.create(r2_RT_accum, vp_params_main_secondary, D3DFMT_A16B16G16R16F, SampleCount);
 				}
 				else
 				{
-					rt_Color.create				(r2_RT_albedo,		w,h,D3DFMT_A8R8G8B8,       SampleCount );	// expand to full
-					rt_Accumulator.create		(r2_RT_accum,		w,h,D3DFMT_A16B16G16R16F,  SampleCount );
+					rt_Color.create(r2_RT_albedo, vp_params_main_secondary, D3DFMT_A8R8G8B8, SampleCount);	// expand to full
+					rt_Accumulator.create(r2_RT_accum, vp_params_main_secondary, D3DFMT_A16B16G16R16F, SampleCount);
 				}
 			} else {
 				// R4xx, no-fp-blend,-> albedo_wo
 				VERIFY						(RImplementation.o.albedo_wo);
-				rt_Color.create				(r2_RT_albedo,		   w,h,D3DFMT_A8R8G8B8		, SampleCount );	// normal
-				rt_Accumulator.create		(r2_RT_accum,		   w,h,D3DFMT_A16B16G16R16F, SampleCount );
-				rt_Accumulator_temp.create	(r2_RT_accum_temp,	w,h,D3DFMT_A16B16G16R16F, SampleCount );
+				rt_Color.create(r2_RT_albedo, vp_params_main_secondary, D3DFMT_A8R8G8B8, SampleCount);	// normal
+				rt_Accumulator.create(r2_RT_accum, vp_params_main_secondary, D3DFMT_A16B16G16R16F, SampleCount);
+				rt_Accumulator_temp.create(r2_RT_accum_temp, vp_params_main_secondary, D3DFMT_A16B16G16R16F, SampleCount);
 			}
-		}
+		}*/
 
 		// generic(LDR) RTs
-		rt_Generic_0.create		(r2_RT_generic0,w,h,D3DFMT_A8R8G8B8, 1		);
-		rt_Generic_1.create		(r2_RT_generic1,w,h,D3DFMT_A8R8G8B8, 1		);
+		rt_Generic_0.create(r2_RT_generic0, vp_params_main_secondary, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
+		rt_Generic_1.create(r2_RT_generic1, vp_params_main_secondary, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
+		rt_secondVP.create(r2_RT_secondVP, RtCreationParams(Device.m_SecondViewport.screenWidth, Device.m_SecondViewport.screenHeight, MAIN_VIEWPORT), DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1); //--#SM+#-- +SecondVP+
+		rt_ui_pda.create(r2_RT_ui, vp_params_main_secondary, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV);
+
+		// RT Blur
+		rt_blur_h_2.create(r2_RT_blur_h_2, RtCreationParams(Device.dwWidth /2, Device.dwHeight /2, MAIN_VIEWPORT), DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
+		rt_blur_2.create(r2_RT_blur_2, RtCreationParams(Device.dwWidth / 2, Device.dwHeight / 2, MAIN_VIEWPORT), DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
+
+		rt_blur_h_4.create(r2_RT_blur_h_4, RtCreationParams(Device.dwWidth / 4, Device.dwHeight / 4, MAIN_VIEWPORT), DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
+		rt_blur_4.create(r2_RT_blur_4, RtCreationParams(Device.dwWidth / 4, Device.dwHeight / 4, MAIN_VIEWPORT), DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
+
+		rt_blur_h_8.create(r2_RT_blur_h_8, RtCreationParams(Device.dwWidth / 8, Device.dwHeight / 8, MAIN_VIEWPORT), DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
+		rt_blur_8.create(r2_RT_blur_8, RtCreationParams(Device.dwWidth / 8, Device.dwHeight / 8, MAIN_VIEWPORT), DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
+
+		// Screen Space Shaders Stuff
+		rt_ssfx.create(r2_RT_ssfx, vp_params_main_secondary, DXGI_FORMAT_B8G8R8A8_UNORM, SRV_RTV); // Generic RT
+		rt_ssfx_temp.create(r2_RT_ssfx_temp, vp_params_main_secondary, DXGI_FORMAT_B8G8R8A8_UNORM, SRV_RTV); // Temp RT
+		rt_ssfx_temp2.create(r2_RT_ssfx_temp2, vp_params_main_secondary, DXGI_FORMAT_B8G8R8A8_UNORM, SRV_RTV); // Temp RT 8B
+		rt_ssfx_accum.create(r2_RT_ssfx_accum, vp_params_main_secondary, DXGI_FORMAT_R16G16B16A16_FLOAT,SRV_RTV, SampleCount); // Temp RT 16B
+
+		rt_ssfx_hud.create(r2_RT_ssfx_hud, vp_params_main_secondary, DXGI_FORMAT_R8_UNORM, SRV_RTV); // Temp RT 8B
+
+		if (RImplementation.o.dx10_msaa)
+			rt_Generic_temp.create("$user$generic_temp", vp_params_main_secondary, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, SampleCount);
+		else
+			rt_Generic_temp.create("$user$generic_temp", vp_params_main_secondary, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
+
 		if( RImplementation.o.dx10_msaa )
 		{
-			rt_Generic_0_r.create			(r2_RT_generic0_r,w,h,D3DFMT_A8R8G8B8, SampleCount	);
-			rt_Generic_1_r.create			(r2_RT_generic1_r,w,h,D3DFMT_A8R8G8B8, SampleCount		);
-			rt_Generic.create		      (r2_RT_generic,w,h,   D3DFMT_A8R8G8B8, 1		);
+			rt_Generic_0_r.create(r2_RT_generic0_r, vp_params_main_secondary, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, SampleCount);
+			rt_Generic_1_r.create(r2_RT_generic1_r, vp_params_main_secondary, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, SampleCount);
+			rt_Generic.create(r2_RT_generic, vp_params_main_secondary, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
 		}
-		//	Igor: for volumetric lights
-		//rt_Generic_2.create			(r2_RT_generic2,w,h,D3DFMT_A8R8G8B8		);
-		//	temp: for higher quality blends
-		if (RImplementation.o.advancedpp)
-			rt_Generic_2.create			(r2_RT_generic2,w,h,D3DFMT_A16B16G16R16F, SampleCount );
+
+		// RT - KD
+		rt_sunshafts_0.create(r2_RT_sunshafts0, vp_params_main_secondary, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV);
+		rt_sunshafts_1.create(r2_RT_sunshafts1, vp_params_main_secondary, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV);
+
+		rt_Generic.create(r2_RT_generic, vp_params_main_secondary, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
+
+		rt_Generic_2.create			(r2_RT_generic2, vp_params_main_secondary, DXGI_FORMAT_R16G16B16A16_FLOAT, SRV_RTV, SampleCount );
 	}
 
-	// RAINDROPS
-	s_gasmask_drops.create(b_gasmask_drops, "r2\\gasmask_drops");
-	s_gasmask_dudv.create(b_gasmask_dudv, "r2\\gasmask_dudv");
+	s_sunshafts.create(b_sunshafts, "r2\\sunshafts");
 
+	s_blur.create(b_blur, "r2\\blur");
 	// OCCLUSION
 	s_occq.create					(b_occq,		"r2\\occq");
 
+	// Screen Space Shaders Stuff
+	s_ssfx_ssr.create(b_ssfx_ssr, "r2\\ssfx_ssr"); // SSR
+	s_ssfx_volumetric_blur.create(b_ssfx_volumetric_blur, "r2\\ssfx_volumetric_blur"); // Volumetric Blur
+
+	//Hud Blood
+	s_hud_blood.create(b_hud_blood, "r3\\hud_blood");
+
+	//Hud Stamina
+	s_hud_power.create(b_hud_power, "r3\\hud_power");
+
+	//Hud Bleeding
+	s_hud_bleeding.create(b_hud_bleeding, "r3\\hud_bleeding");
+
+	//hud satiety
+	s_hud_satiety.create(b_hud_satiety, "r3\\hud_power");
+
+	//hud thirst
+	s_hud_thirst.create(b_hud_thirst, "r3\\hud_power");
+
+	//SFZ Lens Flares
+	s_lfx.create(b_lfx, "r3\\lfx");
+	g_lfx.create(FVF::F_V, RCache.Vertex.Buffer(), RCache.QuadIB);
+
+	s_gasmask_drops.create(b_gasmask_drops, "r2\\gasmask_drops");
+	s_gasmask_dudv.create(b_gasmask_dudv, "r2\\gasmask_dudv");
+
 	// DIRECT (spot)
-	D3DFORMAT						depth_format	= (D3DFORMAT)RImplementation.o.HW_smap_FORMAT;
+	DXGI_FORMAT						depth_format	= (DXGI_FORMAT)RImplementation.o.HW_smap_FORMAT;
 
 	if (RImplementation.o.HW_smap)
 	{
-		D3DFORMAT	nullrt				= D3DFMT_R5G6B5;
-		if (RImplementation.o.nullrt)	
-			nullrt	= (D3DFORMAT)MAKEFOURCC('N','U','L','L');
 
 		u32	size					=RImplementation.o.smapsize	;
-		rt_smap_depth.create		(r2_RT_smap_depth,			size,size,depth_format	);
+		rt_smap_depth.create(r2_RT_smap_depth, RtCreationParams(size, size, MAIN_VIEWPORT), depth_format, SRV_DSV);
 
 		if (RImplementation.o.dx10_minmax_sm)
 		{
-			rt_smap_depth_minmax.create( r2_RT_smap_depth_minmax,	size/4,size/4, D3DFMT_R32F	);
+			rt_smap_depth_minmax.create(r2_RT_smap_depth_minmax, RtCreationParams(size / 4, size / 4, MAIN_VIEWPORT), DXGI_FORMAT_D32_FLOAT, SRV_DSV);
 			CBlender_createminmax TempBlender;
 			s_create_minmax_sm.create( &TempBlender, "null" );
 		}
@@ -463,48 +563,38 @@ CRenderTarget::CRenderTarget		()
 				s_accum_mask_msaa[i].create		(b_accum_mask_msaa[i],			"r3\\accum_direct");
 			}
 		}
-		if (RImplementation.o.advancedpp)
+
+		s_accum_direct_volumetric.create("accum_volumetric_sun_nomsaa");
+
+		if (RImplementation.o.dx10_minmax_sm)
+			s_accum_direct_volumetric_minmax.create("accum_volumetric_sun_nomsaa_minmax");
+
+		if( RImplementation.o.dx10_msaa )
 		{
-			s_accum_direct_volumetric.create("accum_volumetric_sun_nomsaa");
+			static LPCSTR snames[] = { "accum_volumetric_sun_msaa0",
+				"accum_volumetric_sun_msaa1",
+				"accum_volumetric_sun_msaa2",
+				"accum_volumetric_sun_msaa3",
+				"accum_volumetric_sun_msaa4",
+				"accum_volumetric_sun_msaa5",
+				"accum_volumetric_sun_msaa6",
+				"accum_volumetric_sun_msaa7" };
+			int bound = RImplementation.o.dx10_msaa_samples;
 
-			if (RImplementation.o.dx10_minmax_sm)
-				s_accum_direct_volumetric_minmax.create("accum_volumetric_sun_nomsaa_minmax");
+			if( RImplementation.o.dx10_msaa_opt )
+				bound = 1;
 
-			if( RImplementation.o.dx10_msaa )
+			for( int i = 0; i < bound; ++i )
 			{
-				static LPCSTR snames[] = { "accum_volumetric_sun_msaa0",
-					"accum_volumetric_sun_msaa1",
-					"accum_volumetric_sun_msaa2",
-					"accum_volumetric_sun_msaa3",
-					"accum_volumetric_sun_msaa4",
-					"accum_volumetric_sun_msaa5",
-					"accum_volumetric_sun_msaa6",
-					"accum_volumetric_sun_msaa7" };
-				int bound = RImplementation.o.dx10_msaa_samples;
-
-				if( RImplementation.o.dx10_msaa_opt )
-					bound = 1;
-
-				for( int i = 0; i < bound; ++i )
-				{
-					//s_accum_direct_volumetric_msaa[i].create		(b_accum_direct_volumetric_sun_msaa[i],			"r3\\accum_direct");
-					s_accum_direct_volumetric_msaa[i].create		(snames[i]);
-				}
+				//s_accum_direct_volumetric_msaa[i].create		(b_accum_direct_volumetric_sun_msaa[i],			"r3\\accum_direct");
+				s_accum_direct_volumetric_msaa[i].create		(snames[i]);
 			}
 		}
+
 	}
 	else
 	{
-		//	TODO: DX10: Check if we need old-style SMap
 		VERIFY(!"Use HW SMAPs only!");
-		//u32	size					=RImplementation.o.smapsize	;
-		//rt_smap_surf.create			(r2_RT_smap_surf,			size,size,D3DFMT_R32F);
-		//rt_smap_depth				= NULL;
-		//R_CHK						(HW.pDevice->CreateDepthStencilSurface	(size,size,D3DFMT_D24X8,D3DMULTISAMPLE_NONE,0,TRUE,&rt_smap_ZB,NULL));
-		//s_accum_mask.create			(b_accum_mask,				"r2\\accum_mask");
-		//s_accum_direct.create		(b_accum_direct,			"r2\\accum_direct");
-		//if (RImplementation.o.advancedpp)
-		//	s_accum_direct_volumetric.create("accum_volumetric_sun");
 	}
 
 	//	RAIN
@@ -582,16 +672,20 @@ CRenderTarget::CRenderTarget		()
 				s_accum_reflected_msaa[i].create( b_accum_reflected_msaa[i], "null");
 			}
 		}
-	}	
+	}
+
+	{
+		s_cut.create(b_cut, "r4\\cut");
+	}
 
 	// BLOOM
 	{
-		D3DFORMAT	fmt				= D3DFMT_A8R8G8B8;			//;		// D3DFMT_X8R8G8B8
+		DXGI_FORMAT	fmt				= DXGI_FORMAT_R8G8B8A8_UNORM;			//;		// D3DFMT_X8R8G8B8
 		u32	w=BLOOM_size_X, h=BLOOM_size_Y;
 		u32 fvf_build				= D3DFVF_XYZRHW|D3DFVF_TEX4|D3DFVF_TEXCOORDSIZE2(0)|D3DFVF_TEXCOORDSIZE2(1)|D3DFVF_TEXCOORDSIZE2(2)|D3DFVF_TEXCOORDSIZE2(3);
 		u32 fvf_filter				= (u32)D3DFVF_XYZRHW|D3DFVF_TEX8|D3DFVF_TEXCOORDSIZE4(0)|D3DFVF_TEXCOORDSIZE4(1)|D3DFVF_TEXCOORDSIZE4(2)|D3DFVF_TEXCOORDSIZE4(3)|D3DFVF_TEXCOORDSIZE4(4)|D3DFVF_TEXCOORDSIZE4(5)|D3DFVF_TEXCOORDSIZE4(6)|D3DFVF_TEXCOORDSIZE4(7);
-		rt_Bloom_1.create			(r2_RT_bloom1,	w,h,		fmt);
-		rt_Bloom_2.create			(r2_RT_bloom2,	w,h,		fmt);
+		rt_Bloom_1.create(r2_RT_bloom1, RtCreationParams(w, h, MAIN_VIEWPORT), fmt, SRV_RTV);
+		rt_Bloom_2.create(r2_RT_bloom2, RtCreationParams(w, h, MAIN_VIEWPORT), fmt, SRV_RTV);
 		g_bloom_build.create		(fvf_build,		RCache.Vertex.Buffer(), RCache.QuadIB);
 		g_bloom_filter.create		(fvf_filter,	RCache.Vertex.Buffer(), RCache.QuadIB);
 		s_bloom_dbg_1.create		("effects\\screen_set",		r2_RT_bloom1);
@@ -605,10 +699,16 @@ CRenderTarget::CRenderTarget		()
 		f_bloom_factor				= 0.5f;
 	}
 
+	{
+		rt_temp.create(r2_RT_temp, RtCreationParams(Device.dwWidth, Device.dwHeight, MAIN_VIEWPORT), RtCreationParams(Device.m_SecondViewport.screenWidth, Device.m_SecondViewport.screenHeight, SECONDARY_WEAPON_SCOPE), DXGI_FORMAT::DXGI_FORMAT_R16G16B16A16_FLOAT,SRV_RTV ,SampleCount);
+		rt_temp_without_samples.create(r2_RT_temp_without_samples, RtCreationParams(Device.dwWidth, Device.dwHeight, MAIN_VIEWPORT), RtCreationParams(Device.m_SecondViewport.screenWidth, Device.m_SecondViewport.screenHeight, SECONDARY_WEAPON_SCOPE), DXGI_FORMAT::DXGI_FORMAT_R16G16B16A16_FLOAT, SRV_RTV);
+	}
+
+
 	// TONEMAP
 	{
-		rt_LUM_64.create			(r2_RT_luminance_t64,	64, 64,	D3DFMT_A16B16G16R16F	);
-		rt_LUM_8.create				(r2_RT_luminance_t8,	8,	8,	D3DFMT_A16B16G16R16F	);
+		rt_LUM_64.create(r2_RT_luminance_t64, RtCreationParams(64, 64, MAIN_VIEWPORT), DXGI_FORMAT_R16G16B16A16_FLOAT, SRV_RTV);
+		rt_LUM_8.create(r2_RT_luminance_t8, RtCreationParams(8, 8, MAIN_VIEWPORT), DXGI_FORMAT_R16G16B16A16_FLOAT, SRV_RTV);
 		s_luminance.create			(b_luminance,				"r2\\luminance");
 		f_luminance_adapt			= 0.5f;
 
@@ -619,7 +719,7 @@ CRenderTarget::CRenderTarget		()
 		for (u32 it=0; it<HW.Caps.iGPUNum*2; it++)	{
 			string256					name;
 			xr_sprintf						(name,"%s_%d",	r2_RT_luminance_pool,it	);
-			rt_LUM_pool[it].create		(name,	1,	1,	D3DFMT_R32F				);
+			rt_LUM_pool[it].create(name, RtCreationParams(1, 1, MAIN_VIEWPORT), DXGI_FORMAT_R32_FLOAT, SRV_RTV);
 			//u_setrt						(rt_LUM_pool[it],	0,	0,	0			);
 			//CHK_DX						(HW.pDevice->Clear( 0L, NULL, D3DCLEAR_TARGET,	0x7f7f7f7f,	1.0f, 0L));
 			FLOAT ColorRGBA[4] = { 127.0f/255.0f, 127.0f/255.0f, 127.0f/255.0f, 127.0f/255.0f};
@@ -629,6 +729,11 @@ CRenderTarget::CRenderTarget		()
 	}
 
 	// HBAO
+	if (RImplementation.o.hbao_plus)
+	{
+		s_ssao.create(b_ssao, "r2\\ssao");
+	}
+	else
 	if (RImplementation.o.ssao_opt_data)
 	{
 		u32		w = 0;
@@ -644,8 +749,8 @@ CRenderTarget::CRenderTarget		()
 			h = Device.dwHeight;
 		}
 
-		D3DFORMAT	fmt = HW.Caps.id_vendor==0x10DE?D3DFMT_R32F:D3DFMT_R16F;
-		rt_half_depth.create		(r2_RT_half_depth, w, h, fmt);
+		DXGI_FORMAT	fmt = DXGI_FORMAT_D32_FLOAT;
+		rt_half_depth.create(r2_RT_half_depth, RtCreationParams(w, h, MAIN_VIEWPORT), RtCreationParams(u32(w * psSVPImageSizeK), u32(h * psSVPImageSizeK), SECONDARY_WEAPON_SCOPE), fmt, SRV_DSV);
 
 		s_ssao.create				(b_ssao, "r2\\ssao");
 	}
@@ -668,10 +773,17 @@ CRenderTarget::CRenderTarget		()
 	//}
 
 	// HDAO
+	if (RImplementation.o.hbao_plus)
+	{
+		u32		w = Device.dwWidth, h = Device.dwHeight;
+		rt_ssao_temp.create(r2_RT_ssao_temp, RtCreationParams(w, h, MAIN_VIEWPORT), RtCreationParams(Device.m_SecondViewport.screenWidth, Device.m_SecondViewport.screenHeight, SECONDARY_WEAPON_SCOPE), DXGI_FORMAT_R16_FLOAT, SRV_RTV);
+		rt_HBAO_plus_normal.create(r2_RT_HBAO_plus_normal, RtCreationParams(w, h, MAIN_VIEWPORT), RtCreationParams(Device.m_SecondViewport.screenWidth, Device.m_SecondViewport.screenHeight, SECONDARY_WEAPON_SCOPE), DXGI_FORMAT_R16G16B16A16_SNORM,SRV_RTV);
+	}
+	else
 	if( RImplementation.o.ssao_hdao && RImplementation.o.ssao_ultra)
 	{
 		u32		w = Device.dwWidth, h = Device.dwHeight;
-		rt_ssao_temp.create			(r2_RT_ssao_temp,  w, h, D3DFMT_R16F, 1, true);
+		rt_ssao_temp.create(r2_RT_ssao_temp, RtCreationParams(w, h, MAIN_VIEWPORT), RtCreationParams(Device.m_SecondViewport.screenWidth, Device.m_SecondViewport.screenHeight, SECONDARY_WEAPON_SCOPE), DXGI_FORMAT_R16_FLOAT, SRV_RTV);
 		s_hdao_cs.create			(b_hdao_cs, "r2\\ssao");
 		if( RImplementation.o.dx10_msaa )
 		{
@@ -701,6 +813,9 @@ CRenderTarget::CRenderTarget		()
 
 		u32 fvf_aa_AA				= D3DFVF_XYZRHW|D3DFVF_TEX7|D3DFVF_TEXCOORDSIZE2(0)|D3DFVF_TEXCOORDSIZE2(1)|D3DFVF_TEXCOORDSIZE2(2)|D3DFVF_TEXCOORDSIZE2(3)|D3DFVF_TEXCOORDSIZE2(4)|D3DFVF_TEXCOORDSIZE4(5)|D3DFVF_TEXCOORDSIZE4(6);
 		g_aa_AA.create				(fvf_aa_AA,		RCache.Vertex.Buffer(), RCache.QuadIB);
+
+		u32 fvf_KD = D3DFVF_XYZRHW | D3DFVF_TEX1 | D3DFVF_TEXCOORDSIZE2(0);
+		g_KD.create(fvf_KD, RCache.Vertex.Buffer(), RCache.QuadIB);
 
 		t_envmap_0.create			(r2_T_envs0);
 		t_envmap_1.create			(r2_T_envs1);
@@ -1046,8 +1161,18 @@ CRenderTarget::~CRenderTarget	()
 	xr_delete					(b_accum_point			);
 	xr_delete					(b_accum_direct			);
 	xr_delete					(b_ssao					);
-	xr_delete					(b_gasmask_drops		);
- 	xr_delete					(b_gasmask_dudv			);
+	xr_delete					(b_blur					);
+	xr_delete					(b_hud_blood			); //Hud Blood
+	xr_delete					(b_hud_power			); //Hud Stamina
+	xr_delete					(b_hud_bleeding			); //Hud Bleeding
+	xr_delete					(b_hud_satiety			); //satiety
+	xr_delete					(b_hud_thirst			); //thirst
+	xr_delete(b_sunshafts);
+	xr_delete(b_lfx); //SFZ Lens Flares
+	xr_delete(b_ssfx_ssr); // [Ascii1457] SSS new Phase
+	xr_delete(b_ssfx_volumetric_blur); // [Ascii1457] SSS new Phase
+	xr_delete(b_gasmask_drops);
+	xr_delete(b_gasmask_dudv);
 
    if( RImplementation.o.dx10_msaa )
    {
@@ -1071,6 +1196,7 @@ CRenderTarget::~CRenderTarget	()
 	  }
    }
 	xr_delete					(b_accum_mask			);
+	xr_delete(b_cut);
 	xr_delete					(b_occq					);
 	xr_delete					(b_hdao_cs				);
 	if( RImplementation.o.dx10_msaa )
@@ -1116,7 +1242,7 @@ void CRenderTarget::increment_light_marker()
 
 bool CRenderTarget::need_to_render_sunshafts()
 {
-	if ( ! (RImplementation.o.advancedpp && ps_r_sun_shafts) )
+	if (!ps_r_sun_shafts)
 		return false;
 
 	{
@@ -1153,4 +1279,12 @@ bool CRenderTarget::use_minmax_sm_this_frame()
 		return false;
 	}
 
+}
+
+void CRenderTarget::SwitchViewPort(ViewPort vp)
+{
+	const CResourceManager::map_RT& rtlist = DEV->GetRTList();
+
+	for (CResourceManager::map_RT::const_iterator rt_it = rtlist.begin(); rt_it != rtlist.end(); rt_it++)
+		rt_it->second->SwitchViewPortResources(vp);
 }

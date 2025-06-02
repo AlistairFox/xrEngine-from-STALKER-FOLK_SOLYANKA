@@ -44,8 +44,10 @@ public:
 	u32				iGPUNum;
 
 	// device format
-	D3DFORMAT		fTarget;
-	D3DFORMAT		fDepth;
+
+	DXGI_FORMAT		fTarget;
+	DXGI_FORMAT		fDepth;
+
 	u32				dwRefreshRate;
 
 	// caps itself
@@ -64,7 +66,9 @@ public:
 	BOOL			bTableFog;			//
 
 	// some precalculated values
-	D3DSTENCILOP	soDec, soInc;		// best stencil OPs for shadows
+
+	D3D11_STENCIL_OP	soDec, soInc;		// best stencil OPs for shadows
+
 	u32				dwMaxStencilValue;  // maximum value the stencil buffer can hold
 
 	void			Update(void);

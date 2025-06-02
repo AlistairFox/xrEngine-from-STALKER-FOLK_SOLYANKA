@@ -12,6 +12,9 @@
 
 #include "securom_api.h"
 
+extern float ps_r2_sun_shafts_min;
+extern float ps_r2_sun_shafts_value;
+
 void CEnvModifier::load	(IReader* fs, u32 version)
 {
 	use_flags.one					();
@@ -24,6 +27,10 @@ void CEnvModifier::load	(IReader* fs, u32 version)
 	fs->r_fvector3	(ambient);
 	fs->r_fvector3	(sky_color);
 	fs->r_fvector3	(hemi_color);
+
+	lowland_fog_density = 0.f;//fs->r_float();
+	lowland_fog_height = 0.f;//fs->r_float();
+	lowland_fog_base_height = 0.f;//fs->r_float();
 
 	if(version>=0x0016)
 	{
@@ -73,6 +80,23 @@ float	CEnvModifier::sum	(CEnvModifier& M, Fvector3& view)
 	{
 		hemi_color.mad		(M.hemi_color,_power);
 		use_flags.set		(eHemiColor, TRUE);
+	}	if (M.use_flags.test(elowland_fog_density))
+
+	{
+		lowland_fog_density += M.lowland_fog_density, _power;
+		use_flags.set(elowland_fog_density, TRUE);
+	}
+
+	if (M.use_flags.test(elowland_fog_height))
+	{
+		lowland_fog_height += M.lowland_fog_height, _power;
+		use_flags.set(elowland_fog_height, TRUE);
+	}
+
+	if (M.use_flags.test(elowland_fog_base_height))
+	{
+		lowland_fog_base_height += M.lowland_fog_base_height, _power;
+		use_flags.set(elowland_fog_base_height, TRUE);
 	}
 	
 	return				_power;
@@ -218,6 +242,13 @@ CEnvDescriptor::CEnvDescriptor	(shared_str const& identifier) :
 	fog_density			= 0.0f;
 	fog_distance		= 400.0f;
 
+	fog_desc_far = 200.0f;
+	fog_desc_near = 5.0f;
+	lowland_fog_height_curve = 0.0f;
+	lowland_fog_density = 0.0f;
+	lowland_fog_height = 0.0f;
+	lowland_fog_base_height = 0.0f;
+
 	rain_density		= 0.0f;
 	rain_color.set		(0,0,0);
 
@@ -234,6 +265,10 @@ CEnvDescriptor::CEnvDescriptor	(shared_str const& identifier) :
 
 	m_fSunShaftsIntensity = 0;
 	m_fWaterIntensity = 1;
+
+#ifdef TREE_WIND_EFFECT
+	m_fTreeAmplitudeIntensity = 0.01;
+#endif
 
     lens_flare_id		= "";
 	tb_id				= "";
@@ -271,7 +306,19 @@ void CEnvDescriptor::load	(CEnvironment& environment, CInifile& config, LPCSTR w
 	fog_color				= config.r_fvector3	(m_identifier.c_str(),"fog_color");
 	fog_density				= config.r_float	(m_identifier.c_str(),"fog_density");
 	fog_distance			= config.r_float	(m_identifier.c_str(),"fog_distance");
-	rain_density			= config.r_float	(m_identifier.c_str(),"rain_density");		clamp(rain_density,0.f,1.f);
+
+	if (config.line_exist(m_identifier.c_str(), "fog_far"))
+		fog_desc_far = config.r_float(m_identifier.c_str(), "fog_far");
+
+	if (config.line_exist(m_identifier.c_str(), "fog_near"))
+		fog_desc_near = config.r_float(m_identifier.c_str(), "fog_near");
+
+	//fog_desc_near = fog_near_curve;
+
+	//lowland_fog_base_height + fog_height_curve;
+	//lowland_fog_height + fog_height_curve;
+
+	rain_density			= config.r_float	(m_identifier.c_str(),"rain_density");		clamp(rain_density,0.f,10.f);
 	rain_color				= config.r_fvector3	(m_identifier.c_str(),"rain_color");            
 	wind_velocity			= config.r_float	(m_identifier.c_str(),"wind_velocity");
 	wind_direction			= deg2rad(config.r_float(m_identifier.c_str(),"wind_direction"));
@@ -302,6 +349,28 @@ void CEnvDescriptor::load	(CEnvironment& environment, CInifile& config, LPCSTR w
 
 	if (config.line_exist(m_identifier.c_str(),"water_intensity"))
 		m_fWaterIntensity = config.r_float(m_identifier.c_str(),"water_intensity");
+
+
+#ifdef TREE_WIND_EFFECT
+	if (config.line_exist(m_identifier.c_str(), "tree_amplitude_intensity"))
+		m_fTreeAmplitudeIntensity = config.r_float(m_identifier.c_str(), "tree_amplitude_intensity");
+#endif
+
+	if (config.line_exist(m_identifier.c_str(), "lowland_fog_density"))
+		lowland_fog_density = config.r_float(m_identifier.c_str(), "lowland_fog_density");
+
+	if (config.line_exist(m_identifier.c_str(), "lowland_fog_height"))
+	{
+		lowland_fog_height = config.r_float(m_identifier.c_str(), "lowland_fog_height");
+	}
+
+	if (config.line_exist(m_identifier.c_str(), "lowland_fog_base_height"))
+		lowland_fog_base_height = config.r_float(m_identifier.c_str(), "lowland_fog_base_height");
+
+	if (config.line_exist(m_identifier.c_str(), "lowland_fog_height_curve"))
+	{
+		lowland_fog_height_curve = config.r_float(m_identifier.c_str(), "lowland_fog_height_curve");
+	}
 
 	C_CHECK					(clouds_color);
 	C_CHECK					(sky_color	);
@@ -388,7 +457,7 @@ void CEnvDescriptorMixer::clear	()
 
 int get_ref_count(IUnknown* ii);
 
-void CEnvDescriptorMixer::lerp	(CEnvironment* , CEnvDescriptor& A, CEnvDescriptor& B, float f, CEnvModifier& Mdf, float modifier_power)
+void CEnvDescriptorMixer::lerp	(CEnvironment* env, CEnvDescriptor& A, CEnvDescriptor& B, float f, CEnvModifier& Mdf, float modifier_power)
 {
 	float	modif_power		=	1.f/(modifier_power+1);	// the environment itself
 	float	fi				=	1-f;
@@ -435,9 +504,13 @@ void CEnvDescriptorMixer::lerp	(CEnvironment* , CEnvDescriptor& A, CEnvDescripto
 	}
 
 	fog_distance			=	(fi*A.fog_distance + f*B.fog_distance);
-	fog_near				=	(1.0f - fog_density)*0.85f * fog_distance;
-	fog_far					=	0.99f * fog_distance;
-	
+	fog_far = (fi * A.fog_desc_far + f * B.fog_desc_far);
+	fog_near = (fi * A.fog_desc_near + f * B.fog_desc_near);
+	fog_curve = (fi * A.lowland_fog_height_curve + f * B.lowland_fog_height_curve);
+	//fog_near = fog_near_curve;
+#ifdef TREE_WIND_EFFECT
+	m_fTreeAmplitudeIntensity = fi * A.m_fTreeAmplitudeIntensity + f * B.m_fTreeAmplitudeIntensity;
+#endif
 	rain_density			=	fi*A.rain_density + f*B.rain_density;
 	rain_color.lerp			(A.rain_color,B.rain_color,f);
 	bolt_period				=	fi*A.bolt_period + f*B.bolt_period;
@@ -471,6 +544,35 @@ void CEnvDescriptorMixer::lerp	(CEnvironment* , CEnvDescriptor& A, CEnvDescripto
 		hemi_color.y			*= modif_power;
 		hemi_color.z			*= modif_power;
 	}
+
+	lowland_fog_density = (fi * A.lowland_fog_density + f * B.lowland_fog_density);
+	if (Mdf.use_flags.test(elowland_fog_density))
+	{
+		lowland_fog_density += Mdf.lowland_fog_density;
+		lowland_fog_density *= modif_power;
+	}
+
+	lowland_fog_height = (fi * A.lowland_fog_height + f * B.lowland_fog_height);
+	if (Mdf.use_flags.test(elowland_fog_height))
+	{
+		lowland_fog_height = Mdf.lowland_fog_height;
+		lowland_fog_height += fog_curve;
+	}
+
+	lowland_fog_base_height = (fi * A.lowland_fog_base_height + f * B.lowland_fog_base_height);
+	if (Mdf.use_flags.test(elowland_fog_base_height))
+	{
+		lowland_fog_base_height = Mdf.lowland_fog_base_height;
+		lowland_fog_base_height += fog_curve;
+	}
+
+	if (rain_density > 0.f)
+		env->wetness_factor += rain_density / 10000.f;
+	else
+		env->wetness_factor -= 0.00001f;
+
+	clamp(env->wetness_factor, 0.f, 1.f);
+
 
 	sun_color.lerp			(A.sun_color,B.sun_color,f);
 

@@ -15,9 +15,6 @@ float			OLES_SUN_LIMIT_27_01_07			= 100.f		;
 const	float	MAP_SIZE_START					= 6.f		;
 const	float	MAP_GROW_FACTOR					= 4.f		;
  
-
-extern int RenderDetailsSunLighting;
-
 //////////////////////////////////////////////////////////////////////////
 // tables to calculate view-frustum bounds in world space
 // note: D3D uses [0..1] range for Z
@@ -314,7 +311,7 @@ D3DXVECTOR2 BuildTSMProjectionMatrix_caster_depth_bounds(D3DXMATRIX& lightSpaceB
 void CRender::render_sun				()
 {
 	PIX_EVENT(render_sun);
-	light*			fuckingsun			= (light*)Lights.sun_adapted._get()	;
+	light*			fuckingsun			= (light*)Lights.sun._get()	;
 	D3DXMATRIX		m_LightViewProj		;
 
 	// calculate view-frustum bounds in world space
@@ -774,7 +771,7 @@ void CRender::render_sun				()
 
 void CRender::render_sun_near	()
 {
-	light*			fuckingsun			= (light*)Lights.sun_adapted._get()	;
+	light*			fuckingsun			= (light*)Lights.sun._get()	;
 	D3DXMATRIX		m_LightViewProj		;
 
 	// calculate view-frustum bounds in world space
@@ -966,8 +963,8 @@ void CRender::render_sun_near	()
 			RCache.set_xform_view				(Fidentity					);
 			RCache.set_xform_project			(fuckingsun->X.D.combine	);	
 			r_dsgraph_render_graph				(0)	;
-			if (RenderDetailsSunLighting)
-				Details->hw_Render					()	;
+			if (ps_r2_ls_flags.test(R2FLAG_SUN_DETAILS))	
+				Details->Render					()	;
 			fuckingsun->X.D.transluent			= FALSE;
 			if (bSpecial)						{
 				fuckingsun->X.D.transluent			= TRUE;
@@ -1010,31 +1007,6 @@ void CRender::render_sun_filtered	()
 	Target->accum_direct				(SE_SUN_LUMINANCE);
 }
 
-void CRender::init_cacades				( )
-{
-	u32 cascade_count = 3;
-	m_sun_cascades.resize(cascade_count);
-
-	float fBias = -0.0000025f;
-	//	float size = MAP_SIZE_START;
-	m_sun_cascades[0].reset_chain = true;
-	m_sun_cascades[0].size = 9;
-	m_sun_cascades[0].bias = m_sun_cascades[0].size*fBias;
-
-	m_sun_cascades[1].size = 40;
-	m_sun_cascades[1].bias = m_sun_cascades[1].size*fBias;
-
- 	m_sun_cascades[2].size = 160;
- 	m_sun_cascades[2].bias = m_sun_cascades[2].size*fBias;
-
-// 	for( u32 i = 0; i < cascade_count; ++i )
-// 	{
-// 		m_sun_cascades[i].size = size;
-// 		size *= MAP_GROW_FACTOR;
-// 	}
-/// 	m_sun_cascades[m_sun_cascades.size()-1].size = 80;
-}
-
 void CRender::render_sun_cascades ( )
 {
 	bool b_need_to_render_sunshafts = RImplementation.Target->need_to_render_sunshafts();
@@ -1047,11 +1019,15 @@ void CRender::render_sun_cascades ( )
 
 	if ( b_need_to_render_sunshafts )
 		m_sun_cascades[m_sun_cascades.size()-1].reset_chain = last_cascade_chain_mode;
+//	if (o.dx10_msaa && o.dx10_msaa_opt)
+//	{
+//		Target->mark_msaa_edges();//хуйня ебаная (так делать нельзя)
+//	}
 }
 
 void CRender::render_sun_cascade ( u32 cascade_ind )
 {
-	light*			fuckingsun			= (light*)Lights.sun_adapted._get()	;
+	light*			fuckingsun			= (light*)Lights.sun._get()	;
 
 	// calculate view-frustum bounds in world space
 	Fmatrix	ex_project, ex_full, ex_full_inverse;
@@ -1300,11 +1276,11 @@ void CRender::render_sun_cascade ( u32 cascade_ind )
 			RCache.set_xform_view				(Fidentity					);
 			RCache.set_xform_project			(fuckingsun->X.D.combine	);	
 			r_dsgraph_render_graph				(0)	;
-			
-			if (RenderDetailsSunLighting)	
-				Details->hw_Render();
-
-
+			if (psDeviceFlags2.test(rsGrassShadow) && cascade_ind <= ps_ssfx_grass_shadows.x)
+			{
+				RImplementation.Details->fade_distance = dm_fade * dm_fade * ps_ssfx_grass_shadows.y;
+				Details->Render();
+			}
 			fuckingsun->X.D.transluent			= FALSE;
 			if (bSpecial)						{
 				fuckingsun->X.D.transluent			= TRUE;
@@ -1344,4 +1320,22 @@ void CRender::render_sun_cascade ( u32 cascade_ind )
 	RCache.set_xform_world		(Fidentity			);
 	RCache.set_xform_view		(Device.mView		);
 	RCache.set_xform_project	(Device.mProject	);
+}
+
+void CRender::init_cascades()
+{
+	u32 cascade_count = 3;
+	m_sun_cascades.resize(cascade_count);
+
+	float fBias = -0.0000025f;
+
+	m_sun_cascades[0].reset_chain = true;
+	m_sun_cascades[0].size = ps_ssfx_shadow_cascades.x; //20
+	m_sun_cascades[0].bias = m_sun_cascades[0].size * fBias;
+
+	m_sun_cascades[1].size = ps_ssfx_shadow_cascades.y; //40
+	m_sun_cascades[1].bias = m_sun_cascades[1].size * fBias;
+
+	m_sun_cascades[2].size = ps_ssfx_shadow_cascades.z; //160
+	m_sun_cascades[2].bias = m_sun_cascades[2].size * fBias;
 }

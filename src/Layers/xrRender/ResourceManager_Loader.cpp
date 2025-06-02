@@ -87,9 +87,18 @@ void	CResourceManager::OnDeviceCreate	(IReader* F)
 		IReader*	chunk	= NULL;
 		int			chunk_id= 0;
 
-		while ((chunk=fs->open_chunk(chunk_id))!=NULL){
+		while (chunk = fs->open_chunk(chunk_id))
+		{
 			CBlender_DESC	desc;
 			chunk->r		(&desc,sizeof(desc));
+
+			if (desc.CLS == B_SHADOW_WORLD)
+			{
+				chunk->close();
+				chunk_id += 1;
+				continue;
+			}
+
 			IBlender*		B = IBlender::Create(desc.CLS);
 			if	(0==B)
 			{

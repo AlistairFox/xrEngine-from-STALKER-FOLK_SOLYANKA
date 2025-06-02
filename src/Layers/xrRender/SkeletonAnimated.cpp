@@ -10,10 +10,6 @@
 #ifdef DEBUG
 #include	"../../xrcore/dump_string.h"
 #endif
-
-
-#pragma warning(disable:4996)
-#pragma warning(disable:4995)
 extern int	psSkeletonUpdate;
 using	namespace animation;
 //////////////////////////////////////////////////////////////////////////
@@ -172,26 +168,6 @@ MotionID CKinematicsAnimated::LL_MotionID	(LPCSTR B)
     }
     return motion_ID;
 }
-
-shared_str CKinematicsAnimated::LL_MotionID_name(int id)
-{
- 	for (int k = int(m_Motions.size()) - 1; k >= 0; --k) {
-		shared_motions* s_mots = &m_Motions[k].motions;
-		for (auto motion : *s_mots->motion_map())
-		{
-			if (motion.second == id)
-			{
-				return motion.first;
-			}
-		}
-		
-		//accel_map::iterator I = s_mots->motion_map()->find(LPSTR(B));
-		//if (I != s_mots->motion_map()->end()) { motion_ID.set(u16(k), I->second); break; }
-	}
-
-	return "null motion";
-}
-
 u16 CKinematicsAnimated::LL_PartID		(LPCSTR B)
 {
 	if (0==m_Partition)	return BI_NONE;
@@ -236,37 +212,32 @@ MotionID CKinematicsAnimated::ID_Cycle	(LPCSTR  N)
 }
 void	CKinematicsAnimated::LL_FadeCycle(u16 part, float falloff, u8 mask_channel /*= (1<<0)*/)
 {
-	if (BI_NONE == part)
-		return;
-	if (part >= MAX_PARTS)
-		return;
-
-	BlendSVec& Blend = blend_cycles[part];
-	for (u32 I=0; I<Blend.size(); I++)
+	BlendSVec&	Blend		= blend_cycles[part];
+	
+	if (!Blend.empty())
 	{
-		CBlend& B			= *Blend[I];
 
-		if (!(mask_channel & (1 << B.channel)))
-			continue;
-
- 		B.set_falloff_state();
-		B.blendFalloff = falloff;
- 		if (B.stop_at_end) 
-			B.stop_at_end_callback = FALSE;		// callback не должен приходить!
-		 
+		for (u32 I = 0; I < Blend.size(); I++)
+		{
+			CBlend& B = *Blend[I];
+			if (!(mask_channel & (1 << B.channel)))
+				continue;
+			//B.blend				= CBlend::eFalloff;
+			B.set_falloff_state();
+			B.blendFalloff = falloff;
+			//B.blendAccrue		= B.timeCurrent;
+			if (B.stop_at_end)  B.stop_at_end_callback = FALSE;		// callback не должен приходить!
+		}
 	}
 }
 void	CKinematicsAnimated::LL_CloseCycle(u16 part, u8 mask_channel /*= (1<<0)*/)
 {
-	if (BI_NONE==part)		
-		return;
-	if (part>=MAX_PARTS)	
-		return;
- 
+	if (BI_NONE==part)		return;
+	if (part>=MAX_PARTS)	return;
+
 	// destroy cycle(s)
 	BlendSVecIt	I = blend_cycles[part].begin(), E = blend_cycles[part].end();
-	for (; I!=E; I++)
-	{
+	for (; I!=E; I++){
 		CBlend& B = *(*I);
 		if(!(mask_channel&(1<<B.channel)))
 					continue;
@@ -278,11 +249,9 @@ void	CKinematicsAnimated::LL_CloseCycle(u16 part, u8 mask_channel /*= (1<<0)*/)
 			Bone_Motion_Stop_IM	((*bones)[P.bones[i]],*I);
 
 		blend_cycles[part].erase(I);// ?
-		E				= blend_cycles[part].end();
-		I--; 
+		E				= blend_cycles[part].end(); I--; 
 	}
-
-	blend_cycles[part].clear	(); // ?
+	//blend_cycles[part].clear	(); // ?
 }
 
 float CKinematicsAnimated::get_animation_length (MotionID motion_ID)
@@ -359,24 +328,20 @@ void CKinematicsAnimated::IFXBlendSetup(CBlend &B, MotionID motion_ID, float ble
 	B.channel		= 0;
 	B.fall_at_end	= FALSE;	
 }
-
- 
-
-
 CBlend*	CKinematicsAnimated::LL_PlayCycle(u16 part, MotionID motion_ID, BOOL  bMixing, float blendAccrue, float blendFalloff, float Speed, BOOL noloop, PlayCallback Callback, LPVOID CallbackParam,u8 channel/*=0*/ )
 {
 	if (!RDEVICE.b_is_Ready && !RDEVICE.b_isLoadTextures)
 		return 0;
 
 	// se7kills FIXED LL_PlayCycle (блендинг иногда отьебывает)
-	if (GetNPC() && motion_ID.slot > MAX_PARTS - 1 )
+	if (GetNPC() && motion_ID.slot > MAX_PARTS - 1)
 		return 0;
-	 
+
 	// validate and unroll
-	if (!motion_ID.valid())	
+	if (!motion_ID.valid())
 		return 0;
-	
-	if (BI_NONE==part)		
+
+	if (BI_NONE == part)
 	{
 		for (u16 i = 0; i < MAX_PARTS; i++)
 		{
@@ -385,34 +350,33 @@ CBlend*	CKinematicsAnimated::LL_PlayCycle(u16 part, MotionID motion_ID, BOOL  bM
 		return 0;
 	}
 
-	if (part>=MAX_PARTS)	
+	if (part >= MAX_PARTS)
 		return 0;
 
-	if (0==m_Partition->part(part).Name)	
+	if (0 == m_Partition->part(part).Name)
 		return 0;
 
 	// Process old cycles and create _new_
-	if( channel == 0 )
+	if (channel == 0)
 	{
-  		if (bMixing)	
-			LL_FadeCycle	(part,blendFalloff,1<<channel);
-		else	
-			LL_CloseCycle	(part,1<<channel);
+		if (bMixing)
+			LL_FadeCycle(part, blendFalloff, 1 << channel);
+		else
+			LL_CloseCycle(part, 1 << channel);
 	}
 
 	if (blend_cycles[part].size() > MAX_BLENDED)
-		return 0; 
+		return 0;
 
-	CPartDef& P	=	(*m_Partition)[part];
-	CBlend*	B	=	IBlend_Create	();
+	CPartDef& P = (*m_Partition)[part];
+	CBlend* B = IBlend_Create();
 
- 	IBlendSetup(*B, part,channel, motion_ID, bMixing, blendAccrue, blendFalloff, Speed, noloop, Callback, CallbackParam );
-	for (u32 i=0; i<P.bones.size(); i++)
-		Bone_Motion_Start_IM	((*bones)[P.bones[i]],B);
+	IBlendSetup(*B, part, channel, motion_ID, bMixing, blendAccrue, blendFalloff, Speed, noloop, Callback, CallbackParam);
+	for (u32 i = 0; i < P.bones.size(); i++)
+		Bone_Motion_Start_IM((*bones)[P.bones[i]], B);
 	blend_cycles[part].push_back(B);
 	return		B;
 }
-
 CBlend*	CKinematicsAnimated::LL_PlayCycle		(u16 part, MotionID motion_ID, BOOL bMixIn, PlayCallback Callback, LPVOID CallbackParam, u8 channel /*=0*/)
 {
 	VERIFY					(motion_ID.valid()); 
@@ -422,36 +386,30 @@ CBlend*	CKinematicsAnimated::LL_PlayCycle		(u16 part, MotionID motion_ID, BOOL b
     						 m_def->Accrue(),m_def->Falloff(),m_def->Speed(),m_def->StopAtEnd(), 
                              Callback,CallbackParam,channel);
 }
-
 CBlend*	CKinematicsAnimated::PlayCycle		(LPCSTR  N, BOOL bMixIn, PlayCallback Callback, LPVOID CallbackParam,u8 channel  /*= 0*/)
 {
 	MotionID motion_ID		= ID_Cycle(N);
-	if (motion_ID.valid())
-	{
-		return PlayCycle(motion_ID, bMixIn, Callback, CallbackParam, channel);
-	}
-	else			
-	{ 
- 		Debug.fatal(DEBUG_INFO,"! MODEL: can't find cycle: %s", N); 
-		return 0;
-	}
+	if (motion_ID.valid())	return PlayCycle(motion_ID,bMixIn,Callback,CallbackParam,channel);
+	else					{ Debug.fatal(DEBUG_INFO,"! MODEL: can't find cycle: %s", N); return 0; }
 }
 CBlend*	CKinematicsAnimated::PlayCycle		(MotionID motion_ID,  BOOL bMixIn, PlayCallback Callback, LPVOID CallbackParam,u8 channel /*= 0*/)
 {	
-	CMotionDef* m_def = m_Motions[motion_ID.slot].motions.motion_def(motion_ID.idx);
-	VERIFY(m_def);
-	return LL_PlayCycle(m_def->bone_or_part, motion_ID, bMixIn,
-		m_def->Accrue(), m_def->Falloff(), m_def->Speed(), m_def->StopAtEnd(),
-		Callback, CallbackParam, channel);	
+	VERIFY					(motion_ID.valid()); 
+    CMotionDef* m_def		= m_Motions[motion_ID.slot].motions.motion_def(motion_ID.idx);
+    VERIFY					(m_def);
+	return LL_PlayCycle		(m_def->bone_or_part,motion_ID,bMixIn, 
+    						 m_def->Accrue(),m_def->Falloff(),m_def->Speed(),m_def->StopAtEnd(), 
+                             Callback,CallbackParam,channel);
 }
 
 CBlend*	CKinematicsAnimated::PlayCycle		(u16 partition, MotionID motion_ID,  BOOL bMixIn, PlayCallback Callback, LPVOID CallbackParam,u8 channel /*= 0*/)
 {	
-	CMotionDef* m_def = m_Motions[motion_ID.slot].motions.motion_def(motion_ID.idx);
-	VERIFY(m_def);
-	return LL_PlayCycle(partition, motion_ID, bMixIn,
-		m_def->Accrue(), m_def->Falloff(), m_def->Speed(), m_def->StopAtEnd(),
-		Callback, CallbackParam, channel);   
+	VERIFY					(motion_ID.valid()); 
+    CMotionDef* m_def		= m_Motions[motion_ID.slot].motions.motion_def(motion_ID.idx);
+    VERIFY					(m_def);
+	return LL_PlayCycle		(partition, motion_ID,bMixIn, 
+    						 m_def->Accrue(),m_def->Falloff(),m_def->Speed(),m_def->StopAtEnd(), 
+                             Callback,CallbackParam,channel);
 }
 
 // fx'es
@@ -467,8 +425,7 @@ MotionID CKinematicsAnimated::ID_FX_Safe		(LPCSTR  N)
 }
 MotionID CKinematicsAnimated::ID_FX			(LPCSTR  N)
 {
-	MotionID motion_ID		= ID_FX_Safe(N);
-	R_ASSERT3(motion_ID.valid(),"! MODEL: can't find FX: ", N);
+	MotionID motion_ID		= ID_FX_Safe(N);R_ASSERT3(motion_ID.valid(),"! MODEL: can't find FX: ", N);
     return motion_ID;
 }
 CBlend*	CKinematicsAnimated::PlayFX			(MotionID motion_ID, float power_scale)
@@ -552,7 +509,6 @@ void CKinematicsAnimated::LL_UpdateTracks( float dt, bool b_force, bool leave_bl
 	
 	LL_UpdateFxTracks(dt);
 }
-
 void	CKinematicsAnimated::LL_UpdateFxTracks( float dt )
 {
 		// FX
@@ -597,7 +553,6 @@ void	CKinematicsAnimated::LL_UpdateFxTracks( float dt )
 		}
 	}
 }
-
 void CKinematicsAnimated::UpdateTracks	()
 {
 	_DBG_SINGLE_USE_MARKER;
@@ -638,7 +593,6 @@ CKinematicsAnimated::~CKinematicsAnimated	()
 {
 	IBoneInstances_Destroy	();
 }
-
 CKinematicsAnimated::CKinematicsAnimated(): 
 	CKinematics(), 
 	IKinematicsAnimated(),
@@ -693,17 +647,14 @@ void CKinematicsAnimated::Spawn	()
 	channels.init();
 
 }
-
 void CKinematicsAnimated::ChannelFactorsStartup()
 {
 	channels.init();
 }
-
 void	CKinematicsAnimated::LL_SetChannelFactor (u16	channel,float factor)
 {
 	channels.set_factor( channel, factor );
 }
-
 void CKinematicsAnimated::IBlend_Startup	()
 {
 	_DBG_SINGLE_USE_MARKER;
@@ -741,7 +692,6 @@ CBlend*	CKinematicsAnimated::IBlend_Create	()
 	FATAL("Too many blended motions requisted");
 	return 0;
 }
-
 void CKinematicsAnimated::Load(const char* N, IReader *data, u32 dwFlags)
 {
 	inherited::Load	(N, data, dwFlags);
@@ -773,7 +723,7 @@ void CKinematicsAnimated::Load(const char* N, IReader *data, u32 dwFlags)
                     Msg			("!Can't find motion file '%s'.",nm);
                     return;
 #else
-                    Debug.fatal	(DEBUG_INFO,"Can't find motion file '%s'.",nm);
+					Msg("Can't find motion file '%s'.", nm);
 #endif
                 }
             }
@@ -812,7 +762,7 @@ void CKinematicsAnimated::Load(const char* N, IReader *data, u32 dwFlags)
                     Msg			("!Can't find motion file '%s'.",nm);
                     return;
 #else
-                    Debug.fatal	(DEBUG_INFO,"Can't find motion file '%s'.",nm);
+					Msg("Can't find motion file '%s'.", nm);
 #endif
                 }
             }
@@ -825,18 +775,14 @@ void CKinematicsAnimated::Load(const char* N, IReader *data, u32 dwFlags)
 				create_res = m_Motions.back().motions.create	(nm,MS,bones);
 				FS.r_close						(MS);
 			}
-			if (create_res)
-			{
-				m_Motions.back().motions.create(nm, NULL, bones);
-			}
-			else
-			{
+            if(create_res)
+				m_Motions.back().motions.create	(nm,NULL,bones);
+            else{
             	m_Motions.pop_back	();
                 Msg					("! error in model [%s]. Unable to load motion file '%s'.", N, nm);
-            }
+                }
     	}
-    }
-	else    
+    }else    
 	{
 		string_path	nm;
 		strconcat			(sizeof(nm),nm,N,".ogf");
@@ -886,14 +832,17 @@ const	CBlendInstance::BlendSVec	&Blend				= BLEND_INST.blend_vector();
 			keys.blends[channel][b_count]			=  B;
 			CMotion			&M						= *LL_GetMotion(B->motionID,SelfID);
 			Dequantize(*D,*B,M);
-			QR2Quat( M._keysR[0], BK[channel][b_count].Q	);
+
+			QR2Quat(M._keysR[0], BK[channel][b_count].Q);
+
 			if(M.test_flag(flTKeyPresent))
             {
-            	if(M.test_flag(flTKey16IsBit))
-					QT16_2T(M._keysT16[0] ,M ,BK[channel][b_count].T );
-                else
-					QT8_2T(M._keysT8[0] ,M ,BK[channel][b_count].T );
-			}else
+				if (M.test_flag(flTKey16IsBit))
+					QT16_2T(M._keysT16[0], M, BK[channel][b_count].T);
+				else
+					QT8_2T(M._keysT8[0], M, BK[channel][b_count].T);
+			}
+			else
 				BK[channel][b_count].T.set(M._initT);
 			++b_count;
 		}
@@ -1057,7 +1006,6 @@ MotionID CKinematicsAnimated::ID_Motion(LPCSTR  N, u16 slot)
     return motion_ID;
 }
 #endif
-
 
 int	CKinematicsAnimated::get_animation_size(int SLOT)
 {

@@ -143,14 +143,12 @@ bool CPSLibrary::Load2()
 		const FS_File& f		= (*it);
 	    _splitpath				(f.name.c_str(), 0, p_path, p_name, p_ext );
         FS.update_path			(_path, "$game_particles$",f.name.c_str());
-        CInifile				ini (_path,TRUE,TRUE,FALSE);
+        CInifile				ini(_path, true, true, false);
 
 #ifdef _EDITOR
         if(pb) pb->Inc					();
 #endif
 
-#pragma warning(disable:4996)
-#pragma warning(disable:4995)
         xr_sprintf				(_path, sizeof(_path),"%s%s",p_path, p_name);
         if(0==stricmp(p_ext,".pe"))
         {

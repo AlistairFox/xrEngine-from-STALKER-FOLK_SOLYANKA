@@ -7,6 +7,23 @@ IC		bool	pred_area		(light* _1, light* _2)
 	return	a0>a1;	// reverse -> descending
 }
 
+ bool check_grass_shadow(light * L, CFrustum VB)
+ {
+		// Grass shadows are allowed?
+		if (ps_ssfx_grass_shadows.x < 3 || !psDeviceFlags2.test(rsGrassShadow))
+		 return false;
+	
+			// Inside the range?
+		if (L->vis.distance > ps_ssfx_grass_shadows.z)
+		 return false;
+	
+			// Is in view? L->vis.visible?
+		u32 mask = 0xff;
+	if (!VB.testSphere(L->position, L->range * 0.6f, mask))
+		 return false;
+	
+	return true;
+}
 void	CRender::render_lights	(light_Package& LP)
 {
 	//////////////////////////////////////////////////////////////////////////
@@ -18,7 +35,6 @@ void	CRender::render_lights	(light_Package& LP)
 		for (u32 it=0; it<source.size(); it++)
 		{
 			light*	L		= source[it];
-			L->vis_update	();
 			if	(!L->vis.visible)	{
 				source.erase		(source.begin()+it);
 				it--;
@@ -100,8 +116,12 @@ void	CRender::render_lights	(light_Package& LP)
 			if (RImplementation.o.Tshadows)	r_pmask	(true,true	);
 			else							r_pmask	(true,false	);
 			L->svis.begin							();
-         PIX_EVENT(SHADOWED_LIGHTS_RENDER_SUBSPACE);
-			r_dsgraph_render_subspace				(L->spatial.sector, L->X.S.combine, L->position, TRUE);
+
+
+			PIX_EVENT(SHADOWED_LIGHTS_RENDER_SUBSPACE);
+			r_dsgraph_render_subspace(L->spatial.sector, L->X.S.combine, L->position, TRUE);
+
+
 			bool	bNormal							= mapNormalPasses[0][0].size() || mapMatrixPasses[0][0].size();
 			bool	bSpecial						= mapNormalPasses[1][0].size() || mapMatrixPasses[1][0].size() || mapSorted.size();
 			if ( bNormal || bSpecial)	{
@@ -112,6 +132,12 @@ void	CRender::render_lights	(light_Package& LP)
 				RCache.set_xform_view				(L->X.S.view);
 				RCache.set_xform_project			(L->X.S.project);
 				r_dsgraph_render_graph				(0);
+				if (check_grass_shadow(L, ViewBase))
+					{
+					Details->fade_distance = -1; // Use light position to calc "fade"
+					Details->light_position.set(L->position);
+					Details->Render();
+					 }
 				L->X.S.transluent					= FALSE;
 				if (bSpecial)						{
 					L->X.S.transluent					= TRUE;
@@ -139,7 +165,6 @@ void	CRender::render_lights	(light_Package& LP)
 		//		if (has_point_unshadowed)	-> 	accum point unshadowed
 		if		(!LP.v_point.empty())	{
 			light*	L	= LP.v_point.back	();		LP.v_point.pop_back		();
-			L->vis_update				();
 			if (L->vis.visible)			{ 
 				Target->accum_point		(L);
 				render_indirect			(L);
@@ -151,7 +176,6 @@ void	CRender::render_lights	(light_Package& LP)
       //		if (has_spot_unshadowed)	-> 	accum spot unshadowed
 		if		(!LP.v_spot.empty())	{
 			light*	L	= LP.v_spot.back	();		LP.v_spot.pop_back			();
-			L->vis_update				();
 			if (L->vis.visible)			{ 
 				LR.compute_xf_spot		(L);
 				Target->accum_spot		(L);
@@ -160,7 +184,6 @@ void	CRender::render_lights	(light_Package& LP)
 		}
 
       PIX_EVENT(SPOT_LIGHTS_ACCUM_VOLUMETRIC);
-		
       //		if (was_spot_shadowed)		->	accum spot shadowed
 		if		(!L_spot_s.empty())
 		{ 
@@ -171,10 +194,25 @@ void	CRender::render_lights	(light_Package& LP)
 				render_indirect				(L_spot_s[it]);
 			}
 
-         PIX_EVENT(ACCUM_VOLUMETRIC);
-			if (RImplementation.o.advancedpp && ps_r2_ls_flags.is(R2FLAG_VOLUMETRIC_LIGHTS))
-			for (u32 it=0; it<L_spot_s.size(); it++)
-				Target->accum_volumetric(L_spot_s[it]);
+			PIX_EVENT(ACCUM_VOLUMETRIC);
+			if (ps_r2_ls_flags.is(R2FLAG_VOLUMETRIC_LIGHTS))
+			{
+				// Current Resolution
+				float w = float(Device.dwWidth);
+				float h = float(Device.dwHeight);
+
+				// Adjust resolution
+				if (RImplementation.o.ssfx_volumetric && ps_ssfx_volumetric.w > 1)
+					Target->set_viewport_size(HW.pContext, w / ps_ssfx_volumetric.w, h / ps_ssfx_volumetric.w);
+
+				for (u32 it = 0; it < L_spot_s.size(); it++)
+				{
+					Target->accum_volumetric(L_spot_s[it]);
+				}
+				// Restore resolution
+				if (RImplementation.o.ssfx_volumetric && ps_ssfx_volumetric.w > 1)
+					Target->set_viewport_size(HW.pContext, w, h);
+			}
 
 			L_spot_s.clear	();
 		}
@@ -185,7 +223,6 @@ void	CRender::render_lights	(light_Package& LP)
 	if (!LP.v_point.empty())		{
 		xr_vector<light*>&	Lvec		= LP.v_point;
 		for	(u32 pid=0; pid<Lvec.size(); pid++)	{
-			Lvec[pid]->vis_update		();
 			if (Lvec[pid]->vis.visible)	{
 				render_indirect			(Lvec[pid]);
 				Target->accum_point		(Lvec[pid]);
@@ -199,7 +236,6 @@ void	CRender::render_lights	(light_Package& LP)
 	if (!LP.v_spot.empty())		{
 		xr_vector<light*>&	Lvec		= LP.v_spot;
 		for	(u32 pid=0; pid<Lvec.size(); pid++)	{
-			Lvec[pid]->vis_update		();
 			if (Lvec[pid]->vis.visible)	{
 				LR.compute_xf_spot		(Lvec[pid]);
 				render_indirect			(Lvec[pid]);
@@ -212,6 +248,34 @@ void	CRender::render_lights	(light_Package& LP)
 
 void	CRender::render_indirect			(light* L)
 {
+	if (!!ps_r2_lfx)
+	{
+		Fvector4 pos;
+		Device.mFullTransform.transform(pos, L->position);
+
+		Fvector ldir = Fvector().set(L->position).sub(Device.vCameraPosition);
+		float dist = ldir.magnitude(); ldir.normalize();
+		float cosLo = ldir.dotproduct(Device.vCameraDirection);
+
+		if (dist <= 20.f && dist >= 2.0f && cosLo > 0.0f)
+		{
+			float x = (1.f + pos.x) / 2.f;
+			float y = (1.f - pos.y) / 2.f;
+			collide::rq_result l_rq;
+
+			if (g_pGameLevel)
+			{
+				g_pGameLevel->ObjectSpace.RayPick(Device.vCameraPosition, ldir, dist, collide::rqtBoth, l_rq, g_pGameLevel->CurrentViewEntity());
+				float fade = (dist - l_rq.range) / 0.4f; clamp(fade, 0.0f, 1.0f); fade = 1.0f - fade; fade *= cosLo * 0.2f;
+				Fvector3 color = Fvector3().set(L->color.r, L->color.g, L->color.b); color.normalize();
+				{
+					Target->m_miltaka_lfx_coords.push_back(Fvector4().set(x, y, dist, dist));
+					Target->m_miltaka_lfx_color.push_back(Fvector4().set(fade * color.x, fade * color.y, fade * color.z, dist));
+				}
+			}
+		}
+	}
+
 	if (!ps_r2_ls_flags.test(R2FLAG_GI))	return;
 
 	light									LIGEN;

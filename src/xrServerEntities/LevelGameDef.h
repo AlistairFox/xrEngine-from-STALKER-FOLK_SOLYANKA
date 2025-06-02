@@ -30,7 +30,10 @@ enum EEnvModUsedParams{	eViewDist 		=(1<<0),
                         eFogDensity 	=(1<<2),
                         eAmbientColor 	=(1<<3),
                         eSkyColor 		=(1<<4),
-                        eHemiColor 		=(1<<5)
+                        eHemiColor 		=(1<<5),
+                        elowland_fog_height = (1 << 6),
+                        elowland_fog_density = (1 << 7),
+                        elowland_fog_base_height = (1 << 8),
 };
 
 extern ECORE_API xr_token rpoint_type[];

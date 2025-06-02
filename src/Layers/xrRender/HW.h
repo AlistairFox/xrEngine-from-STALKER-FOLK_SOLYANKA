@@ -12,110 +12,94 @@
 #include "stats_manager.h"
 #endif
 
-class  CHW
-#if defined(USE_DX10) || defined(USE_DX11)
-	:	public pureAppActivate, 
-		public pureAppDeactivate
-#endif	//	USE_DX10
+enum ViewPort;
+
+struct HWViewPortRTZB
 {
-//	Functions section
-public:
-	CHW();
-	~CHW();
+	HWViewPortRTZB()
+	{
+		baseRT = nullptr;
+		baseZB = nullptr;
+		pDepthStencil = nullptr;
+		pBaseDepthReadSRV = nullptr;
+	};
+	ID3D11RenderTargetView* baseRT;	//	combine with DX9 pBaseRT via typedef
+	ID3D11DepthStencilView* baseZB;
+	ID3DTexture2D* pDepthStencil;
+	ID3DShaderResourceView* pBaseDepthReadSRV;
+};
 
-	void					CreateD3D				();
-	void					DestroyD3D				();
-	void					CreateDevice			(HWND hw, bool move_window);
 
-	void					DestroyDevice			();
 
-	void					Reset					(HWND hw);
 
-	void					selectResolution		(u32 &dwWidth, u32 &dwHeight, BOOL bWindowed);
-	D3DFORMAT				selectDepthStencil		(D3DFORMAT);
-	u32						selectPresentInterval	();
-	u32						selectGPU				();
-	u32						selectRefresh			(u32 dwWidth, u32 dwHeight, D3DFORMAT fmt);
-	void					updateWindowProps		(HWND hw);
-	BOOL					support					(D3DFORMAT fmt, DWORD type, DWORD usage);
+class  CHW
 
-#ifdef DEBUG
-#if defined(USE_DX10) || defined(USE_DX11)
-	void	Validate(void)	{};
-#else	//	USE_DX10
-	void	Validate(void)	{	VERIFY(pDevice); VERIFY(pD3D); };
-#endif	//	USE_DX10
-#else
-	void	Validate(void)	{};
-#endif
+	: public pureAppActivate,
+	public pureAppDeactivate
 
-//	Variables section
-#if defined(USE_DX11)	//	USE_DX10
-public:
-	IDXGIAdapter*			m_pAdapter;	//	pD3D equivalent
-	ID3D11Device*			pDevice;	//	combine with DX9 pDevice via typedef
-	ID3D11DeviceContext*    pContext;	//	combine with DX9 pDevice via typedef
-	IDXGISwapChain*         m_pSwapChain;
-	ID3D11RenderTargetView*	pBaseRT;	//	combine with DX9 pBaseRT via typedef
-	ID3D11DepthStencilView*	pBaseZB;
+{
+	//	Functions section
+	public:
+		int maxRefreshRate;
+		CHW();
+		~CHW();
 
-	CHWCaps					Caps;
+		void					CreateD3D();
+		void					DestroyD3D();
 
-	D3D_DRIVER_TYPE		m_DriverType;	//	DevT equivalent
-	DXGI_SWAP_CHAIN_DESC	m_ChainDesc;	//	DevPP equivalent
-	bool					m_bUsePerfhud;
-	D3D_FEATURE_LEVEL		FeatureLevel;
-#elif defined(USE_DX10)
-public:
-	IDXGIAdapter*			m_pAdapter;	//	pD3D equivalent
-	ID3D10Device1*       	pDevice1;	//	combine with DX9 pDevice via typedef
-	ID3D10Device*        	pDevice;	//	combine with DX9 pDevice via typedef
-	ID3D10Device1*       	pContext1;	//	combine with DX9 pDevice via typedef
-	ID3D10Device*        	pContext;	//	combine with DX9 pDevice via typedef
-	IDXGISwapChain*         m_pSwapChain;
-	ID3D10RenderTargetView*	pBaseRT;	//	combine with DX9 pBaseRT via typedef
-	ID3D10DepthStencilView*	pBaseZB;
+		void					CreateDevice(HWND hw, bool move_window);
 
-	CHWCaps					Caps;
+		void					DestroyDevice();
 
-	D3D10_DRIVER_TYPE		m_DriverType;	//	DevT equivalent
-	DXGI_SWAP_CHAIN_DESC	m_ChainDesc;	//	DevPP equivalent
-	bool					m_bUsePerfhud;
-	D3D_FEATURE_LEVEL		FeatureLevel;
-#else
-private:
-	HINSTANCE 				hD3D;
+		void					Reset(HWND hw);
 
-public:
+		void					SwitchVP(ViewPort vp);
 
-	IDirect3D9* 			pD3D;		// D3D
-	IDirect3DDevice9*		pDevice;	// render device
+		void					selectResolution(u32& dwWidth, u32& dwHeight, BOOL bWindowed);
+		u32						selectPresentInterval();
+		u32						selectGPU();
+		void					updateWindowProps(HWND hw);
 
-	IDirect3DSurface9*		pBaseRT;
-	IDirect3DSurface9*		pBaseZB;
 
-	CHWCaps					Caps;
+		void	Validate(void) {};
 
-	UINT					DevAdapter;
-	D3DDEVTYPE				DevT;
-	D3DPRESENT_PARAMETERS	DevPP;
-#endif	//	USE_DX10
+	public:
+		ViewPort				storedVP;
+		xr_map<ViewPort, HWViewPortRTZB> viewPortsRTZB;
 
-#ifndef _MAYA_EXPORT
-	stats_manager			stats_manager;
-#endif
-#if defined(USE_DX10) || defined(USE_DX11)
-	void			UpdateViews();
-	DXGI_RATIONAL	selectRefresh(u32 dwWidth, u32 dwHeight, DXGI_FORMAT fmt);
 
-	virtual	void	OnAppActivate();
-	virtual void	OnAppDeactivate();
-#endif	//	USE_DX10
+		//	Variables section
+		public:
+			IDXGIAdapter* m_pAdapter;	//	pD3D equivalent
+			ID3D11Device* pDevice;	//	combine with DX9 pDevice via typedef
+			ID3D11DeviceContext* pContext;	//	combine with DX9 pDevice via typedef
+			IDXGISwapChain* m_pSwapChain;
+			ID3D11RenderTargetView* pBaseRT;	//	combine with DX9 pBaseRT via typedef
+			ID3D11DepthStencilView* pBaseZB;
 
-	virtual void	updateWindowProps_Position(HWND hw, u32 X, u32 Y, u32 SizeX, u32 SizeY);
+			CHWCaps					Caps;
 
-private:
-	bool					m_move_window;
+			D3D_DRIVER_TYPE		m_DriverType;	//	DevT equivalent
+			DXGI_SWAP_CHAIN_DESC	m_ChainDesc;	//	DevPP equivalent
+			bool					m_bUsePerfhud;
+			D3D_FEATURE_LEVEL		FeatureLevel;
+
+			GFSDK_SSAO_Context_D3D* pSSAO;
+
+			ID3DTexture2D* pDepthStencil;
+			ID3DShaderResourceView* pBaseDepthReadSRV;
+
+		#ifndef _MAYA_EXPORT
+			stats_manager			stats_manager;
+		#endif
+			void			UpdateViews();
+			DXGI_RATIONAL	selectRefresh(u32 dwWidth, u32 dwHeight, DXGI_FORMAT fmt);
+
+			virtual	void	OnAppActivate();
+			virtual void	OnAppDeactivate();
+
+		private:
+			bool					m_move_window;
 };
 
 extern ECORE_API CHW		HW;

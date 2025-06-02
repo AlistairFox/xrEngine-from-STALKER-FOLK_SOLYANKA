@@ -61,6 +61,46 @@ public:
 	xr_vector<CPS_Instance*>		ps_needtoplay;
 
 public:
+
+	enum GrassBenders_Anim
+	{
+		BENDER_ANIM_EXPLOSION = 0,
+		BENDER_ANIM_DEFAULT = 1,
+		BENDER_ANIM_WAVY = 2,
+		BENDER_ANIM_SUCK = 3,
+		BENDER_ANIM_BLOW = 4,
+		BENDER_ANIM_PULSE = 5,
+	};
+
+	void GrassBendersUpdateAnimations();
+	void GrassBendersAddExplosion(u16 id, Fvector position, Fvector3 dir, float fade, float speed, float intensity, float radius);
+	void GrassBendersAddShot(u16 id, Fvector position, Fvector3 dir, float fade, float speed, float intensity, float radius);
+	void GrassBendersRemoveById(u16 id);
+	void GrassBendersRemoveByIndex(u8& idx);
+	void GrassBendersUpdate(u16 id, u8& data_idx, u32& data_frame, Fvector& position, float radius, float str, bool CheckDistance);
+	void GrassBendersReset(u8 idx);
+	void GrassBendersSet(u8 idx, u16 id, Fvector position, Fvector3 dir, float fade, float speed, float str, float radius, GrassBenders_Anim anim, bool resetTime);
+	float GrassBenderToValue(float& current, float go_to, float intensity, bool use_easing);
+
+	CPerlinNoise1D* PerlinNoise1D;
+
+	struct grass_data
+	{
+		u8 index;
+		s8 anim[16];
+		u16 id[16];
+		Fvector pos[16];
+		Fvector3 dir[16];
+		float radius[16];
+		float radius_curr[16];
+		float str[16];
+		float str_target[16];
+		float time[16];
+		float fade[16];
+		float speed[16];
+	} grass_shader_data;
+
+
 			void					destroy_particles	(const bool &all_particles);
 
 public:
@@ -96,8 +136,17 @@ public:
 	virtual void					SetBaseDof			(const Fvector3& dof){};
 	virtual void					OnSectorChanged		(int sector){};
 	virtual void					OnAssetsChanged		();
-	virtual Fvector4				GetDudvParams		() { return Fvector4().set(0,0,0,0); }
-	virtual Fvector3				GetRainDropsParams	() { return Fvector3().set(0,0,0); }
+	virtual float					GetActorMaxHealth() { return 0; }
+	virtual float					GetActorHealth() { return 0; }
+	virtual float					GetActorMaxPower() { return 0; }
+	virtual float					GetActorPower() { return 0; }
+	virtual float					GetActorBleeding() { return 0; }
+	virtual bool					GetActorAliveStatus() { return 0; }
+	virtual float					GetActorSatiety() { return 0; }
+	virtual float					GetActorMaxSatiety() { return 0; }
+	virtual int						GetHudGlassElement() { return 0; }
+	virtual Fvector3				GetRainDropsParams() { return Fvector().set(0, 0, 0); }
+	virtual bool					GetHudGlassEnabled() { return 0; }
 	virtual void					EditorOnFrame() {};
 
 	virtual void					RegisterModel		(IRenderVisual* V)
@@ -123,9 +172,8 @@ public:
 #else
 	{}
 #endif
-	virtual	void					LoadTitle			(bool change_tip, shared_str map_name=""){}
-
-	virtual void					LoadTitle			(shared_str stage_name) {}
+	virtual	void					LoadTitle			(bool change_tip = false, shared_str map_name=""){}
+	virtual	void					SetLoadStageTitle(const char* ls_title = nullptr) {}
 
 	virtual bool					CanBePaused			()		{ return true;}
 };

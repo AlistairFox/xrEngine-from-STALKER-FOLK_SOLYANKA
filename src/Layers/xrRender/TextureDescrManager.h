@@ -23,18 +23,19 @@ class CTextureDescrMngr
 		float				m_material;
 		bool				m_use_steep_parallax;
 	};
-	struct texture_desc{
+	struct texture_desc {
 		texture_assoc*		m_assoc;
 		texture_spec*		m_spec;
         texture_desc            ():m_assoc(NULL),m_spec(NULL){}
 	};
+
 	DEFINE_MAP(shared_str, texture_desc,	map_TD,	map_TDIt);
 	DEFINE_MAP(shared_str, cl_dt_scaler*,	map_CS,	map_CSIt);
 
+
 	map_TD									m_texture_details;
 	map_CS									m_detail_scalers;
-
-	void		LoadTHM		(LPCSTR initial);
+	void		LoadTHM(LPCSTR initial);
 
 public:
 				~CTextureDescrMngr();

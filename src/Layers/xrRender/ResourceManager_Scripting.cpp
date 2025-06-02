@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #pragma hdrstop
 
-// #include <lua/library_linkage.h>
+//#include <lua/library_linkage.h>
 
 #include	"../../xrEngine/Render.h"
 #include	"ResourceManager.h"
@@ -15,6 +15,12 @@
 #include	"dxRenderDeviceRender.h"
 
 using namespace				luabind;
+
+#ifdef	DEBUG
+#define MDB	Memory.dbg_check()
+#else
+#define MDB
+#endif
 
 // wrapper
 class	adopt_sampler
@@ -73,35 +79,14 @@ class	adopt_blend
 public:
 };
 
- 
+void LuaLog(LPCSTR caMessage)
+{
+	MDB;	
+	Lua::LuaOut	(Lua::eLuaMessageTypeMessage,"%s",caMessage);
+}
 void LuaError(lua_State* L)
 {
 	Debug.fatal(DEBUG_INFO,"LUA error: %s",lua_tostring(L,-1));
-}
-
-static LPVOID __cdecl luabind_allocator(
-	luabind::memory_allocation_function_parameter const,
-	void const* const pointer,
-	size_t const size
-)
-{
-	if (!size) {
-		LPVOID	non_const_pointer = const_cast<LPVOID>(pointer);
-		xr_free(non_const_pointer);
-		return	(0);
-	}
-
-	if (!pointer)
-	{
-		return	(Memory.mem_alloc(size));
-	}
-
-	LPVOID		non_const_pointer = const_cast<LPVOID>(pointer);
-#ifdef DEBUG
-	return		(Memory.mem_realloc(non_const_pointer, size, "luabind"));
-#else // #ifdef DEBUG
-	return		(Memory.mem_realloc(non_const_pointer, size));
-#endif // #ifdef DEBUG
 }
 
 // export
@@ -121,12 +106,13 @@ void	CResourceManager::LS_Load			()
 	luaopen_jit		(LSVM);
 
 	luabind::open						(LSVM);
-#if XRAY_EXCEPTIONS
+#if !XRAY_EXCEPTIONS
 	if (0==luabind::get_error_callback())
 		luabind::set_error_callback		(LuaError);
 #endif
 
- 
+	function		(LSVM, "log",	LuaLog);
+
 	module			(LSVM)
 	[
 		class_<adopt_sampler>("_sampler")

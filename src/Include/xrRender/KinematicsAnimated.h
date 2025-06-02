@@ -69,7 +69,6 @@ public:
 
 	// Low level interface
 	virtual MotionID					LL_MotionID		(LPCSTR B) = 0;
-	virtual shared_str					LL_MotionID_name(int id) = 0;
 	virtual u16							LL_PartID		(LPCSTR B) = 0;
 
 //	CBlend*						LL_PlayFX		(u16 bone,		MotionID motion, float blendAccrue,	float blendFalloff, float Speed, float Power);
@@ -83,7 +82,7 @@ public:
 	// Main functionality
 	virtual void						UpdateTracks	()												= 0;								// Update motions
 	virtual void						LL_UpdateTracks	( float dt, bool b_force, bool leave_blends )	= 0;								// Update motions
-	void								DestroyCycle(CBlend& B) {};
+	//void						DestroyCycle	(CBlend &B);
 
 	// cycles
 	virtual MotionID					ID_Cycle		(LPCSTR  N) = 0;
@@ -111,7 +110,6 @@ public:
 	bool IsNPC = false;
 	void SetNPC(bool Value) { IsNPC = Value; }
 	bool GetNPC() { return IsNPC; }
-
 //#ifdef DEBUG
 //	virtual	const BlendSVec			&blend_cycle	(const u32 &bone_part_id) const = 0;
 //#endif //	DEBUG

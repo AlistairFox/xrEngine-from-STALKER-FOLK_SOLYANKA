@@ -35,7 +35,14 @@ public:
 	virtual void					set_color			(float r, float g, float b)	{ }
 };
 
+bool CRender::is_sun()
+{
+	Fcolor sun_color = ((light*)Lights.sun._get())->color;
+	return (ps_r2_ls_flags.test(R2FLAG_SUN) && (u_diffuse2s(sun_color.r, sun_color.g, sun_color.b) > EPS));
+}
+
 float		r_dtex_range		= 50.f;
+
 //////////////////////////////////////////////////////////////////////////
 ShaderElement*			CRender::rimp_select_sh_dynamic	(dxRender_Visual	*pVisual, float cdist_sq)
 {
@@ -52,7 +59,19 @@ ShaderElement*			CRender::rimp_select_sh_static	(dxRender_Visual	*pVisual, float
 	int		id	= SE_R2_SHADOW;
 	if	(CRender::PHASE_NORMAL == RImplementation.phase)
 	{
-		id = ((_sqrt(cdist_sq)-pVisual->vis.sphere.R)<r_dtex_range)?SE_R2_NORMAL_HQ:SE_R2_NORMAL_LQ;
+		if (pVisual->shader->E[0]->flags.isLandscape)
+		{
+			float sec_dist = _sqrt(cdist_sq) - pVisual->vis.sphere.R;
+			id = (sec_dist < ps_ssfx_terrain_quality.x * 10) ? SE_R2_NORMAL_HQ : SE_R2_NORMAL_LQ;
+
+			// Very low shader variation
+			if (sec_dist > 240)
+				id = 3;
+		}
+		else
+		{
+			id = ((_sqrt(cdist_sq) - pVisual->vis.sphere.R) < r_dtex_range) ? SE_R2_NORMAL_HQ : SE_R2_NORMAL_LQ;
+		}
 	}
 	return pVisual->shader->E[id]._get();
 }
@@ -95,6 +114,19 @@ static class cl_water_intensity : public R_constant_setup
 	}
 }	binder_water_intensity;
 
+#ifdef TREE_WIND_EFFECT
+static class cl_tree_amplitude_intensity : public R_constant_setup
+{
+	virtual void setup(R_constant* C)
+	{
+		CEnvDescriptor& E = *g_pGamePersistent->Environment().CurrentEnv;
+		float fValue = E.m_fTreeAmplitudeIntensity;
+		RCache.set_c(C, fValue, fValue, fValue, 0);
+	}
+} binder_tree_amplitude_intensity;
+#endif
+
+
 static class cl_sun_shafts_intensity : public R_constant_setup		
 {	
 	virtual void setup	(R_constant* C)
@@ -113,8 +145,6 @@ static class cl_alpha_ref	: public R_constant_setup
 	}
 } binder_alpha_ref;
 
-extern ENGINE_API BOOL r2_sun_static;
-extern ENGINE_API BOOL r2_advanced_pp;	//	advanced post process and effects
 //////////////////////////////////////////////////////////////////////////
 // Just two static storage
 void					CRender::create					()
@@ -125,20 +155,12 @@ void					CRender::create					()
 	m_MSAASample		= -1;
 
 	// hardware
-	o.smapsize			= 2048;
+	o.smapsize = ps_r2_smapsize;
 	o.mrt				= (HW.Caps.raster.dwMRT_count >= 3);
 	o.mrtmixdepth		= (HW.Caps.raster.b_MRT_mixdepth);
 
-	// Check for NULL render target support
-	//	DX10 disabled
-	//D3DFORMAT	nullrt	= (D3DFORMAT)MAKEFOURCC('N','U','L','L');
-	//o.nullrt			= HW.support	(nullrt,			D3DRTYPE_SURFACE, D3DUSAGE_RENDERTARGET);
 	o.nullrt = false;
-	/*
-	if (o.nullrt)		{
-	Msg				("* NULLRT supported and used");
-	};
-	*/
+
 	if (o.nullrt)		{
 		Msg				("* NULLRT supported");
 
@@ -201,9 +223,9 @@ void					CRender::create					()
 	{
 		//	For ATI it's much faster on DX10 to use D32F format
 		if (HW.Caps.id_vendor==0x1002)
-			o.HW_smap_FORMAT	= D3DFMT_D32F_LOCKABLE;
+			o.HW_smap_FORMAT	= DXGI_FORMAT_D32_FLOAT;
 		else
-			o.HW_smap_FORMAT	= D3DFMT_D24X8;
+			o.HW_smap_FORMAT	= DXGI_FORMAT_D24_UNORM_S8_UINT;
 		Msg				("* HWDST/PCF supported and used");
 	}
 
@@ -212,17 +234,7 @@ void					CRender::create					()
 	//o.fp16_blend		= HW.support	(D3DFMT_A16B16G16R16F,	D3DRTYPE_TEXTURE,D3DUSAGE_QUERY_POSTPIXELSHADER_BLENDING);
 	o.fp16_filter		= true;
 	o.fp16_blend		= true;
-
-	// search for ATI formats
-	if (!o.HW_smap && (0==strstr(Core.Params,"-nodf24")) )		{
-		o.HW_smap		= HW.support	((D3DFORMAT)(MAKEFOURCC('D','F','2','4')),	D3DRTYPE_TEXTURE,D3DUSAGE_DEPTHSTENCIL);
-		if (o.HW_smap)	{
-			o.HW_smap_FORMAT= MAKEFOURCC	('D','F','2','4');
-			o.HW_smap_PCF	= FALSE			;
-			o.HW_smap_FETCH4= TRUE			;
-		}
-		Msg				("* DF24/F4 supported and used [%X]", o.HW_smap_FORMAT);
-	}
+	o.HW_smap = true;
 
 	// emulate ATI-R4xx series
 	if (strstr(Core.Params,"-r4xx"))	{
@@ -243,18 +255,24 @@ void					CRender::create					()
 	//if ((HW.Caps.id_vendor==0x10DE)&&(HW.Caps.id_device>=0x40))	o.nvstencil = TRUE;
 	if (strstr(Core.Params,"-nonvs"))		o.nvstencil	= FALSE;
 
-	// nv-dbt
-	//	DX10 disabled
-	//o.nvdbt				= HW.support	((D3DFORMAT)MAKEFOURCC('N','V','D','B'), D3DRTYPE_SURFACE, 0);
 	o.nvdbt				= false;
 	if (o.nvdbt)		Msg	("* NV-DBT supported and used");
 
+	o.no_ram_textures = (strstr(Core.Params, "-noramtex")) ? TRUE : ps_r__common_flags.test(RFLAG_NO_RAM_TEXTURES);
+	if (o.no_ram_textures)
+		Msg("* Managed textures disabled");
+	else
+		Msg("* Managed textures enabled");
+
 	// options (smap-pool-size)
+	if (strstr(Core.Params, "-smap512"))	o.smapsize = 512;
+	if (strstr(Core.Params, "-smap1024"))	o.smapsize = 1024;
 	if (strstr(Core.Params,"-smap1536"))	o.smapsize	= 1536;
 	if (strstr(Core.Params,"-smap2048"))	o.smapsize	= 2048;
 	if (strstr(Core.Params,"-smap2560"))	o.smapsize	= 2560;
 	if (strstr(Core.Params,"-smap3072"))	o.smapsize	= 3072;
 	if (strstr(Core.Params,"-smap4096"))	o.smapsize	= 4096;
+	if (strstr(Core.Params, "-smap8192"))	o.smapsize = 8192;
 
 	// gloss
 	char*	g			= strstr(Core.Params,"-gloss ");
@@ -266,15 +284,12 @@ void					CRender::create					()
 	// options
 	o.bug				= (strstr(Core.Params,"-bug"))?			TRUE	:FALSE	;
 	o.sunfilter			= (strstr(Core.Params,"-sunfilter"))?	TRUE	:FALSE	;
-	//.	o.sunstatic			= (strstr(Core.Params,"-sunstatic"))?	TRUE	:FALSE	;
-	o.sunstatic			= r2_sun_static;
-	o.advancedpp		= r2_advanced_pp;
 	o.volumetricfog		= ps_r2_ls_flags.test(R3FLAG_VOLUMETRIC_SMOKE);
 	o.sjitter			= (strstr(Core.Params,"-sjitter"))?		TRUE	:FALSE	;
 	o.depth16			= (strstr(Core.Params,"-depth16"))?		TRUE	:FALSE	;
 	o.noshadows			= (strstr(Core.Params,"-noshadows"))?	TRUE	:FALSE	;
 	o.Tshadows			= (strstr(Core.Params,"-tsh"))?			TRUE	:FALSE	;
-	o.mblur				= (strstr(Core.Params,"-mblur"))?		TRUE	:FALSE	;
+	o.mblur = false;
 	o.distortion_enabled= (strstr(Core.Params,"-nodistort"))?	FALSE	:TRUE	;
 	o.distortion		= o.distortion_enabled;
 	o.disasm			= (strstr(Core.Params,"-disasm"))?		TRUE	:FALSE	;
@@ -285,6 +300,8 @@ void					CRender::create					()
 	o.ssao_half_data	= ps_r2_ls_flags_ext.test(R2FLAGEXT_SSAO_HALF_DATA) && o.ssao_opt_data && (ps_r_ssao != 0);
 	o.ssao_hdao			= ps_r2_ls_flags_ext.test(R2FLAGEXT_SSAO_HDAO) && (ps_r_ssao != 0);
 	o.ssao_hbao			= !o.ssao_hdao && ps_r2_ls_flags_ext.test(R2FLAGEXT_SSAO_HBAO) && (ps_r_ssao != 0);
+	o.hbao_plus = ps_r2_ls_flags_ext.test(R2FLAGEXT_HBAO_PLUS);
+	o.pseudo_pbr = ps_r3_pbr_flags.test(R_FLAG_PSEUDOPBR);
 
 	//	TODO: fix hbao shader to allow to perform per-subsample effect!
 	o.hbao_vectorized = false;
@@ -338,7 +355,7 @@ void					CRender::create					()
 		}
 	}
 
-	o.dx10_gbuffer_opt	= ps_r2_ls_flags.test(R3FLAG_GBUFFER_OPT);
+	o.dx10_gbuffer_opt	= TRUE;
 
 	o.dx10_minmax_sm = ps_r3_minmax_sm;
 	o.dx10_minmax_sm_screenarea_threshold = 1600*1200;
@@ -374,6 +391,22 @@ void					CRender::create					()
 		}
 	}
 
+	// Ascii's Screen Space Shaders - Check if SSS shaders exist
+	string_path fn;
+	o.ssfx_rain = FS.exist(fn, "$game_shaders$", "r3\\effects_rain_splash", ".ps") ? 1 : 0;
+	o.ssfx_blood = FS.exist(fn, "$game_shaders$", "r3\\effects_wallmark_blood", ".ps") ? 1 : 0;
+	o.ssfx_branches = FS.exist(fn, "$game_shaders$", "r3\\deffer_tree_branch_bump-hq", ".vs") ? 1 : 0;
+	o.ssfx_hud_raindrops = FS.exist(fn, "$game_shaders$", "r3\\deffer_base_hud_bump", ".ps") ? 1 : 0;
+	o.ssfx_ssr = ps_r4_ssr_flags.test(R4_FLAG_SSR_USE) ? 1 : 0;
+	o.ssfx_volumetric = FS.exist(fn, "$game_shaders$", "r3\\ssfx_volumetric_blur", ".ps") ? 1 : 0;
+
+	Msg("- SSS HUD RAINDROPS SHADER INSTALLED %i", o.ssfx_hud_raindrops);
+	Msg("- SSS RAIN SHADER INSTALLED %i", o.ssfx_rain);
+	Msg("- SSS BLOOD SHADER INSTALLED %i", o.ssfx_blood);
+	Msg("- SSS BRANCHES SHADER INSTALLED %i", o.ssfx_branches);
+	Msg("- SSS SSR SHADER ENABLED %i", o.ssfx_ssr);
+	Msg("- SSS VOLUMETRIC SHADER INSTALLED %i", o.ssfx_volumetric);
+
 	// constants
 	dxRenderDeviceRender::Instance().Resources->RegisterConstantSetup	("parallax",	&binder_parallax);
 	dxRenderDeviceRender::Instance().Resources->RegisterConstantSetup	("water_intensity",	&binder_water_intensity);
@@ -392,26 +425,19 @@ void					CRender::create					()
 
 	Models						= xr_new<CModelPool>		();
 	PSLibrary.OnCreate			();
-	HWOCC.occq_create			(occq_size);
 
 	rmNormal					();
 	marker						= 0;
+	/*
 	D3D_QUERY_DESC			qdesc;
 	qdesc.MiscFlags				= 0;
 	qdesc.Query					= D3D_QUERY_EVENT;
 	ZeroMemory(q_sync_point, sizeof(q_sync_point));
-	//R_CHK						(HW.pDevice->CreateQuery(&qdesc,&q_sync_point[0]));
-	//R_CHK						(HW.pDevice->CreateQuery(&qdesc,&q_sync_point[1]));
-	//	Prevent error on first get data
-	//q_sync_point[0]->End();
-	//q_sync_point[1]->End();
-	//R_CHK						(HW.pDevice->CreateQuery(D3DQUERYTYPE_EVENT,&q_sync_point[0]));
-	//R_CHK						(HW.pDevice->CreateQuery(D3DQUERYTYPE_EVENT,&q_sync_point[1]));
 	for (u32 i=0; i<HW.Caps.iGPUNum; ++i)
 		R_CHK(HW.pDevice->CreateQuery(&qdesc,&q_sync_point[i]));
 	HW.pContext->End(q_sync_point[0]);
+	*/
 
-	xrRender_apply_tf			();
 	::PortalTraverser.initialize();
 	FluidManager.Initialize( 70, 70, 70 );
 //	FluidManager.Initialize( 100, 100, 100 );
@@ -423,10 +449,10 @@ void					CRender::destroy				()
 	m_bMakeAsyncSS				= false;
 	FluidManager.Destroy();
 	::PortalTraverser.destroy	();
-	//_RELEASE					(q_sync_point[1]);
-	//_RELEASE					(q_sync_point[0]);
+	/*
 	for (u32 i=0; i<HW.Caps.iGPUNum; ++i)
 		_RELEASE				(q_sync_point[i]);
+	*/
 	
 	HWOCC.occq_destroy			();
 	xr_delete					(Models);
@@ -454,60 +480,65 @@ void CRender::reset_begin()
 		Lights_LastFrame.clear	();
 	}
 
+	//AVO: let's reload details while changed details options on vid_restart
+	if (b_loaded && ((dm_current_size != dm_size) || (ps_r__Detail_density != ps_current_detail_density)))
+	{
+		Details->Unload();
+		xr_delete(Details);
+	}
+	//-AVO
+
 	xr_delete					(Target);
 	HWOCC.occq_destroy			();
-	//_RELEASE					(q_sync_point[1]);
-	//_RELEASE					(q_sync_point[0]);
+	/*
 	for (u32 i=0; i<HW.Caps.iGPUNum; ++i)
 		_RELEASE				(q_sync_point[i]);
+	*/
 }
 
 void CRender::reset_end()
 {
+	/*
 	D3D_QUERY_DESC			qdesc;
 	qdesc.MiscFlags				= 0;
 	qdesc.Query					= D3D_QUERY_EVENT;
-	//R_CHK						(HW.pDevice->CreateQuery(&qdesc,&q_sync_point[0]));
-	//R_CHK						(HW.pDevice->CreateQuery(&qdesc,&q_sync_point[1]));
 	for (u32 i=0; i<HW.Caps.iGPUNum; ++i)
 		R_CHK(HW.pDevice->CreateQuery(&qdesc,&q_sync_point[i]));
 	//	Prevent error on first get data
 	HW.pContext->End(q_sync_point[0]);
-	//q_sync_point[1]->End();
-	//R_CHK						(HW.pDevice->CreateQuery(D3DQUERYTYPE_EVENT,&q_sync_point[0]));
-	//R_CHK						(HW.pDevice->CreateQuery(D3DQUERYTYPE_EVENT,&q_sync_point[1]));
-	HWOCC.occq_create			(occq_size);
+	*/
 
 	Target						=	xr_new<CRenderTarget>	();
 
-	xrRender_apply_tf			();
+	//AVO: let's reload details while changed details options on vid_restart
+	if (b_loaded && ((dm_current_size != dm_size) || (ps_r__Detail_density != ps_current_detail_density)))
+	{
+		Details = xr_new<CDetailManager>();
+		Details->Load();
+	}
+	//-AVO
+
 	FluidManager.SetScreenSize(Device.dwWidth, Device.dwHeight);
 
 	// Set this flag true to skip the first render frame,
 	// that some data is not ready in the first frame (for example device camera position)
 	m_bFirstFrameAfterReset		= true;
 }
-/*
-void CRender::OnFrame()
-{
-	Models->DeleteQueue			();
-	if (ps_r2_ls_flags.test(R2FLAG_EXP_MT_CALC))	{
-		Device.seqParallel.insert	(Device.seqParallel.begin(),
-			fastdelegate::FastDelegate0<>(&HOM,&CHOM::MT_RENDER));
-	}
-}*/
 
-#pragma comment(lib, "OptickCore")
 
 void CRender::OnFrame()
 {
-	OPTICK_EVENT("CRender::OnFrame");
-	Models->DeleteQueue			();
-	if (ps_r2_ls_flags.test(R2FLAG_EXP_MT_CALC))
-	{
- 		// MT-HOM (@front)
-		Device.seqParallel.insert	(Device.seqParallel.begin(), fastdelegate::FastDelegate0<>(&HOM,&CHOM::MT_RENDER));
-	}
+	Models->DeleteQueue();
+	// MT-details (@front)
+	Device.seqParallel.insert(Device.seqParallel.begin(),
+		fastdelegate::FastDelegate0<>(Details, &CDetailManager::MT_CALC));
+
+	// MT-HOM (@front)
+	Device.seqParallel.insert(Device.seqParallel.begin(),
+		fastdelegate::FastDelegate0<>(&HOM, &CHOM::MT_RENDER));
+
+	if (Details)
+		g_pGamePersistent->GrassBendersUpdateAnimations();
 }
 
 
@@ -637,7 +668,7 @@ void					CRender::set_Object				(IRenderable*	O )
 void					CRender::rmNear				()
 {
 	IRender_Target* T	=	getTarget	();
-	D3D_VIEWPORT VP		=	{0,0,(float)T->get_width(),(float)T->get_height(),0,0.02f };
+	D3D11_VIEWPORT VP		=	{0,0,(float)T->get_width(),(float)T->get_height(),0,0.02f };
 
 	HW.pContext->RSSetViewports(1, &VP);
 	//CHK_DX				(HW.pDevice->SetViewport(&VP));
@@ -645,7 +676,7 @@ void					CRender::rmNear				()
 void					CRender::rmFar				()
 {
 	IRender_Target* T	=	getTarget	();
-	D3D_VIEWPORT VP		=	{0,0,(float)T->get_width(),(float)T->get_height(),0.99999f,1.f };
+	D3D11_VIEWPORT VP		=	{0,0,(float)T->get_width(),(float)T->get_height(),0.99999f,1.f };
 
 	HW.pContext->RSSetViewports(1, &VP);
 	//CHK_DX				(HW.pDevice->SetViewport(&VP));
@@ -653,7 +684,7 @@ void					CRender::rmFar				()
 void					CRender::rmNormal			()
 {
 	IRender_Target* T	=	getTarget	();
-	D3D_VIEWPORT VP		= {0,0,(float)T->get_width(),(float)T->get_height(),0,1.f };
+	D3D11_VIEWPORT VP		= {0,0,(float)T->get_width(),(float)T->get_height(),0,1.f };
 
 	HW.pContext->RSSetViewports(1, &VP);
 	//CHK_DX				(HW.pDevice->SetViewport(&VP));
@@ -665,7 +696,7 @@ void					CRender::rmNormal			()
 CRender::CRender()
 :m_bFirstFrameAfterReset(false)
 {
-	init_cacades();
+	init_cascades();
 }
 
 CRender::~CRender()
@@ -710,6 +741,11 @@ void CRender::addShaderOption(const char* name, const char* value)
 	m_ShaderOptions.push_back(macro);
 }
 
+// XXX nitrocaster: workaround to eliminate conflict between different GUIDs from DXSDK/Windows SDK
+// 0a233719-3960-4578-9d7c-203b8b1d9cc1
+static const GUID guidShaderReflection =
+{ 0x0a233719, 0x3960, 0x4578, {0x9d, 0x7c, 0x20, 0x3b, 0x8b, 0x1d, 0x9c, 0xc1} };
+
 template <typename T>
 static HRESULT create_shader				(
 		LPCSTR const	pTarget,
@@ -724,7 +760,7 @@ static HRESULT create_shader				(
 
 	ID3DShaderReflection *pReflection = 0;
 
-	HRESULT const _hr	= D3DReflect( buffer, buffer_size, IID_ID3DShaderReflection, (void**)&pReflection);
+	HRESULT const _hr = D3DReflect(buffer, buffer_size, guidShaderReflection, (void**)&pReflection);
 	if (SUCCEEDED(_hr) && pReflection)
 	{
 		// Parse constant table data
@@ -752,11 +788,9 @@ static HRESULT create_shader				(
 	HRESULT		_result = E_FAIL;
 	if (pTarget[0] == 'p') {
 		SPS* sps_result = (SPS*)result;
-#ifdef USE_DX11
+
 		_result			= HW.pDevice->CreatePixelShader(buffer, buffer_size, 0, &sps_result->ps);
-#else // #ifdef USE_DX11
-		_result			= HW.pDevice->CreatePixelShader(buffer, buffer_size, &sps_result->ps);
-#endif // #ifdef USE_DX11
+
 		if ( !SUCCEEDED(_result) ) {
 			Log			("! PS: ", file_name);
 			Msg			("! CreatePixelShader hr == 0x%08x", _result);
@@ -765,11 +799,8 @@ static HRESULT create_shader				(
 
 		ID3DShaderReflection *pReflection = 0;
 
-#ifdef USE_DX11
-		_result			= D3DReflect( buffer, buffer_size, IID_ID3DShaderReflection, (void**)&pReflection);
-#else
-		_result			= D3D10ReflectShader( buffer, buffer_size, &pReflection);
-#endif
+		_result = D3DReflect(buffer, buffer_size, guidShaderReflection, (void**)&pReflection);
+
 
 		//	Parse constant, texture, sampler binding
 		//	Store input signature blob
@@ -788,11 +819,8 @@ static HRESULT create_shader				(
 	}
 	else if (pTarget[0] == 'v') {
 		SVS* svs_result = (SVS*)result;
-#ifdef USE_DX11
+
 		_result			= HW.pDevice->CreateVertexShader(buffer, buffer_size, 0, &svs_result->vs);
-#else // #ifdef USE_DX11
-		_result			= HW.pDevice->CreateVertexShader(buffer, buffer_size, &svs_result->vs);
-#endif // #ifdef USE_DX11
 
 		if ( !SUCCEEDED(_result) ) {
 			Log			("! VS: ", file_name);
@@ -801,11 +829,9 @@ static HRESULT create_shader				(
 		}
 
 		ID3DShaderReflection *pReflection = 0;
-#ifdef USE_DX11
-		_result			= D3DReflect( buffer, buffer_size, IID_ID3DShaderReflection, (void**)&pReflection);
-#else
-		_result			= D3D10ReflectShader( buffer, buffer_size, &pReflection);
-#endif
+
+		_result = D3DReflect(buffer, buffer_size, guidShaderReflection, (void**)&pReflection);
+
 		
 		//	Parse constant, texture, sampler binding
 		//	Store input signature blob
@@ -836,11 +862,9 @@ static HRESULT create_shader				(
 	}
 	else if (pTarget[0] == 'g') {
 		SGS* sgs_result = (SGS*)result;
-#ifdef USE_DX11
+
 		_result			= HW.pDevice->CreateGeometryShader(buffer, buffer_size, 0, &sgs_result->gs);
-#else // #ifdef USE_DX11
-		_result			= HW.pDevice->CreateGeometryShader(buffer, buffer_size, &sgs_result->gs);
-#endif // #ifdef USE_DX11
+
 		if ( !SUCCEEDED(_result) ) {
 			Log			("! GS: ", file_name);
 			Msg			("! CreateGeometryShaderhr == 0x%08x", _result);
@@ -849,11 +873,8 @@ static HRESULT create_shader				(
 
 		ID3DShaderReflection *pReflection = 0;
 
-#ifdef USE_DX11
-		_result			= D3DReflect( buffer, buffer_size, IID_ID3DShaderReflection, (void**)&pReflection);
-#else
-		_result			= D3D10ReflectShader( buffer, buffer_size, &pReflection);
-#endif
+		_result = D3DReflect(buffer, buffer_size, guidShaderReflection, (void**)&pReflection);
+
 
 		//	Parse constant, texture, sampler binding
 		//	Store input signature blob
@@ -870,42 +891,7 @@ static HRESULT create_shader				(
 			Msg	("! D3DReflectShader hr == 0x%08x", _result);
 		}
 	}
-//	else if (pTarget[0] == 'c') {
-//		SCS* scs_result = (SCS*)result;
-//#ifdef USE_DX11
-//		_result			= HW.pDevice->CreateComputeShader(buffer, buffer_size, 0, &scs_result->sh);
-//#else // #ifdef USE_DX11
-//		_result			= HW.pDevice->CreateComputeShader(buffer, buffer_size, &scs_result->sh);
-//#endif // #ifdef USE_DX11
-//		if ( !SUCCEEDED(_result) ) {
-//			Log			("! CS: ", file_name);
-//			Msg			("! CreateComputeShaderhr == 0x%08x", _result);
-//			return		E_FAIL;
-//		}
-//
-//		ID3DShaderReflection *pReflection = 0;
-//
-//#ifdef USE_DX11
-//		_result			= D3DReflect( buffer, buffer_size, IID_ID3DShaderReflection, (void**)&pReflection);
-//#else
-//		_result			= D3D10ReflectShader( buffer, buffer_size, &pReflection);
-//#endif
-//
-//		//	Parse constant, texture, sampler binding
-//		//	Store input signature blob
-//		if (SUCCEEDED(_result) && pReflection)
-//		{
-//			//	Let constant table parse it's data
-//			scs_result->constants.parse(pReflection,RC_dest_pixel);
-//
-//			_RELEASE(pReflection);
-//		}
-//		else
-//		{
-//			Log	("! PS: ", file_name);
-//			Msg	("! D3DReflectShader hr == 0x%08x", _result);
-//		}
-//	}
+
 	else if (pTarget[0] == 'c') {
 		_result = create_shader	( pTarget, buffer, buffer_size, file_name, (SCS*&)result, disasm );
 	}
@@ -987,6 +973,9 @@ HRESULT	CRender::shader_compile			(
 	char							c_sun_shafts	[32];
 	char							c_ssao			[32];
 	char							c_sun_quality	[32];
+	char							c_ssr_quality	[32];
+	char							c_inter_grass	[32];
+	char							c_rain_quality[32];
 
 	char	sh_name[MAX_PATH] = "";
 	
@@ -1002,7 +991,7 @@ HRESULT	CRender::shader_compile			(
 		defines[def_it].Name		=	"SMAP_size";
 		defines[def_it].Definition	=	c_smapsize;
 		def_it						++	;
-		VERIFY							( xr_strlen(c_smapsize) == 4 );
+		VERIFY(xr_strlen(c_smapsize) == 4 || atoi(c_smapsize) < 16384);
 		xr_strcat(sh_name, c_smapsize); len+=4;
 	}
 
@@ -1076,19 +1065,20 @@ HRESULT	CRender::shader_compile			(
 	}
 	sh_name[len]='0'+char(o.mblur); ++len;
 
+	if (o.pseudo_pbr)
+	{
+		defines[def_it].Name = "USE_PBR";
+		defines[def_it].Definition = "1";
+		def_it++;
+	}
+	sh_name[len] = '0' + char(o.pseudo_pbr); ++len;
+
 	if (o.sunfilter)		{
 		defines[def_it].Name		=	"USE_SUNFILTER";
 		defines[def_it].Definition	=	"1";
 		def_it						++	;
 	}
 	sh_name[len]='0'+char(o.sunfilter); ++len;
-
-	if (o.sunstatic)		{
-		defines[def_it].Name		=	"USE_R2_STATIC_SUN";
-		defines[def_it].Definition	=	"1";
-		def_it						++	;
-	}
-	sh_name[len]='0'+char(o.sunstatic); ++len;
 
 	if (o.forceskinw)		{
 		defines[def_it].Name		=	"SKIN_COLOR";
@@ -1103,7 +1093,16 @@ HRESULT	CRender::shader_compile			(
 		defines[def_it].Definition	=	"1";
 		def_it						++;
 	}
-	sh_name[len]='0'+char(o.ssao_blur_on); ++len;
+	sh_name[len] = '0' + char(o.ssao_blur_on); ++len;
+
+	if (o.hbao_plus)
+	{
+		defines[def_it].Name = "USE_HBAO_PLUS";
+		defines[def_it].Definition = "1";
+		def_it++;
+	}
+	sh_name[len] = '0' + char(o.hbao_plus); ++len;
+
 
     if (o.ssao_hdao)
     {
@@ -1114,7 +1113,8 @@ HRESULT	CRender::shader_compile			(
 		sh_name[len]='0'; ++len;
 		sh_name[len]='0'; ++len;
     }
-	else {
+	else
+	{
 		sh_name[len]='0'; ++len;
 		sh_name[len]='0'+char(o.ssao_hbao); ++len;
 		sh_name[len]='0'+char(o.ssao_half_data); ++len;
@@ -1213,32 +1213,18 @@ HRESULT	CRender::shader_compile			(
 	}
 	sh_name[len]='0'+char(4==m_skinning); ++len;
 
-	//	Igor: need restart options
-	if (RImplementation.o.advancedpp && ps_r2_ls_flags.test(R2FLAG_SOFT_WATER))
-	{
 		defines[def_it].Name		=	"USE_SOFT_WATER";
 		defines[def_it].Definition	=	"1";
 		def_it						++;
 		sh_name[len]='1'; ++len;
-	}
-	else
-	{
-		sh_name[len]='0'; ++len;
-	}
 
-	if (RImplementation.o.advancedpp && ps_r2_ls_flags.test(R2FLAG_SOFT_PARTICLES))
-	{
 		defines[def_it].Name		=	"USE_SOFT_PARTICLES";
 		defines[def_it].Definition	=	"1";
 		def_it						++;
 		sh_name[len]='1'; ++len;
-	}
-	else
-	{
-		sh_name[len]='0'; ++len;
-	}
 
-	if (RImplementation.o.advancedpp && ps_r2_ls_flags.test(R2FLAG_DOF))
+
+	if (ps_r2_ls_flags.test(R2FLAG_DOF))
 	{
 		defines[def_it].Name		=	"USE_DOF";
 		defines[def_it].Definition	=	"1";
@@ -1250,7 +1236,7 @@ HRESULT	CRender::shader_compile			(
 		sh_name[len]='0'; ++len;
 	}
 
-	if (RImplementation.o.advancedpp && ps_r_sun_shafts)
+	if (ps_r_sun_shafts)
 	{
 		xr_sprintf					(c_sun_shafts,"%d",ps_r_sun_shafts);
 		defines[def_it].Name		=	"SUN_SHAFTS_QUALITY";
@@ -1263,7 +1249,7 @@ HRESULT	CRender::shader_compile			(
 		sh_name[len]='0'; ++len;
 	}
 
-	if (RImplementation.o.advancedpp && ps_r_ssao)
+	if (ps_r_ssao)
 	{
 		xr_sprintf					(c_ssao,"%d",ps_r_ssao);
 		defines[def_it].Name		=	"SSAO_QUALITY";
@@ -1276,7 +1262,7 @@ HRESULT	CRender::shader_compile			(
 		sh_name[len]='0'; ++len;
 	}
 
-	if (RImplementation.o.advancedpp && ps_r_sun_quality)
+	if (ps_r_sun_quality)
 	{
 		xr_sprintf					(c_sun_quality,"%d",ps_r_sun_quality);
 		defines[def_it].Name		=	"SUN_QUALITY";
@@ -1289,7 +1275,32 @@ HRESULT	CRender::shader_compile			(
 		sh_name[len]='0'; ++len;
 	}
 
-	if (RImplementation.o.advancedpp && ps_r2_ls_flags.test(R2FLAG_STEEP_PARALLAX))
+
+	/////////////////////SHADERS PARAMS////////////////////
+	if (ps_r4_ssr_flags.test(R4_FLAG_SSR_USE))
+	{
+		defines[def_it].Name = "USE_SSR";
+		defines[def_it].Definition = "1";
+		def_it++;
+		sh_name[len] = '1'; ++len;
+	}
+	if (ps_r4_ssr_flags.test(R4_FLAG_MAX_QUALITY_SHADERS))
+	{
+		defines[def_it].Name = "MAX_QUALITY_SHADERS";
+		defines[def_it].Definition = "1";
+		def_it++;
+		sh_name[len] = '1'; ++len;
+	}
+	if (ps_r4_ssr_flags.test(R4_FLAG_USE_ADVANCED_SHADERS))
+	{
+		defines[def_it].Name = "USE_ADVANCED_SHADERS";
+		defines[def_it].Definition = "1";
+		def_it++;
+		sh_name[len] = '1'; ++len;
+	}
+
+	/////////////////////////////SHADERS PARAMS END////////////////////////
+	if (ps_r2_ls_flags.test(R2FLAG_STEEP_PARALLAX))
 	{
 		defines[def_it].Name		=	"ALLOW_STEEPPARALLAX";
 		defines[def_it].Definition	=	"1";
@@ -1318,7 +1329,7 @@ HRESULT	CRender::shader_compile			(
    }
    sh_name[len]='0'+0*char(o.dx10_sm4_1); ++len;
 
-   R_ASSERT						( HW.FeatureLevel>=D3D_FEATURE_LEVEL_11_0 );
+   //R_ASSERT						( HW.FeatureLevel>=D3D_FEATURE_LEVEL_11_0 );
    if( HW.FeatureLevel>=D3D_FEATURE_LEVEL_11_0 )
    {
 	   defines[def_it].Name		=	"SM_5";
@@ -1334,6 +1345,44 @@ HRESULT	CRender::shader_compile			(
 	   def_it++;
    }
 	sh_name[len]='0'+char(o.dx10_minmax_sm!=0); ++len;
+
+	if (ps_ssfx_grass_interactive.y > 0)
+		 {
+		sprintf_s(c_inter_grass, "%d", ps_ssfx_grass_interactive);
+		defines[def_it].Name = "SSFX_INT_GRASS";
+		defines[def_it].Definition = "1";
+		def_it++;
+		sh_name[len] = '0' + char(ps_ssfx_grass_interactive.y); ++len;
+		}
+	
+	xr_sprintf(c_ssr_quality, "%d", u8(min(max(ps_ssfx_ssr_quality, 0), 5)));
+	defines[def_it].Name = "SSFX_SSR_QUALITY";
+	defines[def_it].Definition = c_ssr_quality;
+	def_it++;
+	xr_strcat(sh_name, c_ssr_quality);
+	len += xr_strlen(c_ssr_quality);
+
+	defines[def_it].Name = "SSFX_MODEXE";
+	defines[def_it].Definition = "1";
+	def_it++;
+	sh_name[len] = '1';
+	++len;
+
+	if (ps_ssfx_rain_1.w > 0)
+	{
+		xr_sprintf(c_rain_quality, "%d", u8(ps_ssfx_rain_1.w));
+		defines[def_it].Name = "SSFX_RAIN_QUALITY";
+		defines[def_it].Definition = c_rain_quality;
+		def_it++;
+		xr_strcat(sh_name, c_rain_quality);
+		len += xr_strlen(c_rain_quality);
+	}
+	else
+	{
+		sh_name[len] = '0';
+		++len;
+	}
+
 
 	//Be carefull!!!!! this should be at the end to correctly generate
 	//compiled shader name;
@@ -1448,7 +1497,60 @@ HRESULT	CRender::shader_compile			(
 	}
 
 	HRESULT		_result = E_FAIL;
-   
+
+	string_path	folder_name, folder;
+	xr_strcpy(folder, "r3\\objects_new\\r4\\");
+	xr_strcat		( folder, name );
+	xr_strcat		( folder, "." );
+
+	char extension[3];
+	strncpy_s		( extension, pTarget, 2 );
+	xr_strcat		( folder, extension );
+
+	FS.update_path	( folder_name, "$game_shaders$", folder );
+	xr_strcat		( folder_name, "\\" );
+	
+	m_file_set.clear( );
+	FS.file_list	( m_file_set, folder_name, FS_ListFiles | FS_RootOnly, "*");
+
+	string_path temp_file_name, file_name;
+
+	if (!match_shader_id(name, sh_name, m_file_set, temp_file_name))
+	{
+		string_path file;
+		xr_strcpy		( file, "shaders_cache\\r4\\" );
+		xr_strcat		( file, name );
+		xr_strcat		( file, "." );
+		xr_strcat		( file, extension );
+		xr_strcat		( file, "\\" );
+		xr_strcat		( file, sh_name );
+		FS.update_path	( file_name, "$app_data_root$", file);
+	}
+	else
+	{
+		xr_strcpy		( file_name, folder_name );
+		xr_strcat		( file_name, temp_file_name );
+	}
+
+	if (FS.exist(file_name) && false)
+	{
+		IReader* file = FS.r_open(file_name);
+		if (file->length()>4)
+		{
+			u32 crc = 0;
+			crc = file->r_u32();
+
+			boost::crc_32_type		processor;
+			processor.process_block	( file->pointer(), ((char*)file->pointer()) + file->elapsed() );
+			u32 const real_crc		= processor.checksum( );
+
+			if ( real_crc == crc ) {
+				_result				= create_shader(pTarget, (DWORD*)file->pointer(), file->elapsed(), file_name, result, o.disasm);
+			}
+		}
+		file->close();
+	}
+
 	if (FAILED(_result))
 	{
 		includer					Includer;
@@ -1465,37 +1567,44 @@ HRESULT	CRender::shader_compile			(
 				&pShaderBuf,
 				&pErrorBuf
 			);
- 
+
 		if (SUCCEEDED(_result))
 		{
-			Msg("Shader Recomp D3D Succeced: %s, Function: %s", name, pFunctionName);
-			_result = create_shader(pTarget, (DWORD*)pShaderBuf->GetBufferPointer(), (u32)pShaderBuf->GetBufferSize(), /* file_name */ name, result, o.disasm);
+			IWriter* file = FS.w_open(file_name);
+
+			boost::crc_32_type		processor;
+			processor.process_block	( pShaderBuf->GetBufferPointer(), ((char*)pShaderBuf->GetBufferPointer()) + pShaderBuf->GetBufferSize() );
+			u32 const crc			= processor.checksum( );
+
+			file->w_u32				(crc);
+			file->w					(pShaderBuf->GetBufferPointer(), (u32)pShaderBuf->GetBufferSize());
+			FS.w_close				(file);
+
+			_result					= create_shader(pTarget, (DWORD*)pShaderBuf->GetBufferPointer(), (u32)pShaderBuf->GetBufferSize(), file_name, result, o.disasm);
 		}
-		else
-		{
-			Msg("! shader compilation failed");
-			if (pErrorBuf)
-				Log("! error: ", (LPCSTR)pErrorBuf->GetBufferPointer());
+		else {
+//			Msg						( "! shader compilation failed" );
+			Log						("! ", file_name);
+			if ( pErrorBuf )
+				Log					("! error: ",(LPCSTR)pErrorBuf->GetBufferPointer());
 			else
-				Msg("Can't compile shader hr=0x%08x", _result);
+				Msg					("Can't compile shader hr=0x%08x", _result);
 		}
 	}
 
 	return		_result;
 }
-
-CRender::SurfaceParams CRender::getSurface(const char* nameTexture)
+static inline bool match_shader(LPCSTR const debug_shader_id, LPCSTR const full_shader_id, LPCSTR const mask, size_t const mask_length)
 {
-	auto texture = DEV->_CreateTexture(nameTexture);
-
-	SurfaceParams surface = {};
-	surface.Surface = texture->get_SRView();
-	surface.w = texture->get_Width();
-	surface.h = texture->get_Height();
-
-	return surface;
+	return true;
 }
 
+static inline bool match_shader_id(LPCSTR const debug_shader_id, LPCSTR const full_shader_id, FS_FileSet const& file_set, string_path& result)
+{
+	return (strstr(Core.Params, "-noscache")) ? (true) : (false);
+}
+
+/*
 static inline bool match_shader		( LPCSTR const debug_shader_id, LPCSTR const full_shader_id, LPCSTR const mask, size_t const mask_length )
 {
 	u32 const full_shader_id_length	= xr_strlen( full_shader_id );
@@ -1559,3 +1668,4 @@ static inline bool match_shader_id	( LPCSTR const debug_shader_id, LPCSTR const 
 #endif // #ifdef DEBUG
 #endif// #if 1
 }
+*/

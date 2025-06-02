@@ -6,6 +6,12 @@
 
 #define STENCIL_CULL 0
 
+bool sort_function(Fvector4 i, Fvector4 j)
+{
+	return (i.w < j.w);
+}
+
+
 void CRenderTarget::DoAsyncScreenshot()
 {
 	//	Igor: screenshot will not have postprocess applied.
@@ -47,11 +53,26 @@ void	CRenderTarget::phase_combine	()
 
 	//*** exposure-pipeline
 	u32			gpu_id	= Device.dwFrame%HW.Caps.iGPUNum;
+	if (RImplementation.currentViewPort == SECONDARY_WEAPON_SCOPE) //--#SM+#-- +SecondVP+
+	{
+		// clang-format off
+		gpu_id = (Device.dwFrame - 1) % HW.Caps.iGPUNum;	//  "" tonemapping (HDR)    . 
+															//   -       tonemapping (HDR)    
+															//    ,  HDR       " "
+															//       ,     
+															//        ,        \
+															//     ""      
+	}
 	{
 		t_LUM_src->surface_set		(rt_LUM_pool[gpu_id*2+0]->pSurface);
 		t_LUM_dest->surface_set		(rt_LUM_pool[gpu_id*2+1]->pSurface);
 	}
 
+	if (RImplementation.o.hbao_plus)
+	{
+			phase_hbao_plus();
+	}
+	else
     if( RImplementation.o.ssao_hdao && RImplementation.o.ssao_ultra)
     {
         if( ps_r_ssao > 0 )
@@ -109,7 +130,7 @@ void	CRenderTarget::phase_combine	()
 
 	// 
 	//if (RImplementation.o.bug)	{
-		RCache.set_Stencil					(TRUE,D3DCMP_LESSEQUAL,0x01,0xff,0x00);	// stencil should be >= 1
+		RCache.set_Stencil(TRUE, D3D11_COMPARISON_LESS_EQUAL, 0x01, 0xff, 0x00);	// stencil should be >= 1
 		if (RImplementation.o.nvstencil)	{
 			u_stencil_optimize				(CRenderTarget::SO_Combine);
 			RCache.set_ColorWriteEnable		();
@@ -162,7 +183,7 @@ void	CRenderTarget::phase_combine	()
 
 		// sun-params
 		{
-			light*		fuckingsun		= (light*)RImplementation.Lights.sun_adapted._get()	;
+			light*		fuckingsun		= (light*)RImplementation.Lights.sun._get()	;
 			Fvector		L_dir,L_clr;	float L_spec;
 			L_clr.set					(fuckingsun->color.r,fuckingsun->color.g,fuckingsun->color.b);
 			L_spec						= u_diffuse2s	(L_clr);
@@ -236,12 +257,12 @@ void	CRenderTarget::phase_combine	()
 		   RCache.Render				(D3DPT_TRIANGLELIST,Offset,0,4,0,2);
       else
       {
-         RCache.set_Stencil( TRUE, D3DCMP_EQUAL, 0x01, 0x81, 0 );
+		  RCache.set_Stencil(TRUE, D3D11_COMPARISON_EQUAL, 0x01, 0x81, 0);
          RCache.Render		( D3DPT_TRIANGLELIST,Offset,0,4,0,2);
          if( RImplementation.o.dx10_msaa_opt )
          {
             RCache.set_Element( s_combine_msaa[0]->E[0]	);
-            RCache.set_Stencil( TRUE, D3DCMP_EQUAL, 0x81, 0x81, 0 );
+			RCache.set_Stencil(TRUE, D3D11_COMPARISON_EQUAL, 0x81, 0x81, 0);
             RCache.Render		( D3DPT_TRIANGLELIST,Offset,0,4,0,2);
          }
          else
@@ -250,14 +271,38 @@ void	CRenderTarget::phase_combine	()
             {
                RCache.set_Element		   ( s_combine_msaa[i]->E[0]	);
                StateManager.SetSampleMask ( u32(1) << i  );
-               RCache.set_Stencil         ( TRUE, D3DCMP_EQUAL, 0x81, 0x81, 0 );
+			   RCache.set_Stencil(TRUE, D3D11_COMPARISON_EQUAL, 0x81, 0x81, 0);
                RCache.Render				   ( D3DPT_TRIANGLELIST,Offset,0,4,0,2);
             }
             StateManager.SetSampleMask( 0xffffffff );
          }
-         RCache.set_Stencil( FALSE, D3DCMP_EQUAL, 0x01, 0xff, 0 );
+		 RCache.set_Stencil(FALSE, D3D11_COMPARISON_EQUAL, 0x01, 0xff, 0);
       }  
    }
+
+   //Copy previous rt
+   if (!RImplementation.o.dx10_msaa)
+	   HW.pContext->CopyResource(rt_Generic_temp->pTexture->surface_get(), rt_Generic_0->pTexture->surface_get());
+   else
+	   HW.pContext->CopyResource(rt_Generic_temp->pTexture->surface_get(), rt_Generic_0_r->pTexture->surface_get());
+
+   if (RImplementation.o.ssfx_ssr)
+   {
+	   phase_ssfx_ssr(); // [SSFX] - New SSR Phase
+   }
+
+   // Water rendering & Rain/thunder-bolts
+   {
+	   if (!RImplementation.o.dx10_msaa)
+		   u_setrt(rt_Generic_0, 0, 0, HW.pBaseZB);
+	   else
+		   u_setrt(rt_Generic_0_r, 0, 0, rt_MSAADepth->pZRT);
+
+	   RCache.set_xform_world(Fidentity);
+	   RImplementation.r_dsgraph_render_water();
+	   g_pGamePersistent->Environment().RenderLast(); // rain/thunder-bolts
+   }
+
 
 	// Forward rendering
 	{
@@ -277,8 +322,9 @@ void	CRenderTarget::phase_combine	()
 
 	//	Igor: for volumetric lights
 	//	combine light volume here
-	if (m_bHasActiveVolumetric)
-		phase_combine_volumetric();
+	if (RImplementation.currentViewPort != SECONDARY_WEAPON_SCOPE)
+		if (m_bHasActiveVolumetric)
+			phase_combine_volumetric();
 
 	// Perform blooming filter and distortion if needed
 	RCache.set_Stencil	(FALSE);
@@ -333,21 +379,44 @@ void	CRenderTarget::phase_combine	()
    }
    */
 
-	if (g_pGamePersistent)
- 	{ 
-		Fvector4 vec = g_pGamePersistent->GetDudvParams();
-
-		if (vec.x > 0.0f)
+	//hud mask
+	if (!_menu_pp)
+	{
+		bool HudGlassEnabled = g_pGamePersistent->GetHudGlassEnabled();
+		bool IsActorAlive = g_pGamePersistent->GetActorAliveStatus();
+		if (HudGlassEnabled && IsActorAlive)
 		{
- 			phase_gasmask_drops(vec);
- 			phase_gasmask_dudv(vec);
+			phase_gasmask_dudv();
+			phase_gasmask_drops();
 		}
- 	}
+	}
+
+   //Hud Effects
+	if (!_menu_pp)
+	{
+		bool IsActorAlive = g_pGamePersistent->GetActorAliveStatus();
+			phase_hud_blood();
+			phase_hud_power();
+			phase_hud_bleeding();
+			phase_hud_satiety();
+			phase_hud_thirst();
+	}
+
+	if (!_menu_pp)
+	{
+		if (RImplementation.currentViewPort != SECONDARY_WEAPON_SCOPE)
+		if (ps_r_sun_shafts > 0 && (ps_sunshafts_mode == R2SS_SCREEN_SPACE || ps_sunshafts_mode == R2SS_COMBINE_SUNSHAFTS))
+			phase_sunshafts();
+	}
+
+	if(false)
+		phase_blur();
 
 	// PP enabled ?
 	//	Render to RT texture to be able to copy RT even in windowed mode.
 	BOOL	PP_Complex		= u_need_PP	() | (BOOL)RImplementation.m_bMakeAsyncSS;
 	if (_menu_pp)			PP_Complex	= FALSE;
+
 
    // HOLGER - HACK
    PP_Complex = TRUE;
@@ -406,30 +475,25 @@ void	CRenderTarget::phase_combine	()
 		// Draw COLOR
       if( !RImplementation.o.dx10_msaa )
       {
-		   if (ps_r2_ls_flags.test(R2FLAG_AA))		
-			   RCache.set_Element	(s_combine->E[bDistort?3:1]);	// look at blender_combine.cpp
-		   else			
-			   RCache.set_Element	(s_combine->E[bDistort?4:2]);	// look at blender_combine.cpp
+		   if (ps_r2_ls_flags.test(R2FLAG_AA))			RCache.set_Element	(s_combine->E[bDistort?3:1]);	// look at blender_combine.cpp
+		   else										RCache.set_Element	(s_combine->E[bDistort?4:2]);	// look at blender_combine.cpp
       }
       else
       {
          if (ps_r2_ls_flags.test(R2FLAG_AA))			RCache.set_Element	(s_combine_msaa[0]->E[bDistort?3:1]);	// look at blender_combine.cpp
          else										RCache.set_Element	(s_combine_msaa[0]->E[bDistort?4:2]);	// look at blender_combine.cpp
       }
-
- 		RCache.set_c				("e_barrier",	ps_r2_aa_barier.x,	ps_r2_aa_barier.y,	ps_r2_aa_barier.z,	0);
+		RCache.set_c				("e_barrier",	ps_r2_aa_barier.x,	ps_r2_aa_barier.y,	ps_r2_aa_barier.z,	0);
 		RCache.set_c				("e_weights",	ps_r2_aa_weight.x,	ps_r2_aa_weight.y,	ps_r2_aa_weight.z,	0);
 		RCache.set_c				("e_kernel",	ps_r2_aa_kernel,	ps_r2_aa_kernel,	ps_r2_aa_kernel,	0);
 		RCache.set_c				("m_current",	m_current);
 		RCache.set_c				("m_previous",	m_previous);
 		RCache.set_c				("m_blur",		m_blur_scale.x,m_blur_scale.y, 0,0);
-		RCache.set_c				("mask_control", ps_r2_mask_control.x, ps_r2_mask_control.y, ps_r2_mask_control.z, ps_r2_mask_control.w);
-		RCache.set_c				("r_color_drag", ps_rcol, ps_gcol, ps_bcol,0);
-
 		Fvector3					dof;
 		g_pGamePersistent->GetCurrentDof(dof);
 		RCache.set_c				("dof_params",	dof.x, dof.y, dof.z, ps_r2_dof_sky);
- 		RCache.set_c				("dof_kernel",	vDofKernel.x, vDofKernel.y, ps_r2_dof_kernel_size, 0);
+//.		RCache.set_c				("dof_params",	ps_r2_dof.x, ps_r2_dof.y, ps_r2_dof.z, ps_r2_dof_sky);
+		RCache.set_c				("dof_kernel",	vDofKernel.x, vDofKernel.y, ps_r2_dof_kernel_size, 0);
 		
 		RCache.set_Geometry			(g_aa_AA);
 		RCache.Render				(D3DPT_TRIANGLELIST,Offset,0,4,0,2);
@@ -438,6 +502,21 @@ void	CRenderTarget::phase_combine	()
 
 	//	if FP16-BLEND !not! supported - draw flares here, overwise they are already in the bloom target
 	/* if (!RImplementation.o.fp16_blend)*/	g_pGamePersistent->Environment().RenderFlares	();	// lens-flares
+
+	if (!!ps_r2_lfx)
+	{
+		std::sort(m_miltaka_lfx_color.begin(), m_miltaka_lfx_color.end(), sort_function);
+		std::sort(m_miltaka_lfx_coords.begin(), m_miltaka_lfx_coords.end(), sort_function);
+
+		for (u32 i = 0; i < _min((u32)3, m_miltaka_lfx_coords.size()); ++i)
+		{
+			phase_lfx(i);
+		}
+	}
+	
+
+	m_miltaka_lfx_color.clear_not_free();
+	m_miltaka_lfx_coords.clear_not_free();
 
 	//	PP-if required
 	if (PP_Complex)		
@@ -571,7 +650,7 @@ void CRenderTarget::phase_wallmarks		()
    else
       u_setrt								(rt_Color,NULL,NULL,rt_MSAADepth->pZRT);
 	// Stencil	- draw only where stencil >= 0x1
-	RCache.set_Stencil					(TRUE,D3DCMP_LESSEQUAL,0x01,0xff,0x00);
+   RCache.set_Stencil(TRUE, D3D11_COMPARISON_LESS_EQUAL, 0x01, 0xff, 0x00);
 	RCache.set_CullMode					(CULL_CCW);
 	RCache.set_ColorWriteEnable			(D3DCOLORWRITEENABLE_RED|D3DCOLORWRITEENABLE_GREEN|D3DCOLORWRITEENABLE_BLUE);
 }
@@ -593,15 +672,15 @@ void CRenderTarget::phase_combine_volumetric()
 	RCache.set_ColorWriteEnable(D3DCOLORWRITEENABLE_RED|D3DCOLORWRITEENABLE_GREEN|D3DCOLORWRITEENABLE_BLUE);
 	{
 		// Fill VB
-		float	scale_X				= float(Device.dwWidth)	/ float(TEX_jitter);
-		float	scale_Y				= float(Device.dwHeight)/ float(TEX_jitter);
+		//float scale_X = float(Device.dwWidth) / float(TEX_jitter);
+		//float scale_Y = float(Device.dwHeight) / float(TEX_jitter);
 
 		// Fill vertex buffer
 		FVF::TL* pv					= (FVF::TL*)	RCache.Vertex.Lock	(4,g_combine->vb_stride,Offset);
-		pv->set						(-1,	1,	0, 1, 0, 0,			scale_Y	);	pv++;
-		pv->set						(-1,	-1,	0, 0, 0, 0,			0		);	pv++;
-		pv->set						(1,		1,	1, 1, 0, scale_X,	scale_Y	);	pv++;
-		pv->set						(1,		-1,	1, 0, 0, scale_X,	0		);	pv++;
+		pv->set(-1, 1, 0, 1, 0, 0, 1); pv++;
+		pv->set(-1, -1, 0, 0, 0, 0, 0); pv++;
+		pv->set(1, 1, 1, 1, 0, 1, 1); pv++;
+		pv->set(1, -1, 1, 0, 0, 1, 0); pv++;
 		RCache.Vertex.Unlock		(4,g_combine->vb_stride);
 
 		// Draw

@@ -106,6 +106,18 @@ protected:
 	ref_sound selected;
 
 public:
+
+#pragma region Rain Drops Update
+	float			droplet_pwr = 0;
+	u32				DropletTimer = 0;
+	float			DropletStep = 0.005f;
+	float			DropletSpeed = 0.f;
+	bool			actor_in_hideout = true;
+	u32				last_ray_pick_time = 0;
+	void			RainDropsParamsUpdate();
+	Fvector3		RainDropsParams = { 0,0,0 };
+#pragma endregion
+
 	float					fFPCamYawMagnitude;			//--#SM+#--
 	float					fFPCamPitchMagnitude;		//--#SM+#--
 
@@ -301,8 +313,6 @@ public:
 			float		HitArtefactsOnBelt		(float hit_power, ALife::EHitType hit_type);
 			float		GetProtection_ArtefactsOnBelt(ALife::EHitType hit_type);
 
-			Fvector4	GetGlassShader();
- 			Fvector3	GetRaindropsShader();
 protected:
 	//звук тяжелого дыхания
 	ref_sound			m_HeavyBreathSnd;

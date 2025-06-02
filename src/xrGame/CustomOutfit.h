@@ -61,7 +61,7 @@ public:
 	bool					bIsHelmetAvaliable;
 
 	bool					b_enable_reflection;
- 	bool					b_has_glass;
+ 	bool					m_b_HasGlass;
  	u8						outfit_vingette;
  
   	u8						GetParamFromCondition(u16 cond);

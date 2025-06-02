@@ -24,7 +24,7 @@ CCustomOutfit::CCustomOutfit()
 	m_boneProtection = xr_new<SBoneProtections>();
 	m_artefact_count = 0;
 	m_BonesProtectionSect = NULL;
-	b_has_glass = false;
+	m_b_HasGlass = false;
  	b_enable_reflection = false;
  	outfit_vingette = 0;
 }
@@ -128,7 +128,7 @@ void CCustomOutfit::Load(LPCSTR section)
 
  	if (pSettings->line_exist("settings_helm", section))
  	{
- 		b_has_glass = true;
+		m_b_HasGlass = true;
  
  		for (u8 omg = 1; omg <= 10; omg++)
  		{
@@ -158,7 +158,7 @@ void CCustomOutfit::Load(LPCSTR section)
  	}
  	else
  	{
- 		b_has_glass = false;
+		m_b_HasGlass = false;
  		outfit_vingette = 0;
  	}
 

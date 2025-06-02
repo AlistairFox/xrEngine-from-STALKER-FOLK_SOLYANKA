@@ -121,7 +121,7 @@ class CCC_TexturesStat : public IConsole_Command
 public:
 	CCC_TexturesStat(LPCSTR N) : IConsole_Command(N)  { bEmptyArgsHandled = TRUE; };
 	virtual void Execute(LPCSTR args) {
-		Device.DumpResourcesMemoryUsage();
+	//	Device.DumpResourcesMemoryUsage();
 		//Device.Resources->_DumpMemoryUsage();
 		//	TODO: move this console commant into renderer
 		//VERIFY(0);
@@ -666,7 +666,6 @@ public		:
 ENGINE_API float    psHUD_FOV_def = 0.7f;
 ENGINE_API float	psHUD_FOV     = psHUD_FOV_def;
 ENGINE_API float	VIEWPORT_NEAR	  = 0.2f;
-ENGINE_API float	VIEWPORT_NEAR_HUD = 0.01f;
 
 //extern int			psSkeletonUpdate;
 extern int			rsDVB_Size;
@@ -681,7 +680,7 @@ extern Flags32		psEnvFlags;
 
 extern int simulate_netwark_ping;
 extern int simulate_netwark_ping_cl;
-
+ENGINE_API int psSVPFrameDelay = 3;
 
 //extern float		r__dtex_range;
 
@@ -689,7 +688,7 @@ extern int			g_ErrorLineCount;
 
 ENGINE_API int			ps_r__Supersample			= 1;
  
-extern int fps_limit = 60;
+extern int ps_framelimiter = 60;
 
 class CCC_UpdateWindowPos : public IConsole_Command
 {
@@ -715,8 +714,8 @@ public:
 
 		vector_data.set(v);
 
-		Msg("Update Window: PosX: %d", v.x, v.y, v.z, v.w);
-		Device.m_pRender->UpdateWindow(Device.m_hWnd, v.x, v.y, v.z, v.w);
+		//Msg("Update Window: PosX: %d", v.x, v.y, v.z, v.w);
+		//Device.m_pRender->UpdateWindow(Device.m_hWnd, v.x, v.y, v.z, v.w);
 	}
 
 	virtual void	Status(TStatus& S)
@@ -809,6 +808,8 @@ extern int gAlvaysActive = 0;
 
 extern int block_30FPS	 = 0;
 
+ENGINE_API BOOL debugSecondVP = FALSE;
+ENGINE_API float psSVPImageSizeK = 0.7f;
 void CCC_Register()
 {	 
 	CMD4(CCC_Integer, "r__block_30FPS", &block_30FPS, 0, 1);
@@ -818,11 +819,14 @@ void CCC_Register()
 	CMD4(CCC_Integer, "r__always_active", &gAlvaysActive, 0, 1);
 	CMD1(CCC_UpdateWindowPos, "r__update_window");
 
-	CMD4(CCC_Integer, "fps_limit", &fps_limit, 1, 600);
+	CMD4(CCC_Integer, "fps_limit", &ps_framelimiter, 1, 600);
 
-	CMD4(CCC_Float, "r__nearplane_hud", &VIEWPORT_NEAR_HUD, 0, 1);
+
  	CMD4(CCC_Float, "r__nearplane", &VIEWPORT_NEAR, 0.05f, 1.0f);
- 
+
+	CMD4(CCC_Integer, "svp_frame_delay", &psSVPFrameDelay, 0, 5);
+	CMD4(CCC_Integer, "rs_debug_second_vp", &debugSecondVP, FALSE, TRUE);
+	CMD4(CCC_Float, "svp_image_size_k", &psSVPImageSizeK, 0.1f, 2.f);
 	// General
 	CMD1(CCC_Help,		"help"					);
 	CMD1(CCC_Quit,		"quit"					);

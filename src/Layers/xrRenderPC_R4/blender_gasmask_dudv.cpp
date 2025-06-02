@@ -12,7 +12,7 @@ void CBlender_gasmask_dudv::Compile(CBlender_Compile& C)
 {
 	IBlender::Compile(C);
 
-	C.r_Pass("stub_screen_space", "gasmask_dudv", FALSE, FALSE, FALSE);
+	C.r_Pass("stub_screen_space", "gasmask_dudv", false, false, false);
 	C.r_dx10Texture("s_image", r2_RT_generic0);
 	C.r_dx10Texture("s_mask_droplets", "shaders\\gasmasks\\mask_droplets");
 

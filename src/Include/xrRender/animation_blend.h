@@ -141,8 +141,8 @@ IC void CBlend::update_play( float dt, PlayCallback _Callback )
 	if( !update_time( dt ) )//reached end 
 		return;
 
-	if ( _Callback &&  stop_at_end_callback )	
-		_Callback( this );		// callback only once
+	if (_Callback && stop_at_end_callback)
+		_Callback(this);		// callback only once
 
 	stop_at_end_callback		= FALSE;
 
@@ -159,6 +159,7 @@ IC	bool CBlend::update_time			( float dt )
 {
 	if (!playing) 
 			return false;
+
 	float quant = dt*speed;
 	timeCurrent += quant; // stop@end - time is not going
 
@@ -210,7 +211,9 @@ IC bool CBlend::update( float dt, PlayCallback _Callback )
 		case eFREE_SLOT: 
 			NODEFAULT;
 		case eAccrue:
-			update_play( dt, _Callback );
+		{
+			update_play(dt, _Callback);
+		}
 			break;
 		case eFalloff:
 			if( update_falloff( dt ) )

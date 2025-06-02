@@ -1,3 +1,5 @@
+#ifndef	FactoryPtr_included
+#define FactoryPtr_included
 #pragma once
 
 #include "RenderFactory.h"
@@ -17,7 +19,7 @@
 }
 
 
-template<class T>
+template <class T>
 class FactoryPtr
 {
 public:
@@ -40,9 +42,9 @@ public:
 	T* operator->() const { return m_pObject; }
 
 	// unspecified bool type
-	typedef T const* (FactoryPtr::* unspecified_bool_type) () const;
-	operator unspecified_bool_type () const { return (!m_pObject ? 0 : &FactoryPtr::get); }
-	bool operator!	() const { return m_pObject == 0; }
+	typedef T const* (FactoryPtr::* unspecified_bool_type)() const;
+	operator unspecified_bool_type() const { return (!m_pObject ? 0 : &FactoryPtr::get); }
+	bool operator!() const { return m_pObject == 0; }
 
 private:
 	void CreateObject();
@@ -78,3 +80,18 @@ FACTORY_PTR_INSTANCIATE(EnvDescriptorRender)
 FACTORY_PTR_INSTANCIATE(EnvDescriptorMixerRender)
 #endif // _EDITOR
 FACTORY_PTR_INSTANCIATE(FontRender)
+/*
+void FactoryPtr<IStatsRender>::CreateObject(void)
+{
+	m_pObject = RenderFactory->CreateStatsRender();
+}
+
+void FactoryPtr<IStatsRender>::DestroyObject(void)
+{
+	RenderFactory->DestroyStatsRender(m_pObject);
+	m_pObject = NULL;
+}
+*/
+
+
+#endif	//	FactoryPtr_included

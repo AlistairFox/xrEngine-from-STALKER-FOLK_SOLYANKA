@@ -20,12 +20,12 @@ void	light::vis_prepare			()
 	u32	frame	= Device.dwFrame;
 	if (frame	<	vis.frame2test)		return;
 
-	float	safe_area					= VIEWPORT_NEAR;
+	float	safe_area = VIEWPORT_NEAR;
 	{
 		float	a0	= deg2rad(Device.fFOV*Device.fASPECT/2.f);
 		float	a1	= deg2rad(Device.fFOV/2.f);
-		float	x0	= VIEWPORT_NEAR/_cos	(a0);
-		float	x1	= VIEWPORT_NEAR/_cos	(a1);
+		float	x0	= VIEWPORT_NEAR /_cos	(a0);
+		float	x1	= VIEWPORT_NEAR /_cos	(a1);
 		float	c	= _sqrt					(x0*x0 + x1*x1);
 		safe_area	= _max(_max(VIEWPORT_NEAR,_max(x0,x1)),c);
 	}
@@ -35,19 +35,21 @@ void	light::vis_prepare			()
 	bool	skiptest	= false;
 	if (ps_r2_ls_flags.test(R2FLAG_EXP_DONT_TEST_UNSHADOWED) && !flags.bShadow)	skiptest=true;
 	if (ps_r2_ls_flags.test(R2FLAG_EXP_DONT_TEST_SHADOWED) && flags.bShadow)	skiptest=true;
+	if (ps_ssfx_volumetric.x > 0 && flags.bShadow) skiptest = true; // Temp Fix
 
 	//	TODO: DX10: Remove this pessimization
 	//skiptest	= true;
 
-	if (skiptest || Device.vCameraPosition.distance_to(spatial.sphere.P)<=(spatial.sphere.R*1.01f+safe_area))	{	// small error
-		vis.visible		=	true;
-		vis.pending		=	false;
-		vis.frame2test	=	frame	+ ::Random.randI(delay_small_min,delay_small_max);
-		//	TODO: DX10: Remove this pessimisation
-		//vis.frame2test	=	frame	+ 1;
+	vis.distance = Device.vCameraPosition.distance_to(spatial.sphere.P);
+	
+	if (skiptest || vis.distance <= (spatial.sphere.R * 1.01f + safe_area)) {	// small error
+			// small error
+		vis.visible = true;
+		vis.pending = false;
+		vis.frame2test	=	frame	+ ::Random.randI(delay_large_min,delay_large_max);
 		return;
 	}
-
+	
 	// testing
 	vis.pending										= true;
 	xform_calc										();
@@ -59,7 +61,7 @@ void	light::vis_prepare			()
 	if ( (flags.type==IRender_Light::SPOT) && flags.bShadow && flags.bVolumetric )
 		RCache.set_Stencil			(FALSE);
 	else
-		RCache.set_Stencil			(TRUE,D3DCMP_LESSEQUAL,0x01,0xff,0x00);
+		RCache.set_Stencil(TRUE, D3D11_COMPARISON_LESS_EQUAL, 0x01, 0xff, 0x00);
 	RImplementation.Target->draw_volume				(this);
 	RImplementation.occq_end						(vis.query_id);
 }

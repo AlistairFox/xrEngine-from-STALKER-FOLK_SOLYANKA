@@ -2,6 +2,12 @@
 #define xrRender_consoleH
 #pragma once
 
+// SMAP Control
+
+extern ECORE_API 	u32 		ps_r2_smapsize;
+extern ECORE_API    xr_token qsmapsize_token[];
+
+
 // Common
 extern ECORE_API	u32			ps_r_sun_shafts;	//=	0;
 extern ECORE_API	xr_token	qsun_shafts_token[];
@@ -24,12 +30,12 @@ extern ECORE_API	xr_token	qmsaa__atest_token[];
 extern ECORE_API	u32			ps_r3_minmax_sm;//	=	0;
 extern ECORE_API	xr_token	qminmax_sm_token[];
 
-extern ENGINE_API	int			ps_r__Supersample;
 extern ECORE_API	int			ps_r__LightSleepFrames;
 
 extern ECORE_API	float		ps_r__Detail_l_ambient;
 extern ECORE_API	float		ps_r__Detail_l_aniso;
 extern ECORE_API	float		ps_r__Detail_density;
+extern ECORE_API	float		ps_r__Detail_height;
 
 extern ECORE_API	float		ps_r__Tree_w_rot;
 extern ECORE_API	float		ps_r__Tree_w_speed;
@@ -49,15 +55,16 @@ extern ECORE_API	float		ps_r__ssaDISCARD	;
 extern ECORE_API	float		ps_r__ssaDONTSORT	;
 extern ECORE_API	float		ps_r__ssaHZBvsTEX	;
 extern ECORE_API	int			ps_r__tf_Anisotropic;
+extern ECORE_API float ps_r__tf_Mipbias;
 
 // R1
 extern ECORE_API	float		ps_r1_ssaLOD_A;
 extern ECORE_API	float		ps_r1_ssaLOD_B;
-extern ECORE_API	float		ps_r1_tf_Mipbias;
 extern ECORE_API	float		ps_r1_lmodel_lerp;
 extern ECORE_API	float		ps_r1_dlights_clip;
 extern ECORE_API	float		ps_r1_pps_u;
 extern ECORE_API	float		ps_r1_pps_v;
+
 
 // R1-specific
 extern ECORE_API	int			ps_r1_GlowsPerFrame;	// r1-only
@@ -74,7 +81,6 @@ enum
 // R2
 extern ECORE_API	float		ps_r2_ssaLOD_A;
 extern ECORE_API	float		ps_r2_ssaLOD_B;
-extern ECORE_API	float		ps_r2_tf_Mipbias;
 
 // R2-specific
 extern ECORE_API Flags32		ps_r2_ls_flags;				// r2-only
@@ -125,8 +131,24 @@ extern ECORE_API int			ps_r2_dhemi_count;			// 5
 extern ECORE_API float			ps_r2_slight_fade;			// 1.f
 extern ECORE_API int			ps_r2_wait_sleep;
 
-extern ECORE_API Fvector4		ps_r2_mask_control;			// r2-only
-extern ECORE_API Fvector		ps_r2_drops_control;		// r2-only
+extern ECORE_API Fvector3 ps_ssfx_shadow_cascades;
+extern ECORE_API Fvector4 ps_ssfx_grass_shadows;
+extern ECORE_API Fvector4 ps_ssfx_grass_interactive;
+extern ECORE_API Fvector4 ps_ssfx_int_grass_params_1;
+extern ECORE_API Fvector4 ps_ssfx_int_grass_params_2;
+extern ECORE_API Fvector4 ps_ssfx_hud_drops_1;
+extern ECORE_API Fvector4 ps_ssfx_hud_drops_2;
+extern ECORE_API Fvector4 ps_ssfx_blood_decals;
+extern ECORE_API Fvector4 ps_ssfx_rain_1;
+extern ECORE_API Fvector4 ps_ssfx_rain_2;
+extern ECORE_API Fvector4 ps_ssfx_rain_3;
+extern ECORE_API Fvector4 ps_ssfx_wind_grass;
+extern ECORE_API Fvector4 ps_ssfx_wind_trees;
+extern ECORE_API float ps_r2_img_exposure;
+extern ECORE_API float ps_r2_img_gamma;
+extern ECORE_API float ps_r2_img_saturation;
+extern ECORE_API Fvector ps_r2_img_cg;
+extern ECORE_API Fvector4 ps_ssfx_terrain_quality;
 
 //	x - min (0), y - focus (1.4), z - max (100)
 extern ECORE_API Fvector3		ps_r2_dof;
@@ -137,10 +159,34 @@ extern ECORE_API float			ps_r3_dyn_wet_surf_near;	// 10.0f
 extern ECORE_API float			ps_r3_dyn_wet_surf_far;		// 30.0f
 extern ECORE_API int			ps_r3_dyn_wet_surf_sm_res;	// 256
 
-extern ECORE_API float			ps_rcol;
-extern ECORE_API float			ps_gcol;
-extern ECORE_API float			ps_bcol;
-extern ECORE_API float			ps_saturation;
+//ogse sunshafts
+
+extern ECORE_API float			ps_r2_ss_sunshafts_length;
+extern ECORE_API float			ps_r2_ss_sunshafts_radius;
+extern u32						ps_sunshafts_mode;
+
+extern ECORE_API int			opt_static;
+extern ECORE_API int			opt_dynamic;
+
+//SFZ Lens Flares
+extern ECORE_API int			ps_r2_lfx;
+
+extern ECORE_API Flags32 ps_r3_pbr_flags;
+extern ECORE_API Flags32 ps_r2_static_flags;
+extern ECORE_API int ps_ssfx_ssr_quality;
+extern ECORE_API Fvector4 ps_ssfx_ssr;
+extern ECORE_API Fvector4 ps_ssfx_ssr_2;
+extern ECORE_API Fvector4 ps_ssfx_volumetric;
+
+enum
+{
+	R_FLAG_PSEUDOPBR = (1 << 0),
+};
+
+enum
+{
+	R2FLAG_USE_BUMP = (1 << 0),
+};
 
 enum
 {
@@ -156,36 +202,32 @@ enum
 	R2FLAG_ZFILL				= (1<<9),
 	R2FLAG_R1LIGHTS				= (1<<10),
 	R2FLAG_SUN_IGNORE_PORTALS	= (1<<11),
-
-//	R2FLAG_SUN_STATIC			= (1<<12),
 	
-	R2FLAG_EXP_SPLIT_SCENE					= (1<<13),
-	R2FLAG_EXP_DONT_TEST_UNSHADOWED			= (1<<14),
-	R2FLAG_EXP_DONT_TEST_SHADOWED			= (1<<15),
+	R2FLAG_EXP_SPLIT_SCENE					= (1<<12),
+	R2FLAG_EXP_DONT_TEST_UNSHADOWED			= (1<<13),
+	R2FLAG_EXP_DONT_TEST_SHADOWED			= (1<<14),
 
-	R2FLAG_USE_NVDBT			= (1<<16),
-	R2FLAG_USE_NVSTENCIL		= (1<<17),
+	R2FLAG_USE_NVDBT			= (1<<15),
+	R2FLAG_USE_NVSTENCIL		= (1<<16),
 
-	R2FLAG_EXP_MT_CALC			= (1<<18),
 
-	R2FLAG_SOFT_WATER			= (1<<19),	//	Igor: need restart
-	R2FLAG_SOFT_PARTICLES		= (1<<20),	//	Igor: need restart
-	R2FLAG_VOLUMETRIC_LIGHTS	= (1<<21),
-	R2FLAG_STEEP_PARALLAX		= (1<<22),
-	R2FLAG_DOF					= (1<<23),
+	R2FLAG_SOFT_WATER			= (1<<17),	//	Igor: need restart
+	R2FLAG_SOFT_PARTICLES		= (1<<18),	//	Igor: need restart
+	R2FLAG_VOLUMETRIC_LIGHTS	= (1<<19),
+	R2FLAG_STEEP_PARALLAX		= (1<<20),
+	R2FLAG_DOF					= (1<<21),
 
-	R1FLAG_DETAIL_TEXTURES		= (1<<24),
+	R1FLAG_DETAIL_TEXTURES		= (1<<22),
 
-	R2FLAG_DETAIL_BUMP			= (1<<25),
+	R2FLAG_DETAIL_BUMP			= (1<<23),
 
-	R3FLAG_DYN_WET_SURF			= (1<<26),
-	R3FLAG_VOLUMETRIC_SMOKE		= (1<<27),
+	R3FLAG_DYN_WET_SURF			= (1<<24),
+	R3FLAG_VOLUMETRIC_SMOKE		= (1<<25),
 
 	//R3FLAG_MSAA					= (1<<28),
-	R3FLAG_MSAA_HYBRID			= (1<<28),
-	R3FLAG_MSAA_OPT				= (1<<29),
-	R3FLAG_GBUFFER_OPT			= (1<<30),
-	R3FLAG_USE_DX10_1			= (1<<31),
+	R3FLAG_MSAA_HYBRID			= (1<<26),
+	R3FLAG_MSAA_OPT				= (1<<27),
+	R3FLAG_USE_DX10_1			= (1<<28),
 	//R3FLAG_MSAA_ALPHATEST		= (1<<31),
 };
 
@@ -201,10 +243,48 @@ enum
 	R_FLAGEXT_HOM_DEPTH_DRAW		= (1<<7),
 	R2FLAGEXT_SUN_ZCULLING			= (1<<8),
 	R2FLAGEXT_SUN_OLD				= (1<<9),
+	R2FLAGEXT_HBAO_PLUS = (1 << 10)
 };
+
+//ogse sunshafts
+enum
+{
+	R2SS_VOLUMETRIC,
+	R2SS_SCREEN_SPACE,
+	R2SS_COMBINE_SUNSHAFTS,
+};
+//end ogse sunshafts
+
+
+extern ECORE_API Flags32 ps_actor_shadow_flags;
+
+enum
+{
+	RFLAG_ACTOR_SHADOW = (1 << 0),
+};
+
+enum
+{
+	R4_FLAG_SSR_USE = (1<<0),
+	R4_FLAG_MAX_QUALITY_SHADERS = (1<<1),
+	R4_FLAG_USE_ADVANCED_SHADERS = (1<<2),
+};
+
+
+extern ECORE_API Flags32 ps_r4_ssr_flags;
+
+enum
+{
+	RFLAG_NO_RAM_TEXTURES = (1 << 0),
+};
+
+extern ECORE_API Flags32 ps_r__common_flags;
+
+//Rezy: cleanup flags
+extern Flags32 psDeviceFlags2;
+
 
 extern void						xrRender_initconsole	();
 extern BOOL						xrRender_test_hw		();
-extern void						xrRender_apply_tf		();
 
 #endif

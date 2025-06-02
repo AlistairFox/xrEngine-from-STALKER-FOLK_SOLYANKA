@@ -7,8 +7,7 @@ using dx10StateUtils::operator==;
 
 dx10SamplerStateCache	SSManager;
 
-dx10SamplerStateCache::dx10SamplerStateCache():
-	m_uiMaxAnisotropy(1)
+dx10SamplerStateCache::dx10SamplerStateCache() : m_uiMaxAnisotropy(1), m_uiMipLODBias(0.0f)
 {
 	static const int iMaxRSStates = 10;
 	m_StateArray.reserve(iMaxRSStates);
@@ -28,6 +27,8 @@ dx10SamplerStateCache::SHandle dx10SamplerStateCache::GetState( D3D_SAMPLER_DESC
 	//	to the filter mode used.
 	desc.MaxAnisotropy = m_uiMaxAnisotropy;
 
+	// RZ
+	desc.MipLODBias = m_uiMipLODBias;
 	dx10StateUtils::ValidateState(desc);
 
 	u32 crc = dx10StateUtils::GetHash(desc);
@@ -139,7 +140,6 @@ void dx10SamplerStateCache::GSApplySamplers(HArray &samplers)
 	HW.pContext->GSSetSamplers(uiMin, uiMax-uiMin+1, &pSS[uiMin]);
 }
 
-#ifdef USE_DX11
 void dx10SamplerStateCache::HSApplySamplers(HArray &samplers)
 {
 	ID3DSamplerState	*pSS[D3D_COMMONSHADER_SAMPLER_SLOT_COUNT];
@@ -166,10 +166,10 @@ void dx10SamplerStateCache::CSApplySamplers(HArray &samplers)
 	PrepareSamplerStates( samplers, pSS, m_aCSSamplers, uiMin, uiMax);
 	HW.pContext->CSSetSamplers(uiMin, uiMax-uiMin+1, &pSS[uiMin]);
 }
-#endif
 
 
-void dx10SamplerStateCache::SetMaxAnisotropy( UINT uiMaxAniso)
+
+void dx10SamplerStateCache::SetMaxAnisotropy(u32 uiMaxAniso)
 {
 	clamp( uiMaxAniso, (u32)1, (u32)16);
 
@@ -205,10 +205,31 @@ void dx10SamplerStateCache::ResetDeviceState()
 		m_aPSSamplers[i] = (SHandle)hInvalidHandle;
 		m_aVSSamplers[i] = (SHandle)hInvalidHandle;
 		m_aGSSamplers[i] = (SHandle)hInvalidHandle;
-#ifdef USE_DX11
 		m_aHSSamplers[i] = (SHandle)hInvalidHandle;
 		m_aDSSamplers[i] = (SHandle)hInvalidHandle;
 		m_aCSSamplers[i] = (SHandle)hInvalidHandle;
-#endif
+	}
+}
+
+void dx10SamplerStateCache::SetMipLODBias(float uiMipLODBias)
+{
+	if (m_uiMipLODBias == uiMipLODBias)
+		return;
+
+	m_uiMipLODBias = uiMipLODBias;
+
+	for (u32 i = 0; i < m_StateArray.size(); ++i)
+	{
+		StateRecord& rec = m_StateArray[i];
+		StateDecs desc;
+
+		rec.m_pState->GetDesc(&desc);
+
+		desc.MipLODBias = m_uiMipLODBias;
+		dx10StateUtils::ValidateState(desc);
+
+		// This can cause fragmentation if called too often
+		rec.m_pState->Release();
+		CreateState(desc, &rec.m_pState);
 	}
 }

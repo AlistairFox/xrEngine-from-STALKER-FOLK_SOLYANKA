@@ -7627,6 +7627,7 @@
     <ClInclude Include="ImUtils.h">
       <Filter>ImGUI</Filter>
     </ClInclude>
+    <ClInclude Include="DynamicHudGlass.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="damage_manager.cpp">
@@ -11533,6 +11534,7 @@
     <ClCompile Include="ui\UIActorMenuCraft.cpp">
       <Filter>UI\Common\Inventory</Filter>
     </ClCompile>
+    <ClCompile Include="DynamicHudGlass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="ai\monsters\chimera\chimera_attack_state.h">

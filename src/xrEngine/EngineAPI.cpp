@@ -49,6 +49,23 @@
 
 #pragma comment(lib, "libspeexdsp.lib")
 
+#ifdef DEDICATED_SERVER
+
+#pragma comment(lib, "xrServerRender.lib")
+
+#else
+#pragma comment(lib, "xrRender_R4.lib")
+#pragma comment(lib, "GFSDK_SSAO_D3D11.win64.lib")
+#pragma comment(lib, "dxguid.lib")
+#pragma comment(lib, "d3dx11.lib")
+#pragma comment(lib, "D3DCompiler.lib")
+#pragma comment(lib, "d3d11.lib")
+#pragma comment(lib, "dxgi.lib")
+#pragma comment(lib, "d3d10.lib")
+
+#endif // DEDICATED_SERVER
+
+
 extern xr_token* vid_quality_token;
 
 //////////////////////////////////////////////////////////////////////
@@ -82,90 +99,33 @@ ENGINE_API bool is_enough_address_space_available()
 	return			(*(u32*)&system_info.lpMaximumApplicationAddress) > 0x90000000;
 }
 
-
-#pragma comment(lib, "imgui.lib")
-
-#ifdef STATICRENDER_R1
-#pragma comment(lib, "xrRender_R1.lib")
-#pragma comment(lib, "d3dx9.lib")
-#endif
-
-#ifdef STATICRENDER_R2
-#pragma comment(lib, "xrRender_R2.lib")
-#endif
-
-#ifdef STATICRENDER_R4
-
-#pragma comment(lib, "xrRender_R4.lib")
-#pragma comment(lib, "dxguid.lib")
-#pragma comment(lib, "d3dx11.lib")
-#pragma comment(lib, "D3DCompiler.lib")
-#pragma comment(lib, "d3d11.lib")
-#pragma comment(lib, "dxgi.lib")
-#pragma comment(lib, "d3d10.lib")
+#ifndef DEDICATED_SERVER
+extern BOOL DllMainXrRenderR4(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved);
+#define DLL_MAIN_RENDER DllMainXrRenderR4
+#else
+extern BOOL DllMainXrServerRender(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved);
+#define DLL_MAIN_RENDER DllMainXrServerRender
+#endif // !DEDICATED_SERVER
 
 
-//#pragma comment(lib, "GFSDK_SSAO_D3D11.win64.lib")
+extern BOOL DllMainXrServerRender(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved);
+extern BOOL DllMainXrRenderR4(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved);
 
-#endif
+LPCSTR r1_name = "xrServerRender";
+LPCSTR r4_name = "xrRender_R4";
 
-extern BOOL DllMainRenderR1(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved);
-extern BOOL DllMainRenderR2(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved);
-extern BOOL DllMainRenderR4(HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved);
-
+#ifndef DEDICATED_SERVER
 void CEngineAPI::InitializeNotDedicated()
 {
-	LPCSTR			r1_name = "xrRender_R1.dll";
-	LPCSTR			r2_name = "xrRender_R2.dll";
-	LPCSTR			r3_name = "xrRender_R3.dll";
-	LPCSTR			r4_name = "xrRender_R4.dll";
-
-#ifdef STATICRENDER_R4
-	// try to initialize R2
-	psDeviceFlags.set(rsR2, FALSE);
-	psDeviceFlags.set(rsR3, FALSE);
-	Log("Loading DLL:", r4_name);
-	DllMainRenderR4(NULL, DLL_PROCESS_ATTACH, NULL);
-	g_current_renderer = 4;
-	renderer_value = 5;
-#endif
-
-#ifdef STATICRENDER_R2
-	// try to initialize R2
-	psDeviceFlags.set(rsR2, FALSE);
-	psDeviceFlags.set(rsR4, FALSE);
-	Log("Loading DLL:", r2_name);
-	DllMainRenderR2(NULL, DLL_PROCESS_ATTACH, NULL);
-	g_current_renderer = 2;
-	renderer_value = 3;
-#endif
-
-#ifdef STATICRENDER_R1
-	// try to initialize R1
-	psDeviceFlags.set(rsR2, FALSE);
-	psDeviceFlags.set(rsR3, FALSE);
-	psDeviceFlags.set(rsR4, FALSE);
-	Log("Loading DLL:", r1_name);
-	DllMainRenderR1(NULL, DLL_PROCESS_ATTACH, NULL);
-	g_current_renderer = 1;
-	renderer_value = 0;
-#endif 
+	{
+		// try to initialize R4
+		psDeviceFlags.set(rsR2, FALSE);
+		psDeviceFlags.set(rsR4, TRUE);
+		Log("Loading DLL:", r4_name);
+		DllMainXrRenderR4(NULL, DLL_PROCESS_ATTACH, NULL);
+	}
 }
-
-void CEngineAPI::InitializeDedicated()
-{
-#ifdef DEDICATED_SERVER
-	// try to initialize R1
-	psDeviceFlags.set(rsR2, FALSE);
-	psDeviceFlags.set(rsR3, FALSE);
-	psDeviceFlags.set(rsR4, FALSE);
-	Log("Loading DLL: xrRender_R1.dll");
-
-	DllMainRenderR1(NULL, DLL_PROCESS_ATTACH, NULL);
-	g_current_renderer = 1;
-	renderer_value = 0;
 #endif
-}
 
 #pragma comment(lib, "xrGame.lib")
 
@@ -185,12 +145,16 @@ void CEngineAPI::Initialize(void)
 {
 	//////////////////////////////////////////////////////////////////////////
 	// render
-	LPCSTR			r1_name = "xrRender_R1.dll";
 
-	if (!g_dedicated_server)
-		InitializeNotDedicated();
-	else
-		InitializeDedicated();
+#ifdef DEDICATED_SERVER
+	psDeviceFlags.set(rsR4, FALSE);
+	psDeviceFlags.set(rsR2, FALSE);
+
+	Log("Loading DLL:", r1_name);
+	DllMainXrServerRender(NULL, DLL_PROCESS_ATTACH, NULL);
+#else
+	InitializeNotDedicated();
+#endif // DEDICATED_SERVER
 
 
 	Device.ConnectToRender();
@@ -211,173 +175,102 @@ void CEngineAPI::Initialize(void)
 
 void CEngineAPI::Destroy(void)
 {
-	if (hGame) { FreeLibrary(hGame);	hGame = 0; }
-	if (hRender) { FreeLibrary(hRender); hRender = 0; }
+	DllMainXrGame(NULL, DLL_PROCESS_DETACH, NULL);
+	DLL_MAIN_RENDER(NULL, DLL_PROCESS_DETACH, NULL);
 	pCreate = 0;
 	pDestroy = 0;
 	Engine.Event._destroy();
 	XRC.r_clear_compact();
 }
 
+extern "C" {
+	typedef bool __cdecl SupportsAdvancedRenderingREF(void);
+	typedef bool SupportsDX10RenderingREF();
+	typedef bool SupportsDX11RenderingREF();
+};
+
+extern "C" {
+
+	bool SupportsDX11Rendering();
+
+};
+
+
 void CEngineAPI::CreateRendererList()
 {
-	if (g_dedicated_server)
-	{
-		vid_quality_token = xr_alloc<xr_token>(2);
+#ifdef DEDICATED_SERVER
+	vid_quality_token = xr_alloc<xr_token>(2);
 
-		vid_quality_token[0].id = 0;
-		vid_quality_token[0].name = xr_strdup("renderer_r1");
+	vid_quality_token[0].id = 0;
+	vid_quality_token[0].name = xr_strdup("renderer_r1");
 
-		vid_quality_token[1].id = -1;
-		vid_quality_token[1].name = NULL;
+	vid_quality_token[1].id = -1;
+	vid_quality_token[1].name = NULL;
+#else
 
-		return;
-	}
-
-	//	TODO: ask renderers if they are supported!
-	if (vid_quality_token != NULL)
-		return;
-
+	// TODO: ask renderers if they are supported!
+	if (vid_quality_token != NULL) return;
 	bool bSupports_r2 = false;
 	bool bSupports_r2_5 = false;
 	bool bSupports_r3 = false;
 	bool bSupports_r4 = false;
 
-	LPCSTR			r2_name = "xrRender_R2.dll";
-	LPCSTR			r3_name = "xrRender_R3.dll";
-	LPCSTR			r4_name = "xrRender_R4.dll";
+	LPCSTR r2_name = "xrRender_R2.dll";
+	LPCSTR r3_name = "xrRender_R3.dll";
+	LPCSTR r4_name = "xrRender_R4.dll";
 
-#ifdef STATICRENDER_R2
-	// try to initialize R2
-	Log("Loading DLL:", r2_name);
-	DllMainRenderR2(NULL, DLL_PROCESS_ATTACH, NULL);
+	if (strstr(Core.Params, "-perfhud_hack"))
 	{
 		bSupports_r2 = true;
- 		bSupports_r2_5 = true;
-		Msg("Support R4: %d", bSupports_r2_5);
-	}
-#endif
-
-#ifdef STATICRENDER_R3
-	// try to initialize R3
-	Log("Loading DLL:", r3_name);
-	// Hide "d3d10.dll not found" message box for XP
-	SetErrorMode(SEM_FAILCRITICALERRORS);
-	//hRender = LoadLibrary(r3_name);
-	DllMainRenderR3(NULL, DLL_PROCESS_ATTACH, NULL);
-	// Restore error handling
-	SetErrorMode(0);
-	//if (hRender)
-	{
-		//SupportsDX10RenderingREF* test_dx10_rendering = (SupportsDX10RenderingREF*)GetProcAddress(hRender, "SupportsDX10Rendering");
-		SupportsDX10RenderingREF* test_dx10_rendering = SupportsDX10Rendering;
-		R_ASSERT(test_dx10_rendering);
-		bSupports_r3 = test_dx10_rendering();
-		//FreeLibrary(hRender);
-		Msg("Support R4: %d", bSupports_r3);
-	}
-#endif
-
-#ifdef STATICRENDER_R4
-	// try to initialize R4
-	Log("Loading DLL:", r4_name);
-	// Hide "d3d10.dll not found" message box for XP
-	SetErrorMode(SEM_FAILCRITICALERRORS);
-	//hRender = LoadLibrary(r4_name);
-	DllMainRenderR4(NULL, DLL_PROCESS_ATTACH, NULL);
-	// Restore error handling
-	SetErrorMode(0);
-	//if (hRender)
-	{
- 		bSupports_r4 = true;
-		//FreeLibrary(hRender);
-		Msg("Support R4: %d", bSupports_r4);
-	}
-#endif
-
-	Msg("Renders: R2: [%d], R2.5: [%d], R3: [%d], R4: [%d]", bSupports_r2, bSupports_r2_5, bSupports_r3, bSupports_r4);
-
-	hRender = 0;
-
-	xr_vector<LPCSTR>			_tmp;
-	u32 i = 0;
-	bool bBreakLoop = false;
-	for (; i < 5; ++i)
-	{
-		switch (i)
-		{
-		case 1:
-			if (!bSupports_r2)
-				bBreakLoop = true;
-			break;
-		case 3:		//"renderer_r2.5"
-			if (!bSupports_r2_5)
-				bBreakLoop = true;
-			break;
-		case 4:
-			if (!bSupports_r4)
-				bBreakLoop = true;
-			break;
-		default:;
-		}
-
-		if (bBreakLoop)
-			break;
-
-		_tmp.push_back(NULL);
-		LPCSTR val = NULL;
-		switch (i)
-		{
-		case 0: val = "renderer_r1";			break;
-		case 1: val = "renderer_r2a";		break;
-		case 2: val = "renderer_r2";			break;
-		case 3: val = "renderer_r2.5";		break;
-		case 4: val = "renderer_r4";			break; //  -)
-		}
-		if (bBreakLoop) break;
-		_tmp.back() = xr_strdup(val);
-	}
-
-	u32 _cnt = 2;
-
-	vid_quality_token = xr_alloc<xr_token>(_cnt);
-
-	if (bSupports_r2 && !bSupports_r2_5)
-	{
-		vid_quality_token[0].id = 2;
-		vid_quality_token[0].name = _strdup("renderer_r2");
+		bSupports_r2_5 = true;
+		bSupports_r3 = true;
+		bSupports_r4 = true;
 	}
 	else
-		if (bSupports_r2_5)
+	{
+
+
+
+		// try to initialize R4
+		Log("Loading DLL:", r4_name);
+		// Hide "d3d10.dll not found" message box for XP
+		SetErrorMode(SEM_FAILCRITICALERRORS);
+		//hRender = LoadLibrary(r4_name);
+		DllMainXrRenderR4(NULL, DLL_PROCESS_ATTACH, NULL);
+		// Restore error handling
+		SetErrorMode(0);
+		//if (hRender)
 		{
-			vid_quality_token[0].id = 3;
-			vid_quality_token[0].name = _strdup("renderer_r2.5");
+			//SupportsDX11RenderingREF* test_dx11_rendering = (SupportsDX11RenderingREF*)GetProcAddress(hRender, "SupportsDX11Rendering");
+			SupportsDX11RenderingREF* test_dx11_rendering = SupportsDX11Rendering;
+			R_ASSERT(test_dx11_rendering);
+			bSupports_r4 = test_dx11_rendering();
+			//FreeLibrary(hRender);
 		}
-		else
-			if (bSupports_r3)
-			{
-				vid_quality_token[0].id = 4;
-				vid_quality_token[0].name = _strdup("renderer_r3");
-			}
-			else
-				if (bSupports_r4)
-				{
-					vid_quality_token[0].id = 5;
-					vid_quality_token[0].name = _strdup("renderer_r4");
-				}
-				else
-				{
-					vid_quality_token[0].id = 0;
-					vid_quality_token[0].name = _strdup("renderer_r1");
-				}
+	}
+
+	//hRender = 0;
+	bool proceed = true;
+	xr_vector<LPCSTR> _tmp;
+	if (proceed &= bSupports_r4, proceed)
+		_tmp.push_back("renderer_r4");
+
+	R_ASSERT2(_tmp.size() != 0, "No valid renderer found, please use a render system that's supported by your PC");
+
+	u32 _cnt = _tmp.size() + 1;
+	vid_quality_token = xr_alloc<xr_token>(_cnt);
 
 	vid_quality_token[_cnt - 1].id = -1;
 	vid_quality_token[_cnt - 1].name = NULL;
 
-	vid_quality_token[1].id = -1;
-	vid_quality_token[1].name = NULL;
-
-	Msg("DEBUG_RENDERS: [%s]", _tmp[0]);
+	Msg("Available render modes[%d]:", _tmp.size());
+	for (u32 i = 0; i < _tmp.size(); ++i)
+	{
+		vid_quality_token[i].id = i;
+		vid_quality_token[i].name = _tmp[i];
+		Msg("[%s]", _tmp[i]);
+	}
+#endif //#ifndef DEDICATED_SERVER
 }
 
 // Dedicated Server Sizes

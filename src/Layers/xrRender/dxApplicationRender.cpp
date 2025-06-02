@@ -41,31 +41,29 @@ u32 calc_progress_color(u32, u32, int, int);
 
 void dxApplicationRender::load_draw_internal(CApplication &owner)
 {
-#if defined(USE_DX10) || defined(USE_DX11)
+
 	//	TODO: DX10: remove this???
 	RImplementation.rmNormal();
 	RCache.set_RT(HW.pBaseRT);
 	RCache.set_ZB(HW.pBaseZB);
-#endif	//	USE_DX10
 
-#if defined(USE_DX10) || defined(USE_DX11)
+
+
 	FLOAT ColorRGBA[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 	HW.pContext->ClearRenderTargetView( RCache.get_RT(), ColorRGBA);
-#else	//	USE_DX10
-	CHK_DX			(HW.pDevice->Clear(0,0,D3DCLEAR_TARGET,D3DCOLOR_ARGB(0,0,0,0),1,0));
-#endif	//	USE_DX10
+
 
 	if(!sh_progress)
 	{
 		return;
 	}
 
-#if defined(USE_DX10) || defined(USE_DX11)
+
 	//	TODO: DX10: remove this
 //	FLOAT ColorRGBA[4] = {0.0f, 0.0f, 1.0f, 0.0f};
 //	HW.pContext->ClearRenderTargetView( RCache.get_RT(), ColorRGBA);
 //	HW.pContext->ClearDepthStencilView( RCache.get_ZB(), D3D_CLEAR_DEPTH|D3D_CLEAR_STENCIL, 1.0f, 0);
-#endif	//	USE_DX10
+
 
 	float	_w					= (float)Device.dwWidth;
 	float	_h					= (float)Device.dwHeight;
@@ -214,8 +212,6 @@ void dxApplicationRender::load_draw_internal(CApplication &owner)
 	float fTargetWidth				= 600.0f*k.x*(b_ws?0.8f:1.0f);
 	draw_multiline_text				(owner.pFontSystem, fTargetWidth, owner.ls_tip);
 
-	owner.pFontSystem->OnRender		();
-
 	//draw level-specific screenshot
 	if(hLevelLogo)
 	{
@@ -241,7 +237,10 @@ void dxApplicationRender::load_draw_internal(CApplication &owner)
 		logo_tex_coords.rb.set		(1.0f,0.77926f);
 
 		draw_face					(hLevelLogo, r, logo_tex_coords, Fvector2().set(1,1));
+		owner.pFontSystem->SetColor(color_rgba(180, 180, 180, 200));
 	}
+	owner.pFontSystem->OutI(0.f, 0.385f, owner.ls_title);
+	owner.pFontSystem->OnRender();
 }
 
 void dxApplicationRender::draw_face(ref_shader& sh, Frect& coords, Frect& tex_coords, const Fvector2& tsz)

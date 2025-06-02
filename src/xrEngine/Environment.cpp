@@ -34,15 +34,16 @@
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
-ENGINE_API	float			psVisDistance	= 0.8f;
+ENGINE_API	float			psVisDistance	= 1.0f;
 static const float			MAX_NOISE_FREQ	= 0.03f;
 
-#define WEATHER_LOGGING
+//#define WEATHER_LOGGING
 
 // real WEATHER->WFX transition time
 #define WFX_TRANS_TIME		10.f
 
 const float MAX_DIST_FACTOR = 0.95f;
+extern Fvector4 ps_ssfx_wind_trees;
 
 //////////////////////////////////////////////////////////////////////////
 // environment
@@ -75,8 +76,11 @@ CEnvironment::CEnvironment	() :
 	wind_strength_factor	= 0.f;
 	wind_gust_factor		= 0.f;
 
+	wetness_factor = 0.f;
+
 	wind_blast_strength	= 0.f;
 	wind_blast_direction.set(1.f,0.f,0.f);
+	wind_anim = { 0.0f, 0.0f, 0.0f };
 
 	wind_blast_strength_start_value	= 0.f;
 	wind_blast_strength_stop_value	= 0.f;
@@ -727,6 +731,10 @@ void CEnvironment::lerp		(float& current_weight)
 	EM.ambient.set			( 0,0,0 );
 	EM.sky_color.set		( 0,0,0 );
 	EM.hemi_color.set		( 0,0,0 );
+	EM.lowland_fog_height = 0;
+	EM.lowland_fog_density = 0;
+	EM.lowland_fog_base_height = 0;
+	EM.rain_density = 0;
 	EM.use_flags.zero		();
 
 	Fvector	view			= Device.vCameraPosition;
@@ -745,13 +753,50 @@ void CEnvironment::OnFrame()
 
 	if (!g_pGameLevel)		return;
  
+	// Min wind velocity. [ ps_ssfx_wind_trees.w 0 ~ 1 ]
+	float WindVel = (CurrentEnv->wind_velocity * 0.1) * ps_ssfx_wind_trees.w;
+
+	// Limit min at 200 to avoid slow-mo at extremly low speed.
+	//WindVel = _max(WindVel, 200) * 0.001f;
+
+	float WindDir = -CurrentEnv->wind_direction + PI_DIV_2;
+	Fvector2 WDir = { _cos(WindDir), _sin(WindDir) };
+
+	wind_anim.x += WindVel * WDir.x * Device.fTimeDelta;
+	wind_anim.y += WindVel * WDir.y * Device.fTimeDelta;
+	wind_anim.z += clampr(WindVel * 1.33f, 0.0f, 1.0f) * Device.fTimeDelta;
+
+	//	if (pInput->iGetAsyncKeyState(DIK_O))		SetWeatherFX("surge_day"); 
+
  	float					current_weight;
 	lerp					(current_weight);
 
 	//	Igor. Dynamic sun position. 	
 	if (false)
-	if ( !::Render->is_sun_static())
 		calculate_dynamic_sun_dir();
+
+#ifndef MASTER_GOLD
+	if (CurrentEnv->sun_dir.y > 0)
+	{
+		Log("CurrentEnv->sun_dir", CurrentEnv->sun_dir);
+		//		Log("current_weight", current_weight);
+		//		Log("mpower", mpower);
+
+		Log("Current[0]->sun_dir", Current[0]->sun_dir);
+		Log("Current[1]->sun_dir", Current[1]->sun_dir);
+
+	}
+	VERIFY2(CurrentEnv->sun_dir.y < 0, "Invalid sun direction settings in lerp");
+#endif // #ifndef MASTER_GOLD
+
+	const float rain_density = CurrentEnv ? CurrentEnv->rain_density : 0.0f;
+	if (rain_density > 0.f && wetness_accum < 1.f)
+		wetness_accum += 0.000775f * rain_density;
+	else if (fis_zero(rain_density) && wetness_accum > 0.f)
+		wetness_accum -= 0.000425f;
+
+	clamp(wetness_accum, 0.f, 1.f);
+
  
 	PerlinNoise1D->SetFrequency		(wind_gust_factor*MAX_NOISE_FREQ);
 	wind_strength_factor			= clampr(PerlinNoise1D->GetContinious(Device.fTimeGlobal)+0.5f,0.f,1.f); 

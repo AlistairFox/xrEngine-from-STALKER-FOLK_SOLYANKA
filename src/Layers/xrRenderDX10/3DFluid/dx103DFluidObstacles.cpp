@@ -64,16 +64,16 @@ namespace
 dx103DFluidObstacles::dx103DFluidObstacles(int gridWidth, int gridHeight, int gridDepth, dx103DFluidGrid *pGrid)
 	:	m_pGrid(pGrid)
 {
-	strOOBBClipPlane = ("OOBBClipPlane");
+	VERIFY(m_pGrid);
+
+strOOBBClipPlane = "OOBBClipPlane";
 
 	//	For velocity calculation
-	strWorldToLocal = ("WorldToLocal");
-	strLocalToWorld = ("LocalToWorld");
-	strMassCenter = ("MassCenter");
-	strOOBBWorldAngularVelocity  = ("OOBBWorldAngularVelocity");
-	strOOBBWorldTranslationVelocity = ("OOBBWorldTranslationVelocity");
-
-	VERIFY(m_pGrid);
+strWorldToLocal = "WorldToLocal";
+strLocalToWorld = "LocalToWorld";
+strMassCenter = "MassCenter";
+strOOBBWorldAngularVelocity = "OOBBWorldAngularVelocity";
+strOOBBWorldTranslationVelocity = "OOBBWorldTranslationVelocity";
 
 	m_vGridDim[0] = float(gridWidth);
 	m_vGridDim[1] = float(gridHeight);

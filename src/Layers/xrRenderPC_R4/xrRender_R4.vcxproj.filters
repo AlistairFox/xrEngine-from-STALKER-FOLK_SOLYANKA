@@ -231,6 +231,15 @@
     <ClInclude Include="..\xrRender\r_sun_cascades.h">
       <Filter>Core</Filter>
     </ClInclude>
+    <ClInclude Include="DetailFormat.h">
+      <Filter>Details</Filter>
+    </ClInclude>
+    <ClInclude Include="..\xrRender\DetailManager.h">
+      <Filter>Details</Filter>
+    </ClInclude>
+    <ClInclude Include="..\xrRender\DetailModel.h">
+      <Filter>Details</Filter>
+    </ClInclude>
     <ClInclude Include="..\xrRender\NvTriStrip.h">
       <Filter>Stripifier</Filter>
     </ClInclude>
@@ -687,9 +696,6 @@
     <ClInclude Include="..\xrRenderDX10\dx10StateUtils.h">
       <Filter>dx9 to dx10 Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\xrRenderDX10\dx10TextureUtils.h">
-      <Filter>dx9 to dx10 Utils</Filter>
-    </ClInclude>
     <ClInclude Include="..\xrRenderDX10\StateManager\dx10SamplerStateCache.h">
       <Filter>StateManager</Filter>
     </ClInclude>
@@ -732,14 +738,35 @@
     <ClInclude Include="..\xrRender\dxPixEventWrapper.h">
       <Filter>Debug</Filter>
     </ClInclude>
-    <ClInclude Include="Details\DetailFormat.h">
-      <Filter>Details</Filter>
+    <ClInclude Include="..\..\..\SDK\include\ssao\GFSDK_SSAO.h">
+      <Filter>Kernel</Filter>
     </ClInclude>
-    <ClInclude Include="Details\DetailManager.h">
-      <Filter>Details</Filter>
+    <ClInclude Include="blender_hud_bleeding.h">
+      <Filter>Shading templates</Filter>
     </ClInclude>
-    <ClInclude Include="Details\DetailModel.h">
-      <Filter>Details</Filter>
+    <ClInclude Include="blender_hud_blood.h">
+      <Filter>Shading templates</Filter>
+    </ClInclude>
+    <ClInclude Include="blender_hud_satiety.h">
+      <Filter>Shading templates</Filter>
+    </ClInclude>
+    <ClInclude Include="blender_hud_stamina.h">
+      <Filter>Shading templates</Filter>
+    </ClInclude>
+    <ClInclude Include="blender_hud_thirst.h">
+      <Filter>Shading templates</Filter>
+    </ClInclude>
+    <ClInclude Include="blender_lens_flares.h">
+      <Filter>Shading templates</Filter>
+    </ClInclude>
+    <ClInclude Include="blender_ss_sunshafts.h">
+      <Filter>Shading templates</Filter>
+    </ClInclude>
+    <ClInclude Include="blender_blur.h">
+      <Filter>Shading templates</Filter>
+    </ClInclude>
+    <ClInclude Include="blender_cut.h">
+      <Filter>Shading templates</Filter>
     </ClInclude>
     <ClInclude Include="blender_gasmask_drops.h" />
     <ClInclude Include="blender_gasmask_dudv.h" />
@@ -813,6 +840,24 @@
     </ClCompile>
     <ClCompile Include="..\xrRender\tga.cpp">
       <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\xrRender\DetailManager.cpp">
+      <Filter>Details</Filter>
+    </ClCompile>
+    <ClCompile Include="..\xrRender\DetailManager_CACHE.cpp">
+      <Filter>Details</Filter>
+    </ClCompile>
+    <ClCompile Include="..\xrRender\DetailManager_Decompress.cpp">
+      <Filter>Details</Filter>
+    </ClCompile>
+    <ClCompile Include="..\xrRender\DetailManager_soft.cpp">
+      <Filter>Details</Filter>
+    </ClCompile>
+    <ClCompile Include="..\xrRender\DetailModel.cpp">
+      <Filter>Details</Filter>
+    </ClCompile>
+    <ClCompile Include="..\xrRenderDX10\dx10DetailManager_VS.cpp">
+      <Filter>Details</Filter>
     </ClCompile>
     <ClCompile Include="..\xrRender\NvTriStrip.cpp">
       <Filter>Stripifier</Filter>
@@ -1285,9 +1330,6 @@
     <ClCompile Include="..\xrRenderDX10\dx10StateUtils.cpp">
       <Filter>dx9 to dx10 Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\xrRenderDX10\dx10TextureUtils.cpp">
-      <Filter>dx9 to dx10 Utils</Filter>
-    </ClCompile>
     <ClCompile Include="..\xrRenderDX10\StateManager\dx10SamplerStateCache.cpp">
       <Filter>StateManager</Filter>
     </ClCompile>
@@ -1327,27 +1369,51 @@
     <ClCompile Include="..\xrRender\dxPixEventWrapper.cpp">
       <Filter>Debug</Filter>
     </ClCompile>
-    <ClCompile Include="Details\DetailManager.cpp">
-      <Filter>Details</Filter>
+    <ClCompile Include="blender_hud_bleeding.cpp">
+      <Filter>Shading templates</Filter>
     </ClCompile>
-    <ClCompile Include="Details\DetailManager_CACHE.cpp">
-      <Filter>Details</Filter>
+    <ClCompile Include="blender_hud_blood.cpp">
+      <Filter>Shading templates</Filter>
     </ClCompile>
-    <ClCompile Include="Details\DetailManager_Decompress.cpp">
-      <Filter>Details</Filter>
+    <ClCompile Include="blender_hud_satiety.cpp">
+      <Filter>Shading templates</Filter>
     </ClCompile>
-    <ClCompile Include="Details\DetailManager_VSDX11.cpp">
-      <Filter>Details</Filter>
+    <ClCompile Include="blender_hud_stamina.cpp">
+      <Filter>Shading templates</Filter>
     </ClCompile>
-    <ClCompile Include="Details\DetailModel.cpp">
-      <Filter>Details</Filter>
+    <ClCompile Include="blender_hud_thirst.cpp">
+      <Filter>Shading templates</Filter>
     </ClCompile>
-    <ClCompile Include="r__dshgraph_optimize.cpp">
-      <Filter>Core</Filter>
+    <ClCompile Include="blender_lens_flares.cpp">
+      <Filter>Shading templates</Filter>
     </ClCompile>
+    <ClCompile Include="blender_ss_sunshafts.cpp">
+      <Filter>Shading templates</Filter>
+    </ClCompile>
+    <ClCompile Include="r4_rendertarget_phase_lens_flares.cpp">
+      <Filter>Core_Target</Filter>
+    </ClCompile>
+    <ClCompile Include="r4_rendertarget_phase_ss_sunshafts.cpp">
+      <Filter>Core_Target</Filter>
+    </ClCompile>
+    <ClCompile Include="..\xrRender\rendertarget_phase_hud_effects.cpp">
+      <Filter>Core_Target</Filter>
+    </ClCompile>
+    <ClCompile Include="blender_blur.cpp">
+      <Filter>Shading templates</Filter>
+    </ClCompile>
+    <ClCompile Include="rendertarget_phase_blur.cpp">
+      <Filter>Core_Target</Filter>
+    </ClCompile>
+    <ClCompile Include="r4_rendertarget_phase_cut.cpp">
+      <Filter>Core_Target</Filter>
+    </ClCompile>
+    <ClCompile Include="blender_cut.cpp">
+      <Filter>Shading templates</Filter>
+    </ClCompile>
+    <ClCompile Include="rendertarget_phase_gasmask_drops.cpp" />
+    <ClCompile Include="rendertarget_phase_gasmask_dudv.cpp" />
     <ClCompile Include="blender_gasmask_drops.cpp" />
     <ClCompile Include="blender_gasmask_dudv.cpp" />
-    <ClCompile Include="..\xrRender\rendertarget_phase_gasmask_drops.cpp" />
-    <ClCompile Include="..\xrRender\rendertarget_phase_gasmask_dudv.cpp" />
   </ItemGroup>
 </Project>

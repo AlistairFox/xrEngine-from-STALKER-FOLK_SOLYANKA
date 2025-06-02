@@ -21,6 +21,7 @@ class ENGINE_API CApplication	:
 		char*				name;
 	};
 public:
+	string256				ls_title;
 	string2048				ls_header;
 	string2048				ls_tip_number;
 	string2048				ls_tip;

@@ -3,11 +3,14 @@
 
 #include "../../xrcdb/ispatial.h"
 
-#if (RENDER==R_R2) || (RENDER==R_R3) || (RENDER==R_R4)
+#if (RENDER==R_R2) || (RENDER==R_R4)
 #	include "light_package.h"
 #	include "light_smapvis.h"
 #	include "light_GI.h"
 #endif //(RENDER==R_R2) || (RENDER==R_R3) || (RENDER==R_R4)
+
+
+extern Fvector4 ps_ssfx_volumetric;
 
 class	light		:	public IRender_Light, public ISpatial
 {
@@ -25,6 +28,7 @@ public:
 	Fvector			direction	;
 	Fvector			right		;
 	float			range		;
+	float virtual_size;
 	float			cone		;
 	Fcolor			color		;
 
@@ -35,7 +39,7 @@ public:
 	float			m_volumetric_intensity;
 	float			m_volumetric_distance;
 
-#if (RENDER==R_R2) || (RENDER==R_R3) || (RENDER==R_R4)
+#if (RENDER==R_R2) || (RENDER==R_R4)
 	float			falloff;			// precalc to make light equal to zero at light range
 	float	        attenuation0;		// Constant attenuation		
 	float	        attenuation1;		// Linear attenuation		
@@ -51,7 +55,7 @@ public:
 	ref_shader		s_point;
 	ref_shader		s_volumetric;
 
-#if (RENDER==R_R3) || (RENDER==R_R4)
+#if (RENDER==R_R4)
 	ref_shader		s_spot_msaa[8];
 	ref_shader		s_point_msaa[8];
 	ref_shader		s_volumetric_msaa[8];
@@ -67,6 +71,7 @@ public:
 		bool		visible;		// visible/invisible
 		bool		pending;		// test is still pending
 		u16			smap_ID;
+		float		distance;
 	}				vis;
 
 	union			_xform	{
@@ -104,18 +109,21 @@ public:
 	}
 	virtual void	set_volumetric			(bool b)						
 	{ 
+		if (ps_ssfx_volumetric.x > 0)
+
+			b = true;
 		flags.bVolumetric=b;			
 	}
 
 	virtual void	set_volumetric_quality(float fValue) {m_volumetric_quality = fValue;}
-	virtual void	set_volumetric_intensity(float fValue) {m_volumetric_intensity = fValue;}
-	virtual void	set_volumetric_distance(float fValue) {m_volumetric_distance = fValue;}
+	virtual void set_volumetric_intensity(float fValue) { m_volumetric_intensity = ps_ssfx_volumetric.y; }
+	virtual void set_volumetric_distance(float fValue) { m_volumetric_distance = 1.0f; }
 	
 	virtual void	set_position			(const Fvector& P);
 	virtual void	set_rotation			(const Fvector& D, const Fvector& R);
 	virtual void	set_cone				(float angle);
 	virtual void	set_range				(float R);
-	virtual void	set_virtual_size		(float R)						{};
+	virtual void set_virtual_size(float R) { virtual_size = R; }
 	virtual void	set_color				(const Fcolor& C)				{ color.set(C);				}
 	virtual void	set_color				(float r, float g, float b)		{ color.set(r,g,b,1);		}
 	virtual void	set_texture				(LPCSTR name);
@@ -128,7 +136,7 @@ public:
 	virtual IRender_Light*	dcast_Light		()	{ return this; }
 
 	vis_data&		get_homdata				();
-#if (RENDER==R_R2) || (RENDER==R_R3) || (RENDER==R_R4)
+#if (RENDER==R_R2) || (RENDER==R_R4)
 	void			gi_generate				();
 	void			xform_calc				();
 	void			vis_prepare				();

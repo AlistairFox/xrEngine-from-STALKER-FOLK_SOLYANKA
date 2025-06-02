@@ -1,6 +1,7 @@
 #ifndef EnvironmentH
 #define EnvironmentH
 
+#define TREE_WIND_EFFECT
 // refs
 class ENGINE_API	IRender_Visual;
 class ENGINE_API	CInifile;
@@ -43,6 +44,10 @@ public:
 	Fvector3			ambient;
 	Fvector3			sky_color;		
 	Fvector3			hemi_color;
+	float				lowland_fog_density;
+	float				lowland_fog_height;
+	float				lowland_fog_base_height;
+	float				rain_density;
 	Flags16				use_flags;
 
 	void				load		(IReader* fs, u32 version);
@@ -145,6 +150,12 @@ public:
 	Fvector3			fog_color;
 	float				fog_density;
 	float				fog_distance;
+	float				fog_desc_near;
+	float				fog_desc_far;
+	float				lowland_fog_height_curve;
+	float				lowland_fog_density;
+	float				lowland_fog_height;
+	float				lowland_fog_base_height;
 
 	float				rain_density;
 	Fvector3			rain_color;
@@ -162,6 +173,9 @@ public:
 	float				m_fSunShaftsIntensity;
 	float				m_fWaterIntensity;
 
+#ifdef TREE_WIND_EFFECT
+	float m_fTreeAmplitudeIntensity;
+#endif
 
 //	int					lens_flare_id;
 //	int					tb_id;
@@ -202,6 +216,7 @@ public:
 
 	float				fog_near;		
 	float				fog_far;		
+	float				fog_curve;
 public:
 						CEnvDescriptorMixer	(shared_str const& identifier);
 	INGAME_EDITOR_VIRTUAL void lerp			(CEnvironment* parent, CEnvDescriptor& A, CEnvDescriptor& B, float f, CEnvModifier& M, float m_power);
@@ -246,10 +261,11 @@ public:
 	float					fGameTime;
 	FactoryPtr<IEnvironmentRender>	m_pRender;
 	BOOL					bNeed_re_create_env;
-
+	Fvector3 wind_anim;
 	float					wind_strength_factor;	
 	float					wind_gust_factor;
-
+	float wetness_factor;
+	float					wetness_accum;
 	// wind blast params
 	float					wind_blast_strength;
 	Fvector					wind_blast_direction;

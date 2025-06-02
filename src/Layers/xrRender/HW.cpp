@@ -9,6 +9,8 @@
 #pragma warning(default:4995)
 #include "HW.h"
 #include "../../xrEngine/XR_IOConsole.h"
+#include <imgui.h>
+#include "../xrRenderDX9/imgui_impl_dx9.h"
 
 #ifndef _EDITOR
 	void	fill_vid_mode_list			(CHW* _hw);
@@ -35,7 +37,8 @@ CHW::CHW() :
 	pDevice(NULL),
 	pBaseRT(NULL),
 	pBaseZB(NULL),
-	m_move_window(true)
+	m_move_window(true),
+	maxRefreshRate(265)
 {
 	;
 }
@@ -47,6 +50,9 @@ CHW::~CHW()
 
 void CHW::Reset		(HWND hwnd)
 {
+	if (!g_dedicated_server)
+	ImGui_ImplDX9_InvalidateDeviceObjects();
+
 #ifdef DEBUG
 	_RELEASE			(dwDebugSB);
 #endif
@@ -72,8 +78,7 @@ void CHW::Reset		(HWND hwnd)
 	else					DevPP.FullScreen_RefreshRateInHz	= D3DPRESENT_RATE_DEFAULT;
 #endif
 
-	while	(TRUE)
-	{
+	while	(TRUE)	{
 		HRESULT _hr							= HW.pDevice->Reset	(&DevPP);
 		if (SUCCEEDED(_hr))					break;
 		Msg		("! ERROR: [%dx%d]: %s",DevPP.BackBufferWidth,DevPP.BackBufferHeight,Debug.error2string(_hr));
@@ -87,6 +92,8 @@ void CHW::Reset		(HWND hwnd)
 #ifndef _EDITOR
 	updateWindowProps	(hwnd);
 #endif
+	if (!g_dedicated_server)
+	ImGui_ImplDX9_CreateDeviceObjects();
 }
 
 //xr_token*				vid_mode_token = NULL;
@@ -156,10 +163,11 @@ D3DFORMAT CHW::selectDepthStencil	(D3DFORMAT fTarget)
 	return D3DFMT_UNKNOWN;
 }
 
-
-
 void	CHW::DestroyDevice	()
 {
+	if (!g_dedicated_server)
+	ImGui_ImplDX9_Shutdown();
+
 	_SHOW_REF				("refCount:pBaseZB",pBaseZB);
 	_RELEASE				(pBaseZB);
 
@@ -187,13 +195,8 @@ void	CHW::selectResolution	(u32 &dwWidth, u32 &dwHeight, BOOL bWindowed)
 #ifndef _EDITOR
 	if (g_dedicated_server)
 	{
-		extern int WidthDedicatedX;
-		extern int WidthDedicatedY;
-
-		// -res1024
- 		dwWidth = WidthDedicatedX;
-		dwHeight = WidthDedicatedY;
-		 
+		dwWidth		= 900;
+		dwHeight	= 720;
 	}
 	else
 #endif
@@ -421,6 +424,8 @@ void		CHW::CreateDevice		(HWND m_hWnd, bool move_window)
 	updateWindowProps							(m_hWnd);
 	fill_vid_mode_list							(this);
 #endif
+	if (!g_dedicated_server)
+	ImGui_ImplDX9_Init(m_hWnd, pDevice);
 }
 
 u32	CHW::selectPresentInterval	()
@@ -503,22 +508,28 @@ u32 CHW::selectGPU ()
 
 u32 CHW::selectRefresh(u32 dwWidth, u32 dwHeight, D3DFORMAT fmt)
 {
-	if (psDeviceFlags.is(rsRefresh60hz))	return D3DPRESENT_RATE_DEFAULT;
-	else
+	if (psDeviceFlags.is(rsRefresh60hz) || strstr(Core.Params, "-60hz"))
 	{
-		u32 selected	= D3DPRESENT_RATE_DEFAULT;
-		u32 count		= pD3D->GetAdapterModeCount(DevAdapter,fmt);
-		for (u32 I=0; I<count; I++)
-		{
-			D3DDISPLAYMODE	Mode;
-			pD3D->EnumAdapterModes(DevAdapter,fmt,I,&Mode);
-			if (Mode.Width==dwWidth && Mode.Height==dwHeight)
-			{
-				if (Mode.RefreshRate>selected) selected = Mode.RefreshRate;
-			}
-		}
-		return selected;
+		refresh_rate = 1.f / 60.f;
+		return D3DPRESENT_RATE_DEFAULT;
 	}
+		
+	u32 selected = D3DPRESENT_RATE_DEFAULT;
+	u32 count = pD3D->GetAdapterModeCount(DevAdapter, fmt);
+	for (u32 I = 0; I < count; I++)
+	{
+		D3DDISPLAYMODE Mode;
+		pD3D->EnumAdapterModes(DevAdapter, fmt, I, &Mode);
+		if (Mode.Width == dwWidth && Mode.Height == dwHeight && Mode.RefreshRate > selected)
+			selected = Mode.RefreshRate;
+	}
+
+	if (selected > 0)
+		refresh_rate = 1.f / selected;
+	else
+		refresh_rate = 1.f / 60.f;
+
+	return selected;
 }
 
 BOOL	CHW::support	(D3DFORMAT fmt, DWORD type, DWORD usage)
@@ -538,9 +549,6 @@ void	CHW::updateWindowProps	(HWND m_hWnd)
 //#endif
 
 	BOOL	bWindowed				= TRUE;
-
-	BOOL	bShow					= !strstr(Core.Params, "-hide");
-
 #ifndef _EDITOR
 	if (!g_dedicated_server)
 		bWindowed			= !psDeviceFlags.is(rsFullscreen);
@@ -548,15 +556,12 @@ void	CHW::updateWindowProps	(HWND m_hWnd)
 
 	u32		dwWindowStyle			= 0;
 	// Set window properties depending on what mode were in.
- 	
-	if (bWindowed)	
-	{
-		if (m_move_window)
-		{
-			if (strstr(Core.Params,"-no_dialog_header"))
-				SetWindowLong	( m_hWnd, GWL_STYLE, dwWindowStyle=(WS_BORDER|WS_VISIBLE) );
-			else
-				SetWindowLong	( m_hWnd, GWL_STYLE, dwWindowStyle=(WS_BORDER|WS_DLGFRAME|WS_VISIBLE|WS_SYSMENU|WS_MINIMIZEBOX ) );
+	if (bWindowed)		{
+		if (m_move_window) {
+			            dwWindowStyle = WS_BORDER | WS_VISIBLE;
+            if (!strstr(Core.Params, "-no_dialog_header"))
+                dwWindowStyle |= WS_DLGFRAME | WS_SYSMENU | WS_MINIMIZEBOX;
+            SetWindowLong(m_hWnd, GWL_STYLE, dwWindowStyle);
 			// When moving from fullscreen to windowed mode, it is important to
 			// adjust the window size after recreating the device rather than
 			// beforehand to ensure that you get the window size you want.  For
@@ -567,62 +572,25 @@ void	CHW::updateWindowProps	(HWND m_hWnd)
 			// desktop.
 
 			RECT			m_rcWindowBounds;
-			BOOL			bCenter = FALSE;
-			BOOL			bRight = FALSE;
-			if (strstr(Core.Params, "-center_screen"))	bCenter = TRUE;
-			if (strstr(Core.Params, "-right_screen")) bRight = TRUE;
-
-#ifndef _EDITOR
-			if (g_dedicated_server)
-				bCenter		= TRUE;
-#endif
-			if(bCenter)
-			{
-				RECT				DesktopRect;
+			RECT				DesktopRect;
 				
-				GetClientRect		(GetDesktopWindow(), &DesktopRect);
+			GetClientRect(GetDesktopWindow(), &DesktopRect);
 
-				SetRect(			&m_rcWindowBounds, 
-									(DesktopRect.right-DevPP.BackBufferWidth)/2, 
-									(DesktopRect.bottom-DevPP.BackBufferHeight)/2, 
-									(DesktopRect.right+DevPP.BackBufferWidth)/2, 
-									(DesktopRect.bottom+DevPP.BackBufferHeight)/2			);
-			}
-			else
-			if (bRight)
-			{
-				SetRect(&m_rcWindowBounds,
-					1024,
-					0,
-					DevPP.BackBufferWidth + 1024,
-					DevPP.BackBufferHeight);
-			}
-			else
-			{
-				SetRect(			&m_rcWindowBounds,
-									0, 
-									0, 
-									DevPP.BackBufferWidth, 
-									DevPP.BackBufferHeight );
-			};
+			SetRect(&m_rcWindowBounds,
+				(DesktopRect.right - DevPP.BackBufferWidth) / 2,
+				(DesktopRect.bottom - DevPP.BackBufferHeight) / 2,
+				(DesktopRect.right + DevPP.BackBufferWidth) / 2,
+				(DesktopRect.bottom + DevPP.BackBufferHeight) / 2);
 
- 			AdjustWindowRect		(	&m_rcWindowBounds, dwWindowStyle, FALSE );
-			
-			UINT flags;
+			AdjustWindowRect(&m_rcWindowBounds, dwWindowStyle, FALSE);
 
-			if (bShow || !g_dedicated_server)
-				flags = SWP_SHOWWINDOW | SWP_NOCOPYBITS | SWP_DRAWFRAME;
-			else
-				flags = SWP_HIDEWINDOW | SWP_NOCOPYBITS | SWP_DRAWFRAME;
-
- 			SetWindowPos			(	m_hWnd, 
+			SetWindowPos			(	m_hWnd, 
 										HWND_NOTOPMOST,	
-										m_rcWindowBounds.left, 
-										m_rcWindowBounds.top,
+				m_rcWindowBounds.left,
+				m_rcWindowBounds.top,
 										( m_rcWindowBounds.right - m_rcWindowBounds.left ),
 										( m_rcWindowBounds.bottom - m_rcWindowBounds.top ),
-										flags);
-			 
+										SWP_SHOWWINDOW|SWP_NOCOPYBITS|SWP_DRAWFRAME );
 		}
 	}
 	else
@@ -636,13 +604,11 @@ void	CHW::updateWindowProps	(HWND m_hWnd)
 	{
 		ShowCursor	(FALSE);
 		SetForegroundWindow( m_hWnd );
- 	}
+	}
 #endif
 }
 
 
-#pragma warning(disable:4996)
-#pragma warning(disable:4995)
 struct _uniq_mode
 {
 	_uniq_mode(LPCSTR v):_val(v){}
@@ -651,6 +617,80 @@ struct _uniq_mode
 };
 
 #ifndef _EDITOR
+
+/*
+void free_render_mode_list()
+{
+	for( int i=0; vid_quality_token[i].name; i++ )
+	{
+		xr_free					(vid_quality_token[i].name);
+	}
+	xr_free						(vid_quality_token);
+	vid_quality_token			= NULL;
+}
+*/
+/*
+void	fill_render_mode_list()
+{
+	if(vid_quality_token != NULL)		return;
+
+	D3DCAPS9					caps;
+	CHW							_HW;
+	_HW.CreateD3D				();
+	_HW.pD3D->GetDeviceCaps		(D3DADAPTER_DEFAULT,D3DDEVTYPE_HAL,&caps);
+	_HW.DestroyD3D				();
+	u16		ps_ver_major		= u16 ( u32(u32(caps.PixelShaderVersion)&u32(0xf << 8ul))>>8 );
+
+	xr_vector<LPCSTR>			_tmp;
+	u32 i						= 0;
+	for(; i<5; ++i)
+	{
+		bool bBreakLoop = false;
+		switch (i)
+		{
+		case 3:		//"renderer_r2.5"
+			if (ps_ver_major < 3)
+				bBreakLoop = true;
+			break;
+		case 4:		//"renderer_r_dx10"
+			bBreakLoop = true;
+			break;
+		default:	;
+		}
+
+		if (bBreakLoop) break;
+
+		_tmp.push_back				(NULL);
+		LPCSTR val					= NULL;
+		switch (i)
+		{
+			case 0: val ="renderer_r1";			break;
+			case 1: val ="renderer_r2a";		break;
+			case 2: val ="renderer_r2";			break;
+			case 3: val ="renderer_r2.5";		break;
+			case 4: val ="renderer_r_dx10";		break; //  -)
+		}
+		_tmp.back()					= xr_strdup(val);
+	}
+	u32 _cnt								= _tmp.size()+1;
+	vid_quality_token						= xr_alloc<xr_token>(_cnt);
+
+	vid_quality_token[_cnt-1].id			= -1;
+	vid_quality_token[_cnt-1].name			= NULL;
+
+#ifdef DEBUG
+	Msg("Available render modes[%d]:",_tmp.size());
+#endif // DEBUG
+	for(u32 i=0; i<_tmp.size();++i)
+	{
+		vid_quality_token[i].id				= i;
+		vid_quality_token[i].name			= _tmp[i];
+#ifdef DEBUG
+		Msg							("[%s]",_tmp[i]);
+#endif // DEBUG
+	}
+}
+*/
 void free_vid_mode_list()
 {
 	for( int i=0; vid_mode_token[i].name; i++ )
@@ -706,44 +746,3 @@ void fill_vid_mode_list(CHW* _hw)
 }
 #endif
 
-
-
-
-void CHW::updateWindowProps_Position(HWND m_hWnd, u32 X, u32 Y, u32 SizeX, u32 SizeY)
-{
-	if (psDeviceFlags.is(rsFullscreen))
-		return;
-
-	u32		dwWindowStyle = 0;
-	// Set window properties depending on what mode were in.
-
-	if (m_move_window)
-	{
-		Msg("Update Window Pos : X: %u, Y: %u", X, Y);
-
-		SetWindowLong(m_hWnd, GWL_STYLE, dwWindowStyle = (WS_BORDER | WS_DLGFRAME | WS_VISIBLE | WS_SYSMENU | WS_MINIMIZEBOX));
-
-		RECT			m_rcWindowBounds;
-
-
-		SetRect(&m_rcWindowBounds,
-			X,
-			Y,
-			X + DevPP.BackBufferWidth,
-			Y + DevPP.BackBufferHeight);
-
-		AdjustWindowRect(&m_rcWindowBounds, dwWindowStyle, FALSE);
-
-		SetWindowPos(m_hWnd,
-			HWND_NOTOPMOST,
-			m_rcWindowBounds.left,
-			m_rcWindowBounds.top,
-			(m_rcWindowBounds.right - m_rcWindowBounds.left),
-			(m_rcWindowBounds.bottom - m_rcWindowBounds.top),
-			SWP_SHOWWINDOW | SWP_NOCOPYBITS | SWP_DRAWFRAME);
-	}
-
-	ShowCursor(FALSE);
-	SetForegroundWindow(m_hWnd);
-
-}

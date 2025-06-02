@@ -18,7 +18,6 @@ dx103DFluidEmitters::dx103DFluidEmitters(int gridWidth, int gridHeight, int grid
 	strImpulseSize = "size";
 	strImpulseCenter = "center";
 	strSplatColor = "splatColor";
-
 	m_vGridDim[0] = float(gridWidth);
 	m_vGridDim[1] = float(gridHeight);
 	m_vGridDim[2] = float(gridDepth);

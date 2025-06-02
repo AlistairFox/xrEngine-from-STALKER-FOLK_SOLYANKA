@@ -92,8 +92,6 @@ public:
 	virtual bool		OnRenderPPUI_query		();
 	virtual void		OnRenderPPUI_main		();
 	virtual void		OnRenderPPUI_PP			();
-	virtual	void		LoadTitle				(bool change_tip, shared_str map_name = "");
-	virtual void		LoadTitle				(shared_str stage_name);
 
 	virtual bool		CanBePaused				();
 
@@ -105,8 +103,20 @@ public:
 	virtual void		SetBaseDof				(const Fvector3& dof);
 	virtual void		OnSectorChanged			(int sector);
 	virtual void		OnAssetsChanged			();
-	virtual	Fvector4	GetDudvParams			() override;
-	virtual	Fvector3	GetRainDropsParams		() override;
+	int			GetHudGlassElement();
+	bool		GetHudGlassEnabled();
+	float		GetActorMaxHealth() override;
+	float		GetActorHealth() override;
+	float		GetActorMaxPower() override;
+	float		GetActorPower() override;
+	float		GetActorBleeding() override;
+	bool		GetActorAliveStatus();
+	float		GetActorSatiety() override;
+	float		GetActorMaxSatiety() override;
+	virtual Fvector3				GetRainDropsParams() override;
+
+	virtual	void		LoadTitle(bool change_tip = false, shared_str map_name = "");
+	void				SetLoadStageTitle(const char* ls_title = nullptr) override {};
 };
 
 IC CGamePersistent&		GamePersistent()		{ return *((CGamePersistent*) g_pGamePersistent);			}

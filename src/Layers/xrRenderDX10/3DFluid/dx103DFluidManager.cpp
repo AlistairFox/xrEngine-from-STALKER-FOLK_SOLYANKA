@@ -78,7 +78,7 @@ dx103DFluidManager::dx103DFluidManager()
 	m_fDecay(1.0f), m_pGrid(0), m_pRenderer(0),
 	m_pObstaclesHandler(0)
 {
-	SecureZeroMemory(pRenderTargetViews, sizeof(pRenderTargetViews));
+	ZeroMemory(pRenderTargetViews, sizeof(pRenderTargetViews));
 
 	//RenderTargetFormats [RENDER_TARGET_VELOCITY0]	= DXGI_FORMAT_R16G16B16A16_FLOAT;
 	RenderTargetFormats [RENDER_TARGET_VELOCITY1]	= DXGI_FORMAT_R16G16B16A16_FLOAT;
@@ -99,17 +99,34 @@ dx103DFluidManager::~dx103DFluidManager()
 
 void dx103DFluidManager::Initialize( int width, int height, int depth )
 {
-	strDrawTexture = "textureNumber";
-	strModulate = "modulate";
-	strEpsilon = "epsilon";
-	strTimeStep = "timestep";
-	strForward = "forward";
-	strHalfVolumeDim = "halfVolumeDim";
-	strGravityBuoyancy = "GravityBuoyancy";
-
 	//if (strstr(Core.Params,"-no_volumetric_fog"))
 	if (!RImplementation.o.volumetricfog)
 		return;
+
+	strDrawTexture = "textureNumber";
+	// For project, advect
+	//ModulateShaderVariable = pEffect->GetVariableByName( "modulate")->AsScalar();
+	strModulate = "modulate";
+	// For gaussian
+	//ImpulseSizeShaderVariable = pEffect->GetVariableByName( "size")->AsScalar();
+	//shared_str	strImpulseSize("size");
+	//ImpulseCenterShaderVariable = pEffect->GetVariableByName( "center")->AsVector();
+	//shared_str	strImpulseCenter("center");
+	//SplatColorShaderVariable = pEffect->GetVariableByName( "splatColor")->AsVector();
+	//shared_str	strSplatColor("splatColor");
+	// For confinement
+	//EpsilonShaderVariable = pEffect->GetVariableByName( "epsilon")->AsScalar();
+	strEpsilon = "epsilon";
+	// For confinement, advect
+	strTimeStep = "timestep";
+	// For advect BFECC
+	//ForwardShaderVariable = pEffect->GetVariableByName( "forward")->AsScalar();
+	strForward = "forward";
+	//HalfVolumeDimShaderVariable = pEffect->GetVariableByName( "halfVolumeDim")->AsVector();
+	strHalfVolumeDim = "halfVolumeDim";
+
+	strGravityBuoyancy = "GravityBuoyancy";
+
 
 	Destroy();
 
@@ -130,7 +147,7 @@ void dx103DFluidManager::Initialize( int width, int height, int depth )
 	desc.Depth =  depth;
 
 	D3D_SHADER_RESOURCE_VIEW_DESC SRVDesc;
-	SecureZeroMemory( &SRVDesc, sizeof(SRVDesc) );
+	ZeroMemory( &SRVDesc, sizeof(SRVDesc) );
 	SRVDesc.ViewDimension = D3D_SRV_DIMENSION_TEXTURE3D;
 	SRVDesc.Texture3D.MipLevels = 1;
 	SRVDesc.Texture3D.MostDetailedMip = 0;
@@ -286,13 +303,8 @@ void dx103DFluidManager::Update( dx103DFluidData &FluidData, float timestep )
 	rtViewport.TopLeftY = 0;
 	rtViewport.MinDepth = 0.0f;
 	rtViewport.MaxDepth = 1.0f;
-#ifdef USE_DX11
 	rtViewport.Width =  (float)m_iTextureWidth;
 	rtViewport.Height = (float)m_iTextureHeight;
-#else // #ifdef USE_DX11
-	rtViewport.Width =  m_iTextureWidth;
-	rtViewport.Height = m_iTextureHeight;
-#endif // #ifdef USE_DX11
 	HW.pContext->RSSetViewports(1,&rtViewport);
 
 	RCache.set_ZB(0);

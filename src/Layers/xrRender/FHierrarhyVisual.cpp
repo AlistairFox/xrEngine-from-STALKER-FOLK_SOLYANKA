@@ -58,9 +58,7 @@ void FHierrarhyVisual::Load(const char* N, IReader *data, u32 dwFlags)
 		bDontDelete = TRUE;
 	}
 	else
-	{
-#pragma warning(disable:4996)
-#pragma warning(disable:4995)
+	{	
     	if (data->find_chunk(OGF_CHILDREN))
 		{
 			// From stream

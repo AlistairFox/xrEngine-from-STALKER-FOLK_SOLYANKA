@@ -9,10 +9,6 @@
 #include "ComputeShader.h"
 #include "..\xrRender\dxRenderDeviceRender.h"
 
-
-#pragma warning(disable:4996)
-#pragma warning(disable:4995)
-
 CSCompiler::CSCompiler(ComputeShader& target):
 	m_Target(target), m_cs(0)
 {
@@ -29,53 +25,39 @@ CSCompiler& CSCompiler::defSampler(LPCSTR ResourceName)
 	D3D11_SAMPLER_DESC	desc;
 	ZeroMemory(&desc, sizeof(desc));
 
-	//	Use D3DTADDRESS_CLAMP,	D3DTEXF_POINT,			D3DTEXF_NONE,	D3DTEXF_POINT 
+
 	if (0==xr_strcmp(ResourceName,"smp_nofilter"))
 	{
-		//i_dx10Address( stage, D3DTADDRESS_CLAMP);
-		//i_dx10Filter(stage, D3DTEXF_POINT, D3DTEXF_NONE, D3DTEXF_POINT);
+
 		desc.AddressU = desc.AddressV = desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 		desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
 		return defSampler(ResourceName, desc);
 	}
 
-	//	Use D3DTADDRESS_CLAMP,	D3DTEXF_LINEAR,			D3DTEXF_NONE,	D3DTEXF_LINEAR 
 	if (0==xr_strcmp(ResourceName,"smp_rtlinear"))
 	{
-		//i_dx10Address( stage, D3DTADDRESS_CLAMP);
-		//i_dx10Filter(stage, D3DTEXF_LINEAR, D3DTEXF_NONE, D3DTEXF_LINEAR);
 		desc.AddressU = desc.AddressV = desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 		desc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
 		return defSampler(ResourceName, desc);
 	}
 
-	//	Use	D3DTADDRESS_WRAP,	D3DTEXF_LINEAR,			D3DTEXF_LINEAR,	D3DTEXF_LINEAR
 	if (0==xr_strcmp(ResourceName,"smp_linear"))
 	{
-		//i_dx10Address( stage, D3DTADDRESS_WRAP);
-		//i_dx10Filter(stage, D3DTEXF_LINEAR, D3DTEXF_LINEAR, D3DTEXF_LINEAR);
 		desc.AddressU = desc.AddressV = desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 		desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 		return defSampler(ResourceName, desc);
 	}
 
-	//	Use D3DTADDRESS_WRAP,	D3DTEXF_ANISOTROPIC, 	D3DTEXF_LINEAR,	D3DTEXF_ANISOTROPIC
 	if (0==xr_strcmp(ResourceName,"smp_base"))
 	{
-		//i_dx10Address( stage, D3DTADDRESS_WRAP);
-		//i_dx10FilterAnizo( stage, TRUE);
 		desc.AddressU = desc.AddressV = desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 		desc.Filter = D3D11_FILTER_ANISOTROPIC;
 		desc.MaxAnisotropy = 8;
 		return defSampler(ResourceName, desc);
 	}
 
-	//	Use D3DTADDRESS_CLAMP,	D3DTEXF_LINEAR,			D3DTEXF_NONE,	D3DTEXF_LINEAR
 	if (0==xr_strcmp(ResourceName,"smp_material"))
 	{
-		//i_dx10Address( stage, D3DTADDRESS_CLAMP);
-		//i_dx10Filter(stage, D3DTEXF_LINEAR, D3DTEXF_NONE, D3DTEXF_LINEAR);
-		//RS.SetSAMP(stage,D3DSAMP_ADDRESSW,	D3DTADDRESS_WRAP);
 		desc.AddressU = desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 		desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 		desc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
@@ -84,10 +66,6 @@ CSCompiler& CSCompiler::defSampler(LPCSTR ResourceName)
 
 	if (0==xr_strcmp(ResourceName,"smp_smap"))
 	{
-		//i_dx10Address( stage, D3DTADDRESS_CLAMP);
-		//i_dx10Filter(stage, D3DTEXF_LINEAR, D3DTEXF_NONE, D3DTEXF_LINEAR);
-		//RS.SetSAMP(stage, XRDX10SAMP_COMPARISONFILTER, TRUE);
-		//RS.SetSAMP(stage, XRDX10SAMP_COMPARISONFUNC, D3D_COMPARISON_LESS_EQUAL);
 		desc.AddressU = desc.AddressV = desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 		desc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
 		desc.ComparisonFunc = D3D_COMPARISON_LESS_EQUAL;
@@ -96,8 +74,6 @@ CSCompiler& CSCompiler::defSampler(LPCSTR ResourceName)
 
 	if (0==xr_strcmp(ResourceName,"smp_jitter"))
 	{
-		//i_dx10Address( stage, D3DTADDRESS_WRAP);
-		//i_dx10Filter(stage, D3DTEXF_POINT, D3DTEXF_NONE, D3DTEXF_POINT);
 		desc.AddressU = desc.AddressV = desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 		desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
 		return defSampler(ResourceName, desc);
@@ -207,6 +183,7 @@ void CSCompiler::compile(const char* name)
 
 	CHECK_OR_EXIT				(
 		!FAILED(_hr),
-		make_string("Your video card doesn't meet game requirements.\n\nTry to lower game settings.")
+		make_string("Your video card doesn't meet game requirements.\n\nTry to lower game settings or restart .")
+	//	make_string("Капухтер гавно, видяха говно. \n А вообще попробуй понизить настройки, или рестартнуть игру.")
 	);
 }

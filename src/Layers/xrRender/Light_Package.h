@@ -11,4 +11,7 @@ public:
 public:
 	void					clear				();
 	void					sort				();
+	void				vis_prepare();
+	void				vis_update();
 };
+

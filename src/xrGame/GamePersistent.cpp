@@ -29,6 +29,8 @@
 #include "xrserver_objects_alife_monsters.h"
 #include "../xrServerEntities/xrServer_Object_Base.h"
 #include "UI/UIGameTutorial.h"
+#include "ActorCondition.h"
+#include "ActorHelmet.h"
 
 #ifndef MASTER_GOLD
 #	include "custommonster.h"
@@ -90,8 +92,8 @@ CGamePersistent::CGamePersistent(void) : time(std::chrono::seconds(3))
 	}
 
 	eQuickLoad				= Engine.Event.Handler_Attach("Game:QuickLoad",this);
-	Fvector3* DofValue		= Console->GetFVectorPtr("r2_dof");
-	SetBaseDof				(*DofValue);
+	Fvector3 DofValue = Fvector().set(0.f, 0.f, 0.f);
+	SetBaseDof				(DofValue);
 }
 
 CGamePersistent::~CGamePersistent(void)
@@ -906,31 +908,6 @@ void CGamePersistent::LoadTitle(bool change_tip, shared_str map_name)
  
 }
 
-void CGamePersistent::LoadTitle(shared_str stage_name)
-{
-	pApp->LoadStage();
-
-	if (false)
-	{
-		string512				buff;
-		u8						tip_num;
-
-		tip_num = Random.randI(1, 101);
-		xr_sprintf(buff, "%s%d:", CStringTable().translate("ls_tip_number").c_str(), tip_num);
-		shared_str				tmp = buff;
-
-		xr_sprintf(buff, "ls_tip_%d", tip_num);
- 
-		if (stage_name.size() == 0)
-			pApp->LoadTitleInt(CStringTable().translate("ls_header").c_str(), tmp.c_str(), CStringTable().translate(buff).c_str());
-		else
-			pApp->LoadTitleInt(CStringTable().translate("ls_header").c_str(), tmp.c_str(), stage_name.c_str());
-
-		Msg("Stage %s", stage_name.c_str());
-
-	}
-}
-
 bool CGamePersistent::CanBePaused()
 {
 	return IsGameTypeSingle	() || (g_pGameLevel && Level().IsDemoPlay());
@@ -1000,27 +977,81 @@ void CGamePersistent::OnSectorChanged(int sector)
 		CurrentGameUI()->UIMainIngameWnd->OnSectorChanged(sector);
 }
  
-Fvector4 CGamePersistent::GetDudvParams()
+#include "DynamicHudGlass.h"
+int CGamePersistent::GetHudGlassElement()
+{
+	return	(DynamicHudGlass::GetHudGlassElement());
+}
+
+bool CGamePersistent::GetHudGlassEnabled()
+{
+	return	(DynamicHudGlass::GetHudGlassEnabled());
+}
+
+float CGamePersistent::GetActorMaxHealth()
 {
 	if (!Actor())
-		return Fvector4().set(0,0,0,1);
+		return 0;
+	return	(Actor()->GetMaxHealth());
+}
 
-	if (!Actor()->g_Alive()) 
-		return Fvector4().set(0,0,0,1);
+float CGamePersistent::GetActorHealth()
+{
+	if (!Actor())
+		return 0;
+	return	(Actor()->GetfHealth());
+}
 
-	return Actor()->GetGlassShader();
+float CGamePersistent::GetActorMaxPower()
+{
+	if (!Actor())
+		return 0;
+	return	(Actor()->conditions().GetMaxPower());
+}
+
+float CGamePersistent::GetActorPower()
+{
+	if (!Actor())
+		return 0;
+	return	(Actor()->conditions().GetPower());
+}
+
+float CGamePersistent::GetActorBleeding()
+{
+	if (!Actor())
+		return 0;
+	return	(Actor()->conditions().BleedingSpeed());
+}
+
+bool CGamePersistent::GetActorAliveStatus()
+{
+	if (!Actor())
+		return 0;
+	return	(Actor()->g_Alive());
+}
+
+float CGamePersistent::GetActorSatiety()
+{
+	if (!Actor())
+		return 0;
+	return	(Actor()->conditions().GetSatiety());
+}
+
+float CGamePersistent::GetActorMaxSatiety()
+{
+	if (!Actor())
+		return 0;
+	return	(Actor()->conditions().GetSatietyPower());
 }
 
 Fvector3 CGamePersistent::GetRainDropsParams()
 {
 	if (!Actor())
-		return Fvector().set(0,0,0);
+		return Fvector().set(0, 0, 0);
 
-	if (!Actor()->g_Alive()) 
-		return Fvector().set(0,0,0);
-
-	return Actor()->GetRaindropsShader();
+	return Actor()->RainDropsParams;
 }
+
 
 void CGamePersistent::OnAssetsChanged()
 {

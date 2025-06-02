@@ -9,16 +9,10 @@ class dxStatsRender : public IStatsRender
 public:
 	virtual void Copy(IStatsRender &_in);
 
-	virtual void DrawCalls(u32& value);
-	virtual void DrawVerticy(u32& value);
-	virtual void DrawPoly(u32& value);
-
 	virtual void OutData1 (CGameFont &F);
 	virtual void OutData2 (CGameFont &F);
 	virtual void OutData3 (CGameFont &F);
 	virtual void OutData4 (CGameFont &F);
-	virtual void OutDetails(CGameFont& F);
-
 	virtual void GuardVerts (CGameFont &F);
 	virtual void GuardDrawCalls (CGameFont &F);
 	virtual void SetDrawParams (IRenderDeviceRender *pRender);

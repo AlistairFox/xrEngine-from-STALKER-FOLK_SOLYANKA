@@ -48,21 +48,14 @@ BOOL SPass::equal(const SPass& other)
 	if (state		!= other.state)		return FALSE;
 	if (ps			!= other.ps)			return FALSE;
 	if (vs			!= other.vs)			return FALSE;
-#if defined(USE_DX10) || defined(USE_DX11)
 	if (gs			!= other.gs)			return FALSE;
-#	ifdef USE_DX11
 	if (hs			!= other.hs)			return FALSE;
 	if (ds			!= other.ds)			return FALSE;
 	if (cs			!= other.cs)			return FALSE;
-#	endif
-#endif	//	USE_DX10
 	if (constants	!= other.constants)		return FALSE;	// is this nessesary??? (ps+vs already combines)
 
 	if (T != other.T)					return FALSE;
 	if (C != other.C)					return FALSE;
-#ifdef _EDITOR
-	if (M != other.M)					return FALSE;
-#endif
 	return TRUE;
 }
 
@@ -74,6 +67,9 @@ ShaderElement::ShaderElement()
 	flags.bEmissive		= FALSE;
 	flags.bDistort		= FALSE;
 	flags.bWmark		= FALSE;
+	flags.bLandscape	= FALSE;
+	flags.isLandscape = FALSE;
+	flags.isWater		= FALSE;
 }
 
 BOOL ShaderElement::equal	(ShaderElement& S)
@@ -81,6 +77,7 @@ BOOL ShaderElement::equal	(ShaderElement& S)
 	if (flags.iPriority		!= S.flags.iPriority)	return FALSE;
 	if (flags.bStrictB2F	!= S.flags.bStrictB2F)	return FALSE;
 	if (flags.bEmissive		!= S.flags.bEmissive)	return FALSE;
+	if (flags.bLandscape	!= S.flags.bLandscape)	return FALSE;
 	if (flags.bWmark		!= S.flags.bWmark)		return FALSE;
 	if (flags.bDistort		!= S.flags.bDistort)	return FALSE;
 	if (passes.size() != S.passes.size())			return FALSE;

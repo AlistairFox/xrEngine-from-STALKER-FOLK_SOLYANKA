@@ -9,10 +9,6 @@
 #endif
 #pragma warning(default:4995)
 
-
-#pragma warning(disable:4996)
-#pragma warning(disable:4995)
-
 #include <D3DX10Core.h>
 
 #include "../xrRender/ResourceManager.h"
@@ -25,7 +21,7 @@
 
 #include "../xrRender/ShaderResourceTraits.h"
 
-#ifdef USE_DX11
+
 	SHS*	CResourceManager::_CreateHS			(LPCSTR Name)
 	{
 		return CreateShader<SHS>(Name);
@@ -55,7 +51,7 @@
 	{
 		DestroyShader(CS);
 	}
-#endif	//	USE_DX10
+
 
 void fix_texture_name(LPSTR fn);
 
@@ -83,11 +79,9 @@ SState*		CResourceManager::_CreateState		(SimulatorStates& state_code)
 	// Create New
 	v_states.push_back				(xr_new<SState>());
 	v_states.back()->dwFlags		|= xr_resource_flagged::RF_REGISTERED;
-#if defined(USE_DX10) || defined(USE_DX11)
+
 	v_states.back()->state			= ID3DState::Create(state_code);
-#else	//	USE_DX10
-	v_states.back()->state			= state_code.record();
-#endif	//	USE_DX10
+
 	v_states.back()->state_code		= state_code;
 	return v_states.back();
 }
@@ -111,16 +105,12 @@ SPass*		CResourceManager::_CreatePass			(const SPass& proto)
 	P->ps						=	proto.ps;
 	P->vs						=	proto.vs;
 	P->gs						=	proto.gs;
-#ifdef USE_DX11
 	P->hs						=	proto.hs;
 	P->ds						=	proto.ds;
 	P->cs						=	proto.cs;
-#endif
 	P->constants				=	proto.constants;
 	P->T						=	proto.T;
-#ifdef _EDITOR
-	P->M						=	proto.M;
-#endif
+
 	P->C						=	proto.C;
 
 	v_passes.push_back			(P);
@@ -139,9 +129,6 @@ SVS*	CResourceManager::_CreateVS		(LPCSTR _name)
 {
 	string_path			name;
 	xr_strcpy				(name,_name);
-
-
-
 	if (0 == ::Render->m_skinning)	xr_strcat(name,"_0");
 	if (1 == ::Render->m_skinning)	xr_strcat(name,"_1");
 	if (2 == ::Render->m_skinning)	xr_strcat(name,"_2");
@@ -149,11 +136,7 @@ SVS*	CResourceManager::_CreateVS		(LPCSTR _name)
 	if (4 == ::Render->m_skinning)	xr_strcat(name,"_4");
 	LPSTR N				= LPSTR		(name);
 	map_VS::iterator I	= m_vs.find	(N);
- 
-	// Msg("Creating SHADER VS: %s", name);
-
-	if (I!=m_vs.end())
-		return I->second;
+	if (I!=m_vs.end())	return I->second;
 	else
 	{
 		SVS*	_vs					= xr_new<SVS>	();
@@ -207,18 +190,12 @@ SVS*	CResourceManager::_CreateVS		(LPCSTR _name)
 
 		HRESULT	const _hr		= ::Render->shader_compile(name,(DWORD const*)data,size, c_entry, c_target, D3D10_SHADER_PACK_MATRIX_ROW_MAJOR, (void*&)_vs );
 
-
-		if (strstr(name, "models"))
-		{
-			Msg("Loading Shader VS: %u", name);
-		}
-
 		VERIFY(SUCCEEDED(_hr));
 
-		CHECK_OR_EXIT			(
-			!FAILED(_hr),
-			make_string("Your video card doesn't meet game requirements.\n\nTry to lower game settings.")
-		);
+	//	CHECK_OR_EXIT			(
+	//		!FAILED(_hr),
+	//		make_string("Your video card doesn't meet game requirements.\n\nTry to lower game settings.")
+	//	);
 
 		return					_vs;
 	}
@@ -264,11 +241,7 @@ SPS*	CResourceManager::_CreatePS			(LPCSTR _name)
 	if (7 == ::Render->m_MSAASample)	xr_strcat(name,"_7");
 	LPSTR N				= LPSTR(name);
 	map_PS::iterator I	= m_ps.find	(N);
-
-	if (I != m_ps.end())
-	{
-		return		I->second;
-	}
+	if (I!=m_ps.end())	return		I->second;
 	else
 	{
 		SPS*	_ps					=	xr_new<SPS>	();
@@ -322,22 +295,11 @@ SPS*	CResourceManager::_CreatePS			(LPCSTR _name)
 		if (strstr(data,"main_ps_1_4"))			{ c_target = "ps_1_4"; c_entry = "main_ps_1_4";	}
 		if (strstr(data,"main_ps_2_0"))			{ c_target = "ps_2_0"; c_entry = "main_ps_2_0";	}
 
-
-
-		if (strstr(name, "models"))
-		{
-			Msg("Loading Shader PS: %u", name);
-		}
-
-
 		HRESULT	const _hr		= ::Render->shader_compile(name,(DWORD const*)data,size, c_entry, c_target, D3D10_SHADER_PACK_MATRIX_ROW_MAJOR, (void*&)_ps );
 		
 		VERIFY(SUCCEEDED(_hr));
 
-		CHECK_OR_EXIT		(
-			!FAILED(_hr),
-			make_string("Your video card doesn't meet game requirements.\n\nTry to lower game settings.")
-			);
+
 
 		return			_ps;
 	}
@@ -403,11 +365,6 @@ SGS*	CResourceManager::_CreateGS			(LPCSTR name)
 
 		FS.r_close				( file );
 
-		CHECK_OR_EXIT			(
-			!FAILED(_hr),
-			make_string("Your video card doesn't meet game requirements.\n\nTry to lower game settings.")
-		);
-
 		return					_gs;
 	}
 }
@@ -445,8 +402,7 @@ SDeclaration*	CResourceManager::_CreateDecl	(D3DVERTEXELEMENT9* dcl)
 	// Create _new
 	SDeclaration* D			= xr_new<SDeclaration>();
 	u32 dcl_size			= D3DXGetDeclLength(dcl)+1;
-	//	Don't need it for DirectX 10 here
-	//CHK_DX					(HW.pDevice->CreateVertexDeclaration(dcl,&D->dcl));
+
 	D->dcl_code.assign		(dcl,dcl+dcl_size);
 	dx10BufferUtils::ConvertVertexDeclaration(D->dcl_code, D->dx10_dcl_code);
 	D->dwFlags				|= xr_resource_flagged::RF_REGISTERED;
@@ -480,13 +436,9 @@ void				CResourceManager::_DeleteConstantTable	(const R_constant_table* C)
 }
 
 //--------------------------------------------------------------------------------------------------------------
-#ifdef USE_DX11
-CRT*	CResourceManager::_CreateRT		(LPCSTR Name, u32 w, u32 h,	D3DFORMAT f, u32 SampleCount, bool useUAV )
-#else
-CRT*	CResourceManager::_CreateRT		(LPCSTR Name, u32 w, u32 h,	D3DFORMAT f, u32 SampleCount )
-#endif
+CRT* CResourceManager::_CreateRT(LPCSTR Name, xr_vector<RtCreationParams>& vp_params, DXGI_FORMAT f, VIEW_TYPE view, u32 samples)
 {
-	R_ASSERT(Name && Name[0] && w && h);
+	R_ASSERT(Name && Name[0]);
 
 	// ***** first pass - search already created RT
 	LPSTR N = LPSTR(Name);
@@ -497,11 +449,8 @@ CRT*	CResourceManager::_CreateRT		(LPCSTR Name, u32 w, u32 h,	D3DFORMAT f, u32 S
 		CRT *RT					=	xr_new<CRT>();
 		RT->dwFlags				|=	xr_resource_flagged::RF_REGISTERED;
 		m_rtargets.insert		(mk_pair(RT->set_name(Name),RT));
-#ifdef USE_DX11
-		if (Device.b_is_Ready)	RT->create	(Name,w,h,f, SampleCount, useUAV );
-#else
-		if (Device.b_is_Ready)	RT->create	(Name,w,h,f, SampleCount );
-#endif
+
+		if (Device.b_is_Ready)	RT->create(Name, vp_params, f, view, samples);
 		return					RT;
 	}
 }
@@ -516,53 +465,8 @@ void	CResourceManager::_DeleteRT		(const CRT* RT)
 	}
 	Msg	("! ERROR: Failed to find render-target '%s'",*RT->cName);
 }
-/*	//	DX10 cut 
-//--------------------------------------------------------------------------------------------------------------
-CRTC*	CResourceManager::_CreateRTC		(LPCSTR Name, u32 size,	D3DFORMAT f)
-{
-	R_ASSERT(Name && Name[0] && size);
-
-	// ***** first pass - search already created RTC
-	LPSTR N = LPSTR(Name);
-	map_RTC::iterator I = m_rtargets_c.find	(N);
-	if (I!=m_rtargets_c.end())	return I->second;
-	else
-	{
-		CRTC *RT				=	xr_new<CRTC>();
-		RT->dwFlags				|=	xr_resource_flagged::RF_REGISTERED;
-		m_rtargets_c.insert		(mk_pair(RT->set_name(Name),RT));
-		if (Device.b_is_Ready)	RT->create	(Name,size,f);
-		return					RT;
-	}
-}
-void	CResourceManager::_DeleteRTC		(const CRTC* RT)
-{
-	if (0==(RT->dwFlags&xr_resource_flagged::RF_REGISTERED))	return;
-	LPSTR N				= LPSTR		(*RT->cName);
-	map_RTC::iterator I	= m_rtargets_c.find	(N);
-	if (I!=m_rtargets_c.end())	{
-		m_rtargets_c.erase(I);
-		return;
-	}
-	Msg	("! ERROR: Failed to find render-target '%s'",*RT->cName);
-}
-*/
-//--------------------------------------------------------------------------------------------------------------
 void	CResourceManager::DBG_VerifyGeoms	()
 {
-	/*
-	for (u32 it=0; it<v_geoms.size(); it++)
-	{
-	SGeometry* G					= v_geoms[it];
-
-	D3DVERTEXELEMENT9		test	[MAX_FVF_DECL_SIZE];
-	u32						size	= 0;
-	G->dcl->GetDeclaration			(test,(unsigned int*)&size);
-	u32 vb_stride					= D3DXGetDeclVertexSize	(test,0);
-	u32 vb_stride_cached			= G->vb_stride;
-	R_ASSERT						(vb_stride == vb_stride_cached);
-	}
-	*/
 }
 
 SGeometry*	CResourceManager::CreateGeom	(D3DVERTEXELEMENT9* decl, ID3DVertexBuffer* vb, ID3DIndexBuffer* ib)
@@ -640,23 +544,6 @@ void	CResourceManager::_DeleteTexture		(const CTexture* T)
 	Msg	("! ERROR: Failed to find texture surface '%s'",*T->cName);
 }
 
-#ifdef DEBUG
-void	CResourceManager::DBG_VerifyTextures	()
-{
-	map_Texture::iterator I		= m_textures.begin	();
-	map_Texture::iterator E		= m_textures.end	();
-	for (; I!=E; I++) 
-	{
-		R_ASSERT(I->first);
-		R_ASSERT(I->second);
-		R_ASSERT(I->second->cName);
-		R_ASSERT(0==xr_strcmp(I->first,*I->second->cName));
-	}
-}
-#endif
-
-#pragma warning(disable:4996)
-#pragma warning(disable:4995)
 //--------------------------------------------------------------------------------------------------------------
 CMatrix*	CResourceManager::_CreateMatrix	(LPCSTR Name)
 {

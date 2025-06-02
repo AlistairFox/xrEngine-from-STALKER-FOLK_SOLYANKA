@@ -75,6 +75,8 @@
 #include "UI/UIDragDropReferenceList.h"
 #include "../xrEngine/Rain.h"
 
+#include "DynamicHudGlass.h"
+
 const u32		patch_frames	= 50;
 const float		respawn_delay	= 1.f;
 const float		respawn_auto	= 7.f;
@@ -227,74 +229,6 @@ CActor::~CActor()
 
 	xr_delete				(m_anims);
 //.	xr_delete				(m_vehicle_anims);
-}
-
-Fvector4 CActor::GetGlassShader()
-{
-	CHelmet* helmet = smart_cast<CHelmet*>(inventory().ItemFromSlot(HELMET_SLOT));
-	CCustomOutfit* outfit = smart_cast<CCustomOutfit*>(inventory().ItemFromSlot(OUTFIT_SLOT));
-
-	Fvector4 shader_param = { 0,0,0,1 };
-
-	if (outfit && outfit->b_has_glass)
- 	{
- 		shader_param.x = static_cast<float>(outfit->GetParamFromCondition(static_cast<u16>(outfit->GetCondition() * 1000)));
- 		shader_param.y = outfit->outfit_vingette;
- 		shader_param.z = outfit->b_enable_reflection;
-		//Msg("# OUTFIT: shader_param: [%f][%f][%f][%f]", shader_param.x, shader_param.y, shader_param.z, shader_param.w);
-  	}
- 	else if (helmet && helmet->b_has_glass)
-	{
-		shader_param.x = static_cast<float>(helmet->GetParamFromCondition(static_cast<u16>(helmet->GetCondition() * 1000)));
-		shader_param.y = helmet->helm_vingette;
-		shader_param.z = helmet->b_enable_reflection;
-		//Msg("# HELMET: shader_param: [%f][%f][%f][%f]", shader_param.x, shader_param.y, shader_param.z, shader_param.w);
-	}
-
-	return shader_param;
-}
- 
-Fvector3 CActor::GetRaindropsShader()
-{
-	Fvector3 shader_param = { 0,0,0 };
- 
- 	CHelmet* helmet = smart_cast<CHelmet*>(inventory().ItemFromSlot(HELMET_SLOT));
- 	CCustomOutfit* outfit = smart_cast<CCustomOutfit*>(inventory().ItemFromSlot(OUTFIT_SLOT));
- 
- 	if ((outfit && outfit->b_has_glass) || (helmet && helmet->b_has_glass))
- 	{
- 		static u32	 droplet_update = 0;
- 		static float droplets_pwr = 0;
- 		static float droplets_speed = 0;
- 		static bool	 inside = true;
- 
- 		if (Device.dwTimeGlobal > droplet_update + 500)
- 		{
- 			droplet_update = Device.dwTimeGlobal;
- 			collide::rq_result RQ;
- 
- 			inside = !!g_pGameLevel->ObjectSpace.RayPick(Device.vCameraPosition, Fvector().set(0, 1, 0), 50.0f, collide::rqtBoth, RQ, g_pGameLevel->CurrentViewEntity());
- 
- 			float rain_factor = g_pGamePersistent->Environment().CurrentEnv->rain_density;
- 
- 			float step = ((!inside) && (rain_factor > 0.2f)) ? 0.005f : 0.0f;
- 			
- 			droplets_pwr += (step > 0) ? (step * std::clamp(droplets_pwr, 0.5f, 1.0f)) : -0.005f;
- 			clamp(droplets_pwr, 0.0f, 1.0f);
- 
- 			droplets_speed = (step > 0.0f) ? 1.0f : 0.1f;
- 		}
- 
- 		if (droplets_pwr < 0.1f)
- 			droplets_speed = 0.0f;
- 
- 		shader_param.x = droplets_pwr;
- 		shader_param.z = droplets_speed;
- 
- 		//Msg("~ DROPS param: [%f][%f][%f]", shader_param.x, shader_param.y, shader_param.z);
- 	}
- 
- 	return shader_param;
 }
 
 bool CActor::MpGodMode() const
@@ -1171,6 +1105,42 @@ float CActor::currentFOV()
 	}
 }
 
+
+void CActor::RainDropsParamsUpdate()
+{
+	bool IsHelm = DynamicHudGlass::GetHudGlassEnabled();
+	if (IsHelm)
+	{
+		if (Device.dwTimeGlobal > (last_ray_pick_time + 2000)) { //Апдейт рейтрейса - раз в секунду. Чаще апдейтить нет смысла.
+			last_ray_pick_time = Device.dwTimeGlobal;
+
+			collide::rq_result RQ;
+			actor_in_hideout = !!g_pGameLevel->ObjectSpace.RayPick(Device.vCameraPosition, Fvector().set(0, 1, 0), 50.f, collide::rqtBoth, RQ, g_pGameLevel->CurrentViewEntity());
+		}
+	}
+
+	if (IsHelm)
+	{
+		if (Device.dwTimeGlobal > DropletTimer)
+		{
+			DropletTimer = Device.dwTimeGlobal + 500;
+			float step = (!actor_in_hideout) && (g_pGamePersistent->Environment().CurrentEnv->rain_density > 0.2) ? DropletStep : 0;
+			droplet_pwr += (step > 0) ? (step * std::min(1.0f, std::max(0.5f, g_pGamePersistent->Environment().CurrentEnv->rain_density))) : -DropletStep;
+			clamp(droplet_pwr, 0.f, 1.f);
+
+
+			DropletSpeed = (step > 0) ? 1 : 0.1;
+		}
+	}
+	else
+		droplet_pwr = 0.f;
+
+	if (droplet_pwr < 0.1f)
+		DropletSpeed = 0.f;
+
+	RainDropsParams = Fvector().set(droplet_pwr, 0.f, DropletSpeed);
+}
+
 float	NET_Jump = 0;
 
 const char* CActor::GetActorTeamVisual(u8 team)
@@ -1197,6 +1167,8 @@ void CActor::UpdateCL	()
 {
  	if(g_Alive() && Level().CurrentViewEntity() == this)
 	{
+		RainDropsParamsUpdate();
+
 		if(CurrentGameUI() && NULL==CurrentGameUI()->TopInputReceiver())
 		{
 			int dik = get_action_dik(kUSE, 0);

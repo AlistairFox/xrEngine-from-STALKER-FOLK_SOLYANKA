@@ -8,22 +8,6 @@ void dxStatsRender::Copy(IStatsRender&_in)
 	*this = *((dxStatsRender*)&_in);
 }
 
-
-void dxStatsRender::DrawCalls(u32& value)
-{
-	value = RCache.stat.calls;
-}
-
-void dxStatsRender::DrawVerticy(u32& value)
-{
-	value = RCache.stat.verts;
-}
-
-void dxStatsRender::DrawPoly(u32& value)
-{
-	value = RCache.stat.polys;
-}
-
 void dxStatsRender::OutData1 (CGameFont &F)
 {
 	F.OutNext	("VERT:        %d/%d",		RCache.stat.verts,RCache.stat.calls?RCache.stat.verts/RCache.stat.calls:0);
@@ -58,11 +42,6 @@ void dxStatsRender::OutData4 (CGameFont &F)
 	F.OutNext	("  dynamic_3B:  %3.1f/%d",	RCache.stat.r.s_dynamic_3B.verts/1024.f,	RCache.stat.r.s_dynamic_3B.dips );
 	F.OutNext	("  dynamic_4B:  %3.1f/%d",	RCache.stat.r.s_dynamic_4B.verts/1024.f,	RCache.stat.r.s_dynamic_4B.dips );
 	F.OutNext	("details:       %3.1f/%d",	RCache.stat.r.s_details.verts/1024.f,		RCache.stat.r.s_details.dips );
-}
-
-void dxStatsRender::OutDetails(CGameFont& F)
-{
-	F.OutNext("r_details:       %3.1f/%d", RCache.stat.r.s_details.verts / 1024.f, RCache.stat.r.s_details.dips);
 }
 
 void dxStatsRender::GuardVerts (CGameFont &F)

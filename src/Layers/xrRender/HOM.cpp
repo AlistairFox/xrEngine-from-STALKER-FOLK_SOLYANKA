@@ -63,44 +63,6 @@ IC float	Area		(Fvector& v0, Fvector& v1, Fvector& v2)
 	float	p  = (e1+e2+e3)/2.f;
 	return	_sqrt( p*(p-e1)*(p-e2)*(p-e3) );
 }
-#pragma warning (disable: 4995)
-/*
-#include <iostream>
-#include <fstream>		
-
-void SaveToObject_CFORM(size_t v_count, Fvector* verts, size_t t_count, CDB::TRI* tris, char* filename)
-{
-	string_path p_sdk;
-	string256 ff;
-	sprintf(ff, "worldobj\\%s", filename);
-
-	FS.update_path(p_sdk, "$fs_root$", ff);
-	auto opened = FS.w_open(p_sdk);
-	FS.w_close(opened);
-
-	std::ofstream file(p_sdk);
-	if (!file.is_open())
-	{
-		Msg("Unable to create file: %s", p_sdk);
-		return;
-	}
-
-	// Записываем вершины
-	for (int i = 0; i < v_count; i++)
-	{
-		file << "v " << verts[i].x << " " << verts[i].y << " " << verts[i].z << "\n";
-	}
-
-	// Записываем индексы 
-	for (int i = 0; i < t_count; i++)
-	{
-		file << "f " << tris[i].verts[0] + 1 << " " << tris[i].verts[1] + 1 << " " << tris[i].verts[2] + 1 << "\n";
-	}
-
-	file.close();
-	Msg("Object data saved to: %s", p_sdk);
-}
-*/
 
 void CHOM::Load			()
 {
@@ -125,8 +87,6 @@ void CHOM::Load			()
 		S->r					(&P,sizeof(P));
 		CL.add_face_packed_D	(P.v1,P.v2,P.v3,P.flags,0.01f);
 	}
-
-//	SaveToObject_CFORM(CL.getVS(), CL.getV(), CL.getTS(), CL.getT(), "HOM");
 	
 	// Determine adjacency
 	xr_vector<u32>		adjacency;
@@ -156,7 +116,7 @@ void CHOM::Load			()
 
 	// Create AABB-tree
 	m_pModel			= xr_new<CDB::MODEL> ();
-	m_pModel->build		(CL.getV(),int(CL.getVS()),CL.getT(),int(CL.getTS()));
+	m_pModel->build(CL.getV(), int(CL.getVS()), CL.getT(), int(CL.getTS()));
 	bEnabled			= TRUE;
 	S->close			();
 	FS.r_close			(fs);

@@ -82,49 +82,51 @@ IC void Dequantize(CKey& K,const CBlend& BD,const CMotion& M)
 	float			delta	=	time-float(frame);
 	u32				count	=	M.get_count();
 	// rotation
-	if (M.test_flag(flRKeyAbsent)){
-		const CKeyQR *		K		=	&M._keysR[0];
-		QR2Quat(*K,D->Q);
-	}else{
-		const CKeyQR*		K1r		=	&M._keysR[(frame+0)%count];
-		const CKeyQR*		K2r		=	&M._keysR[(frame+1)%count];
-		Fquaternion	Q1,Q2;
-		QR2Quat(*K1r,Q1);
-		QR2Quat(*K2r,Q2);
-		D->Q.slerp	(Q1,Q2,clampr(delta,0.f,1.f));
+	if (M.test_flag(flRKeyAbsent)) {
+		const CKeyQR* K = &M._keysR[0];
+		QR2Quat(*K, D->Q);
+	}
+	else
+	{
+		const CKeyQR* K1r = &M._keysR[(frame + 0) % count];
+		const CKeyQR* K2r = &M._keysR[(frame + 1) % count];
+		Fquaternion	Q1, Q2;
+		QR2Quat(*K1r, Q1);
+		QR2Quat(*K2r, Q2);
+		D->Q.slerp(Q1, Q2, clampr(delta, 0.f, 1.f));
 	}
 
 	// translate
 	if (M.test_flag(flTKeyPresent))
 	{
-       Fvector T1,T2;
-       if(M.test_flag(flTKey16IsBit))
-       {
-            const CKeyQT16*	K1t	= &M._keysT16[(frame+0)%count];
-            const CKeyQT16*	K2t	= &M._keysT16[(frame+1)%count];
-        
+		Fvector T1, T2;
+		if (M.test_flag(flTKey16IsBit))
+		{
+			const CKeyQT16* K1t = &M._keysT16[(frame + 0) % count];
+			const CKeyQT16* K2t = &M._keysT16[(frame + 1) % count];
 
-            QT16_2T(*K1t,M,T1);
-            QT16_2T(*K2t,M,T2);
-        }else
-        {
-            const CKeyQT8*	K1t	= &M._keysT8[(frame+0)%count];
-            const CKeyQT8*	K2t	= &M._keysT8[(frame+1)%count];
-        
-            QT8_2T(*K1t,M,T1);
-            QT8_2T(*K2t,M,T2);
-        }
+
+			QT16_2T(*K1t, M, T1);
+			QT16_2T(*K2t, M, T2);
+		}
+		else
+		{
+			const CKeyQT8* K1t = &M._keysT8[(frame + 0) % count];
+			const CKeyQT8* K2t = &M._keysT8[(frame + 1) % count];
+
+			QT8_2T(*K1t, M, T1);
+			QT8_2T(*K2t, M, T2);
+		}
 		/*
 		T1.x		= float(K1t->x)*M._sizeT.x+M._initT.x;
 		T1.y		= float(K1t->y)*M._sizeT.y+M._initT.y;
 		T1.z		= float(K1t->z)*M._sizeT.z+M._initT.z;
-
 		T2.x		= float(K2t->x)*M._sizeT.x+M._initT.x;
 		T2.y		= float(K2t->y)*M._sizeT.y+M._initT.y;
 		T2.z		= float(K2t->z)*M._sizeT.z+M._initT.z;
 		*/
-		D->T.lerp	(T1,T2,delta);
-		/*					
+		D->T.lerp(T1, T2, delta);
+		/*
 		if ((_abs(D->T.y)>10000) || (_abs(D->T.x)>10000) || (_abs(D->T.z)>10000))
 		{
 		Log("xxx");
@@ -133,7 +135,6 @@ IC void Dequantize(CKey& K,const CBlend& BD,const CMotion& M)
 		Log("timeCurrent", B->timeCurrent);
 		Log("timeTotal", B->timeTotal);
 		Log("bone_or_part", B->bone_or_part);
-
 		Log("blendAccrue", B->blendAccrue);
 		Log("blendFalloff", B->blendFalloff);
 		Log("blendPower", B->blendPower);
@@ -142,7 +143,6 @@ IC void Dequantize(CKey& K,const CBlend& BD,const CMotion& M)
 		Log("stop_at_end", B->stop_at_end);
 		Log("motionID", (u32)B->motionID.idx);
 		Log("blend", B->blend);
-
 		Log("dwFrame", B->dwFrame);
 		Log("Device.dwFrame", Device.dwFrame);
 		Log("Blend-------end");
@@ -151,7 +151,6 @@ IC void Dequantize(CKey& K,const CBlend& BD,const CMotion& M)
 		Log("parent",*parent);
 		Msg("K1t %d,%d,%d",K1t->x,K1t->y,K1t->z);
 		Msg("K2t %d,%d,%d",K2t->x,K2t->y,K2t->z);
-
 		Log("count",count);
 		Log("time",time);
 		Log("frame",frame);
@@ -160,7 +159,6 @@ IC void Dequantize(CKey& K,const CBlend& BD,const CMotion& M)
 		Log("delta",delta);
 		Log("Dt",D->T);
 		VERIFY(0);
-
 		}
 		*/
 	} //if (M.test_flag(flTKeyPresent))

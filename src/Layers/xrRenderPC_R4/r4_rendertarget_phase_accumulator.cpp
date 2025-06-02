@@ -3,7 +3,7 @@
 void	CRenderTarget::phase_accumulator()
 {
 	// Targets
-	if (dwAccumulatorClearMark==Device.dwFrame)	{
+	if (!needClearAccumulator) {
 		// normal operation - setup
       if( !RImplementation.o.dx10_msaa )
       {
@@ -17,7 +17,7 @@ void	CRenderTarget::phase_accumulator()
       }
 	} else {
 		// initial setup
-		dwAccumulatorClearMark				= Device.dwFrame;
+		needClearAccumulator = false;
 
 		// clear
       if( !RImplementation.o.dx10_msaa )
@@ -50,7 +50,7 @@ void	CRenderTarget::phase_accumulator()
 		RImplementation.r_dsgraph_render_emissive	();
 		*/
 		// Stencil	- draw only where stencil >= 0x1
-		RCache.set_Stencil					(TRUE,D3DCMP_LESSEQUAL,0x01,0xff,0x00);
+		RCache.set_Stencil(TRUE, D3D11_COMPARISON_LESS_EQUAL, 0x01, 0xff, 0x00);
 		RCache.set_CullMode					(CULL_NONE);
 		RCache.set_ColorWriteEnable			();
 		
@@ -66,9 +66,9 @@ void	CRenderTarget::phase_vol_accumulator()
 	{
 		m_bHasActiveVolumetric = true;
 		if( !RImplementation.o.dx10_msaa )
-			u_setrt								(rt_Generic_2,		NULL,NULL,HW.pBaseZB);
+			u_setrt(rt_Generic_2, NULL, NULL, RImplementation.o.ssfx_volumetric ? NULL : HW.pBaseZB);
 		else
-			u_setrt								(rt_Generic_2,		NULL,NULL,RImplementation.Target->rt_MSAADepth->pZRT);
+			u_setrt(rt_Generic_2, NULL, NULL, RImplementation.o.ssfx_volumetric ? NULL : HW.pBaseZB);
 		//u32		clr4clearVol				= color_rgba(0,0,0,0);	// 0x00
 		//CHK_DX	(HW.pDevice->Clear			( 0L, NULL, D3DCLEAR_TARGET, clr4clearVol, 1.0f, 0L));
 		FLOAT ColorRGBA[4] = {0.0f, 0.0f, 0.0f, 0.0f};
@@ -77,9 +77,9 @@ void	CRenderTarget::phase_vol_accumulator()
 	else
 	{
 		if( !RImplementation.o.dx10_msaa )
-			u_setrt								(rt_Generic_2,		NULL,NULL,HW.pBaseZB);
+			u_setrt(rt_Generic_2, NULL, NULL, RImplementation.o.ssfx_volumetric ? NULL : HW.pBaseZB);
 		else
-			u_setrt								(rt_Generic_2,		NULL,NULL,RImplementation.Target->rt_MSAADepth->pZRT);
+			u_setrt(rt_Generic_2, NULL, NULL, RImplementation.o.ssfx_volumetric ? NULL : HW.pBaseZB);
 	}
 
 	RCache.set_Stencil							(FALSE);

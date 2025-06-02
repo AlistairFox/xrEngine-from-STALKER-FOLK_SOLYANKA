@@ -2,18 +2,17 @@
 #define dxRenderDeviceRender_included
 #pragma once
 
-#ifndef _EDITOR
-	#define DEV dxRenderDeviceRender::Instance().Resources
-#else
-	#define DEV EDevice.Resources
-#endif
 
-#ifndef _EDITOR
+	#define DEV dxRenderDeviceRender::Instance().Resources
+
+
+
 
 #include "..\..\Include\xrRender\RenderDeviceRender.h"
 #include "xr_effgamma.h"
 
 class CResourceManager;
+enum ViewPort;
 
 class dxRenderDeviceRender : public IRenderDeviceRender
 {
@@ -49,10 +48,9 @@ public:
 	//	Resources control
 	virtual void	DeferredLoad(BOOL E);
 	virtual void	ResourcesDeferredUpload();
-	virtual void	ResourcesGetMemoryUsage(u32& m_base, u32& c_base, u32& m_lmaps, u32& c_lmaps);
+	virtual void	ResourcesDeferredUnload();
 	virtual void	ResourcesDestroyNecessaryTextures();
 	virtual void	ResourcesStoreNecessaryTextures();
-	virtual void	ResourcesDumpMemoryUsage();
 
 	//	HWSupport
 	virtual bool	HWSupportsShaderYUV2RGB();
@@ -65,10 +63,9 @@ public:
 	virtual void	Clear();
 	virtual void	End();
 	virtual void	ClearTarget();
+	virtual void	SwitchViewPortRTZB(ViewPort vp);
 	virtual void	SetCacheXform(Fmatrix &mView, Fmatrix &mProject);
 	virtual void	OnAssetsChanged();
-
-	virtual void	UpdateWindow(HWND hWnd, u32 X, u32 Y, u32 SizeX, u32 SizeY);
 
 public:
 	CResourceManager*	Resources;
@@ -80,7 +77,7 @@ private:
 	CGammaControl		m_Gamma;
 };
 
-#endif //ifndef _EDITOR
+
 
 
 #endif	//	RenderDeviceRender_included

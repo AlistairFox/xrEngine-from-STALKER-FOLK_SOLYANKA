@@ -123,44 +123,16 @@ public:
 	MotionID					ID_Motion		(LPCSTR  N, u16 slot);
 #endif
 	u16							LL_MotionsSlotCount(){return (u16)m_Motions.size();}
+	const shared_motions&		LL_MotionsSlot	(u16 idx){return m_Motions[idx].motions;}
 
-	const shared_motions&		LL_MotionsSlot	(u16 idx)
-	{
- 		return m_Motions[idx].motions;
-	}
-
-	IC CMotionDef*				LL_GetMotionDef	(MotionID id)
-	{
- 		return m_Motions[id.slot].motions.motion_def(id.idx);
-	}
-	IC CMotion*					LL_GetRootMotion(MotionID id)
-	{
-		return &m_Motions[id.slot].bone_motions[iRoot]->at(id.idx);
-	}
-
-	IC CMotion*					LL_GetMotion	(MotionID id, u16 bone_id) 
-	{ 
-		/* Se7kills Check This*/
-		// if (m_Motions.size() < id.idx)
-		// 	return nullptr;
- 		if (id.slot > MAX_ANIM_SLOT)
-		 	return nullptr;
-		 
-		// if (m_Motions[id.slot].bone_motions.size() < bone_id)
-		// 	return nullptr;
-		// 
-		// if (m_Motions[id.slot].bone_motions[bone_id]->size() < id.idx)
-		// 	return nullptr;
-
-		return &m_Motions[id.slot].bone_motions[bone_id]->at(id.idx);
-	}
+	IC CMotionDef*				LL_GetMotionDef	(MotionID id){return m_Motions[id.slot].motions.motion_def(id.idx);}
+	IC CMotion*					LL_GetRootMotion(MotionID id){return &m_Motions[id.slot].bone_motions[iRoot]->at(id.idx);}
+	IC CMotion*					LL_GetMotion	(MotionID id, u16 bone_id){return &m_Motions[id.slot].bone_motions[bone_id]->at(id.idx);}
 
 	virtual IBlendDestroyCallback	*GetBlendDestroyCallback	( );
 	virtual void					SetBlendDestroyCallback		( IBlendDestroyCallback	*cb );
 	// Low level interface
 	MotionID					LL_MotionID		(LPCSTR B);
-	shared_str					LL_MotionID_name(int id);
-
 	u16							LL_PartID		(LPCSTR B);
 
 	CBlend*						LL_PlayFX		(u16 bone,		MotionID motion, float blendAccrue,	float blendFalloff, float Speed, float Power);
@@ -220,7 +192,6 @@ public:
 	virtual float				get_animation_length (MotionID motion_ID);
 	virtual bool				get_animation_valid(MotionID motion_ID);
 	virtual int					get_animation_size(int slot);
-
 };
 //IC CKinematicsAnimated* PKinematicsAnimated(IRender_Visual* V) { return V?V->dcast_PKinematicsAnimated():0; }
 IC CKinematicsAnimated* PKinematicsAnimated(IRenderVisual* V) { return V?(CKinematicsAnimated*)V->dcast_PKinematicsAnimated():0; }

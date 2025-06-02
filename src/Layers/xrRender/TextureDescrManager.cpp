@@ -16,8 +16,6 @@ public:
 	}
 };
 
-#pragma warning(disable:4996)
-#pragma warning(disable:4995)
 void fix_texture_thm_name(LPSTR fn)
 {
 	LPSTR _ext = strext(fn);
@@ -34,19 +32,22 @@ void CTextureDescrMngr::LoadTHM(LPCSTR initial)
 {
 	FS_FileSet				flist;
 	FS.file_list			(flist, initial, FS_ListFiles, "*.thm");
+
 #ifdef DEBUG
-	Msg						("count of .thm files=%d", flist.size());
+	Msg("count of .thm files=%d", flist.size());
 #endif // #ifdef DEBUG
-	FS_FileSetIt It			= flist.begin();
-	FS_FileSetIt It_e		= flist.end();
+	FS_FileSetIt It = flist.begin();
+	FS_FileSetIt It_e = flist.end();
+
 	STextureParams			tp;
 	string_path				fn;
-	for(;It!=It_e;++It)
+
+	for (;It != It_e;++It)
 	{
 		
-		FS.update_path		(fn, initial, (*It).name.c_str());
+		FS.update_path(fn, initial, (*It).name.c_str());
 		IReader* F			= FS.r_open(fn);
-		xr_strcpy			(fn,(*It).name.c_str());
+		xr_strcpy(fn, (*It).name.c_str());
 		fix_texture_thm_name(fn);
 
 		R_ASSERT			(F->find_chunk(THM_CHUNK_TYPE));
@@ -54,15 +55,15 @@ void CTextureDescrMngr::LoadTHM(LPCSTR initial)
 		tp.Clear			();
 		tp.Load				(*F);
 		FS.r_close			(F);
-		if (STextureParams::ttImage		== tp.type ||
-			STextureParams::ttTerrain	== tp.type ||
-			STextureParams::ttNormalMap	== tp.type	)
+		if (STextureParams::ttImage == tp.type ||
+			STextureParams::ttTerrain == tp.type ||
+			STextureParams::ttNormalMap == tp.type)
 		{
-			texture_desc&	desc	= m_texture_details[fn];
-			cl_dt_scaler*&	dts		= m_detail_scalers[fn];
+			texture_desc& desc = m_texture_details[fn];
+			cl_dt_scaler*& dts = m_detail_scalers[fn];
 
-			if( tp.detail_name.size() &&
-				tp.flags.is_any(STextureParams::flDiffuseDetail|STextureParams::flBumpDetail) )
+			if (tp.detail_name.size() &&
+				tp.flags.is_any(STextureParams::flDiffuseDetail | STextureParams::flBumpDetail))
 			{
 				if(desc.m_assoc)
 					xr_delete				(desc.m_assoc);
@@ -108,14 +109,14 @@ void CTextureDescrMngr::Load()
 {
 #ifdef DEBUG
 	CTimer					TT;
-	TT.Start				();
+	TT.Start();
 #endif // #ifdef DEBUG
 
-	LoadTHM					("$game_textures$");
-	LoadTHM					("$level$");
+	LoadTHM("$game_textures$");
+	LoadTHM("$level$");
 
 #ifdef DEBUG
-	Msg("load time=%d ms",TT.GetElapsed_ms());
+	Msg("load time=%d ms", TT.GetElapsed_ms());
 #endif // #ifdef DEBUG
 }
 
@@ -123,7 +124,7 @@ void CTextureDescrMngr::UnLoad()
 {
 	map_TD::iterator I = m_texture_details.begin();
 	map_TD::iterator E = m_texture_details.end();
-	for(;I!=E;++I)
+	for (;I != E;++I)
 	{
 		xr_delete(I->second.m_assoc);
 		xr_delete(I->second.m_spec);

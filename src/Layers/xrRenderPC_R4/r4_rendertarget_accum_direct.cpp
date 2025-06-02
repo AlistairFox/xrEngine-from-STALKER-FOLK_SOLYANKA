@@ -43,7 +43,7 @@ void CRenderTarget::accum_direct		(u32 sub_phase)
 
 	//	TODO: DX10: Remove half pixe offset
 	// *** assume accumulator setted up ***
-	light*			fuckingsun			= (light*)RImplementation.Lights.sun_adapted._get()	;
+	light*			fuckingsun			= (light*)RImplementation.Lights.sun._get()	;
 
 	// Common calc for quad-rendering
 	u32		Offset;
@@ -89,13 +89,13 @@ void CRenderTarget::accum_direct		(u32 sub_phase)
 		//RCache.set_ColorWriteEnable	(FALSE		);
       if( ! RImplementation.o.dx10_msaa )
       {
-   		RCache.set_Stencil		(TRUE,D3DCMP_LESSEQUAL,dwLightMarkerID,0x01,0xff,D3DSTENCILOP_KEEP,D3DSTENCILOP_REPLACE,D3DSTENCILOP_KEEP);
+		  RCache.set_Stencil(TRUE, D3D11_COMPARISON_LESS_EQUAL, dwLightMarkerID, 0x01, 0xff, D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_REPLACE, D3D11_STENCIL_OP_KEEP);
 	   	RCache.Render				(D3DPT_TRIANGLELIST,Offset,0,4,0,2);
       }
       else
       {
          // per pixel rendering // checked Holger
-		   RCache.set_Stencil		(TRUE,D3DCMP_EQUAL,dwLightMarkerID,0x81,0x7f,D3DSTENCILOP_KEEP,D3DSTENCILOP_REPLACE,D3DSTENCILOP_KEEP);
+		  RCache.set_Stencil(TRUE, D3D11_COMPARISON_EQUAL, dwLightMarkerID, 0x81, 0x7f, D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_REPLACE, D3D11_STENCIL_OP_KEEP);
 		   RCache.Render				(D3DPT_TRIANGLELIST,Offset,0,4,0,2);
    		
 		   // per sample rendering
@@ -103,7 +103,7 @@ void CRenderTarget::accum_direct		(u32 sub_phase)
          {
 		      RCache.set_Element		(s_accum_mask_msaa[0]->E[SE_MASK_DIRECT]);		// masker
 	         RCache.set_CullMode		(CULL_NONE	);
-            RCache.set_Stencil		(TRUE,D3DCMP_EQUAL,dwLightMarkerID|0x80,0x81,0x7f,D3DSTENCILOP_KEEP,D3DSTENCILOP_REPLACE,D3DSTENCILOP_KEEP);
+			 RCache.set_Stencil(TRUE, D3D11_COMPARISON_EQUAL, dwLightMarkerID | 0x80, 0x81, 0x7f, D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_REPLACE, D3D11_STENCIL_OP_KEEP);
             RCache.Render				(D3DPT_TRIANGLELIST,Offset,0,4,0,2);
          }
          else 
@@ -112,13 +112,13 @@ void CRenderTarget::accum_direct		(u32 sub_phase)
 		      {
 			      RCache.set_Element		   (s_accum_mask_msaa[i]->E[SE_MASK_DIRECT]);		// masker
 	            RCache.set_CullMode		   (CULL_NONE	);
-               RCache.set_Stencil			(TRUE,D3DCMP_EQUAL,dwLightMarkerID|0x80,0x81,0x7f,D3DSTENCILOP_KEEP,D3DSTENCILOP_REPLACE,D3DSTENCILOP_KEEP);
+				RCache.set_Stencil(TRUE, D3D11_COMPARISON_EQUAL, dwLightMarkerID | 0x80, 0x81, 0x7f, D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_REPLACE, D3D11_STENCIL_OP_KEEP);
                StateManager.SetSampleMask ( u32(1)<<i );
                RCache.Render					(D3DPT_TRIANGLELIST,Offset,0,4,0,2);
 		      }
           StateManager.SetSampleMask( 0xffffffff );
          }
-		   RCache.set_Stencil		(TRUE,D3DCMP_LESSEQUAL,dwLightMarkerID,0x01,0xff,D3DSTENCILOP_KEEP,D3DSTENCILOP_REPLACE,D3DSTENCILOP_KEEP);
+		 RCache.set_Stencil(TRUE, D3D11_COMPARISON_LESS_EQUAL, dwLightMarkerID, 0x01, 0xff, D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_REPLACE, D3D11_STENCIL_OP_KEEP);
       } 
 	}
 
@@ -188,9 +188,11 @@ void CRenderTarget::accum_direct		(u32 sub_phase)
 			Fmatrix			m_xform;
 			Fvector			direction	= fuckingsun->direction	;
 			float	w_dir				= g_pGamePersistent->Environment().CurrentEnv->wind_direction	;
-			//float	w_speed				= g_pGamePersistent->Environment().CurrentEnv->wind_velocity	;
-			Fvector			normal	;	normal.setHP(w_dir,0);
-							w_shift		+=	0.003f*Device.fTimeDelta;
+			float w_speed = g_pGamePersistent->Environment().CurrentEnv->wind_velocity * 0.1f;
+			clamp(w_speed, 0.1f, 10.0f);
+			Fvector			normal	;
+			normal.setHP(-w_dir, 0);
+			w_shift -= 0.005f * w_speed * Device.fTimeDelta;
 			Fvector			position;	position.set(0,0,0);
 			m_xform.build_camera_dir	(position,direction,normal)	;
 			Fvector			localnormal;m_xform.transform_dir(localnormal,normal); localnormal.normalize();
@@ -262,20 +264,20 @@ void CRenderTarget::accum_direct		(u32 sub_phase)
 		// setup stencil
       if( ! RImplementation.o.dx10_msaa )
       {
-		   RCache.set_Stencil	(TRUE,D3DCMP_LESSEQUAL,dwLightMarkerID,0xff,0x00);
+		  RCache.set_Stencil(TRUE, D3D11_COMPARISON_LESS_EQUAL, dwLightMarkerID, 0xff, 0x00);
 		   RCache.Render			(D3DPT_TRIANGLELIST,Offset,0,4,0,2);
       }
       else 
       {
          // per pixel
-		   RCache.set_Stencil	(TRUE,D3DCMP_EQUAL,dwLightMarkerID,0xff,0x00);
+		  RCache.set_Stencil(TRUE, D3D11_COMPARISON_EQUAL, dwLightMarkerID, 0xff, 0x00);
 		   RCache.Render			(D3DPT_TRIANGLELIST,Offset,0,4,0,2);
    		
          // per sample
          if( RImplementation.o.dx10_msaa_opt )
          {
 		      RCache.set_Element	(s_accum_direct_msaa[0]->E[uiElementIndex]);
-            RCache.set_Stencil	(TRUE,D3DCMP_EQUAL,dwLightMarkerID|0x80,0xff,0x00);
+			  RCache.set_Stencil(TRUE, D3D11_COMPARISON_EQUAL, dwLightMarkerID | 0x80, 0xff, 0x00);
 	         RCache.set_CullMode	(CULL_NONE	);
 		      RCache.Render			(D3DPT_TRIANGLELIST,Offset,0,4,0,2);
          }
@@ -284,30 +286,17 @@ void CRenderTarget::accum_direct		(u32 sub_phase)
 		      for( u32 i = 0; i < RImplementation.o.dx10_msaa_samples; ++i )
 		      {
 			      RCache.set_Element			(s_accum_direct_msaa[i]->E[uiElementIndex]);
-               RCache.set_Stencil	      (TRUE,D3DCMP_EQUAL,dwLightMarkerID|0x80,0xff,0x00);
+				  RCache.set_Stencil(TRUE, D3D11_COMPARISON_EQUAL, dwLightMarkerID | 0x80, 0xff, 0x00);
 	            RCache.set_CullMode		   (CULL_NONE	);
                StateManager.SetSampleMask ( u32(1) << i  );
                RCache.Render					(D3DPT_TRIANGLELIST,Offset,0,4,0,2);
 		      }
 		      StateManager.SetSampleMask	( 0xffffffff );
          }
-		   RCache.set_Stencil	(TRUE,D3DCMP_LESSEQUAL,dwLightMarkerID,0xff,0x00);
+		 RCache.set_Stencil(TRUE, D3D11_COMPARISON_LESS_EQUAL, dwLightMarkerID, 0xff, 0x00);
       }
 
-		// Fetch4 : disable
-//		if (RImplementation.o.HW_smap_FETCH4)	{
-			//. we hacked the shader to force smap on S0
-//#			define FOURCC_GET1  MAKEFOURCC('G','E','T','1') 
-//			HW.pDevice->SetSamplerState	( 0, D3DSAMP_MIPMAPLODBIAS, FOURCC_GET1 );
-//		}
-
-//	TODO: DX10: Check if DX10 has analog for NV DBT
-		// disable depth bounds
-//		u_DBT_disable	();
-
-		//	Igor: draw volumetric here
-		//if (ps_r2_ls_flags.test(R2FLAG_SUN_SHAFTS))
-		if ( RImplementation.o.advancedpp&&(ps_r_sun_shafts>0))
+		if (ps_r_sun_shafts>0)
 			accum_direct_volumetric	(sub_phase, Offset, m_shadow);
 	}
 }
@@ -328,7 +317,7 @@ void CRenderTarget::accum_direct_cascade	( u32 sub_phase, Fmatrix& xform, Fmatri
 
 	//	TODO: DX10: Remove half pixe offset
 	// *** assume accumulator setted up ***
-	light*			fuckingsun			= (light*)RImplementation.Lights.sun_adapted._get()	;
+	light*			fuckingsun			= (light*)RImplementation.Lights.sun._get()	;
 
 	// Common calc for quad-rendering
 	u32		Offset;
@@ -374,13 +363,13 @@ void CRenderTarget::accum_direct_cascade	( u32 sub_phase, Fmatrix& xform, Fmatri
 		//RCache.set_ColorWriteEnable	(FALSE		);
 		if( ! RImplementation.o.dx10_msaa )
 		{
-			RCache.set_Stencil		(TRUE,D3DCMP_LESSEQUAL,dwLightMarkerID,0x01,0xff,D3DSTENCILOP_KEEP,D3DSTENCILOP_REPLACE,D3DSTENCILOP_KEEP);
+			RCache.set_Stencil(TRUE, D3D11_COMPARISON_LESS_EQUAL, dwLightMarkerID, 0x01, 0xff, D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_REPLACE, D3D11_STENCIL_OP_KEEP);
 			RCache.Render				(D3DPT_TRIANGLELIST,Offset,0,4,0,2);
 		}
 		else
 		{
 			// per pixel rendering // checked Holger
-			RCache.set_Stencil		(TRUE,D3DCMP_EQUAL,dwLightMarkerID,0x81,0x7f,D3DSTENCILOP_KEEP,D3DSTENCILOP_REPLACE,D3DSTENCILOP_KEEP);
+			RCache.set_Stencil(TRUE, D3D11_COMPARISON_EQUAL, dwLightMarkerID, 0x81, 0x7f, D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_REPLACE, D3D11_STENCIL_OP_KEEP);
 			RCache.Render				(D3DPT_TRIANGLELIST,Offset,0,4,0,2);
 
 			// per sample rendering
@@ -388,7 +377,7 @@ void CRenderTarget::accum_direct_cascade	( u32 sub_phase, Fmatrix& xform, Fmatri
 			{
 				RCache.set_Element		(s_accum_mask_msaa[0]->E[SE_MASK_DIRECT]);		// masker
 				RCache.set_CullMode		(CULL_NONE	);
-				RCache.set_Stencil		(TRUE,D3DCMP_EQUAL,dwLightMarkerID|0x80,0x81,0x7f,D3DSTENCILOP_KEEP,D3DSTENCILOP_REPLACE,D3DSTENCILOP_KEEP);
+				RCache.set_Stencil(TRUE, D3D11_COMPARISON_EQUAL, dwLightMarkerID | 0x80, 0x81, 0x7f, D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_REPLACE, D3D11_STENCIL_OP_KEEP);
 				RCache.Render				(D3DPT_TRIANGLELIST,Offset,0,4,0,2);
 			}
 			else 
@@ -397,13 +386,13 @@ void CRenderTarget::accum_direct_cascade	( u32 sub_phase, Fmatrix& xform, Fmatri
 				{
 					RCache.set_Element		   (s_accum_mask_msaa[i]->E[SE_MASK_DIRECT]);		// masker
 					RCache.set_CullMode		   (CULL_NONE	);
-					RCache.set_Stencil			(TRUE,D3DCMP_EQUAL,dwLightMarkerID|0x80,0x81,0x7f,D3DSTENCILOP_KEEP,D3DSTENCILOP_REPLACE,D3DSTENCILOP_KEEP);
+					RCache.set_Stencil(TRUE, D3D11_COMPARISON_EQUAL, dwLightMarkerID | 0x80, 0x81, 0x7f, D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_REPLACE, D3D11_STENCIL_OP_KEEP);
 					StateManager.SetSampleMask ( u32(1)<<i );
 					RCache.Render					(D3DPT_TRIANGLELIST,Offset,0,4,0,2);
 				}
 				StateManager.SetSampleMask( 0xffffffff );
 			}
-			RCache.set_Stencil		(TRUE,D3DCMP_LESSEQUAL,dwLightMarkerID,0x01,0xff,D3DSTENCILOP_KEEP,D3DSTENCILOP_REPLACE,D3DSTENCILOP_KEEP);
+			RCache.set_Stencil(TRUE, D3D11_COMPARISON_LESS_EQUAL, dwLightMarkerID, 0x01, 0xff, D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_REPLACE, D3D11_STENCIL_OP_KEEP);
 		} 
 	}
 
@@ -473,9 +462,11 @@ void CRenderTarget::accum_direct_cascade	( u32 sub_phase, Fmatrix& xform, Fmatri
 			Fmatrix			m_xform;
 			Fvector			direction	= fuckingsun->direction	;
 			float	w_dir				= g_pGamePersistent->Environment().CurrentEnv->wind_direction	;
-			//float	w_speed				= g_pGamePersistent->Environment().CurrentEnv->wind_velocity	;
-			Fvector			normal	;	normal.setHP(w_dir,0);
-			w_shift		+=	0.003f*Device.fTimeDelta;
+			float w_speed = g_pGamePersistent->Environment().CurrentEnv->wind_velocity * 0.1f;
+			clamp(w_speed, 0.1f, 10.0f);
+			Fvector			normal	;
+			normal.setHP(-w_dir, 0);
+			w_shift -= 0.005f * w_speed * Device.fTimeDelta;
 			Fvector			position;	position.set(0,0,0);
 			m_xform.build_camera_dir	(position,direction,normal)	;
 			Fvector			localnormal;m_xform.transform_dir(localnormal,normal); localnormal.normalize();
@@ -588,35 +579,35 @@ void CRenderTarget::accum_direct_cascade	( u32 sub_phase, Fmatrix& xform, Fmatri
 
 		// Enable Z function only for near and middle cascades, the far one is restricted by only stencil.
 		if( (SE_SUN_NEAR==sub_phase || SE_SUN_MIDDLE==sub_phase) )
-			RCache.set_ZFunc(D3DCMP_GREATEREQUAL);
+			RCache.set_ZFunc(D3D11_COMPARISON_GREATER_EQUAL);
  		else
 			if( !ps_r2_ls_flags_ext.is(R2FLAGEXT_SUN_ZCULLING))
-				RCache.set_ZFunc(D3DCMP_ALWAYS);
+				RCache.set_ZFunc(D3D11_COMPARISON_ALWAYS);
 			else
-				RCache.set_ZFunc(D3DCMP_LESS);
+				RCache.set_ZFunc(D3D11_COMPARISON_LESS);
 
 
 		u32 st_mask = 0xFE;
-		_D3DSTENCILOP st_pass = D3DSTENCILOP_ZERO;
+		D3D11_STENCIL_OP st_pass = D3D11_STENCIL_OP_ZERO;
 
 		if( sub_phase == SE_SUN_FAR )
 		{
 			st_mask = 0x00;
-			st_pass = D3DSTENCILOP_KEEP;
+			st_pass = D3D11_STENCIL_OP_KEEP;
 		}
 
 		// setup stencil
 		if( ! RImplementation.o.dx10_msaa )
 		{
 			//RCache.set_Stencil	(TRUE,D3DCMP_LESSEQUAL,dwLightMarkerID,0xff,0x00);
-			RCache.set_Stencil	(TRUE,D3DCMP_LESSEQUAL,dwLightMarkerID,0xff,st_mask, D3DSTENCILOP_KEEP, st_pass, D3DSTENCILOP_KEEP);
+			RCache.set_Stencil(TRUE, D3D11_COMPARISON_LESS_EQUAL, dwLightMarkerID, 0xff, st_mask, D3D11_STENCIL_OP_KEEP, st_pass, D3D11_STENCIL_OP_KEEP);
 			RCache.Render			(D3DPT_TRIANGLELIST,Offset,0,8,0,16);
 		}
 		else 
 		{
 			// per pixel
 			//RCache.set_Stencil	(TRUE,D3DCMP_EQUAL,dwLightMarkerID,0xff,0x00);
-			RCache.set_Stencil	(TRUE,D3DCMP_EQUAL,dwLightMarkerID,0xff,st_mask, D3DSTENCILOP_KEEP, st_pass, D3DSTENCILOP_KEEP);
+			RCache.set_Stencil(TRUE, D3D11_COMPARISON_EQUAL, dwLightMarkerID, 0xff, st_mask, D3D11_STENCIL_OP_KEEP, st_pass, D3D11_STENCIL_OP_KEEP);
 			RCache.Render			(D3DPT_TRIANGLELIST,Offset,0,8,0,16);
 
 			// per sample
@@ -625,15 +616,15 @@ void CRenderTarget::accum_direct_cascade	( u32 sub_phase, Fmatrix& xform, Fmatri
 				RCache.set_Element	(s_accum_direct_msaa[0]->E[uiElementIndex]);
 
 				if( (SE_SUN_NEAR==sub_phase || SE_SUN_MIDDLE==sub_phase) )
-					RCache.set_ZFunc(D3DCMP_GREATEREQUAL);
+					RCache.set_ZFunc(D3D11_COMPARISON_GREATER_EQUAL);
 				else
 					if( !ps_r2_ls_flags_ext.is(R2FLAGEXT_SUN_ZCULLING))
-						RCache.set_ZFunc(D3DCMP_ALWAYS);
+						RCache.set_ZFunc(D3D11_COMPARISON_ALWAYS);
 					else
-						RCache.set_ZFunc(D3DCMP_LESS);
+						RCache.set_ZFunc(D3D11_COMPARISON_LESS);
 
 
-				RCache.set_Stencil	(TRUE,D3DCMP_EQUAL,dwLightMarkerID|0x80,0xff,st_mask, D3DSTENCILOP_KEEP, st_pass, D3DSTENCILOP_KEEP);
+				RCache.set_Stencil(TRUE, D3D11_COMPARISON_EQUAL, dwLightMarkerID | 0x80, 0xff, st_mask, D3D11_STENCIL_OP_KEEP, st_pass, D3D11_STENCIL_OP_KEEP);
 				RCache.set_CullMode	(CULL_NONE	);
 				RCache.Render			(D3DPT_TRIANGLELIST,Offset,0,8,0,16);
 			}
@@ -644,21 +635,21 @@ void CRenderTarget::accum_direct_cascade	( u32 sub_phase, Fmatrix& xform, Fmatri
 					RCache.set_Element			(s_accum_direct_msaa[i]->E[uiElementIndex]);
 
 					if( (SE_SUN_NEAR==sub_phase || SE_SUN_MIDDLE==sub_phase) )
-						RCache.set_ZFunc(D3DCMP_GREATEREQUAL);
+						RCache.set_ZFunc(D3D11_COMPARISON_GREATER_EQUAL);
 					else
 						if( !ps_r2_ls_flags_ext.is(R2FLAGEXT_SUN_ZCULLING))
-							RCache.set_ZFunc(D3DCMP_ALWAYS);
+							RCache.set_ZFunc(D3D11_COMPARISON_ALWAYS);
 						else
-							RCache.set_ZFunc(D3DCMP_LESS);
+							RCache.set_ZFunc(D3D11_COMPARISON_LESS);
 
-					RCache.set_Stencil	      (TRUE,D3DCMP_EQUAL,dwLightMarkerID|0x80,0xff,st_mask, D3DSTENCILOP_KEEP, st_pass, D3DSTENCILOP_KEEP);
+					RCache.set_Stencil(TRUE, D3D11_COMPARISON_EQUAL, dwLightMarkerID | 0x80, 0xff, st_mask, D3D11_STENCIL_OP_KEEP, st_pass, D3D11_STENCIL_OP_KEEP);
 					RCache.set_CullMode		   (CULL_NONE	);
 					StateManager.SetSampleMask ( u32(1) << i  );
 					RCache.Render					(D3DPT_TRIANGLELIST,Offset,0,8,0,16);
 				}
 				StateManager.SetSampleMask	( 0xffffffff );
 			}
-			RCache.set_Stencil	(TRUE,D3DCMP_LESSEQUAL,dwLightMarkerID,0xff,0x00);
+			RCache.set_Stencil(TRUE, D3D11_COMPARISON_LESS_EQUAL, dwLightMarkerID, 0xff, 0x00);
 		}
 
 		// Fetch4 : disable
@@ -674,7 +665,7 @@ void CRenderTarget::accum_direct_cascade	( u32 sub_phase, Fmatrix& xform, Fmatri
 
 		//	Igor: draw volumetric here
 		//if (ps_r2_ls_flags.test(R2FLAG_SUN_SHAFTS))
-		if ( RImplementation.o.advancedpp&&(ps_r_sun_shafts>0) && sub_phase == SE_SUN_FAR)
+		if ((ps_r_sun_shafts>0) && sub_phase == SE_SUN_FAR)
 			accum_direct_volumetric	(sub_phase, Offset, m_shadow);
 	}
 }
@@ -716,20 +707,20 @@ void CRenderTarget::accum_direct_blend	()
 		RCache.set_Element			(s_accum_mask->E[SE_MASK_ACCUM_2D]	);
       if( ! RImplementation.o.dx10_msaa )
       {
-		   RCache.set_Stencil			(TRUE,D3DCMP_LESSEQUAL,dwLightMarkerID,0xff,0x00);
+		  RCache.set_Stencil(TRUE, D3D11_COMPARISON_LESS_EQUAL, dwLightMarkerID, 0xff, 0x00);
 		   RCache.Render					(D3DPT_TRIANGLELIST,Offset,0,4,0,2	);
       }
       else 
       {
 		   // per pixel
-		   RCache.set_Stencil			(TRUE,D3DCMP_EQUAL,dwLightMarkerID,0xff,0x00);
+		  RCache.set_Stencil(TRUE, D3D11_COMPARISON_EQUAL, dwLightMarkerID, 0xff, 0x00);
 		   RCache.Render					(D3DPT_TRIANGLELIST,Offset,0,4,0,2	);
    		
 		   // per sample
          if( RImplementation.o.dx10_msaa_opt )
          {
 		      RCache.set_Element			(s_accum_mask_msaa[0]->E[SE_MASK_ACCUM_2D]	);
-            RCache.set_Stencil			(TRUE,D3DCMP_EQUAL,dwLightMarkerID|0x80,0xff,0x00);
+			  RCache.set_Stencil(TRUE, D3D11_COMPARISON_EQUAL, dwLightMarkerID | 0x80, 0xff, 0x00);
             RCache.Render					(D3DPT_TRIANGLELIST,Offset,0,4,0,2	);
          }
          else // checked Holger
@@ -737,13 +728,13 @@ void CRenderTarget::accum_direct_blend	()
 		      for( u32 i = 0; i < RImplementation.o.dx10_msaa_samples; ++i )
 		      {
 			      RCache.set_Element		   (s_accum_mask_msaa[i]->E[SE_MASK_ACCUM_2D]	);
-               RCache.set_Stencil			(TRUE,D3DCMP_EQUAL,dwLightMarkerID|0x80,0xff,0x00);
+				  RCache.set_Stencil(TRUE, D3D11_COMPARISON_EQUAL, dwLightMarkerID | 0x80, 0xff, 0x00);
                StateManager.SetSampleMask ( u32(1) << i );
                RCache.Render					(D3DPT_TRIANGLELIST,Offset,0,4,0,2	);
 		      }
 		      StateManager.SetSampleMask( 0xffffffff );
          }
-		   RCache.set_Stencil			(TRUE,D3DCMP_LESSEQUAL,dwLightMarkerID,0xff,0x00);
+		 RCache.set_Stencil(TRUE, D3D11_COMPARISON_LESS_EQUAL, dwLightMarkerID, 0xff, 0x00);
       }
 	}
 	//dwLightMarkerID				+= 2;
@@ -765,7 +756,7 @@ void CRenderTarget::accum_direct_f		(u32 sub_phase)
 		u_setrt								(rt_Generic_0_r,NULL,NULL,RImplementation.Target->rt_MSAADepth->pZRT);
 
 	// *** assume accumulator setted up ***
-	light*			fuckingsun			= (light*)RImplementation.Lights.sun_adapted._get()	;
+	light*			fuckingsun			= (light*)RImplementation.Lights.sun._get()	;
 
 	// Common calc for quad-rendering
 	u32		Offset;
@@ -814,20 +805,20 @@ void CRenderTarget::accum_direct_f		(u32 sub_phase)
 		//RCache.set_ColorWriteEnable	(FALSE		);
       if( ! RImplementation.o.dx10_msaa )
       {
-		   RCache.set_Stencil	(TRUE,D3DCMP_LESSEQUAL,dwLightMarkerID,0x01,0xff,D3DSTENCILOP_KEEP,D3DSTENCILOP_REPLACE,D3DSTENCILOP_KEEP);
+		  RCache.set_Stencil(TRUE, D3D11_COMPARISON_LESS_EQUAL, dwLightMarkerID, 0x01, 0xff, D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_REPLACE, D3D11_STENCIL_OP_KEEP);
 		   RCache.Render			(D3DPT_TRIANGLELIST,Offset,0,4,0,2);
       }
       else 
       {
 		   // per pixel
-		   RCache.set_Stencil	(TRUE,D3DCMP_EQUAL,dwLightMarkerID,0x81,0x7f,D3DSTENCILOP_KEEP,D3DSTENCILOP_REPLACE,D3DSTENCILOP_KEEP);
+		  RCache.set_Stencil(TRUE, D3D11_COMPARISON_EQUAL, dwLightMarkerID, 0x81, 0x7f, D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_REPLACE, D3D11_STENCIL_OP_KEEP);
 		   RCache.Render			(D3DPT_TRIANGLELIST,Offset,0,4,0,2);
    		
 		   // per sample
          if( RImplementation.o.dx10_msaa_opt )
          {
 		      RCache.set_Element	(s_accum_mask_msaa[0]->E[SE_MASK_DIRECT]);		// masker
-            RCache.set_Stencil	(TRUE,D3DCMP_LESS,dwLightMarkerID,0x81,0x7f,D3DSTENCILOP_KEEP,D3DSTENCILOP_REPLACE,D3DSTENCILOP_KEEP);
+			  RCache.set_Stencil(TRUE, D3D11_COMPARISON_LESS, dwLightMarkerID, 0x81, 0x7f, D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_REPLACE, D3D11_STENCIL_OP_KEEP);
 	         RCache.set_CullMode	(CULL_NONE	);
             RCache.Render			(D3DPT_TRIANGLELIST,Offset,0,4,0,2);
          }
@@ -836,14 +827,14 @@ void CRenderTarget::accum_direct_f		(u32 sub_phase)
 		      for( u32 i = 0; i < RImplementation.o.dx10_msaa_samples; ++i )
 		      {
 			      RCache.set_Element		   (s_accum_mask_msaa[i]->E[SE_MASK_DIRECT]);		// masker
-               RCache.set_Stencil	      (TRUE,D3DCMP_LESS,dwLightMarkerID,0x81,0x7f,D3DSTENCILOP_KEEP,D3DSTENCILOP_REPLACE,D3DSTENCILOP_KEEP);
+				  RCache.set_Stencil(TRUE, D3D11_COMPARISON_LESS, dwLightMarkerID, 0x81, 0x7f, D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_REPLACE, D3D11_STENCIL_OP_KEEP);
 	            RCache.set_CullMode	      (CULL_NONE	);
                StateManager.SetSampleMask ( u32(1) << i );
                RCache.Render					(D3DPT_TRIANGLELIST,Offset,0,4,0,2);
 		      }
 		      StateManager.SetSampleMask( 0xffffffff );
          }	
-		   RCache.set_Stencil	(TRUE,D3DCMP_LESSEQUAL,dwLightMarkerID,0x01,0xff,D3DSTENCILOP_KEEP,D3DSTENCILOP_REPLACE,D3DSTENCILOP_KEEP);
+		 RCache.set_Stencil(TRUE, D3D11_COMPARISON_LESS_EQUAL, dwLightMarkerID, 0x01, 0xff, D3D11_STENCIL_OP_KEEP, D3D11_STENCIL_OP_REPLACE, D3D11_STENCIL_OP_KEEP);
       }
 	}
 
@@ -926,13 +917,13 @@ void CRenderTarget::accum_direct_f		(u32 sub_phase)
       if( ! RImplementation.o.dx10_msaa )
       {
 		   // setup stencil
-		   RCache.set_Stencil	(TRUE,D3DCMP_LESSEQUAL,dwLightMarkerID,0xff,0x00);
+		  RCache.set_Stencil(TRUE, D3D11_COMPARISON_LESS_EQUAL, dwLightMarkerID, 0xff, 0x00);
 		   RCache.Render			(D3DPT_TRIANGLELIST,Offset,0,4,0,2);
       }
       else
       {
 		   // per pixel
-		   RCache.set_Stencil	(TRUE,D3DCMP_EQUAL,dwLightMarkerID,0xff,0x00);
+		  RCache.set_Stencil(TRUE, D3D11_COMPARISON_EQUAL, dwLightMarkerID, 0xff, 0x00);
 		   RCache.Render			(D3DPT_TRIANGLELIST,Offset,0,4,0,2);
    		
          // per sample // checked Holger
@@ -940,7 +931,7 @@ void CRenderTarget::accum_direct_f		(u32 sub_phase)
          {
 		      RCache.set_Element	(s_accum_direct_msaa[0]->E[sub_phase]);
 	         RCache.set_CullMode	(CULL_NONE	);
-            RCache.set_Stencil	(TRUE,D3DCMP_LESS,dwLightMarkerID|0x80,0xff,0x00);
+			 RCache.set_Stencil(TRUE, D3D11_COMPARISON_LESS, dwLightMarkerID | 0x80, 0xff, 0x00);
 		      RCache.Render			(D3DPT_TRIANGLELIST,Offset,0,4,0,2);
          }
          else
@@ -949,13 +940,13 @@ void CRenderTarget::accum_direct_f		(u32 sub_phase)
 		      {
 			      RCache.set_Element	      (s_accum_direct_msaa[i]->E[sub_phase]);
 	            RCache.set_CullMode	      (CULL_NONE	);
-               RCache.set_Stencil	      (TRUE,D3DCMP_LESS,dwLightMarkerID|0x80,0xff,0x00);
+				RCache.set_Stencil(TRUE, D3D11_COMPARISON_LESS, dwLightMarkerID | 0x80, 0xff, 0x00);
                StateManager.SetSampleMask ( u32(1)<< i );
 			      RCache.Render				   (D3DPT_TRIANGLELIST,Offset,0,4,0,2);			
 		      }
 		      StateManager.SetSampleMask( 0xffffffff );
          }
-		   RCache.set_Stencil	(TRUE,D3DCMP_LESSEQUAL,dwLightMarkerID,0xff,0x00);
+		 RCache.set_Stencil(TRUE, D3D11_COMPARISON_LESS_EQUAL, dwLightMarkerID, 0xff, 0x00);
       }
 
 		//	Igor: draw volumetric here
@@ -971,7 +962,7 @@ void CRenderTarget::accum_direct_lum	()
 	phase_accumulator					();
 
 	// *** assume accumulator setted up ***
-	light*			fuckingsun			= (light*)RImplementation.Lights.sun_adapted._get()	;
+	light*			fuckingsun			= (light*)RImplementation.Lights.sun._get()	;
 
 	// Common calc for quad-rendering
 	u32		Offset;
@@ -1083,12 +1074,21 @@ void CRenderTarget::accum_direct_volumetric	(u32 sub_phase, const u32 Offset, co
 
 	if (!need_to_render_sunshafts())
 		return;
-	
+
+	if (!(ps_sunshafts_mode == R2SS_VOLUMETRIC || ps_sunshafts_mode == R2SS_COMBINE_SUNSHAFTS))
+		return;
+
 	//	Test. draw only for near part
 //	if (sub_phase!=SE_SUN_N/EAR) return;
 //	if (sub_phase!=SE_SUN_FAR) return;
 
 	if ( (sub_phase!=SE_SUN_NEAR) && (sub_phase!=SE_SUN_FAR) ) return;
+
+	float w = float(Device.dwWidth);
+	float h = float(Device.dwHeight);
+
+	if (RImplementation.o.ssfx_volumetric)
+		set_viewport_size(HW.pContext, w / ps_ssfx_volumetric.w, h / ps_ssfx_volumetric.w);
 
 	phase_vol_accumulator();
 
@@ -1135,7 +1135,7 @@ void CRenderTarget::accum_direct_volumetric	(u32 sub_phase, const u32 Offset, co
 	{
 
 		// *** assume accumulator setted up ***
-		light*			fuckingsun			= (light*)RImplementation.Lights.sun_adapted._get()	;
+		light*			fuckingsun			= (light*)RImplementation.Lights.sun._get()	;
 
 		// Common constants (light-related)
 		Fvector		L_clr;
@@ -1195,10 +1195,10 @@ void CRenderTarget::accum_direct_volumetric	(u32 sub_phase, const u32 Offset, co
 //	TODO: DX10: Implement via different passes
 			if (SE_SUN_NEAR==sub_phase)
 				//HW.pDevice->SetRenderState( D3DRS_ZFUNC, D3DCMP_GREATER);
-				RCache.set_ZFunc(D3DCMP_GREATER);
+				RCache.set_ZFunc(D3D11_COMPARISON_GREATER);
 			else
 				//HW.pDevice->SetRenderState( D3DRS_ZFUNC, D3DCMP_LESSEQUAL);
-				RCache.set_ZFunc(D3DCMP_ALWAYS);
+				RCache.set_ZFunc(D3D11_COMPARISON_ALWAYS);
 		}
 
 		// Fetch4 : enable
@@ -1258,5 +1258,8 @@ void CRenderTarget::accum_direct_volumetric	(u32 sub_phase, const u32 Offset, co
 //	TODO: DX10: Check if DX10 has analog for NV DBT
 		// disable depth bounds
 //		u_DBT_disable	();
+
+		   if (RImplementation.o.ssfx_volumetric)
+			   set_viewport_size(HW.pContext, w, h);
 	}
 }

@@ -9,13 +9,9 @@
 
 #include "../xrRender/tss.h"
 
-
-#pragma warning(disable:4996)
-#pragma warning(disable:4995)
-
 void fix_texture_name(LPSTR fn);
 
-void CBlender_Compile::r_Stencil(BOOL Enable, u32 Func, u32 Mask, u32 WriteMask, u32 Fail, u32 Pass, u32 ZFail)
+void CBlender_Compile::r_Stencil(bool Enable, u32 Func, u32 Mask, u32 WriteMask, u32 Fail, u32 Pass, u32 ZFail)
 {
 	RS.SetRS(	D3DRS_STENCILENABLE,	BC(Enable) );
 	if (!Enable) return;
@@ -39,7 +35,7 @@ void CBlender_Compile::r_StencilRef(u32 Ref)
 	RS.SetRS(	D3DRS_STENCILREF,		Ref);
 }
 
-void CBlender_Compile::r_CullMode(D3DCULL Mode)
+void CBlender_Compile::r_CullMode(D3D11_CULL_MODE Mode)
 {
 	RS.SetRS(	D3DRS_CULLMODE,	(u32)Mode);
 }
@@ -174,7 +170,7 @@ u32 CBlender_Compile::r_dx10Sampler(LPCSTR ResourceName)
 		i_dx10Address( stage, D3DTADDRESS_CLAMP);
 		i_dx10Filter(stage, D3DTEXF_LINEAR, D3DTEXF_NONE, D3DTEXF_LINEAR);
 		RS.SetSAMP(stage, XRDX10SAMP_COMPARISONFILTER, TRUE);
-		RS.SetSAMP(stage, XRDX10SAMP_COMPARISONFUNC, D3D_COMPARISON_LESS_EQUAL);
+		RS.SetSAMP(stage, XRDX10SAMP_COMPARISONFUNC, D3D11_COMPARISON_LESS_EQUAL);
 	}
 
 	if (0==xr_strcmp(ResourceName,"smp_jitter"))
@@ -183,10 +179,22 @@ u32 CBlender_Compile::r_dx10Sampler(LPCSTR ResourceName)
 		i_dx10Filter(stage, D3DTEXF_POINT, D3DTEXF_NONE, D3DTEXF_POINT);
 	}
 
+	 if (0 == xr_strcmp(ResourceName, "smp_linear2"))
+		 {
+		i_dx10Address(stage, D3DTADDRESS_WRAP);
+		i_dx10Filter(stage, D3DTEXF_LINEAR, D3DTEXF_LINEAR, D3DTEXF_LINEAR);
+		}
+	
+		if (0 == xr_strcmp(ResourceName, "smp_point"))
+		 {
+		i_dx10Address(stage, D3DTADDRESS_WRAP);
+		i_dx10Filter(stage, D3DTEXF_POINT, D3DTEXF_POINT, D3DTEXF_POINT);
+		}
+
 	return					stage;
 }
 
-void	CBlender_Compile::r_Pass		(LPCSTR _vs, LPCSTR _gs, LPCSTR _ps, bool bFog, BOOL bZtest, BOOL bZwrite,	BOOL bABlend, D3DBLEND abSRC, D3DBLEND abDST, BOOL aTest, u32 aRef)
+void CBlender_Compile::r_Pass(LPCSTR _vs, LPCSTR _gs, LPCSTR _ps, bool bFog, bool bZtest, bool bZwrite, bool bABlend, D3D11_BLEND abSRC, D3D11_BLEND abDST, bool aTest, u32 aRef)
 {
 	RS.Invalidate			();
 	ctable.clear			();
@@ -207,10 +215,10 @@ void	CBlender_Compile::r_Pass		(LPCSTR _vs, LPCSTR _gs, LPCSTR _ps, bool bFog, B
 	dest.ps	= ps;
 	dest.vs	= vs;
 	dest.gs	= gs;
-#ifdef USE_DX11
+
 	dest.hs = DEV->_CreateHS("null");
 	dest.ds = DEV->_CreateDS("null");
-#endif
+
 	ctable.merge			(&ps->constants);
 	ctable.merge			(&vs->constants);
 	ctable.merge			(&gs->constants);
@@ -222,8 +230,8 @@ void	CBlender_Compile::r_Pass		(LPCSTR _vs, LPCSTR _gs, LPCSTR _ps, bool bFog, B
 	}
 }
 
-#ifdef USE_DX11
-void CBlender_Compile::r_TessPass(LPCSTR vs, LPCSTR hs, LPCSTR ds, LPCSTR gs, LPCSTR ps, bool bFog, BOOL bZtest, BOOL bZwrite, BOOL bABlend, D3DBLEND abSRC, D3DBLEND abDST, BOOL aTest, u32 aRef)
+
+void CBlender_Compile::r_TessPass(LPCSTR vs, LPCSTR hs, LPCSTR ds, LPCSTR gs, LPCSTR ps, bool bFog, bool bZtest, bool bZwrite, bool bABlend, D3D11_BLEND abSRC, D3D11_BLEND abDST, bool aTest, u32 aRef)
 {
 	r_Pass(vs, gs, ps, bFog, bZtest, bZwrite, bABlend, abSRC, abDST, aTest, aRef);
 
@@ -240,7 +248,7 @@ void CBlender_Compile::r_ComputePass(LPCSTR cs)
 
 	ctable.merge(&dest.cs->constants);
 }
-#endif
+
 
 void	CBlender_Compile::r_End			()
 {
@@ -251,5 +259,5 @@ void	CBlender_Compile::r_End			()
 	dest.C					= 0;
 	ref_matrix_list			temp(0);
 	SH->passes.push_back	(DEV->_CreatePass(dest));
-	//SH->passes.push_back	(DEV->_CreatePass(dest.state,dest.ps,dest.vs,dest.gs,dest.constants,dest.T,temp,dest.C));
+
 }

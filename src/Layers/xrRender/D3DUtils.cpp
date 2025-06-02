@@ -30,25 +30,17 @@ const u32 boxcolor = D3DCOLOR_RGBA(255,255,255,0);
 static const int boxvertcount = 48;
 static Fvector boxvert[boxvertcount];
 
-#ifdef _EDITOR
-#	define DU_DRAW_RS	dxRenderDeviceRender::Instance().SetRS
-#	define DU_DRAW_SH_C(a,c){dxRenderDeviceRender::Instance().SetShader(a);dxRenderDeviceRender::Instance().SetRS(D3DRS_TEXTUREFACTOR,c);}
-#	define DU_DRAW_SH(a){dxRenderDeviceRender::Instance().SetShader(a);dxRenderDeviceRender::Instance().SetRS(D3DRS_TEXTUREFACTOR,0xFFFFFFFF);}
-#else
+
 #	define DU_DRAW_RS	RCache.dbg_SetRS
 #	define DU_DRAW_SH_C(sh,c){RCache.set_Shader(sh);	RCache.set_c	("tfactor",float(color_get_R(c))/255.f,float(color_get_G(c))/255.f,float(color_get_B(c))/255.f,float(color_get_A(c))/255.f);}
 #	define DU_DRAW_SH(sh){RCache.set_Shader(sh);		RCache.set_c	("tfactor",1,1,1,1);}
-#endif
 
-#ifdef _EDITOR
-#	define FILL_MODE dxRenderDeviceRender::Instance().dwFillMode
-#	define SHADE_MODE dxRenderDeviceRender::Instance().dwShadeMode
-#	define SCREEN_QUALITY dxRenderDeviceRender::Instance().m_ScreenQuality
-#else
+
+
 #	define FILL_MODE D3DFILL_SOLID
 #	define SHADE_MODE D3DSHADE_GOURAUD
 #	define SCREEN_QUALITY 1.f
-#endif
+
 
 
 // identity box
@@ -97,38 +89,8 @@ u32 m_ColorSafeRect = 0xffB040B0;
 
 void SPrimitiveBuffer::CreateFromData(D3DPRIMITIVETYPE _pt, u32 _p_cnt, u32 FVF, LPVOID vertices, u32 _v_cnt, u16* indices, u32 _i_cnt)
 {
-#if defined(USE_DX10) || defined(USE_DX11)
 //	TODO: DX10: Implement SPrimitiveBuffer::CreateFromData for DX10
 //	VERIFY(!"SPrimitiveBuffer::CreateFromData not implemented for dx10");
-#else	//	USE_DX10
-	ID3DVertexBuffer*	pVB=0;
-	ID3DIndexBuffer*	pIB=0;
-	p_cnt				= _p_cnt;
-	p_type				= _pt;
-	v_cnt				= _v_cnt;
-	i_cnt				= _i_cnt;
-	u32 stride			= D3DXGetFVFVertexSize(FVF);
-	R_CHK(HW.pDevice->CreateVertexBuffer(v_cnt*stride, D3DUSAGE_WRITEONLY, 0, D3DPOOL_MANAGED, &pVB, 0));
-	HW.stats_manager.increment_stats_vb	(pVB);
-	u8* 				bytes;
-	R_CHK				(pVB->Lock(0,0,(LPVOID*)&bytes,0));
-	FLvertexVec	verts	(v_cnt);
-	for (u32 k=0; k<v_cnt; ++k)
-		verts[k].set	(((Fvector*)vertices)[k],0xFFFFFFFF);
-	Memory.mem_copy		(bytes,&*verts.begin(),v_cnt*stride);
-	R_CHK				(pVB->Unlock());
-	if (i_cnt){ 
-		R_CHK(HW.pDevice->CreateIndexBuffer	(i_cnt*sizeof(u16),D3DUSAGE_WRITEONLY,D3DFMT_INDEX16,D3DPOOL_MANAGED,&pIB,NULL));
-		HW.stats_manager.increment_stats_ib	(pIB);
-		R_CHK			(pIB->Lock(0,0,(LPVOID*)&bytes,0));
-		Memory.mem_copy	(bytes,indices,i_cnt*sizeof(u16));
-		R_CHK			(pIB->Unlock());
-		OnRender.bind	(this,&SPrimitiveBuffer::RenderDIP);
-	}else{
-		OnRender.bind	(this,&SPrimitiveBuffer::RenderDP);
-	}
-	pGeom.create		(FVF,pVB,pIB);
-#endif	//	USE_DX10
 }
 void SPrimitiveBuffer::Destroy()
 {                       
@@ -558,17 +520,10 @@ void CDrawUtilities::DrawLineSphere(const Fvector& p, float radius, u32 c, BOOL 
 }
 
 //----------------------------------------------------
-#ifdef _EDITOR
-IC float 				_x2real			(float x)
-{ return (x+1)*Device.m_RenderWidth_2;	}
-IC float 				_y2real			(float y)
-{ return (y+1)*Device.m_RenderHeight_2;}
-#else
 IC float 				_x2real			(float x)
 { return (x+1)*Device.dwWidth*0.5f;	}
 IC float 				_y2real			(float y)
 { return (y+1)*Device.dwHeight*0.5f;}
-#endif
 
 void CDrawUtilities::dbgDrawPlacement(const Fvector& p, int sz, u32 clr, LPCSTR caption, u32 clr_font)
 {
@@ -875,9 +830,9 @@ void CDrawUtilities::DrawPlane	(const Fvector& p, const Fvector& n, const Fvecto
         pv->set		(+scale.x, 0, -scale.y, clr_s); mR.transform_tiny(pv->p); pv++;
         pv->set		(*(pv-4));
         Stream->Unlock(5,vs_L->vb_stride);
-        if (!bCull) DU_DRAW_RS(D3DRS_CULLMODE,D3DCULL_NONE);
-        DU_DRAW_DP		(D3DPT_TRIANGLEFAN,vs_L,vBase,2);
-        if (!bCull) DU_DRAW_RS(D3DRS_CULLMODE,D3DCULL_CCW);
+        if (!bCull) DU_DRAW_RS(D3DRS_CULLMODE, D3D11_CULL_NONE);
+        DU_DRAW_DP(D3DPT_TRIANGLEFAN, vs_L, vBase, 2);
+        if (!bCull) DU_DRAW_RS(D3DRS_CULLMODE, D3D11_CULL_BACK);
     }
 
     if (bWire){
@@ -912,9 +867,10 @@ void CDrawUtilities::DrawPlane  (const Fvector& center, const Fvector2& scale, c
         pv->set		(+scale.x, 0, -scale.y, clr_s); M.transform_tiny(pv->p); pv++;
         pv->set		(*(pv-4));
         Stream->Unlock(5,vs_L->vb_stride);
-        if (!bCull) DU_DRAW_RS(D3DRS_CULLMODE,D3DCULL_NONE);
-        DU_DRAW_DP		(D3DPT_TRIANGLEFAN,vs_L,vBase,2);
-        if (!bCull) DU_DRAW_RS(D3DRS_CULLMODE,D3DCULL_CCW);
+
+        if (!bCull) DU_DRAW_RS(D3DRS_CULLMODE, D3D11_CULL_NONE);
+        DU_DRAW_DP(D3DPT_TRIANGLEFAN, vs_L, vBase, 2);
+        if (!bCull) DU_DRAW_RS(D3DRS_CULLMODE, D3D11_CULL_BACK);
     }
 
     if (bWire){
@@ -1115,10 +1071,10 @@ void CDrawUtilities::DrawSelectionRect(const Ivector2& m_SelStart, const Ivector
     pv->set(m_SelEnd.x*SCREEN_QUALITY,   m_SelStart.y*SCREEN_QUALITY, m_SelectionRect,0.f,0.f); pv++;
 	Stream->Unlock(4,vs_TL->vb_stride);
 	// Render it as triangle list
-    DU_DRAW_RS(D3DRS_CULLMODE,D3DCULL_NONE);
-	DU_DRAW_SH(dxRenderDeviceRender::Instance().m_SelectionShader);
-    DU_DRAW_DP(D3DPT_TRIANGLEFAN,vs_TL,vBase,2);
-    DU_DRAW_RS(D3DRS_CULLMODE,D3DCULL_CCW);
+    DU_DRAW_RS(D3DRS_CULLMODE, D3D11_CULL_NONE);
+    DU_DRAW_SH(dxRenderDeviceRender::Instance().m_SelectionShader);
+    DU_DRAW_DP(D3DPT_TRIANGLEFAN, vs_TL, vBase, 2);
+    DU_DRAW_RS(D3DRS_CULLMODE, D3D11_CULL_BACK);
 }
 
 void CDrawUtilities::DrawPrimitiveL	(D3DPRIMITIVETYPE pt, u32 pc, Fvector* vertices, int vc, u32 color, BOOL bCull, BOOL bCycle)
@@ -1132,9 +1088,9 @@ void CDrawUtilities::DrawPrimitiveL	(D3DPRIMITIVETYPE pt, u32 pc, Fvector* verti
     if (bCycle)		pv->set(*(pv-vc));
 	Stream->Unlock(dwNeed,vs_L->vb_stride);
 
-    if (!bCull) DU_DRAW_RS(D3DRS_CULLMODE,D3DCULL_NONE);
-    DU_DRAW_DP		(pt,vs_L,vBase,pc);
-    if (!bCull) DU_DRAW_RS(D3DRS_CULLMODE,D3DCULL_CCW);
+    if (!bCull) DU_DRAW_RS(D3DRS_CULLMODE, D3D11_CULL_NONE);
+    DU_DRAW_DP(pt, vs_L, vBase, pc);
+    if (!bCull) DU_DRAW_RS(D3DRS_CULLMODE, D3D11_CULL_BACK);
 }
 
 void CDrawUtilities::DrawPrimitiveTL(D3DPRIMITIVETYPE pt, u32 pc, FVF::TL* vertices, int vc, BOOL bCull, BOOL bCycle)
@@ -1148,9 +1104,9 @@ void CDrawUtilities::DrawPrimitiveTL(D3DPRIMITIVETYPE pt, u32 pc, FVF::TL* verti
     if (bCycle)		pv->set(*(pv-vc));
 	Stream->Unlock(dwNeed,vs_TL->vb_stride);
 
-    if (!bCull) 	DU_DRAW_RS(D3DRS_CULLMODE,D3DCULL_NONE);
-    DU_DRAW_DP		(pt,vs_TL,vBase,pc);
-    if (!bCull) 	DU_DRAW_RS(D3DRS_CULLMODE,D3DCULL_CCW);
+    if (!bCull) 	DU_DRAW_RS(D3DRS_CULLMODE, D3D11_CULL_NONE);
+    DU_DRAW_DP(pt, vs_TL, vBase, pc);
+    if (!bCull) 	DU_DRAW_RS(D3DRS_CULLMODE, D3D11_CULL_BACK);
 }
 
 void CDrawUtilities::DrawPrimitiveLIT(D3DPRIMITIVETYPE pt, u32 pc, FVF::LIT* vertices, int vc, BOOL bCull, BOOL bCycle)
@@ -1164,9 +1120,9 @@ void CDrawUtilities::DrawPrimitiveLIT(D3DPRIMITIVETYPE pt, u32 pc, FVF::LIT* ver
     if (bCycle)		pv->set(*(pv-vc));
 	Stream->Unlock(dwNeed,vs_LIT->vb_stride);
 
-    if (!bCull) DU_DRAW_RS(D3DRS_CULLMODE,D3DCULL_NONE);
-    DU_DRAW_DP		(pt,vs_LIT,vBase,pc);
-    if (!bCull) DU_DRAW_RS(D3DRS_CULLMODE,D3DCULL_CCW);
+    if (!bCull) DU_DRAW_RS(D3DRS_CULLMODE, D3D11_CULL_NONE);
+    DU_DRAW_DP(pt, vs_LIT, vBase, pc);
+    if (!bCull) DU_DRAW_RS(D3DRS_CULLMODE, D3D11_CULL_BACK);
 }
 
 void CDrawUtilities::DrawLink(const Fvector& p0, const Fvector& p1, float sz, u32 clr)

@@ -158,11 +158,14 @@ class IReaderBase
 
 {
 public:
-	IC				IReaderBase	() : m_last_pos (0) {}
+	IC				IReaderBase() : m_last_pos(0), m_file_age(0) {}
 	virtual			~IReaderBase()			{}
 
 	IC implementation_type&impl	()				{return *(implementation_type*)this;}
 	IC const implementation_type&impl() const	{return *(implementation_type*)this;}
+
+			IC void			set_age(u32 age) { m_file_age = age; }
+	IC u32			get_age()	const { return m_file_age; }
 
 	IC BOOL			eof			()	const		{return impl().elapsed()<=0;	};
 	
@@ -237,6 +240,7 @@ public:
 
 private:
 	u32					m_last_pos;
+	u32					m_file_age;
 };
 
 class XRCORE_API IReader : public IReaderBase<IReader> {

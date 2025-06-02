@@ -361,14 +361,14 @@ void CStats::Show()
 
 
 		drawStatParam(pFontGame, "----------------");
-		u32 dcalls; u32 verts; u32 polys;
-		m_pRender->DrawCalls(dcalls);
-		m_pRender->DrawVerticy(verts);
-		m_pRender->DrawPoly(polys);
-
-		drawStatParam_Calls(pFontGame, this, "Draw Calls(DPI):		%u", dcalls);
-		drawStatParam_Calls(pFontGame, this, "Draw Vertex:			%u", verts);
-		drawStatParam_Calls(pFontGame, this, "Draw Pollys:			%u", polys);
+		//u32 dcalls; u32 verts; u32 polys;
+		//m_pRender->DrawCalls(dcalls);
+		//m_pRender->DrawVerticy(verts);
+		//m_pRender->DrawPoly(polys);
+		//
+		//drawStatParam_Calls(pFontGame, this, "Draw Calls(DPI):		%u", dcalls);
+		//drawStatParam_Calls(pFontGame, this, "Draw Vertex:			%u", verts);
+		//drawStatParam_Calls(pFontGame, this, "Draw Pollys:			%u", polys);
 
 		drawStatParam(pFontGame, "----------------");
  		pFontGame->OutNext("PH:   %.2fms, NPC:   %.2fms, Monster: %.2fms", UpdateClientPH.result, UpdateClientAI.result, UpdateClientAI_mutant.result);
@@ -399,7 +399,7 @@ void CStats::Show()
 		drawStatParamByMS(pFontGame, this, "  collider:  %2.2fms", ph_collision.result);
 		drawStatParamByMS(pFontGame, this, "  solver:    %2.2fms, %d", ph_core.result, ph_core.count);
 
-		m_pRender->OutDetails(*pFontGame);
+		//m_pRender->OutDetails(*pFontGame);
 
 		drawStatParamByMS(pFontGame, this, "Render:				%2.4fms", RenderTOTAL_Real.result);
 

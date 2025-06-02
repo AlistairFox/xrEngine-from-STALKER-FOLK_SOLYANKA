@@ -6,6 +6,8 @@
 #include "../../xrEngine/environment.h"
 #include "../../xrEngine/fmesh.h"
 
+
+
 #include "ftreevisual.h"
 
 shared_str					m_xform		;
@@ -16,6 +18,8 @@ shared_str					c_wind		;
 shared_str					c_c_bias	;
 shared_str					c_c_scale	;
 shared_str					c_c_sun		;
+shared_str c_c_BendersPos;
+shared_str c_c_BendersSetup;
 
 FTreeVisual::FTreeVisual	(void)
 {
@@ -83,7 +87,11 @@ void FTreeVisual::Load		(const char* N, IReader *data, u32 dwFlags)
 	c_c_bias			= "c_bias";
 	c_c_scale			= "c_scale";
 	c_c_sun				= "c_sun";
+
+	c_c_BendersPos = "benders_pos";
+	c_c_BendersSetup = "benders_setup";
 }
+
 
 struct	FTreeVisual_setup
 {
@@ -99,11 +107,22 @@ struct	FTreeVisual_setup
 
 	void		calculate	()
 	{
-		dwFrame					= Device.dwFrame;
+		dwFrame					= Device.dwFrame; 
 
 		// Calc wind-vector3, scale
 		float	tm_rot			= PI_MUL_2*Device.fTimeGlobal/ps_r__Tree_w_rot;
-		wind.set				(_sin(tm_rot),0,_cos(tm_rot),0);	wind.normalize	();	wind.mul(ps_r__Tree_w_amp);	// dir1*amplitude
+
+#ifdef TREE_WIND_EFFECT
+		CEnvDescriptor& E = *g_pGamePersistent->Environment().CurrentEnv;
+		float fValue = E.m_fTreeAmplitudeIntensity;
+		wind.set(_sin(tm_rot), 0, _cos(tm_rot), 0);
+		wind.normalize();
+
+		wind.mul(fValue);	// dir1*amplitude
+
+#else //!TREE_WIND_EFFECT
+		wind.set				(_sin(tm_rot),0,_cos(tm_rot),0);	wind.normalize	();	wind.mul(ps_r__Tree_w_amp*2.5);	// dir1*amplitude
+#endif //-TREE_WIND_EFFECT
 		scale					= 1.f/float(FTreeVisual_quant);
 
 		// setup constants
@@ -117,26 +136,62 @@ void FTreeVisual::Render	(float LOD)
 	static FTreeVisual_setup	tvs;
 	if (tvs.dwFrame!=Device.dwFrame)	tvs.calculate();
 	// setup constants
-#if RENDER!=R_R1
+
 	Fmatrix					xform_v			;
 							xform_v.mul_43	(RCache.get_xform_view(),xform);
 							RCache.tree.set_m_xform_v	(xform_v);									// matrix
-#endif
+
 	float	s				= ps_r__Tree_SBC;
 	RCache.tree.set_m_xform	(xform);														// matrix
 	RCache.tree.set_consts	(tvs.scale,tvs.scale,0,0);									// consts/scale
 	RCache.tree.set_wave	(tvs.wave);													// wave
 	RCache.tree.set_wind	(tvs.wind);													// wind
-#if RENDER!=R_R1
+
 	s *= 1.3333f;
 	RCache.tree.set_c_scale	(s*c_scale.rgb.x,	s*c_scale.rgb.y,	s*c_scale.rgb.z,	s*c_scale.hemi);	// scale
 	RCache.tree.set_c_bias	(s*c_bias.rgb.x,	s*c_bias.rgb.y,		s*c_bias.rgb.z,		s*c_bias.hemi);		// bias
-#else
-	CEnvDescriptor&	desc	= *g_pGamePersistent->Environment().CurrentEnv;
-	RCache.tree.set_c_scale	(s*c_scale.rgb.x,					s*c_scale.rgb.y,					s*c_scale.rgb.z,				s*c_scale.hemi);	// scale
-	RCache.tree.set_c_bias	(s*c_bias.rgb.x + desc.ambient.x,	s*c_bias.rgb.y + desc.ambient.y,	s*c_bias.rgb.z+desc.ambient.z,	s*c_bias.hemi);		// bias
-#endif
+
 	RCache.tree.set_c_sun	(s*c_scale.sun,  s*c_bias.sun,0,0);							// sun
+
+	#if RENDER == R_R4
+		
+		if (ps_ssfx_grass_interactive.y > 0)
+		 {
+				// Inter grass Settings
+			RCache.set_c(c_c_BendersSetup, ps_ssfx_int_grass_params_1);
+		
+					// Grass benders data ( Player + Characters )
+			IGame_Persistent::grass_data & GData = g_pGamePersistent->grass_shader_data;
+		Fvector4 player_pos = { 0, 0, 0, 0 };
+		int BendersQty = _min(16, (int)(ps_ssfx_grass_interactive.y + 1));
+		
+					// Add Player?
+			if (ps_ssfx_grass_interactive.x > 0)
+			 {
+			player_pos.set(Device.vCameraPosition.x, Device.vCameraPosition.y, Device.vCameraPosition.z, -1);
+			}
+		
+			Fvector4 * c_grass;
+		{
+			void* GrassData;
+			RCache.get_ConstantDirect(c_c_BendersPos, BendersQty * sizeof(Fvector4) * 2, &GrassData, 0, 0);
+			
+				c_grass = (Fvector4*)GrassData;
+			}
+		
+			if (c_grass)
+			{
+		c_grass[0].set(player_pos);
+			c_grass[16].set(0.0f, -99.0f, 0.0f, 1.0f);
+			
+				for (int Bend = 1; Bend < BendersQty; Bend++)
+				 {
+				c_grass[Bend].set(GData.pos[Bend].x, GData.pos[Bend].y, GData.pos[Bend].z, GData.radius_curr[Bend]);
+				c_grass[Bend + 16].set(GData.dir[Bend].x, GData.dir[Bend].y, GData.dir[Bend].z, GData.str[Bend]);
+				}
+			 }
+		 }
+	#endif
 }
 
 #define PCOPY(a)	a = pFrom->a

@@ -32,19 +32,6 @@ void CPGDef::SetName(LPCSTR name)
     m_Name			= name;
 }
 
-#ifdef _EDITOR
-void CPGDef::Clone	(CPGDef* source)
-{
-	m_Name			= "<invalid_name>";
-    m_Flags			= source->m_Flags;
-    m_fTimeLimit	= source->m_fTimeLimit;
-
-    m_Effects.resize(source->m_Effects.size(),0);		
-    for (EffectIt d_it=m_Effects.begin(),s_it=source->m_Effects.begin(); s_it!=source->m_Effects.end(); s_it++,d_it++)
-    	*d_it		= xr_new<SEffect>(**s_it);
-}
-#endif
-
 //------------------------------------------------------------------------------
 // I/O part
 //------------------------------------------------------------------------------
@@ -326,7 +313,7 @@ void OnGroupParticleDead(void* owner, u32 param, PAPI::Particle& m, u32 idx)
     	PG->items[param].StartFreeChild			(PE,*eff->m_OnDeadChildName,m);
 }
 //------------------------------------------------------------------------------
-struct zero_vis_pred 
+struct zero_vis_pred
 {
 	bool operator()(const dxRender_Visual* x){ return x==0; }
 };

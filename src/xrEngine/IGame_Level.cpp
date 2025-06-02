@@ -25,7 +25,12 @@ IGame_Level::IGame_Level	()
 	bReady						= false;
 	pCurrentEntity				= NULL;
 	pCurrentViewEntity			= NULL;
-	Device.DumpResourcesMemoryUsage();
+	lastApplyCameraVPNear = -1.f;
+}
+
+void IGame_Level::ApplyCamera()
+{
+
 }
 
 IGame_Level::~IGame_Level	()
@@ -46,11 +51,11 @@ IGame_Level::~IGame_Level	()
 	//////////////////////////////////////////
 	Sound->set_geometry_occ		(NULL);
 	Sound->set_handler			(NULL);
-	Device.DumpResourcesMemoryUsage();
+	//Device.DumpResourcesMemoryUsage();
 
 	u32		m_base=0,c_base=0,m_lmaps=0,c_lmaps=0;
-	if (Device.m_pRender) 
-		Device.m_pRender->ResourcesGetMemoryUsage(m_base,c_base,m_lmaps,c_lmaps);
+//	if (Device.m_pRender) 
+	//	Device.m_pRender->ResourcesGetMemoryUsage(m_base,c_base,m_lmaps,c_lmaps);
 
 	Msg		("* [ D3D ]: textures[%d K]", (m_base+m_lmaps)/1024);
 

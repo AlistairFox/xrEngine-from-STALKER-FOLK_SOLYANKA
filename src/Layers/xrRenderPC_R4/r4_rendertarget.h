@@ -16,7 +16,6 @@ class CRenderTarget		: public IRender_Target
 private:
 	u32							dwWidth;
 	u32							dwHeight;
-	u32							dwAccumulatorClearMark;
 public:
 	enum	eStencilOptimizeMode
 	{
@@ -24,6 +23,7 @@ public:
 		SO_Combine,		//	Default
 	};
 
+	bool						needClearAccumulator;
 	u32							dwLightMarkerID;
 	// 
 	IBlender*					b_occq;
@@ -48,12 +48,24 @@ public:
 	IBlender*					b_accum_reflected_msaa[8];
 	IBlender*					b_ssao;
 	IBlender*					b_ssao_msaa[8];
-	IBlender*					b_gasmask_drops;
- 	IBlender*					b_gasmask_dudv;
+	IBlender* b_cut;
+	IBlender*					b_hud_blood;
+	IBlender*					b_hud_power;
+	IBlender*					b_hud_bleeding;
+	IBlender*					b_hud_satiety;
+	IBlender*					b_hud_thirst;
+	IBlender* b_lfx;
+	IBlender* b_sunshafts;
+	IBlender* b_blur;
+	IBlender* b_gasmask_drops;
+	IBlender* b_gasmask_dudv;
 
     // compute shader for hdao
     IBlender*                   b_hdao_cs;
     IBlender*                   b_hdao_msaa_cs;
+	// [SSS Stuff]
+	IBlender* b_ssfx_ssr;
+	IBlender* b_ssfx_volumetric_blur;
 
 #ifdef DEBUG
 	struct		dbg_line_t		{
@@ -75,11 +87,40 @@ public:
 	ref_rt						rt_Normal;			// 64bit,	fat	(x,y,z,hemi)			(eye-space)
 	ref_rt						rt_Color;			// 64/32bit,fat	(r,g,b,specular-gloss)	(or decompressed MET-8-8-8-8)
 
+	ref_rt                      rt_temp;
+	ref_rt                      rt_temp_without_samples;
+
+
 	// 
 	ref_rt						rt_Accumulator;		// 64bit		(r,g,b,specular)
 	ref_rt						rt_Accumulator_temp;// only for HW which doesn't feature fp16 blend
+	ref_rt						rt_sunshafts_0;		// ss0
+	ref_rt						rt_sunshafts_1;		// ss1
 	ref_rt						rt_Generic_0;		// 32bit		(r,g,b,a)				// post-process, intermidiate results, etc.
 	ref_rt						rt_Generic_1;		// 32bit		(r,g,b,a)				// post-process, intermidiate results, etc.
+
+		//  Second viewport
+	ref_rt						rt_secondVP;		// 32bit		(r,g,b,a) --//#SM+#-- +SecondVP+
+
+	// Viewports
+	ref_rt						rt_ui_pda;
+
+	ref_rt rt_blur_h_2;
+	ref_rt rt_blur_2;
+
+	ref_rt rt_blur_h_4;
+	ref_rt rt_blur_4;
+
+	ref_rt rt_blur_h_8;
+	ref_rt rt_blur_8;
+
+	// Screen Space Shaders Stuff
+	ref_rt rt_ssfx;
+	ref_rt rt_ssfx_temp;
+	ref_rt rt_ssfx_temp2;
+	ref_rt rt_ssfx_accum;
+	ref_rt rt_ssfx_hud;
+
 	//	Igor: for volumetric lights
 	ref_rt						rt_Generic_2;		// 32bit		(r,g,b,a)				// post-process, intermidiate results, etc.
 	ref_rt						rt_Bloom_1;			// 32bit, dim/4	(r,g,b,?)
@@ -113,12 +154,37 @@ public:
 	ref_texture					t_noise				[TEX_jitter_count];
 	ID3DTexture2D*			t_noise_surf_mipped;
 	ref_texture					t_noise_mipped;
+
+	// Anomaly
+	resptr_core<CRT, resptrcode_crt> rt_Generic_temp;
 private:
 	// OCCq
 
 	ref_shader					s_occq;
- 	ref_shader					s_gasmask_drops;
- 	ref_shader					s_gasmask_dudv;
+
+	ref_shader					s_sunshafts;
+
+	//Hud Blood
+	ref_shader					s_hud_blood;
+
+	//Hud Stamina
+	ref_shader					s_hud_power;
+
+	//Hud Bleeding
+	ref_shader					s_hud_bleeding;
+
+	//hud satiety
+	ref_shader					s_hud_satiety;
+
+	//thirst
+	ref_shader					s_hud_thirst;
+
+	//SFZ Lens Falres
+	ref_shader					s_lfx;
+
+	// Screen Space Shaders Stuff
+	ref_shader s_ssfx_ssr;
+	ref_shader s_ssfx_volumetric_blur;
 
 	// SSAO
 	ref_rt						rt_ssao_temp;
@@ -127,6 +193,9 @@ private:
 	ref_shader					s_ssao_msaa[8];
 	ref_shader					s_hdao_cs;
 	ref_shader					s_hdao_cs_msaa;
+	// HBAO				
+	ref_rt						rt_HBAO_plus_normal; // world-space normal
+
 
 	// Accum
 	ref_shader					s_accum_mask	;
@@ -137,6 +206,10 @@ private:
 	ref_shader					s_accum_spot	;
 	ref_shader					s_accum_reflected;
 	ref_shader					s_accum_volume;
+	
+
+	ref_shader					s_cut;
+	ref_shader					s_blur;
 
 	//	generate min/max
 	ref_shader					s_create_minmax_sm;
@@ -185,18 +258,24 @@ private:
 	float						f_luminance_adapt;
 
 	// Combine
-	ref_geom					g_combine;
-	ref_geom					g_combine_VP;		// xy=p,zw=tc
-	ref_geom					g_combine_2UV;
-	ref_geom					g_combine_cuboid;
-	ref_geom					g_aa_blur;
-	ref_geom					g_aa_AA;
+	ref_geom				g_KD;
+	ref_geom				g_combine;
+	ref_geom				g_combine_VP;		// xy=p,zw=tc
+	ref_geom				g_combine_2UV;
+	ref_geom				g_combine_cuboid;
+	ref_geom				g_aa_blur;
+	ref_geom				g_aa_AA;
+	ref_geom				g_lfx;
 	ref_shader				s_combine_dbg_0;
 	ref_shader				s_combine_dbg_1;
 	ref_shader				s_combine_dbg_Accumulator;
 	ref_shader				s_combine;
    ref_shader				s_combine_msaa[8];
 	ref_shader				s_combine_volumetric;
+
+	ref_shader				s_gasmask_drops;
+	ref_shader				s_gasmask_dudv;
+
 public:
 	ref_shader				s_postprocess;
    ref_shader           s_postprocess_msaa;
@@ -251,15 +330,22 @@ public:
 	bool						u_need_CM				();
 	BOOL						u_DBT_enable			(float zMin, float zMax);
 	void						u_DBT_disable			();
+	void						phase_hud_blood();
+	void						phase_hud_power();
+	void						phase_hud_bleeding();
+	void						phase_hud_mask();
+	void						phase_hud_satiety();
+	void						phase_hud_thirst();
+	void						phase_lfx(int i);
 
+	void						phase_sunshafts();
 	void						phase_scene_prepare		();
 	void						phase_scene_begin		();
 	void						phase_scene_end			();
 	void						phase_occq				();
 	void						phase_ssao				();
 	void						phase_hdao				();
-	void						phase_gasmask_drops		(Fvector4& dudv);
- 	void						phase_gasmask_dudv		(Fvector4& dudv);
+	void						phase_blur();
 	void						phase_downsamp			();
 	void						phase_wallmarks			();
 	void						phase_smap_direct		(light* L,	u32 sub_phase);
@@ -269,7 +355,13 @@ public:
 	void						phase_smap_spot_tsh		(light* L);
 	void						phase_accumulator		();
 	void						phase_vol_accumulator	();
-	void						shadow_direct			(light* L, u32 dls_phase);
+	void 						PhaseRainDrops();
+	void						phase_gasmask_drops();
+	void						phase_gasmask_dudv();
+
+	void						phase_cut();
+	void						SwitchViewPort(ViewPort vp);
+
 
 	//	Generates min/max sm
 	void						create_minmax_SM();
@@ -304,6 +396,8 @@ public:
 	void						phase_combine			();
 	void						phase_combine_volumetric();
 	void						phase_pp				();
+	void						phase_hbao_plus();
+
 
 	virtual void				set_blur				(float	f)		{ param_blur=f;						}
 	virtual void				set_gray				(float	f)		{ param_gray=f;						}
@@ -322,6 +416,11 @@ public:
 	virtual void				set_cm_imfluence	(float	f)		{ param_color_map_influence = f;							}
 	virtual void				set_cm_interpolate	(float	f)		{ param_color_map_interpolate = f;							}
 	virtual void				set_cm_textures		(const shared_str &tex0, const shared_str &tex1) {color_map_manager.SetTextures(tex0, tex1);}
+
+	// SSS Stuff
+	void phase_ssfx_ssr(); // SSR Phase
+	void phase_ssfx_volumetric_blur(); // Volumetric Blur
+	void set_viewport_size(ID3DDeviceContext* dev, float w, float h);
 
 	//	Need to reset stencil only when marker overflows.
 	//	Don't clear when render for the first time
@@ -344,4 +443,9 @@ public:
 	IC void						dbg_addline				(Fvector& P0, Fvector& P1, u32 c)					{}
 	IC void						dbg_addplane			(Fplane& P0,  u32 c)								{}
 #endif
+
+	//SFZ Lens Flares
+	xr_vector<Fvector4>			m_miltaka_lfx_coords;
+	xr_vector<Fvector4>			m_miltaka_lfx_color;
+
 };

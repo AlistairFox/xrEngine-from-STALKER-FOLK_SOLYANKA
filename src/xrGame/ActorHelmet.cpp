@@ -15,7 +15,7 @@ CHelmet::CHelmet()
 
 	m_boneProtection = xr_new<SBoneProtections>();
 
- 	b_has_glass = false;
+	m_b_HasGlass = false;
  	b_enable_reflection = false;
  	helm_vingette = 0;
 }
@@ -61,7 +61,7 @@ void CHelmet::Load(LPCSTR section)
 
  	if (pSettings->line_exist("settings_helm", section))
  	{
- 		b_has_glass = true;
+		m_b_HasGlass = true;
  
  		for (u8 omg = 1; omg <= 10; omg++)
  		{
@@ -92,7 +92,7 @@ void CHelmet::Load(LPCSTR section)
  	}
  	else
  	{
- 		b_has_glass = false;
+		m_b_HasGlass = false;
  		helm_vingette = 0;
  	}
 }

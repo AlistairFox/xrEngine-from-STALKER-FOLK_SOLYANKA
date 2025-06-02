@@ -169,7 +169,7 @@ static void full_memory_stats	( )
 
 	u32		m_base=0,c_base=0,m_lmaps=0,c_lmaps=0;
 
-	if (Device.m_pRender) Device.m_pRender->ResourcesGetMemoryUsage(m_base,c_base,m_lmaps,c_lmaps);
+	//if (Device.m_pRender) Device.m_pRender->ResourcesGetMemoryUsage(m_base,c_base,m_lmaps,c_lmaps);
 
 	log_vminfo	();
 

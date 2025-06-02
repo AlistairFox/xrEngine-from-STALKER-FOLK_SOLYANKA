@@ -21,6 +21,17 @@
 #define		r2_RT_ssao_temp		"$user$ssao_temp"		//temporary rt for ssao calculation
 #define		r2_RT_half_depth	"$user$half_depth"		//temporary rt for ssao calculation
 
+
+#define		r2_RT_ssfx			"$user$ssfx" // [Ascii1457] SSS new Phase
+#define		r2_RT_ssfx_temp		"$user$ssfx_temp" // [Ascii1457] SSS new Phase
+#define		r2_RT_ssfx_temp2	"$user$ssfx_temp2" // [ SSS ] Full res - D3DFMT_A8B8G8R8F
+#define		r2_RT_ssfx_accum	"$user$ssfx_accum" // [ SSS ] Full res - D3DFMT_A16B16G16R16F
+#define		r2_RT_ssfx_hud		"$user$ssfx_hud" // ...
+
+//ogse ss
+#define		r2_RT_sunshafts0	"$user$sun_shafts0"		// first rt
+#define		r2_RT_sunshafts1	"$user$sun_shafts1"		// second rt
+
 #define		r2_RT_generic0		"$user$generic0"		// ---
 #define		r2_RT_generic0_r	"$user$generic0_r"	// ---
 #define		r2_RT_generic1		"$user$generic1"		// ---
@@ -47,15 +58,34 @@
 
 #define		r2_jitter			"$user$jitter_"			// --- dither
 #define		r2_jitter_mipped	"$user$jitter_mipped"			// --- dither
-#define		r2_sunmask			"sunmask"
+#define		r2_sunmask			"shaders\\sunmask"
+#define		r2_RT_ui			"$user$ui"
+
+#define		r2_RT_blur_h_2	"$user$blur_h_2"
+#define		r2_RT_blur_2		"$user$blur_2"
+
+#define		r2_RT_blur_h_4	"$user$blur_h_4"
+#define		r2_RT_blur_4	"$user$blur_4"
+
+#define		r2_RT_blur_h_8	"$user$blur_h_8"
+#define		r2_RT_blur_8	"$user$blur_8"
+
+//HBAO
+#define		r2_RT_HBAO_plus_normal		"$user$ssao_normal"	// DX11 only
+
+#define		r2_RT_secondVP		"$user$viewport2"		// --#SM+#-- +SecondVP+ Хранит картинку со второго вьюпорта
+#define     r2_RT_temp          "$user$temp"
+#define     r2_RT_temp_without_samples          "$user$temp_ws"
+
 
 #define		JITTER(a) r2_jitter #a
 
 const		float				SMAP_near_plane		= .1f	;
 
-const		u32					SMAP_adapt_min		= 32	;
-const		u32					SMAP_adapt_optimal	= 768	;
-const		u32					SMAP_adapt_max		= 1536	;
+
+const		u32					SMAP_adapt_min = 768;//32
+const		u32					SMAP_adapt_optimal = 768;
+const		u32					SMAP_adapt_max = 1536;
 
 const		u32					TEX_material_LdotN	= 128	;	// diffuse,		X, almost linear = small res
 const		u32					TEX_material_LdotH	= 256	;	// specular,	Y
@@ -96,7 +126,14 @@ const		u32					LUMINANCE_size		= 16	;
 //	For rain R3 rendering
 #define		SE_SUN_RAIN_SMAP	5
 
-extern		float	ps_r2_gloss_factor;
-IC	float	u_diffuse2s	(float x, float y, float z)	{ float	v = (x+y+z)/3.f;	return ps_r2_gloss_factor * ((v<1)?powf(v,2.f/3.f):v); }
-IC	float	u_diffuse2s	(Fvector3& c)				{ return u_diffuse2s(c.x,c.y,c.z);					}
+extern float ps_r2_gloss_factor;
+extern float ps_r2_gloss_min;
+
+IC float u_diffuse2s(float x, float y, float z)
+{
+	float v = (x + y + z) / 3.f;
+	return ps_r2_gloss_min + ps_r2_gloss_factor * ((v < 1) ? powf(v, 2.f / 3.f) : v);
+}
+
+IC float u_diffuse2s(Fvector3& c) { return u_diffuse2s(c.x, c.y, c.z); }
 

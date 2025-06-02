@@ -43,7 +43,7 @@ public:
 	float					m_fShowNearestEnemiesDistance;
 
 	bool					b_enable_reflection;
- 	bool					b_has_glass;
+ 	bool					m_b_HasGlass;
  	u8						helm_vingette;
 
 	u8						GetParamFromCondition(u16 cond);

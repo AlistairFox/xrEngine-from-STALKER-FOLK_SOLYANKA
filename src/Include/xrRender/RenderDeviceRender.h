@@ -39,10 +39,8 @@ public:
 	//	Resources control
 	virtual void	DeferredLoad(BOOL E) = 0;
 	virtual void	ResourcesDeferredUpload() = 0;
-	virtual void	ResourcesGetMemoryUsage(u32& m_base, u32& c_base, u32& m_lmaps, u32& c_lmaps) = 0;
 	virtual void	ResourcesDestroyNecessaryTextures() = 0;
 	virtual void	ResourcesStoreNecessaryTextures() = 0;
-	virtual void	ResourcesDumpMemoryUsage() = 0;
 
 	//	HWSupport
 	virtual bool	HWSupportsShaderYUV2RGB() = 0;
@@ -57,7 +55,6 @@ public:
 	virtual void	ClearTarget() = 0;
 	virtual void	SetCacheXform(Fmatrix &mView, Fmatrix &mProject) = 0;
 	virtual void	OnAssetsChanged() = 0;
-	virtual void	UpdateWindow(HWND hWnd, u32 X, u32 Y, u32 SizeX, u32 SizeY) = 0;
 };
 
 #endif	//	RenderDeviceRender_included
