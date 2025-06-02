@@ -240,6 +240,39 @@ float rain_factor()
 	return			(g_pGamePersistent->Environment().CurrentEnv->rain_density);
 }
 
+float rain_wetness()
+{
+	return (g_pGamePersistent->Environment().wetness_accum);
+}
+
+#include "../xrEngine/Rain.h"
+
+float rain_hemi()
+{
+	CEffect_Rain* rain = g_pGamePersistent->pEnvironment->eff_Rain;
+
+	if (rain)
+	{
+		return rain->GetRainHemi();
+	}
+	else
+	{
+		CObject* E = g_pGameLevel->CurrentViewEntity();
+		if (E && E->renderable_ROS())
+		{
+			float* hemi_cube = E->renderable_ROS()->get_luminocity_hemi_cube();
+			float hemi_val = _max(hemi_cube[0], hemi_cube[1]);
+			hemi_val = _max(hemi_val, hemi_cube[2]);
+			hemi_val = _max(hemi_val, hemi_cube[3]);
+			hemi_val = _max(hemi_val, hemi_cube[5]);
+
+			return hemi_val;
+		}
+
+		return 0.f;
+	}
+}
+
 u32	vertex_in_direction(u32 level_vertex_id, Fvector direction, float max_distance)
 {
 	direction.normalize_safe();
@@ -1326,6 +1359,9 @@ void CLevel::script_register(lua_State *L)
 
 				def("get_g_actor_id", &get_g_actor_id),
 				def("set_surge_time", &set_surge_time),
+
+				def("rain_wetness", rain_wetness),
+				def("rain_hemi", rain_hemi),
 
 				def("get_HudWeaponsEffects", GetHudWeaponsEffects)
 	],

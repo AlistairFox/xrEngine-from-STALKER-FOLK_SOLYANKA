@@ -90,7 +90,7 @@ CEngineAPI::~CEngineAPI()
 }
 
 extern u32 renderer_value; //con cmd
-extern int g_current_renderer = 0;
+extern int g_current_renderer = 4;
 
 ENGINE_API bool is_enough_address_space_available()
 {
