@@ -40,7 +40,6 @@ CHW			HW;
 #pragma warning(default:4995)
 
 
-extern ENGINE_API float psSVPImageSizeK;
 
 CHW::CHW() :
 	//	hD3D(NULL),
@@ -53,8 +52,6 @@ CHW::CHW() :
 {
 	Device.seqAppActivate.Add(this);
 	Device.seqAppDeactivate.Add(this);
-
-	storedVP = (ViewPort)0;
 }
 
 CHW::~CHW()
@@ -209,11 +206,7 @@ void CHW::CreateDevice(HWND m_hWnd, bool move_window)
 	}
 
 
-	// Capture misc data
-//	DX10: Don't neeed this?
-//#ifdef DEBUG
-//	R_CHK	(pDevice->CreateStateBlock			(D3DSBT_ALL,&dwDebugSB));
-//#endif
+
 	//	Create render target and depth-stencil views here
 	UpdateViews();
 
@@ -260,21 +253,11 @@ void CHW::DestroyDevice()
 	BSManager.ClearStateArray();
 	SSManager.ClearStateArray();
 
-	//_SHOW_REF				("refCount:pBaseZB",pBaseZB);
-	//_RELEASE				(pBaseZB);
+	_SHOW_REF("refCount:pBaseZB", pBaseZB);
+	_RELEASE(pBaseZB);
 
-	for (auto it = viewPortsRTZB.begin(); it != viewPortsRTZB.end(); ++it)
-	{
-		_SHOW_REF("refCount:pBaseZB", it->second.baseZB);
-		_SHOW_REF("refCount:pBaseRT", it->second.baseRT);
-		_RELEASE(it->second.baseZB);
-		_RELEASE(it->second.baseRT);
-		it->second.pDepthStencil->Release();
-		_RELEASE(it->second.pBaseDepthReadSRV);
-	}
-
-	//_SHOW_REF				("refCount:pBaseRT",pBaseRT);
-	//_RELEASE				(pBaseRT);
+	_SHOW_REF("refCount:pBaseRT", pBaseRT);
+	_RELEASE(pBaseRT);
 
 	//	Must switch to windowed mode to release swap chain
 	if (!m_ChainDesc.Windowed) m_pSwapChain->SetFullscreenState(FALSE, NULL);
@@ -286,7 +269,7 @@ void CHW::DestroyDevice()
 	if (pSSAO)
 		_RELEASE(pSSAO);
 
-
+	pDepthStencil->Release();
 
 	_SHOW_REF("DeviceREF:", HW.pDevice);
 	_RELEASE(HW.pDevice);
@@ -328,19 +311,11 @@ void CHW::Reset(HWND hwnd)
 
 	CHK_DX(m_pSwapChain->ResizeTarget(&desc));
 
+	_SHOW_REF("refCount:pBaseZB", pBaseZB);
+	_SHOW_REF("refCount:pBaseRT", pBaseRT);
 
-#ifdef DEBUG
-	//	_RELEASE			(dwDebugSB);
-#endif
-	for (auto it = viewPortsRTZB.begin(); it != viewPortsRTZB.end(); ++it)
-	{
-		_SHOW_REF("refCount:pBaseZB", it->second.baseZB);
-		_SHOW_REF("refCount:pBaseRT", it->second.baseRT);
-		_RELEASE(it->second.baseZB);
-		_RELEASE(it->second.baseRT);
-	}
-
-
+	_RELEASE(pBaseZB);
+	_RELEASE(pBaseRT);
 
 	CHK_DX(m_pSwapChain->ResizeBuffers(
 		cd.BufferCount,
@@ -354,29 +329,6 @@ void CHW::Reset(HWND hwnd)
 
 	updateWindowProps(hwnd);
 
-}
-
-
-void CHW::SwitchVP(ViewPort vp)
-{
-	if (storedVP == vp && pBaseRT)
-		return;
-
-	storedVP = vp;
-
-	auto it = viewPortsRTZB.find(vp);
-
-	if (it == viewPortsRTZB.end())
-		it = viewPortsRTZB.find(MAIN_VIEWPORT);
-
-	pBaseRT = it->second.baseRT;
-	pBaseZB = it->second.baseZB;
-
-	pBaseDepthReadSRV = it->second.pBaseDepthReadSRV;
-	// pDepthStencil = it->second.pDepthStencil;
-
-
-	ImGui_ImplDX11_CreateDeviceObjects();
 }
 
 void CHW::selectResolution(u32& dwWidth, u32& dwHeight, BOOL bWindowed)
@@ -721,36 +673,19 @@ void CHW::UpdateViews()
 	DXGI_SWAP_CHAIN_DESC& sd = m_ChainDesc;
 	HRESULT R;
 
-	// Set up svp image size
-	Device.m_SecondViewport.screenWidth = u32((sd.BufferDesc.Width / 32) * psSVPImageSizeK) * 32;
-	Device.m_SecondViewport.screenHeight = u32((sd.BufferDesc.Height / 32) * psSVPImageSizeK) * 32;
-
-	viewPortsRTZB.insert(mk_pair(MAIN_VIEWPORT, HWViewPortRTZB()));
-	viewPortsRTZB.insert(mk_pair(SECONDARY_WEAPON_SCOPE, HWViewPortRTZB()));
-
-	ID3DTexture2D* temp1;
-	ID3DTexture2D* temp2;
-
-	R = m_pSwapChain->GetBuffer(0, __uuidof(ID3DTexture2D), reinterpret_cast<void**>(&temp1));
-	R_CHK2(R, "!Erroneous buffer result");
-
-	D3D_TEXTURE2D_DESC desc;
-	temp1->GetDesc(&desc);
-	desc.Width = Device.m_SecondViewport.screenWidth;
-	desc.Height = Device.m_SecondViewport.screenHeight;
-
-	R = pDevice->CreateTexture2D(&desc, NULL, &temp2);
-
+	// Create a render target view
+	//R_CHK	(pDevice->GetRenderTarget			(0,&pBaseRT));
+	ID3DTexture2D* pBuffer;
+	R = m_pSwapChain->GetBuffer(0, __uuidof(ID3DTexture2D), (LPVOID*)&pBuffer);
 	R_CHK(R);
-	R = pDevice->CreateRenderTargetView(temp1, NULL, &viewPortsRTZB.at(MAIN_VIEWPORT).baseRT);
+	R = pDevice->CreateRenderTargetView(pBuffer, NULL, &pBaseRT);
 	R_CHK(R);
 
-	R = pDevice->CreateRenderTargetView(temp2, NULL, &viewPortsRTZB.at(SECONDARY_WEAPON_SCOPE).baseRT);
-	R_CHK(R);
+	pBuffer->Release();
 
-	temp1->Release();
-	temp2->Release();
-
+	//	Create Depth/stencil buffer
+	//	HACK: DX10: hard depth buffer format
+	//R_CHK	(pDevice->GetDepthStencilSurface	(&pBaseZB));
 
 	D3D_TEXTURE2D_DESC descDepth;
 	descDepth.Width = sd.BufferDesc.Width;
@@ -761,67 +696,39 @@ void CHW::UpdateViews()
 	descDepth.SampleDesc.Count = 1;
 	descDepth.SampleDesc.Quality = 0;
 	descDepth.Usage = D3D_USAGE_DEFAULT;
-	descDepth.BindFlags = D3D_BIND_DEPTH_STENCIL | D3D_BIND_SHADER_RESOURCE;
+	descDepth.BindFlags = D3D_BIND_DEPTH_STENCIL | D3D_BIND_SHADER_RESOURCE;;
 	descDepth.CPUAccessFlags = 0;
 	descDepth.MiscFlags = 0;
 	R = pDevice->CreateTexture2D(&descDepth,       // Texture desc
 		NULL,                  // Initial data
-		&viewPortsRTZB.at(MAIN_VIEWPORT).pDepthStencil); // [out] Texture
+		&pDepthStencil); // [out] Texture
 	R_CHK(R);
 
-	//-------------- CREATE DSV MAIN
-	//    Create Depth/stencil view
-	// R = pDevice->CreateDepthStencilView(depth_stencil, NULL, &viewPortsRTZB.at(MAIN_VIEWPORT).baseZB);
-	// R_CHK(R);
-	// depth_stencil->Release();
-
+	//	Create Depth/stencil view
+	//R = pDevice->CreateDepthStencilView( pDepthStencil, NULL, &pBaseZB );
+	//R_CHK(R);
 	D3D_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
 	dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	dsvDesc.Flags = 0;
 	dsvDesc.ViewDimension = D3D_DSV_DIMENSION_TEXTURE2D;
 	dsvDesc.Texture2D.MipSlice = 0;
-	// R_CHK(pDevice->CreateDepthStencilView(pDepthStencil, &dsvDesc, &pBaseZB)); // read & wtire DSV
+	R_CHK(pDevice->CreateDepthStencilView(pDepthStencil, &dsvDesc, &pBaseZB)); // read & wtire DSV
 
-	R = pDevice->CreateDepthStencilView(viewPortsRTZB.at(MAIN_VIEWPORT).pDepthStencil, &dsvDesc, &viewPortsRTZB.at(MAIN_VIEWPORT).baseZB);
-	R_CHK(R);
 
+
+	// Shader resource view
 	D3D_SHADER_RESOURCE_VIEW_DESC depthSRVDesc = {};
 	depthSRVDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
 	depthSRVDesc.ViewDimension = D3D_SRV_DIMENSION_TEXTURE2D;
 	depthSRVDesc.Texture2D.MipLevels = 1;
 	depthSRVDesc.Texture2D.MostDetailedMip = 0; // No MIP
-	R_CHK(pDevice->CreateShaderResourceView(viewPortsRTZB.at(MAIN_VIEWPORT).pDepthStencil, &depthSRVDesc, &viewPortsRTZB.at(MAIN_VIEWPORT).pBaseDepthReadSRV)); // read SRV
-	if (viewPortsRTZB.at(MAIN_VIEWPORT).pBaseDepthReadSRV)
-	Msg("* Shader Resource: MAIN_VIEWPORT: pBaseDepthReadSRV Created");
+	R_CHK(pDevice->CreateShaderResourceView(pDepthStencil, &depthSRVDesc, &pBaseDepthReadSRV)); // read SRV
 
-	descDepth.Width = Device.m_SecondViewport.screenWidth;
-	descDepth.Height = Device.m_SecondViewport.screenHeight;
-	R = pDevice->CreateTexture2D(&descDepth, NULL, &viewPortsRTZB.at(SECONDARY_WEAPON_SCOPE).pDepthStencil);
-	R_CHK(R);
+	if (pBaseDepthReadSRV)
+	{
+		Msg("* Shader Resource: pBaseDepthReadSRV Created");
+	}
 
-	R = pDevice->CreateDepthStencilView(viewPortsRTZB.at(SECONDARY_WEAPON_SCOPE).pDepthStencil, &dsvDesc, &viewPortsRTZB.at(SECONDARY_WEAPON_SCOPE).baseZB);
-	R_CHK(R);
-
-
-	R_CHK(pDevice->CreateShaderResourceView(viewPortsRTZB.at(SECONDARY_WEAPON_SCOPE).pDepthStencil, &depthSRVDesc, &viewPortsRTZB.at(SECONDARY_WEAPON_SCOPE).pBaseDepthReadSRV)); // read SRV
-	if (viewPortsRTZB.at(SECONDARY_WEAPON_SCOPE).pBaseDepthReadSRV)
-	Msg("* Shader Resource: SECONDARY_VIEWPORT: pBaseDepthReadSRV Created");
-
-
-
-
-
-
-	// first init
-	// pBaseRT = viewPortsRTZB.at(MAIN_VIEWPORT).baseRT;
-	// pBaseZB = viewPortsRTZB.at(MAIN_VIEWPORT).baseZB;
-	pBaseDepthReadSRV = viewPortsRTZB.at(MAIN_VIEWPORT).pBaseDepthReadSRV;
-	// pDepthStencil = viewPortsRTZB.at(MAIN_VIEWPORT).pDepthStencil;
-
-
-	// first init
-	pBaseRT = viewPortsRTZB.at(MAIN_VIEWPORT).baseRT;
-	pBaseZB = viewPortsRTZB.at(MAIN_VIEWPORT).baseZB;
 
 }
 #endif

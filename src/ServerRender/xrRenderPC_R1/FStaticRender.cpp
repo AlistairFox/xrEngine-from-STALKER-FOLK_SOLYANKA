@@ -1005,23 +1005,6 @@ static inline bool match_shader_id	( LPCSTR const debug_shader_id, LPCSTR const 
 
 }
 
-//     --#SM+#-- +SecondVP+
-void CRender::BeforeWorldRender() {}
-
-//     - --#SM+#-- +SecondVP+
-void CRender::AfterWorldRender()
-{
-	if (currentViewPort == SECONDARY_WEAPON_SCOPE)
-	{
-		//    ( )  -  
-		IRender_Target* T = getTarget();
-		IDirect3DSurface9* pBackBuffer = nullptr;
-		HW.pDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &pBackBuffer); //    
-		D3DXLoadSurfaceFromSurface(Target->RT_SecondVP->pRT, 0, 0, pBackBuffer, 0, 0, D3DX_DEFAULT, 0);
-		pBackBuffer->Release(); //      (    )
-	}
-}
-
 void CRender::PdaRenderToTarget()
 {
 	ref_rt* RT = &Target->rt_ui_pda;

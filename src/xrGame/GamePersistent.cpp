@@ -147,11 +147,11 @@ void CGamePersistent::OnAppStart()
 		if (!result)
 			Msg(xor ("! Can't install anti-inject hook!").c_str());
 
-		if (inject_hook.enable_hooks())
+		if (!inject_hook.enable_hooks())
 			Msg(xor ("! Can't initialize the anti-inject component!").c_str());
 
+		need_exit_thread.store(false);
 		anti_cheat_thread = std::thread(&CGamePersistent::start_anti_cheat_thread, this);
- 		need_exit_thread.store(false);
 	}
 }
 
@@ -172,7 +172,7 @@ void CGamePersistent::OnAppEnd	()
 
 
 	need_exit_thread.store(true);
-	anti_cheat_thread.join();
+	anti_cheat_thread.detach();
 
 }
 

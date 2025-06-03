@@ -434,11 +434,10 @@ void				CResourceManager::_DeleteConstantTable	(const R_constant_table* C)
 	if (reclaim(v_constant_tables,C))				return;
 	Msg	("! ERROR: Failed to find compiled constant-table");
 }
-
 //--------------------------------------------------------------------------------------------------------------
-CRT* CResourceManager::_CreateRT(LPCSTR Name, xr_vector<RtCreationParams>& vp_params, DXGI_FORMAT f, VIEW_TYPE view, u32 samples)
+CRT* CResourceManager::_CreateRT(LPCSTR Name, u32 w, u32 h, DXGI_FORMAT f, VIEW_TYPE view, u32 samples)
 {
-	R_ASSERT(Name && Name[0]);
+	R_ASSERT(Name && Name[0] && w && h);
 
 	// ***** first pass - search already created RT
 	LPSTR N = LPSTR(Name);
@@ -450,7 +449,7 @@ CRT* CResourceManager::_CreateRT(LPCSTR Name, xr_vector<RtCreationParams>& vp_pa
 		RT->dwFlags				|=	xr_resource_flagged::RF_REGISTERED;
 		m_rtargets.insert		(mk_pair(RT->set_name(Name),RT));
 
-		if (Device.b_is_Ready)	RT->create(Name, vp_params, f, view, samples);
+		if (Device.b_is_Ready)	RT->create(Name, w, h, f, view, samples);
 		return					RT;
 	}
 }

@@ -265,6 +265,8 @@ public:
 
 	virtual DWORD					get_dx_level			()	{ return HW.FeatureLevel >= D3D_FEATURE_LEVEL_10_1?0x000A0001:0x000A0000; }
 
+	virtual	CRender::SurfaceParams			getSurface(const char* nameTexture) override;
+
 	// Loading / Unloading
 	virtual void					create						();
 	virtual void					destroy						();
@@ -347,9 +349,6 @@ public:
 	virtual void					ScreenshotAsyncEnd			(CMemoryWriter& memory_writer);
 	virtual void		_BCL		OnFrame						();
 
-	// [FFT++]
-	virtual void					BeforeWorldRender(); //--#SM+#-- +SecondVP+       -
-	virtual void					AfterWorldRender();  //--#SM+#-- +SecondVP+       UI
 
 
 	// Render mode

@@ -1218,7 +1218,6 @@ void CActor::UpdateCL	()
 
 
 	UpdateInventoryOwner			(Device.dwTimeDelta);
-
 	if(m_feel_touch_characters>0)
 	{
 		for(xr_vector<CObject*>::iterator it = feel_touch.begin(); it != feel_touch.end(); it++)
@@ -1715,6 +1714,10 @@ void CActor::shedule_Update	(u32 DT)
 	UpdateArtefactsOnBeltAndOutfit				();
 	m_pPhysics_support->in_shedule_Update		(DT);
 	Check_for_AutoPickUp						();
+
+	if(Actor())
+		DynamicHudGlass::UpdateDynamicHudGlass();
+
 };
 #include "debug_renderer.h"
 void CActor::renderable_Render	()

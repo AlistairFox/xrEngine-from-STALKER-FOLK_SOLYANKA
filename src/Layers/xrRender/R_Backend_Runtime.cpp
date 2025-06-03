@@ -33,14 +33,9 @@ void CBackend::OnFrameBegin	()
 
 		Invalidate();
 
-		HW.SwitchVP(RImplementation.currentViewPort);
-		RImplementation.Target->SwitchViewPort(RImplementation.currentViewPort);
-		// Below are just in case
-		RImplementation.Target->u_setrt(Device.dwWidth, Device.dwHeight, HW.pBaseRT, NULL, NULL, HW.pBaseZB); // Set up HW base as RT and ZB
-
-
 		RImplementation.rmNormal();
-
+		set_RT(HW.pBaseRT);
+		set_ZB(HW.pBaseZB);
 
 		Memory.mem_fill		(&stat,0,sizeof(stat));
 		Vertex.Flush		();

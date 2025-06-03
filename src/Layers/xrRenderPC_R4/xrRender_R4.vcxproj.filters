@@ -765,9 +765,6 @@
     <ClInclude Include="blender_blur.h">
       <Filter>Shading templates</Filter>
     </ClInclude>
-    <ClInclude Include="blender_cut.h">
-      <Filter>Shading templates</Filter>
-    </ClInclude>
     <ClInclude Include="blender_gasmask_drops.h" />
     <ClInclude Include="blender_gasmask_dudv.h" />
   </ItemGroup>
@@ -1404,12 +1401,6 @@
     </ClCompile>
     <ClCompile Include="rendertarget_phase_blur.cpp">
       <Filter>Core_Target</Filter>
-    </ClCompile>
-    <ClCompile Include="r4_rendertarget_phase_cut.cpp">
-      <Filter>Core_Target</Filter>
-    </ClCompile>
-    <ClCompile Include="blender_cut.cpp">
-      <Filter>Shading templates</Filter>
     </ClCompile>
     <ClCompile Include="rendertarget_phase_gasmask_drops.cpp" />
     <ClCompile Include="rendertarget_phase_gasmask_dudv.cpp" />

@@ -45,8 +45,6 @@ ENGINE_API float refresh_rate = 0;
 
 ENGINE_API BOOL g_bRendering = FALSE;
 
-extern BOOL debugSecondVP;
-
 BOOL		g_bLoaded = FALSE;
 ref_light	precache_light = 0;
 
@@ -57,25 +55,6 @@ static INT64 g_TicksPerSecond = 0;
 BOOL CRenderDevice::Begin()
 {
 #ifndef DEDICATED_SERVER
-
-	/*
-	HW.Validate		();
-	HRESULT	_hr		= HW.pDevice->TestCooperativeLevel();
-	if (FAILED(_hr))
-	{
-		// If the device was lost, do not render until we get it back
-		if		(D3DERR_DEVICELOST==_hr)		{
-			Sleep	(33);
-			return	FALSE;
-		}
-
-		// Check if the device is ready to be reset
-		if		(D3DERR_DEVICENOTRESET==_hr)
-		{
-			Reset	();
-		}
-	}
-	*/
 
 	switch (m_pRender->GetDeviceState())
 	{
@@ -99,13 +78,6 @@ BOOL CRenderDevice::Begin()
 
 	m_pRender->Begin();
 
-	/*
-	CHK_DX					(HW.pDevice->BeginScene());
-	RCache.OnFrameBegin		();
-	RCache.set_CullMode		(CULL_CW);
-	RCache.set_CullMode		(CULL_CCW);
-	if (HW.Caps.SceneMode)	overdrawBegin	();
-	*/
 
 	FPU::m24r();
 	g_bRendering = TRUE;
@@ -337,106 +309,37 @@ void CRenderDevice::on_idle()
 
 		mView.build_camera_dir(vCameraPosition, vCameraDirection, vCameraTop);
 	}
-
-	// Render Viewports
-	if (Device.m_SecondViewport.IsSVPActive() && Device.m_SecondViewport.IsSVPFrame())
-	{
-		Render->firstViewPort = MAIN_VIEWPORT;
-		Render->lastViewPort = SECONDARY_WEAPON_SCOPE;
-		Render->viewPortsThisFrame.push_back(MAIN_VIEWPORT);
-		Render->viewPortsThisFrame.push_back(SECONDARY_WEAPON_SCOPE);
-
-	}
-	else
-	{
-		Render->viewPortsThisFrame.push_back(MAIN_VIEWPORT);
-		Render->firstViewPort = MAIN_VIEWPORT;
-		Render->lastViewPort = MAIN_VIEWPORT;
-	}
-
 	Statistic->RenderTOTAL_Real.FrameStart();
 	Statistic->RenderTOTAL_Real.Begin();
 
-#ifdef MOVE_CURRENT_FRAME_COUNTR
-	u32 stored_cur_frame = dwFrame;
-#endif
+	// Matrices
+	mFullTransform.mul(mProject, mView);
+	m_pRender->SetCacheXform(mView, mProject);
+	D3DXMatrixInverse((D3DXMATRIX*)&mInvFullTransform, 0, (D3DXMATRIX*)&mFullTransform);
 
-	u32 t_width = Device.dwWidth, t_height = Device.dwHeight;
-	for (size_t i = 0; i < Render->viewPortsThisFrame.size(); i++)
+	// Set "_saved" for this frame each vport
+	vCameraPosition_saved = vCameraPosition;
+	mFullTransform_saved = mFullTransform;
+	mView_saved = mView;
+	mProject_saved = mProject;
+
+	if (!g_dedicated_server)
 	{
-#ifdef MOVE_CURRENT_FRAME_COUNTR
-		dwFrame += 1;
-#endif
-		Render->currentViewPort = Render->viewPortsThisFrame[i];
-		Render->needPresenting = (Render->currentViewPort == MAIN_VIEWPORT) ? true : false;
-
-		if (Render->currentViewPort == SECONDARY_WEAPON_SCOPE && psDeviceFlags.test(rsR4))
-		{
-			Device.dwWidth = m_SecondViewport.screenWidth;
-			Device.dwHeight = m_SecondViewport.screenHeight;
-		}
-
-		if (g_pGameLevel)
-			g_pGameLevel->ApplyCamera(); // Apply camera params of vp, so that we create a correct full transform matrix
-
-
-		// Matrices
-		mFullTransform.mul(mProject, mView);
-		m_pRender->SetCacheXform(mView, mProject);
-		D3DXMatrixInverse((D3DXMATRIX*)&mInvFullTransform, 0, (D3DXMATRIX*)&mFullTransform);
-
-		if (Render->currentViewPort == MAIN_VIEWPORT && Device.m_SecondViewport.IsSVPActive()) // need to save main vp stuff for next frame
-		{
-			mainVPCamPosSaved = vCameraPosition;
-			mainVPFullTrans = mFullTransform;
-			mainVPViewSaved = mView;
-			mainVPProjectSaved = mProject;
-		}
-
-		// Set "_saved" for this frame each vport
-		vCameraPosition_saved = vCameraPosition;
-		mFullTransform_saved = mFullTransform;
-		mView_saved = mView;
-		mProject_saved = mProject;
-
-		// *** Resume threads
-		// Capture end point - thread must run only ONE cycle
-		// Release start point - allow thread to run
-		if (Render->currentViewPort == MAIN_VIEWPORT)
-		{
-			mt_csLeave.Enter();
-			mt_csEnter.Leave();
-			Sleep(0);
-		}
-
-		if (b_is_Active)
-		{
-			if (Begin())
-			{
-
-				seqRender.Process(rp_Render);
-				if ((psDeviceFlags.test(rsCameraPos) || psDeviceFlags.test(rsStatistic) || Statistic->errors.size()) && (Render->currentViewPort == MAIN_VIEWPORT || debugSecondVP))
-					Statistic->Show();
-				// TEST!!!
-				//Statistic->RenderTOTAL_Real.End ();
-				// Present goes here
-				End();
-			}
-		}
-		if (psDeviceFlags.test(rsR4))
-		{
-			Device.dwWidth = t_width;
-			Device.dwHeight = t_height;
-		}
+		mt_csLeave.Enter();
+		mt_csEnter.Leave();
+		Sleep(0);
 	}
 
-	// Restore main vp saved stuff for the needs of new frame
-	if (Device.m_SecondViewport.IsSVPActive())
+	if (b_is_Active)
 	{
-		vCameraPosition_saved = mainVPCamPosSaved;
-		mFullTransform_saved = mainVPFullTrans;
-		mView_saved = mainVPViewSaved;
-		mProject_saved = mainVPProjectSaved;
+		if (Begin())
+		{
+
+			seqRender.Process(rp_Render);
+			Statistic->Show();
+			End();
+			ImGui_EndFrame();
+		}
 	}
 
 	Statistic->RenderTOTAL_Real.End();
@@ -460,23 +363,15 @@ void CRenderDevice::on_idle()
 		}
 	}
 
-	Render->viewPortsThisFrame.clear();
-	if (g_pGameLevel) // reapply camera params as for the main vp, for next frame stuff(we dont want to use last vp camera in next frame possible usages)
-		g_pGameLevel->ApplyCamera();
-
-#ifdef MOVE_CURRENT_FRAME_COUNTR
-	dwFrame += stored_cur_frame;
-#endif
-
 	// *** Suspend threads
 	// Capture startup point
 	// Release end point - allow thread to wait for startup point
-	mt_csEnter.Enter();
-	mt_csLeave.Leave();
-#ifndef DEDICATED_SERVER
-	End();
-	ImGui_EndFrame();
-#endif // #ifndef DEDICATED_SERVER
+	if (!g_dedicated_server)
+	{
+		mt_csEnter.Enter();
+		mt_csLeave.Leave();
+	}
+
 	// Ensure, that second thread gets chance to execute anyway
 	if (dwFrame != mt_Thread_marker) {
 		for (u32 pit = 0; pit < Device.seqParallel.size(); pit++)
@@ -777,16 +672,4 @@ void CLoadScreenRenderer::stop()
 void CLoadScreenRenderer::OnRender()
 {
 	pApp->load_draw_internal();
-}
-
-void CSecondVPParams::SetSVPActive(bool bState) //--#SM+#-- +SecondVP+
-{
-	isActive = bState;
-	if (g_pGamePersistent != NULL)
-		g_pGamePersistent->m_pGShaderConstants->m_blender_mode.z = (isActive ? 1.0f : 0.0f);
-}
-
-bool CSecondVPParams::IsSVPFrame() //--#SM+#-- +SecondVP+
-{
-	return (Device.dwFrame % GetSVPFrameDelay() == 0);
 }

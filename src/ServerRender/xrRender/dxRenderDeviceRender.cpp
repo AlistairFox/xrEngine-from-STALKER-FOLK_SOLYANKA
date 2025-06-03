@@ -353,8 +353,7 @@ void dxRenderDeviceRender::End()
 	RCache.OnFrameEnd	();
 	//Memory.dbg_check		();
 
-	if (RImplementation.currentViewPort == MAIN_VIEWPORT)
-		DoAsyncScreenshot();
+	DoAsyncScreenshot();
 
 #if defined(USE_DX10) || defined(USE_DX11)
 	if (RImplementation.needPresenting) //--#SM+#-- +SecondVP+        
@@ -364,9 +363,8 @@ void dxRenderDeviceRender::End()
 	}
 #else	//	USE_DX10
 	CHK_DX				(HW.pDevice->EndScene());
-
-	if (RImplementation.needPresenting) //--#SM+#-- +SecondVP+        
-		HW.pDevice->Present(NULL, NULL, NULL, NULL);
+  
+	HW.pDevice->Present(NULL, NULL, NULL, NULL);
 #endif	//	USE_DX10
 	//HRESULT _hr		= HW.pDevice->Present( NULL, NULL, NULL, NULL );
 	//if				(D3DERR_DEVICELOST==_hr)	return;			// we will handle this later

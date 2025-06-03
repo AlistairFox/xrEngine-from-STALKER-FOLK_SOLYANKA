@@ -12,25 +12,6 @@
 #include "stats_manager.h"
 #endif
 
-enum ViewPort;
-
-struct HWViewPortRTZB
-{
-	HWViewPortRTZB()
-	{
-		baseRT = nullptr;
-		baseZB = nullptr;
-		pDepthStencil = nullptr;
-		pBaseDepthReadSRV = nullptr;
-	};
-	ID3D11RenderTargetView* baseRT;	//	combine with DX9 pBaseRT via typedef
-	ID3D11DepthStencilView* baseZB;
-	ID3DTexture2D* pDepthStencil;
-	ID3DShaderResourceView* pBaseDepthReadSRV;
-};
-
-
-
 
 class  CHW
 
@@ -53,8 +34,6 @@ class  CHW
 
 		void					Reset(HWND hw);
 
-		void					SwitchVP(ViewPort vp);
-
 		void					selectResolution(u32& dwWidth, u32& dwHeight, BOOL bWindowed);
 		u32						selectPresentInterval();
 		u32						selectGPU();
@@ -62,11 +41,6 @@ class  CHW
 
 
 		void	Validate(void) {};
-
-	public:
-		ViewPort				storedVP;
-		xr_map<ViewPort, HWViewPortRTZB> viewPortsRTZB;
-
 
 		//	Variables section
 		public:

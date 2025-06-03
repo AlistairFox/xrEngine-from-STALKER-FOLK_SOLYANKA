@@ -54,18 +54,6 @@ void dxRenderDeviceRender::DestroyHW()
 	HW.DestroyDevice			();
 }
 
-void dxRenderDeviceRender::SwitchViewPortRTZB(ViewPort vp)
-{
-	/*HW.SwitchVP(vp);
-	if (RImplementation.Target)
-	{
-		// Below are just in case
-		RImplementation.Target->u_setrt(Device.dwWidth, Device.dwHeight, HW.pBaseRT, NULL, NULL, HW.pBaseZB); // Set up HW base as RT and ZB
-		RImplementation.rmNormal(); // Resize viewport as render target
-		RImplementation.Target->SwitchViewPort(vp);
-	}*/
-}
-
 
 
 void  dxRenderDeviceRender::Reset( HWND hWnd, u32 &dwWidth, u32 &dwHeight, float &fWidth_2, float &fHeight_2)
@@ -222,16 +210,11 @@ void dxRenderDeviceRender::End()
 
 	RCache.OnFrameEnd	();
 
-
-	if (RImplementation.currentViewPort == MAIN_VIEWPORT)
-		DoAsyncScreenshot();
+	DoAsyncScreenshot();
 
 
-	if (RImplementation.needPresenting) //--#SM+#-- +SecondVP+        
-	{
-		bool bUseVSync = psDeviceFlags.is(rsFullscreen) && psDeviceFlags.test(rsVSync); // xxx: weird tearing glitches when VSync turned on for windowed mode in DX10\11
-		HW.m_pSwapChain->Present(bUseVSync ? 1 : 0, 0);
-	}
+	bool bUseVSync = psDeviceFlags.is(rsFullscreen) && psDeviceFlags.test(rsVSync); // xxx: weird tearing glitches when VSync turned on for windowed mode in DX10\11
+	HW.m_pSwapChain->Present(bUseVSync ? 1 : 0, 0);
 
 }
 

@@ -42,8 +42,8 @@ void CRender::ScreenshotImpl(ScreenshotMode mode, LPCSTR name, CMemoryWriter* me
 	ID3DResource* pSrcTexture;
 	//HW.pBaseRT->GetResource(&pSrcTexture);
 
-	auto VP = HW.viewPortsRTZB.find(MAIN_VIEWPORT);
-	VP->second.baseRT->GetResource(&pSrcTexture);
+	
+	HW.pBaseRT->GetResource(&pSrcTexture);
 
 	VERIFY(pSrcTexture);
 

@@ -8,7 +8,6 @@
 
 #include "xrSASH.h"
 
-extern ENGINE_API int psSVPFrameDelay;
 
 class ENGINE_API	IConsole_Command
 {

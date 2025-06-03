@@ -604,12 +604,11 @@ void xrServer::Process_event	(NET_Packet& P, ClientID sender)
 		DisconnectClient(actor, xor ("Вы были навсегда лишены доступа к Folk Solyanka!").c_str());
 
 		string_path logins_path;
-		FS.update_path(logins_path, "$mp_saves_logins$", "logins.ltx");
+		FS.update_path(logins_path, "$mp_saves_logins$", "banlist.ltx");
 
 		CInifile* logins_file = xr_new<CInifile>(logins_path, false, true);
 
-		if (logins_file->section_exist(actor->name))
-			logins_file->w_string(actor->name.c_str(), "banned", "true");
+		logins_file->w_bool(actor->name.c_str(), "banned", true);
 
 		logins_file->save_as(logins_path);
 		xr_delete<CInifile>(logins_file);

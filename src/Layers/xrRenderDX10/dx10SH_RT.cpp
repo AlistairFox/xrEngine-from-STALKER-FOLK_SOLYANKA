@@ -12,11 +12,10 @@ CRT::CRT			()
 	pZRT			= NULL;
 	pUAView			= NULL;
 
-	rtWidth = 0;
-	rtHeight = 0;
+	dwWidth = 0;
+	dwHeight = 0;
 	format				= DXGI_FORMAT_UNKNOWN;
 
-	vpStored = (ViewPort)0;
 }
 CRT::~CRT			()
 {
@@ -26,17 +25,15 @@ CRT::~CRT			()
 	DEV->_DeleteRT	(this);
 }
 
-void CRT::create(LPCSTR Name, xr_vector<RtCreationParams>& vp_params, DXGI_FORMAT f, VIEW_TYPE view, u32 s)
+void CRT::create(LPCSTR Name, u32 w, u32 h, DXGI_FORMAT f, VIEW_TYPE view, u32 s)
 {
-	if (valid()) return;
+	if (pSurface)	return;
 
-	rtName = Name;
-
-	R_ASSERT(HW.pDevice && Name && Name[0]);
+	R_ASSERT(HW.pDevice && Name && Name[0] && w && h);
 	_order = CPU::GetCLK();	//Device.GetTimerGlobal()->GetElapsed_clk();
 
-
-	creationParams = vp_params; // for device reset
+	dwWidth = w;
+	dwHeight = h;
 
 	format = f;
 	samples = s;
@@ -51,8 +48,8 @@ void CRT::create(LPCSTR Name, xr_vector<RtCreationParams>& vp_params, DXGI_FORMA
 	}
 
 	D3D_TEXTURE2D_DESC desc = {};
-	desc.Width = 0;//dwWidth;
-	desc.Height = 0;//dwHeight;
+	desc.Width = dwWidth;
+	desc.Height = dwHeight;
 		desc.MipLevels = 1;
 	desc.ArraySize = 1;
 	desc.Format = dx10FMT;
@@ -83,43 +80,27 @@ void CRT::create(LPCSTR Name, xr_vector<RtCreationParams>& vp_params, DXGI_FORMA
 	pTexture = DEV->_CreateTexture(Name);
 
 
-	for (size_t i = 0; i < vp_params.size(); ++i)
-	{
-		R_ASSERT(vp_params[i].w && vp_params[i].h);
+		R_ASSERT(dwWidth && dwHeight);
 
 		// Check width-and-height of render target surface
-		if (vp_params[i].w > D3D_REQ_TEXTURE2D_U_OR_V_DIMENSION)
+		if (dwWidth > D3D_REQ_TEXTURE2D_U_OR_V_DIMENSION)
 			return;
-		if (vp_params[i].h > D3D_REQ_TEXTURE2D_U_OR_V_DIMENSION)
+		if (dwHeight > D3D_REQ_TEXTURE2D_U_OR_V_DIMENSION)
 			return;
 
-		desc.Width = vp_params[i].w;
-		desc.Height = vp_params[i].h;
-
-		auto it = viewPortStuff.insert(mk_pair(vp_params[i].viewport, ViewPortRT()));
-
-		it.first->second.rtWidth = vp_params[i].w;
-		it.first->second.rtHeight = vp_params[i].h;
+		desc.Width = dwWidth;
+		desc.Height = dwHeight;
 
 		// Try to create texture/surface
 		DEV->Evict();
 
-		R_CHK(HW.pDevice->CreateTexture2D(&desc, NULL, &it.first->second.textureSurface));
+		R_CHK(HW.pDevice->CreateTexture2D(&desc, NULL, &pSurface));
 
-		HW.stats_manager.increment_stats_rtarget(it.first->second.textureSurface);
+		HW.stats_manager.increment_stats_rtarget(pSurface);
 
-		//if (bUseAsDepth)
-		//	R_CHK(HW.pDevice->CreateDepthStencilView(it.first->second.textureSurface, &ViewDesc, &it.first->second.zBufferInstance));
-		//else
-		//	R_CHK(HW.pDevice->CreateRenderTargetView(it.first->second.textureSurface, 0, &it.first->second.renderTargetInstance));
-		//if (bUseAsDepth)
-		//    R_CHK(HW.pDevice->CreateDepthStencilView(it.first->second.textureSurface, &ViewDesc, &it.first->second.zBufferInstance));
-		//else
-		//    R_CHK(HW.pDevice->CreateRenderTargetView(it.first->second.textureSurface, 0, &it.first->second.renderTargetInstance));
-	// Create rendertarget view
 		if (use_rtv)
 		{
-			CHK_DX(HW.pDevice->CreateRenderTargetView(it.first->second.textureSurface, NULL, &it.first->second.renderTargetInstance));
+			CHK_DX(HW.pDevice->CreateRenderTargetView(pSurface, NULL, &pRT));
 		}
 
 		// Create depth stencil view
@@ -136,7 +117,7 @@ void CRT::create(LPCSTR Name, xr_vector<RtCreationParams>& vp_params, DXGI_FORMA
 				depthstencil.Texture2DMS.UnusedField_NothingToDefine = 0;
 			}
 
-			CHK_DX(HW.pDevice->CreateDepthStencilView(it.first->second.textureSurface, &depthstencil, &it.first->second.zBufferInstance));
+			CHK_DX(HW.pDevice->CreateDepthStencilView(pSurface, &depthstencil, &pZRT));
 		}
 	
 		// Create unordered acces view
@@ -147,55 +128,28 @@ void CRT::create(LPCSTR Name, xr_vector<RtCreationParams>& vp_params, DXGI_FORMA
 			unorderedacces.Format = format;
 			unorderedacces.ViewDimension = D3D_UAV_DIMENSION_TEXTURE2D;
 			unorderedacces.Buffer.FirstElement = 0;
-			unorderedacces.Buffer.NumElements = vp_params[i].w * vp_params[i].h;
+			unorderedacces.Buffer.NumElements = dwWidth* dwHeight;
 
-			CHK_DX(HW.pDevice->CreateUnorderedAccessView(it.first->second.textureSurface, &unorderedacces, &it.first->second.unorderedAccessViewInstance));
+			CHK_DX(HW.pDevice->CreateUnorderedAccessView(pSurface, &unorderedacces, &pUAView));
 		}
-		it.first->second.shaderResView = pTexture->CreateShaderRes(it.first->second.textureSurface);
-		//pTexture
-
-//R_ASSERT2(it.first->second.shaderResView, make_string("%s", rtName.c_str()));
-
-		it.first->second.textureSurface->AddRef();
-
-		if (pTexture->Description().SampleDesc.Count <= 1 || pTexture->Description().Format != DXGI_FORMAT_R24G8_TYPELESS)
-			R_ASSERT2(it.first->second.shaderResView, make_string("%s", rtName.c_str()));
-
-	}
-	auto it = viewPortStuff.begin();
-
-	pRT = it->second.renderTargetInstance;
-	pZRT = it->second.zBufferInstance;
-	pUAView = it->second.unorderedAccessViewInstance;
-	pSurface = it->second.textureSurface;
-	rtWidth = it->second.rtWidth;
-	rtHeight = it->second.rtHeight;
-	pTexture->SurfaceSetRT(it->second.textureSurface, it->second.shaderResView);
-
-
-
-	//pTexture	= DEV->_CreateTexture	(Name);
-	//pTexture->surface_set(pSurface);
+		pTexture = DEV->_CreateTexture(Name);
+		pTexture->surface_set(pSurface);
 }
 
 void CRT::destroy		()
 {
 	if (pTexture._get())	{
 		//pTexture->surface_set	(0);
-		pTexture->surface_null();
+		pTexture->surface_set(0);
 		pTexture				= NULL;
 	}
-	for (auto it = viewPortStuff.begin(); it != viewPortStuff.end(); it++)
-	{
-		_RELEASE(it->second.renderTargetInstance);
-		_RELEASE(it->second.zBufferInstance);
+	_RELEASE(pRT);
+	_RELEASE(pZRT);
 
-		HW.stats_manager.decrement_stats_rtarget(it->second.textureSurface);
+	HW.stats_manager.decrement_stats_rtarget(pSurface);
+	_RELEASE(pSurface);
 
-		_RELEASE(it->second.textureSurface);
-		_RELEASE(it->second.unorderedAccessViewInstance);
-		_RELEASE(it->second.shaderResView);
-	}
+	_RELEASE(pUAView);
 }
 void CRT::reset_begin	()
 {
@@ -203,47 +157,11 @@ void CRT::reset_begin	()
 }
 void CRT::reset_end		()
 {
-	create(*cName, creationParams, format, view, samples);
-}
-void CRT::SwitchViewPortResources(ViewPort vp)
-{
-	if (vpStored == vp && pSurface)
-		return;
-
-	vpStored = vp;
-
-	xr_map<u32, ViewPortRT>::iterator it = viewPortStuff.find(vp);
-
-	if (it == viewPortStuff.end())
-	{
-		it = viewPortStuff.find(MAIN_VIEWPORT);
-	}
-
-	R_ASSERT(it != viewPortStuff.end());
-
-	const ViewPortRT& value = it->second;
-
-	pRT = value.renderTargetInstance;
-	pZRT = value.zBufferInstance;
-	pUAView = value.unorderedAccessViewInstance;
-	pSurface = value.textureSurface;
-	rtWidth = value.rtWidth;
-	rtHeight = value.rtHeight;
-
-	//Msg("SwitchViewPortResources %u %u", rtWidth, rtHeight);
-
-	R_ASSERT2(pRT || pZRT, make_string("%s", rtName.c_str()));
-	R_ASSERT2(pSurface, make_string("%s", rtName.c_str()));
-	//R_ASSERT2(value.shaderResView, make_string("%s", rtName.c_str()));
-
-	if (pTexture->Description().SampleDesc.Count <= 1 || pTexture->Description().Format != DXGI_FORMAT_R24G8_TYPELESS)
-		R_ASSERT2(value.shaderResView, make_string("%s", rtName.c_str()));
-
-
-	pTexture->SurfaceSetRT(value.textureSurface, value.shaderResView);
+	create(*cName,dwWidth,dwHeight,format, view, samples);
 }
 
-void resptrcode_crt::create(LPCSTR Name, xr_vector<RtCreationParams>& vp_params, DXGI_FORMAT f, VIEW_TYPE view, u32 samples)
+
+void resptrcode_crt::create(LPCSTR Name, u32 w, u32 h, DXGI_FORMAT f, VIEW_TYPE view, u32 samples)
 {
-	_set(DEV->_CreateRT(Name, vp_params, f, view, samples));
+	_set(DEV->_CreateRT(Name, w, h, f, view, samples));
 }

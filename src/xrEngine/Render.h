@@ -151,12 +151,6 @@ public:
 	virtual ~IRender_Target() {};
 };
 
-enum ViewPort
-{
-	MAIN_VIEWPORT = (1 << 1),
-	SECONDARY_WEAPON_SCOPE = (1 << 2),
-};
-
 //////////////////////////////////////////////////////////////////////////
 // definition (Renderer)
 class	ENGINE_API	IRender_interface
@@ -299,9 +293,6 @@ public:
 	virtual void					Render() = 0;
 
 
-	// [FFT++]
-	virtual void					BeforeWorldRender() = 0; //--#SM+#--   
-	virtual void					AfterWorldRender() = 0; //--#SM+#--    ( UI)
 
 	virtual void					Screenshot(ScreenshotMode mode = SM_NORMAL, LPCSTR name = 0) = 0;
 	virtual	void					Screenshot(ScreenshotMode mode, CMemoryWriter& memory_writer) = 0;
@@ -316,14 +307,6 @@ public:
 
 	virtual void PdaRenderToTarget() = 0;
 	virtual							u32 active_phase() = 0;
-
-	ViewPort currentViewPort;
-	ViewPort firstViewPort;
-	ViewPort lastViewPort;
-
-	xr_vector<ViewPort> viewPortsThisFrame;
-
-	bool needPresenting;
 
 
 	// Constructor/destructor

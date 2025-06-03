@@ -48,7 +48,6 @@ public:
 	IBlender*					b_accum_reflected_msaa[8];
 	IBlender*					b_ssao;
 	IBlender*					b_ssao_msaa[8];
-	IBlender* b_cut;
 	IBlender*					b_hud_blood;
 	IBlender*					b_hud_power;
 	IBlender*					b_hud_bleeding;
@@ -87,9 +86,6 @@ public:
 	ref_rt						rt_Normal;			// 64bit,	fat	(x,y,z,hemi)			(eye-space)
 	ref_rt						rt_Color;			// 64/32bit,fat	(r,g,b,specular-gloss)	(or decompressed MET-8-8-8-8)
 
-	ref_rt                      rt_temp;
-	ref_rt                      rt_temp_without_samples;
-
 
 	// 
 	ref_rt						rt_Accumulator;		// 64bit		(r,g,b,specular)
@@ -99,8 +95,6 @@ public:
 	ref_rt						rt_Generic_0;		// 32bit		(r,g,b,a)				// post-process, intermidiate results, etc.
 	ref_rt						rt_Generic_1;		// 32bit		(r,g,b,a)				// post-process, intermidiate results, etc.
 
-		//  Second viewport
-	ref_rt						rt_secondVP;		// 32bit		(r,g,b,a) --//#SM+#-- +SecondVP+
 
 	// Viewports
 	ref_rt						rt_ui_pda;
@@ -207,8 +201,6 @@ private:
 	ref_shader					s_accum_reflected;
 	ref_shader					s_accum_volume;
 	
-
-	ref_shader					s_cut;
 	ref_shader					s_blur;
 
 	//	generate min/max
@@ -333,7 +325,6 @@ public:
 	void						phase_hud_blood();
 	void						phase_hud_power();
 	void						phase_hud_bleeding();
-	void						phase_hud_mask();
 	void						phase_hud_satiety();
 	void						phase_hud_thirst();
 	void						phase_lfx(int i);
@@ -355,12 +346,9 @@ public:
 	void						phase_smap_spot_tsh		(light* L);
 	void						phase_accumulator		();
 	void						phase_vol_accumulator	();
-	void 						PhaseRainDrops();
 	void						phase_gasmask_drops();
 	void						phase_gasmask_dudv();
 
-	void						phase_cut();
-	void						SwitchViewPort(ViewPort vp);
 
 
 	//	Generates min/max sm

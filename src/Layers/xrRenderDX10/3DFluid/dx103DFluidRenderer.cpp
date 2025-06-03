@@ -547,12 +547,12 @@ void dx103DFluidRenderer::CreateRayDataResources( int width, int height )
 	*/
 
 	RT[0] = nullptr;
-	RT[0].create(m_pRTNames[0], RtCreationParams(width, height, MAIN_VIEWPORT), RTFormats[0], SRV_RTV);
+	RT[0].create(m_pRTNames[0], width, height, RTFormats[0], SRV_RTV, 1);
 
 	for (int i=1; i<RRT_NumRT; ++i)
 	{
 		RT[i] = 0;
-		RT[i].create(m_pRTNames[i], RtCreationParams(m_iRenderTextureWidth, m_iRenderTextureHeight, MAIN_VIEWPORT), RTFormats[i], SRV_RTV);
+		RT[i].create( m_pRTNames[i], m_iRenderTextureWidth, m_iRenderTextureHeight, RTFormats[i], SRV_RTV, 1);
 	}
 }
 

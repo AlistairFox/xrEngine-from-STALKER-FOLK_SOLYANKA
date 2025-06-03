@@ -134,13 +134,8 @@ public:
 	void							_DeleteInputSignature(const SInputSignature* pSignature);
 #endif	//	USE_DX10
 
-#ifdef USE_DX11
-	CRT* _CreateRT(LPCSTR name, xr_vector<RtCreationParams>& vp_params, DXGI_FORMAT f, VIEW_TYPE view, u32 samples);
-#elif USE_DX10
-	CRT* _CreateRT(LPCSTR Name, xr_vector<RtCreationParams>& vp_params, D3DFORMAT f, u32 SampleCount = 1);
-#else
+
 	CRT* _CreateRT(LPCSTR Name, u32 w, u32 h, D3DFORMAT f, u32 SampleCount = 1);
-#endif
 	void							_DeleteRT			(const CRT*	RT	);
 #if defined (USE_DX11) || defined (USE_DX10)
 	const	map_RT& GetRTList() const { return m_rtargets; };

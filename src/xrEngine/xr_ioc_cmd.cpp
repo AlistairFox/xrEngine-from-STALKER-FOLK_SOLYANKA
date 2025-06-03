@@ -634,7 +634,6 @@ extern Flags32		psEnvFlags;
 
 extern int simulate_netwark_ping;
 extern int simulate_netwark_ping_cl;
-ENGINE_API int psSVPFrameDelay = 3;
 
 //extern float		r__dtex_range;
 
@@ -762,8 +761,6 @@ extern int gAlvaysActive = 0;
 
 extern int block_30FPS	 = 0;
 
-ENGINE_API BOOL debugSecondVP = FALSE;
-ENGINE_API float psSVPImageSizeK = 0.7f;
 void CCC_Register()
 {	 
 	CMD4(CCC_Integer, "r__block_30FPS", &block_30FPS, 0, 1);
@@ -778,9 +775,6 @@ void CCC_Register()
 
  	CMD4(CCC_Float, "r__nearplane", &VIEWPORT_NEAR, 0.05f, 1.0f);
 
-	CMD4(CCC_Integer, "svp_frame_delay", &psSVPFrameDelay, 0, 5);
-	CMD4(CCC_Integer, "rs_debug_second_vp", &debugSecondVP, FALSE, TRUE);
-	CMD4(CCC_Float, "svp_image_size_k", &psSVPImageSizeK, 0.1f, 2.f);
 	// General
 	CMD1(CCC_Help,		"help"					);
 	CMD1(CCC_Quit,		"quit"					);

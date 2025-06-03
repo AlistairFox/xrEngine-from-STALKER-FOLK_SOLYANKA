@@ -21,7 +21,6 @@
 #include "blender_hud_thirst.h"
 #include "blender_lens_flares.h"
 #include "blender_ss_sunshafts.h"
-#include "blender_cut.h"
 #include "blender_blur.h"
 
 #include "../xrRender/dxRenderDeviceRender.h"
@@ -30,15 +29,14 @@
 #include "blender_gasmask_drops.h"
 #include "blender_gasmask_dudv.h"
 
-extern ENGINE_API float psSVPImageSizeK;
 
 void	CRenderTarget::u_setrt			(const ref_rt& _1, const ref_rt& _2, const ref_rt& _3, ID3DDepthStencilView* zb)
 {
 	VERIFY									(_1||zb);
 	if (_1)
 	{
-		dwWidth = _1->RTWidth();
-		dwHeight = _1->RTHeight();
+		dwWidth = _1->dwWidth;
+		dwHeight = _1->dwHeight;
 	}
 	else
 	{
@@ -84,8 +82,8 @@ void	CRenderTarget::u_setrt			(const ref_rt& _1, const ref_rt& _2, ID3DDepthSten
 	VERIFY									(_1||zb);
 	if (_1)
 	{
-		dwWidth = _1->RTWidth();
-		dwHeight = _1->RTHeight();
+		dwWidth = _1->dwWidth;
+		dwHeight = _1->dwHeight;
 	}
 	else
 	{
@@ -322,7 +320,6 @@ CRenderTarget::CRenderTarget		()
 	dxRenderDeviceRender::Instance().Resources->Evict			();
 
 	// Blenders
-	b_cut = xr_new<CBlender_cut>(); //New
 	b_occq					= xr_new<CBlender_light_occq>			();
 	b_accum_mask			= xr_new<CBlender_accum_direct_mask>	();
 	b_accum_direct			= xr_new<CBlender_accum_direct>			();
@@ -408,24 +405,21 @@ CRenderTarget::CRenderTarget		()
 	//	NORMAL
 	{
 		u32		w=Device.dwWidth, h=Device.dwHeight;
-		xr_vector<RtCreationParams> vp_params_main_secondary;
-		vp_params_main_secondary.push_back(RtCreationParams(w, h, MAIN_VIEWPORT));
-		vp_params_main_secondary.push_back(RtCreationParams(Device.m_SecondViewport.screenWidth, Device.m_SecondViewport.screenHeight, SECONDARY_WEAPON_SCOPE));
 
-		rt_Position.create(r2_RT_P, vp_params_main_secondary, DXGI_FORMAT_R16G16B16A16_FLOAT, SRV_RTV, SampleCount);
+		rt_Position.create(r2_RT_P, w,h, DXGI_FORMAT_R16G16B16A16_FLOAT, SRV_RTV, SampleCount);
 
 		if( RImplementation.o.dx10_msaa )
-			rt_MSAADepth.create(r2_RT_MSAAdepth, vp_params_main_secondary, DXGI_FORMAT_D24_UNORM_S8_UINT, SRV_DSV, SampleCount);
+			rt_MSAADepth.create(r2_RT_MSAAdepth, w,h, DXGI_FORMAT_D24_UNORM_S8_UINT, SRV_DSV, SampleCount);
 
 		if( !RImplementation.o.dx10_gbuffer_opt )
-			rt_Normal.create(r2_RT_N, vp_params_main_secondary, DXGI_FORMAT_R16G16B16A16_FLOAT, SRV_RTV, SampleCount);
+			rt_Normal.create(r2_RT_N, w,h, DXGI_FORMAT_R16G16B16A16_FLOAT, SRV_RTV, SampleCount);
 
 		// select albedo & accum
 		//if (RImplementation.o.mrtmixdepth)	
 		{
 			// NV50
-			rt_Color.create(r2_RT_albedo, vp_params_main_secondary, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, SampleCount);
-			rt_Accumulator.create(r2_RT_accum, vp_params_main_secondary,  DXGI_FORMAT_R16G16B16A16_FLOAT, SRV_RTV, SampleCount);
+			rt_Color.create(r2_RT_albedo, w,h, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, SampleCount);
+			rt_Accumulator.create(r2_RT_accum, w,h,  DXGI_FORMAT_R16G16B16A16_FLOAT, SRV_RTV, SampleCount);
 		}
 		/*else
 		{
@@ -452,48 +446,47 @@ CRenderTarget::CRenderTarget		()
 		}*/
 
 		// generic(LDR) RTs
-		rt_Generic_0.create(r2_RT_generic0, vp_params_main_secondary, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
-		rt_Generic_1.create(r2_RT_generic1, vp_params_main_secondary, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
-		rt_secondVP.create(r2_RT_secondVP, RtCreationParams(Device.m_SecondViewport.screenWidth, Device.m_SecondViewport.screenHeight, MAIN_VIEWPORT), DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1); //--#SM+#-- +SecondVP+
-		rt_ui_pda.create(r2_RT_ui, vp_params_main_secondary, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV);
+		rt_Generic_0.create(r2_RT_generic0, w,h, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
+		rt_Generic_1.create(r2_RT_generic1, w,h, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
+		rt_ui_pda.create(r2_RT_ui, w,h, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
 
 		// RT Blur
-		rt_blur_h_2.create(r2_RT_blur_h_2, RtCreationParams(Device.dwWidth /2, Device.dwHeight /2, MAIN_VIEWPORT), DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
-		rt_blur_2.create(r2_RT_blur_2, RtCreationParams(Device.dwWidth / 2, Device.dwHeight / 2, MAIN_VIEWPORT), DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
+		rt_blur_h_2.create(r2_RT_blur_h_2, w/2,h/2, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
+		rt_blur_2.create(r2_RT_blur_2, w/2,h/2, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
 
-		rt_blur_h_4.create(r2_RT_blur_h_4, RtCreationParams(Device.dwWidth / 4, Device.dwHeight / 4, MAIN_VIEWPORT), DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
-		rt_blur_4.create(r2_RT_blur_4, RtCreationParams(Device.dwWidth / 4, Device.dwHeight / 4, MAIN_VIEWPORT), DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
+		rt_blur_h_4.create(r2_RT_blur_h_4, w/4,h/4, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
+		rt_blur_4.create(r2_RT_blur_4, w/4,h/4, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
 
-		rt_blur_h_8.create(r2_RT_blur_h_8, RtCreationParams(Device.dwWidth / 8, Device.dwHeight / 8, MAIN_VIEWPORT), DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
-		rt_blur_8.create(r2_RT_blur_8, RtCreationParams(Device.dwWidth / 8, Device.dwHeight / 8, MAIN_VIEWPORT), DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
+		rt_blur_h_8.create(r2_RT_blur_h_8, w/8,h/8, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
+		rt_blur_8.create(r2_RT_blur_8, w/8,h/8, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
 
 		// Screen Space Shaders Stuff
-		rt_ssfx.create(r2_RT_ssfx, vp_params_main_secondary, DXGI_FORMAT_B8G8R8A8_UNORM, SRV_RTV); // Generic RT
-		rt_ssfx_temp.create(r2_RT_ssfx_temp, vp_params_main_secondary, DXGI_FORMAT_B8G8R8A8_UNORM, SRV_RTV); // Temp RT
-		rt_ssfx_temp2.create(r2_RT_ssfx_temp2, vp_params_main_secondary, DXGI_FORMAT_B8G8R8A8_UNORM, SRV_RTV); // Temp RT 8B
-		rt_ssfx_accum.create(r2_RT_ssfx_accum, vp_params_main_secondary, DXGI_FORMAT_R16G16B16A16_FLOAT,SRV_RTV, SampleCount); // Temp RT 16B
+		rt_ssfx.create(r2_RT_ssfx, w,h, DXGI_FORMAT_B8G8R8A8_UNORM, SRV_RTV,1); // Generic RT
+		rt_ssfx_temp.create(r2_RT_ssfx_temp, w,h, DXGI_FORMAT_B8G8R8A8_UNORM, SRV_RTV, 1); // Temp RT
+		rt_ssfx_temp2.create(r2_RT_ssfx_temp2, w,h, DXGI_FORMAT_B8G8R8A8_UNORM, SRV_RTV, 1); // Temp RT 8B
+		rt_ssfx_accum.create(r2_RT_ssfx_accum, w,h, DXGI_FORMAT_R16G16B16A16_FLOAT,SRV_RTV, SampleCount); // Temp RT 16B
 
-		rt_ssfx_hud.create(r2_RT_ssfx_hud, vp_params_main_secondary, DXGI_FORMAT_R8_UNORM, SRV_RTV); // Temp RT 8B
+		rt_ssfx_hud.create(r2_RT_ssfx_hud, w,h, DXGI_FORMAT_R8_UNORM, SRV_RTV, 1); // Temp RT 8B
 
 		if (RImplementation.o.dx10_msaa)
-			rt_Generic_temp.create("$user$generic_temp", vp_params_main_secondary, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, SampleCount);
+			rt_Generic_temp.create("$user$generic_temp", w,h, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, SampleCount);
 		else
-			rt_Generic_temp.create("$user$generic_temp", vp_params_main_secondary, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
+			rt_Generic_temp.create("$user$generic_temp", w,h, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
 
 		if( RImplementation.o.dx10_msaa )
 		{
-			rt_Generic_0_r.create(r2_RT_generic0_r, vp_params_main_secondary, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, SampleCount);
-			rt_Generic_1_r.create(r2_RT_generic1_r, vp_params_main_secondary, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, SampleCount);
-			rt_Generic.create(r2_RT_generic, vp_params_main_secondary, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
+			rt_Generic_0_r.create(r2_RT_generic0_r, w,h, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, SampleCount);
+			rt_Generic_1_r.create(r2_RT_generic1_r, w,h, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, SampleCount);
+			rt_Generic.create(r2_RT_generic, w,h, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
 		}
 
 		// RT - KD
-		rt_sunshafts_0.create(r2_RT_sunshafts0, vp_params_main_secondary, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV);
-		rt_sunshafts_1.create(r2_RT_sunshafts1, vp_params_main_secondary, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV);
+		rt_sunshafts_0.create(r2_RT_sunshafts0, w,h, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
+		rt_sunshafts_1.create(r2_RT_sunshafts1, w,h, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
 
-		rt_Generic.create(r2_RT_generic, vp_params_main_secondary, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
+		rt_Generic.create(r2_RT_generic, w,h, DXGI_FORMAT_R8G8B8A8_UNORM, SRV_RTV, 1);
 
-		rt_Generic_2.create			(r2_RT_generic2, vp_params_main_secondary, DXGI_FORMAT_R16G16B16A16_FLOAT, SRV_RTV, SampleCount );
+		rt_Generic_2.create			(r2_RT_generic2, w,h, DXGI_FORMAT_R16G16B16A16_FLOAT, SRV_RTV, SampleCount );
 	}
 
 	s_sunshafts.create(b_sunshafts, "r2\\sunshafts");
@@ -535,11 +528,11 @@ CRenderTarget::CRenderTarget		()
 	{
 
 		u32	size					=RImplementation.o.smapsize	;
-		rt_smap_depth.create(r2_RT_smap_depth, RtCreationParams(size, size, MAIN_VIEWPORT), depth_format, SRV_DSV);
+		rt_smap_depth.create(r2_RT_smap_depth, size, size, depth_format, SRV_DSV, 1);
 
 		if (RImplementation.o.dx10_minmax_sm)
 		{
-			rt_smap_depth_minmax.create(r2_RT_smap_depth_minmax, RtCreationParams(size / 4, size / 4, MAIN_VIEWPORT), DXGI_FORMAT_D32_FLOAT, SRV_DSV);
+			rt_smap_depth_minmax.create(r2_RT_smap_depth_minmax, size/4, size/4, DXGI_FORMAT_D32_FLOAT, SRV_DSV, 1);
 			CBlender_createminmax TempBlender;
 			s_create_minmax_sm.create( &TempBlender, "null" );
 		}
@@ -674,9 +667,6 @@ CRenderTarget::CRenderTarget		()
 		}
 	}
 
-	{
-		s_cut.create(b_cut, "r4\\cut");
-	}
 
 	// BLOOM
 	{
@@ -684,8 +674,8 @@ CRenderTarget::CRenderTarget		()
 		u32	w=BLOOM_size_X, h=BLOOM_size_Y;
 		u32 fvf_build				= D3DFVF_XYZRHW|D3DFVF_TEX4|D3DFVF_TEXCOORDSIZE2(0)|D3DFVF_TEXCOORDSIZE2(1)|D3DFVF_TEXCOORDSIZE2(2)|D3DFVF_TEXCOORDSIZE2(3);
 		u32 fvf_filter				= (u32)D3DFVF_XYZRHW|D3DFVF_TEX8|D3DFVF_TEXCOORDSIZE4(0)|D3DFVF_TEXCOORDSIZE4(1)|D3DFVF_TEXCOORDSIZE4(2)|D3DFVF_TEXCOORDSIZE4(3)|D3DFVF_TEXCOORDSIZE4(4)|D3DFVF_TEXCOORDSIZE4(5)|D3DFVF_TEXCOORDSIZE4(6)|D3DFVF_TEXCOORDSIZE4(7);
-		rt_Bloom_1.create(r2_RT_bloom1, RtCreationParams(w, h, MAIN_VIEWPORT), fmt, SRV_RTV);
-		rt_Bloom_2.create(r2_RT_bloom2, RtCreationParams(w, h, MAIN_VIEWPORT), fmt, SRV_RTV);
+		rt_Bloom_1.create(r2_RT_bloom1, w,h, fmt, SRV_RTV, 1);
+		rt_Bloom_2.create(r2_RT_bloom2, w, h, fmt, SRV_RTV, 1);
 		g_bloom_build.create		(fvf_build,		RCache.Vertex.Buffer(), RCache.QuadIB);
 		g_bloom_filter.create		(fvf_filter,	RCache.Vertex.Buffer(), RCache.QuadIB);
 		s_bloom_dbg_1.create		("effects\\screen_set",		r2_RT_bloom1);
@@ -699,16 +689,11 @@ CRenderTarget::CRenderTarget		()
 		f_bloom_factor				= 0.5f;
 	}
 
-	{
-		rt_temp.create(r2_RT_temp, RtCreationParams(Device.dwWidth, Device.dwHeight, MAIN_VIEWPORT), RtCreationParams(Device.m_SecondViewport.screenWidth, Device.m_SecondViewport.screenHeight, SECONDARY_WEAPON_SCOPE), DXGI_FORMAT::DXGI_FORMAT_R16G16B16A16_FLOAT,SRV_RTV ,SampleCount);
-		rt_temp_without_samples.create(r2_RT_temp_without_samples, RtCreationParams(Device.dwWidth, Device.dwHeight, MAIN_VIEWPORT), RtCreationParams(Device.m_SecondViewport.screenWidth, Device.m_SecondViewport.screenHeight, SECONDARY_WEAPON_SCOPE), DXGI_FORMAT::DXGI_FORMAT_R16G16B16A16_FLOAT, SRV_RTV);
-	}
-
 
 	// TONEMAP
 	{
-		rt_LUM_64.create(r2_RT_luminance_t64, RtCreationParams(64, 64, MAIN_VIEWPORT), DXGI_FORMAT_R16G16B16A16_FLOAT, SRV_RTV);
-		rt_LUM_8.create(r2_RT_luminance_t8, RtCreationParams(8, 8, MAIN_VIEWPORT), DXGI_FORMAT_R16G16B16A16_FLOAT, SRV_RTV);
+		rt_LUM_64.create(r2_RT_luminance_t64, 64, 64, DXGI_FORMAT_R16G16B16A16_FLOAT, SRV_RTV, 1);
+		rt_LUM_8.create(r2_RT_luminance_t8, 8, 8, DXGI_FORMAT_R16G16B16A16_FLOAT, SRV_RTV, 1);
 		s_luminance.create			(b_luminance,				"r2\\luminance");
 		f_luminance_adapt			= 0.5f;
 
@@ -719,7 +704,7 @@ CRenderTarget::CRenderTarget		()
 		for (u32 it=0; it<HW.Caps.iGPUNum*2; it++)	{
 			string256					name;
 			xr_sprintf						(name,"%s_%d",	r2_RT_luminance_pool,it	);
-			rt_LUM_pool[it].create(name, RtCreationParams(1, 1, MAIN_VIEWPORT), DXGI_FORMAT_R32_FLOAT, SRV_RTV);
+			rt_LUM_pool[it].create(name, 1, 1, DXGI_FORMAT_R32_FLOAT, SRV_RTV, 1);
 			//u_setrt						(rt_LUM_pool[it],	0,	0,	0			);
 			//CHK_DX						(HW.pDevice->Clear( 0L, NULL, D3DCLEAR_TARGET,	0x7f7f7f7f,	1.0f, 0L));
 			FLOAT ColorRGBA[4] = { 127.0f/255.0f, 127.0f/255.0f, 127.0f/255.0f, 127.0f/255.0f};
@@ -750,7 +735,7 @@ CRenderTarget::CRenderTarget		()
 		}
 
 		DXGI_FORMAT	fmt = DXGI_FORMAT_D32_FLOAT;
-		rt_half_depth.create(r2_RT_half_depth, RtCreationParams(w, h, MAIN_VIEWPORT), RtCreationParams(u32(w * psSVPImageSizeK), u32(h * psSVPImageSizeK), SECONDARY_WEAPON_SCOPE), fmt, SRV_DSV);
+		rt_half_depth.create(r2_RT_half_depth, w, h, fmt, SRV_DSV, 1);
 
 		s_ssao.create				(b_ssao, "r2\\ssao");
 	}
@@ -776,14 +761,14 @@ CRenderTarget::CRenderTarget		()
 	if (RImplementation.o.hbao_plus)
 	{
 		u32		w = Device.dwWidth, h = Device.dwHeight;
-		rt_ssao_temp.create(r2_RT_ssao_temp, RtCreationParams(w, h, MAIN_VIEWPORT), RtCreationParams(Device.m_SecondViewport.screenWidth, Device.m_SecondViewport.screenHeight, SECONDARY_WEAPON_SCOPE), DXGI_FORMAT_R16_FLOAT, SRV_RTV);
-		rt_HBAO_plus_normal.create(r2_RT_HBAO_plus_normal, RtCreationParams(w, h, MAIN_VIEWPORT), RtCreationParams(Device.m_SecondViewport.screenWidth, Device.m_SecondViewport.screenHeight, SECONDARY_WEAPON_SCOPE), DXGI_FORMAT_R16G16B16A16_SNORM,SRV_RTV);
+		rt_ssao_temp.create(r2_RT_ssao_temp, w, h, DXGI_FORMAT_R16_FLOAT, SRV_RTV, 1);
+		rt_HBAO_plus_normal.create(r2_RT_HBAO_plus_normal, w, h, DXGI_FORMAT_R16G16B16A16_SNORM,SRV_RTV, 1);
 	}
 	else
 	if( RImplementation.o.ssao_hdao && RImplementation.o.ssao_ultra)
 	{
 		u32		w = Device.dwWidth, h = Device.dwHeight;
-		rt_ssao_temp.create(r2_RT_ssao_temp, RtCreationParams(w, h, MAIN_VIEWPORT), RtCreationParams(Device.m_SecondViewport.screenWidth, Device.m_SecondViewport.screenHeight, SECONDARY_WEAPON_SCOPE), DXGI_FORMAT_R16_FLOAT, SRV_RTV);
+		rt_ssao_temp.create(r2_RT_ssao_temp, w, h, DXGI_FORMAT_R16_FLOAT, SRV_RTV, 1);
 		s_hdao_cs.create			(b_hdao_cs, "r2\\ssao");
 		if( RImplementation.o.dx10_msaa )
 		{
@@ -1196,7 +1181,6 @@ CRenderTarget::~CRenderTarget	()
 	  }
    }
 	xr_delete					(b_accum_mask			);
-	xr_delete(b_cut);
 	xr_delete					(b_occq					);
 	xr_delete					(b_hdao_cs				);
 	if( RImplementation.o.dx10_msaa )
@@ -1279,12 +1263,4 @@ bool CRenderTarget::use_minmax_sm_this_frame()
 		return false;
 	}
 
-}
-
-void CRenderTarget::SwitchViewPort(ViewPort vp)
-{
-	const CResourceManager::map_RT& rtlist = DEV->GetRTList();
-
-	for (CResourceManager::map_RT::const_iterator rt_it = rtlist.begin(); rt_it != rtlist.end(); rt_it++)
-		rt_it->second->SwitchViewPortResources(vp);
 }

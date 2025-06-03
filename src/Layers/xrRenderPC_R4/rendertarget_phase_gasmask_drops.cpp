@@ -2,9 +2,6 @@
 
 void CRenderTarget::phase_gasmask_drops()
 {
-	if (RImplementation.currentViewPort == SECONDARY_WEAPON_SCOPE)
-		return;
-
 	Fvector3 Params = g_pGamePersistent->GetRainDropsParams();
 	float HudGlassElement = g_pGamePersistent->GetHudGlassElement();
 	//Constants

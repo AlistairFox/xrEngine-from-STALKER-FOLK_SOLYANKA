@@ -2,8 +2,6 @@
 
 void CRenderTarget::phase_hud_blood()
 {
-	if (RImplementation.currentViewPort == SECONDARY_WEAPON_SCOPE)
-		return;
 	u32			Offset = 0;
 	Fvector2	p0, p1;
 
@@ -56,9 +54,6 @@ void CRenderTarget::phase_hud_blood()
 
 void CRenderTarget::phase_hud_power()
 {
-
-	if (RImplementation.currentViewPort == SECONDARY_WEAPON_SCOPE)
-		return;
 
 	u32			Offset = 0;
 	Fvector2	p0, p1;
@@ -114,8 +109,6 @@ void CRenderTarget::phase_hud_power()
 
 void CRenderTarget::phase_hud_bleeding()
 {
-	if (RImplementation.currentViewPort == SECONDARY_WEAPON_SCOPE)
-		return;
 	u32			Offset = 0;
 	Fvector2	p0, p1;
 
@@ -166,8 +159,6 @@ void CRenderTarget::phase_hud_bleeding()
 
 void CRenderTarget::phase_hud_satiety()
 {
-	if (RImplementation.currentViewPort == SECONDARY_WEAPON_SCOPE)
-		return;
 	u32			Offset = 0;
 	Fvector2	p0, p1;
 
@@ -226,8 +217,6 @@ void CRenderTarget::phase_hud_thirst()
 	if (1)
 		return;
 
-	if (RImplementation.currentViewPort == SECONDARY_WEAPON_SCOPE)
-		return;
 	u32			Offset = 0;
 	Fvector2	p0, p1;
 

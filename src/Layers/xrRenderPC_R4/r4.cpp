@@ -954,6 +954,18 @@ public:
 	}
 };
 
+CRender::SurfaceParams CRender::getSurface(const char* nameTexture)
+{
+	auto texture = DEV->_CreateTexture(nameTexture);
+
+	SurfaceParams surface = {};
+	surface.Surface = texture->get_SRView();
+	surface.w = texture->get_Width();
+	surface.h = texture->get_Height();
+
+	return surface;
+}
+
 #include <boost/crc.hpp>
 
 static inline bool match_shader_id		( LPCSTR const debug_shader_id, LPCSTR const full_shader_id, FS_FileSet const& file_set, string_path& result );

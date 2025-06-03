@@ -133,12 +133,9 @@ public:
 	void							_DeleteInputSignature(const SInputSignature* pSignature);
 
 
-
-	CRT* _CreateRT(LPCSTR name, xr_vector<RtCreationParams>& vp_params, DXGI_FORMAT f, VIEW_TYPE view, u32 samples);
+	CRT* _CreateRT(LPCSTR Name, u32 w, u32 h, DXGI_FORMAT f, VIEW_TYPE view, u32 samples);
 
 	void							_DeleteRT			(const CRT*	RT	);
-
-	const	map_RT& GetRTList() const { return m_rtargets; };
 
 
 	SGS*							_CreateGS			(LPCSTR Name);

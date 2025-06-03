@@ -17,7 +17,6 @@
 //#include "R_Backend.h"
 
 extern ENGINE_API float VIEWPORT_NEAR;
-extern ENGINE_API int psSVPFrameDelay;
 
 enum class EditorStage
 {
@@ -123,32 +122,6 @@ class	ENGINE_API CRenderDeviceBase :
 public:
 };
 
-class ENGINE_API CSecondVPParams //--#SM+#-- +SecondVP+
-{
-	bool isActive; // Флаг активации рендера во второй вьюпорт
-	u8 frameDelay;  // На каком кадре с момента прошлого рендера во второй вьюпорт мы начнём новый
-	//(не может быть меньше 2 - каждый второй кадр, чем больше тем более низкий FPS во втором вьюпорте)
-
-public:
-	bool isCamReady; // Флаг готовности камеры (FOV, позиция, и т.п) к рендеру второго вьюпорта
-
-	u32 screenWidth;
-	u32 screenHeight;
-
-	bool isR1;
-
-	IC bool IsSVPActive() { return isActive; }
-	IC void SetSVPActive(bool bState);
-	bool    IsSVPFrame();
-
-	IC u8 GetSVPFrameDelay() { return frameDelay; }
-	void  SetSVPFrameDelay(u8 iDelay)
-	{
-		frameDelay = iDelay;
-		clamp<u8>(frameDelay, psSVPFrameDelay, u8(-1));
-	}
-};
-
 #pragma pack(pop)
 // refs
 class ENGINE_API CRenderDevice : public CRenderDeviceBase
@@ -210,19 +183,12 @@ public:
 	CRegistrator	<pureDeviceReset	>			seqDeviceReset;
 	xr_vector		<fastdelegate::FastDelegate0<> >	seqParallel;
 
-	CSecondVPParams m_SecondViewport;	//--#SM+#-- +SecondVP+
 
 	// Dependent classes
 
 	CStats* Statistic;
 
 	Fmatrix									mInvFullTransform;
-
-	// Saved main viewport params
-	Fvector mainVPCamPosSaved;
-	Fmatrix mainVPFullTrans;
-	Fmatrix mainVPViewSaved;
-	Fmatrix mainVPProjectSaved;
 
 
 	CRenderDevice()
@@ -246,10 +212,6 @@ public:
 		Timer.Start();
 		m_bNearer = FALSE;
 
-		//--#SM+#-- +SecondVP+
-		m_SecondViewport.SetSVPActive(false);
-		m_SecondViewport.SetSVPFrameDelay(psSVPFrameDelay); // Change it to 2-3, if you want to save perfomance. Will cause skips in updating image in scope
-		m_SecondViewport.isCamReady = false;
 	};
 
 	void	Pause(BOOL bOn, BOOL bTimer, BOOL bSound, LPCSTR reason);

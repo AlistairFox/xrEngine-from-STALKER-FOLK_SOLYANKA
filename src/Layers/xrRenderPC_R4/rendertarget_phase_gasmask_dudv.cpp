@@ -2,8 +2,6 @@
 
 void CRenderTarget::phase_gasmask_dudv()
 {
-	if (RImplementation.currentViewPort == SECONDARY_WEAPON_SCOPE)
-		return;
 
 	float HudGlassElement = g_pGamePersistent->GetHudGlassElement();
 

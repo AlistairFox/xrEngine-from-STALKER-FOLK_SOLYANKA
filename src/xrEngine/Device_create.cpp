@@ -10,7 +10,6 @@
 #include "securom_api.h"
 
 extern XRCDB_API BOOL *cdb_bDebug;
-extern ENGINE_API float psSVPImageSizeK;
 
 void	SetupGPU(IRenderDeviceRender *pRender)
 {
@@ -85,18 +84,14 @@ cdb_bDebug		= &bDebug;
 
 	fFOV				= 90.f;
 	fASPECT				= 1.f;
-	m_pRender->Create(m_hWnd, dwWidth, dwHeight, fWidth_2, fHeight_2, true);
-
-	if (psDeviceFlags.test(rsR4))
-	{
-		m_SecondViewport.screenWidth = u32((dwWidth / 32) * psSVPImageSizeK) * 32;
-		m_SecondViewport.screenHeight = u32((dwHeight / 32) * psSVPImageSizeK) * 32;
-	}
-	else
-	{
-		m_SecondViewport.screenWidth = dwWidth;
-		m_SecondViewport.screenHeight = dwHeight;
-	}
+	m_pRender->Create(
+		m_hWnd,
+		dwWidth,
+		dwHeight,
+		fWidth_2,
+		fHeight_2,
+		true
+	);
 
 	string_path			fname; 
 	FS.update_path		(fname,"$game_data$","shaders.xr");

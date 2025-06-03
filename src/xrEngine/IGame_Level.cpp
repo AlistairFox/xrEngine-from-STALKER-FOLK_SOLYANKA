@@ -25,13 +25,8 @@ IGame_Level::IGame_Level	()
 	bReady						= false;
 	pCurrentEntity				= NULL;
 	pCurrentViewEntity			= NULL;
-	lastApplyCameraVPNear = -1.f;
 }
 
-void IGame_Level::ApplyCamera()
-{
-
-}
 
 IGame_Level::~IGame_Level	()
 {

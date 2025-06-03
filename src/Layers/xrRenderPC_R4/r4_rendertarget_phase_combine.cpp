@@ -53,16 +53,6 @@ void	CRenderTarget::phase_combine	()
 
 	//*** exposure-pipeline
 	u32			gpu_id	= Device.dwFrame%HW.Caps.iGPUNum;
-	if (RImplementation.currentViewPort == SECONDARY_WEAPON_SCOPE) //--#SM+#-- +SecondVP+
-	{
-		// clang-format off
-		gpu_id = (Device.dwFrame - 1) % HW.Caps.iGPUNum;	//  "" tonemapping (HDR)    . 
-															//   -       tonemapping (HDR)    
-															//    ,  HDR       " "
-															//       ,     
-															//        ,        \
-															//     ""      
-	}
 	{
 		t_LUM_src->surface_set		(rt_LUM_pool[gpu_id*2+0]->pSurface);
 		t_LUM_dest->surface_set		(rt_LUM_pool[gpu_id*2+1]->pSurface);
@@ -322,9 +312,8 @@ void	CRenderTarget::phase_combine	()
 
 	//	Igor: for volumetric lights
 	//	combine light volume here
-	if (RImplementation.currentViewPort != SECONDARY_WEAPON_SCOPE)
-		if (m_bHasActiveVolumetric)
-			phase_combine_volumetric();
+	if (m_bHasActiveVolumetric)
+		phase_combine_volumetric();
 
 	// Perform blooming filter and distortion if needed
 	RCache.set_Stencil	(FALSE);
@@ -404,7 +393,6 @@ void	CRenderTarget::phase_combine	()
 
 	if (!_menu_pp)
 	{
-		if (RImplementation.currentViewPort != SECONDARY_WEAPON_SCOPE)
 		if (ps_r_sun_shafts > 0 && (ps_sunshafts_mode == R2SS_SCREEN_SPACE || ps_sunshafts_mode == R2SS_COMBINE_SUNSHAFTS))
 			phase_sunshafts();
 	}
