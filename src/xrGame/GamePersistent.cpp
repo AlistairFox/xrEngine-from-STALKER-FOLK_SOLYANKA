@@ -32,6 +32,9 @@
 #include "ActorCondition.h"
 #include "ActorHelmet.h"
 
+#include "Torch.h"
+#include "Inventory.h"
+
 #ifndef MASTER_GOLD
 #	include "custommonster.h"
 #endif // MASTER_GOLD
@@ -584,6 +587,8 @@ void CGamePersistent::update_game_intro()
 
 extern CUISequencer * g_tutorial;
 extern CUISequencer * g_tutorial2;
+extern ENGINE_API float hemi_multiplayer;
+
 
 void CGamePersistent::OnFrame	()
 {
@@ -732,7 +737,26 @@ void CGamePersistent::OnFrame	()
 
 	if ((m_last_stats_frame + 1) < m_frame_counter)
 		profiler().clear		();
- 
+
+	bool NVEnabled = false;
+
+	if (g_actor && g_actor->g_Alive())
+	{
+		CTorch* torch = smart_cast<CTorch*>(Actor()->inventory().ItemFromSlot(TORCH_SLOT));
+		if (torch)
+		{
+			if (torch->GetNightVisionStatus())
+			{
+				NVEnabled = true;
+			}
+		}
+	}
+
+	if (NVEnabled)
+		hemi_multiplayer = 4.f;
+	else
+		hemi_multiplayer = 1.f;
+
 	UpdateDof();
 }
 

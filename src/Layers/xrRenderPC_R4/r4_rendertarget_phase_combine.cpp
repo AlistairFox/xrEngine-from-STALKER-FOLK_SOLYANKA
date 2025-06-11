@@ -41,6 +41,9 @@ void CRenderTarget::DoAsyncScreenshot()
 }
 
 float	hclip(float v, float dim)		{ return 2.f*v/dim - 1.f; }
+
+extern ENGINE_API float hemi_multiplayer = 1.f;
+
 void	CRenderTarget::phase_combine	()
 {
 	PIX_EVENT(phase_combine);
@@ -157,9 +160,9 @@ void	CRenderTarget::phase_combine	()
 		Fvector4	envclr			= { envdesc.hemi_color.x*2+EPS,	envdesc.hemi_color.y*2+EPS,	envdesc.hemi_color.z*2+EPS,	envdesc.weight					};
 
 		Fvector4	fogclr			= { envdesc.fog_color.x,	envdesc.fog_color.y,	envdesc.fog_color.z,		0	};
-					envclr.x		*= 2*ps_r2_sun_lumscale_hemi; 
-					envclr.y		*= 2*ps_r2_sun_lumscale_hemi; 
-					envclr.z		*= 2*ps_r2_sun_lumscale_hemi;
+					envclr.x		*= (2*ps_r2_sun_lumscale_hemi) * hemi_multiplayer; 
+					envclr.y		*= (2*ps_r2_sun_lumscale_hemi) * hemi_multiplayer;
+					envclr.z		*= (2*ps_r2_sun_lumscale_hemi) * hemi_multiplayer;
 		Fvector4	sunclr,sundir;
 
 		float		fSSAONoise = 2.0f;
