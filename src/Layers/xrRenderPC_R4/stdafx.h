@@ -4,23 +4,25 @@
 
 #pragma once
 
-#pragma warning(disable:4995)
-#include "../../xrEngine/stdafx.h"
-#pragma warning(disable:4995)
-#include <d3dx9.h>
-#pragma warning(default:4995)
-#pragma warning(disable:4714)
 #pragma warning( 4 : 4018 )
 #pragma warning( 4 : 4244 )
+#pragma warning(disable:4714)
+#pragma warning(disable:4995)
 #pragma warning(disable:4237)
+#pragma warning(disable:4995)
 
-#include <D3D11.h>
-#include <D3Dx11core.h>
+#include "../../xrEngine/stdafx.h"
+
+#include <D3DX9.h>
+#include <D3D11.h> 
+#include <D3DX10Tex.h>
+#include <D3DX11.h> 
+
+
 #include <D3DCompiler.h>
 #include "GFSDK_SSAO.h"
 
 #include "../xrRender/xrD3DDefs.h"
-
 #include "../xrRender/dxPixEventWrapper.h"
 
 #define		R_R1	1

@@ -352,8 +352,6 @@
   <ItemGroup>
     <ClCompile Include="BaseClient.cpp" />
     <ClCompile Include="BaseServer.cpp" />
-    <ClCompile Include="DirectPlayClient.cpp" />
-    <ClCompile Include="DirectPlayServer.cpp" />
     <ClCompile Include="IBannedClient.cpp" />
     <ClCompile Include="IClient.cpp" />
     <ClCompile Include="IClientStatistic.cpp" />
@@ -379,8 +377,6 @@
     <ClInclude Include="BaseClient.h" />
     <ClInclude Include="BaseServer.h" />
     <ClInclude Include="ClientConnectionOptions.h" />
-    <ClInclude Include="DirectPlayClient.h" />
-    <ClInclude Include="DirectPlayServer.h" />
     <ClInclude Include="dp_ids.h" />
     <ClInclude Include="IBannedClient.h" />
     <ClInclude Include="IClient.h" />

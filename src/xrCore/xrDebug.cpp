@@ -10,8 +10,7 @@
 #include <malloc.h>
 
 #if defined(IXR_WINDOWS) && !defined(IXR_ARM64)
-#	include <direct.h>
-#	include <dxerr.h>
+#	include <direct.h> 
 #endif
 
 #pragma warning(pop)

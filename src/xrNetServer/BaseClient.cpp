@@ -4,6 +4,7 @@
 // -----------------------------------------------------------------------------
 
 // global
+Flags32	psNET_Flags;
 
 static const int syncSamples = 0;
 
