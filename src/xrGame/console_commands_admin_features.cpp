@@ -649,13 +649,11 @@ class CCC_TeleportPlayer : public IConsole_Command
 {
 public:
 	CCC_TeleportPlayer(LPCSTR N) : IConsole_Command(N) { bEmptyArgsHandled = false; };
-
-
+	 
 	virtual void Execute(LPCSTR args)
 	{
 		if (OnServer())
 		{
-
 			if (!g_pGameLevel || !Level().Server) return;
 
 			u32 Client_ID, Second_ID;

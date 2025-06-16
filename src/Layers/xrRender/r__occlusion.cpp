@@ -13,7 +13,7 @@ R_occlusion::~R_occlusion(void) {
 }
 
 void R_occlusion::occq_destroy() {
-	Msg("* [%s]: fids[%u] used[%u] pool[%u]", __FUNCTION__, fids.size(), used.size(), pool.size());
+	// Msg("* [%s]: fids[%u] used[%u] pool[%u]", __FUNCTION__, fids.size(), used.size(), pool.size());
 	u32 p_cnt = 0;
 	u32 u_cnt = 0;
 	while (!used.empty()) {
@@ -29,7 +29,7 @@ void R_occlusion::occq_destroy() {
 		p_cnt++;
 	}
 	fids.clear();
-	Msg("* [%s]: released %u used and %u pool queries", __FUNCTION__, u_cnt, p_cnt);
+	// Msg("* [%s]: released %u used and %u pool queries", __FUNCTION__, u_cnt, p_cnt);
 }
 
 
@@ -41,8 +41,8 @@ void R_occlusion::cleanup_lost() {
 			cnt++;
 		}
 	}
-	if (cnt > 0)
-		Msg("! [%s]: cleanup %u lost queries", __FUNCTION__, cnt);
+	//if (cnt > 0)
+	//	Msg("! [%s]: cleanup %u lost queries", __FUNCTION__, cnt);
 }
 
 

@@ -171,9 +171,6 @@ public:
 			mProject._43 += EPS_L;
 		}
 		m_pRender->SetCacheXform(mView, mProject);
-		//R_ASSERT(0);
-		//	TODO: re-implement set projection
-		//RCache.set_xform_project			(mProject);
 	}
 
 public:
@@ -194,17 +191,6 @@ public:
 	CRenderDevice()
 		:
 		m_pRender(0)
-#ifdef INGAME_EDITOR
-		, m_editor_module(0),
-		m_editor_initialize(0),
-		m_editor_finalize(0),
-		m_editor(0),
-		m_engine(0)
-#endif // #ifdef INGAME_EDITOR
-#ifdef PROFILE_CRITICAL_SECTIONS
-		, mt_csEnter(MUTEX_PROFILE_ID(CRenderDevice::mt_csEnter))
-		, mt_csLeave(MUTEX_PROFILE_ID(CRenderDevice::mt_csLeave))
-#endif // #ifdef PROFILE_CRITICAL_SECTIONS
 	{
 		m_hWnd = NULL;
 		b_is_Active = FALSE;
@@ -223,6 +209,11 @@ public:
 	void Clear();
 	void End();
 	void FrameMove();
+
+	// Refresh
+	void UpdateRefresh();
+	void MatrixUpdate();
+
 	float GetMonitorRefresh();
 
 	void overdrawBegin();

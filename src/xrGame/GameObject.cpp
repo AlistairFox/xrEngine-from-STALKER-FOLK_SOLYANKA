@@ -1076,13 +1076,13 @@ float CGameObject::shedule_Scale()
 		}
 
 		float scale = SheduleMax;
-		clamp(scale, 0.1f, 2.0f);
+		clamp(scale, 0.05f, 2.0f);
 		return scale;
 	}
 	else
 	{
 		float scale = SheduleMax / float(GetDistanceToNearActor() / 60);
- 		clamp(scale, 0.1f, 2.0f);
+ 		clamp(scale, 0.05f, 2.0f);
 		return scale;
 	}	
 }
