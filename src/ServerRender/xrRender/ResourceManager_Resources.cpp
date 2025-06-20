@@ -2,7 +2,7 @@
 #pragma hdrstop
 
 #pragma warning(disable:4995)
-#include <d3dx9.h>
+#include <dxsdk/d3dx9.h>
 #ifndef _EDITOR
 	#pragma comment( lib, "d3dx9.lib"		)
 #include "../../xrEngine/render.h"
@@ -15,6 +15,8 @@
 #include "blenders\blender_recorder.h"
 
 void fix_texture_name(LPSTR fn);
+
+extern float hemi_multiplayer = 1;
 
 void simplify_texture(string_path &fn)
 {

@@ -5,7 +5,7 @@
 #include "../xrRender/tga.h"
 #include "../../xrEngine/xrImage_Resampler.h"
 
-#include "d3dx10tex.h"
+#include "dxsdk/d3dx10tex.h"
 
 #define	GAMESAVE_SIZE	128
 

@@ -9,7 +9,7 @@
 #define MMNOMIXER
 #define MMNOJOY
 #include <mmsystem.h>
-#include <d3dx9.h>
+#include <dxsdk/d3dx9.h>
 #pragma warning(default:4995)
 
 #include "x_ray.h"
@@ -18,9 +18,7 @@
 #define INCLUDE_FROM_ENGINE
 #include "../xrCore/FS_impl.h"
 #include "igame_persistent.h"
-
-#pragma comment( lib, "d3dx9.lib" )
-
+ 
 #include "..\3rd party\imgui\imgui.h"
 #include <chrono>
 

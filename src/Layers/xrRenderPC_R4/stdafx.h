@@ -13,10 +13,12 @@
 
 #include "../../xrEngine/stdafx.h"
 
-#include <D3DX9.h>
+
 #include <D3D11.h> 
-#include <D3DX10Tex.h>
-#include <D3DX11.h> 
+
+#include <dxsdk/D3DX9.h>
+#include <dxsdk/D3DX10Tex.h>
+#include <dxsdk/D3DX11.h> 
 
 
 #include <D3DCompiler.h>

@@ -25,7 +25,7 @@
 
 #include "../xrRender/dxRenderDeviceRender.h"
 
-#include <D3DX10Tex.h>
+#include <dxsdk/D3DX10Tex.h>
 #include "blender_gasmask_drops.h"
 #include "blender_gasmask_dudv.h"
 
