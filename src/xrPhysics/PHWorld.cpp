@@ -525,33 +525,40 @@ void CPHWorld::FrameStep(dReal step)
  
 }
 
-void CPHWorld::AddObject(CPHObject* object){
+void CPHWorld::AddObject(CPHObject* object)
+{
 	m_objects.push_back(object);
-	//xr_list <CPHObject*> ::iterator i= m_objects.end();
-	//return (--m_objects.end());
 };
+
 void CPHWorld::AddRecentlyDisabled(CPHObject* object)
 {
 	m_recently_disabled_objects.push_back(object);
-}
-void CPHWorld::RemoveFromRecentlyDisabled(PH_OBJECT_I i)
+};
+
+void CPHWorld::RemoveFromRecentlyDisabled(CPHObject* object)
 {
-	m_recently_disabled_objects.erase(i);
+	auto it = std::find(m_recently_disabled_objects.begin(), m_recently_disabled_objects.end(), object);
+	if (it != m_recently_disabled_objects.end())
+		m_recently_disabled_objects.erase(it);
 }
 
 void CPHWorld::AddUpdateObject(CPHUpdateObject* object)
 {
-//.	if(object->IsFreezed())m_freezed_update_objects.erase(i);
-	m_update_objects.push_back(object);
+ 	m_update_objects.push_back(object);
 }
 
-void CPHWorld::RemoveUpdateObject(PH_UPDATE_OBJECT_I i)
+void CPHWorld::RemoveUpdateObject(CPHUpdateObject* object)
 {
-	m_update_objects.erase(i);
+	auto it = std::find(m_update_objects.begin(), m_update_objects.end(), object);
+	if ( it != m_update_objects.end() )
+		m_update_objects.erase(it);
 }
 
-void CPHWorld::RemoveObject(PH_OBJECT_I i){
-	m_objects.erase((i));
+void CPHWorld::RemoveObject(CPHObject* object)
+{
+	auto it = std::find(m_objects.begin(), m_objects.end(), object);
+	if (it != m_objects.end())
+		m_objects.erase(it);
 };
 
 void CPHWorld::AddFreezedObject(CPHObject* obj)
@@ -559,10 +566,13 @@ void CPHWorld::AddFreezedObject(CPHObject* obj)
 	m_freezed_objects.push_back(obj);
 }
 
-void CPHWorld::RemoveFreezedObject(PH_OBJECT_I i)
+void CPHWorld::RemoveFreezedObject(CPHObject* object)
 {
-	m_freezed_objects.erase(i);
+	auto it = std::find(m_freezed_objects.begin(), m_freezed_objects.end(), object);
+	if (it != m_objects.end())
+		m_freezed_objects.erase(it);	 
 }
+
 void CPHWorld::Freeze()
 {
 	R_ASSERT2(!b_world_freezed,"already freezed!!!");

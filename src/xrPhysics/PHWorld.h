@@ -87,12 +87,14 @@ IC	bool						Exist							()			{return b_exist ;}
 	void						Create							(bool mt, CObjectSpace * os, CObjectList *lo, CRenderDeviceBase* dv );
 	void						SetGravity						(float	g)					;
 IC  float						Gravity							()							{return m_gravity;}
+	
 	void						AddObject						(CPHObject* object)			;
-	void						AddUpdateObject					(CPHUpdateObject* object)	;
 	void						AddRecentlyDisabled				(CPHObject* object)			;
-	void						RemoveFromRecentlyDisabled		(PH_OBJECT_I i)				;
-	void						RemoveObject					(PH_OBJECT_I i)				;
-	void						RemoveUpdateObject				(PH_UPDATE_OBJECT_I i)		;
+	void						AddUpdateObject					(CPHUpdateObject* object);
+
+	void						RemoveFromRecentlyDisabled		(CPHObject* object)				;
+	void						RemoveObject					(CPHObject* object)				;
+	void						RemoveUpdateObject				(CPHUpdateObject* i)		;
 	dGeomID						GetMeshGeom						()							{return Mesh.GetGeom();}
 IC	dGeomID						GetMotionRayGeom				()							{return m_motion_ray;}
 	void						SetStep							( float s )					;
@@ -107,7 +109,7 @@ IC	float						FrameTime						(bool frame_mark){return b_frame_mark==frame_mark ?
 	void 						Freeze							()							;
 	void 						UnFreeze						()							;
 	void						AddFreezedObject				(CPHObject* obj)			;
-	void						RemoveFreezedObject				(PH_OBJECT_I i)				;
+	void						RemoveFreezedObject				(CPHObject* object)				;
 	bool 						IsFreezed						()							;
 IC	bool						Processing						()							{return b_processing;}
 	u32							CalcNumSteps					(u32 dTime)					;
